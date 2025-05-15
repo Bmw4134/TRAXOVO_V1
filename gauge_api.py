@@ -8,24 +8,29 @@ import os
 import json
 import logging
 import requests
-from datetime import datetime
+import traceback
+from datetime import datetime, timedelta
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, 
                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# API Configuration
+# API Configuration from environment variables
 GAUGE_API_URL = os.environ.get('GAUGE_API_URL', 'https://api.gaugegps.com/v1/')
-GAUGE_API_KEY = os.environ.get('GAUGE_API_KEY', '')
-GAUGE_API_USER = os.environ.get('GAUGE_API_USER', '')
+GAUGE_API_USERNAME = os.environ.get('GAUGE_API_USERNAME', '')
 GAUGE_API_PASSWORD = os.environ.get('GAUGE_API_PASSWORD', '')
 
-# Data file path
+# Data file paths
 DATA_DIR = 'data'
+BACKUP_DIR = os.path.join(DATA_DIR, 'backups')
 if not os.path.exists(DATA_DIR):
     os.makedirs(DATA_DIR)
+if not os.path.exists(BACKUP_DIR):
+    os.makedirs(BACKUP_DIR)
+    
 DATA_FILE = os.path.join(DATA_DIR, 'gauge_api_data.json')
+LAST_UPDATE_FILE = os.path.join(DATA_DIR, 'last_api_update.json')
 
 
 def get_auth_token():

@@ -1,11 +1,13 @@
 import os
 import logging
-from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
+from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy.orm import DeclarativeBase
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from utils import load_data, filter_assets, get_asset_by_id, get_asset_categories, get_asset_locations, get_asset_status
+from datetime import datetime, timedelta
+from werkzeug.security import check_password_hash, generate_password_hash
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -14,6 +16,9 @@ logger = logging.getLogger(__name__)
 # Create Flask app
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "fleet-management-default-key")
+
+# Configure session timeout (30 minutes of inactivity)
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=30)
 
 # Configure database
 database_url = os.environ.get("DATABASE_URL")
@@ -38,6 +43,8 @@ migrate = Migrate(app, db)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+login_manager.login_message = "Please log in to access this page."
+login_manager.login_message_category = "warning"
 
 # Import models after db initialization to avoid circular imports
 from models import User, Asset, AssetHistory, MaintenanceRecord, APIConfig  # noqa: E402
@@ -46,6 +53,103 @@ from models import User, Asset, AssetHistory, MaintenanceRecord, APIConfig  # no
 def load_user(user_id):
     """Load user by ID for Flask-Login"""
     return User.query.get(int(user_id))
+
+# Create initial admin users (will only be created if they don't exist)
+def create_admin_users():
+    """Create initial admin users if they don't exist"""
+    # Define admin users
+    admin_users = [
+        {
+            'username': 'admin',
+            'email': 'admin@systemsmith.com',
+            'password': 'SystemSmith2025!',
+            'is_admin': True
+        },
+        {
+            'username': 'manager',
+            'email': 'manager@systemsmith.com',
+            'password': 'FleetManager2025!',
+            'is_admin': True
+        },
+        {
+            'username': 'analyst',
+            'email': 'analyst@systemsmith.com',
+            'password': 'DataAnalyst2025!',
+            'is_admin': False
+        }
+    ]
+    
+    # Check if users exist and create them if they don't
+    with app.app_context():
+        for user_data in admin_users:
+            existing_user = User.query.filter_by(username=user_data['username']).first()
+            if not existing_user:
+                user = User(
+                    username=user_data['username'],
+                    email=user_data['email'],
+                    is_admin=user_data['is_admin']
+                )
+                user.set_password(user_data['password'])
+                db.session.add(user)
+                logger.info(f"Created user: {user_data['username']}")
+        
+        db.session.commit()
+        logger.info("Admin users setup complete")
+
+# Initialize with app context
+with app.app_context():
+    try:
+        create_admin_users()
+    except Exception as e:
+        logger.error(f"Error creating admin users: {e}")
+
+# Login and logout routes
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """Handle user login"""
+    # Redirect if user is already logged in
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        remember = 'remember' in request.form
+        
+        # Find user by username
+        user = User.query.filter_by(username=username).first()
+        
+        # Check if user exists and password is correct
+        if user and user.check_password(password):
+            # Log in the user
+            login_user(user, remember=remember)
+            
+            # Update last login time
+            user.last_login = datetime.utcnow()
+            db.session.commit()
+            
+            # Set session to permanent to apply timeout
+            session.permanent = True
+            
+            # Redirect to the requested page or default to index
+            next_page = request.args.get('next')
+            if not next_page or not next_page.startswith('/'):
+                next_page = url_for('index')
+            
+            flash(f"Welcome back, {user.username}!", "success")
+            return redirect(next_page)
+        else:
+            flash("Invalid username or password", "danger")
+    
+    return render_template('login.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    """Handle user logout"""
+    logout_user()
+    flash("You have been logged out", "info")
+    return redirect(url_for('login'))
 
 # Start the scheduler in a background thread
 try:
@@ -74,6 +178,7 @@ except Exception as e:
 
 # Routes
 @app.route('/')
+@login_required
 def index():
     """Render the main dashboard page"""
     # Get filter parameters from query string
@@ -105,6 +210,7 @@ def index():
                           current_location=location)
 
 @app.route('/asset/<asset_id>')
+@login_required
 def asset_detail(asset_id):
     """Render the asset detail page"""
     asset = get_asset_by_id(assets_data, asset_id)
@@ -116,6 +222,7 @@ def asset_detail(asset_id):
     return render_template('asset_detail.html', asset=asset)
 
 @app.route('/reports')
+@login_required
 def reports():
     """Render the reports page"""
     # Get categories and locations for charts
@@ -127,32 +234,6 @@ def reports():
         'active': len([a for a in assets_data if a.get('Active', False)]),
         'inactive': len([a for a in assets_data if not a.get('Active', False)])
     }
-    
-@app.route('/reports/attendance')
-def attendance_reports():
-    """Render the attendance reports page"""
-    from reports.attendance import generate_same_day_report, generate_prior_day_report
-    
-    # Generate reports
-    same_day_report = None
-    prior_day_report = None
-    
-    try:
-        # Only generate if we have assets data
-        if assets_data:
-            same_day_report = generate_same_day_report(assets_data)
-            prior_day_report = generate_prior_day_report(assets_data)
-    except Exception as e:
-        logger.error(f"Error generating attendance reports: {e}")
-        flash(f"Error generating reports: {str(e)}", "danger")
-    
-    # Format last updated time
-    last_updated = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    
-    return render_template('attendance_reports.html',
-                          same_day_report=same_day_report,
-                          prior_day_report=prior_day_report,
-                          last_updated=last_updated)
     
     # Count assets by category
     category_counts = {}
@@ -237,8 +318,6 @@ def attendance_reports():
     
     # Activity trend data (last 7 days - example data)
     # In a real implementation, this would come from historical data
-    from datetime import datetime, timedelta
-    
     today = datetime.now().date()
     activity_trend_days = [(today - timedelta(days=i)).strftime('%m/%d') for i in range(6, -1, -1)]
     
@@ -304,7 +383,6 @@ def attendance_reports():
     ]
     
     # Format last updated time
-    from datetime import datetime
     last_updated = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
     return render_template('reports.html', 
@@ -323,7 +401,87 @@ def attendance_reports():
                           recent_activities=recent_activities,
                           last_updated=last_updated)
 
+@app.route('/reports/attendance')
+@login_required
+def attendance_reports():
+    """Render the attendance reports page"""
+    from reports.attendance import generate_same_day_report, generate_prior_day_report
+    
+    # Generate reports
+    same_day_report = None
+    prior_day_report = None
+    
+    try:
+        # Only generate if we have assets data
+        if assets_data:
+            same_day_report = generate_same_day_report(assets_data)
+            prior_day_report = generate_prior_day_report(assets_data)
+    except Exception as e:
+        logger.error(f"Error generating attendance reports: {e}")
+        flash(f"Error generating reports: {str(e)}", "danger")
+    
+    # Format last updated time
+    last_updated = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    return render_template('attendance_reports.html',
+                          same_day_report=same_day_report,
+                          prior_day_report=prior_day_report,
+                          last_updated=last_updated)
+
+@app.route('/reports/maintenance')
+@login_required
+def maintenance_reports():
+    """Render the maintenance analytics and ROI reports page"""
+    from utils.maintenance_analytics import process_work_order_report, analyze_equipment_roi
+    import os
+    from pathlib import Path
+    
+    # Look for work order and utilization reports in attached assets
+    wo_report_path = None
+    utilization_path = None
+    
+    for file_path in Path('attached_assets').glob('*'):
+        file_name = file_path.name.lower()
+        if 'wo' in file_name or 'work order' in file_name:
+            wo_report_path = str(file_path)
+        elif 'util' in file_name or 'hour' in file_name:
+            utilization_path = str(file_path)
+    
+    # Process data if files are found
+    maintenance_data = None
+    roi_data = None
+    error_message = None
+    
+    try:
+        if wo_report_path and os.path.exists(wo_report_path):
+            # Process work order report
+            maintenance_data = process_work_order_report(wo_report_path)
+            
+            # Process utilization data if available
+            utilization_data = None
+            if utilization_path and os.path.exists(utilization_path):
+                # TODO: Implement utilization data processing
+                pass
+            
+            # Analyze ROI
+            roi_data = analyze_equipment_roi(maintenance_data=maintenance_data, utilization_data=utilization_data)
+        else:
+            error_message = "No work order report found. Please upload a report file."
+    except Exception as e:
+        logger.error(f"Error processing maintenance data: {e}")
+        error_message = f"Error processing maintenance data: {str(e)}"
+    
+    # Format last updated time
+    last_updated = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    return render_template('maintenance_reports.html',
+                          maintenance_data=maintenance_data,
+                          roi_data=roi_data,
+                          error_message=error_message,
+                          last_updated=last_updated)
+
 @app.route('/api/assets')
+@login_required
 def api_assets():
     """API endpoint to get asset data in JSON format"""
     status = request.args.get('status', 'all')
@@ -334,6 +492,7 @@ def api_assets():
     return jsonify(filtered_assets)
 
 @app.route('/api/asset/<asset_id>')
+@login_required
 def api_asset_detail(asset_id):
     """API endpoint to get a specific asset by ID"""
     asset = get_asset_by_id(assets_data, asset_id)
@@ -355,8 +514,13 @@ def server_error(e):
     return render_template('base.html', error="500 - Server Error"), 500
 
 @app.route('/admin')
+@login_required
 def admin_settings():
     """Admin settings page for API configuration"""
+    # Only allow admin users to access this page
+    if not current_user.is_admin:
+        flash('You do not have permission to access admin settings', 'danger')
+        return redirect(url_for('index'))
     # Get current configuration
     config = {
         'GAUGE_API_URL': os.environ.get('GAUGE_API_URL', 'https://api.gaugegps.com/v1/'),
@@ -370,7 +534,6 @@ def admin_settings():
     }
     
     # Get data status information
-    from datetime import datetime
     import time
     import schedule
     
@@ -431,48 +594,45 @@ def update_admin_settings():
     os.environ['MIDDAY_UPDATE_TIME'] = midday_update
     os.environ['EVENING_UPDATE_TIME'] = evening_update
     
-    # Save settings to config file for persistence across restarts
-    config_dir = 'config'
-    if not os.path.exists(config_dir):
-        os.makedirs(config_dir)
-    
+    # Update database configuration if using it
     try:
-        config_file = os.path.join(config_dir, 'settings.json')
-        config = {
-            'GAUGE_API_URL': gauge_api_url,
-            'GAUGE_API_KEY': gauge_api_key,
-            'GAUGE_API_USER': gauge_api_user,
-            'ENABLE_AUTO_UPDATES': enable_auto_updates,
-            'MORNING_UPDATE_TIME': morning_update,
-            'MIDDAY_UPDATE_TIME': midday_update,
-            'EVENING_UPDATE_TIME': evening_update
-        }
+        from models import APIConfig
         
-        with open(config_file, 'w') as f:
-            import json
-            json.dump(config, f, indent=2)
+        # Store in database for persistence
+        APIConfig.set('GAUGE_API_URL', gauge_api_url)
+        APIConfig.set('GAUGE_API_KEY', gauge_api_key, is_secret=True)
+        APIConfig.set('GAUGE_API_USER', gauge_api_user)
+        if gauge_api_password:
+            APIConfig.set('GAUGE_API_PASSWORD', gauge_api_password, is_secret=True)
+        APIConfig.set('ENABLE_AUTO_UPDATES', str(enable_auto_updates).lower())
+        APIConfig.set('MORNING_UPDATE_TIME', morning_update)
+        APIConfig.set('MIDDAY_UPDATE_TIME', midday_update)
+        APIConfig.set('EVENING_UPDATE_TIME', evening_update)
         
-        # Restart scheduler with new settings
-        try:
-            from scheduler import start_scheduler_thread
-            global scheduler_thread
-            scheduler_thread = start_scheduler_thread()
-            logger.info("Restarted scheduler with new settings")
-        except Exception as e:
-            logger.warning(f"Failed to restart scheduler: {e}")
-        
-        flash("Settings updated successfully", "success")
+        flash('Settings updated successfully and saved to database', 'success')
     except Exception as e:
-        flash(f"Error saving settings: {e}", "danger")
-        logger.error(f"Error saving settings: {e}")
+        # If database storage fails, still use environment variables
+        logger.warning(f"Could not store settings in database: {e}")
+        flash('Settings updated successfully (in memory only)', 'warning')
+    
+    # Restart the scheduler with new settings
+    try:
+        import schedule
+        schedule.clear()  # Clear all jobs
+        from scheduler import start_scheduler_thread
+        start_scheduler_thread()  # Restart with new settings
+        flash('Scheduler restarted with new settings', 'success')
+    except Exception as e:
+        logger.error(f"Error restarting scheduler: {e}")
+        flash(f"Error restarting scheduler: {e}", "danger")
     
     return redirect(url_for('admin_settings'))
 
-@app.route('/update')
+@app.route('/admin/update_data')
 def manual_update():
     """Manually update data from API"""
     try:
-        # Clear data cache
+        # Clear cached data
         cache_file = 'data/processed_data.json'
         if os.path.exists(cache_file):
             os.remove(cache_file)

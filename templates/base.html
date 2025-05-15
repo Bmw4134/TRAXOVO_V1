@@ -33,7 +33,7 @@
                         <span class="navbar-toggler-icon"></span>
                     </button>
                     <div class="collapse navbar-collapse" id="navbarNav">
-                        <ul class="navbar-nav ms-auto">
+                        <ul class="navbar-nav me-auto">
                             <li class="nav-item">
                                 <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/">
                                     <i class="fas fa-tachometer-alt me-1"></i> Dashboard
@@ -44,11 +44,33 @@
                                     <i class="fas fa-chart-bar me-1"></i> Reports
                                 </a>
                             </li>
+                            {% if current_user.is_authenticated and current_user.is_admin %}
                             <li class="nav-item">
                                 <a class="nav-link {% if request.path == '/admin' %}active{% endif %}" href="/admin">
                                     <i class="fas fa-cog me-1"></i> API Settings
                                 </a>
                             </li>
+                            {% endif %}
+                        </ul>
+                        <ul class="navbar-nav ms-auto">
+                            {% if current_user.is_authenticated %}
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-user-circle me-1"></i> {{ current_user.username }}
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                    <li><span class="dropdown-item-text text-muted small">Last login: {{ current_user.last_login.strftime('%Y-%m-%d %H:%M') if current_user.last_login else 'Never' }}</span></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt me-1"></i> Logout</a></li>
+                                </ul>
+                            </li>
+                            {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('login') }}">
+                                    <i class="fas fa-sign-in-alt me-1"></i> Login
+                                </a>
+                            </li>
+                            {% endif %}
                         </ul>
                     </div>
                 </div>

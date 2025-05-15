@@ -128,6 +128,32 @@ def reports():
         'inactive': len([a for a in assets_data if not a.get('Active', False)])
     }
     
+@app.route('/reports/attendance')
+def attendance_reports():
+    """Render the attendance reports page"""
+    from reports.attendance import generate_same_day_report, generate_prior_day_report
+    
+    # Generate reports
+    same_day_report = None
+    prior_day_report = None
+    
+    try:
+        # Only generate if we have assets data
+        if assets_data:
+            same_day_report = generate_same_day_report(assets_data)
+            prior_day_report = generate_prior_day_report(assets_data)
+    except Exception as e:
+        logger.error(f"Error generating attendance reports: {e}")
+        flash(f"Error generating reports: {str(e)}", "danger")
+    
+    # Format last updated time
+    last_updated = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    return render_template('attendance_reports.html',
+                          same_day_report=same_day_report,
+                          prior_day_report=prior_day_report,
+                          last_updated=last_updated)
+    
     # Count assets by category
     category_counts = {}
     for cat in categories:

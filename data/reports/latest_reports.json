@@ -1,13 +1,13 @@
 {
   "activity_report": {
-    "generated_at": "2025-05-15T18:26:16.730025",
+    "generated_at": "2025-05-15T18:52:15.799357",
     "metrics": {
       "total_assets": 701,
       "active_assets": 601,
       "inactive_assets": 100,
       "activity_by_day": {
         "2025-05-15": {
-          "active": 441,
+          "active": 447,
           "inactive": 0
         },
         "2025-05-01": {
@@ -15,7 +15,7 @@
           "inactive": 0
         },
         "2025-05-14": {
-          "active": 73,
+          "active": 67,
           "inactive": 0
         },
         "2025-04-07": {
@@ -67,7 +67,7 @@
           "inactive": 1
         },
         "2025-05-07": {
-          "active": 3,
+          "active": 2,
           "inactive": 0
         },
         "2022-11-10": {
@@ -111,7 +111,7 @@
           "inactive": 1
         },
         "2025-05-08": {
-          "active": 3,
+          "active": 4,
           "inactive": 0
         },
         "2023-11-15": {
@@ -459,11 +459,6 @@
           "inactive": 0,
           "total": 1
         },
-        "Personal Vehicle": {
-          "active": 4,
-          "inactive": 0,
-          "total": 4
-        },
         "Flatbed Trailer": {
           "active": 38,
           "inactive": 0,
@@ -473,6 +468,11 @@
           "active": 55,
           "inactive": 0,
           "total": 55
+        },
+        "Personal Vehicle": {
+          "active": 4,
+          "inactive": 0,
+          "total": 4
         },
         "Medium Truck": {
           "active": 7,
@@ -499,17 +499,17 @@
           "inactive": 5,
           "total": 32
         },
-        "Vacuum": {
-          "active": 1,
-          "inactive": 0,
-          "total": 1
-        },
         "Boat": {
           "active": 1,
           "inactive": 0,
           "total": 1
         },
         "Step Deck Trailer": {
+          "active": 1,
+          "inactive": 0,
+          "total": 1
+        },
+        "Vacuum": {
           "active": 1,
           "inactive": 0,
           "total": 1
@@ -687,9 +687,9 @@
       },
       "activity_by_location": {
         "2023-032 SH 345 BRIDGE REHABILITATION": {
-          "active": 66,
+          "active": 63,
           "inactive": 0,
-          "total": 66
+          "total": 63
         },
         "2024-025 LIBERTY FM 787 EMC BRIDGE": {
           "active": 3,
@@ -702,9 +702,9 @@
           "total": 1
         },
         "HOU YARD/SHOP": {
-          "active": 44,
+          "active": 45,
           "inactive": 0,
-          "total": 44
+          "total": 45
         },
         "4499 - 4301 Fall Creek Hwy, Granbury, TX 76049": {
           "active": 1,
@@ -712,19 +712,14 @@
           "total": 2
         },
         "DFW Yard": {
-          "active": 96,
+          "active": 98,
           "inactive": 30,
-          "total": 126
+          "total": 128
         },
         "": {
           "active": 31,
           "inactive": 25,
           "total": 56
-        },
-        "645 - 601 12th St, Plano, TX 75074": {
-          "active": 1,
-          "inactive": 0,
-          "total": 1
         },
         "2024-004 City of Dallas Sidewalk 2024 (YARD)": {
           "active": 13,
@@ -737,54 +732,44 @@
           "total": 1
         },
         "2024-024 (1) TARRANT CS INTERSECTION IMPROV": {
-          "active": 8,
+          "active": 7,
           "inactive": 0,
-          "total": 8
-        },
-        "2024-023 TARRANT RIVERSIDE BRIDGE REHAB": {
-          "active": 12,
-          "inactive": 0,
-          "total": 12
-        },
-        " Highway 183, Fort Worth, TX 75062": {
-          "active": 1,
-          "inactive": 0,
-          "total": 1
-        },
-        " State Spur 330, Baytown, TX 77520": {
-          "active": 2,
-          "inactive": 0,
-          "total": 2
-        },
-        " TX-330 Spur, Baytown, TX 77520": {
-          "active": 2,
-          "inactive": 0,
-          "total": 2
+          "total": 7
         },
         " Dallas North Tollway N, Dallas, TX 75219": {
           "active": 1,
           "inactive": 0,
           "total": 1
         },
-        "2023-006 (OFFICE) Tarrant SH 183 Bridge": {
-          "active": 15,
+        "5443 - 5341 Keeneland Pkwy, Dallas, TX 75211": {
+          "active": 1,
           "inactive": 0,
-          "total": 15
+          "total": 1
         },
-        "2022-023 Riverfront & Cadiz Bridge Improvement": {
-          "active": 12,
+        "2021-017 Plano Collin Creek Culvert Imp": {
+          "active": 4,
+          "inactive": 2,
+          "total": 6
+        },
+        " State Spur 330, Baytown, TX 77520": {
+          "active": 2,
           "inactive": 0,
-          "total": 12
+          "total": 2
+        },
+        " I-20 E, Forest Hill, TX 76140": {
+          "active": 1,
+          "inactive": 0,
+          "total": 1
+        },
+        "2023-006 (OFFICE) Tarrant SH 183 Bridge": {
+          "active": 14,
+          "inactive": 0,
+          "total": 14
         },
         "9701 - 10229 Oak Grove Rd, Fort Worth, TX 76140": {
           "active": 2,
           "inactive": 2,
           "total": 4
-        },
-        "2023-014 (1) TARRANT IH 20 US 81 BR": {
-          "active": 3,
-          "inactive": 0,
-          "total": 3
         },
         " State Highway 35 S, Bay City, TX 77414": {
           "active": 1,
@@ -796,40 +781,50 @@
           "inactive": 0,
           "total": 1
         },
-        "2023-034 DALLAS IH 45 BRIDGE MAINTENANCE": {
-          "active": 2,
+        "2024-030 Matagorda SH 35 Bridge Replacement": {
+          "active": 23,
           "inactive": 0,
-          "total": 2
-        },
-        " Boulevard 26, North Richland Hills, TX 76054": {
-          "active": 1,
-          "inactive": 0,
-          "total": 1
+          "total": 23
         },
         " Woodall Rodgers Fwy, Dallas, TX 75201": {
           "active": 1,
           "inactive": 0,
           "total": 1
         },
-        "2024-019 (15) Tarrant VA Bridge Rehab": {
-          "active": 5,
+        "2022-023 Riverfront & Cadiz Bridge Improvement": {
+          "active": 12,
           "inactive": 0,
-          "total": 5
+          "total": 12
         },
-        "2511 - 2559 7th St, Bay City, TX 77414": {
-          "active": 1,
+        "2024-019 (15) Tarrant VA Bridge Rehab": {
+          "active": 6,
           "inactive": 0,
-          "total": 1
+          "total": 6
+        },
+        "2023-014 (1) TARRANT IH 20 US 81 BR": {
+          "active": 4,
+          "inactive": 0,
+          "total": 4
+        },
+        "TEXDIST": {
+          "active": 19,
+          "inactive": 18,
+          "total": 37
+        },
+        "2023-034 DALLAS IH 45 BRIDGE MAINTENANCE": {
+          "active": 2,
+          "inactive": 0,
+          "total": 2
         },
         "2400 - 2416 Sarah Jane Ln, Fort Worth, TX 76119": {
           "active": 0,
           "inactive": 1,
           "total": 1
         },
-        "2024-030 Matagorda SH 35 Bridge Replacement": {
-          "active": 21,
+        "2024-023 TARRANT RIVERSIDE BRIDGE REHAB": {
+          "active": 11,
           "inactive": 0,
-          "total": 21
+          "total": 11
         },
         " S Belt Line Rd, Coppell, TX 75019": {
           "active": 1,
@@ -847,9 +842,9 @@
           "total": 1
         },
         "2023-007 Ector BI 20E Rehab Roadway": {
-          "active": 25,
+          "active": 27,
           "inactive": 0,
-          "total": 25
+          "total": 27
         },
         "2024-004 CoD Sidewalks 2024 (#23-BFR1)": {
           "active": 6,
@@ -886,15 +881,10 @@
           "inactive": 0,
           "total": 13
         },
-        "2021-017 Plano Collin Creek Culvert Imp": {
-          "active": 3,
-          "inactive": 2,
-          "total": 5
-        },
         "2024-012 Dal IH635 U-Turn Bridge": {
-          "active": 17,
+          "active": 16,
           "inactive": 0,
-          "total": 17
+          "total": 16
         },
         "2023-032 (YARD) SH 345 BRIDGE REHABILITATION": {
           "active": 2,
@@ -912,9 +902,9 @@
           "total": 1
         },
         "2023-006 Tarrant SH 183 Bridge Replacement": {
-          "active": 8,
+          "active": 7,
           "inactive": 0,
-          "total": 8
+          "total": 7
         },
         " Maple Ave, Dallas, TX 75219": {
           "active": 1,
@@ -926,17 +916,17 @@
           "inactive": 0,
           "total": 5
         },
-        "411 - 401 Fleming Pl, Dallas, TX 75203": {
-          "active": 1,
-          "inactive": 0,
-          "total": 1
-        },
         "ROAD BROTHERS": {
           "active": 1,
           "inactive": 0,
           "total": 1
         },
-        " Tom Landry Fwy, Grand Prairie, TX 75050": {
+        "2024-004 CoD Sidewalks 2024 (#03)": {
+          "active": 3,
+          "inactive": 0,
+          "total": 3
+        },
+        "6151 - 6253 McCart Ave, Fort Worth, TX 76133": {
           "active": 1,
           "inactive": 0,
           "total": 1
@@ -951,15 +941,10 @@
           "inactive": 2,
           "total": 2
         },
-        " Walnut Hill Ln, Dallas, TX 75229": {
-          "active": 1,
+        "TRAFFIC WALNUT HILL YARD": {
+          "active": 10,
           "inactive": 0,
-          "total": 1
-        },
-        "2024-004 CoD Sidewalks 2024 (#27 KEENELAND PKWY)": {
-          "active": 4,
-          "inactive": 0,
-          "total": 4
+          "total": 10
         },
         " N Beach St, Fort Worth, TX 76137": {
           "active": 1,
@@ -972,9 +957,9 @@
           "total": 1
         },
         "WTX YARD (2)": {
-          "active": 18,
+          "active": 17,
           "inactive": 0,
-          "total": 18
+          "total": 17
         },
         "2400 - 2424 Langford St, Dallas, TX 75208": {
           "active": 1,
@@ -991,14 +976,14 @@
           "inactive": 0,
           "total": 1
         },
-        "TEXDIST": {
-          "active": 11,
-          "inactive": 18,
-          "total": 29
-        },
         " State Highway 121, Frisco, TX 75034": {
           "active": 0,
           "inactive": 1,
+          "total": 1
+        },
+        "1027 - 1099 7th St, Bay City, TX 77414": {
+          "active": 1,
+          "inactive": 0,
           "total": 1
         },
         "587 - 615 E Ledbetter Dr, Dallas, TX 75216": {
@@ -1021,17 +1006,7 @@
           "inactive": 0,
           "total": 1
         },
-        "3798 - 3600 State St, Dallas, TX 75204": {
-          "active": 1,
-          "inactive": 0,
-          "total": 1
-        },
         "2022-003 (YARD)": {
-          "active": 1,
-          "inactive": 0,
-          "total": 1
-        },
-        "200 - 246 N Race St, Everman, TX 76140": {
           "active": 1,
           "inactive": 0,
           "total": 1
@@ -1041,22 +1016,22 @@
           "inactive": 0,
           "total": 3
         },
-        "2820 - 2898 Lucas Dr, Dallas, TX 75219": {
-          "active": 1,
-          "inactive": 0,
-          "total": 1
-        },
         "410 - 400 Fleming Pl, Dallas, TX 75203": {
           "active": 1,
           "inactive": 0,
           "total": 1
         },
-        "2800 - 2898 Davenridge Ln, Houston, TX 77047": {
+        "2820 - 2898 Lucas Dr, Dallas, TX 75219": {
           "active": 1,
           "inactive": 0,
           "total": 1
         },
-        "634 - 698 Garden Acres Dr, Fort Worth, TX 76140": {
+        "699 - 465 Baker Dr, Hurst, TX 76054": {
+          "active": 1,
+          "inactive": 0,
+          "total": 1
+        },
+        " Airport Blvd, Houston, TX 77048": {
           "active": 1,
           "inactive": 0,
           "total": 1
@@ -1080,16 +1055,6 @@
           "active": 0,
           "inactive": 2,
           "total": 2
-        },
-        "2024-004 CoD Sidewalks 2024 (#03)": {
-          "active": 2,
-          "inactive": 0,
-          "total": 2
-        },
-        " I-35E N, Dallas, TX 75207": {
-          "active": 1,
-          "inactive": 0,
-          "total": 1
         },
         "8400 - 8434 Thousand Oaks Dr, North Richland Hills, TX 76180": {
           "active": 1,
@@ -1116,27 +1081,17 @@
           "inactive": 1,
           "total": 1
         },
-        "1762 - 1798 Terminal Rd, Fort Worth, TX 76106": {
+        "9206 - 9498 Oak Grove Rd, Fort Worth, TX 76140": {
           "active": 1,
           "inactive": 0,
           "total": 1
         },
-        "3798 - 3818 E Rosedale St, Fort Worth, TX 76105": {
-          "active": 1,
-          "inactive": 0,
-          "total": 1
-        },
-        "5401 - 5599 7th St, Bay City, TX 77414": {
+        " I-30 E, Fort Worth, TX 76103": {
           "active": 1,
           "inactive": 0,
           "total": 1
         },
         "8792 - 8898 Cherry Lee Ln, Lantana, TX 76226": {
-          "active": 1,
-          "inactive": 0,
-          "total": 1
-        },
-        " Jacksboro Hwy, Fort Worth, TX 76114": {
           "active": 1,
           "inactive": 0,
           "total": 1
@@ -1151,11 +1106,6 @@
           "inactive": 0,
           "total": 1
         },
-        "10448 - 10386 Huffmeister Rd, Houston, TX 77065": {
-          "active": 1,
-          "inactive": 0,
-          "total": 1
-        },
         "5099 - 4901 S Interstate 35 E, Corinth, TX 76210": {
           "active": 0,
           "inactive": 1,
@@ -1165,6 +1115,16 @@
           "active": 0,
           "inactive": 3,
           "total": 3
+        },
+        " Huffmeister Rd, Houston, TX 77065": {
+          "active": 1,
+          "inactive": 0,
+          "total": 1
+        },
+        "6095 - 6095 N Beach St, Fort Worth, TX 76137": {
+          "active": 1,
+          "inactive": 0,
+          "total": 1
         },
         "699 - 641 W 6th Ave, Corsicana, TX 75110": {
           "active": 1,
@@ -1191,11 +1151,6 @@
           "inactive": 0,
           "total": 1
         },
-        "TRAFFIC WALNUT HILL YARD": {
-          "active": 9,
-          "inactive": 0,
-          "total": 9
-        },
         "25894 - 25944 Cornwall, Conroe, TX 77357": {
           "active": 1,
           "inactive": 0,
@@ -1206,7 +1161,7 @@
           "inactive": 0,
           "total": 2
         },
-        "758 - 764 Cannon Dr, Hurst, TX 76054": {
+        "2023-032 (OFFICE) SH 345 BRIDGE REHABILITATION": {
           "active": 1,
           "inactive": 0,
           "total": 1
@@ -1245,6 +1200,16 @@
           "active": 6,
           "inactive": 0,
           "total": 6
+        },
+        "842 - 860 E 6th St, Dallas, TX 75203": {
+          "active": 1,
+          "inactive": 0,
+          "total": 1
+        },
+        " Shady Hill Dr, Baytown, TX 77521": {
+          "active": 1,
+          "inactive": 0,
+          "total": 1
         },
         " I-10 E, Houston, TX 77520": {
           "active": 1,
@@ -1286,11 +1251,6 @@
           "inactive": 0,
           "total": 1
         },
-        "1225 - 1227 S Grant Ave, Odessa, TX 79761": {
-          "active": 1,
-          "inactive": 0,
-          "total": 1
-        },
         "1153 - 1065 State Highway 35 S, Bay City, TX 77414": {
           "active": 1,
           "inactive": 0,
@@ -1306,12 +1266,7 @@
           "inactive": 0,
           "total": 1
         },
-        " E Northside Dr, Fort Worth, TX 76111": {
-          "active": 1,
-          "inactive": 0,
-          "total": 1
-        },
-        " W Highway 35, Angleton, TX 77515": {
+        " TX-121 N, Bedford, TX 76022": {
           "active": 1,
           "inactive": 0,
           "total": 1
@@ -1326,6 +1281,16 @@
           "inactive": 0,
           "total": 1
         },
+        "702 - 728 Thousand Oaks Dr, Hurst, TX 76054": {
+          "active": 1,
+          "inactive": 0,
+          "total": 1
+        },
+        "2024-004 CoD Sidewalks 2024 (#27 KEENELAND PKWY)": {
+          "active": 4,
+          "inactive": 0,
+          "total": 4
+        },
         "2757 - 2771 Parkview Ln, Bedford, TX 76022": {
           "active": 1,
           "inactive": 0,
@@ -1337,9 +1302,9 @@
           "total": 1
         },
         "2023-035 (5) HARRIS VA BRIDGE REHAB": {
-          "active": 3,
+          "active": 2,
           "inactive": 0,
-          "total": 3
+          "total": 2
         },
         "110 - 216 NE 28th St, Grand Prairie, TX 75050": {
           "active": 1,
@@ -1371,6 +1336,11 @@
           "inactive": 0,
           "total": 1
         },
+        " Woodall Rodgers Fwy N, Dallas, TX 75207": {
+          "active": 1,
+          "inactive": 0,
+          "total": 1
+        },
         "8448 - 8400 N Belt Line Rd, Irving, TX 75063": {
           "active": 1,
           "inactive": 0,
@@ -1391,12 +1361,7 @@
           "inactive": 0,
           "total": 1
         },
-        "2501 - 2631 Cockrell Ave, Dallas, TX 75215": {
-          "active": 1,
-          "inactive": 0,
-          "total": 1
-        },
-        "508 - 508 N Industrial Blvd, Euless, TX 76039": {
+        "708 - 700 S Walton Walker Blvd, Dallas, TX 75211": {
           "active": 1,
           "inactive": 0,
           "total": 1
@@ -1406,7 +1371,7 @@
           "inactive": 0,
           "total": 1
         },
-        " Dallas North Tollway N, Plano, TX 75024": {
+        "12800 - 12898 E FM 917, Cleburne, TX 76009": {
           "active": 1,
           "inactive": 0,
           "total": 1
@@ -1431,17 +1396,17 @@
           "inactive": 0,
           "total": 1
         },
-        " Lyndon B Johnson Fwy, Dallas, TX 75240": {
-          "active": 1,
-          "inactive": 0,
-          "total": 1
-        },
         "13101 - 13299 Withee Path Ln, Houston, TX 77048": {
           "active": 1,
           "inactive": 0,
           "total": 1
         },
-        " Decker Dr, Baytown, TX 77520": {
+        "2386 - 2358 Decker Dr, Baytown, TX 77520": {
+          "active": 1,
+          "inactive": 0,
+          "total": 1
+        },
+        " Lyndon B Johnson Fwy, Dallas, TX 75240": {
           "active": 1,
           "inactive": 0,
           "total": 1
@@ -1456,59 +1421,44 @@
           "inactive": 0,
           "total": 1
         },
-        "1698 - 1600 Jensen Ct, Dallas, TX 75204": {
+        "2030 - 2098 Corinth St, Dallas, TX 75215": {
           "active": 1,
           "inactive": 0,
           "total": 1
         },
-        " Regent Blvd, Irving, TX 75063": {
+        " TX-330 Spur, Baytown, TX 77520": {
+          "active": 2,
+          "inactive": 0,
+          "total": 2
+        },
+        "1500 - 1546 Two Thousand Oak Apartments, North Richland Hills, TX 76180": {
           "active": 1,
           "inactive": 0,
           "total": 1
         },
-        "2024-027 (1) NTTA FRACTURE CRITICAL BRIDGE REPAIRS": {
+        " I-35E S, Dallas, TX 75207": {
           "active": 1,
           "inactive": 0,
           "total": 1
         },
-        " I-35W N, Fort Worth, TX 76111": {
-          "active": 1,
-          "inactive": 0,
-          "total": 1
-        },
-        " E Katherine P Rains Rd, Cleburne, TX 76031": {
-          "active": 1,
-          "inactive": 0,
-          "total": 1
-        },
-        "2398 - 2388 Decker Dr, Baytown, TX 77520": {
-          "active": 1,
-          "inactive": 0,
-          "total": 1
-        },
-        "7801 - 7899 Hollyberry Ct, Fort Worth, TX 76133": {
-          "active": 1,
-          "inactive": 0,
-          "total": 1
-        },
-        " SE Loop 820, Fort Worth, TX 76119": {
+        "1358 - 1598 Apple St, Dallas, TX 75204": {
           "active": 1,
           "inactive": 0,
           "total": 1
         }
       },
       "utilization_rate": 85.73466476462197,
-      "avg_engine_hours": 4276.5462962962965,
+      "avg_engine_hours": 4276.715277777777,
       "inactive_durations": [],
       "activity_by_day_sorted": [
         {
           "date": "2025-05-15",
-          "active": 441,
+          "active": 447,
           "inactive": 0
         },
         {
           "date": "2025-05-14",
-          "active": 73,
+          "active": 67,
           "inactive": 0
         },
         {
@@ -1541,8 +1491,8 @@
         {
           "asset_id": "PT-279 (AARON CONCHA)",
           "asset_label": "PT-279 (AARON CONCHA) FORD F250 XL 2024 Pickup Truck +",
-          "engine_hours": 1475.0,
-          "hours_until_maintenance": 25.0
+          "engine_hours": 1476.0,
+          "hours_until_maintenance": 24.0
         },
         {
           "asset_id": "MT-08",
@@ -1575,16 +1525,16 @@
           "hours_until_maintenance": 31.0
         },
         {
-          "asset_id": "SS-26",
-          "asset_label": "SS-26 CAT 279D 2018 Skid Steer +",
-          "engine_hours": 4973.0,
-          "hours_until_maintenance": 27.0
-        },
-        {
           "asset_id": "CP-02",
           "asset_label": "CP-02 REED B50 2022 Concrete Pump +",
           "engine_hours": 3484.0,
           "hours_until_maintenance": 16.0
+        },
+        {
+          "asset_id": "SS-26",
+          "asset_label": "SS-26 CAT 279D 2018 Skid Steer +",
+          "engine_hours": 4973.0,
+          "hours_until_maintenance": 27.0
         },
         {
           "asset_id": "AC-24",
@@ -1647,16 +1597,16 @@
           "hours_until_maintenance": 13.0
         },
         {
+          "asset_id": "PT-182 (Leonel Munoz)",
+          "asset_label": "PT-182 (Leonel Munoz) FORD F250 2020 Pickup Truck +",
+          "engine_hours": 7497.0,
+          "hours_until_maintenance": 3.0
+        },
+        {
           "asset_id": "PT-193 (OPEN DFW TC USING)",
           "asset_label": "PT-193 (OPEN DFW TC USING) FORD F250 2021 Pickup Truck +",
           "engine_hours": 7463.0,
           "hours_until_maintenance": 37.0
-        },
-        {
-          "asset_id": "PT-182 (Leonel Munoz)",
-          "asset_label": "PT-182 (Leonel Munoz) FORD F250 2020 Pickup Truck +",
-          "engine_hours": 7496.0,
-          "hours_until_maintenance": 4.0
         },
         {
           "asset_id": "ET-32 (URIEL GARCIA-ANDRADE)",
@@ -1689,16 +1639,16 @@
           "hours_until_maintenance": 15.0
         },
         {
+          "asset_id": "PT-274 (Grecia Mancho Camacho)",
+          "asset_label": "PT-274 (Grecia Mancho Camacho) FORD MAVERICK XL 2024 Pickup Truck +",
+          "engine_hours": 469.0,
+          "hours_until_maintenance": 31.0
+        },
+        {
           "asset_id": "SS-22",
           "asset_label": "SS-22 CAT 279D 2017 Skid Steer +",
           "engine_hours": 4975.0,
           "hours_until_maintenance": 25.0
-        },
-        {
-          "asset_id": "PT-274 (Grecia Mancho Camacho)",
-          "asset_label": "PT-274 (Grecia Mancho Camacho) FORD MAVERICK XL 2024 Pickup Truck +",
-          "engine_hours": 468.0,
-          "hours_until_maintenance": 32.0
         }
       ]
     },
@@ -1767,14 +1717,14 @@
     "top_locations": [
       {
         "location": "DFW Yard",
-        "count": 126,
-        "active": 96,
+        "count": 128,
+        "active": 98,
         "inactive": 30
       },
       {
         "location": "2023-032 SH 345 BRIDGE REHABILITATION",
-        "count": 66,
-        "active": 66,
+        "count": 63,
+        "active": 63,
         "inactive": 0
       },
       {
@@ -1785,60 +1735,60 @@
       },
       {
         "location": "HOU YARD/SHOP",
-        "count": 44,
-        "active": 44,
+        "count": 45,
+        "active": 45,
         "inactive": 0
       },
       {
         "location": "TEXDIST",
-        "count": 29,
-        "active": 11,
+        "count": 37,
+        "active": 19,
         "inactive": 18
       },
       {
         "location": "2023-007 Ector BI 20E Rehab Roadway",
-        "count": 25,
-        "active": 25,
+        "count": 27,
+        "active": 27,
         "inactive": 0
       },
       {
         "location": "2024-030 Matagorda SH 35 Bridge Replacement",
-        "count": 21,
-        "active": 21,
+        "count": 23,
+        "active": 23,
         "inactive": 0
       },
       {
         "location": "WTX YARD (2)",
-        "count": 18,
-        "active": 18,
-        "inactive": 0
-      },
-      {
-        "location": "2024-012 Dal IH635 U-Turn Bridge",
         "count": 17,
         "active": 17,
         "inactive": 0
       },
       {
+        "location": "2024-012 Dal IH635 U-Turn Bridge",
+        "count": 16,
+        "active": 16,
+        "inactive": 0
+      },
+      {
         "location": "2023-006 (OFFICE) Tarrant SH 183 Bridge",
-        "count": 15,
-        "active": 15,
+        "count": 14,
+        "active": 14,
         "inactive": 0
       }
     ]
   },
   "maintenance_report": {
-    "generated_at": "2025-05-15T18:26:16.734161",
+    "generated_at": "2025-05-15T18:52:15.804590",
     "maintenance_items": [
       {
         "asset_id": "#210055 - ADAM H. GOODE",
         "asset_label": "#210055 - ADAM H. GOODE JEEP GLADIATOR Personal Vehicle +",
         "asset_category": "Personal Vehicle",
-        "engine_hours": 220.0,
+        "engine_hours": 221.0,
         "maintenance_items": [
           {
             "type": "Oil Change",
-            "hours_remaining": 30.0,
+            "hours_remaining": 29.0,
             "priority": "Medium"
           }
         ]
@@ -1847,16 +1797,16 @@
         "asset_id": "PT-279 (AARON CONCHA)",
         "asset_label": "PT-279 (AARON CONCHA) FORD F250 XL 2024 Pickup Truck +",
         "asset_category": "Pickup Truck",
-        "engine_hours": 1475.0,
+        "engine_hours": 1476.0,
         "maintenance_items": [
           {
             "type": "Oil Change",
-            "hours_remaining": 25.0,
+            "hours_remaining": 24.0,
             "priority": "Medium"
           },
           {
             "type": "Filter Change",
-            "hours_remaining": 25.0,
+            "hours_remaining": 24.0,
             "priority": "Medium"
           }
         ]
@@ -2000,11 +1950,11 @@
         "asset_id": "EX-40",
         "asset_label": "EX-40 JOHN DEERE 290G LC 2014 Excavator +",
         "asset_category": "Excavator",
-        "engine_hours": 6715.0,
+        "engine_hours": 6716.0,
         "maintenance_items": [
           {
             "type": "Oil Change",
-            "hours_remaining": 35.0,
+            "hours_remaining": 34.0,
             "priority": "Medium"
           }
         ]
@@ -2191,6 +2141,24 @@
         ]
       },
       {
+        "asset_id": "CP-02",
+        "asset_label": "CP-02 REED B50 2022 Concrete Pump +",
+        "asset_category": "Concrete Pump",
+        "engine_hours": 3484.0,
+        "maintenance_items": [
+          {
+            "type": "Oil Change",
+            "hours_remaining": 16.0,
+            "priority": "Medium"
+          },
+          {
+            "type": "Filter Change",
+            "hours_remaining": 16.0,
+            "priority": "Medium"
+          }
+        ]
+      },
+      {
         "asset_id": "SS-26",
         "asset_label": "SS-26 CAT 279D 2018 Skid Steer +",
         "asset_category": "Skid Steer",
@@ -2214,24 +2182,6 @@
         ]
       },
       {
-        "asset_id": "CP-02",
-        "asset_label": "CP-02 REED B50 2022 Concrete Pump +",
-        "asset_category": "Concrete Pump",
-        "engine_hours": 3484.0,
-        "maintenance_items": [
-          {
-            "type": "Oil Change",
-            "hours_remaining": 16.0,
-            "priority": "Medium"
-          },
-          {
-            "type": "Filter Change",
-            "hours_remaining": 16.0,
-            "priority": "Medium"
-          }
-        ]
-      },
-      {
         "asset_id": "BRO-03",
         "asset_label": "BRO-03 BROCE RJ350 2005 Sweeper +",
         "asset_category": "Sweeper",
@@ -2240,19 +2190,6 @@
           {
             "type": "Oil Change",
             "hours_remaining": 6.0,
-            "priority": "High"
-          }
-        ]
-      },
-      {
-        "asset_id": "S-09",
-        "asset_label": "S-09 PETERBILT 567 2016 Heavy Truck +",
-        "asset_category": "Heavy Truck",
-        "engine_hours": 13749.0,
-        "maintenance_items": [
-          {
-            "type": "Oil Change",
-            "hours_remaining": 1.0,
             "priority": "High"
           }
         ]
@@ -2362,11 +2299,11 @@
         "asset_id": "ET-10 (JESUS MEDINA)",
         "asset_label": "ET-10 (JESUS MEDINA) RAM 1500 2022 Pickup Truck +",
         "asset_category": "Pickup Truck",
-        "engine_hours": 2729.0,
+        "engine_hours": 2730.0,
         "maintenance_items": [
           {
             "type": "Oil Change",
-            "hours_remaining": 21.0,
+            "hours_remaining": 20.0,
             "priority": "Medium"
           }
         ]
@@ -2411,6 +2348,19 @@
         ]
       },
       {
+        "asset_id": "ET-18 (AARON MOORE)",
+        "asset_label": "ET-18 (AARON MOORE) RAM 1500 2022 Pickup Truck +",
+        "asset_category": "Pickup Truck",
+        "engine_hours": 1213.0,
+        "maintenance_items": [
+          {
+            "type": "Oil Change",
+            "hours_remaining": 37.0,
+            "priority": "Medium"
+          }
+        ]
+      },
+      {
         "asset_id": "ET-16 (LUIS MURCIA ORELLANA)",
         "asset_label": "ET-16 (LUIS MURCIA ORELLANA) RAM 1500 2022 Pickup Truck +",
         "asset_category": "Pickup Truck",
@@ -2429,19 +2379,6 @@
           {
             "type": "Major Service",
             "hours_remaining": 13.0,
-            "priority": "Medium"
-          }
-        ]
-      },
-      {
-        "asset_id": "ET-18 (AARON MOORE)",
-        "asset_label": "ET-18 (AARON MOORE) RAM 1500 2022 Pickup Truck +",
-        "asset_category": "Pickup Truck",
-        "engine_hours": 1212.0,
-        "maintenance_items": [
-          {
-            "type": "Oil Change",
-            "hours_remaining": 38.0,
             "priority": "Medium"
           }
         ]
@@ -2517,11 +2454,11 @@
         "asset_id": "PT-107 (DFW OFFICE TRUCK) ",
         "asset_label": "PT-107 (DFW OFFICE TRUCK) FORD F150 2017 Pickup Truck +",
         "asset_category": "Pickup Truck",
-        "engine_hours": 746.0,
+        "engine_hours": 747.0,
         "maintenance_items": [
           {
             "type": "Oil Change",
-            "hours_remaining": 4.0,
+            "hours_remaining": 3.0,
             "priority": "High"
           }
         ]
@@ -2607,46 +2544,28 @@
         ]
       },
       {
-        "asset_id": "PT-215 (ERNEST LEMON JR)",
-        "asset_label": "PT-215 (ERNEST LEMON JR) FORD F250 2022 Pickup Truck +",
-        "asset_category": "Pickup Truck",
-        "engine_hours": 5741.0,
-        "maintenance_items": [
-          {
-            "type": "Oil Change",
-            "hours_remaining": 9.0,
-            "priority": "High"
-          }
-        ]
-      },
-      {
         "asset_id": "PT-172 (OPEN TRAFFIC TRUCK) 2022-023",
         "asset_label": "PT-172 (OPEN TRAFFIC TRUCK) 2022-023 FORD F150 2020 Pickup Truck +",
         "asset_category": "Pickup Truck",
-        "engine_hours": 5731.0,
+        "engine_hours": 5732.0,
         "maintenance_items": [
           {
             "type": "Oil Change",
-            "hours_remaining": 19.0,
+            "hours_remaining": 18.0,
             "priority": "Medium"
           }
         ]
       },
       {
-        "asset_id": "PT-244 (SAM ABUNEMEH)",
-        "asset_label": "PT-244 (SAM ABUNEMEH) FORD F150 2023 Pickup Truck +",
+        "asset_id": "PT-215 (ERNEST LEMON JR)",
+        "asset_label": "PT-215 (ERNEST LEMON JR) FORD F250 2022 Pickup Truck +",
         "asset_category": "Pickup Truck",
-        "engine_hours": 1482.0,
+        "engine_hours": 5742.0,
         "maintenance_items": [
           {
             "type": "Oil Change",
-            "hours_remaining": 18.0,
-            "priority": "Medium"
-          },
-          {
-            "type": "Filter Change",
-            "hours_remaining": 18.0,
-            "priority": "Medium"
+            "hours_remaining": 8.0,
+            "priority": "High"
           }
         ]
       },
@@ -2672,6 +2591,24 @@
           {
             "type": "Oil Change",
             "hours_remaining": 34.0,
+            "priority": "Medium"
+          }
+        ]
+      },
+      {
+        "asset_id": "PT-244 (SAM ABUNEMEH)",
+        "asset_label": "PT-244 (SAM ABUNEMEH) FORD F150 2023 Pickup Truck +",
+        "asset_category": "Pickup Truck",
+        "engine_hours": 1482.0,
+        "maintenance_items": [
+          {
+            "type": "Oil Change",
+            "hours_remaining": 18.0,
+            "priority": "Medium"
+          },
+          {
+            "type": "Filter Change",
+            "hours_remaining": 18.0,
             "priority": "Medium"
           }
         ]
@@ -2736,24 +2673,6 @@
         ]
       },
       {
-        "asset_id": "PT-193 (OPEN DFW TC USING)",
-        "asset_label": "PT-193 (OPEN DFW TC USING) FORD F250 2021 Pickup Truck +",
-        "asset_category": "Pickup Truck",
-        "engine_hours": 7463.0,
-        "maintenance_items": [
-          {
-            "type": "Oil Change",
-            "hours_remaining": 37.0,
-            "priority": "Medium"
-          },
-          {
-            "type": "Filter Change",
-            "hours_remaining": 37.0,
-            "priority": "Medium"
-          }
-        ]
-      },
-      {
         "asset_id": "PAV-04",
         "asset_label": "PAV-04 CAT AP-1055F 2016 Paver +",
         "asset_category": "Paver",
@@ -2770,29 +2689,34 @@
         "asset_id": "PT-182 (Leonel Munoz)",
         "asset_label": "PT-182 (Leonel Munoz) FORD F250 2020 Pickup Truck +",
         "asset_category": "Pickup Truck",
-        "engine_hours": 7496.0,
+        "engine_hours": 7497.0,
         "maintenance_items": [
           {
             "type": "Oil Change",
-            "hours_remaining": 4.0,
+            "hours_remaining": 3.0,
             "priority": "High"
           },
           {
             "type": "Filter Change",
-            "hours_remaining": 4.0,
+            "hours_remaining": 3.0,
             "priority": "High"
           }
         ]
       },
       {
-        "asset_id": "PT-237 (JUAN C. MIRAMONTES JR)",
-        "asset_label": "PT-237 (JUAN C. MIRAMONTES JR) FORD F250 2023 Pickup Truck +",
+        "asset_id": "PT-193 (OPEN DFW TC USING)",
+        "asset_label": "PT-193 (OPEN DFW TC USING) FORD F250 2021 Pickup Truck +",
         "asset_category": "Pickup Truck",
-        "engine_hours": 1739.0,
+        "engine_hours": 7463.0,
         "maintenance_items": [
           {
             "type": "Oil Change",
-            "hours_remaining": 11.0,
+            "hours_remaining": 37.0,
+            "priority": "Medium"
+          },
+          {
+            "type": "Filter Change",
+            "hours_remaining": 37.0,
             "priority": "Medium"
           }
         ]
@@ -2816,6 +2740,19 @@
           {
             "type": "Major Service",
             "hours_remaining": 3.0,
+            "priority": "High"
+          }
+        ]
+      },
+      {
+        "asset_id": "PT-237 (JUAN C. MIRAMONTES JR)",
+        "asset_label": "PT-237 (JUAN C. MIRAMONTES JR) FORD F250 2023 Pickup Truck +",
+        "asset_category": "Pickup Truck",
+        "engine_hours": 1740.0,
+        "maintenance_items": [
+          {
+            "type": "Oil Change",
+            "hours_remaining": 10.0,
             "priority": "High"
           }
         ]
@@ -2971,6 +2908,24 @@
         ]
       },
       {
+        "asset_id": "PT-274 (Grecia Mancho Camacho)",
+        "asset_label": "PT-274 (Grecia Mancho Camacho) FORD MAVERICK XL 2024 Pickup Truck +",
+        "asset_category": "Pickup Truck",
+        "engine_hours": 469.0,
+        "maintenance_items": [
+          {
+            "type": "Oil Change",
+            "hours_remaining": 31.0,
+            "priority": "Medium"
+          },
+          {
+            "type": "Filter Change",
+            "hours_remaining": 31.0,
+            "priority": "Medium"
+          }
+        ]
+      },
+      {
         "asset_id": "SS-22",
         "asset_label": "SS-22 CAT 279D 2017 Skid Steer +",
         "asset_category": "Skid Steer",
@@ -2994,24 +2949,6 @@
         ]
       },
       {
-        "asset_id": "PT-274 (Grecia Mancho Camacho)",
-        "asset_label": "PT-274 (Grecia Mancho Camacho) FORD MAVERICK XL 2024 Pickup Truck +",
-        "asset_category": "Pickup Truck",
-        "engine_hours": 468.0,
-        "maintenance_items": [
-          {
-            "type": "Oil Change",
-            "hours_remaining": 32.0,
-            "priority": "Medium"
-          },
-          {
-            "type": "Filter Change",
-            "hours_remaining": 32.0,
-            "priority": "Medium"
-          }
-        ]
-      },
-      {
         "asset_id": "WT-12",
         "asset_label": "WT-12 FREIGHTLINER M2 106 2015 Heavy Truck +",
         "asset_category": "Heavy Truck",
@@ -3025,36 +2962,36 @@
         ]
       },
       {
-        "asset_id": "ET-29 (JOSE RANGEL)",
-        "asset_label": "ET-29 (JOSE RANGEL) FORD F250 2024 Pickup Truck +",
+        "asset_id": "PT-160 (ARMANDO SALDIERNA JR)",
+        "asset_label": "PT-160 (ARMANDO SALDIERNA JR) FORD F250 2019 Pickup Truck +",
         "asset_category": "Pickup Truck",
-        "engine_hours": 2207.0,
+        "engine_hours": 4208.0,
         "maintenance_items": [
           {
             "type": "Oil Change",
-            "hours_remaining": 43.0,
+            "hours_remaining": 42.0,
             "priority": "Medium"
           }
         ]
       },
       {
-        "asset_id": "PT-160 (ARMANDO SALDIERNA JR)",
-        "asset_label": "PT-160 (ARMANDO SALDIERNA JR) FORD F250 2019 Pickup Truck +",
+        "asset_id": "ET-29 (JOSE RANGEL)",
+        "asset_label": "ET-29 (JOSE RANGEL) FORD F250 2024 Pickup Truck +",
         "asset_category": "Pickup Truck",
-        "engine_hours": 4207.0,
+        "engine_hours": 2208.0,
         "maintenance_items": [
           {
             "type": "Oil Change",
-            "hours_remaining": 43.0,
+            "hours_remaining": 42.0,
             "priority": "Medium"
           }
         ]
       }
     ],
-    "total_items": 80,
+    "total_items": 79,
     "maintenance_summary": {
       "high_priority": 22,
-      "medium_priority": 94
+      "medium_priority": 93
     }
   }
 }

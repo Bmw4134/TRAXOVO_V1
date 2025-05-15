@@ -1,234 +1,159 @@
 """
 File Parser Blueprint
 
-This blueprint provides routes for file upload, processing, and management.
+This blueprint handles file uploads and parsing operations.
 """
 
-from flask import Blueprint, render_template, request, jsonify, current_app, flash, redirect, url_for, send_file
 import os
-from werkzeug.utils import secure_filename
-from datetime import datetime
-import pandas as pd
 import json
+import logging
+from datetime import datetime
+from werkzeug.utils import secure_filename
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app
 from flask_login import login_required, current_user
 
-from utils.file_processor import FileProcessor
-from utils.cya import log_event
+from utils.file_processor import FileProcessor, process_file, allowed_file
 
+# Set up logger
+logger = logging.getLogger(__name__)
+
+# Set up blueprint
 parser_bp = Blueprint('parser', __name__, url_prefix='/parser')
 
-# Configure upload settings
-UPLOAD_FOLDER = 'data/uploads'
-ALLOWED_EXTENSIONS = {'xlsx', 'xls', 'csv', 'xlsm'}
-
-# Create upload folder if it doesn't exist
+# Constants
+UPLOAD_FOLDER = os.path.join('data', 'uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+ALLOWED_EXTENSIONS = {'xlsx', 'xls', 'csv', 'json', 'pdf'}
 
-def allowed_file(filename):
-    """Check if file extension is allowed"""
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-@parser_bp.route('/', methods=['GET'])
+@parser_bp.route('/')
 @login_required
 def index():
-    """Render the parser dashboard"""
-    # Get processing history
-    processor = FileProcessor(current_user.id if current_user.is_authenticated else None)
-    history = processor.get_processing_history(limit=20)
-    
-    # Group by file type
-    history_by_type = {}
-    for entry in history:
-        file_type = entry['file_type']
-        if file_type not in history_by_type:
-            history_by_type[file_type] = []
-        history_by_type[file_type].append(entry)
-    
-    return render_template(
-        'parsers/index.html', 
-        history=history,
-        history_by_type=history_by_type
-    )
+    """
+    Render the parser dashboard page
+    """
+    return render_template('parsers/index.html')
 
 @parser_bp.route('/upload', methods=['GET', 'POST'])
 @login_required
-def upload_file():
-    """Handle file uploads"""
+def upload():
+    """
+    Handle file uploads
+    """
     if request.method == 'POST':
-        # Check if the post request has the file part
+        # Check if a file was uploaded
         if 'file' not in request.files:
             flash('No file part', 'danger')
             return redirect(request.url)
         
         file = request.files['file']
         
-        # If no file selected
+        # Check if a file was selected
         if file.filename == '':
-            flash('No file selected', 'danger')
+            flash('No selected file', 'danger')
             return redirect(request.url)
         
-        # If file is valid
+        # Check if the file is allowed
         if file and allowed_file(file.filename):
-            # Secure filename
+            # Secure the filename
             filename = secure_filename(file.filename)
             
-            # Add timestamp to prevent overwriting
-            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-            filename_parts = filename.rsplit('.', 1)
-            filename = f"{filename_parts[0]}_{timestamp}.{filename_parts[1]}"
+            # Generate a unique filename
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            unique_filename = f"{timestamp}_{filename}"
             
-            # Save file
-            file_path = os.path.join(UPLOAD_FOLDER, filename)
+            # Save the file
+            file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
             file.save(file_path)
             
             # Get file type from form
-            file_type = request.form.get('file_type', None)
+            file_type = request.form.get('file_type')
             
-            # Process file
-            processor = FileProcessor(current_user.id if current_user.is_authenticated else None)
-            result = processor.process_file(file_path, file_type)
+            # Process the file
+            result = process_file(file_path, file_type, current_user.get_id())
             
-            # Log event
-            log_event(
-                'FILE_UPLOAD',
-                f"File uploaded and processed: {filename}",
-                user_id=current_user.id if current_user.is_authenticated else None,
-                data_path=file_path,
-                metadata={'result': result}
-            )
-            
-            if result['status'] == 'success':
-                flash(f"File '{filename}' processed successfully", 'success')
-                # Redirect to processing result
-                return redirect(url_for('parser.processing_result', file_name=filename))
+            if result['success']:
+                flash(f"File uploaded and processed successfully: {result['message']}", 'success')
+                # Redirect to result page with file path parameter
+                return redirect(url_for('parser.result', file_path=file_path))
             else:
-                flash(f"Error processing file: {result['error']}", 'danger')
-                return redirect(url_for('parser.index'))
+                flash(f"Error processing file: {result['message']}", 'danger')
+                return redirect(url_for('parser.upload'))
         else:
-            flash(f"Invalid file type. Allowed types: {', '.join(ALLOWED_EXTENSIONS)}", 'danger')
+            flash(f"File type not allowed. Allowed types: {', '.join(ALLOWED_EXTENSIONS)}", 'danger')
             return redirect(request.url)
     
-    return render_template('parsers/upload.html')
+    # GET request
+    return render_template('parsers/upload.html', allowed_extensions=ALLOWED_EXTENSIONS)
 
-@parser_bp.route('/processing-result/<file_name>', methods=['GET'])
+@parser_bp.route('/result')
 @login_required
-def processing_result(file_name):
-    """Display processing result for a file"""
-    processor = FileProcessor(current_user.id if current_user.is_authenticated else None)
-    history = processor.get_processing_history(limit=100)
+def result():
+    """
+    Show the result of file processing
+    """
+    file_path = request.args.get('file_path')
+    if not file_path or not os.path.exists(file_path):
+        flash('File not found', 'danger')
+        return redirect(url_for('parser.upload'))
     
-    # Find the entry for this file
-    result = None
-    for entry in history:
-        if entry['file_name'] == file_name:
-            result = entry
-            break
-    
-    if not result:
-        flash(f"Processing result for '{file_name}' not found", 'danger')
-        return redirect(url_for('parser.index'))
-    
-    # If the file was processed successfully, load a preview
-    preview_data = None
-    if result['status'] == 'SUCCESS' and result['processed_path'] and os.path.exists(result['processed_path']):
+    # Load processing result from metadata file
+    metadata_path = f"{file_path}.meta.json"
+    if os.path.exists(metadata_path):
         try:
-            df = pd.read_csv(result['processed_path'])
-            preview_data = {
-                'columns': df.columns.tolist(),
-                'data': df.head(10).to_dict('records')
-            }
+            with open(metadata_path, 'r') as f:
+                metadata = json.load(f)
         except Exception as e:
-            preview_data = {'error': str(e)}
-    
-    return render_template(
-        'parsers/result.html',
-        result=result,
-        preview=preview_data
-    )
-
-@parser_bp.route('/download/<int:file_id>', methods=['GET'])
-@login_required
-def download_processed_file(file_id):
-    """Download a processed file"""
-    processor = FileProcessor(current_user.id if current_user.is_authenticated else None)
-    
-    # Get processing history
-    history = processor.get_processing_history(limit=100)
-    
-    # Find the entry for this file ID
-    file_entry = None
-    for entry in history:
-        if entry['id'] == file_id:
-            file_entry = entry
-            break
-    
-    if not file_entry:
-        flash(f"File with ID {file_id} not found", 'danger')
-        return redirect(url_for('parser.index'))
-    
-    # Check if processed file exists
-    if file_entry['status'] != 'SUCCESS' or not file_entry['processed_path'] or not os.path.exists(file_entry['processed_path']):
-        flash(f"Processed file not found", 'danger')
-        return redirect(url_for('parser.index'))
-    
-    # Log download event
-    log_event(
-        'FILE_DOWNLOAD',
-        f"Downloaded processed file: {file_entry['file_name']}",
-        user_id=current_user.id if current_user.is_authenticated else None,
-        data_path=file_entry['processed_path']
-    )
-    
-    return send_file(
-        file_entry['processed_path'],
-        as_attachment=True,
-        download_name=f"processed_{file_entry['file_name']}.csv"
-    )
-
-@parser_bp.route('/reprocess/<int:file_id>', methods=['POST'])
-@login_required
-def reprocess_file(file_id):
-    """Reprocess a previously processed file"""
-    processor = FileProcessor(current_user.id if current_user.is_authenticated else None)
-    
-    result = processor.reprocess_file(file_id)
-    
-    if result['status'] == 'success':
-        flash(f"File reprocessed successfully", 'success')
-        return redirect(url_for('parser.processing_result', file_name=result['file_name']))
+            logger.error(f"Error loading metadata: {e}")
+            metadata = {'error': f"Error loading metadata: {str(e)}"}
     else:
-        flash(f"Error reprocessing file: {result['error']}", 'danger')
-        return redirect(url_for('parser.index'))
+        metadata = {'error': 'Metadata file not found'}
+    
+    return render_template('parsers/result.html', 
+                          file_path=file_path, 
+                          filename=os.path.basename(file_path),
+                          metadata=metadata)
 
-@parser_bp.route('/compare', methods=['GET', 'POST'])
+@parser_bp.route('/api/upload', methods=['POST'])
 @login_required
-def compare_files():
-    """Compare two processed files"""
-    processor = FileProcessor(current_user.id if current_user.is_authenticated else None)
+def api_upload():
+    """
+    API endpoint for file uploads
+    """
+    # Check if a file was uploaded
+    if 'file' not in request.files:
+        return jsonify({'success': False, 'message': 'No file part'})
     
-    if request.method == 'POST':
-        file_id1 = request.form.get('file_id1', type=int)
-        file_id2 = request.form.get('file_id2', type=int)
-        
-        if not file_id1 or not file_id2:
-            flash("Please select two files to compare", 'danger')
-            return redirect(url_for('parser.compare_files'))
-        
-        result = processor.compare_files(file_id1, file_id2)
-        
-        if 'error' in result:
-            flash(f"Error comparing files: {result['error']}", 'danger')
-            return redirect(url_for('parser.compare_files'))
-        
-        return render_template(
-            'parsers/compare_result.html',
-            comparison=result
-        )
+    file = request.files['file']
     
-    # Get list of processed files
-    history = processor.get_processing_history(status='SUCCESS', limit=100)
+    # Check if a file was selected
+    if file.filename == '':
+        return jsonify({'success': False, 'message': 'No selected file'})
     
-    return render_template(
-        'parsers/compare.html',
-        files=history
-    )
+    # Check if the file is allowed
+    if file and allowed_file(file.filename):
+        # Secure the filename
+        filename = secure_filename(file.filename)
+        
+        # Generate a unique filename
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        unique_filename = f"{timestamp}_{filename}"
+        
+        # Save the file
+        file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
+        file.save(file_path)
+        
+        # Get file type from form
+        file_type = request.form.get('file_type')
+        
+        # Process the file
+        result = process_file(file_path, file_type, current_user.get_id())
+        
+        # Add file path to result
+        result['file_path'] = file_path
+        
+        return jsonify(result)
+    else:
+        return jsonify({
+            'success': False, 
+            'message': f"File type not allowed. Allowed types: {', '.join(ALLOWED_EXTENSIONS)}"
+        })

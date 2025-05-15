@@ -96,6 +96,17 @@ def create_admin_users():
         db.session.commit()
         logger.info("Admin users setup complete")
 
+# Import blueprints
+from blueprints.parsers import parser_bp
+try:
+    from blueprints.kaizen import kaizen_bp
+    # Register blueprints
+    app.register_blueprint(parser_bp)
+    app.register_blueprint(kaizen_bp)
+    logger.info("Registered application blueprints")
+except ImportError as e:
+    logger.warning(f"Could not register all blueprints: {e}")
+
 # Initialize with app context
 with app.app_context():
     try:

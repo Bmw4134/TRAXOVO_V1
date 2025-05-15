@@ -3,327 +3,406 @@
 {% block title %}System Health - SYSTEMSMITH{% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="mb-0">System Health Metrics</h1>
+        <h1>System Health</h1>
         <div>
-            <a href="{{ url_for('kaizen.index') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-1"></i> Back to Kaizen Dashboard
+            <a href="{{ url_for('kaizen.index') }}" class="btn btn-outline-secondary me-2">
+                <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
             </a>
             {% if current_user.is_admin %}
-            <form method="POST" action="{{ url_for('kaizen.refresh') }}" class="d-inline">
+            <form action="{{ url_for('kaizen.refresh') }}" method="post" class="d-inline">
                 <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-sync-alt me-1"></i> Recalculate Health Metrics
+                    <i class="fas fa-sync-alt me-1"></i> Refresh Metrics
                 </button>
             </form>
             {% endif %}
         </div>
     </div>
 
-    <!-- Overall Health Score -->
-    <div class="card mb-4">
-        <div class="card-header bg-dark text-white">
-            <h5 class="mb-0">Overall Health Score</h5>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-4 text-center">
-                    <div class="position-relative d-inline-block">
-                        <canvas id="healthChart" width="200" height="200"></canvas>
+    <div class="row">
+        <div class="col-lg-4">
+            <!-- Overall Health Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">Overall Health Score</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="position-relative d-inline-block mb-3">
+                        <canvas id="healthGauge" width="200" height="200"></canvas>
                         <div class="position-absolute top-50 start-50 translate-middle text-center">
                             <h1 class="mb-0">{{ health_score.overall_health_score|default(0)|round|int }}%</h1>
-                            <p class="text-muted mb-0">Overall Score</p>
+                            <p class="text-muted mb-0">System Health</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Health status -->
+                    {% set health = health_score.overall_health_score|default(0) %}
+                    <div class="d-inline-block px-4 py-2 rounded-pill 
+                        {% if health >= 90 %}
+                            bg-success text-white
+                        {% elif health >= 75 %}
+                            bg-info text-white
+                        {% elif health >= 60 %}
+                            bg-warning
+                        {% else %}
+                            bg-danger text-white
+                        {% endif %}
+                    ">
+                        {% if health >= 90 %}
+                            <i class="fas fa-check-circle me-1"></i> Excellent
+                        {% elif health >= 75 %}
+                            <i class="fas fa-thumbs-up me-1"></i> Good
+                        {% elif health >= 60 %}
+                            <i class="fas fa-exclamation-triangle me-1"></i> Needs Attention
+                        {% else %}
+                            <i class="fas fa-exclamation-circle me-1"></i> Critical
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mt-4 text-muted">
+                        <small>Last updated: {{ health_score.timestamp|default('N/A') }}</small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Component Scores -->
+            <div class="card mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">Health Components</h5>
+                </div>
+                <div class="card-body px-0 pb-0">
+                    <div class="list-group list-group-flush border-bottom">
+                        <!-- Data Completeness -->
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <h6 class="mb-0 fw-bold">Data Completeness</h6>
+                                <span class="badge bg-{{ 'danger' if health_score.data_completeness.score < 70 else 'warning' if health_score.data_completeness.score < 90 else 'success' }}">
+                                    {{ health_score.data_completeness.score|default(0)|round(1) }}%
+                                </span>
+                            </div>
+                            <div class="progress my-2" style="height: 8px;">
+                                <div class="progress-bar bg-{{ 'danger' if health_score.data_completeness.score < 70 else 'warning' if health_score.data_completeness.score < 90 else 'success' }}" 
+                                     role="progressbar" 
+                                     style="width: {{ health_score.data_completeness.score|default(0) }}%;" 
+                                     aria-valuenow="{{ health_score.data_completeness.score|default(0) }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100"></div>
+                            </div>
+                            <small class="text-muted">{{ health_score.data_completeness.message|default('No data available.') }}</small>
+                        </div>
+                        
+                        <!-- File Match Rate -->
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <h6 class="mb-0 fw-bold">File Match Rate</h6>
+                                <span class="badge bg-{{ 'danger' if health_score.file_match_rate.score < 70 else 'warning' if health_score.file_match_rate.score < 90 else 'success' }}">
+                                    {{ health_score.file_match_rate.score|default(0)|round(1) }}%
+                                </span>
+                            </div>
+                            <div class="progress my-2" style="height: 8px;">
+                                <div class="progress-bar bg-{{ 'danger' if health_score.file_match_rate.score < 70 else 'warning' if health_score.file_match_rate.score < 90 else 'success' }}" 
+                                     role="progressbar" 
+                                     style="width: {{ health_score.file_match_rate.score|default(0) }}%;" 
+                                     aria-valuenow="{{ health_score.file_match_rate.score|default(0) }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100"></div>
+                            </div>
+                            <small class="text-muted">{{ health_score.file_match_rate.message|default('No data available.') }}</small>
+                        </div>
+                        
+                        <!-- Asset Assignment Accuracy -->
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <h6 class="mb-0 fw-bold">Asset Assignment Accuracy</h6>
+                                <span class="badge bg-{{ 'danger' if health_score.asset_assignment_accuracy.score < 70 else 'warning' if health_score.asset_assignment_accuracy.score < 90 else 'success' }}">
+                                    {{ health_score.asset_assignment_accuracy.score|default(0)|round(1) }}%
+                                </span>
+                            </div>
+                            <div class="progress my-2" style="height: 8px;">
+                                <div class="progress-bar bg-{{ 'danger' if health_score.asset_assignment_accuracy.score < 70 else 'warning' if health_score.asset_assignment_accuracy.score < 90 else 'success' }}" 
+                                     role="progressbar" 
+                                     style="width: {{ health_score.asset_assignment_accuracy.score|default(0) }}%;" 
+                                     aria-valuenow="{{ health_score.asset_assignment_accuracy.score|default(0) }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100"></div>
+                            </div>
+                            <small class="text-muted">{{ health_score.asset_assignment_accuracy.message|default('No data available.') }}</small>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-8">
-                    <h4>System Health Assessment</h4>
-                    <p>
-                        SYSTEMSMITH is continuously evaluating its performance to ensure optimal 
-                        data quality and accurate asset tracking. The overall health score is a 
-                        weighted average of three key metrics:
-                    </p>
-                    <ul>
-                        <li><strong>Data Completeness (40%):</strong> Ensures critical asset data fields are populated</li>
-                        <li><strong>File Match Rate (30%):</strong> Evaluates accuracy of file reconciliation</li>
-                        <li><strong>Asset Assignment (30%):</strong> Measures employee-asset mapping quality</li>
-                    </ul>
-                    <p class="text-muted mb-0">
-                        <i class="fas fa-info-circle me-1"></i> 
-                        Last updated: {{ health_score.timestamp|default('Never') }}
-                    </p>
-                </div>
             </div>
         </div>
-    </div>
-
-    <!-- Detailed Metrics -->
-    <div class="row">
-        <!-- Data Completeness -->
-        <div class="col-md-4">
-            <div class="card mb-4 h-100">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Data Completeness</h5>
+        
+        <div class="col-lg-8">
+            <!-- Health Trend Chart -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Health Trend (Last 14 Days)</h5>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-light active" id="view-all-btn">All</button>
+                        <button type="button" class="btn btn-light" id="view-components-btn">Components</button>
+                    </div>
                 </div>
                 <div class="card-body">
-                    <h2 class="text-center mb-3">{{ health_score.data_completeness.score|default(0)|round(1) }}%</h2>
-                    <p>
-                        <strong>Total Assets:</strong> {{ health_score.data_completeness.total_assets|default(0) }}<br>
-                        <strong>Fields Analyzed:</strong> {{ health_score.data_completeness.total_fields|default(0) }}<br>
-                        <strong>Missing Fields:</strong> {{ health_score.data_completeness.empty_fields|default(0) }}
-                    </p>
-                    <h6>Field Completeness:</h6>
-                    {% if health_score.data_completeness.details %}
-                        {% for field, score in health_score.data_completeness.details.items() %}
-                            <div class="mb-2">
-                                <label class="form-label d-flex justify-content-between">
-                                    <span>{{ field }}</span>
-                                    <span class="text-{{ 'danger' if score < 70 else 'warning' if score < 90 else 'success' }}">{{ score|round(1) }}%</span>
-                                </label>
-                                <div class="progress">
-                                    <div class="progress-bar bg-{{ 'danger' if score < 70 else 'warning' if score < 90 else 'success' }}" 
-                                         role="progressbar" style="width: {{ score }}%" 
-                                         aria-valuenow="{{ score }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    <canvas id="healthTrendChart" height="300"></canvas>
+                </div>
+            </div>
+            
+            <!-- Details Panels -->
+            <div class="row">
+                <!-- Data Completeness Details -->
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">Data Completeness</h6>
+                        </div>
+                        <div class="card-body">
+                            {% set details = health_score.data_completeness.details %}
+                            <div class="small">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Fields with Data:</span>
+                                    <span class="fw-bold">{{ details.fields_with_data|default(0) }}/{{ details.total_fields|default(0) }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Assets with Employee:</span>
+                                    <span class="fw-bold">{{ details.assets_with_employee|default(0) }}/{{ details.total_assets|default(0) }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Assets with Location:</span>
+                                    <span class="fw-bold">{{ details.assets_with_location|default(0) }}/{{ details.total_assets|default(0) }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>Assets with Hours:</span>
+                                    <span class="fw-bold">{{ details.assets_with_hours|default(0) }}/{{ details.total_assets|default(0) }}</span>
                                 </div>
                             </div>
-                        {% endfor %}
-                    {% else %}
-                        <div class="alert alert-secondary">No detail data available</div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        
-        <!-- File Match Rate -->
-        <div class="col-md-4">
-            <div class="card mb-4 h-100">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">File Match Rate</h5>
-                </div>
-                <div class="card-body">
-                    <h2 class="text-center mb-3">{{ health_score.file_match_rate.score|default(0)|round(1) }}%</h2>
-                    <p>
-                        <strong>Total Reconciliations:</strong> {{ health_score.file_match_rate.total_reconciliations|default(0) }}
-                    </p>
-                    
-                    {% if health_score.file_match_rate.details %}
-                        <h6>Recent Reconciliations:</h6>
-                        <div class="table-responsive">
-                            <table class="table table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Match Rate</th>
-                                        <th>Differences</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for detail in health_score.file_match_rate.details[:5] %}
-                                        <tr>
-                                            <td>{{ detail.timestamp[:10] }}</td>
-                                            <td>
-                                                <span class="badge bg-{{ 'danger' if detail.match_rate < 70 else 'warning' if detail.match_rate < 90 else 'success' }}">
-                                                    {{ detail.match_rate|round(1) }}%
-                                                </span>
-                                            </td>
-                                            <td>{{ detail.diff_count }}</td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
                         </div>
-                    {% else %}
-                        <div class="alert alert-secondary">No reconciliation data available</div>
-                    {% endif %}
+                    </div>
                 </div>
-            </div>
-        </div>
-        
-        <!-- Asset Assignment Accuracy -->
-        <div class="col-md-4">
-            <div class="card mb-4 h-100">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">Asset Assignment Accuracy</h5>
+                
+                <!-- File Match Details -->
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">File Match Rate</h6>
+                        </div>
+                        <div class="card-body">
+                            {% set details = health_score.file_match_rate.details %}
+                            <div class="small">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Matched Records:</span>
+                                    <span class="fw-bold">{{ details.matched_records|default(0) }}/{{ details.total_records|default(0) }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Billable Assets Matched:</span>
+                                    <span class="fw-bold">{{ details.billable_assets_matched|default(0) }}/{{ details.total_billable_assets|default(0) }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>GPS Records Matched:</span>
+                                    <span class="fw-bold">{{ details.gps_records_matched|default(0) }}/{{ details.total_gps_records|default(0) }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>Cross File Consistency:</span>
+                                    <span class="fw-bold">{{ details.cross_file_consistency_score|default(0)|round }}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <h2 class="text-center mb-3">{{ health_score.asset_assignment_accuracy.score|default(0)|round(1) }}%</h2>
-                    <p>
-                        <strong>Total Mappings:</strong> {{ health_score.asset_assignment_accuracy.total_mappings|default(0) }}<br>
-                        <strong>Average Confidence:</strong> {{ health_score.asset_assignment_accuracy.average_confidence|default(0)|round(2) }}
-                    </p>
-                    
-                    {% if health_score.asset_assignment_accuracy.details %}
-                        <h6>Confidence Distribution:</h6>
-                        <canvas id="confidenceChart" height="150"></canvas>
-                    {% else %}
-                        <div class="alert alert-secondary">No assignment data available</div>
-                    {% endif %}
+                
+                <!-- Asset Assignment Details -->
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">Asset Assignments</h6>
+                        </div>
+                        <div class="card-body">
+                            {% set details = health_score.asset_assignment_accuracy.details %}
+                            <div class="small">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>High Confidence:</span>
+                                    <span class="fw-bold text-success">{{ details.high_confidence|default(0) }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Medium Confidence:</span>
+                                    <span class="fw-bold text-warning">{{ details.medium_confidence|default(0) }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Low Confidence:</span>
+                                    <span class="fw-bold text-danger">{{ details.low_confidence|default(0) }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>Total Mappings:</span>
+                                    <span class="fw-bold">{{ details.total_mappings|default(0) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Health History -->
-    {% if history %}
-        <div class="card">
-            <div class="card-header bg-dark text-white">
-                <h5 class="mb-0">Health Score History</h5>
-            </div>
-            <div class="card-body">
-                <canvas id="historyChart" height="250"></canvas>
-            </div>
-        </div>
-    {% endif %}
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Main health chart
-    const ctx = document.getElementById('healthChart').getContext('2d');
-    const healthScore = {{ health_score.overall_health_score|default(0) }};
-    
-    // Determine color based on score
-    let color = '#dc3545'; // red
-    if (healthScore >= 80) {
-        color = '#28a745'; // green
-    } else if (healthScore >= 60) {
-        color = '#ffc107'; // yellow
-    } else if (healthScore >= 40) {
-        color = '#fd7e14'; // orange
-    }
-    
-    const healthChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            datasets: [{
-                data: [healthScore, 100 - healthScore],
-                backgroundColor: [color, '#e9ecef'],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            cutout: '75%',
-            responsive: true,
-            maintainAspectRatio: true,
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    enabled: false
+    document.addEventListener('DOMContentLoaded', function() {
+        // Create the health gauge
+        const ctx = document.getElementById('healthGauge').getContext('2d');
+        const healthScore = {{ health_score.overall_health_score|default(0) }};
+        
+        // Determine color based on score
+        let color = '#dc3545'; // red
+        if (healthScore >= 80) {
+            color = '#28a745'; // green
+        } else if (healthScore >= 60) {
+            color = '#ffc107'; // yellow
+        } else if (healthScore >= 40) {
+            color = '#fd7e14'; // orange
+        }
+        
+        const healthGauge = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [healthScore, 100 - healthScore],
+                    backgroundColor: [color, '#e9ecef'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                cutout: '75%',
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        enabled: false
+                    }
                 }
             }
-        }
-    });
-    
-    // Confidence distribution chart
-    {% if health_score.asset_assignment_accuracy.details %}
-    const confCtx = document.getElementById('confidenceChart').getContext('2d');
-    const confData = {
-        labels: ['High', 'Medium', 'Low'],
-        datasets: [{
-            data: [
-                {{ health_score.asset_assignment_accuracy.details.high_confidence|default(0) }},
-                {{ health_score.asset_assignment_accuracy.details.medium_confidence|default(0) }},
-                {{ health_score.asset_assignment_accuracy.details.low_confidence|default(0) }}
+        });
+        
+        // Health trend chart
+        const trendCtx = document.getElementById('healthTrendChart').getContext('2d');
+        const historicalData = {
+            labels: [
+                {% for entry in history %}
+                    '{{ entry.timestamp[:10] }}',
+                {% endfor %}
             ],
-            backgroundColor: ['#28a745', '#ffc107', '#dc3545']
-        }]
-    };
-    const confChart = new Chart(confCtx, {
-        type: 'pie',
-        data: confData,
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            plugins: {
-                legend: {
-                    position: 'bottom'
+            datasets: [
+                {
+                    label: 'Overall Health',
+                    data: [
+                        {% for entry in history %}
+                            {{ entry.overall_health_score }},
+                        {% endfor %}
+                    ],
+                    borderColor: '#6f42c1',
+                    backgroundColor: 'rgba(111, 66, 193, 0.1)',
+                    fill: true,
+                    tension: 0.1,
+                    order: 1
+                },
+                {
+                    label: 'Data Completeness',
+                    data: [
+                        {% for entry in history %}
+                            {{ entry.data_completeness }},
+                        {% endfor %}
+                    ],
+                    borderColor: '#007bff',
+                    borderDash: [5, 5],
+                    fill: false,
+                    hidden: true,
+                    order: 2
+                },
+                {
+                    label: 'File Match Rate',
+                    data: [
+                        {% for entry in history %}
+                            {{ entry.file_match_rate }},
+                        {% endfor %}
+                    ],
+                    borderColor: '#28a745',
+                    borderDash: [5, 5],
+                    fill: false,
+                    hidden: true,
+                    order: 3
+                },
+                {
+                    label: 'Asset Assignment',
+                    data: [
+                        {% for entry in history %}
+                            {{ entry.asset_assignment_accuracy }},
+                        {% endfor %}
+                    ],
+                    borderColor: '#17a2b8',
+                    borderDash: [5, 5],
+                    fill: false,
+                    hidden: true,
+                    order: 4
+                }
+            ]
+        };
+        
+        const trendChart = new Chart(trendCtx, {
+            type: 'line',
+            data: historicalData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        min: 0,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Score (%)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
                 }
             }
-        }
+        });
+        
+        // Toggle between all and components view
+        document.getElementById('view-all-btn').addEventListener('click', function() {
+            trendChart.data.datasets.forEach((dataset, i) => {
+                dataset.hidden = i !== 0;
+            });
+            trendChart.update();
+            
+            // Update button states
+            document.getElementById('view-all-btn').classList.add('active');
+            document.getElementById('view-components-btn').classList.remove('active');
+        });
+        
+        document.getElementById('view-components-btn').addEventListener('click', function() {
+            trendChart.data.datasets.forEach((dataset, i) => {
+                dataset.hidden = i === 0;
+            });
+            trendChart.update();
+            
+            // Update button states
+            document.getElementById('view-all-btn').classList.remove('active');
+            document.getElementById('view-components-btn').classList.add('active');
+        });
     });
-    {% endif %}
-    
-    // History chart
-    {% if history %}
-    const historyCtx = document.getElementById('historyChart').getContext('2d');
-    const historyData = {
-        labels: [
-            {% for entry in history %}
-                '{{ entry.timestamp[:10] }}',
-            {% endfor %}
-        ],
-        datasets: [
-            {
-                label: 'Overall Health',
-                data: [
-                    {% for entry in history %}
-                        {{ entry.overall_health_score }},
-                    {% endfor %}
-                ],
-                borderColor: '#6f42c1',
-                backgroundColor: 'rgba(111, 66, 193, 0.1)',
-                fill: true,
-                tension: 0.1
-            },
-            {
-                label: 'Data Completeness',
-                data: [
-                    {% for entry in history %}
-                        {{ entry.data_completeness }},
-                    {% endfor %}
-                ],
-                borderColor: '#007bff',
-                borderDash: [5, 5],
-                fill: false
-            },
-            {
-                label: 'File Match Rate',
-                data: [
-                    {% for entry in history %}
-                        {{ entry.file_match_rate }},
-                    {% endfor %}
-                ],
-                borderColor: '#28a745',
-                borderDash: [5, 5],
-                fill: false
-            },
-            {
-                label: 'Asset Assignment',
-                data: [
-                    {% for entry in history %}
-                        {{ entry.asset_assignment_accuracy }},
-                    {% endfor %}
-                ],
-                borderColor: '#17a2b8',
-                borderDash: [5, 5],
-                fill: false
-            }
-        ]
-    };
-    const historyChart = new Chart(historyCtx, {
-        type: 'line',
-        data: historyData,
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            scales: {
-                y: {
-                    min: 0,
-                    max: 100
-                }
-            },
-            plugins: {
-                legend: {
-                    position: 'bottom'
-                }
-            }
-        }
-    });
-    {% endif %}
-});
 </script>
 {% endblock %}

@@ -209,6 +209,21 @@ class Asset(db.Model):
         return asset
 
 
+class Geofence(db.Model):
+    """Geofence model for job site boundaries"""
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(256), nullable=False, index=True)
+    latitude = db.Column(db.Float, nullable=False)
+    longitude = db.Column(db.Float, nullable=False)
+    radius = db.Column(db.Float, nullable=False)  # Radius in meters
+    type = db.Column(db.String(16), default='static')  # 'static' or 'dynamic'
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def __repr__(self):
+        return f"<Geofence {self.name}>"
+
+
 class AssetHistory(db.Model):
     """Historical records of asset updates"""
     id = db.Column(db.Integer, primary_key=True)

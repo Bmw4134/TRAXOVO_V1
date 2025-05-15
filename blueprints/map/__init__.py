@@ -19,8 +19,9 @@ from sklearn.cluster import DBSCAN
 from scipy.spatial import ConvexHull
 
 from app import db
-from models import Asset, AssetHistory
+from models import Asset, AssetHistory, Geofence
 from gauge_api import get_asset_data
+from utils.geofence_processor import export_geofences_as_geojson, import_static_geofences
 
 # Initialize logger
 logger = logging.getLogger(__name__)
@@ -149,7 +150,27 @@ def asset_locations():
 @map_bp.route('/geofences.json')
 @login_required
 def geofences():
-    """Generate and return geofences as GeoJSON based on asset clusters."""
+    """Return geofences as GeoJSON from database or generate from asset clusters."""
+    
+    # Try to import static geofences if none exist yet
+    try:
+        fence_count = Geofence.query.count()
+        if fence_count == 0:
+            # Import static geofences from file
+            fence_count = import_static_geofences('extracted_data/expansion_assets_and_sites/Ragle_Site_Locations.xlsx')
+            logger.info(f"Imported {fence_count} static geofences")
+        
+        if fence_count > 0:
+            # Return geofences as GeoJSON
+            return jsonify(export_geofences_as_geojson())
+            
+    except Exception as e:
+        logger.error(f"Error loading static geofences: {e}")
+        # Fall back to generating geofences from asset clusters if error occurs
+    
+    # If we get here, either no geofences were found or an error occurred
+    # Generate dynamic geofences from asset clustering as a fallback
+    logger.info("No static geofences found, generating from asset clusters")
     
     # Get clustering parameters from request
     eps = request.args.get('eps', 0.005, type=float)  # cluster radius in degrees

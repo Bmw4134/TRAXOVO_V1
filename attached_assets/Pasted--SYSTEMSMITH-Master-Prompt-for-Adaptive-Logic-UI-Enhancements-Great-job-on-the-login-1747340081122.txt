@@ -1,0 +1,48 @@
+## 🚩 **SYSTEMSMITH | Master Prompt for Adaptive Logic & UI Enhancements**
+
+Great job on the login system! Now, let's deepen SYSTEMSMITH's intelligence and refine the UI:
+
+### 🧠 **Adaptive Logic Integration:**
+Please ensure each component is modular (Flask Blueprints) and interacts via clear data interfaces:
+
+- **Robust CSV & Excel Parsing:**
+  - Implement automated CSV delimiter detection and error logging.
+  - Normalize diverse Excel structures (pivot tables, multi-sheet) into flat, ingestible formats.
+
+- **Intelligent Asset-Employee Assignment Module:**
+  - Regex/fuzzy logic to reliably match employees from asset IDs (examples: `"PT-121 (John Doe)"`, `"#210087 - Elhamad, Ammar I"`).
+  - Cache successful matches (ReplitDB or SQLite) to speed future lookups.
+
+- **Recursive Feedback & Adaptive Logic:**
+  - API endpoint for uploading PM Excel adjustments (billing/KPI revisions).
+  - Upon upload, automatically trigger recalculations and update records.
+  - SQLite audit logs for tracking changes and recalculations.
+
+- **SQLite DB Persistence Layer:**
+  - Historical tracking: asset-event-job mappings, KPI trends.
+  - Audit trails: every significant change timestamped with user metadata.
+  - Fast querying for dashboard insights.
+
+### 🎨 **Intuitive & Professional UI/UX:**
+Enhance the current Flask-Bootstrap frontend:
+
+- **Modern, Professional Design:**
+  - Use Bootstrap 5, professional color schemes (navy, grey, white), and clean typography.
+  - Clearly structured navigation (sidebar/top navbar) with user-friendly dropdowns and icons.
+
+- **Dynamic Dashboard:**
+  - Display KPIs (Utilization %, Idle Time, ROI) clearly, with visual indicators (green/yellow/red) for quick status checks.
+  - Interactive graphs and charts (usage trends, cost vs profit, geofence accuracy).
+  - Notification center clearly alerting to required PM actions (manual reviews, billing adjustments).
+
+- **Seamless PM Workflow:**
+  - Direct, intuitive upload/download area for Excel-based feedback and edits.
+  - Clear confirmation messages after uploads trigger recalculations.
+  - Error and validation messages presented clearly and politely.
+
+### ⚙️ **Summary of Deliverables:**
+- Modular Flask blueprints clearly separated by logic responsibility.
+- Intelligent, adaptive backend logic (CSV parsing, asset assignment, feedback loops).
+- Enhanced, professional UI with clear dashboard, intuitive navigation, and PM workflows.
+
+Let me know your thoughts or any clarification needed—I appreciate your detailed work!

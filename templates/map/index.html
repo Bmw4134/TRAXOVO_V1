@@ -554,11 +554,15 @@
             const status = props.status || 'unknown';
             
             // Create a custom icon
+            // Adjust size for retired assets
+            const iconSize = status === 'retired' ? [18, 18] : [24, 24];
+            const iconAnchor = status === 'retired' ? [9, 18] : [12, 24];
+            
             const icon = L.divIcon({
                 className: `marker-${status}`,
                 html: '<i class="bi bi-geo-alt-fill"></i>',
-                iconSize: [24, 24],
-                iconAnchor: [12, 24],
+                iconSize: iconSize,
+                iconAnchor: iconAnchor,
                 popupAnchor: [0, -20]
             });
             

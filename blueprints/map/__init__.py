@@ -43,8 +43,7 @@ def asset_locations():
     try:
         assets = Asset.query.filter(
             Asset.latitude.isnot(None),
-            Asset.longitude.isnot(None),
-            Asset.active == True
+            Asset.longitude.isnot(None)
         ).all()
         
         # If no assets in database, try to get from API
@@ -319,7 +318,15 @@ def asset_status():
             # Create count summaries from database
             total = len(assets)
             active = Asset.query.filter_by(active=True).count()
-            inactive = total - active
+            
+            # Count retired assets based on label (contains "retired", "sold", "scrap", etc.)
+            retired = 0
+            for asset in assets:
+                label = asset.label.lower() if asset.label else ""
+                if any(keyword in label for keyword in ["retired", "sold", "scrap", "stolen", "total out"]):
+                    retired += 1
+            
+            inactive = total - active - retired
             ignition_on = Asset.query.filter_by(ignition=True).count()
             
             # Count by asset class

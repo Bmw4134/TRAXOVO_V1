@@ -268,37 +268,19 @@ def generate_region_billing_exports(approved_changes=None):
             
         logger.info("Generating region-based billing exports")
         
-        # Define regions
-        regions = {
-            'DFW': {'region_code': 2, 'export_path': f"{dirs['billing_exports']}/02-DFW-APRIL-2025.xlsx"},
-            'WTX': {'region_code': 3, 'export_path': f"{dirs['billing_exports']}/03-WTX-APRIL-2025.xlsx"},
-            'HOU': {'region_code': 4, 'export_path': f"{dirs['billing_exports']}/04-HOU-APRIL-2025.xlsx"}
-        }
+        # Import here to avoid circular imports
+        from utils.billing_processor import generate_all_region_exports
         
-        # This is where the actual export generation logic would be implemented
-        # We would process the edited billing file (with approved changes),
-        # split by region, and format for import into the accounting system
+        # Generate exports for all regions
+        result = generate_all_region_exports(files['edited_billing'], 'APRIL', '2025')
+        if result['status'] != 'success':
+            return {'status': 'error', 'message': result.get('message', 'Export generation failed')}
         
-        # For now, create placeholder export files
-        for region, info in regions.items():
-            workbook = openpyxl.Workbook()
-            sheet = workbook.active
-            sheet.title = f"{region} Billing Export"
-            
-            # Set up headers
-            headers = ["Asset ID", "Job Code", "Description", "Days", "Rate", "Amount", "Notes"]
-            
-            for col, header in enumerate(headers, 1):
-                cell = sheet.cell(row=1, column=col, value=header)
-                cell.font = Font(bold=True)
-                
-            # Save the workbook
-            workbook.save(info['export_path'])
-            logger.info(f"Created export file for {region} at {info['export_path']}")
+        logger.info(f"Successfully generated region exports: {list(result['exports'].keys())}")
         
         return {
             'status': 'success',
-            'exports': [info['export_path'] for info in regions.values()]
+            'exports': result['exports']
         }
     except Exception as e:
         logger.error(f"Error generating region billing exports: {e}")

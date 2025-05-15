@@ -11,9 +11,26 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "fleet-management-default-key")
 
-# Load data from JSON file
+# Start the scheduler in a background thread
 try:
-    assets_data = load_data('attached_assets/GAUGE API PULL 1045AM_05.15.2025.json')
+    from scheduler import start_scheduler_thread
+    scheduler_thread = start_scheduler_thread()
+    logger.info("Scheduler started successfully")
+except Exception as e:
+    logger.warning(f"Failed to start scheduler: {e}")
+
+# Load data from JSON file or API
+try:
+    # Default fallback file path
+    file_path = 'attached_assets/GAUGE API PULL 1045AM_05.15.2025.json'
+    
+    # Check if we already have a cached processed file
+    cache_file = 'data/processed_data.json'
+    if os.path.exists(cache_file):
+        logger.info(f"Found cached data file: {cache_file}")
+        file_path = cache_file
+    
+    assets_data = load_data(file_path)
     logger.info(f"Successfully loaded {len(assets_data)} assets")
 except Exception as e:
     logger.error(f"Error loading data: {e}")

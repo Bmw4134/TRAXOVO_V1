@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
@@ -15,8 +16,30 @@ def load_data(file_path):
         list: List of asset dictionaries
     """
     try:
-        with open(file_path, 'r') as f:
-            data = json.load(f)
+        # Try to get data from our API module first
+        try:
+            from gauge_api import get_asset_data
+            logger.info("Attempting to load data from Gauge API")
+            api_data = get_asset_data()
+            if api_data:
+                logger.info(f"Successfully loaded {len(api_data)} assets from Gauge API")
+                data = api_data
+                # Generate reports from the fresh data
+                try:
+                    from reports_processor import generate_reports
+                    generate_reports(data)
+                except Exception as report_error:
+                    logger.warning(f"Could not generate reports: {report_error}")
+            else:
+                # Fallback to file if API fails
+                logger.warning("API data fetch failed, falling back to file")
+                with open(file_path, 'r') as f:
+                    data = json.load(f)
+        except Exception as api_error:
+            # Fallback to file if API module fails
+            logger.warning(f"API module error: {api_error}. Falling back to file.")
+            with open(file_path, 'r') as f:
+                data = json.load(f)
         
         # Clean and pre-process data
         for asset in data:
@@ -28,19 +51,37 @@ def load_data(file_path):
             if 'EventDateTimeString' in asset:
                 try:
                     dt_str = asset['EventDateTimeString']
-                    # Parse datetime in the format "MM/DD/YYYY HH:MM:SS AM/PM CT"
-                    dt_parts = dt_str.split(' ')
-                    date_part = dt_parts[0]
-                    time_part = dt_parts[1]
-                    am_pm = dt_parts[2]
-                    
-                    # Create a more standardized format for the template
-                    if len(dt_parts) >= 3:
-                        date_obj = datetime.strptime(f"{date_part} {time_part} {am_pm}", "%m/%d/%Y %I:%M:%S %p")
-                        asset['FormattedDateTime'] = date_obj.strftime("%Y-%m-%d %H:%M:%S")
+                    if dt_str:
+                        # Parse datetime in the format "MM/DD/YYYY HH:MM:SS AM/PM CT"
+                        dt_parts = dt_str.split(' ')
+                        date_part = dt_parts[0]
+                        time_part = dt_parts[1]
+                        am_pm = dt_parts[2]
+                        
+                        # Create a more standardized format for the template
+                        if len(dt_parts) >= 3:
+                            date_obj = datetime.strptime(f"{date_part} {time_part} {am_pm}", "%m/%d/%Y %I:%M:%S %p")
+                            asset['FormattedDateTime'] = date_obj.strftime("%Y-%m-%d %H:%M:%S")
+                    else:
+                        asset['FormattedDateTime'] = "No date available"
                 except Exception as e:
-                    logger.warning(f"Could not parse datetime {dt_str}: {e}")
-                    asset['FormattedDateTime'] = asset['EventDateTimeString']
+                    logger.warning(f"Could not parse datetime for asset {asset.get('AssetIdentifier', 'Unknown')}: {e}")
+                    asset['FormattedDateTime'] = asset.get('EventDateTimeString', 'No date available')
+        
+        # Save the processed data to a cache file for quick loading
+        # Create data directory if it doesn't exist
+        data_dir = 'data'
+        if not os.path.exists(data_dir):
+            os.makedirs(data_dir)
+        
+        # Save to cache file
+        cache_file = os.path.join(data_dir, 'processed_data.json')
+        try:
+            with open(cache_file, 'w') as f:
+                json.dump(data, f, indent=2)
+            logger.info(f"Saved processed data to cache file: {cache_file}")
+        except Exception as e:
+            logger.warning(f"Could not save to cache file: {e}")
         
         return data
     except Exception as e:

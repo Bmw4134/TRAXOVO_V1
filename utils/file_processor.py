@@ -1,258 +1,727 @@
 """
 File Processor Module
 
-This module processes files uploaded to the system. It provides a unified interface
-for handling different file types (Excel, CSV, etc.) and extracting relevant information.
+This module handles file uploads, processing, and routing to appropriate domain-specific modules.
+It serves as the central ingestion pipeline for all SYSTEMSMITH data sources.
 """
 
 import os
 import json
+import shutil
 import logging
 import pandas as pd
 from datetime import datetime
-from werkzeug.utils import secure_filename
+from typing import Dict, List, Any, Optional, Union
+
+from utils.cya import backup_file, log_action
+from utils.parsers.excel_parser import ExcelParser
 
 # Setup logging
 logger = logging.getLogger(__name__)
 
+# Constants
+UPLOAD_FOLDER = os.path.join('data', 'uploads')
+PROCESSED_FOLDER = os.path.join('data', 'processed')
+BACKUP_FOLDER = 'backups'
+
+# Ensure directories exist
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(PROCESSED_FOLDER, exist_ok=True)
+os.makedirs(BACKUP_FOLDER, exist_ok=True)
+
+# File type definitions
+FILE_TYPES = {
+    'fringe': {
+        'description': 'Auto Fringe Files',
+        'module': 'compliance',
+        'patterns': ['fringe', 'auto fringe', 'autofringe', 'bw updated'],
+        'extensions': ['.xlsx', '.xlsm', '.xls'],
+        'processor': 'process_fringe_file'
+    },
+    'billing': {
+        'description': 'Monthly Billing & Allocations',
+        'module': 'billing',
+        'patterns': ['eq billing', 'eq monthly', 'billing', 'allocations', 'profit report'],
+        'extensions': ['.xlsx', '.xlsm', '.xls', '.csv'],
+        'processor': 'process_billing_file'
+    },
+    'maintenance': {
+        'description': 'Work Order Reports',
+        'module': 'maintenance',
+        'patterns': ['wo detail', 'maintenance', 'uvc', 'heavy eq expenses', 'repair'],
+        'extensions': ['.xlsx', '.xlsm', '.xls', '.csv'],
+        'processor': 'process_maintenance_file'
+    },
+    'activity': {
+        'description': 'Activity Detail & Driving History',
+        'module': 'activity',
+        'patterns': ['gps', 'efficiency', 'work zone', 'workzone', 'driver history'],
+        'extensions': ['.xlsx', '.xlsm', '.xls', '.csv'],
+        'processor': 'process_activity_file'
+    },
+    'utilization': {
+        'description': 'Time-on-Site & Utilization',
+        'module': 'utilization',
+        'patterns': ['utilization', 'fleet', 'usage', 'hours report'],
+        'extensions': ['.xlsx', '.xlsm', '.xls', '.csv'],
+        'processor': 'process_utilization_file'
+    },
+    'compliance': {
+        'description': 'BPP Compliance Documents',
+        'module': 'compliance',
+        'patterns': ['compliance', 'bpp', 'tax', 'property'],
+        'extensions': ['.xlsx', '.xlsm', '.xls', '.pdf'],
+        'processor': 'process_compliance_file'
+    },
+    'fuel': {
+        'description': 'Fuel Transaction Reports',
+        'module': 'fuel',
+        'patterns': ['wex', 'fuel', 'transaction', 'card report'],
+        'extensions': ['.xlsx', '.xlsm', '.xls', '.csv', '.pdf'],
+        'processor': 'process_fuel_file'
+    },
+    'tolls': {
+        'description': 'Toll Transaction Reports',
+        'module': 'tolls',
+        'patterns': ['ntta', 'toll', 'trx'],
+        'extensions': ['.xlsx', '.xlsm', '.xls', '.csv', '.pdf'],
+        'processor': 'process_toll_file'
+    },
+    'employee': {
+        'description': 'Employee Assignment & Status',
+        'module': 'personnel',
+        'patterns': ['employee', 'personnel', 'assignment', 'daily late'],
+        'extensions': ['.xlsx', '.xlsm', '.xls', '.csv'],
+        'processor': 'process_employee_file'
+    },
+    'gauge': {
+        'description': 'Gauge API Data',
+        'module': 'api',
+        'patterns': ['gauge', 'api', 'json'],
+        'extensions': ['.json'],
+        'processor': 'process_gauge_file'
+    }
+}
+
 class FileProcessor:
     """
-    Base class for processing uploaded files
+    Handles file uploads, processing, and routing to appropriate modules
     """
-    def __init__(self, file_path, file_type=None, user_id=0):
+    
+    def __init__(self):
         """
         Initialize the file processor
+        """
+        self.excel_parser = ExcelParser()
+        self.processing_history = []
+        
+    def _get_file_extension(self, filename: str) -> str:
+        """
+        Get file extension from filename
         
         Args:
-            file_path (str): Path to the file to process
-            file_type (str, optional): Type of file ('excel', 'csv', etc). Detected automatically if None.
-            user_id (int): ID of the user who uploaded the file
+            filename (str): Name of the file
+            
+        Returns:
+            str: File extension with dot (e.g., ".xlsx")
         """
-        self.file_path = file_path
-        self.original_filename = os.path.basename(file_path)
-        self.file_type = file_type or self._detect_file_type()
-        self.user_id = user_id
-        self.processed_data = None
-        self.metadata = {
-            'original_filename': self.original_filename,
-            'file_type': self.file_type,
-            'upload_time': datetime.now().isoformat(),
-            'user_id': self.user_id,
-            'file_size': os.path.getsize(file_path) if os.path.exists(file_path) else 0,
+        _, extension = os.path.splitext(filename)
+        return extension.lower()
+    
+    def _detect_file_type(self, filename: str) -> str:
+        """
+        Detect file type based on filename patterns
+        
+        Args:
+            filename (str): Name of the file
+            
+        Returns:
+            str: Detected file type or "unknown"
+        """
+        filename_lower = filename.lower()
+        extension = self._get_file_extension(filename)
+        
+        # Check each defined file type
+        for file_type, config in FILE_TYPES.items():
+            # Check if extension matches
+            if extension in config['extensions']:
+                # Check if filename contains any of the patterns
+                for pattern in config['patterns']:
+                    if pattern in filename_lower:
+                        return file_type
+        
+        # Default to unknown
+        return "unknown"
+    
+    def validate_file(self, file_path: str) -> Dict[str, Any]:
+        """
+        Validate a file before processing
+        
+        Args:
+            file_path (str): Path to the file
+            
+        Returns:
+            Dict[str, Any]: Validation result
+        """
+        result = {
+            'is_valid': False,
+            'file_path': file_path,
+            'errors': [],
+            'warnings': []
         }
         
-    def _detect_file_type(self):
-        """
-        Detect the file type based on extension
+        # Check if file exists
+        if not os.path.exists(file_path):
+            result['errors'].append(f"File does not exist: {file_path}")
+            return result
         
-        Returns:
-            str: Detected file type
-        """
-        _, ext = os.path.splitext(self.file_path)
-        ext = ext.lower()
+        # Get file extension
+        extension = self._get_file_extension(file_path)
         
-        if ext in ['.xlsx', '.xlsm', '.xls']:
-            return 'excel'
-        elif ext == '.csv':
-            return 'csv'
-        elif ext == '.json':
-            return 'json'
-        elif ext == '.pdf':
-            return 'pdf'
-        else:
-            return 'unknown'
-    
-    def process(self):
-        """
-        Process the file and return the results
+        # Validate based on extension
+        if extension in ['.xlsx', '.xlsm', '.xls']:
+            try:
+                # Try to open with pandas
+                xls = pd.ExcelFile(file_path)
+                
+                # Check if file has any sheets
+                if len(xls.sheet_names) == 0:
+                    result['warnings'].append("Excel file has no sheets")
+                
+                # Check if sheets have data
+                empty_sheets = []
+                for sheet in xls.sheet_names:
+                    df = pd.read_excel(file_path, sheet_name=sheet)
+                    if df.empty:
+                        empty_sheets.append(sheet)
+                
+                if empty_sheets:
+                    result['warnings'].append(f"The following sheets are empty: {', '.join(empty_sheets)}")
+                
+                # File is valid if we got this far
+                result['is_valid'] = True
+                result['sheet_count'] = len(xls.sheet_names)
+                result['sheets'] = xls.sheet_names
+                
+            except Exception as e:
+                result['errors'].append(f"Invalid Excel file: {str(e)}")
         
-        Returns:
-            dict: Processing results
-        """
-        if not os.path.exists(self.file_path):
-            return {
-                'success': False,
-                'message': f"File not found: {self.file_path}",
-                'data': None,
-                'metadata': self.metadata
-            }
+        elif extension == '.csv':
+            try:
+                # Try to open with pandas
+                df = pd.read_csv(file_path)
+                
+                # Check if file has data
+                if df.empty:
+                    result['warnings'].append("CSV file is empty")
+                
+                # File is valid if we got this far
+                result['is_valid'] = True
+                result['row_count'] = len(df)
+                result['column_count'] = len(df.columns)
+                
+            except Exception as e:
+                result['errors'].append(f"Invalid CSV file: {str(e)}")
         
-        try:
-            if self.file_type == 'excel':
-                self.processed_data = self._process_excel()
-            elif self.file_type == 'csv':
-                self.processed_data = self._process_csv()
-            elif self.file_type == 'json':
-                self.processed_data = self._process_json()
+        elif extension == '.json':
+            try:
+                # Try to open and parse JSON
+                with open(file_path, 'r') as f:
+                    json_data = json.load(f)
+                
+                # File is valid if we got this far
+                result['is_valid'] = True
+                
+                # Check if JSON is an array or object
+                if isinstance(json_data, list):
+                    result['item_count'] = len(json_data)
+                    result['structure'] = 'array'
+                else:
+                    result['key_count'] = len(json_data.keys())
+                    result['structure'] = 'object'
+                
+            except Exception as e:
+                result['errors'].append(f"Invalid JSON file: {str(e)}")
+        
+        elif extension == '.pdf':
+            # Basic check for PDF - just check if file is not empty
+            if os.path.getsize(file_path) == 0:
+                result['errors'].append("PDF file is empty")
             else:
-                return {
-                    'success': False,
-                    'message': f"Unsupported file type: {self.file_type}",
-                    'data': None,
-                    'metadata': self.metadata
-                }
+                result['is_valid'] = True
+                result['file_size'] = os.path.getsize(file_path)
+        
+        else:
+            result['errors'].append(f"Unsupported file type: {extension}")
+        
+        return result
+    
+    def process_file(self, file_path: str, file_type: str = None, user_id: str = None) -> Dict[str, Any]:
+        """
+        Process an uploaded file
+        
+        Args:
+            file_path (str): Path to the file
+            file_type (str, optional): Type of file (if None, will be auto-detected)
+            user_id (str, optional): ID of the user who uploaded the file
             
-            # Update metadata
-            self.metadata['row_count'] = len(self.processed_data) if isinstance(self.processed_data, pd.DataFrame) else 0
-            self.metadata['processing_time'] = datetime.now().isoformat()
+        Returns:
+            Dict[str, Any]: Processing result
+        """
+        try:
+            filename = os.path.basename(file_path)
+            logger.info(f"Processing file: {filename}")
             
-            return {
-                'success': True,
-                'message': f"Successfully processed {self.file_type} file: {self.original_filename}",
-                'data': self.processed_data,
-                'metadata': self.metadata
+            # Create result structure
+            result = {
+                'success': False,
+                'file_path': file_path,
+                'filename': filename,
+                'timestamp': datetime.now().isoformat(),
+                'user_id': user_id,
+                'message': "",
+                'details': {}
             }
+            
+            # First validate the file
+            validation = self.validate_file(file_path)
+            if not validation['is_valid']:
+                result['message'] = f"File validation failed: {', '.join(validation['errors'])}"
+                result['details']['validation'] = validation
+                
+                # Log the failed validation
+                log_action('file_validation_failed', user_id, file_path, 
+                           {'errors': validation['errors'], 'warnings': validation['warnings']}, 
+                           'error')
+                
+                return result
+            
+            # Store validation info
+            result['details']['validation'] = validation
+            
+            # Detect file type if not provided
+            if file_type is None or file_type == 'auto':
+                detected_type = self._detect_file_type(filename)
+                file_type = detected_type
+                result['details']['file_type'] = file_type
+                result['details']['auto_detected'] = True
+            else:
+                result['details']['file_type'] = file_type
+                result['details']['auto_detected'] = False
+            
+            # Backup the file
+            backup_path = backup_file(file_path, user_id)
+            result['details']['backup_path'] = backup_path
+            
+            # Log the upload
+            log_action('file_upload', user_id, file_path, 
+                       {'file_type': file_type, 'backup_path': backup_path}, 
+                       'success')
+            
+            # Get file extension
+            extension = self._get_file_extension(filename)
+            
+            # Process based on file type and extension
+            processor_result = {}
+            
+            # Excel file processing
+            if extension in ['.xlsx', '.xlsm', '.xls']:
+                # Parse with Excel parser
+                parse_result = self.excel_parser.parse_excel(file_path)
+                if parse_result['success']:
+                    processor_result = parse_result
+                    
+                    # Save parsing results
+                    metadata_file = f"{file_path}.meta.json"
+                    with open(metadata_file, 'w') as f:
+                        # Convert DataFrames to list of dicts for JSON serialization
+                        serializable_result = parse_result.copy()
+                        for sheet_name, sheet_data in serializable_result.get('sheets', {}).items():
+                            if 'data' in sheet_data and isinstance(sheet_data['data'], pd.DataFrame):
+                                sheet_data['data'] = sheet_data['data'].to_dict('records')
+                        
+                        json.dump(serializable_result, f, indent=2, default=str)
+                    
+                    result['details']['metadata_file'] = metadata_file
+                    
+                    # Route to appropriate domain-specific processor if available
+                    if file_type in FILE_TYPES:
+                        module_name = FILE_TYPES[file_type]['module']
+                        processor_name = FILE_TYPES[file_type]['processor']
+                        
+                        # Try to import and call the specific processor
+                        try:
+                            # Dynamic import
+                            module_path = f"utils.processors.{module_name}"
+                            processor_module = __import__(module_path, fromlist=[processor_name])
+                            
+                            # Get the processor function
+                            processor_func = getattr(processor_module, processor_name)
+                            
+                            # Call the processor
+                            domain_result = processor_func(file_path, parse_result, user_id)
+                            
+                            # Add domain result to result
+                            result['details']['domain_processing'] = domain_result
+                            
+                            # Log the domain processing
+                            log_action('domain_processing', user_id, file_path,
+                                      {'module': module_name, 'processor': processor_name, 
+                                       'result': domain_result.get('success', False)},
+                                      'success' if domain_result.get('success', False) else 'error')
+                            
+                        except (ImportError, AttributeError) as e:
+                            # Module or function not found, log but continue
+                            logger.warning(f"Domain processor not found: {e}")
+                            result['details']['domain_processing'] = {
+                                'success': False,
+                                'message': f"Domain processor not found: {module_path}.{processor_name}",
+                                'error': str(e)
+                            }
+                            
+                            # Log the error
+                            log_action('domain_processing_error', user_id, file_path,
+                                      {'module': module_name, 'processor': processor_name, 'error': str(e)},
+                                      'error')
+                        
+                        except Exception as e:
+                            # Other processing error
+                            logger.error(f"Error in domain processing: {e}")
+                            result['details']['domain_processing'] = {
+                                'success': False,
+                                'message': f"Error in domain processing: {str(e)}",
+                                'error': str(e)
+                            }
+                            
+                            # Log the error
+                            log_action('domain_processing_error', user_id, file_path,
+                                      {'module': module_name, 'processor': processor_name, 'error': str(e)},
+                                      'error')
+                else:
+                    # Excel parsing failed
+                    result['message'] = f"Excel parsing failed: {parse_result.get('error', 'Unknown error')}"
+                    result['details']['parse_result'] = parse_result
+                    
+                    # Log the failed parsing
+                    log_action('file_parsing_failed', user_id, file_path,
+                              {'error': parse_result.get('error', 'Unknown error')},
+                              'error')
+                    
+                    return result
+            
+            # CSV file processing
+            elif extension == '.csv':
+                try:
+                    # Read CSV file
+                    df = pd.read_csv(file_path)
+                    
+                    # Basic CSV processing
+                    processor_result = {
+                        'success': True,
+                        'row_count': len(df),
+                        'column_count': len(df.columns),
+                        'columns': df.columns.tolist(),
+                        'file_path': file_path
+                    }
+                    
+                    # Save a sample of the data
+                    sample_rows = min(10, len(df))
+                    processor_result['sample'] = df.head(sample_rows).to_dict('records')
+                    
+                    # Save as processed data
+                    metadata_file = f"{file_path}.meta.json"
+                    with open(metadata_file, 'w') as f:
+                        json.dump(processor_result, f, indent=2, default=str)
+                    
+                    result['details']['metadata_file'] = metadata_file
+                    
+                except Exception as e:
+                    # CSV processing failed
+                    result['message'] = f"CSV processing failed: {str(e)}"
+                    result['details']['error'] = str(e)
+                    
+                    # Log the failed processing
+                    log_action('file_processing_failed', user_id, file_path,
+                              {'error': str(e)},
+                              'error')
+                    
+                    return result
+            
+            # JSON file processing
+            elif extension == '.json':
+                try:
+                    # Read JSON file
+                    with open(file_path, 'r') as f:
+                        json_data = json.load(f)
+                    
+                    # Basic JSON processing
+                    processor_result = {
+                        'success': True,
+                        'file_path': file_path
+                    }
+                    
+                    # Check if JSON is an array or object
+                    if isinstance(json_data, list):
+                        processor_result['item_count'] = len(json_data)
+                        processor_result['structure'] = 'array'
+                        
+                        # Save a sample of the data
+                        sample_items = min(5, len(json_data))
+                        processor_result['sample'] = json_data[:sample_items]
+                    else:
+                        processor_result['key_count'] = len(json_data.keys())
+                        processor_result['structure'] = 'object'
+                        processor_result['keys'] = list(json_data.keys())
+                    
+                    # Save as processed data
+                    metadata_file = f"{file_path}.meta.json"
+                    with open(metadata_file, 'w') as f:
+                        json.dump(processor_result, f, indent=2, default=str)
+                    
+                    result['details']['metadata_file'] = metadata_file
+                    
+                except Exception as e:
+                    # JSON processing failed
+                    result['message'] = f"JSON processing failed: {str(e)}"
+                    result['details']['error'] = str(e)
+                    
+                    # Log the failed processing
+                    log_action('file_processing_failed', user_id, file_path,
+                              {'error': str(e)},
+                              'error')
+                    
+                    return result
+            
+            # PDF file processing
+            elif extension == '.pdf':
+                # For now, just log that we received a PDF
+                # Future: implement PDF text extraction
+                processor_result = {
+                    'success': True,
+                    'file_path': file_path,
+                    'file_size': os.path.getsize(file_path),
+                    'message': "PDF received and backed up. Text extraction not yet implemented."
+                }
+                
+                # Save as processed data
+                metadata_file = f"{file_path}.meta.json"
+                with open(metadata_file, 'w') as f:
+                    json.dump(processor_result, f, indent=2, default=str)
+                
+                result['details']['metadata_file'] = metadata_file
+            
+            else:
+                # Unsupported file type
+                result['message'] = f"Unsupported file type: {extension}"
+                
+                # Log the unsupported file type
+                log_action('unsupported_file_type', user_id, file_path,
+                          {'extension': extension},
+                          'error')
+                
+                return result
+            
+            # Mark as success
+            result['success'] = True
+            result['message'] = f"File processed successfully: {filename}"
+            result['details']['processor_result'] = processor_result
+            
+            # Log successful processing
+            log_action('file_processing_completed', user_id, file_path,
+                      {'file_type': file_type, 'processor_result': processor_result.get('success', False)},
+                      'success')
+            
+            # Add to processing history
+            self.processing_history.append({
+                'timestamp': datetime.now().isoformat(),
+                'filename': filename,
+                'file_path': file_path,
+                'file_type': file_type,
+                'user_id': user_id,
+                'success': True
+            })
+            
+            return result
+            
         except Exception as e:
-            logger.error(f"Error processing file {self.file_path}: {e}")
+            # Catch-all for unexpected errors
+            logger.error(f"Error processing file {file_path}: {e}")
+            
+            # Log the error
+            log_action('file_processing_error', user_id, file_path,
+                      {'error': str(e)},
+                      'error')
+            
+            # Add to processing history
+            self.processing_history.append({
+                'timestamp': datetime.now().isoformat(),
+                'filename': filename if 'filename' in locals() else os.path.basename(file_path),
+                'file_path': file_path,
+                'file_type': file_type if 'file_type' in locals() else None,
+                'user_id': user_id,
+                'success': False,
+                'error': str(e)
+            })
+            
             return {
                 'success': False,
+                'file_path': file_path,
                 'message': f"Error processing file: {str(e)}",
-                'data': None,
-                'metadata': self.metadata,
-                'error': str(e)
+                'details': {'error': str(e)}
             }
     
-    def _process_excel(self):
+    def get_processing_history(self, limit: int = 50) -> List[Dict[str, Any]]:
         """
-        Process Excel file
-        
-        Returns:
-            pd.DataFrame: Processed data
-        """
-        # Read the Excel file
-        df = pd.read_excel(self.file_path)
-        return df
-    
-    def _process_csv(self):
-        """
-        Process CSV file
-        
-        Returns:
-            pd.DataFrame: Processed data
-        """
-        # Read the CSV file
-        df = pd.read_csv(self.file_path)
-        return df
-    
-    def _process_json(self):
-        """
-        Process JSON file
-        
-        Returns:
-            dict or list: Processed data
-        """
-        # Read the JSON file
-        with open(self.file_path, 'r') as f:
-            data = json.load(f)
-        return data
-    
-    def save_processed_data(self, output_path=None):
-        """
-        Save processed data to a file
+        Get file processing history
         
         Args:
-            output_path (str, optional): Path to save the processed data. If None, uses a default path.
+            limit (int): Maximum number of records to return
             
         Returns:
-            str: Path to the saved file
+            List[Dict[str, Any]]: Processing history
         """
-        if self.processed_data is None:
-            raise ValueError("No processed data to save. Call process() first.")
+        # Return most recent first
+        return sorted(self.processing_history, key=lambda x: x['timestamp'], reverse=True)[:limit]
+    
+    def reprocess_file(self, file_path: str, file_type: str = None, user_id: str = None) -> Dict[str, Any]:
+        """
+        Reprocess a previously uploaded file
         
-        if output_path is None:
-            # Generate a default output path
-            filename, _ = os.path.splitext(self.original_filename)
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            output_dir = os.path.join('data', 'processed')
-            os.makedirs(output_dir, exist_ok=True)
-            output_path = os.path.join(output_dir, f"{filename}_processed_{timestamp}.json")
+        Args:
+            file_path (str): Path to the file
+            file_type (str, optional): Type of file (if None, will be auto-detected)
+            user_id (str, optional): ID of the user who requested reprocessing
+            
+        Returns:
+            Dict[str, Any]: Processing result
+        """
+        # Check if file exists
+        if not os.path.exists(file_path):
+            message = f"File not found: {file_path}"
+            
+            # Log the error
+            log_action('file_reprocessing_error', user_id, file_path,
+                      {'error': message},
+                      'error')
+            
+            return {
+                'success': False,
+                'file_path': file_path,
+                'message': message
+            }
         
-        # Create directory if it doesn't exist
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        # Log reprocessing attempt
+        log_action('file_reprocessing_started', user_id, file_path,
+                  {'file_type': file_type},
+                  'info')
         
-        # Save the data based on its type
-        if isinstance(self.processed_data, pd.DataFrame):
-            # For DataFrames, convert to dict and save as JSON
-            data_dict = self.processed_data.to_dict(orient='records')
-            with open(output_path, 'w') as f:
-                json.dump(data_dict, f, indent=2)
-        elif isinstance(self.processed_data, (dict, list)):
-            # For dict/list, save directly as JSON
-            with open(output_path, 'w') as f:
-                json.dump(self.processed_data, f, indent=2)
+        # Process the file
+        result = self.process_file(file_path, file_type, user_id)
+        
+        # Add reprocessing flag
+        result['reprocessed'] = True
+        
+        return result
+    
+    def compare_files(self, file1_path: str, file2_path: str, 
+                     sheet_name: str = None, user_id: str = None) -> Dict[str, Any]:
+        """
+        Compare two files and identify differences
+        
+        Args:
+            file1_path (str): Path to the first file
+            file2_path (str): Path to the second file
+            sheet_name (str, optional): Name of the sheet to compare (for Excel files)
+            user_id (str, optional): ID of the user who requested comparison
+            
+        Returns:
+            Dict[str, Any]: Comparison result
+        """
+        # Check if files exist
+        if not os.path.exists(file1_path):
+            return {
+                'success': False,
+                'message': f"First file not found: {file1_path}"
+            }
+        
+        if not os.path.exists(file2_path):
+            return {
+                'success': False,
+                'message': f"Second file not found: {file2_path}"
+            }
+        
+        # Get file extensions
+        ext1 = self._get_file_extension(file1_path)
+        ext2 = self._get_file_extension(file2_path)
+        
+        # For now, only compare Excel files
+        if ext1 in ['.xlsx', '.xlsm', '.xls'] and ext2 in ['.xlsx', '.xlsm', '.xls']:
+            from utils.cya import compare_excel_files
+            
+            # Log comparison attempt
+            log_action('file_comparison_started', user_id, file1_path,
+                      {'file2_path': file2_path, 'sheet_name': sheet_name},
+                      'info')
+            
+            # Compare Excel files
+            comparison = compare_excel_files(file1_path, file2_path, sheet_name)
+            
+            # Create result
+            result = {
+                'success': 'error' not in comparison,
+                'file1_path': file1_path,
+                'file2_path': file2_path,
+                'comparison': comparison
+            }
+            
+            if 'error' in comparison:
+                result['message'] = f"Comparison failed: {comparison['error']}"
+            else:
+                result['message'] = f"Comparison complete: {comparison['total_diff_count']} differences found"
+            
+            return result
         else:
-            # For other types, convert to string and save
-            with open(output_path, 'w') as f:
-                f.write(str(self.processed_data))
-        
-        # Update metadata with output path
-        self.metadata['output_path'] = output_path
-        
-        return output_path
-    
-    def match_dataframe(self, employee_col="employee_name", asset_col="asset_id"):
-        """
-        Match employee names to assets in the dataframe
-        
-        Args:
-            employee_col (str): Column name for employee names
-            asset_col (str): Column name for asset IDs
+            message = f"File comparison not supported for extensions: {ext1} and {ext2}"
             
-        Returns:
-            pd.DataFrame: DataFrame with matched employee names
-        """
-        if not isinstance(self.processed_data, pd.DataFrame):
-            raise TypeError("Processed data must be a DataFrame to use match_dataframe")
-        
-        # Check if columns exist
-        if employee_col not in self.processed_data.columns:
-            raise ValueError(f"Column '{employee_col}' not found in DataFrame")
-        if asset_col not in self.processed_data.columns:
-            raise ValueError(f"Column '{asset_col}' not found in DataFrame")
-        
-        # Copy the dataframe to avoid modifying the original
-        df = self.processed_data.copy()
-        
-        # This is a placeholder for actual matching logic
-        # In a real implementation, this would use the employee mapper
-        df['match_confidence'] = 0.85  # Placeholder confidence score
-        
-        return df
+            # Log the error
+            log_action('file_comparison_error', user_id, file1_path,
+                      {'file2_path': file2_path, 'error': message},
+                      'error')
+            
+            return {
+                'success': False,
+                'message': message
+            }
 
 
-def process_file(file_path, file_type, user_id=0):
+# Module-level instance for easy access
+file_processor = FileProcessor()
+
+# Utility functions
+def allowed_file(filename: str) -> bool:
     """
-    Process a file using the appropriate processor
+    Check if a filename has an allowed extension
     
     Args:
-        file_path (str): Path to the file to process
-        file_type (str): Type of file ('excel', 'csv', etc)
-        user_id (int, optional): ID of the user who uploaded the file
+        filename (str): Filename to check
         
     Returns:
-        dict: Processing results
+        bool: True if allowed, False otherwise
     """
-    # Create and run the file processor
-    processor = FileProcessor(file_path, file_type, user_id)
-    return processor.process()
+    allowed_extensions = {'.xlsx', '.xlsm', '.xls', '.csv', '.json', '.pdf'}
+    
+    return os.path.splitext(filename)[1].lower() in allowed_extensions
 
-
-def allowed_file(filename, allowed_extensions=None):
+def process_file(file_path: str, file_type: str = None, user_id: str = None) -> Dict[str, Any]:
     """
-    Check if a file is allowed
+    Process a file using the module-level file processor
     
     Args:
-        filename (str): Name of the file to check
-        allowed_extensions (list, optional): List of allowed extensions
+        file_path (str): Path to the file
+        file_type (str, optional): Type of file (if None, will be auto-detected)
+        user_id (str, optional): ID of the user who uploaded the file
         
     Returns:
-        bool: True if file is allowed, False otherwise
+        Dict[str, Any]: Processing result
     """
-    if allowed_extensions is None:
-        allowed_extensions = {'xlsx', 'xls', 'csv', 'json', 'pdf'}
-    
-    if '.' not in filename:
-        return False
-    
-    ext = filename.rsplit('.', 1)[1].lower()
-    return ext in allowed_extensions
+    return file_processor.process_file(file_path, file_type, user_id)

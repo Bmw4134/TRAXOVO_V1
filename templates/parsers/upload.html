@@ -4,191 +4,169 @@
 
 {% block content %}
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Upload File</h1>
-        <a href="{{ url_for('parser.index') }}" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-2"></i> Back to Parser Dashboard
-        </a>
-    </div>
-    
+    <h1 class="mb-4">File Upload</h1>
     <div class="row">
-        <div class="col-lg-8 mx-auto">
+        <div class="col-lg-8">
             <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">File Upload</h5>
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">Upload a file for processing</h5>
                 </div>
                 <div class="card-body">
-                    <form method="post" enctype="multipart/form-data" id="uploadForm">
-                        <div class="mb-4">
-                            <div class="alert alert-info">
-                                <h5><i class="fas fa-info-circle me-2"></i> Supported File Types</h5>
-                                <p class="mb-0">
-                                    SYSTEMSMITH's Adaptive Logic supports Excel files (.xlsx, .xls, .xlsm) and CSV files.
-                                    The system will automatically detect the file type and extract relevant data.
-                                </p>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label for="fileType" class="form-label">File Type (Optional)</label>
-                            <select class="form-select" id="fileType" name="file_type">
-                                <option value="" selected>Auto-detect file type</option>
-                                <option value="billing">Billing</option>
-                                <option value="utilization">Utilization / Hours</option>
-                                <option value="work_order">Work Orders / Repairs</option>
-                                <option value="attendance">Attendance / Late Starts</option>
-                                <option value="gps">GPS / Efficiency</option>
-                            </select>
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <form method="POST" action="{{ url_for('parser.upload') }}" enctype="multipart/form-data" id="upload-form">
+                        <div class="mb-3">
+                            <label for="file" class="form-label">Select File</label>
+                            <input type="file" class="form-control" id="file" name="file" required>
                             <div class="form-text">
-                                Select a file type or let the system auto-detect based on file content.
+                                Accepted file types: 
+                                {% for ext in allowed_extensions %}
+                                    <span class="badge bg-secondary">{{ ext }}</span>
+                                {% endfor %}
                             </div>
                         </div>
                         
-                        <div class="mb-4">
-                            <label for="fileInput" class="form-label">Select File</label>
-                            <input class="form-control" type="file" id="fileInput" name="file" required>
-                            <div class="form-text" id="fileHelp">
-                                Maximum file size: 10MB. Supported formats: .xlsx, .xls, .xlsm, .csv
-                            </div>
-                        </div>
-                        
-                        <div class="upload-zone mb-4 d-none" id="dropZone">
-                            <div class="text-center p-5 border border-2 rounded border-primary bg-light">
-                                <i class="fas fa-file-upload fa-3x text-primary mb-3"></i>
-                                <h5>Drag & Drop Files Here</h5>
-                                <p class="text-muted">or click to browse</p>
-                            </div>
+                        <div class="mb-3">
+                            <label for="file_type" class="form-label">File Type</label>
+                            <select class="form-select" id="file_type" name="file_type">
+                                <option value="auto" selected>Auto-detect</option>
+                                <option value="fringe">Auto Fringe Files</option>
+                                <option value="billing">Monthly Billing & Allocations</option>
+                                <option value="maintenance">Work Order Reports</option>
+                                <option value="activity">Activity Detail & Driving History</option>
+                                <option value="utilization">Time-on-Site & Utilization</option>
+                                <option value="compliance">BPP Compliance Documents</option>
+                                <option value="fuel">Fuel Transaction Reports</option>
+                                <option value="tolls">Toll Transaction Reports</option>
+                                <option value="employee">Employee Assignment & Status</option>
+                                <option value="gauge">Gauge API Data</option>
+                            </select>
+                            <div class="form-text">Select a specific type or let the system auto-detect based on filename</div>
                         </div>
                         
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-upload me-2"></i> Upload & Process
+                            <button type="submit" class="btn btn-primary" id="upload-btn">
+                                <i class="bi bi-upload me-2"></i>Upload & Process
                             </button>
-                            <a href="{{ url_for('parser.index') }}" class="btn btn-outline-secondary">Cancel</a>
                         </div>
                     </form>
                 </div>
             </div>
-            
-            <div class="card mt-4">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0">Processing Information</h5>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card mb-3">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">File Type Guide</h5>
                 </div>
                 <div class="card-body">
-                    <div class="accordion" id="processingAccordion">
+                    <div class="accordion" id="fileTypeAccordion">
                         <div class="accordion-item">
-                            <h2 class="accordion-header" id="headingOne">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-                                    Adaptive Logic Processing
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#fringe-collapse">
+                                    Auto Fringe Files
                                 </button>
                             </h2>
-                            <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#processingAccordion">
+                            <div id="fringe-collapse" class="accordion-collapse collapse" data-bs-parent="#fileTypeAccordion">
                                 <div class="accordion-body">
-                                    <p>SYSTEMSMITH uses advanced adaptive logic to process uploaded files:</p>
-                                    <ol>
-                                        <li><strong>Format Detection:</strong> Automatically identifies file type and format</li>
-                                        <li><strong>Sheet Selection:</strong> Intelligently selects the most relevant sheet in multi-sheet Excel files</li>
-                                        <li><strong>Column Mapping:</strong> Maps columns to standardized field names for consistent processing</li>
-                                        <li><strong>Data Normalization:</strong> Cleans and normalizes data for analysis</li>
-                                        <li><strong>Employee Matching:</strong> Matches assets to employees using pattern recognition</li>
-                                    </ol>
+                                    <p>Files containing fringe benefit calculations for employees assigned to equipment.</p>
+                                    <p><strong>Examples:</strong> AUTO FRINGE 2024.xlsx</p>
                                 </div>
                             </div>
                         </div>
+                        
                         <div class="accordion-item">
-                            <h2 class="accordion-header" id="headingTwo">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                    File Type Guidelines
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#billing-collapse">
+                                    Monthly Billing & Allocations
                                 </button>
                             </h2>
-                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#processingAccordion">
+                            <div id="billing-collapse" class="accordion-collapse collapse" data-bs-parent="#fileTypeAccordion">
                                 <div class="accordion-body">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <h6>Billing Files</h6>
-                                            <ul class="small">
-                                                <li>Ragle EQ Billings</li>
-                                                <li>Select EQ Billings</li>
-                                                <li>Monthly billing spreadsheets</li>
-                                            </ul>
-                                            
-                                            <h6>Utilization Files</h6>
-                                            <ul class="small">
-                                                <li>Fleet Utilization reports</li>
-                                                <li>Hours tracking sheets</li>
-                                                <li>Equipment usage logs</li>
-                                            </ul>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <h6>Work Order Files</h6>
-                                            <ul class="small">
-                                                <li>RAG WO Detail Reports</li>
-                                                <li>Repair tickets</li>
-                                                <li>Maintenance logs</li>
-                                            </ul>
-                                            
-                                            <h6>Attendance Files</h6>
-                                            <ul class="small">
-                                                <li>Daily Late Start reports</li>
-                                                <li>Early End reports</li>
-                                                <li>NOJ (Not On Job) reports</li>
-                                            </ul>
-                                        </div>
-                                    </div>
+                                    <p>Files containing monthly equipment billing data, allocations, and profit reports.</p>
+                                    <p><strong>Examples:</strong> EQ MONTHLY BILLINGS.xlsx, PROFIT REPORT.xlsx</p>
                                 </div>
                             </div>
                         </div>
+                        
                         <div class="accordion-item">
-                            <h2 class="accordion-header" id="headingThree">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                                    PM Review &amp; Adjustment Process
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#maintenance-collapse">
+                                    Work Order Reports
                                 </button>
                             </h2>
-                            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#processingAccordion">
+                            <div id="maintenance-collapse" class="accordion-collapse collapse" data-bs-parent="#fileTypeAccordion">
                                 <div class="accordion-body">
-                                    <p>The Project Manager (PM) review process:</p>
-                                    <ol>
-                                        <li><strong>Initial Upload:</strong> Upload the original file for processing</li>
-                                        <li><strong>Download Results:</strong> Review and download the processed data</li>
-                                        <li><strong>PM Adjustments:</strong> Make necessary adjustments in the downloaded file</li>
-                                        <li><strong>Re-Upload:</strong> Upload the adjusted file for final processing</li>
-                                        <li><strong>Verification:</strong> The system will compare the original and adjusted files</li>
-                                        <li><strong>Approval:</strong> Confirm the changes to finalize the data</li>
-                                    </ol>
+                                    <p>Files containing maintenance work orders, repair costs, and equipment expenses.</p>
+                                    <p><strong>Examples:</strong> WO DETAIL REPORT.xlsx, HEAVY EQ EXPENSES.xlsx</p>
                                 </div>
                             </div>
                         </div>
+                        
+                        <!-- More accordion items for other file types -->
                     </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">Upload Tips</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <i class="bi bi-info-circle-fill text-info me-2"></i>
+                            Files are automatically backed up with timestamps
+                        </li>
+                        <li class="list-group-item">
+                            <i class="bi bi-shield-check text-success me-2"></i>
+                            All uploads are logged in the audit trail
+                        </li>
+                        <li class="list-group-item">
+                            <i class="bi bi-lightning-charge text-warning me-2"></i>
+                            Smart detection works best with descriptive filenames
+                        </li>
+                        <li class="list-group-item">
+                            <i class="bi bi-table text-primary me-2"></i>
+                            Excel files with multiple sheets are fully supported
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-{% endblock %}
-
-{% block extra_js %}
 <script>
-    // File upload preview and validation
-    document.getElementById('fileInput').addEventListener('change', function(e) {
-        const fileName = e.target.files[0]?.name;
-        if (fileName) {
-            // Auto-detect file type based on filename
-            const fileNameLower = fileName.toLowerCase();
-            const fileTypeSelect = document.getElementById('fileType');
-            
-            if (fileNameLower.includes('billing') || fileNameLower.includes('ragle eq') || fileNameLower.includes('select eq')) {
-                fileTypeSelect.value = 'billing';
-            } else if (fileNameLower.includes('utilization') || fileNameLower.includes('fleet')) {
-                fileTypeSelect.value = 'utilization';
-            } else if (fileNameLower.includes('work order') || fileNameLower.includes('wo ') || fileNameLower.includes('rag wo')) {
-                fileTypeSelect.value = 'work_order';
-            } else if (fileNameLower.includes('attendance') || fileNameLower.includes('late start') || fileNameLower.includes('early end')) {
-                fileTypeSelect.value = 'attendance';
-            } else if (fileNameLower.includes('gps') || fileNameLower.includes('gauge') || fileNameLower.includes('efficiency')) {
-                fileTypeSelect.value = 'gps';
-            }
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('upload-form');
+    const uploadBtn = document.getElementById('upload-btn');
+    const fileInput = document.getElementById('file');
+    
+    form.addEventListener('submit', function() {
+        // Disable button and show loading state
+        uploadBtn.disabled = true;
+        uploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Processing...';
+    });
+    
+    // Update button text when file is selected
+    fileInput.addEventListener('change', function() {
+        if (fileInput.files.length > 0) {
+            const fileName = fileInput.files[0].name;
+            uploadBtn.innerHTML = '<i class="bi bi-upload me-2"></i>Upload & Process: ' + fileName;
+        } else {
+            uploadBtn.innerHTML = '<i class="bi bi-upload me-2"></i>Upload & Process';
         }
     });
+});
 </script>
 {% endblock %}

@@ -1,714 +1,1093 @@
 """
-Excel Parser Module for SYSTEMSMITH
+Advanced Excel Parser
 
-Provides intelligent parsing of various Excel file formats with automatic:
-- Format detection
-- Sheet selection
-- Column mapping
-- Data normalization
-
-Supports single and multi-sheet Excel files from various sources.
+This module provides functionality to intelligently parse Excel files with varying formats,
+multi-sheet structures, and different header positions.
 """
 
 import os
-import logging
 import re
-import pandas as pd
+import json
+import logging
 import numpy as np
-from pathlib import Path
-from typing import Dict, List, Tuple, Union, Optional, Any
+import pandas as pd
 from datetime import datetime
-from utils.cya import backup_file, log_event
+from typing import Dict, List, Tuple, Any, Optional, Union
 
+# Setup logging
 logger = logging.getLogger(__name__)
 
-# Excel Parser Constants
-SUPPORTED_EXTENSIONS = ['.xlsx', '.xls', '.xlsm', '.csv']
-DEFAULT_SHEET_NAMES = ['Data', 'Sheet1', 'Summary', 'Raw Data']
-
-class ExcelParserException(Exception):
-    """Exception raised for errors in the Excel parser."""
-    pass
-
 class ExcelParser:
-    """Intelligent Excel Parser for various file formats"""
+    """Advanced Excel parser for handling complex file formats"""
     
-    def __init__(self, file_path: str, file_type: str = None, sheet_name: str = None, user_id: int = None):
+    # Common patterns for column standardization
+    COLUMN_PATTERNS = {
+        # Employee/driver patterns
+        'employee': [
+            r'emp(?:loyee)?[\s_-]*(?:name|id)?',
+            r'driver(?:[\s_-]*name)?',
+            r'operator',
+            r'(?:assigned[\s_-]*)?(?:to|user)',
+            r'(?:assigned[\s_-]*)(?:person|name)',
+            r'assigned',
+            r'name'
+        ],
+        'employee_id': [
+            r'emp(?:loyee)?[\s_-]*(?:id|number|#|code)',
+            r'(?:id|#|no|num)[\s_-]*(?:emp|employee|number)',
+            r'driver[\s_-]*(?:id|number|#)',
+            r'personnel[\s_-]*(?:id|number)',
+            r'(?:emp|employee|personnel|driver)[\s_-]*code'
+        ],
+        
+        # Asset patterns
+        'asset': [
+            r'(?:equipment|asset|unit|eq)[\s_-]*(?:id|number|#|code)?',
+            r'(?:id|#|no|num)[\s_-]*(?:equipment|asset|unit|eq)',
+            r'unit[\s_-]*(?:id|number|#)?',
+            r'vehicle[\s_-]*(?:id|number|#)?',
+            r'id',
+            r'num(?:ber)?',
+            r'eq(?:[\s_-]*)(?:id|num)',
+            r'eq[\s_-]*unit'
+        ],
+        'asset_type': [
+            r'(?:equipment|asset|unit)[\s_-]*type',
+            r'type[\s_-]*(?:of[\s_-]*)?(?:equipment|asset|unit)',
+            r'equipment',
+            r'category',
+            r'class'
+        ],
+        'asset_description': [
+            r'(?:equipment|asset|unit)[\s_-]*desc(?:ription)?',
+            r'desc(?:ription)?',
+            r'details',
+            r'model',
+            r'make[\s_-]*model'
+        ],
+        
+        # Hours/utilization patterns
+        'hours': [
+            r'(?:total[\s_-]*)?hours',
+            r'hrs',
+            r'engine[\s_-]*hours',
+            r'run[\s_-]*time',
+            r'usage[\s_-]*hours',
+            r'time'
+        ],
+        'idle_hours': [
+            r'idle[\s_-]*(?:hours|hrs|time)',
+            r'hours[\s_-]*idle',
+            r'standby[\s_-]*(?:hours|hrs|time)'
+        ],
+        'run_hours': [
+            r'run(?:ning)?[\s_-]*(?:hours|hrs|time)',
+            r'active[\s_-]*(?:hours|hrs|time)',
+            r'work(?:ing)?[\s_-]*(?:hours|hrs|time)'
+        ],
+        
+        # Date patterns
+        'date': [
+            r'date',
+            r'day',
+            r'period',
+            r'time[\s_-]*frame',
+            r'report[\s_-]*date',
+            r'as[\s_-]*of'
+        ],
+        'start_date': [
+            r'start[\s_-]*date',
+            r'from[\s_-]*date',
+            r'begin(?:ning)?[\s_-]*date',
+            r'period[\s_-]*start'
+        ],
+        'end_date': [
+            r'end[\s_-]*date',
+            r'to[\s_-]*date',
+            r'period[\s_-]*end'
+        ],
+        
+        # Location patterns
+        'location': [
+            r'location',
+            r'site',
+            r'job[\s_-]*site',
+            r'project[\s_-]*(?:site|location)',
+            r'area',
+            r'region',
+            r'address'
+        ],
+        'job_code': [
+            r'job[\s_-]*(?:code|id|number|#)',
+            r'project[\s_-]*(?:code|id|number|#)',
+            r'job',
+            r'project'
+        ],
+        'district': [
+            r'district',
+            r'division',
+            r'region',
+            r'area',
+            r'sector'
+        ],
+        
+        # Cost/billing patterns
+        'cost': [
+            r'cost',
+            r'amount',
+            r'charge',
+            r'billing',
+            r'price',
+            r'value'
+        ],
+        'rate': [
+            r'rate',
+            r'(?:hourly|daily|monthly)[\s_-]*rate',
+            r'price[\s_-]*per[\s_-]*(?:hour|day|month)',
+            r'unit[\s_-]*(?:price|cost)'
+        ],
+        'total': [
+            r'total',
+            r'sum',
+            r'amount',
+            r'(?:grand|final)[\s_-]*total'
+        ]
+    }
+    
+    # Known header formats
+    HEADER_INDICATORS = [
+        'employee', 'driver', 'asset', 'equipment', 'unit', 'job', 'project', 
+        'date', 'hours', 'location', 'cost', 'rate', 'total', 'id', 'description',
+        'make', 'model', 'serial'
+    ]
+    
+    def __init__(self):
+        """Initialize the Excel parser"""
+        # Statistics tracking
+        self.stats = {
+            'files_processed': 0,
+            'sheets_processed': 0,
+            'rows_processed': 0,
+            'normalized_columns': 0,
+            'detected_headers': 0,
+            'detected_ids': 0
+        }
+        
+        # Parsed data storage
+        self.parsed_data = {}
+        
+        # Detected column mappings
+        self.column_mappings = {}
+        
+    def _get_file_type_from_name(self, filename: str) -> str:
         """
-        Initialize the Excel parser.
+        Determine file type from filename pattern
         
         Args:
-            file_path: Path to the Excel file
-            file_type: Type of file (billing, utilization, etc.). If None, will attempt to detect.
-            sheet_name: Name of the sheet to parse. If None, will attempt to detect.
-            user_id: ID of the user who uploaded the file
-        """
-        if not os.path.exists(file_path):
-            raise ExcelParserException(f"File not found: {file_path}")
-        
-        self.file_path = file_path
-        self.file_name = os.path.basename(file_path)
-        self.file_extension = os.path.splitext(file_path)[1].lower()
-        self.file_type = file_type
-        self.sheet_name = sheet_name
-        self.user_id = user_id
-        self.df = None
-        self.all_sheets = {}
-        self.sheet_names = []
-        self.detected_type = None
-        self.column_mapping = {}
-        
-        # Check if file is supported
-        if self.file_extension not in SUPPORTED_EXTENSIONS:
-            raise ExcelParserException(f"Unsupported file format: {self.file_extension}")
-        
-        # Backup the file
-        self._backup_file()
-        
-        # Log the file upload
-        log_event(
-            "FILE_UPLOAD", 
-            f"Uploaded file: {self.file_name}",
-            user_id=self.user_id,
-            data_path=self.file_path,
-            metadata={"file_type": file_type}
-        )
-    
-    def _backup_file(self):
-        """Backup the file to the CYA system"""
-        try:
-            backup_file(self.file_path, "uploads", self.user_id)
-        except Exception as e:
-            logger.warning(f"Failed to backup file: {e}")
-    
-    def _detect_file_type(self) -> str:
-        """
-        Detect the type of file based on filename and content.
-        
+            filename (str): Name of the file
+            
         Returns:
             str: Detected file type
         """
-        file_name_lower = self.file_name.lower()
+        filename = filename.lower()
         
-        # Check for billing files
-        if "billing" in file_name_lower or "ragle eq" in file_name_lower or "select eq" in file_name_lower:
-            return "billing"
+        # Determine file type based on patterns in the name
+        if any(term in filename for term in ['fringe', 'auto fringe', 'autofringe']):
+            return 'fringe'
+        elif any(term in filename for term in ['daily', 'late start', 'noj report']):
+            return 'attendance'
+        elif any(term in filename for term in ['eq billing', 'eq monthly', 'billing', 'allocations']):
+            return 'billing'
+        elif any(term in filename for term in ['wex', 'fuel', 'transaction']):
+            return 'fuel'
+        elif any(term in filename for term in ['gps', 'efficiency', 'work zone', 'workzone']):
+            return 'gps'
+        elif any(term in filename for term in ['utilization', 'fleet']):
+            return 'utilization'
+        elif any(term in filename for term in ['profit', 'expense', 'ytd']):
+            return 'financial'
+        elif any(term in filename for term in ['ntta', 'toll', 'trx']):
+            return 'tolls'
+        elif any(term in filename for term in ['wo detail', 'maintenance', 'uvc']):
+            return 'maintenance'
+        else:
+            return 'unknown'
         
-        # Check for utilization files
-        if "utilization" in file_name_lower or "fleet" in file_name_lower:
-            return "utilization"
-        
-        # Check for work order files
-        if "work order" in file_name_lower or "wo " in file_name_lower or "rag wo" in file_name_lower:
-            return "work_order"
-        
-        # Check for attendance files
-        if "attendance" in file_name_lower or "late start" in file_name_lower or "early end" in file_name_lower:
-            return "attendance"
-        
-        # Check for GPS files
-        if "gps" in file_name_lower or "gauge" in file_name_lower or "efficiency" in file_name_lower:
-            return "gps"
-        
-        # If we can't detect from the filename, try to detect from the content
-        if self.df is not None:
-            columns = [col.lower() if isinstance(col, str) else "" for col in self.df.columns]
-            
-            # Check for billing patterns
-            if any("billed" in col for col in columns) or any("invoice" in col for col in columns):
-                return "billing"
-            
-            # Check for utilization patterns
-            if any("usage" in col for col in columns) or any("hours" in col for col in columns):
-                return "utilization"
-            
-            # Check for work order patterns
-            if any("work order" in col for col in columns) or any("repair" in col for col in columns):
-                return "work_order"
-            
-            # Check for attendance patterns
-            if any("late" in col for col in columns) or any("attendance" in col for col in columns):
-                return "attendance"
-            
-            # Check for GPS patterns
-            if any("location" in col for col in columns) or any("coordinate" in col for col in columns):
-                return "gps"
-        
-        # Default to unknown
-        return "unknown"
-    
-    def _detect_sheet(self) -> str:
+    def _detect_header_row(self, df: pd.DataFrame) -> int:
         """
-        Detect the best sheet to use based on content.
-        
-        Returns:
-            str: Name of the best sheet to use
-        """
-        if self.file_extension == '.csv':
-            return None  # CSV files don't have sheets
-        
-        # If there's only one sheet, use it
-        if len(self.sheet_names) == 1:
-            return self.sheet_names[0]
-        
-        # Try to find a sheet that matches the file type
-        if self.file_type:
-            for sheet in self.sheet_names:
-                sheet_lower = sheet.lower()
-                if self.file_type in sheet_lower:
-                    return sheet
-        
-        # Try common sheet names
-        for name in DEFAULT_SHEET_NAMES:
-            if name in self.sheet_names:
-                return name
-        
-        # Look for the sheet with the most rows
-        sheet_rows = {}
-        for name in self.sheet_names:
-            try:
-                sheet_df = pd.read_excel(self.file_path, sheet_name=name)
-                sheet_rows[name] = len(sheet_df)
-            except Exception:
-                sheet_rows[name] = 0
-        
-        if sheet_rows:
-            return max(sheet_rows.items(), key=lambda x: x[1])[0]
-        
-        # Default to the first sheet
-        return self.sheet_names[0]
-    
-    def _clean_column_names(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Clean and standardize column names.
+        Detect the header row in a dataframe
         
         Args:
-            df: DataFrame with columns to clean
+            df (pd.DataFrame): DataFrame to analyze
             
         Returns:
-            DataFrame with cleaned column names
+            int: Detected header row index
         """
-        # Ensure all column names are strings
-        df.columns = [str(col) for col in df.columns]
-        
-        # Clean column names
-        clean_columns = {}
-        for col in df.columns:
-            # Convert to lowercase
-            clean_col = col.lower()
+        # Check each row for header-like characteristics
+        for i in range(min(20, len(df))):  # Check first 20 rows at most
+            row = df.iloc[i].astype(str)
             
-            # Remove special characters and replace with underscore
-            clean_col = re.sub(r'[^a-z0-9]', '_', clean_col)
-            
-            # Replace multiple underscores with single underscore
-            clean_col = re.sub(r'_+', '_', clean_col)
-            
-            # Remove leading/trailing underscores
-            clean_col = clean_col.strip('_')
-            
-            # If empty after cleaning, use 'column_X'
-            if not clean_col:
-                clean_col = f"column_{df.columns.get_loc(col)}"
-            
-            clean_columns[col] = clean_col
-        
-        # Rename columns
-        df = df.rename(columns=clean_columns)
-        
-        return df
-    
-    def _infer_column_types(self, df: pd.DataFrame) -> Dict[str, str]:
-        """
-        Infer the types of columns in the DataFrame.
-        
-        Args:
-            df: DataFrame to infer column types from
-            
-        Returns:
-            Dictionary mapping column names to inferred types
-        """
-        column_types = {}
-        
-        for col in df.columns:
-            # Skip completely empty columns
-            if df[col].isna().all():
-                column_types[col] = 'empty'
-                continue
-            
-            # Try to detect date columns
-            if df[col].dtype == 'object':
-                # Check if column appears to contain dates
-                date_sample = df[col].dropna().iloc[0] if not df[col].dropna().empty else None
-                if date_sample and isinstance(date_sample, str):
-                    try:
-                        pd.to_datetime(date_sample)
-                        column_types[col] = 'date'
-                        continue
-                    except:
-                        pass
-            
-            # Check for numeric columns
-            if pd.api.types.is_numeric_dtype(df[col]):
-                # Check if it's likely an ID column
-                if 'id' in col or 'number' in col:
-                    column_types[col] = 'id'
-                # Check if it's a monetary column
-                elif 'cost' in col or 'price' in col or 'amount' in col or 'rate' in col:
-                    column_types[col] = 'money'
-                # Check if it's a percentage
-                elif 'percent' in col or 'pct' in col or 'rate' in col:
-                    column_types[col] = 'percent'
-                # Default to numeric
-                else:
-                    column_types[col] = 'numeric'
-            else:
-                # Check for boolean columns
-                if set(df[col].dropna().unique()).issubset({'Y', 'N', 'Yes', 'No', 'TRUE', 'FALSE', True, False, 1, 0}):
-                    column_types[col] = 'boolean'
-                # Check for ID columns
-                elif any(id_term in col for id_term in ['id', 'code', 'number', 'identifier']):
-                    column_types[col] = 'id'
-                # Default to text
-                else:
-                    column_types[col] = 'text'
-        
-        return column_types
-    
-    def _apply_column_mapping(self, df: pd.DataFrame, mapping_type: str) -> pd.DataFrame:
-        """
-        Apply column mapping based on file type.
-        
-        Args:
-            df: DataFrame to map columns for
-            mapping_type: Type of mapping to apply
-            
-        Returns:
-            DataFrame with standardized column names
-        """
-        # Define standard column mappings for different file types
-        standard_mappings = {
-            'billing': {
-                'asset_id': ['asset_id', 'asset_identifier', 'asset_number', 'equipment_id', 'eq_id', 'unit_number', 'eq_number'],
-                'asset_description': ['asset_description', 'description', 'asset_name', 'equipment_name', 'equipment_description'],
-                'job_id': ['job_id', 'job_number', 'job_code', 'project_id', 'project_number', 'project_code', 'work_order'],
-                'job_name': ['job_name', 'job_description', 'project_name', 'project_description', 'location', 'site'],
-                'hours': ['hours', 'billed_hours', 'engine_hours', 'equipment_hours', 'usage_hours', 'run_hours', 'meter_hours'],
-                'rate': ['rate', 'billing_rate', 'hourly_rate', 'charge_rate', 'price', 'hourly_price'],
-                'total': ['total', 'total_amount', 'extended', 'extended_amount', 'amount', 'billed_amount'],
-                'start_date': ['start_date', 'period_start', 'from_date', 'begin_date', 'date_from'],
-                'end_date': ['end_date', 'period_end', 'to_date', 'finish_date', 'date_to']
-            },
-            'work_order': {
-                'wo_number': ['wo_number', 'work_order_number', 'work_order_id', 'wo_id', 'order_number', 'ticket_number'],
-                'asset_id': ['asset_id', 'asset_identifier', 'asset_number', 'equipment_id', 'eq_id', 'unit_number', 'eq_number'],
-                'service_date': ['service_date', 'repair_date', 'work_date', 'completion_date', 'date'],
-                'service_type': ['service_type', 'repair_type', 'work_type', 'maintenance_type', 'type'],
-                'description': ['description', 'work_description', 'repair_description', 'notes', 'comments'],
-                'cost': ['cost', 'total_cost', 'repair_cost', 'amount', 'total_amount', 'invoice_amount'],
-                'labor_hours': ['labor_hours', 'hours', 'tech_hours', 'mechanic_hours', 'technician_hours'],
-                'parts_cost': ['parts_cost', 'parts_amount', 'part_cost', 'materials_cost', 'materials_amount']
-            },
-            'utilization': {
-                'asset_id': ['asset_id', 'asset_identifier', 'asset_number', 'equipment_id', 'eq_id', 'unit_number', 'eq_number'],
-                'date': ['date', 'usage_date', 'work_date', 'log_date'],
-                'hours': ['hours', 'usage_hours', 'engine_hours', 'meter_hours', 'run_hours'],
-                'job_id': ['job_id', 'job_number', 'job_code', 'project_id', 'project_number', 'project_code'],
-                'operator': ['operator', 'driver', 'employee', 'operator_name', 'driver_name', 'employee_name']
-            },
-            'attendance': {
-                'employee': ['employee', 'employee_name', 'driver', 'driver_name', 'operator', 'operator_name', 'name'],
-                'asset_id': ['asset_id', 'asset_identifier', 'asset_number', 'equipment_id', 'eq_id', 'unit_number', 'eq_number'],
-                'date': ['date', 'attendance_date', 'work_date', 'report_date'],
-                'start_time': ['start_time', 'time_in', 'clock_in', 'in_time', 'arrival_time'],
-                'end_time': ['end_time', 'time_out', 'clock_out', 'out_time', 'departure_time'],
-                'status': ['status', 'attendance_status', 'flag', 'issue', 'violation', 'problem'],
-                'job_id': ['job_id', 'job_number', 'job_code', 'project_id', 'project_number', 'project_code'],
-                'location': ['location', 'site', 'job_site', 'work_location', 'site_name', 'job_location']
-            },
-            'gps': {
-                'asset_id': ['asset_id', 'asset_identifier', 'asset_number', 'equipment_id', 'eq_id', 'unit_number', 'eq_number'],
-                'latitude': ['latitude', 'lat', 'y_coordinate', 'y_coord'],
-                'longitude': ['longitude', 'lon', 'long', 'x_coordinate', 'x_coord'],
-                'timestamp': ['timestamp', 'date_time', 'event_time', 'gps_time', 'time', 'event_date_time'],
-                'speed': ['speed', 'velocity', 'rate'],
-                'heading': ['heading', 'direction', 'bearing'],
-                'ignition': ['ignition', 'ignition_status', 'engine', 'engine_status'],
-                'location': ['location', 'place', 'address', 'site', 'job_site', 'location_name']
-            }
-        }
-        
-        # Get the mapping for the specified type
-        if mapping_type not in standard_mappings:
-            logger.warning(f"No standard mapping for type: {mapping_type}")
-            return df
-        
-        mapping = standard_mappings[mapping_type]
-        column_mapping = {}
-        
-        # Find the best match for each standard column
-        for std_col, possible_matches in mapping.items():
-            for col in df.columns:
-                if col in possible_matches or any(match in col for match in possible_matches):
-                    column_mapping[col] = std_col
-                    break
-        
-        # Save the column mapping
-        self.column_mapping = column_mapping
-        
-        # Apply the mapping
-        if column_mapping:
-            df = df.rename(columns=column_mapping)
-        
-        return df
-    
-    def load(self) -> pd.DataFrame:
-        """
-        Load the Excel file into a pandas DataFrame.
-        
-        Returns:
-            DataFrame containing the parsed data
-        """
-        try:
-            # Load the file based on extension
-            if self.file_extension == '.csv':
-                # Try different delimiters
-                try:
-                    self.df = pd.read_csv(self.file_path, sep=',')
-                except:
-                    try:
-                        self.df = pd.read_csv(self.file_path, sep=';')
-                    except:
-                        try:
-                            self.df = pd.read_csv(self.file_path, sep='\t')
-                        except:
-                            raise ExcelParserException("Failed to parse CSV file with common delimiters")
-            else:
-                # Get available sheets
-                excel_file = pd.ExcelFile(self.file_path)
-                self.sheet_names = excel_file.sheet_names
-                
-                # Detect the sheet to use if not specified
-                if not self.sheet_name:
-                    self.sheet_name = self._detect_sheet()
-                
-                # Load the selected sheet
-                self.df = pd.read_excel(self.file_path, sheet_name=self.sheet_name)
-                
-                # Load all sheets for reference
-                for sheet in self.sheet_names:
-                    try:
-                        self.all_sheets[sheet] = pd.read_excel(self.file_path, sheet_name=sheet)
-                    except Exception as e:
-                        logger.warning(f"Failed to load sheet '{sheet}': {e}")
-            
-            # Clean up the DataFrame
-            self.df = self._clean_dataframe(self.df)
-            
-            # Detect file type if not specified
-            if not self.file_type:
-                self.file_type = self._detect_file_type()
-                self.detected_type = self.file_type
-            
-            # Apply standard column mappings
-            self.df = self._apply_column_mapping(self.df, self.file_type)
-            
-            return self.df
-            
-        except Exception as e:
-            logger.error(f"Failed to load Excel file: {e}")
-            raise ExcelParserException(f"Failed to load Excel file: {e}")
-    
-    def _clean_dataframe(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Clean and prepare the DataFrame for analysis.
-        
-        Args:
-            df: DataFrame to clean
-            
-        Returns:
-            Cleaned DataFrame
-        """
-        # Clean column names
-        df = self._clean_column_names(df)
-        
-        # Drop completely empty rows and columns
-        df = df.dropna(how='all')
-        df = df.dropna(axis=1, how='all')
-        
-        # Replace common null values
-        null_values = ['N/A', 'n/a', 'NA', 'na', 'NULL', 'null', '--', '—', '-', '#N/A', '#REF!', '#VALUE!']
-        df = df.replace(null_values, np.nan)
-        
-        # Trim whitespace from string columns
-        for col in df.select_dtypes(include=['object']).columns:
-            df[col] = df[col].astype(str).str.strip()
-        
-        return df
-    
-    def normalize(self) -> pd.DataFrame:
-        """
-        Normalize the DataFrame based on file type.
-        
-        Returns:
-            Normalized DataFrame
-        """
-        if self.df is None:
-            raise ExcelParserException("No data loaded. Call load() first.")
-        
-        try:
-            # Apply normalization based on file type
-            normalizer_method = f"_normalize_{self.file_type}_data"
-            if hasattr(self, normalizer_method):
-                self.df = getattr(self, normalizer_method)(self.df)
-            else:
-                logger.warning(f"No normalizer found for file type: {self.file_type}")
-            
-            return self.df
-            
-        except Exception as e:
-            logger.error(f"Failed to normalize data: {e}")
-            raise ExcelParserException(f"Failed to normalize data: {e}")
-    
-    def _normalize_billing_data(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Normalize billing data.
-        
-        Args:
-            df: DataFrame with billing data
-            
-        Returns:
-            Normalized DataFrame
-        """
-        # Handle date columns
-        for date_col in ['start_date', 'end_date']:
-            if date_col in df.columns:
-                try:
-                    df[date_col] = pd.to_datetime(df[date_col], errors='coerce')
-                except:
-                    pass
-        
-        # Ensure numeric columns
-        for num_col in ['hours', 'rate', 'total']:
-            if num_col in df.columns:
-                df[num_col] = pd.to_numeric(df[num_col], errors='coerce')
-        
-        # Calculate missing values
-        if 'hours' in df.columns and 'rate' in df.columns and 'total' not in df.columns:
-            df['total'] = df['hours'] * df['rate']
-        elif 'hours' in df.columns and 'total' in df.columns and 'rate' not in df.columns:
-            mask = df['hours'] > 0
-            df.loc[mask, 'rate'] = df.loc[mask, 'total'] / df.loc[mask, 'hours']
-        
-        return df
-    
-    def _normalize_work_order_data(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Normalize work order data.
-        
-        Args:
-            df: DataFrame with work order data
-            
-        Returns:
-            Normalized DataFrame
-        """
-        # Handle date columns
-        if 'service_date' in df.columns:
-            try:
-                df['service_date'] = pd.to_datetime(df['service_date'], errors='coerce')
-            except:
-                pass
-        
-        # Ensure numeric columns
-        for num_col in ['cost', 'labor_hours', 'parts_cost']:
-            if num_col in df.columns:
-                df[num_col] = pd.to_numeric(df[num_col], errors='coerce')
-        
-        # Calculate missing values
-        if 'cost' in df.columns and 'parts_cost' in df.columns and 'labor_cost' not in df.columns:
-            df['labor_cost'] = df['cost'] - df['parts_cost']
-        
-        return df
-    
-    def _normalize_utilization_data(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Normalize utilization data.
-        
-        Args:
-            df: DataFrame with utilization data
-            
-        Returns:
-            Normalized DataFrame
-        """
-        # Handle date columns
-        if 'date' in df.columns:
-            try:
-                df['date'] = pd.to_datetime(df['date'], errors='coerce')
-            except:
-                pass
-        
-        # Ensure numeric columns
-        if 'hours' in df.columns:
-            df['hours'] = pd.to_numeric(df['hours'], errors='coerce')
-        
-        return df
-    
-    def _normalize_attendance_data(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Normalize attendance data.
-        
-        Args:
-            df: DataFrame with attendance data
-            
-        Returns:
-            Normalized DataFrame
-        """
-        # Handle date columns
-        if 'date' in df.columns:
-            try:
-                df['date'] = pd.to_datetime(df['date'], errors='coerce')
-            except:
-                pass
-        
-        # Handle time columns
-        for time_col in ['start_time', 'end_time']:
-            if time_col in df.columns:
-                try:
-                    # Convert to pandas time type if possible
-                    df[time_col] = pd.to_datetime(df[time_col], errors='coerce').dt.time
-                except:
-                    pass
-        
-        return df
-    
-    def _normalize_gps_data(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Normalize GPS data.
-        
-        Args:
-            df: DataFrame with GPS data
-            
-        Returns:
-            Normalized DataFrame
-        """
-        # Handle timestamp column
-        if 'timestamp' in df.columns:
-            try:
-                df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
-            except:
-                pass
-        
-        # Ensure numeric columns
-        for num_col in ['latitude', 'longitude', 'speed']:
-            if num_col in df.columns:
-                df[num_col] = pd.to_numeric(df[num_col], errors='coerce')
-        
-        # Normalize ignition status
-        if 'ignition' in df.columns:
-            # Convert to boolean
-            ignition_map = {
-                'on': True, 'off': False,
-                'true': True, 'false': False,
-                '1': True, '0': False,
-                1: True, 0: False,
-                'yes': True, 'no': False,
-                'y': True, 'n': False
-            }
-            
-            df['ignition'] = df['ignition'].astype(str).str.lower().map(ignition_map)
-        
-        return df
-    
-    def save_to_csv(self, output_path: str = None) -> str:
-        """
-        Save the normalized DataFrame to a CSV file.
-        
-        Args:
-            output_path: Path to save the CSV file. If None, will use a default path.
-            
-        Returns:
-            Path to the saved CSV file
-        """
-        if self.df is None:
-            raise ExcelParserException("No data loaded. Call load() first.")
-        
-        if not output_path:
-            # Create a default output path
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            directory = os.path.join("data", "normalized", self.file_type)
-            os.makedirs(directory, exist_ok=True)
-            
-            file_name = f"{os.path.splitext(self.file_name)[0]}_{timestamp}.csv"
-            output_path = os.path.join(directory, file_name)
-        
-        try:
-            # Save to CSV
-            self.df.to_csv(output_path, index=False)
-            
-            # Log the event
-            log_event(
-                "FILE_NORMALIZED", 
-                f"Normalized file saved: {os.path.basename(output_path)}",
-                user_id=self.user_id,
-                data_path=output_path,
-                metadata={
-                    "original_file": self.file_name,
-                    "file_type": self.file_type,
-                    "row_count": len(self.df),
-                    "column_count": len(self.df.columns)
-                }
+            # Count how many header indicators match the row values
+            indicator_matches = sum(
+                1 for val in row if any(
+                    indicator.lower() in val.lower() 
+                    for indicator in self.HEADER_INDICATORS
+                )
             )
             
-            return output_path
+            # Count how many values in the row are strings vs numeric
+            string_values = sum(1 for val in row if not self._is_numeric(val))
             
-        except Exception as e:
-            logger.error(f"Failed to save CSV file: {e}")
-            raise ExcelParserException(f"Failed to save CSV file: {e}")
+            # If more than 30% of columns match header indicators and most values are strings
+            if (indicator_matches / len(row) > 0.3 and string_values / len(row) > 0.7):
+                self.stats['detected_headers'] += 1
+                return i
+            
+        # Default to first row if no clear header row found
+        return 0
     
-    def get_summary(self) -> Dict[str, Any]:
+    def _is_numeric(self, val: Any) -> bool:
         """
-        Get a summary of the parsed data.
+        Check if a value is numeric
         
+        Args:
+            val (Any): Value to check
+            
         Returns:
-            Dictionary with summary information
+            bool: True if numeric, False otherwise
         """
-        if self.df is None:
-            raise ExcelParserException("No data loaded. Call load() first.")
+        if isinstance(val, (int, float)):
+            return True
         
-        # Get basic stats
-        row_count = len(self.df)
-        column_count = len(self.df.columns)
+        if isinstance(val, str):
+            try:
+                float(val.replace(',', ''))
+                return True
+            except (ValueError, TypeError):
+                return False
         
-        # Get column info
-        column_types = self._infer_column_types(self.df)
+        return False
+    
+    def _clean_column_name(self, name: str) -> str:
+        """
+        Clean and standardize column names
         
-        # Get mapped columns
-        mapped_columns = {v: k for k, v in self.column_mapping.items()} if self.column_mapping else {}
+        Args:
+            name (str): Original column name
+            
+        Returns:
+            str: Cleaned column name
+        """
+        if not isinstance(name, str):
+            return str(name)
         
-        # Get date range if applicable
-        date_range = None
-        date_columns = [col for col, type_ in column_types.items() if type_ == 'date']
-        if date_columns:
-            for col in date_columns:
-                try:
-                    min_date = pd.to_datetime(self.df[col].min()).strftime("%Y-%m-%d")
-                    max_date = pd.to_datetime(self.df[col].max()).strftime("%Y-%m-%d")
-                    date_range = {"column": col, "min": min_date, "max": max_date}
+        # Convert to lowercase and replace non-alphanumeric with spaces
+        name = re.sub(r'[^a-zA-Z0-9\s]', ' ', name.lower())
+        
+        # Replace multiple spaces with a single space
+        name = re.sub(r'\s+', ' ', name).strip()
+        
+        return name
+    
+    def _normalize_column_names(self, columns: List[str]) -> Dict[str, str]:
+        """
+        Normalize column names based on known patterns
+        
+        Args:
+            columns (List[str]): Original column names
+            
+        Returns:
+            Dict[str, str]: Mapping of original to normalized column names
+        """
+        normalized_map = {}
+        
+        for col in columns:
+            cleaned_col = self._clean_column_name(col)
+            matched = False
+            
+            # Check against known patterns
+            for category, patterns in self.COLUMN_PATTERNS.items():
+                for pattern in patterns:
+                    if re.search(pattern, cleaned_col, re.IGNORECASE):
+                        normalized_map[col] = category
+                        self.stats['normalized_columns'] += 1
+                        matched = True
+                        break
+                if matched:
                     break
-                except:
-                    continue
+            
+            # If no match found, keep original
+            if not matched:
+                normalized_map[col] = cleaned_col
         
-        # Build summary
-        summary = {
-            "file_name": self.file_name,
-            "file_type": self.file_type,
-            "detected_type": self.detected_type,
-            "sheet_name": self.sheet_name,
-            "available_sheets": self.sheet_names,
-            "row_count": row_count,
-            "column_count": column_count,
-            "column_types": column_types,
-            "mapped_columns": mapped_columns,
-            "date_range": date_range
+        return normalized_map
+    
+    def _detect_asset_id_columns(self, df: pd.DataFrame) -> List[str]:
+        """
+        Detect columns that likely contain asset IDs
+        
+        Args:
+            df (pd.DataFrame): DataFrame to analyze
+            
+        Returns:
+            List[str]: List of column names that likely contain asset IDs
+        """
+        possible_id_columns = []
+        
+        for col in df.columns:
+            # Skip obviously non-ID columns
+            if df[col].dtype == 'float64' or df[col].dtype == 'int64':
+                continue
+                
+            # Skip columns with all missing values
+            if df[col].isna().all():
+                continue
+                
+            # Get non-NaN sample values
+            sample_values = df[col].dropna().astype(str).sample(min(10, len(df[col].dropna()))).values
+            
+            # Check for ID patterns in sample values
+            id_pattern_matches = 0
+            for val in sample_values:
+                # Check for asset ID patterns (usually contains letters and numbers)
+                if re.search(r'^[A-Za-z]{1,4}-\d{1,3}', val):  # e.g., EX-01, WL-12
+                    id_pattern_matches += 1
+                elif re.search(r'^\d{6}', val):  # e.g., 210013
+                    id_pattern_matches += 1
+                elif re.search(r'^[A-Za-z]{2,6}-\d{2,}[sS]?$', val):  # e.g., MB-13S, PT-20S
+                    id_pattern_matches += 1
+            
+            # If more than 30% of samples match ID patterns
+            if id_pattern_matches / len(sample_values) > 0.3:
+                possible_id_columns.append(col)
+                self.stats['detected_ids'] += 1
+        
+        return possible_id_columns
+    
+    def _detect_date_columns(self, df: pd.DataFrame) -> List[str]:
+        """
+        Detect columns that contain dates
+        
+        Args:
+            df (pd.DataFrame): DataFrame to analyze
+            
+        Returns:
+            List[str]: List of column names containing dates
+        """
+        date_columns = []
+        
+        for col in df.columns:
+            # If already a datetime type
+            if pd.api.types.is_datetime64_any_dtype(df[col]):
+                date_columns.append(col)
+                continue
+                
+            # Check string columns
+            if df[col].dtype == 'object':
+                # Get non-NaN sample values
+                sample_values = df[col].dropna().astype(str).sample(min(10, len(df[col].dropna()))).values
+                
+                # Check for date patterns
+                date_pattern_matches = 0
+                for val in sample_values:
+                    # Check various date formats
+                    if re.search(r'\d{1,2}[/-]\d{1,2}[/-]\d{2,4}', val):  # e.g., 05/15/2025, 5-15-25
+                        date_pattern_matches += 1
+                    elif re.search(r'\d{4}[/-]\d{1,2}[/-]\d{1,2}', val):  # e.g., 2025/05/15
+                        date_pattern_matches += 1
+                    elif re.search(r'(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*[\s,]+\d{1,2}(?:st|nd|rd|th)?[\s,]+\d{2,4}', val, re.IGNORECASE):
+                        # e.g., January 15, 2025, Jan 15th 2025
+                        date_pattern_matches += 1
+                
+                # If more than 50% of samples match date patterns
+                if date_pattern_matches / len(sample_values) > 0.5:
+                    date_columns.append(col)
+        
+        return date_columns
+    
+    def _detect_numeric_columns(self, df: pd.DataFrame) -> Dict[str, List[str]]:
+        """
+        Detect and categorize numeric columns
+        
+        Args:
+            df (pd.DataFrame): DataFrame to analyze
+            
+        Returns:
+            Dict[str, List[str]]: Categorized numeric columns
+        """
+        numeric_columns = {
+            'hours': [],
+            'cost': [],
+            'rate': [],
+            'count': [],
+            'percentage': [],
+            'other_numeric': []
         }
         
-        return summary
+        for col in df.columns:
+            # Check if column is numeric
+            if pd.api.types.is_numeric_dtype(df[col]) or (
+                df[col].dtype == 'object' and 
+                df[col].dropna().apply(lambda x: self._is_numeric(x)).mean() > 0.8
+            ):
+                # Try to categorize based on column name
+                col_lower = str(col).lower()
+                
+                if any(term in col_lower for term in ['hour', 'hrs', 'runtime', 'time']):
+                    numeric_columns['hours'].append(col)
+                elif any(term in col_lower for term in ['cost', 'amount', 'charge', 'billing', '$', 'dollar']):
+                    numeric_columns['cost'].append(col)
+                elif any(term in col_lower for term in ['rate', 'price per']):
+                    numeric_columns['rate'].append(col)
+                elif any(term in col_lower for term in ['count', 'number of', 'quantity', 'qty']):
+                    numeric_columns['count'].append(col)
+                elif any(term in col_lower for term in ['percent', '%', 'ratio']):
+                    numeric_columns['percentage'].append(col)
+                else:
+                    numeric_columns['other_numeric'].append(col)
+        
+        return numeric_columns
+    
+    def _analyze_sheet_structure(self, df: pd.DataFrame) -> Dict[str, Any]:
+        """
+        Analyze the structure of a dataframe/sheet
+        
+        Args:
+            df (pd.DataFrame): DataFrame to analyze
+            
+        Returns:
+            Dict[str, Any]: Analysis results
+        """
+        # Detect header row
+        header_row = self._detect_header_row(df)
+        
+        # If header row is not the first row, reread with correct header
+        if header_row > 0:
+            # Assume everything before the header is metadata/title info
+            metadata_rows = df.iloc[:header_row].to_dict('records')
+            
+            # Use the detected header row
+            df.columns = df.iloc[header_row]
+            df = df.iloc[header_row+1:].reset_index(drop=True)
+        else:
+            metadata_rows = []
+        
+        # Clean column names
+        df.columns = [str(col).strip() for col in df.columns]
+        
+        # Normalize column names
+        column_mapping = self._normalize_column_names(df.columns)
+        
+        # Detect asset ID columns
+        asset_id_columns = self._detect_asset_id_columns(df)
+        
+        # Detect date columns
+        date_columns = self._detect_date_columns(df)
+        
+        # Detect numeric columns
+        numeric_columns = self._detect_numeric_columns(df)
+        
+        # Check if sheet has summary/total rows
+        last_rows = df.iloc[-5:] if len(df) > 5 else df
+        has_summary_rows = any(
+            last_row.astype(str).str.contains('total|sum|average|mean|grand', case=False).any()
+            for _, last_row in last_rows.iterrows()
+        )
+        
+        # Basic statistics
+        row_count = len(df)
+        self.stats['rows_processed'] += row_count
+        
+        # Detect sheet type based on column names and data
+        sheet_type = self._detect_sheet_type(df, column_mapping)
+        
+        analysis = {
+            'header_row': header_row,
+            'metadata_rows': metadata_rows,
+            'column_mapping': column_mapping,
+            'asset_id_columns': asset_id_columns,
+            'date_columns': date_columns,
+            'numeric_columns': numeric_columns,
+            'has_summary_rows': has_summary_rows,
+            'row_count': row_count,
+            'sheet_type': sheet_type,
+            'data': df
+        }
+        
+        return analysis
+    
+    def _detect_sheet_type(self, df: pd.DataFrame, column_mapping: Dict[str, str]) -> str:
+        """
+        Detect the type of data in a sheet
+        
+        Args:
+            df (pd.DataFrame): DataFrame to analyze
+            column_mapping (Dict[str, str]): Mapping of original to normalized column names
+            
+        Returns:
+            str: Detected sheet type
+        """
+        # Check for normalized column names
+        normalized_cols = list(column_mapping.values())
+        
+        # Count occurrences of key categories
+        category_counts = {
+            'employee': sum(1 for col in normalized_cols if col in ['employee', 'employee_id']),
+            'asset': sum(1 for col in normalized_cols if col in ['asset', 'asset_type', 'asset_description']),
+            'hours': sum(1 for col in normalized_cols if col in ['hours', 'idle_hours', 'run_hours']),
+            'cost': sum(1 for col in normalized_cols if col in ['cost', 'rate', 'total']),
+            'location': sum(1 for col in normalized_cols if col in ['location', 'job_code', 'district']),
+            'date': sum(1 for col in normalized_cols if col in ['date', 'start_date', 'end_date'])
+        }
+        
+        # Determine predominant category
+        if category_counts['employee'] >= 2 and category_counts['asset'] >= 1:
+            return 'employee_asset_assignment'
+        elif category_counts['asset'] >= 2 and category_counts['hours'] >= 1:
+            return 'asset_utilization'
+        elif category_counts['asset'] >= 1 and category_counts['cost'] >= 2:
+            return 'asset_billing'
+        elif category_counts['location'] >= 2:
+            return 'location_data'
+        elif category_counts['date'] >= 1 and category_counts['hours'] >= 1:
+            return 'time_tracking'
+        else:
+            return 'general'
+    
+    def _extract_sheet_metadata(self, sheet_name: str, metadata_rows: List[Dict]) -> Dict[str, Any]:
+        """
+        Extract metadata information from the rows above the header
+        
+        Args:
+            sheet_name (str): Name of the sheet
+            metadata_rows (List[Dict]): Rows from above the header
+            
+        Returns:
+            Dict[str, Any]: Extracted metadata
+        """
+        metadata = {
+            'sheet_name': sheet_name,
+            'title': None,
+            'date_range': None,
+            'report_date': None,
+            'job_info': None
+        }
+        
+        # Convert metadata rows to strings for easier pattern matching
+        metadata_text = '\n'.join([
+            ' '.join([str(val) for val in row.values()])
+            for row in metadata_rows
+        ])
+        
+        # Extract title - usually in the first few rows
+        title_patterns = [
+            r'(?i)(?:report|summary):?\s*(.+?)(?:\s*for|\s*from|\s*as of|\s*$)',
+            r'(?i)(.+?)\s*report',
+            r'(?i)(.+?)\s*summary'
+        ]
+        
+        for pattern in title_patterns:
+            match = re.search(pattern, metadata_text)
+            if match:
+                metadata['title'] = match.group(1).strip()
+                break
+        
+        # If no title found, use sheet name
+        if not metadata['title']:
+            metadata['title'] = sheet_name
+        
+        # Extract date range
+        date_range_patterns = [
+            r'(?i)(?:period|date range|range|dates):\s*(.+?)\s*(?:to|through|-)\s*(.+?)(?:\s|$)',
+            r'(?i)(?:from|beginning)\s*(.+?)\s*(?:to|through|-)\s*(.+?)(?:\s|$)',
+            r'(?i)(\d{1,2}[/-]\d{1,2}[/-]\d{2,4})\s*(?:to|through|-)\s*(\d{1,2}[/-]\d{1,2}[/-]\d{2,4})'
+        ]
+        
+        for pattern in date_range_patterns:
+            match = re.search(pattern, metadata_text)
+            if match:
+                metadata['date_range'] = {
+                    'start': match.group(1).strip(),
+                    'end': match.group(2).strip()
+                }
+                break
+        
+        # Extract report date
+        report_date_patterns = [
+            r'(?i)(?:report date|as of|generated on):\s*(.+?)(?:\s|$)',
+            r'(?i)(?:date):\s*(\d{1,2}[/-]\d{1,2}[/-]\d{2,4})'
+        ]
+        
+        for pattern in report_date_patterns:
+            match = re.search(pattern, metadata_text)
+            if match:
+                metadata['report_date'] = match.group(1).strip()
+                break
+        
+        # Extract job information
+        job_patterns = [
+            r'(?i)(?:job|project)(?:\s*code|\s*number|\s*id)?:\s*(.+?)(?:\s|$)',
+            r'(?i)(?:job|project):\s*(.+?)(?:\s|$)'
+        ]
+        
+        for pattern in job_patterns:
+            match = re.search(pattern, metadata_text)
+            if match:
+                metadata['job_info'] = match.group(1).strip()
+                break
+        
+        return metadata
+    
+    def _clean_and_standardize_df(self, df: pd.DataFrame, analysis: Dict[str, Any]) -> pd.DataFrame:
+        """
+        Clean and standardize a dataframe
+        
+        Args:
+            df (pd.DataFrame): DataFrame to clean
+            analysis (Dict[str, Any]): Analysis results
+            
+        Returns:
+            pd.DataFrame: Cleaned DataFrame
+        """
+        # Make a copy to avoid modifying the original
+        df = df.copy()
+        
+        # Skip empty dataframes
+        if df.empty:
+            return df
+        
+        # Standardize column names
+        std_columns = {}
+        for orig_col, norm_col in analysis['column_mapping'].items():
+            if orig_col in df.columns:
+                # Use normalized name if it's a recognized category, otherwise use original
+                if norm_col in self.COLUMN_PATTERNS.keys():
+                    std_columns[orig_col] = norm_col
+                else:
+                    std_columns[orig_col] = orig_col
+        
+        df = df.rename(columns=std_columns)
+        
+        # Convert date columns to datetime
+        for col in analysis['date_columns']:
+            if col in df.columns:
+                try:
+                    df[col] = pd.to_datetime(df[col], errors='coerce')
+                except:
+                    pass  # Keep original if conversion fails
+        
+        # Convert numeric columns that might be stored as strings
+        for cat, cols in analysis['numeric_columns'].items():
+            for col in cols:
+                if col in df.columns and df[col].dtype == 'object':
+                    try:
+                        # Convert to numeric, handling commas in numbers
+                        df[col] = df[col].astype(str).str.replace(',', '').str.replace('$', '').astype(float)
+                    except:
+                        pass  # Keep original if conversion fails
+        
+        # Remove summary rows if detected
+        if analysis['has_summary_rows']:
+            # Look for rows that likely contain summary information
+            summary_indicators = ['total', 'sum', 'grand', 'average', 'mean', 'subtotal']
+            
+            # Find rows with summary indicators
+            summary_rows = []
+            for idx, row in df.iterrows():
+                if any(
+                    indicator in str(val).lower() 
+                    for val in row 
+                    for indicator in summary_indicators
+                ):
+                    summary_rows.append(idx)
+            
+            # Drop summary rows if found
+            if summary_rows:
+                df = df.drop(summary_rows)
+        
+        # Drop rows that are completely empty
+        df = df.dropna(how='all')
+        
+        # Reset index
+        df = df.reset_index(drop=True)
+        
+        return df
+    
+    def parse_excel(self, file_path: str, detect_file_type: bool = True) -> Dict[str, Any]:
+        """
+        Parse an Excel file and extract structured data
+        
+        Args:
+            file_path (str): Path to the Excel file
+            detect_file_type (bool): Whether to detect file type from name
+            
+        Returns:
+            Dict[str, Any]: Parsed data and metadata
+        """
+        try:
+            file_name = os.path.basename(file_path)
+            file_type = self._get_file_type_from_name(file_name) if detect_file_type else 'unknown'
+            
+            logger.info(f"Parsing Excel file: {file_name} (detected type: {file_type})")
+            
+            # Load the Excel file
+            try:
+                xls = pd.ExcelFile(file_path)
+            except Exception as e:
+                logger.error(f"Error loading Excel file: {e}")
+                return {
+                    'success': False,
+                    'error': f"Failed to load Excel file: {str(e)}",
+                    'file_path': file_path,
+                    'file_type': file_type
+                }
+            
+            # Process each sheet
+            sheets_data = {}
+            sheet_names = xls.sheet_names
+            
+            for sheet_name in sheet_names:
+                try:
+                    # Load sheet data
+                    df = pd.read_excel(file_path, sheet_name=sheet_name)
+                    
+                    # Skip empty sheets
+                    if df.empty:
+                        logger.warning(f"Skipping empty sheet: {sheet_name}")
+                        continue
+                    
+                    # Analyze sheet structure
+                    analysis = self._analyze_sheet_structure(df)
+                    
+                    # Extract metadata from rows above header
+                    metadata = self._extract_sheet_metadata(sheet_name, analysis['metadata_rows'])
+                    
+                    # Clean and standardize the data
+                    clean_df = self._clean_and_standardize_df(analysis['data'], analysis)
+                    
+                    # Create sheet result
+                    sheet_result = {
+                        'metadata': metadata,
+                        'analysis': {k: v for k, v in analysis.items() if k != 'data'},  # Exclude raw data
+                        'data': clean_df,
+                        'column_mapping': analysis['column_mapping']
+                    }
+                    
+                    sheets_data[sheet_name] = sheet_result
+                    self.stats['sheets_processed'] += 1
+                    
+                    logger.info(f"Processed sheet '{sheet_name}' with {len(clean_df)} rows")
+                    
+                except Exception as e:
+                    logger.error(f"Error processing sheet '{sheet_name}': {e}")
+                    continue
+            
+            # Update stats
+            self.stats['files_processed'] += 1
+            
+            # Build result
+            result = {
+                'success': True,
+                'file_path': file_path,
+                'file_name': file_name,
+                'file_type': file_type,
+                'timestamp': datetime.now().isoformat(),
+                'sheets': sheets_data,
+                'sheet_count': len(sheets_data),
+                'stats': self.stats
+            }
+            
+            # Store in parsed data storage
+            self.parsed_data[file_path] = result
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"Error parsing Excel file {file_path}: {e}")
+            return {
+                'success': False,
+                'error': f"Failed to parse Excel file: {str(e)}",
+                'file_path': file_path
+            }
+    
+    def extract_column_data(self, parsed_file: Dict[str, Any], column_type: str) -> Dict[str, Any]:
+        """
+        Extract data for a specific column type from parsed file
+        
+        Args:
+            parsed_file (Dict[str, Any]): Result from parse_excel
+            column_type (str): Column type to extract (e.g., 'employee', 'asset', 'hours')
+            
+        Returns:
+            Dict[str, Any]: Extracted data
+        """
+        result = {
+            'file_path': parsed_file.get('file_path'),
+            'file_type': parsed_file.get('file_type'),
+            'column_type': column_type,
+            'data': {}
+        }
+        
+        if not parsed_file.get('success', False):
+            result['error'] = parsed_file.get('error', 'Unknown error')
+            return result
+        
+        # Go through each sheet
+        for sheet_name, sheet_data in parsed_file.get('sheets', {}).items():
+            # Check if the column type exists in this sheet
+            df = sheet_data.get('data')
+            column_mapping = sheet_data.get('column_mapping', {})
+            
+            if df is not None and not df.empty:
+                # Get columns that map to the requested type
+                matched_columns = [
+                    orig_col for orig_col, norm_col in column_mapping.items()
+                    if norm_col == column_type and orig_col in df.columns
+                ]
+                
+                if matched_columns:
+                    # Extract data from these columns
+                    sheet_result = {
+                        'sheet_name': sheet_name,
+                        'columns': matched_columns,
+                        'values': {}
+                    }
+                    
+                    for col in matched_columns:
+                        unique_values = df[col].dropna().unique().tolist()
+                        
+                        # For numeric columns, provide statistics instead of all values
+                        if df[col].dtype in ['float64', 'int64']:
+                            sheet_result['values'][col] = {
+                                'min': df[col].min(),
+                                'max': df[col].max(),
+                                'mean': df[col].mean(),
+                                'median': df[col].median(),
+                                'sample': unique_values[:10] if len(unique_values) > 10 else unique_values
+                            }
+                        else:
+                            sheet_result['values'][col] = unique_values[:100] if len(unique_values) > 100 else unique_values
+                    
+                    result['data'][sheet_name] = sheet_result
+        
+        return result
+    
+    def extract_asset_info(self, parsed_file: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Extract asset information from parsed file
+        
+        Args:
+            parsed_file (Dict[str, Any]): Result from parse_excel
+            
+        Returns:
+            Dict[str, Any]: Extracted asset information
+        """
+        result = {
+            'file_path': parsed_file.get('file_path'),
+            'file_type': parsed_file.get('file_type'),
+            'asset_info': {}
+        }
+        
+        if not parsed_file.get('success', False):
+            result['error'] = parsed_file.get('error', 'Unknown error')
+            return result
+        
+        # Go through each sheet
+        for sheet_name, sheet_data in parsed_file.get('sheets', {}).items():
+            df = sheet_data.get('data')
+            column_mapping = sheet_data.get('column_mapping', {})
+            
+            if df is not None and not df.empty:
+                # Get asset ID columns
+                asset_id_columns = [
+                    orig_col for orig_col, norm_col in column_mapping.items()
+                    if norm_col == 'asset' and orig_col in df.columns
+                ]
+                
+                # If no explicit asset columns, use detected asset ID columns
+                if not asset_id_columns:
+                    asset_id_columns = sheet_data.get('analysis', {}).get('asset_id_columns', [])
+                
+                if asset_id_columns:
+                    # Extract asset information
+                    assets = {}
+                    
+                    for col in asset_id_columns:
+                        # Get unique asset IDs
+                        asset_ids = df[col].dropna().unique()
+                        
+                        for asset_id in asset_ids:
+                            if not isinstance(asset_id, str) and pd.isna(asset_id):
+                                continue
+                                
+                            asset_id = str(asset_id).strip()
+                            if not asset_id:
+                                continue
+                                
+                            # Get rows for this asset
+                            asset_rows = df[df[col] == asset_id]
+                            
+                            # Skip if no rows found
+                            if asset_rows.empty:
+                                continue
+                                
+                            # Prepare asset info
+                            asset_info = {
+                                'id': asset_id,
+                                'source_column': col,
+                                'source_sheet': sheet_name,
+                                'data': {}
+                            }
+                            
+                            # Extract other information about this asset
+                            for data_col, data_type in column_mapping.items():
+                                if data_col in df.columns and data_col != col:
+                                    # Skip if all values for this asset are NaN
+                                    if asset_rows[data_col].isna().all():
+                                        continue
+                                        
+                                    # Extract unique values
+                                    values = asset_rows[data_col].dropna().unique()
+                                    
+                                    # If single value, use that directly
+                                    if len(values) == 1:
+                                        asset_info['data'][data_type] = values[0]
+                                    # Otherwise, store as list (limited to 10 values)
+                                    else:
+                                        asset_info['data'][data_type] = values[:10].tolist()
+                            
+                            # Add to results
+                            assets[asset_id] = asset_info
+                    
+                    result['asset_info'][sheet_name] = assets
+        
+        return result
+    
+    def extract_employee_asset_mapping(self, parsed_file: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Extract employee to asset mappings from parsed file
+        
+        Args:
+            parsed_file (Dict[str, Any]): Result from parse_excel
+            
+        Returns:
+            Dict[str, Any]: Extracted employee-asset mappings
+        """
+        result = {
+            'file_path': parsed_file.get('file_path'),
+            'file_type': parsed_file.get('file_type'),
+            'mappings': []
+        }
+        
+        if not parsed_file.get('success', False):
+            result['error'] = parsed_file.get('error', 'Unknown error')
+            return result
+        
+        # Go through each sheet
+        for sheet_name, sheet_data in parsed_file.get('sheets', {}).items():
+            df = sheet_data.get('data')
+            column_mapping = sheet_data.get('column_mapping', {})
+            
+            if df is not None and not df.empty:
+                # Get employee and asset columns
+                employee_columns = [
+                    orig_col for orig_col, norm_col in column_mapping.items()
+                    if norm_col in ['employee', 'employee_id'] and orig_col in df.columns
+                ]
+                
+                asset_columns = [
+                    orig_col for orig_col, norm_col in column_mapping.items()
+                    if norm_col == 'asset' and orig_col in df.columns
+                ]
+                
+                # If no explicit asset columns, use detected asset ID columns
+                if not asset_columns:
+                    asset_columns = sheet_data.get('analysis', {}).get('asset_id_columns', [])
+                
+                if employee_columns and asset_columns:
+                    # Extract employee-asset mappings
+                    for _, row in df.iterrows():
+                        for emp_col in employee_columns:
+                            employee = row[emp_col]
+                            if pd.isna(employee) or str(employee).strip() == '':
+                                continue
+                                
+                            # Normalize employee value
+                            employee = str(employee).strip()
+                            
+                            for asset_col in asset_columns:
+                                asset = row[asset_col]
+                                if pd.isna(asset) or str(asset).strip() == '':
+                                    continue
+                                    
+                                # Normalize asset value
+                                asset = str(asset).strip()
+                                
+                                # Create mapping
+                                mapping = {
+                                    'employee': employee,
+                                    'employee_column': emp_col,
+                                    'asset': asset,
+                                    'asset_column': asset_col,
+                                    'sheet': sheet_name,
+                                    'metadata': {}
+                                }
+                                
+                                # Add any additional context
+                                for meta_col in ['date', 'job_code', 'location']:
+                                    meta_cols = [
+                                        orig_col for orig_col, norm_col in column_mapping.items()
+                                        if norm_col == meta_col and orig_col in df.columns
+                                    ]
+                                    
+                                    for col in meta_cols:
+                                        if not pd.isna(row[col]):
+                                            mapping['metadata'][meta_col] = row[col]
+                                
+                                result['mappings'].append(mapping)
+        
+        return result
+    
+    def save_parsing_results(self, parsed_result: Dict[str, Any], output_path: str = None) -> str:
+        """
+        Save parsing results to a JSON file
+        
+        Args:
+            parsed_result (Dict[str, Any]): Result from parse_excel
+            output_path (str, optional): Path to save the results file. If None, generates one.
+            
+        Returns:
+            str: Path to the saved results file
+        """
+        if not parsed_result.get('success', False):
+            logger.error(f"Cannot save unsuccessful parsing result")
+            return None
+        
+        # Generate output path if not provided
+        if output_path is None:
+            file_name = os.path.basename(parsed_result.get('file_path', 'unknown'))
+            file_base, _ = os.path.splitext(file_name)
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            output_path = os.path.join('data', 'processed', f"{file_base}_{timestamp}_parsed.json")
+        
+        # Create directory if it doesn't exist
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        
+        # Prepare serializable result
+        # Convert DataFrames to dict records
+        serializable_result = parsed_result.copy()
+        
+        for sheet_name, sheet_data in serializable_result.get('sheets', {}).items():
+            if 'data' in sheet_data and isinstance(sheet_data['data'], pd.DataFrame):
+                sheet_data['data'] = sheet_data['data'].to_dict('records')
+        
+        # Save to file
+        try:
+            with open(output_path, 'w') as f:
+                json.dump(serializable_result, f, indent=2, default=str)
+            
+            logger.info(f"Saved parsing results to {output_path}")
+            return output_path
+        except Exception as e:
+            logger.error(f"Failed to save parsing results: {e}")
+            return None

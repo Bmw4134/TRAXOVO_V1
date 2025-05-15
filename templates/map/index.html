@@ -119,11 +119,21 @@
         border-radius: 50%;
         border: 2px solid white;
     }
+    
+    .marker-retired {
+        background-color: #212529;
+        border-radius: 50%;
+        border: 2px solid white;
+    }
 
     .marker-unknown {
         background-color: #6c757d;
         border-radius: 50%;
         border: 2px solid white;
+    }
+    
+    .status-retired {
+        color: #212529;
     }
 
     .stat-card {
@@ -256,6 +266,7 @@
                                         <li><a class="dropdown-item filter-status" data-status="active" href="#">Active</a></li>
                                         <li><a class="dropdown-item filter-status" data-status="idle" href="#">Idle</a></li>
                                         <li><a class="dropdown-item filter-status" data-status="inactive" href="#">Inactive</a></li>
+                                        <li><a class="dropdown-item filter-status" data-status="retired" href="#">Retired/Sold</a></li>
                                         <li><hr class="dropdown-divider"></li>
                                         <li><h6 class="dropdown-header">Job Sites</h6></li>
                                         <li><a class="dropdown-item filter-site" data-site="all" href="#">All Sites</a></li>
@@ -284,6 +295,10 @@
                         <div class="legend-item">
                             <span class="legend-color bg-danger"></span>
                             <span>Inactive</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color bg-dark"></span>
+                            <span>Retired/Sold</span>
                         </div>
                         <div class="legend-item">
                             <span class="legend-color bg-secondary"></span>

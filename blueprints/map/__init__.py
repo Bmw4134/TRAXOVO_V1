@@ -26,8 +26,7 @@ from gauge_api import get_asset_data
 logger = logging.getLogger(__name__)
 
 # Initialize blueprint
-map_bp = Blueprint('map', __name__, url_prefix='/map', 
-                  template_folder='templates')
+map_bp = Blueprint('map', __name__, url_prefix='/map')
 
 @map_bp.route('/')
 @login_required
@@ -103,7 +102,13 @@ def asset_locations():
             
             # Define asset status
             status = "unknown"
-            if active:
+            label_lower = label.lower() if label else ""
+            
+            # Check for retired/scrapped/sold assets in the label
+            if any(keyword in label_lower for keyword in ["retired", "sold", "scrap", "stolen", "total out"]):
+                status = "retired"
+            # Otherwise use active/ignition status
+            elif active:
                 if ignition:
                     status = "active"
                 else:

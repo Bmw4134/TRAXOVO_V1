@@ -1,6 +1,6 @@
 {
   "activity_report": {
-    "generated_at": "2025-05-15T16:25:18.554064",
+    "generated_at": "2025-05-15T16:29:00.157513",
     "metrics": {
       "total_assets": 701,
       "active_assets": 601,
@@ -1769,7 +1769,7 @@
     ]
   },
   "maintenance_report": {
-    "generated_at": "2025-05-15T16:25:18.557046",
+    "generated_at": "2025-05-15T16:29:00.161553",
     "maintenance_items": [
       {
         "asset_id": "EX-19",

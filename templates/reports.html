@@ -2,135 +2,583 @@
 
 {% block title %}Fleet Reports - Fleet Management{% endblock %}
 
+{% block extra_css %}
+<style>
+    .dashboard-stat {
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+    .dashboard-stat:hover {
+        transform: translateY(-5px);
+    }
+    .dashboard-stat .stat-value {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 0;
+    }
+    .dashboard-stat .stat-label {
+        font-size: 1rem;
+        text-transform: uppercase;
+    }
+    .dashboard-stat .percent-change {
+        font-size: 0.9rem;
+        margin-top: 5px;
+    }
+    .maintenance-card {
+        transition: all 0.2s ease;
+    }
+    .maintenance-card:hover {
+        transform: translateX(5px);
+    }
+    .priority-high {
+        border-left: 4px solid var(--bs-danger);
+    }
+    .priority-medium {
+        border-left: 4px solid var(--bs-warning);
+    }
+    .priority-low {
+        border-left: 4px solid var(--bs-info);
+    }
+    .activity-timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+    .activity-timeline::before {
+        content: '';
+        position: absolute;
+        left: 10px;
+        top: 0;
+        height: 100%;
+        width: 2px;
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    .timeline-item {
+        position: relative;
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .timeline-item:last-child {
+        border-bottom: none;
+    }
+    .timeline-dot {
+        position: absolute;
+        left: -30px;
+        top: 0;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background-color: var(--bs-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .nav-pills .nav-link.active {
+        background-color: var(--bs-primary);
+    }
+    .tab-pane {
+        padding: 20px 0;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="row mb-4">
-    <div class="col-md-12">
-        <h1 class="h3">Fleet Activity Reports</h1>
-        <p class="text-muted">
-            Overview of your fleet's status, distribution by category, and location.
-        </p>
-    </div>
-</div>
-
-<!-- Status Overview -->
-<div class="row mb-4">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0">Status Overview</h5>
-            </div>
-            <div class="card-body">
-                <div class="chart-container">
-                    <canvas id="status-chart"></canvas>
-                </div>
-            </div>
-            <div class="card-footer">
-                <div class="row text-center">
-                    <div class="col-6">
-                        <h5 class="m-0 text-success">{{ status_counts.active }}</h5>
-                        <small class="text-muted">Active Assets</small>
-                    </div>
-                    <div class="col-6">
-                        <h5 class="m-0 text-danger">{{ status_counts.inactive }}</h5>
-                        <small class="text-muted">Inactive Assets</small>
-                    </div>
-                </div>
-            </div>
+    <div class="col-md-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="h3">Fleet Activity Reports</h1>
+            <p class="text-muted mb-0">
+                Comprehensive overview and analytics of your fleet's performance and status.
+            </p>
         </div>
-    </div>
-    
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0">Assets by Category</h5>
-            </div>
-            <div class="card-body">
-                <div class="chart-container">
-                    <canvas id="category-chart"></canvas>
-                </div>
-            </div>
+        <div>
+            <span class="badge bg-info">
+                Last Updated: <span id="last-update-time">{{ last_updated }}</span>
+            </span>
         </div>
     </div>
 </div>
 
-<!-- Location Distribution -->
+<!-- Reports Navigation Tabs -->
 <div class="row mb-4">
     <div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0">Assets by Location</h5>
+        <ul class="nav nav-pills" id="reportsTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="overview-tab" data-bs-toggle="pill" data-bs-target="#overview" type="button" role="tab" aria-controls="overview" aria-selected="true">
+                    <i class="fas fa-chart-pie me-1"></i> Overview
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="maintenance-tab" data-bs-toggle="pill" data-bs-target="#maintenance" type="button" role="tab" aria-controls="maintenance" aria-selected="false">
+                    <i class="fas fa-tools me-1"></i> Maintenance
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="activity-tab" data-bs-toggle="pill" data-bs-target="#activity" type="button" role="tab" aria-controls="activity" aria-selected="false">
+                    <i class="fas fa-history me-1"></i> Activity Tracking
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="utilization-tab" data-bs-toggle="pill" data-bs-target="#utilization" type="button" role="tab" aria-controls="utilization" aria-selected="false">
+                    <i class="fas fa-tachometer-alt me-1"></i> Utilization
+                </button>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<!-- Tab Content -->
+<div class="tab-content" id="reportsTabContent">
+    <!-- OVERVIEW TAB -->
+    <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+        <!-- Quick Stats -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="dashboard-stat bg-dark">
+                    <p class="stat-value">{{ status_counts.active + status_counts.inactive }}</p>
+                    <p class="stat-label">Total Assets</p>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="chart-container">
-                    <canvas id="location-chart"></canvas>
+            <div class="col-md-3">
+                <div class="dashboard-stat bg-success">
+                    <p class="stat-value">{{ status_counts.active }}</p>
+                    <p class="stat-label">Active Assets</p>
+                    <p class="percent-change">
+                        {{ (status_counts.active / (status_counts.active + status_counts.inactive) * 100) | round(1) }}% of Fleet
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="dashboard-stat bg-danger">
+                    <p class="stat-value">{{ status_counts.inactive }}</p>
+                    <p class="stat-label">Inactive Assets</p>
+                    <p class="percent-change">
+                        {{ (status_counts.inactive / (status_counts.active + status_counts.inactive) * 100) | round(1) }}% of Fleet
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="dashboard-stat bg-info">
+                    <p class="stat-value">{{ maintenance_due_count }}</p>
+                    <p class="stat-label">Maintenance Due</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Overview and Categories -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Status Overview</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="status-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-8">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Assets by Category</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="category-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Location Distribution -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Assets by Location</h5>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button" class="btn btn-outline-secondary active" id="show-chart">Chart</button>
+                            <button type="button" class="btn btn-outline-secondary" id="show-table">Table</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="location-chart-container" class="chart-container">
+                            <canvas id="location-chart"></canvas>
+                        </div>
+                        <div id="location-table-container" class="table-responsive" style="display: none;">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Location</th>
+                                        <th>Total</th>
+                                        <th>Active</th>
+                                        <th>Inactive</th>
+                                        <th>Activity Rate</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for location, count in location_counts.items() %}
+                                        {% set active_count = namespace(value=0) %}
+                                        {% set inactive_count = namespace(value=0) %}
+                                        
+                                        <!-- Calculate active and inactive counts for this location -->
+                                        {% for asset in assets if asset.Location == location %}
+                                            {% if asset.Active %}
+                                                {% set active_count.value = active_count.value + 1 %}
+                                            {% else %}
+                                                {% set inactive_count.value = inactive_count.value + 1 %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        
+                                        <tr>
+                                            <td>{{ location }}</td>
+                                            <td>{{ count }}</td>
+                                            <td class="text-success">{{ active_count.value }}</td>
+                                            <td class="text-danger">{{ inactive_count.value }}</td>
+                                            <td>
+                                                {% if count > 0 %}
+                                                    {% set activity_rate = (active_count.value / count * 100) | round %}
+                                                    <div class="progress" style="height: 10px;">
+                                                        <div class="progress-bar 
+                                                            {% if activity_rate > 70 %}bg-success
+                                                            {% elif activity_rate > 30 %}bg-warning
+                                                            {% else %}bg-danger{% endif %}" 
+                                                            role="progressbar" 
+                                                            style="width: {{ activity_rate }}%;" 
+                                                            aria-valuenow="{{ activity_rate }}" 
+                                                            aria-valuemin="0" 
+                                                            aria-valuemax="100">
+                                                        </div>
+                                                    </div>
+                                                    <small>{{ activity_rate }}%</small>
+                                                {% else %}
+                                                    <small>N/A</small>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Summary Table -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Activity Summary by Category</h5>
+                        <div class="input-group input-group-sm" style="width: 250px;">
+                            <input type="text" id="table-search" class="form-control" placeholder="Search categories...">
+                            <button class="btn btn-outline-secondary" type="button">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="activity-table">
+                                <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th>Total Assets</th>
+                                        <th>Active</th>
+                                        <th>Inactive</th>
+                                        <th>Activity Rate</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for category, count in category_counts.items() %}
+                                        {% set active_count = namespace(value=0) %}
+                                        {% set inactive_count = namespace(value=0) %}
+                                        
+                                        <!-- Calculate active and inactive counts for this category -->
+                                        {% for asset in assets if asset.AssetCategory == category %}
+                                            {% if asset.Active %}
+                                                {% set active_count.value = active_count.value + 1 %}
+                                            {% else %}
+                                                {% set inactive_count.value = inactive_count.value + 1 %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        
+                                        <tr>
+                                            <td>{{ category }}</td>
+                                            <td>{{ count }}</td>
+                                            <td class="text-success">{{ active_count.value }}</td>
+                                            <td class="text-danger">{{ inactive_count.value }}</td>
+                                            <td>
+                                                {% if count > 0 %}
+                                                    {% set activity_rate = (active_count.value / count * 100) | round %}
+                                                    <div class="progress" style="height: 10px;">
+                                                        <div class="progress-bar 
+                                                            {% if activity_rate > 70 %}bg-success
+                                                            {% elif activity_rate > 30 %}bg-warning
+                                                            {% else %}bg-danger{% endif %}" 
+                                                            role="progressbar" 
+                                                            style="width: {{ activity_rate }}%;" 
+                                                            aria-valuenow="{{ activity_rate }}" 
+                                                            aria-valuemin="0" 
+                                                            aria-valuemax="100">
+                                                        </div>
+                                                    </div>
+                                                    <small>{{ activity_rate }}%</small>
+                                                {% else %}
+                                                    <small>N/A</small>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Activity Summary Table -->
-<div class="row">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">Activity Summary</h5>
+    <!-- MAINTENANCE TAB -->
+    <div class="tab-pane fade" id="maintenance" role="tabpanel" aria-labelledby="maintenance-tab">
+        <!-- Maintenance Summary Cards -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Upcoming Maintenance</h5>
+                        <div class="display-1 text-warning mb-3">
+                            <i class="fas fa-tools"></i>
+                        </div>
+                        <h2 class="mb-0">{{ maintenance_due_count }}</h2>
+                        <p class="text-muted">Assets requiring attention</p>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Category</th>
-                                <th>Total Assets</th>
-                                <th>Active</th>
-                                <th>Inactive</th>
-                                <th>Activity Rate</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for category, count in category_counts.items() %}
-                                {% set active_count = namespace(value=0) %}
-                                {% set inactive_count = namespace(value=0) %}
-                                
-                                <!-- Calculate active and inactive counts for this category -->
-                                {% for asset in assets if asset.AssetCategory == category %}
-                                    {% if asset.Active %}
-                                        {% set active_count.value = active_count.value + 1 %}
-                                    {% else %}
-                                        {% set inactive_count.value = inactive_count.value + 1 %}
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">High Priority</h5>
+                        <div class="display-1 text-danger mb-3">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h2 class="mb-0">{{ high_priority_maintenance }}</h2>
+                        <p class="text-muted">Assets needing immediate service</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Average Engine Hours</h5>
+                        <div class="display-1 text-info mb-3">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <h2 class="mb-0">{{ avg_engine_hours | round }}</h2>
+                        <p class="text-muted">Hours per active asset</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Maintenance Due List -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Maintenance Schedule</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if maintenance_items %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Asset ID</th>
+                                            <th>Description</th>
+                                            <th>Engine Hours</th>
+                                            <th>Service Type</th>
+                                            <th>Hours Remaining</th>
+                                            <th>Priority</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in maintenance_items %}
+                                            <tr class="maintenance-card priority-{{ item.priority|lower }}">
+                                                <td><strong>{{ item.asset_id }}</strong></td>
+                                                <td>{{ item.asset_label }}</td>
+                                                <td>{{ item.engine_hours }}</td>
+                                                <td>{{ item.service_type }}</td>
+                                                <td>{{ item.hours_remaining }}</td>
+                                                <td>
+                                                    <span class="badge bg-{{ 'danger' if item.priority == 'High' else 'warning' if item.priority == 'Medium' else 'info' }}">
+                                                        {{ item.priority }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <a href="/asset/{{ item.asset_id }}" class="btn btn-sm btn-outline-primary">
+                                                        Details
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i> No maintenance items currently due.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ACTIVITY TRACKING TAB -->
+    <div class="tab-pane fade" id="activity" role="tabpanel" aria-labelledby="activity-tab">
+        <!-- Activity Timeline -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Recent Activity Timeline</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="activity-timeline">
+                            {% for event in recent_activities %}
+                                <div class="timeline-item">
+                                    <div class="timeline-dot">
+                                        <i class="fas fa-{{ event.icon }} fa-xs text-white"></i>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <h6>{{ event.title }}</h6>
+                                        <small class="text-muted">{{ event.time }}</small>
+                                    </div>
+                                    <p>{{ event.description }}</p>
+                                    {% if event.location %}
+                                        <small class="text-muted">
+                                            <i class="fas fa-map-marker-alt me-1"></i> {{ event.location }}
+                                        </small>
                                     {% endif %}
-                                {% endfor %}
-                                
-                                <tr>
-                                    <td>{{ category }}</td>
-                                    <td>{{ count }}</td>
-                                    <td class="text-success">{{ active_count.value }}</td>
-                                    <td class="text-danger">{{ inactive_count.value }}</td>
-                                    <td>
-                                        {% if count > 0 %}
-                                            {% set activity_rate = (active_count.value / count * 100) | round %}
-                                            <div class="progress" style="height: 10px;">
-                                                <div class="progress-bar 
-                                                    {% if activity_rate > 70 %}bg-success
-                                                    {% elif activity_rate > 30 %}bg-warning
-                                                    {% else %}bg-danger{% endif %}" 
-                                                    role="progressbar" 
-                                                    style="width: {{ activity_rate }}%;" 
-                                                    aria-valuenow="{{ activity_rate }}" 
-                                                    aria-valuemin="0" 
-                                                    aria-valuemax="100">
-                                                </div>
-                                            </div>
-                                            <small>{{ activity_rate }}%</small>
-                                        {% else %}
-                                            <small>N/A</small>
-                                        {% endif %}
-                                    </td>
-                                </tr>
+                                </div>
                             {% endfor %}
-                        </tbody>
-                    </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Activity Trends Chart -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Activity Trends (Last 7 Days)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="activity-trend-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- UTILIZATION TAB -->
+    <div class="tab-pane fade" id="utilization" role="tabpanel" aria-labelledby="utilization-tab">
+        <!-- Utilization Metrics -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Utilization by Category</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="utilization-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Engine Hours Distribution</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="engine-hours-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Top Utilized Assets -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Top Utilized Assets</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Asset ID</th>
+                                        <th>Description</th>
+                                        <th>Category</th>
+                                        <th>Engine Hours</th>
+                                        <th>Utilization Score</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for asset in top_utilized_assets %}
+                                        <tr>
+                                            <td><strong>{{ asset.AssetIdentifier }}</strong></td>
+                                            <td>{{ asset.Label }}</td>
+                                            <td>{{ asset.AssetCategory }}</td>
+                                            <td>{{ asset.Engine1Hours }}</td>
+                                            <td>
+                                                <div class="progress" style="height: 10px;">
+                                                    <div class="progress-bar bg-success" 
+                                                         role="progressbar" 
+                                                         style="width: {{ asset.utilization_score }}%;" 
+                                                         aria-valuenow="{{ asset.utilization_score }}" 
+                                                         aria-valuemin="0" 
+                                                         aria-valuemax="100">
+                                                    </div>
+                                                </div>
+                                                <small>{{ asset.utilization_score }}%</small>
+                                            </td>
+                                            <td>
+                                                <a href="/asset/{{ asset.AssetIdentifier }}" class="btn btn-sm btn-outline-primary">
+                                                    View
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -160,8 +608,183 @@
             {% endfor %}
         };
         
-        // Initialize charts with the data
+        // Toggle between chart and table view for locations
+        const showChartBtn = document.getElementById('show-chart');
+        const showTableBtn = document.getElementById('show-table');
+        const chartContainer = document.getElementById('location-chart-container');
+        const tableContainer = document.getElementById('location-table-container');
+        
+        if (showChartBtn && showTableBtn) {
+            showChartBtn.addEventListener('click', function() {
+                chartContainer.style.display = 'block';
+                tableContainer.style.display = 'none';
+                showChartBtn.classList.add('active');
+                showTableBtn.classList.remove('active');
+            });
+            
+            showTableBtn.addEventListener('click', function() {
+                chartContainer.style.display = 'none';
+                tableContainer.style.display = 'block';
+                showTableBtn.classList.add('active');
+                showChartBtn.classList.remove('active');
+            });
+        }
+        
+        // Table search functionality
+        const tableSearch = document.getElementById('table-search');
+        if (tableSearch) {
+            tableSearch.addEventListener('keyup', function() {
+                const searchValue = this.value.toLowerCase();
+                const tableRows = document.querySelectorAll('#activity-table tbody tr');
+                
+                tableRows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    if (text.includes(searchValue)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        }
+        
+        // Initialize overview charts
         initializeCharts(statusCounts, categoryCounts, locationCounts);
+        
+        // Initialize activity trend chart (if on that tab)
+        const activityTrendChart = document.getElementById('activity-trend-chart');
+        if (activityTrendChart) {
+            // Last 7 days data
+            const activityDays = {{ activity_trend_days|tojson }};
+            const activityActive = {{ activity_trend_active|tojson }};
+            const activityInactive = {{ activity_trend_inactive|tojson }};
+            
+            new Chart(activityTrendChart, {
+                type: 'line',
+                data: {
+                    labels: activityDays,
+                    datasets: [
+                        {
+                            label: 'Active Assets',
+                            data: activityActive,
+                            borderColor: 'rgba(40, 167, 69, 1)',
+                            backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Inactive Assets',
+                            data: activityInactive,
+                            borderColor: 'rgba(220, 53, 69, 1)',
+                            backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: 'white' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: 'white' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: { color: 'white' }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Initialize utilization charts (if on that tab)
+        const utilizationChart = document.getElementById('utilization-chart');
+        if (utilizationChart) {
+            const categories = Object.keys(categoryCounts);
+            const utilizationRates = [75, 62, 88, 45, 70, 80, 30, 55, 65, 40]; // Example data
+            
+            new Chart(utilizationChart, {
+                type: 'bar',
+                data: {
+                    labels: categories,
+                    datasets: [{
+                        label: 'Utilization Rate (%)',
+                        data: utilizationRates,
+                        backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { color: 'white' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        },
+                        y: {
+                            ticks: { color: 'white' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+        
+        const engineHoursChart = document.getElementById('engine-hours-chart');
+        if (engineHoursChart) {
+            // Example distribution data
+            const hoursBuckets = ['0-500', '501-1000', '1001-2000', '2001-5000', '5000+'];
+            const hoursDistribution = [15, 22, 30, 18, 10];
+            
+            new Chart(engineHoursChart, {
+                type: 'pie',
+                data: {
+                    labels: hoursBuckets,
+                    datasets: [{
+                        data: hoursDistribution,
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.8)',
+                            'rgba(75, 192, 192, 0.8)',
+                            'rgba(255, 206, 86, 0.8)',
+                            'rgba(153, 102, 255, 0.8)',
+                            'rgba(255, 99, 132, 0.8)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: { color: 'white' }
+                        }
+                    }
+                }
+            });
+        }
     });
 </script>
 {% endblock %}

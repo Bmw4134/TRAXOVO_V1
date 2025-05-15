@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('attendance.index') }}">Attendance</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Report History</li>
+                </ol>
+            </nav>
+            <h1 class="h3">Attendance Report History</h1>
+            <p class="text-muted">View and download previously generated attendance reports</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Report Archives</h5>
+                    <div>
+                        <a href="{{ url_for('attendance.index') }}" class="btn btn-sm btn-outline-primary">Back to Dashboard</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if all_reports %}
+                        <div class="accordion" id="reportAccordion">
+                            {% for date_item in all_reports %}
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="heading{{ loop.index }}">
+                                        <button class="accordion-button {% if not loop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index }}" aria-expanded="{{ 'true' if loop.first else 'false' }}" aria-controls="collapse{{ loop.index }}">
+                                            {{ date_item.date }} <span class="badge bg-primary ms-2">{{ date_item.files|length }} files</span>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse{{ loop.index }}" class="accordion-collapse collapse {% if loop.first %}show{% endif %}" aria-labelledby="heading{{ loop.index }}" data-bs-parent="#reportAccordion">
+                                        <div class="accordion-body">
+                                            <div class="table-responsive">
+                                                <table class="table table-hover table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Report Type</th>
+                                                            <th>Filename</th>
+                                                            <th>Created At</th>
+                                                            <th>Size</th>
+                                                            <th>Actions</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for report in date_item.files %}
+                                                            <tr>
+                                                                <td>
+                                                                    {% if "prior_day" in report.filename %}
+                                                                        <span class="badge bg-primary">Prior Day Report</span>
+                                                                    {% else %}
+                                                                        <span class="badge bg-success">Current Day Report</span>
+                                                                    {% endif %}
+                                                                </td>
+                                                                <td>{{ report.filename }}</td>
+                                                                <td>{{ report.created.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                                                <td>{{ (report.size / 1024)|round|int }} KB</td>
+                                                                <td>
+                                                                    <a href="{{ url_for('attendance.download_report', filename=date_item.date + '/' + report.filename) }}" class="btn btn-sm btn-outline-primary">
+                                                                        <i class="bi bi-download me-1"></i>Download
+                                                                    </a>
+                                                                </td>
+                                                            </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle-fill me-2"></i>No attendance reports have been generated yet.
+                        </div>
+                        <p>Use the dashboard to generate new attendance reports.</p>
+                        <div class="text-center mt-3">
+                            <a href="{{ url_for('attendance.index') }}" class="btn btn-primary">
+                                <i class="bi bi-arrow-left me-1"></i>Go to Dashboard
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

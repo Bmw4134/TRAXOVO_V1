@@ -130,33 +130,27 @@ def generate_prior_day_report():
         # Log the process
         logger.info(f"Generating prior day report for {yesterday}")
         
-        # Format: Late Start, Early End, Not On Job for prior day
-        # This is where the actual report generation logic would be implemented
-        # Based on the activity detail and driving history
+        # Import here to avoid circular imports
+        from utils.attendance_processor import process_prior_day_attendance, create_attendance_excel
         
-        # For now we'll just create a placeholder file
-        workbook = openpyxl.Workbook()
-        sheet = workbook.active
-        sheet.title = f"Attendance Report {yesterday}"
+        # Process attendance data
+        attendance_data = process_prior_day_attendance(yesterday)
+        if attendance_data['status'] != 'success':
+            return {'status': 'error', 'message': attendance_data.get('message', 'Failed to process attendance data')}
         
-        # Set up headers
-        headers = ["Identifier", "Driver", "Region", "Expected Start", "Actual Start", 
-                  "Late By (min)", "Expected End", "Actual End", "Early By (min)", 
-                  "Expected Job", "Actual Location", "Status"]
+        # Create Excel report
+        excel_path = create_attendance_excel(attendance_data, 'prior_day')
+        if not excel_path:
+            return {'status': 'error', 'message': 'Failed to create Excel report'}
         
-        for col, header in enumerate(headers, 1):
-            cell = sheet.cell(row=1, column=col, value=header)
-            cell.font = Font(bold=True)
-            cell.fill = PatternFill(start_color="DDEBF7", end_color="DDEBF7", fill_type="solid")
-            
-        # Save the workbook
-        workbook.save(report_path)
+        # Log success
+        logger.info(f"Prior day attendance report saved to {excel_path}")
         
-        logger.info(f"Prior day report saved to {report_path}")
         return {
             'status': 'success',
-            'path': report_path,
-            'date': yesterday
+            'path': excel_path,
+            'date': yesterday,
+            'summary': attendance_data['data']['summary']
         }
     except Exception as e:
         logger.error(f"Error generating prior day report: {e}")
@@ -186,32 +180,28 @@ def generate_current_day_report():
         # Log the process
         logger.info(f"Generating current day report for {today} (as of 8:30 AM)")
         
-        # Format: Late Start, Not On Job for current day
-        # This is where the actual report generation logic would be implemented
-        # Based on the activity detail and driving history
+        # Import here to avoid circular imports
+        from utils.attendance_processor import process_current_day_attendance, create_attendance_excel
         
-        # For now we'll just create a placeholder file
-        workbook = openpyxl.Workbook()
-        sheet = workbook.active
-        sheet.title = f"Early Status {today}"
+        # Process attendance data
+        attendance_data = process_current_day_attendance()
+        if attendance_data['status'] != 'success':
+            return {'status': 'error', 'message': attendance_data.get('message', 'Failed to process attendance data')}
         
-        # Set up headers
-        headers = ["Identifier", "Driver", "Region", "Expected Start", "Status at 8:30 AM", 
-                  "Late By (min)", "Expected Job", "Actual Location", "Status"]
+        # Create Excel report
+        excel_path = create_attendance_excel(attendance_data, 'current_day')
+        if not excel_path:
+            return {'status': 'error', 'message': 'Failed to create Excel report'}
         
-        for col, header in enumerate(headers, 1):
-            cell = sheet.cell(row=1, column=col, value=header)
-            cell.font = Font(bold=True)
-            cell.fill = PatternFill(start_color="DDEBF7", end_color="DDEBF7", fill_type="solid")
-            
-        # Save the workbook
-        workbook.save(report_path)
+        # Log success
+        logger.info(f"Current day attendance report saved to {excel_path}")
         
-        logger.info(f"Current day report saved to {report_path}")
         return {
             'status': 'success',
-            'path': report_path,
-            'date': today
+            'path': excel_path,
+            'date': today,
+            'report_time': attendance_data.get('report_time', '8:30 AM'),
+            'summary': attendance_data['data']['summary']
         }
     except Exception as e:
         logger.error(f"Error generating current day report: {e}")
@@ -232,29 +222,27 @@ def compare_billing_files():
             
         logger.info("Comparing original and edited billing files")
         
-        # This is where the actual comparison logic would be implemented
-        # We would load both Excel files, compare the relevant columns,
-        # and identify changed job codes, assets, day counts, and notes
+        # Import here to avoid circular imports
+        from utils.billing_processor import load_billing_files, compare_billing_data, create_comparison_report
         
-        # For now, return a placeholder result
-        return {
-            'status': 'success',
-            'changes_detected': True,
-            'changes': {
-                'job_codes': [
-                    {'asset': 'EX-81', 'old': 'J123', 'new': 'J456'},
-                    {'asset': 'DT-11', 'old': 'J789', 'new': 'J555'}
-                ],
-                'days': [
-                    {'asset': 'LP-116', 'old': 15, 'new': 18},
-                    {'asset': 'ME-58', 'old': 22, 'new': 20}
-                ],
-                'notes': [
-                    {'asset': 'PT-276', 'old': '', 'new': 'Maintenance 4/15-4/18'},
-                    {'asset': 'PT-277', 'old': 'Job transfer 4/12', 'new': 'Job transfer 4/10-4/12'}
-                ]
-            }
-        }
+        # Load billing files
+        original_df, edited_df = load_billing_files(files['original_billing'], files['edited_billing'])
+        if original_df is None or edited_df is None:
+            return {'status': 'error', 'message': 'Failed to load billing files'}
+        
+        # Compare billing data
+        comparison_result = compare_billing_data(original_df, edited_df)
+        if comparison_result['status'] != 'success':
+            return {'status': 'error', 'message': comparison_result.get('message', 'Comparison failed')}
+        
+        # Create comparison report
+        report_path = create_comparison_report(comparison_result, 'APRIL')
+        if not report_path:
+            return {'status': 'error', 'message': 'Failed to create comparison report'}
+        
+        # Return comparison results with report path
+        comparison_result['report_path'] = report_path
+        return comparison_result
     except Exception as e:
         logger.error(f"Error comparing billing files: {e}")
         return {'status': 'error', 'message': str(e)}

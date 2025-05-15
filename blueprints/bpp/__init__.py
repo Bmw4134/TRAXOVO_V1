@@ -73,3 +73,4 @@ def api_tax_data():
 def register_blueprint(app):
     """Register the BPP blueprint with the app."""
     app.register_blueprint(bpp_bp)
+    return bpp_bp

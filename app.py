@@ -109,6 +109,7 @@ try:
     from blueprints.depreciation import depreciation_bp, register_blueprint as register_depreciation_blueprint
     from blueprints.bpp import bpp_bp, register_blueprint as register_bpp_blueprint
     from blueprints.billing import billing_bp, register_blueprint as register_billing_blueprint
+    from blueprints.attendance import attendance_bp, register_blueprint as register_attendance_blueprint
     
     # Register blueprints
     app.register_blueprint(parser_bp)
@@ -122,6 +123,7 @@ try:
     register_depreciation_blueprint(app)
     register_bpp_blueprint(app)
     register_billing_blueprint(app)
+    register_attendance_blueprint(app)
     logger.info("Registered application blueprints")
 except ImportError as e:
     logger.warning(f"Could not register all blueprints: {e}")

@@ -141,3 +141,4 @@ def download_export(filename):
 def register_blueprint(app):
     """Register the billing blueprint with the app."""
     app.register_blueprint(billing_bp)
+    return billing_bp

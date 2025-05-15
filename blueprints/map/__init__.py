@@ -296,7 +296,15 @@ def asset_status():
             # Create count summaries
             total = len(asset_data)
             active = sum(1 for a in asset_data if a.get('active'))
-            inactive = total - active
+            
+            # Count retired assets based on label
+            retired = 0
+            for asset in asset_data:
+                label = asset.get('label', '').lower() if asset.get('label') else ''
+                if any(keyword in label for keyword in ["retired", "sold", "scrap", "stolen", "total out"]):
+                    retired += 1
+                    
+            inactive = total - active - retired
             ignition_on = sum(1 for a in asset_data if a.get('ignition'))
             
             # Count by asset class
@@ -353,6 +361,7 @@ def asset_status():
             "total": total,
             "active": active,
             "inactive": inactive,
+            "retired": retired,
             "ignition_on": ignition_on,
             "by_class": class_data,
             "by_location": location_data

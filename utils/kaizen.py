@@ -626,6 +626,77 @@ def process_asset_identifiers(assets):
     logger.info(f"Processed {len(assets)} assets, updated {count} employee mappings")
     return count
 
+def get_asset_employee_mappings(confidence='all', limit=100):
+    """
+    Get asset-employee mappings
+    
+    Args:
+        confidence (str): Filter by confidence level ('high', 'medium', 'low', 'all')
+        limit (int): Maximum number of mappings to return
+        
+    Returns:
+        list: List of mappings as dictionaries
+    """
+    try:
+        conn = sqlite3.connect(KAIZEN_DB_PATH)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        query = "SELECT * FROM asset_employee_mappings"
+        params = []
+        
+        # Add confidence filter if specified
+        if confidence != 'all':
+            if confidence == 'high':
+                query += " WHERE confidence_score >= 0.8"
+            elif confidence == 'medium':
+                query += " WHERE confidence_score >= 0.5 AND confidence_score < 0.8"
+            elif confidence == 'low':
+                query += " WHERE confidence_score < 0.5"
+        
+        # Add order and limit
+        query += " ORDER BY confidence_score DESC, last_seen DESC LIMIT ?"
+        params.append(limit)
+        
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+        mappings = [dict(row) for row in rows]
+        
+        conn.close()
+        return mappings
+    except Exception as e:
+        logger.error(f"Error getting asset-employee mappings: {e}")
+        return []
+
+def mark_suggestion_implemented(suggestion_id):
+    """
+    Mark a suggestion as implemented
+    
+    Args:
+        suggestion_id (int): ID of the suggestion
+        
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    try:
+        conn = sqlite3.connect(KAIZEN_DB_PATH)
+        cursor = conn.cursor()
+        
+        cursor.execute(
+            "UPDATE improvement_suggestions SET implemented = 1, implemented_at = ? "
+            "WHERE id = ?",
+            (datetime.now().isoformat(), suggestion_id)
+        )
+        
+        success = cursor.rowcount > 0
+        conn.commit()
+        conn.close()
+        
+        return success
+    except Exception as e:
+        logger.error(f"Error marking suggestion as implemented: {e}")
+        return False
+
 def init():
     """Initialize the Kaizen module"""
     initialize_kaizen_db()

@@ -1,17 +1,17 @@
 {
   "activity_report": {
-    "generated_at": "2025-05-15T20:50:12.520150",
+    "generated_at": "2025-05-15T20:58:14.684507",
     "metrics": {
       "total_assets": 701,
       "active_assets": 601,
       "inactive_assets": 100,
       "activity_by_day": {
-        "2025-05-14": {
-          "active": 39,
-          "inactive": 0
-        },
         "2025-05-15": {
           "active": 477,
+          "inactive": 0
+        },
+        "2025-05-14": {
+          "active": 39,
           "inactive": 0
         },
         "2025-04-07": {
@@ -400,6 +400,11 @@
         }
       },
       "activity_by_category": {
+        "Personal Vehicle": {
+          "active": 4,
+          "inactive": 0,
+          "total": 4
+        },
         "Walk Behind Saw": {
           "active": 2,
           "inactive": 0,
@@ -464,11 +469,6 @@
           "active": 7,
           "inactive": 5,
           "total": 12
-        },
-        "Personal Vehicle": {
-          "active": 4,
-          "inactive": 0,
-          "total": 4
         },
         "Dump Trailer": {
           "active": 14,
@@ -682,6 +682,11 @@
         }
       },
       "activity_by_location": {
+        "2021-017 Plano Collin Creek Culvert Imp": {
+          "active": 5,
+          "inactive": 2,
+          "total": 7
+        },
         "5201 - 5399 Grace Point Ln, Houston, TX 77048": {
           "active": 1,
           "inactive": 0,
@@ -703,9 +708,9 @@
           "total": 56
         },
         "2023-032 SH 345 BRIDGE REHABILITATION": {
-          "active": 62,
+          "active": 63,
           "inactive": 0,
-          "total": 62
+          "total": 63
         },
         "2024-004 City of Dallas Sidewalk 2024 (YARD)": {
           "active": 14,
@@ -741,11 +746,6 @@
           "active": 1,
           "inactive": 0,
           "total": 1
-        },
-        "2021-017 Plano Collin Creek Culvert Imp": {
-          "active": 5,
-          "inactive": 2,
-          "total": 7
         },
         "24-04 DALLAS SH 310 INTERSECTION IMPROV": {
           "active": 13,
@@ -783,9 +783,9 @@
           "total": 5
         },
         "2023-034 DALLAS IH 45 BRIDGE MAINTENANCE": {
-          "active": 3,
+          "active": 2,
           "inactive": 0,
-          "total": 3
+          "total": 2
         },
         "2023-014 (1) TARRANT IH 20 US 81 BR": {
           "active": 4,
@@ -793,9 +793,9 @@
           "total": 4
         },
         "TEXDIST": {
-          "active": 11,
+          "active": 10,
           "inactive": 18,
-          "total": 29
+          "total": 28
         },
         "2022-023 Riverfront & Cadiz Bridge Improvement": {
           "active": 10,
@@ -962,14 +962,14 @@
           "inactive": 0,
           "total": 1
         },
-        " State Highway 121, Frisco, TX 75034": {
-          "active": 0,
-          "inactive": 1,
-          "total": 1
-        },
         " John Carpenter Fwy E, Dallas, TX 75247": {
           "active": 1,
           "inactive": 0,
+          "total": 1
+        },
+        " State Highway 121, Frisco, TX 75034": {
+          "active": 0,
+          "inactive": 1,
           "total": 1
         },
         "587 - 615 E Ledbetter Dr, Dallas, TX 75216": {
@@ -997,7 +997,7 @@
           "inactive": 0,
           "total": 1
         },
-        "4816 - 4800 Dozier Rd, Carrollton, TX 75010": {
+        " Parker Rd, Carrollton, TX 75056": {
           "active": 1,
           "inactive": 0,
           "total": 1
@@ -1013,6 +1013,11 @@
           "total": 1
         },
         "699 - 465 Baker Dr, Hurst, TX 76054": {
+          "active": 1,
+          "inactive": 0,
+          "total": 1
+        },
+        " TX-121 N, Bedford, TX 76021": {
           "active": 1,
           "inactive": 0,
           "total": 1
@@ -1038,14 +1043,9 @@
           "total": 2
         },
         "2024-004 CoD Sidewalks 2024 (#03)": {
-          "active": 2,
-          "inactive": 0,
-          "total": 2
-        },
-        " TX-121 N, Bedford, TX 76054": {
           "active": 1,
-          "inactive": 1,
-          "total": 2
+          "inactive": 0,
+          "total": 1
         },
         "8400 - 8434 Thousand Oaks Dr, North Richland Hills, TX 76180": {
           "active": 1,
@@ -1058,6 +1058,11 @@
           "total": 1
         },
         "2020-027 DENTON CO US 377": {
+          "active": 1,
+          "inactive": 0,
+          "total": 1
+        },
+        " US Highway 287, Fort Worth, TX 76131": {
           "active": 1,
           "inactive": 0,
           "total": 1
@@ -1077,12 +1082,12 @@
           "inactive": 0,
           "total": 1
         },
-        " US Highway 287, Fort Worth, TX 76177": {
+        "8792 - 8898 Cherry Lee Ln, Lantana, TX 76226": {
           "active": 1,
           "inactive": 0,
           "total": 1
         },
-        "8792 - 8898 Cherry Lee Ln, Lantana, TX 76226": {
+        " I-69 N, Conroe, TX 77339": {
           "active": 1,
           "inactive": 0,
           "total": 1
@@ -1107,17 +1112,17 @@
           "inactive": 3,
           "total": 3
         },
-        " Highway 59 N, Houston, TX 77338": {
-          "active": 1,
-          "inactive": 0,
-          "total": 1
-        },
         "699 - 641 W 6th Ave, Corsicana, TX 75110": {
           "active": 1,
           "inactive": 0,
           "total": 1
         },
         " N State Highway 161, Irving, TX 75038": {
+          "active": 0,
+          "inactive": 1,
+          "total": 1
+        },
+        " TX-121 N, Bedford, TX 76054": {
           "active": 0,
           "inactive": 1,
           "total": 1
@@ -1162,6 +1167,11 @@
           "inactive": 0,
           "total": 1
         },
+        "2024-004 CoD Sidewalks 2024 (#02)": {
+          "active": 1,
+          "inactive": 0,
+          "total": 1
+        },
         "3001 - 3199 Walker Creek Dr, Denton, TX 75068": {
           "active": 1,
           "inactive": 0,
@@ -1187,17 +1197,17 @@
           "inactive": 0,
           "total": 6
         },
-        " Forest Ln, Dallas, TX 75243": {
-          "active": 1,
-          "inactive": 0,
-          "total": 1
-        },
         " I-10 E, Houston, TX 77520": {
           "active": 1,
           "inactive": 0,
           "total": 1
         },
         " Rankin Rd, Houston, TX 77073": {
+          "active": 1,
+          "inactive": 0,
+          "total": 1
+        },
+        " US-175 W, Dallas, TX 75215": {
           "active": 1,
           "inactive": 0,
           "total": 1
@@ -1223,11 +1233,6 @@
           "total": 1
         },
         " South Fwy, Houston, TX 77004": {
-          "active": 1,
-          "inactive": 0,
-          "total": 1
-        },
-        " C F Hawn Fwy, Dallas, TX 75215": {
           "active": 1,
           "inactive": 0,
           "total": 1
@@ -1302,6 +1307,11 @@
           "inactive": 0,
           "total": 1
         },
+        " E R.L. Thornton Service Rd N, Dallas, TX 75201": {
+          "active": 1,
+          "inactive": 0,
+          "total": 1
+        },
         " S Riverfront Blvd, Dallas, TX 75207": {
           "active": 1,
           "inactive": 0,
@@ -1317,17 +1327,17 @@
           "inactive": 0,
           "total": 1
         },
-        " Cesar Chavez Blvd, Dallas, TX 75201": {
-          "active": 1,
-          "inactive": 0,
-          "total": 1
-        },
         "8448 - 8400 N Belt Line Rd, Irving, TX 75063": {
           "active": 1,
           "inactive": 0,
           "total": 1
         },
         "10900 - 10984 Composite Dr, Dallas, TX 75220": {
+          "active": 1,
+          "inactive": 0,
+          "total": 1
+        },
+        "1215 - 1299 Forest Ave, Dallas, TX 75215": {
           "active": 1,
           "inactive": 0,
           "total": 1
@@ -1352,7 +1362,22 @@
           "inactive": 0,
           "total": 1
         },
+        "500 - 598 N Ewing Ave, Dallas, TX 75203": {
+          "active": 1,
+          "inactive": 0,
+          "total": 1
+        },
         "2801 - 2819 Wildplum Dr, Arlington, TX 76015": {
+          "active": 1,
+          "inactive": 0,
+          "total": 1
+        },
+        "11311 - 11501 W State Highway 199, Decatur, TX 76487": {
+          "active": 1,
+          "inactive": 0,
+          "total": 1
+        },
+        " TX-121 S, Hurst, TX 76180": {
           "active": 1,
           "inactive": 0,
           "total": 1
@@ -1368,11 +1393,6 @@
           "total": 1
         },
         "10004 - 10026 Voss Ave, Fort Worth, TX 76244": {
-          "active": 1,
-          "inactive": 0,
-          "total": 1
-        },
-        "418 - 498 County Road 3940, Decatur, TX 76487": {
           "active": 1,
           "inactive": 0,
           "total": 1
@@ -1417,17 +1437,17 @@
           "inactive": 0,
           "total": 1
         },
-        " S Malcolm X Blvd, Dallas, TX 75226": {
+        " N Haskell Ave, Dallas, TX 75204": {
           "active": 1,
           "inactive": 0,
           "total": 1
         },
-        " Lemmon Ave, Dallas, TX 75204": {
+        " Highway 183, Bedford, TX 76040": {
           "active": 1,
           "inactive": 0,
           "total": 1
         },
-        "7100 - 7286 Oak Grove Rd, Fort Worth, TX 76140": {
+        "1401 - 1499 John Burgess Dr, Fort Worth, TX 76140": {
           "active": 1,
           "inactive": 0,
           "total": 1
@@ -1437,17 +1457,12 @@
           "inactive": 0,
           "total": 1
         },
-        " I-35E N, Dallas, TX 75203": {
-          "active": 1,
-          "inactive": 0,
-          "total": 1
-        },
         "1358 - 1598 Apple St, Dallas, TX 75204": {
           "active": 1,
           "inactive": 0,
           "total": 1
         },
-        " TX-121 N, Bedford, TX 76022": {
+        " I-35E N, Dallas, TX 75203": {
           "active": 1,
           "inactive": 0,
           "total": 1
@@ -1464,7 +1479,7 @@
         }
       },
       "utilization_rate": 85.73466476462197,
-      "avg_engine_hours": 4277.173611111111,
+      "avg_engine_hours": 4277.18287037037,
       "inactive_durations": [],
       "activity_by_day_sorted": [
         {
@@ -1739,8 +1754,8 @@
       },
       {
         "location": "2023-032 SH 345 BRIDGE REHABILITATION",
-        "count": 62,
-        "active": 62,
+        "count": 63,
+        "active": 63,
         "inactive": 0
       },
       {
@@ -1757,8 +1772,8 @@
       },
       {
         "location": "TEXDIST",
-        "count": 29,
-        "active": 11,
+        "count": 28,
+        "active": 10,
         "inactive": 18
       },
       {
@@ -1794,7 +1809,7 @@
     ]
   },
   "maintenance_report": {
-    "generated_at": "2025-05-15T20:50:12.524563",
+    "generated_at": "2025-05-15T20:58:14.688932",
     "maintenance_items": [
       {
         "asset_id": "#210055 - ADAM H. GOODE",
@@ -2534,6 +2549,32 @@
         ]
       },
       {
+        "asset_id": "PT-172 (OPEN TRAFFIC TRUCK) 2022-023",
+        "asset_label": "PT-172 (OPEN TRAFFIC TRUCK) 2022-023 FORD F150 2020 Pickup Truck +",
+        "asset_category": "Pickup Truck",
+        "engine_hours": 5734.0,
+        "maintenance_items": [
+          {
+            "type": "Oil Change",
+            "hours_remaining": 16.0,
+            "priority": "Medium"
+          }
+        ]
+      },
+      {
+        "asset_id": "PT-215 (ERNEST LEMON JR)",
+        "asset_label": "PT-215 (ERNEST LEMON JR) FORD F250 2022 Pickup Truck +",
+        "asset_category": "Pickup Truck",
+        "engine_hours": 5745.0,
+        "maintenance_items": [
+          {
+            "type": "Oil Change",
+            "hours_remaining": 5.0,
+            "priority": "High"
+          }
+        ]
+      },
+      {
         "asset_id": "PT-105 (SELL 2/20)",
         "asset_label": "PT-105 (SELL 2/20) FORD F250 2017 Pickup Truck ",
         "asset_category": "Pickup Truck",
@@ -2568,32 +2609,6 @@
           {
             "type": "Oil Change",
             "hours_remaining": 40.0,
-            "priority": "Medium"
-          }
-        ]
-      },
-      {
-        "asset_id": "PT-215 (ERNEST LEMON JR)",
-        "asset_label": "PT-215 (ERNEST LEMON JR) FORD F250 2022 Pickup Truck +",
-        "asset_category": "Pickup Truck",
-        "engine_hours": 5745.0,
-        "maintenance_items": [
-          {
-            "type": "Oil Change",
-            "hours_remaining": 5.0,
-            "priority": "High"
-          }
-        ]
-      },
-      {
-        "asset_id": "PT-172 (OPEN TRAFFIC TRUCK) 2022-023",
-        "asset_label": "PT-172 (OPEN TRAFFIC TRUCK) 2022-023 FORD F150 2020 Pickup Truck +",
-        "asset_category": "Pickup Truck",
-        "engine_hours": 5734.0,
-        "maintenance_items": [
-          {
-            "type": "Oil Change",
-            "hours_remaining": 16.0,
             "priority": "Medium"
           }
         ]
@@ -2898,19 +2913,6 @@
         ]
       },
       {
-        "asset_id": "PT-277 (Said Garcia)",
-        "asset_label": "PT-277 (Said Garcia) FORD MAVERICK XL 2024 Pickup Truck +",
-        "asset_category": "Pickup Truck",
-        "engine_hours": 230.0,
-        "maintenance_items": [
-          {
-            "type": "Oil Change",
-            "hours_remaining": 20.0,
-            "priority": "Medium"
-          }
-        ]
-      },
-      {
         "asset_id": "PT-276 (Mario Moya)",
         "asset_label": "PT-276 (Mario Moya) FORD MAVERICK XL 2024 Pickup Truck +",
         "asset_category": "Pickup Truck",
@@ -2919,6 +2921,19 @@
           {
             "type": "Oil Change",
             "hours_remaining": 19.0,
+            "priority": "Medium"
+          }
+        ]
+      },
+      {
+        "asset_id": "PT-277 (Said Garcia)",
+        "asset_label": "PT-277 (Said Garcia) FORD MAVERICK XL 2024 Pickup Truck +",
+        "asset_category": "Pickup Truck",
+        "engine_hours": 230.0,
+        "maintenance_items": [
+          {
+            "type": "Oil Change",
+            "hours_remaining": 20.0,
             "priority": "Medium"
           }
         ]
@@ -2994,11 +3009,11 @@
         "asset_id": "WT-12",
         "asset_label": "WT-12 FREIGHTLINER M2 106 2015 Heavy Truck +",
         "asset_category": "Heavy Truck",
-        "engine_hours": 3244.0,
+        "engine_hours": 3245.0,
         "maintenance_items": [
           {
             "type": "Oil Change",
-            "hours_remaining": 6.0,
+            "hours_remaining": 5.0,
             "priority": "High"
           }
         ]

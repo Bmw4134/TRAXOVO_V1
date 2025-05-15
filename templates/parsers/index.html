@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+
+{% block title %}File Parser - SYSTEMSMITH{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>File Parser Dashboard</h1>
+        <a href="{{ url_for('parser.upload_file') }}" class="btn btn-primary">
+            <i class="fas fa-upload me-2"></i> Upload New File
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-3">
+                        <a href="{{ url_for('parser.upload_file') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-upload me-2"></i> Upload File
+                        </a>
+                        <a href="{{ url_for('parser.compare_files') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-sync-alt me-2"></i> Compare Files
+                        </a>
+                        <a href="{{ url_for('cya.index') }}" class="btn btn-outline-info">
+                            <i class="fas fa-database me-2"></i> View Audit Logs
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">Processing Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            <h3>{{ history|length }}</h3>
+                            <small class="text-muted">Processed Files</small>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <h3>{{ history_by_type|length }}</h3>
+                            <small class="text-muted">File Types</small>
+                        </div>
+                        <div class="col-6">
+                            <h3>{{ history|selectattr('status', 'equalto', 'SUCCESS')|list|length }}</h3>
+                            <small class="text-muted">Successful</small>
+                        </div>
+                        <div class="col-6">
+                            <h3>{{ history|selectattr('status', 'equalto', 'ERROR')|list|length }}</h3>
+                            <small class="text-muted">Errors</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">Recent Processing History</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="nav nav-tabs" id="fileTypeTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab" aria-controls="all" aria-selected="true">
+                                All Files
+                            </button>
+                        </li>
+                        {% for file_type, entries in history_by_type.items() %}
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="{{ file_type }}-tab" data-bs-toggle="tab" data-bs-target="#{{ file_type }}" type="button" role="tab" aria-controls="{{ file_type }}" aria-selected="false">
+                                    {{ file_type|capitalize }}
+                                </button>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    <div class="tab-content" id="fileTypesContent">
+                        <div class="tab-pane fade show active py-3" id="all" role="tabpanel" aria-labelledby="all-tab">
+                            {% if history %}
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>File Name</th>
+                                                <th>Type</th>
+                                                <th>Date</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for entry in history %}
+                                                <tr>
+                                                    <td>{{ entry.file_name }}</td>
+                                                    <td><span class="badge bg-dark">{{ entry.file_type }}</span></td>
+                                                    <td>{{ entry.processing_date[:16].replace('T', ' ') }}</td>
+                                                    <td>
+                                                        {% if entry.status == 'SUCCESS' %}
+                                                            <span class="badge bg-success">Success</span>
+                                                        {% else %}
+                                                            <span class="badge bg-danger">Error</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        <div class="btn-group btn-group-sm">
+                                                            <a href="{{ url_for('parser.processing_result', file_name=entry.file_name) }}" class="btn btn-outline-primary">
+                                                                <i class="fas fa-info-circle"></i>
+                                                            </a>
+                                                            {% if entry.status == 'SUCCESS' %}
+                                                                <a href="{{ url_for('parser.download_processed_file', file_id=entry.id) }}" class="btn btn-outline-success">
+                                                                    <i class="fas fa-download"></i>
+                                                                </a>
+                                                            {% endif %}
+                                                            <button type="button" class="btn btn-outline-secondary" 
+                                                                    onclick="document.getElementById('reprocessForm{{ entry.id }}').submit();">
+                                                                <i class="fas fa-sync-alt"></i>
+                                                            </button>
+                                                            <form id="reprocessForm{{ entry.id }}" action="{{ url_for('parser.reprocess_file', file_id=entry.id) }}" method="post" class="d-none"></form>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-info">
+                                    No files have been processed yet. <a href="{{ url_for('parser.upload_file') }}">Upload a file</a> to get started.
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        {% for file_type, entries in history_by_type.items() %}
+                            <div class="tab-pane fade py-3" id="{{ file_type }}" role="tabpanel" aria-labelledby="{{ file_type }}-tab">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>File Name</th>
+                                                <th>Date</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for entry in entries %}
+                                                <tr>
+                                                    <td>{{ entry.file_name }}</td>
+                                                    <td>{{ entry.processing_date[:16].replace('T', ' ') }}</td>
+                                                    <td>
+                                                        {% if entry.status == 'SUCCESS' %}
+                                                            <span class="badge bg-success">Success</span>
+                                                        {% else %}
+                                                            <span class="badge bg-danger">Error</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        <div class="btn-group btn-group-sm">
+                                                            <a href="{{ url_for('parser.processing_result', file_name=entry.file_name) }}" class="btn btn-outline-primary">
+                                                                <i class="fas fa-info-circle"></i>
+                                                            </a>
+                                                            {% if entry.status == 'SUCCESS' %}
+                                                                <a href="{{ url_for('parser.download_processed_file', file_id=entry.id) }}" class="btn btn-outline-success">
+                                                                    <i class="fas fa-download"></i>
+                                                                </a>
+                                                            {% endif %}
+                                                            <button type="button" class="btn btn-outline-secondary" 
+                                                                    onclick="document.getElementById('reprocessForm{{ entry.id }}').submit();">
+                                                                <i class="fas fa-sync-alt"></i>
+                                                            </button>
+                                                            <form id="reprocessForm{{ entry.id }}" action="{{ url_for('parser.reprocess_file', file_id=entry.id) }}" method="post" class="d-none"></form>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

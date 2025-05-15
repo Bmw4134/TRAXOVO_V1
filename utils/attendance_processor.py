@@ -334,6 +334,7 @@ def create_attendance_excel(report_data, report_type):
     """
     import openpyxl
     from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from openpyxl.drawing.image import Image
     
     try:
         if report_data['status'] != 'success':
@@ -347,50 +348,106 @@ def create_attendance_excel(report_data, report_type):
         # Define file path
         if report_type == 'prior_day':
             file_path = f"{reports_dir}/prior_day_attendance_{report_date}.xlsx"
+            report_title = "Prior Day Attendance Report"
         else:
             file_path = f"{reports_dir}/current_day_attendance_{report_date}.xlsx"
+            report_title = "Current Day Attendance Report"
             
-        # Create workbook
+        # Create workbook with company branding
         wb = openpyxl.Workbook()
         
         # Create summary sheet
         summary_sheet = wb.active
         summary_sheet.title = "Summary"
         
-        # Add report title and date
-        title = f"{'Prior Day' if report_type == 'prior_day' else 'Current Day'} Attendance Report"
-        summary_sheet['A1'] = title
-        summary_sheet['A1'].font = Font(size=16, bold=True)
-        summary_sheet.merge_cells('A1:F1')
+        # Set column widths for better readability
+        for col in range(1, 10):
+            column_letter = openpyxl.utils.get_column_letter(col)
+            summary_sheet.column_dimensions[column_letter].width = 15
         
-        summary_sheet['A2'] = f"Date: {report_date}"
+        # Add report header with styling
+        # Row 1: Title
+        summary_sheet['A1'] = report_title
+        summary_sheet['A1'].font = Font(size=16, bold=True, color="1F497D")
+        summary_sheet.merge_cells('A1:F1')
+        summary_sheet['A1'].alignment = Alignment(horizontal='left', vertical='center')
+        
+        # Row 2: Date
+        date_text = f"Date: {report_date}"
         if report_type == 'current_day':
-            summary_sheet['A2'] = f"Date: {report_date} (as of {report_data.get('report_time', '8:30 AM')})"
+            date_text = f"Date: {report_date} (as of {report_data.get('report_time', '8:30 AM')})"
+        summary_sheet['A2'] = date_text
         summary_sheet['A2'].font = Font(size=12)
         summary_sheet.merge_cells('A2:F2')
+        summary_sheet['A2'].alignment = Alignment(horizontal='left', vertical='center')
         
-        # Add summary statistics
-        summary_sheet['A4'] = "Summary Statistics"
-        summary_sheet['A4'].font = Font(bold=True)
-        summary_sheet.merge_cells('A4:B4')
+        # Row 3: Generated timestamp
+        summary_sheet['A3'] = f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+        summary_sheet['A3'].font = Font(size=10, italic=True)
+        summary_sheet.merge_cells('A3:F3')
+        
+        # Add styling to the header section
+        for row in range(1, 4):
+            summary_sheet.row_dimensions[row].height = 20
+        
+        # Create border styling
+        thin_border = Border(
+            left=Side(style='thin'), 
+            right=Side(style='thin'), 
+            top=Side(style='thin'), 
+            bottom=Side(style='thin')
+        )
+        
+        # Add summary statistics section
+        summary_sheet['A5'] = "Summary Statistics"
+        summary_sheet['A5'].font = Font(bold=True, size=12, color="1F497D")
+        summary_sheet.merge_cells('A5:F5')
+        summary_sheet['A5'].alignment = Alignment(horizontal='center', vertical='center')
+        summary_sheet['A5'].fill = PatternFill(start_color="E6F1F5", end_color="E6F1F5", fill_type="solid")
+        
+        # Apply styling to the header row
+        for col in range(1, 7):
+            cell = summary_sheet.cell(row=5, column=col)
+            cell.border = thin_border
         
         summary_data = report_data['data']['summary']
         
-        summary_sheet['A5'] = "Total Drivers:"
-        summary_sheet['B5'] = summary_data['total_drivers']
-        
-        summary_sheet['A6'] = "Late Start Count:"
-        summary_sheet['B6'] = summary_data['late_start_count']
+        # Row headings
+        stats_headings = [
+            ("Total Drivers", summary_data['total_drivers']),
+            ("Late Start Count", summary_data['late_start_count']),
+        ]
         
         if report_type == 'prior_day':
-            summary_sheet['A7'] = "Early End Count:"
-            summary_sheet['B7'] = summary_data['early_end_count']
-            
-            summary_sheet['A8'] = "Not On Job Count:"
-            summary_sheet['B8'] = summary_data['not_on_job_count']
+            stats_headings.extend([
+                ("Early End Count", summary_data['early_end_count']),
+                ("Not On Job Count", summary_data['not_on_job_count']),
+            ])
         else:
-            summary_sheet['A7'] = "Not On Job Count:"
-            summary_sheet['B7'] = summary_data['not_on_job_count']
+            stats_headings.append(
+                ("Not On Job Count", summary_data['not_on_job_count']),
+            )
+            
+        # Add statistics with proper styling
+        start_row = 6
+        for idx, (label, value) in enumerate(stats_headings):
+            row = start_row + idx
+            
+            # Label cell
+            summary_sheet.cell(row=row, column=1, value=label)
+            summary_sheet.cell(row=row, column=1).font = Font(bold=True)
+            summary_sheet.cell(row=row, column=1).alignment = Alignment(horizontal='right', vertical='center')
+            summary_sheet.cell(row=row, column=1).border = thin_border
+            
+            # Value cell
+            summary_sheet.cell(row=row, column=2, value=value)
+            summary_sheet.cell(row=row, column=2).alignment = Alignment(horizontal='center', vertical='center')
+            summary_sheet.cell(row=row, column=2).border = thin_border
+            
+            # Apply alternating row colors
+            if idx % 2 == 0:
+                summary_sheet.cell(row=row, column=1).fill = PatternFill(start_color="F2F2F2", end_color="F2F2F2", fill_type="solid")
+                summary_sheet.cell(row=row, column=2).fill = PatternFill(start_color="F2F2F2", end_color="F2F2F2", fill_type="solid")
         
         # Add detail sheets
         # Late Start sheet

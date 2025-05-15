@@ -1,8 +1,8 @@
 """
 Task Scheduler Module
 
-This module sets up a scheduler to automatically fetch data from the Gauge API
-at regular intervals, ensuring the dashboard always has the most recent data.
+This module manages automated data pulls from the Gauge API and schedules
+daily reports for fleet management.
 """
 import os
 import time
@@ -11,18 +11,27 @@ import logging
 import threading
 import schedule
 import traceback
-from datetime import datetime
-from gauge_api import update_asset_data, get_asset_data
+from datetime import datetime, timedelta
+from gauge_api import update_asset_data, get_asset_data, save_asset_data
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, 
                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Data directory
+# Data directory setup
 DATA_DIR = 'data'
 if not os.path.exists(DATA_DIR):
     os.makedirs(DATA_DIR)
+    
+REPORTS_DIR = os.path.join(DATA_DIR, 'reports')
+if not os.path.exists(REPORTS_DIR):
+    os.makedirs(REPORTS_DIR)
+    
+CYA_BACKUP_DIR = os.path.join(DATA_DIR, 'cya_backup')
+if not os.path.exists(CYA_BACKUP_DIR):
+    os.makedirs(CYA_BACKUP_DIR)
+
 SCHEDULE_CONFIG_FILE = os.path.join(DATA_DIR, 'schedule_config.json')
 
 # Default update times based on business requirements
@@ -68,8 +77,11 @@ def save_last_run_info(success, message, asset_count=0):
             json.dump(run_info, f, indent=2)
             
         logger.debug(f"Saved scheduler run info: {success}")
+        return True
     except Exception as e:
         logger.error(f"Failed to save scheduler run info: {e}")
+        return False
+
 
 def scheduled_update(force=True, sync_db=True):
     """
@@ -78,6 +90,9 @@ def scheduled_update(force=True, sync_db=True):
     Args:
         force (bool): Whether to force the update even if cache is fresh
         sync_db (bool): Whether to sync with database after update
+    
+    Returns:
+        list: List of asset dictionaries
     """
     start_time = datetime.now()
     logger.info(f"Running scheduled update at {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
@@ -91,6 +106,15 @@ def scheduled_update(force=True, sync_db=True):
         assets = update_asset_data(force=force, max_age_hours=max_age_hours)
         
         if assets:
+            # Save a date-stamped version of the data for historical reference
+            datestamp = datetime.now().strftime('%Y-%m-%d')
+            date_stamped_file = os.path.join(DATA_DIR, f'gauge_{datestamp}.json')
+            
+            # Save a copy with today's date
+            with open(date_stamped_file, 'w') as f:
+                json.dump(assets, f, indent=2)
+            logger.info(f"Saved date-stamped API data to {date_stamped_file}")
+            
             duration = (datetime.now() - start_time).total_seconds()
             logger.info(f"Scheduled update completed in {duration:.2f} seconds, retrieved {len(assets)} assets")
             save_last_run_info(True, f"Successfully updated {len(assets)} assets", len(assets))
@@ -106,45 +130,169 @@ def scheduled_update(force=True, sync_db=True):
         save_last_run_info(False, f"Error: {str(e)}")
         return []
 
+
+def run_same_day_report():
+    """
+    Run the same-day late start and not on job report
+    This report flags drivers who are late to start or not on job site
+    based on the current day's data (pulled at 6:45 AM).
+    """
+    from reports.attendance import generate_same_day_report
+    from utils.email_sender import send_report_email
+    
+    logger.info("Running same-day LS/NOJ report at %s", datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    
+    try:
+        # Get the latest data
+        assets = get_asset_data(force_update=False)
+        
+        if not assets:
+            logger.error("No asset data available for same-day report")
+            return False
+        
+        # Generate the report
+        report_data = generate_same_day_report(assets)
+        
+        if not report_data:
+            logger.error("Failed to generate same-day report data")
+            return False
+            
+        # Store backup for CYA
+        datestamp = datetime.now().strftime('%Y%m%d')
+        backup_path = os.path.join(CYA_BACKUP_DIR, f'same_day_report_{datestamp}.json')
+        
+        with open(backup_path, 'w') as f:
+            json.dump(report_data, f, indent=2)
+        
+        logger.info(f"Same-day report CYA backup saved to {backup_path}")
+        
+        # Create human-readable summary for the logs
+        flagged_count = len(report_data.get('flagged_drivers', []))
+        log_summary = f"Same-day report generated. Flagged {flagged_count} drivers for LS/NOJ issues."
+        logger.info(log_summary)
+        
+        # Send email report
+        subject = f"DAILY REPORT: Same-Day Late Start & Not On Job Report - {datetime.now().strftime('%m/%d/%Y')}"
+        send_report_email(subject, report_data['email_body'], report_data['recipients'])
+        
+        logger.info("Same-day report completed and email sent successfully")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to run same-day report: {e}")
+        logger.debug(traceback.format_exc())
+        return False
+
+
+def run_prior_day_report():
+    """
+    Run the prior day late start, early end, and not on job report
+    This report analyzes yesterday's data to find attendance issues.
+    """
+    from reports.attendance import generate_prior_day_report
+    from utils.email_sender import send_report_email
+    
+    logger.info("Running prior-day LS/EE/NOJ report at %s", datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    
+    try:
+        # Get yesterday's date
+        yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+        yesterday_file = os.path.join(DATA_DIR, f'gauge_{yesterday}.json')
+        
+        # Try to load yesterday's data from the date-stamped file
+        if os.path.exists(yesterday_file):
+            with open(yesterday_file, 'r') as f:
+                yesterday_data = json.load(f)
+                logger.info(f"Loaded yesterday's data from {yesterday_file}")
+        else:
+            # Fall back to the latest data if we don't have yesterday's data
+            logger.warning(f"No data file found for yesterday ({yesterday}). Using latest data instead.")
+            yesterday_data = get_asset_data(force_update=False)
+        
+        if not yesterday_data:
+            logger.error("No asset data available for prior-day report")
+            return False
+        
+        # Generate the report
+        report_data = generate_prior_day_report(yesterday_data)
+        
+        if not report_data:
+            logger.error("Failed to generate prior-day report data")
+            return False
+            
+        # Store backup for CYA
+        datestamp = datetime.now().strftime('%Y%m%d')
+        backup_path = os.path.join(CYA_BACKUP_DIR, f'prior_day_report_{datestamp}.json')
+        
+        with open(backup_path, 'w') as f:
+            json.dump(report_data, f, indent=2)
+        
+        logger.info(f"Prior-day report CYA backup saved to {backup_path}")
+        
+        # Create human-readable summary for the logs
+        flagged_count = len(report_data.get('flagged_drivers', []))
+        log_summary = f"Prior-day report generated. Flagged {flagged_count} drivers for LS/EE/NOJ issues."
+        logger.info(log_summary)
+        
+        # Send email report
+        yesterday_date = (datetime.now() - timedelta(days=1)).strftime('%m/%d/%Y')
+        subject = f"DAILY REPORT: Prior-Day (Late Start, Early End, Not On Job) - {yesterday_date}"
+        send_report_email(subject, report_data['email_body'], report_data['recipients'])
+        
+        logger.info("Prior-day report completed and email sent successfully")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to run prior-day report: {e}")
+        logger.debug(traceback.format_exc())
+        return False
+
+
 def run_scheduler():
     """Set up and run the scheduler"""
     # Load configuration
     config = load_schedule_config()
     
-    # Get schedule times from config
-    morning = config.get("morning_update", "07:00")
-    midday = config.get("midday_update", "12:00")
-    evening = config.get("evening_update", "17:00")
-    weekend = config.get("weekend_update", "08:00")
+    # Extract report times from config
+    early_morning_time = config.get("early_morning_update", DEFAULT_SCHEDULE["early_morning_update"])
+    morning_report_time = config.get("morning_report", DEFAULT_SCHEDULE["morning_report"])
+    prior_day_report_time = config.get("prior_day_report", DEFAULT_SCHEDULE["prior_day_report"])
+    midday_time = config.get("midday_update", DEFAULT_SCHEDULE["midday_update"])
+    evening_time = config.get("evening_update", DEFAULT_SCHEDULE["evening_update"])
+    weekend_time = config.get("weekend_update", DEFAULT_SCHEDULE["weekend_update"])
     
-    # Schedule daily updates for weekdays
-    schedule.every().monday.at(morning).do(scheduled_update)
-    schedule.every().tuesday.at(morning).do(scheduled_update)
-    schedule.every().wednesday.at(morning).do(scheduled_update)
-    schedule.every().thursday.at(morning).do(scheduled_update)
-    schedule.every().friday.at(morning).do(scheduled_update)
+    # Clear any existing schedules
+    schedule.clear()
     
-    schedule.every().monday.at(midday).do(scheduled_update)
-    schedule.every().tuesday.at(midday).do(scheduled_update)
-    schedule.every().wednesday.at(midday).do(scheduled_update)
-    schedule.every().thursday.at(midday).do(scheduled_update)
-    schedule.every().friday.at(midday).do(scheduled_update)
+    # Schedule API data pulls and reports for weekdays
+    for day in ["monday", "tuesday", "wednesday", "thursday", "friday"]:
+        # Early morning update (6:45 AM) - GaugeSmart data pull for same-day report
+        getattr(schedule.every(), day).at(early_morning_time).do(
+            scheduled_update, force=True, sync_db=True
+        )
+        
+        # Same-day report generation (8:30 AM)
+        getattr(schedule.every(), day).at(morning_report_time).do(run_same_day_report)
+        
+        # Prior-day report generation (9:30 AM)
+        getattr(schedule.every(), day).at(prior_day_report_time).do(run_prior_day_report)
+        
+        # Additional data updates throughout the day
+        getattr(schedule.every(), day).at(midday_time).do(
+            scheduled_update, force=True, sync_db=True
+        )
+        getattr(schedule.every(), day).at(evening_time).do(
+            scheduled_update, force=True, sync_db=True
+        )
     
-    schedule.every().monday.at(evening).do(scheduled_update)
-    schedule.every().tuesday.at(evening).do(scheduled_update)
-    schedule.every().wednesday.at(evening).do(scheduled_update)
-    schedule.every().thursday.at(evening).do(scheduled_update)
-    schedule.every().friday.at(evening).do(scheduled_update)
+    # Weekend data updates
+    schedule.every().saturday.at(weekend_time).do(scheduled_update, force=True, sync_db=True)
+    schedule.every().sunday.at(weekend_time).do(scheduled_update, force=True, sync_db=True)
     
-    # Schedule once a day on weekends
-    schedule.every().saturday.at(weekend).do(scheduled_update)
-    schedule.every().sunday.at(weekend).do(scheduled_update)
+    # Ensure we save the current timestamp
+    save_last_run_info(True, "Scheduler initialized", 0)
     
-    # Add a daily job to ensure we didn't miss any updates
-    schedule.every().day.at("23:45").do(lambda: scheduled_update(force=False))
-    
-    logger.info(f"Scheduler initialized with weekday updates at {morning}, {midday}, and {evening}")
-    logger.info(f"Weekend updates scheduled for {weekend}")
+    logger.info(f"Scheduler initialized with data pulls at {early_morning_time}, {midday_time}, and {evening_time}")
+    logger.info(f"Reports scheduled at {morning_report_time} (same-day) and {prior_day_report_time} (prior-day)")
+    logger.info(f"Weekend updates scheduled for {weekend_time}")
     
     # Run an initial update to ensure we have fresh data
     logger.info("Running initial data update...")
@@ -166,7 +314,7 @@ def start_scheduler_thread():
     try:
         # Create a new scheduler thread
         scheduler_thread = threading.Thread(target=run_scheduler, daemon=True)
-        scheduler_thread.name = "GaugeAPIScheduler"
+        scheduler_thread.name = "FleetReportScheduler"
         scheduler_thread.start()
         logger.info("Scheduler thread started")
         

@@ -100,9 +100,12 @@ def create_admin_users():
 from blueprints.parsers import parser_bp
 try:
     from blueprints.kaizen import kaizen_bp
+    from blueprints.map import map_bp, register_blueprint as register_map_blueprint
+    
     # Register blueprints
     app.register_blueprint(parser_bp)
     app.register_blueprint(kaizen_bp)
+    register_map_blueprint(app)
     logger.info("Registered application blueprints")
 except ImportError as e:
     logger.warning(f"Could not register all blueprints: {e}")

@@ -6,6 +6,7 @@ It automatically fetches and updates the data file used by the application.
 """
 import os
 import json
+import time
 import logging
 import requests
 import traceback
@@ -40,33 +41,70 @@ def get_auth_token():
     Returns:
         str: Authentication token or None if authentication fails
     """
-    if not GAUGE_API_KEY and (not GAUGE_API_USER or not GAUGE_API_PASSWORD):
+    if not GAUGE_API_USERNAME or not GAUGE_API_PASSWORD:
         logger.error("No API authentication credentials provided")
         return None
     
-    # Try API key authentication first if available
-    if GAUGE_API_KEY:
-        return GAUGE_API_KEY
-    
-    # Fall back to user/password authentication
     try:
-        auth_url = f"{GAUGE_API_URL}auth/login"
+        # Clean up and standardize API URL
+        api_url = GAUGE_API_URL
+        if api_url.endswith('/'):
+            api_url = api_url[:-1]
+            
+        # Add protocol if missing
+        if not api_url.startswith('http'):
+            api_url = 'https://' + api_url
+        
+        # Construct the auth endpoint
+        auth_endpoint = f"{api_url}/auth/login"
+        
+        # For systems where auth endpoint may vary
+        if '/api/' not in api_url.lower():
+            auth_endpoint = f"{api_url}/api/auth/login"
+        
+        logger.info(f"Authenticating with Gauge API at: {auth_endpoint}")
+        
         payload = {
-            "username": GAUGE_API_USER,
+            "username": GAUGE_API_USERNAME,
             "password": GAUGE_API_PASSWORD
         }
-        response = requests.post(auth_url, json=payload)
-        response.raise_for_status()
-        auth_data = response.json()
-        return auth_data.get('token')
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Authentication failed: {e}")
+        
+        response = requests.post(auth_endpoint, json=payload, timeout=30)
+        
+        if response.status_code == 200:
+            try:
+                auth_data = response.json()
+                token = auth_data.get('token')
+                if token:
+                    logger.info("Successfully obtained authentication token")
+                    return token
+                else:
+                    logger.error("Token not found in authentication response")
+                    logger.debug(f"Response content: {response.text}")
+                    return None
+            except json.JSONDecodeError:
+                logger.error(f"Invalid JSON response during authentication: {response.text}")
+                return None
+        else:
+            logger.error(f"Authentication failed: {response.status_code} - {response.text}")
+            return None
+            
+    except requests.RequestException as e:
+        logger.error(f"Request error during authentication: {e}")
+        return None
+    except Exception as e:
+        logger.error(f"Unexpected error during authentication: {e}")
+        logger.debug(traceback.format_exc())
         return None
 
 
-def fetch_asset_data():
+def fetch_asset_data(retries=3, retry_delay=5):
     """
-    Fetch asset data from Gauge API.
+    Fetch asset data from Gauge API with retry logic.
+    
+    Args:
+        retries (int): Number of retry attempts
+        retry_delay (int): Delay in seconds between retries
     
     Returns:
         list: List of asset dictionaries or empty list if fetch fails
@@ -76,28 +114,88 @@ def fetch_asset_data():
         logger.error("Could not obtain authentication token")
         return []
     
-    try:
-        headers = {"Authorization": f"Bearer {token}"}
+    # Clean up and standardize API URL
+    api_url = GAUGE_API_URL
+    if api_url.endswith('/'):
+        api_url = api_url[:-1]
         
-        # Endpoint for fetching all assets
-        assets_url = f"{GAUGE_API_URL}assets"
-        response = requests.get(assets_url, headers=headers)
-        response.raise_for_status()
+    # Add protocol if missing
+    if not api_url.startswith('http'):
+        api_url = 'https://' + api_url
+    
+    # Construct the assets endpoint
+    assets_endpoint = f"{api_url}/assets"
+    
+    # For systems where assets endpoint may vary
+    if '/api/' not in api_url.lower():
+        assets_endpoint = f"{api_url}/api/assets"
+    
+    logger.info(f"Fetching assets from: {assets_endpoint}")
+    
+    # Attempt to fetch with retries
+    attempt = 0
+    while attempt < retries:
+        try:
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+            
+            response = requests.get(assets_endpoint, headers=headers, timeout=60)
+            
+            if response.status_code == 200:
+                try:
+                    assets = response.json()
+                    if isinstance(assets, list):
+                        logger.info(f"Successfully fetched {len(assets)} assets from Gauge API")
+                        return assets
+                    elif isinstance(assets, dict) and 'assets' in assets:
+                        # Some APIs nest the assets array in an object
+                        asset_list = assets['assets']
+                        logger.info(f"Successfully fetched {len(asset_list)} assets from Gauge API (nested format)")
+                        return asset_list
+                    else:
+                        logger.error(f"Unexpected response format: {type(assets)}")
+                        logger.debug(f"Response content: {response.text[:500]}...")
+                        return []
+                except json.JSONDecodeError:
+                    logger.error(f"Invalid JSON response when fetching assets: {response.text[:500]}...")
+                    # Don't return yet, try again
+            else:
+                logger.error(f"Failed to fetch assets: {response.status_code} - {response.text}")
+                # If unauthorized, try to get a new token
+                if response.status_code == 401:
+                    logger.info("Auth token expired, attempting to get a new one")
+                    token = get_auth_token()
+                    if not token:
+                        logger.error("Could not obtain new authentication token")
+                        return []
+                    # Continue to next attempt with new token
+                    
+        except requests.RequestException as e:
+            logger.error(f"Request error when fetching assets: {e}")
+        except Exception as e:
+            logger.error(f"Unexpected error when fetching assets: {e}")
+            logger.debug(traceback.format_exc())
         
-        assets = response.json()
-        logger.info(f"Successfully fetched {len(assets)} assets from Gauge API")
-        return assets
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to fetch asset data: {e}")
-        return []
+        # Increment attempt counter and delay before retry
+        attempt += 1
+        if attempt < retries:
+            logger.info(f"Retrying asset fetch in {retry_delay} seconds (attempt {attempt+1}/{retries})")
+            time.sleep(retry_delay)
+    
+    logger.error(f"Failed to fetch assets after {retries} attempts")
+    return []
 
 
-def save_asset_data(assets):
+def save_asset_data(assets, create_backup=True):
     """
-    Save asset data to a JSON file.
+    Save asset data to a JSON file and optionally create a backup.
     
     Args:
         assets (list): List of asset dictionaries
+        create_backup (bool): Whether to create a backup of the previous data
     
     Returns:
         bool: True if save was successful, False otherwise
@@ -107,20 +205,75 @@ def save_asset_data(assets):
         return False
     
     try:
-        # Add a timestamp to the data
+        # Create backup of existing file if requested
+        if create_backup and os.path.exists(DATA_FILE):
+            try:
+                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                backup_file = os.path.join(BACKUP_DIR, f'gauge_data_backup_{timestamp}.json')
+                
+                with open(DATA_FILE, 'r') as src, open(backup_file, 'w') as dst:
+                    data = json.load(src)
+                    json.dump(data, dst, indent=2)
+                
+                logger.info(f"Created backup of previous data at {backup_file}")
+                
+                # Keep only the 10 most recent backups
+                backups = sorted([os.path.join(BACKUP_DIR, f) for f in os.listdir(BACKUP_DIR) 
+                                 if f.startswith('gauge_data_backup_')])
+                if len(backups) > 10:
+                    for old_backup in backups[:-10]:
+                        os.remove(old_backup)
+                        logger.info(f"Removed old backup: {old_backup}")
+                
+            except Exception as e:
+                logger.warning(f"Failed to create backup: {e}")
+                # Continue with saving new data even if backup fails
+        
+        # Add a timestamp and metadata to the data
         data_with_timestamp = {
             "timestamp": datetime.now().isoformat(),
             "asset_count": len(assets),
+            "data_source": "Gauge API",
+            "source_url": GAUGE_API_URL,
             "assets": assets
         }
         
-        with open(DATA_FILE, 'w') as f:
-            json.dump(assets, f, indent=2)
+        # First save to a temporary file to avoid corruption
+        temp_file = f"{DATA_FILE}.tmp"
+        with open(temp_file, 'w') as f:
+            json.dump(data_with_timestamp, f, indent=2)
         
-        logger.info(f"Saved {len(assets)} assets to {DATA_FILE}")
+        # If temporary save was successful, replace the main file
+        os.replace(temp_file, DATA_FILE)
+        
+        # Record the update time separately
+        update_info = {
+            "last_update": datetime.now().isoformat(),
+            "asset_count": len(assets),
+            "status": "success"
+        }
+        with open(LAST_UPDATE_FILE, 'w') as f:
+            json.dump(update_info, f, indent=2)
+        
+        logger.info(f"Successfully saved {len(assets)} assets to {DATA_FILE}")
         return True
+        
     except Exception as e:
         logger.error(f"Failed to save asset data: {e}")
+        logger.debug(traceback.format_exc())
+        
+        # Record the failed update
+        try:
+            update_info = {
+                "last_attempt": datetime.now().isoformat(),
+                "status": "failed",
+                "error": str(e)
+            }
+            with open(LAST_UPDATE_FILE, 'w') as f:
+                json.dump(update_info, f, indent=2)
+        except Exception:
+            pass  # Ignore errors when saving error info
+            
         return False
 
 
@@ -134,65 +287,195 @@ def load_cached_data():
     try:
         if os.path.exists(DATA_FILE):
             with open(DATA_FILE, 'r') as f:
-                assets = json.load(f)
-            logger.info(f"Loaded {len(assets)} assets from cache")
-            return assets
+                data = json.load(f)
+            
+            # Check if the data is in the new format (with metadata)
+            if isinstance(data, dict) and 'assets' in data:
+                assets = data['assets']
+                timestamp = data.get('timestamp', 'unknown')
+                logger.info(f"Loaded {len(assets)} assets from cache (timestamp: {timestamp})")
+                return assets
+            # Old format (direct list of assets)
+            elif isinstance(data, list):
+                logger.info(f"Loaded {len(data)} assets from cache (old format)")
+                return data
+            else:
+                logger.warning(f"Unexpected data format in cache file: {type(data)}")
+                return []
+                
         else:
             logger.warning("No cached data file found")
+            
+            # Try to find a backup file if no primary file
+            backups = sorted([os.path.join(BACKUP_DIR, f) for f in os.listdir(BACKUP_DIR) 
+                             if f.startswith('gauge_data_backup_')], reverse=True)
+            
+            if backups:
+                latest_backup = backups[0]
+                logger.info(f"Attempting to load from latest backup: {latest_backup}")
+                
+                try:
+                    with open(latest_backup, 'r') as f:
+                        backup_data = json.load(f)
+                    
+                    if isinstance(backup_data, dict) and 'assets' in backup_data:
+                        assets = backup_data['assets']
+                        logger.info(f"Loaded {len(assets)} assets from backup file")
+                        return assets
+                    elif isinstance(backup_data, list):
+                        logger.info(f"Loaded {len(backup_data)} assets from backup file (old format)")
+                        return backup_data
+                    else:
+                        logger.warning(f"Unexpected data format in backup file: {type(backup_data)}")
+                except Exception as e:
+                    logger.error(f"Failed to load from backup: {e}")
+            
             return []
+            
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in cached data file: {e}")
+        
+        # Try to recover from a backup
+        try:
+            backups = sorted([os.path.join(BACKUP_DIR, f) for f in os.listdir(BACKUP_DIR) 
+                             if f.startswith('gauge_data_backup_')], reverse=True)
+            
+            if backups:
+                latest_backup = backups[0]
+                logger.info(f"Attempting to recover from backup: {latest_backup}")
+                
+                with open(latest_backup, 'r') as f:
+                    backup_data = json.load(f)
+                
+                if isinstance(backup_data, dict) and 'assets' in backup_data:
+                    assets = backup_data['assets']
+                    logger.info(f"Recovered {len(assets)} assets from backup file")
+                    return assets
+                elif isinstance(backup_data, list):
+                    logger.info(f"Recovered {len(backup_data)} assets from backup file (old format)")
+                    return backup_data
+        except Exception as recover_e:
+            logger.error(f"Failed to recover from backup: {recover_e}")
+            
+        return []
+        
     except Exception as e:
         logger.error(f"Failed to load cached data: {e}")
+        logger.debug(traceback.format_exc())
         return []
 
 
-def update_asset_data(force=False):
+def update_asset_data(force=False, max_age_hours=1):
     """
     Update asset data by fetching from API and saving to file.
-    Will only fetch if the cached data is older than 1 hour or force=True.
+    Will only fetch if the cached data is older than max_age_hours or force=True.
     
     Args:
         force (bool): Force update regardless of cache age
+        max_age_hours (int): Maximum age of cached data in hours before update is needed
     
     Returns:
         list: Updated list of asset dictionaries
     """
     # Check if we need to update the cache
     update_needed = force
+    last_update_time = None
     
-    if not update_needed and os.path.exists(DATA_FILE):
-        # Check file modification time
-        mtime = os.path.getmtime(DATA_FILE)
-        file_age = datetime.now().timestamp() - mtime
-        
-        # Update if file is older than 1 hour (3600 seconds)
-        if file_age > 3600:
+    # Check the last update file first (more reliable)
+    if not update_needed and os.path.exists(LAST_UPDATE_FILE):
+        try:
+            with open(LAST_UPDATE_FILE, 'r') as f:
+                update_info = json.load(f)
+                if 'last_update' in update_info:
+                    last_update_time = datetime.fromisoformat(update_info['last_update'])
+                    time_since_update = (datetime.now() - last_update_time).total_seconds() / 3600
+                    logger.info(f"Last update was {time_since_update:.2f} hours ago")
+                    if time_since_update > max_age_hours:
+                        update_needed = True
+                        logger.info(f"Cache is older than {max_age_hours} hours, update needed")
+                else:
+                    update_needed = True
+                    logger.info("Last update time not found in update info, update needed")
+        except Exception as e:
+            logger.warning(f"Error reading last update file: {e}")
             update_needed = True
-    else:
-        # No file exists, so we need to update
+    
+    # Fall back to checking file modification time
+    if not update_needed and not last_update_time and os.path.exists(DATA_FILE):
+        try:
+            mtime = os.path.getmtime(DATA_FILE)
+            file_age_seconds = datetime.now().timestamp() - mtime
+            file_age_hours = file_age_seconds / 3600
+            
+            logger.info(f"Cache file is {file_age_hours:.2f} hours old")
+            
+            # Update if file is older than specified hours
+            if file_age_hours > max_age_hours:
+                update_needed = True
+                logger.info(f"Cache file is older than {max_age_hours} hours, update needed")
+        except Exception as e:
+            logger.warning(f"Error checking file modification time: {e}")
+            update_needed = True
+    
+    # If no cache exists, we need to update
+    if not update_needed and not os.path.exists(DATA_FILE):
+        logger.info("No cache file exists, update needed")
         update_needed = True
     
+    # Perform the update if needed
     if update_needed:
         logger.info("Fetching fresh data from Gauge API")
         assets = fetch_asset_data()
         if assets:
-            save_asset_data(assets)
-            return assets
+            logger.info(f"Successfully retrieved {len(assets)} assets from API")
+            if save_asset_data(assets):
+                logger.info("Successfully saved updated asset data")
+                
+                # Sync with database
+                try:
+                    from app import app
+                    from utils import sync_assets_with_database
+                    
+                    with app.app_context():
+                        success, errors, message = sync_assets_with_database(assets)
+                        logger.info(message)
+                except Exception as e:
+                    logger.error(f"Failed to sync with database: {e}")
+                    logger.debug(traceback.format_exc())
+                
+                return assets
+            else:
+                logger.error("Failed to save asset data")
+        else:
+            logger.error("Failed to fetch asset data from API")
+    else:
+        logger.info("Cache is fresh, no update needed")
     
     # Either we didn't need to update or the update failed
     return load_cached_data()
 
 
-def get_asset_data(use_db=True):
+def get_asset_data(use_db=True, force_update=False):
     """
-    Main function to get asset data, attempting to update from API first.
+    Main function to get asset data, using the most reliable source.
+    
+    This function attempts to get data in the following order:
+    1. From database if use_db=True (most reliable)
+    2. By updating from API if cache is outdated or force_update=True
+    3. From cached file if API update fails
+    4. From backup file if cache doesn't exist
+    5. From attached assets file as a last resort
     
     Args:
-        use_db (bool): Whether to try to get data from the database
+        use_db (bool): Whether to try to get data from the database first
+        force_update (bool): Whether to force an API update regardless of cache age
     
     Returns:
         list: List of asset dictionaries
     """
-    # Try to get from database if requested
+    assets = []
+    
+    # Try to get from database if requested (most reliable source)
     if use_db:
         try:
             from app import app
@@ -234,51 +517,58 @@ def get_asset_data(use_db=True):
                             'EventDateTimeString': asset.event_date_time_string,
                             'Reason': asset.reason,
                             'TimeZone': asset.time_zone,
-                            'FormattedDateTime': asset.formatted_date_time
+                            'FormattedDateTime': asset.formatted_date_time() if hasattr(asset, 'formatted_date_time') and callable(asset.formatted_date_time) else None
                         }
                         assets.append(asset_dict)
                     return assets
                 else:
-                    logger.info("No assets found in database, fetching from API")
+                    logger.info("No assets found in database, trying API")
         except Exception as e:
             logger.error(f"Failed to load data from database: {e}")
+            logger.debug(traceback.format_exc())
     
-    # Try to update from API first
-    assets = update_asset_data()
+    # Try to update from API or get from cache
+    assets = update_asset_data(force=force_update)
     
-    # If API fetch failed and we have no cached data, use the attached assets file as fallback
+    # If we still don't have assets, try to use the attached assets file as fallback
     if not assets:
-        logger.warning("Using attached assets file as fallback")
+        logger.warning("No assets from API or cache, trying attached assets file as fallback")
         try:
-            with open('attached_assets/GAUGE API PULL 1045AM_05.15.2025.json', 'r') as f:
-                assets = json.load(f)
-            logger.info(f"Loaded {len(assets)} assets from attached file")
-            
-            # Sync with database
-            try:
-                from app import app
-                from utils import sync_assets_with_database
+            asset_file_path = 'attached_assets/GAUGE API PULL 1045AM_05.15.2025.json'
+            if os.path.exists(asset_file_path):
+                with open(asset_file_path, 'r') as f:
+                    assets = json.load(f)
+                logger.info(f"Loaded {len(assets)} assets from attached file")
                 
-                with app.app_context():
-                    success, errors, message = sync_assets_with_database(assets)
-                    logger.info(message)
-            except Exception as e:
-                logger.error(f"Failed to sync with database: {e}")
+                # Backup the attached file to the data directory
+                try:
+                    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                    backup_file = os.path.join(BACKUP_DIR, f'attached_gauge_data_{timestamp}.json')
+                    with open(asset_file_path, 'r') as src, open(backup_file, 'w') as dst:
+                        json.dump(assets, dst, indent=2)
+                    logger.info(f"Backed up attached file to {backup_file}")
+                except Exception as e:
+                    logger.warning(f"Failed to backup attached file: {e}")
+                
+                # Sync with database
+                try:
+                    from app import app
+                    from utils import sync_assets_with_database
+                    
+                    with app.app_context():
+                        success, errors, message = sync_assets_with_database(assets)
+                        logger.info(message)
+                except Exception as e:
+                    logger.error(f"Failed to sync attached assets with database: {e}")
+                    logger.debug(traceback.format_exc())
+            else:
+                logger.error(f"Attached assets file not found at {asset_file_path}")
+                assets = []
                 
         except Exception as e:
             logger.error(f"Failed to load attached assets file: {e}")
+            logger.debug(traceback.format_exc())
             assets = []
-    else:
-        # If we got assets from API, sync with database
-        try:
-            from app import app
-            from utils import sync_assets_with_database
-            
-            with app.app_context():
-                success, errors, message = sync_assets_with_database(assets)
-                logger.info(message)
-        except Exception as e:
-            logger.error(f"Failed to sync with database: {e}")
     
     return assets
 

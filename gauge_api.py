@@ -41,11 +41,23 @@ def get_auth_token():
     Returns:
         str: Authentication token or None if authentication fails
     """
+    # Check if we have the required credentials
     if not GAUGE_API_USERNAME or not GAUGE_API_PASSWORD:
         logger.error("No API authentication credentials provided")
         return None
     
     try:
+        # GaugeSmart API may have different access patterns
+        # Let's first check if direct access to assets is possible with the API key
+        
+        # Try direct access first if we have a simple API key
+        if GAUGE_API_URL.lower().find('assetlist') > -1:
+            logger.info(f"API URL contains 'AssetList', attempting direct asset access with API key")
+            # This appears to be a direct asset feed URL, return the API key/username as the "token"
+            return GAUGE_API_USERNAME
+            
+        # Fall back to standard auth flow if direct access pattern isn't detected
+        
         # Clean up and standardize API URL
         api_url = GAUGE_API_URL
         if api_url.endswith('/'):
@@ -55,43 +67,50 @@ def get_auth_token():
         if not api_url.startswith('http'):
             api_url = 'https://' + api_url
         
-        # Construct the auth endpoint
-        auth_endpoint = f"{api_url}/auth/login"
+        # Try various common authentication endpoint patterns
+        auth_endpoints = [
+            f"{api_url}/auth/login",
+            f"{api_url}/api/auth/login",
+            f"{api_url}/api/authenticate",
+            f"{api_url}/authenticate"
+        ]
         
-        # For systems where auth endpoint may vary
-        if '/api/' not in api_url.lower():
-            auth_endpoint = f"{api_url}/api/auth/login"
-        
-        logger.info(f"Authenticating with Gauge API at: {auth_endpoint}")
-        
-        payload = {
-            "username": GAUGE_API_USERNAME,
-            "password": GAUGE_API_PASSWORD
-        }
-        
-        response = requests.post(auth_endpoint, json=payload, timeout=30)
-        
-        if response.status_code == 200:
-            try:
-                auth_data = response.json()
-                token = auth_data.get('token')
-                if token:
-                    logger.info("Successfully obtained authentication token")
-                    return token
-                else:
-                    logger.error("Token not found in authentication response")
-                    logger.debug(f"Response content: {response.text}")
-                    return None
-            except json.JSONDecodeError:
-                logger.error(f"Invalid JSON response during authentication: {response.text}")
-                return None
-        else:
-            logger.error(f"Authentication failed: {response.status_code} - {response.text}")
-            return None
+        # Try each potential auth endpoint
+        for auth_endpoint in auth_endpoints:
+            logger.info(f"Attempting authentication at: {auth_endpoint}")
             
-    except requests.RequestException as e:
-        logger.error(f"Request error during authentication: {e}")
+            try:
+                payload = {
+                    "username": GAUGE_API_USERNAME,
+                    "password": GAUGE_API_PASSWORD
+                }
+                
+                # Disable SSL verification to handle self-signed certificates
+                # Note: In production, proper SSL certificates should be used
+                response = requests.post(auth_endpoint, json=payload, timeout=30, verify=False)
+                
+                if response.status_code == 200:
+                    try:
+                        auth_data = response.json()
+                        token = auth_data.get('token')
+                        if token:
+                            logger.info("Successfully obtained authentication token")
+                            return token
+                        else:
+                            logger.warning(f"Token not found in response from {auth_endpoint}")
+                    except json.JSONDecodeError:
+                        logger.warning(f"Invalid JSON response from {auth_endpoint}: {response.text[:100]}...")
+                else:
+                    logger.warning(f"Auth failed at {auth_endpoint}: {response.status_code}")
+            except requests.RequestException as e:
+                logger.warning(f"Request error with {auth_endpoint}: {e}")
+            
+            # Continue to next endpoint if this one failed
+        
+        # If we got here, all endpoints failed
+        logger.error("All authentication endpoints failed")
         return None
+            
     except Exception as e:
         logger.error(f"Unexpected error during authentication: {e}")
         logger.debug(traceback.format_exc())
@@ -109,11 +128,68 @@ def fetch_asset_data(retries=3, retry_delay=5):
     Returns:
         list: List of asset dictionaries or empty list if fetch fails
     """
+    # Get authentication token or API key 
     token = get_auth_token()
     if not token:
-        logger.error("Could not obtain authentication token")
+        logger.error("Could not obtain authentication token or API key")
         return []
     
+    # Check if we're dealing with a direct AssetList URL
+    if GAUGE_API_URL.lower().find('assetlist') > -1:
+        # This is a direct data feed URL, use it as is
+        api_url = GAUGE_API_URL
+        
+        # Clean up URL if needed
+        if api_url.endswith('/'):
+            api_url = api_url[:-1]
+            
+        # Add protocol if missing
+        if not api_url.startswith('http'):
+            api_url = 'https://' + api_url
+            
+        logger.info(f"Using direct asset feed URL: {api_url}")
+        
+        # Attempt to fetch with retries
+        attempt = 0
+        while attempt < retries:
+            try:
+                # For direct asset feed, we may not need headers
+                response = requests.get(api_url, timeout=60, verify=False)
+                
+                if response.status_code == 200:
+                    try:
+                        assets = response.json()
+                        if isinstance(assets, list):
+                            logger.info(f"Successfully fetched {len(assets)} assets from direct feed")
+                            return assets
+                        elif isinstance(assets, dict) and 'assets' in assets:
+                            # Some APIs nest the assets array in an object
+                            asset_list = assets['assets']
+                            logger.info(f"Successfully fetched {len(asset_list)} assets from direct feed (nested format)")
+                            return asset_list
+                        else:
+                            logger.error(f"Unexpected response format from direct feed: {type(assets)}")
+                            logger.debug(f"Response content: {response.text[:500]}...")
+                    except json.JSONDecodeError:
+                        logger.error(f"Invalid JSON response from direct feed: {response.text[:500]}...")
+                else:
+                    logger.error(f"Failed to fetch from direct feed: {response.status_code}")
+            except requests.RequestException as e:
+                logger.error(f"Request error from direct feed: {e}")
+            except Exception as e:
+                logger.error(f"Unexpected error fetching from direct feed: {e}")
+                logger.debug(traceback.format_exc())
+            
+            # Increment attempt counter and delay before retry
+            attempt += 1
+            if attempt < retries:
+                logger.info(f"Retrying direct feed fetch in {retry_delay} seconds (attempt {attempt+1}/{retries})")
+                time.sleep(retry_delay)
+        
+        logger.error(f"Failed to fetch assets from direct feed after {retries} attempts")
+        return []
+        
+    # Standard API flow for non-direct URLs
     # Clean up and standardize API URL
     api_url = GAUGE_API_URL
     if api_url.endswith('/'):
@@ -123,69 +199,72 @@ def fetch_asset_data(retries=3, retry_delay=5):
     if not api_url.startswith('http'):
         api_url = 'https://' + api_url
     
-    # Construct the assets endpoint
-    assets_endpoint = f"{api_url}/assets"
+    # Try various common asset endpoints
+    asset_endpoints = [
+        f"{api_url}/assets",
+        f"{api_url}/api/assets",
+        f"{api_url}/api/v1/assets",
+        f"{api_url}/v1/assets"
+    ]
     
-    # For systems where assets endpoint may vary
-    if '/api/' not in api_url.lower():
-        assets_endpoint = f"{api_url}/api/assets"
-    
-    logger.info(f"Fetching assets from: {assets_endpoint}")
-    
-    # Attempt to fetch with retries
-    attempt = 0
-    while attempt < retries:
-        try:
-            headers = {
-                "Authorization": f"Bearer {token}",
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            }
-            
-            response = requests.get(assets_endpoint, headers=headers, timeout=60)
-            
-            if response.status_code == 200:
-                try:
-                    assets = response.json()
-                    if isinstance(assets, list):
-                        logger.info(f"Successfully fetched {len(assets)} assets from Gauge API")
-                        return assets
-                    elif isinstance(assets, dict) and 'assets' in assets:
-                        # Some APIs nest the assets array in an object
-                        asset_list = assets['assets']
-                        logger.info(f"Successfully fetched {len(asset_list)} assets from Gauge API (nested format)")
-                        return asset_list
-                    else:
-                        logger.error(f"Unexpected response format: {type(assets)}")
-                        logger.debug(f"Response content: {response.text[:500]}...")
-                        return []
-                except json.JSONDecodeError:
-                    logger.error(f"Invalid JSON response when fetching assets: {response.text[:500]}...")
-                    # Don't return yet, try again
-            else:
-                logger.error(f"Failed to fetch assets: {response.status_code} - {response.text}")
-                # If unauthorized, try to get a new token
-                if response.status_code == 401:
-                    logger.info("Auth token expired, attempting to get a new one")
-                    token = get_auth_token()
-                    if not token:
-                        logger.error("Could not obtain new authentication token")
-                        return []
-                    # Continue to next attempt with new token
-                    
-        except requests.RequestException as e:
-            logger.error(f"Request error when fetching assets: {e}")
-        except Exception as e:
-            logger.error(f"Unexpected error when fetching assets: {e}")
-            logger.debug(traceback.format_exc())
+    # Attempt to fetch with retries from each endpoint
+    for assets_endpoint in asset_endpoints:
+        logger.info(f"Trying to fetch assets from: {assets_endpoint}")
         
-        # Increment attempt counter and delay before retry
-        attempt += 1
-        if attempt < retries:
-            logger.info(f"Retrying asset fetch in {retry_delay} seconds (attempt {attempt+1}/{retries})")
-            time.sleep(retry_delay)
+        attempt = 0
+        while attempt < retries:
+            try:
+                headers = {
+                    "Authorization": f"Bearer {token}",
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                }
+                
+                response = requests.get(assets_endpoint, headers=headers, timeout=60, verify=False)
+                
+                if response.status_code == 200:
+                    try:
+                        assets = response.json()
+                        if isinstance(assets, list):
+                            logger.info(f"Successfully fetched {len(assets)} assets from Gauge API")
+                            return assets
+                        elif isinstance(assets, dict) and 'assets' in assets:
+                            # Some APIs nest the assets array in an object
+                            asset_list = assets['assets']
+                            logger.info(f"Successfully fetched {len(asset_list)} assets from Gauge API (nested format)")
+                            return asset_list
+                        else:
+                            logger.warning(f"Unexpected response format from {assets_endpoint}: {type(assets)}")
+                            logger.debug(f"Response content: {response.text[:500]}...")
+                    except json.JSONDecodeError:
+                        logger.warning(f"Invalid JSON response from {assets_endpoint}: {response.text[:500]}...")
+                else:
+                    logger.warning(f"Failed to fetch assets from {assets_endpoint}: {response.status_code}")
+                    # If unauthorized, try to get a new token
+                    if response.status_code == 401:
+                        logger.info("Auth token expired, attempting to get a new one")
+                        token = get_auth_token()
+                        if not token:
+                            logger.error("Could not obtain new authentication token")
+                            break  # Try next endpoint
+                        # Continue to next attempt with new token
+                
+            except requests.RequestException as e:
+                logger.warning(f"Request error when fetching from {assets_endpoint}: {e}")
+            except Exception as e:
+                logger.warning(f"Unexpected error when fetching from {assets_endpoint}: {e}")
+                logger.debug(traceback.format_exc())
+            
+            # Increment attempt counter and delay before retry
+            attempt += 1
+            if attempt < retries:
+                logger.info(f"Retrying {assets_endpoint} fetch in {retry_delay}s (attempt {attempt+1}/{retries})")
+                time.sleep(retry_delay)
+        
+        # If we reach here, this endpoint failed - try the next one
     
-    logger.error(f"Failed to fetch assets after {retries} attempts")
+    # If we get here, all endpoints failed
+    logger.error("Failed to fetch assets from any API endpoint")
     return []
 
 

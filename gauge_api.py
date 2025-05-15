@@ -177,13 +177,67 @@ def update_asset_data(force=False):
     return load_cached_data()
 
 
-def get_asset_data():
+def get_asset_data(use_db=True):
     """
     Main function to get asset data, attempting to update from API first.
+    
+    Args:
+        use_db (bool): Whether to try to get data from the database
     
     Returns:
         list: List of asset dictionaries
     """
+    # Try to get from database if requested
+    if use_db:
+        try:
+            from app import app
+            from models import Asset
+            
+            with app.app_context():
+                assets_from_db = Asset.query.all()
+                if assets_from_db and len(assets_from_db) > 0:
+                    logger.info(f"Loaded {len(assets_from_db)} assets from database")
+                    # Convert DB models to dictionaries
+                    assets = []
+                    for asset in assets_from_db:
+                        asset_dict = {
+                            'AssetIdentifier': asset.asset_identifier,
+                            'Label': asset.label,
+                            'AssetCategory': asset.asset_category,
+                            'AssetClass': asset.asset_class,
+                            'AssetMake': asset.asset_make,
+                            'AssetModel': asset.asset_model,
+                            'SerialNumber': asset.serial_number,
+                            'DeviceSerialNumber': asset.device_serial_number,
+                            'Active': asset.active,
+                            'DaysInactive': asset.days_inactive,
+                            'Ignition': asset.ignition,
+                            'Latitude': asset.latitude,
+                            'Longitude': asset.longitude,
+                            'Location': asset.location,
+                            'Site': asset.site,
+                            'District': asset.district,
+                            'SubDistrict': asset.sub_district,
+                            'Engine1Hours': asset.engine_hours,
+                            'Odometer': asset.odometer,
+                            'Speed': asset.speed,
+                            'SpeedLimit': asset.speed_limit,
+                            'Heading': asset.heading,
+                            'BackupBatteryPct': asset.backup_battery_pct,
+                            'Voltage': asset.voltage,
+                            'IMEI': asset.imei,
+                            'EventDateTimeString': asset.event_date_time_string,
+                            'Reason': asset.reason,
+                            'TimeZone': asset.time_zone,
+                            'FormattedDateTime': asset.formatted_date_time
+                        }
+                        assets.append(asset_dict)
+                    return assets
+                else:
+                    logger.info("No assets found in database, fetching from API")
+        except Exception as e:
+            logger.error(f"Failed to load data from database: {e}")
+    
     # Try to update from API first
     assets = update_asset_data()
     
@@ -194,9 +248,32 @@ def get_asset_data():
             with open('attached_assets/GAUGE API PULL 1045AM_05.15.2025.json', 'r') as f:
                 assets = json.load(f)
             logger.info(f"Loaded {len(assets)} assets from attached file")
+            
+            # Sync with database
+            try:
+                from app import app
+                from utils import sync_assets_with_database
+                
+                with app.app_context():
+                    success, errors, message = sync_assets_with_database(assets)
+                    logger.info(message)
+            except Exception as e:
+                logger.error(f"Failed to sync with database: {e}")
+                
         except Exception as e:
             logger.error(f"Failed to load attached assets file: {e}")
             assets = []
+    else:
+        # If we got assets from API, sync with database
+        try:
+            from app import app
+            from utils import sync_assets_with_database
+            
+            with app.app_context():
+                success, errors, message = sync_assets_with_database(assets)
+                logger.info(message)
+        except Exception as e:
+            logger.error(f"Failed to sync with database: {e}")
     
     return assets
 

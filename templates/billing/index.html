@@ -1,0 +1,303 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3">Billing Management Dashboard</h1>
+            <p class="text-muted">Track, review, and manage equipment billing</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <!-- Summary Cards -->
+        <div class="col-12 col-md-6 col-lg-3 mb-3">
+            <div class="card stat-card bg-primary bg-opacity-25">
+                <div class="card-body p-3">
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="stat-value" id="total-billed">--</div>
+                            <div class="stat-label">Total Billed</div>
+                        </div>
+                        <div class="col-4 text-end">
+                            <i class="bi bi-currency-dollar fs-1 opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-3 mb-3">
+            <div class="card stat-card bg-success bg-opacity-25">
+                <div class="card-body p-3">
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="stat-value" id="asset-count">--</div>
+                            <div class="stat-label">Billed Assets</div>
+                        </div>
+                        <div class="col-4 text-end">
+                            <i class="bi bi-truck fs-1 opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-3 mb-3">
+            <div class="card stat-card bg-warning bg-opacity-25">
+                <div class="card-body p-3">
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="stat-value" id="job-count">--</div>
+                            <div class="stat-label">Active Jobs</div>
+                        </div>
+                        <div class="col-4 text-end">
+                            <i class="bi bi-briefcase fs-1 opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-3 mb-3">
+            <div class="card stat-card bg-info bg-opacity-25">
+                <div class="card-body p-3">
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="stat-value" id="avg-daily-rate">--</div>
+                            <div class="stat-label">Avg Daily Rate</div>
+                        </div>
+                        <div class="col-4 text-end">
+                            <i class="bi bi-graph-up fs-1 opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <!-- Billing Summary -->
+        <div class="col-12 col-lg-8 mb-3">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Monthly Billing Summary</h5>
+                    <div>
+                        <a href="{{ url_for('billing.compare') }}" class="btn btn-sm btn-primary me-2">Compare & Review</a>
+                        <a href="{{ url_for('billing.exports') }}" class="btn btn-sm btn-outline-primary">Exports</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div style="height: 300px" id="billing-chart">
+                        <div class="d-flex h-100 justify-content-center align-items-center">
+                            <p class="text-muted">Loading billing data...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Region Distribution -->
+        <div class="col-12 col-lg-4 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Billing by Region</h5>
+                </div>
+                <div class="card-body">
+                    <div style="height: 300px" id="region-chart">
+                        <div class="d-flex h-100 justify-content-center align-items-center">
+                            <p class="text-muted">Loading region data...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <!-- Recent Billing Activities -->
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Recent Billing Activities</h5>
+                    <a href="{{ url_for('billing.history') }}" class="btn btn-sm btn-outline-primary">View History</a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Activity</th>
+                                    <th>User</th>
+                                    <th>Details</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activity-table-body">
+                                <tr>
+                                    <td colspan="5" class="text-center">Loading activity data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Billing Process Card -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Monthly Billing Process</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 text-center mb-3 mb-md-0">
+                            <div class="process-step d-inline-block p-3 rounded-circle bg-primary bg-opacity-25 mb-2">
+                                <i class="bi bi-file-earmark-spreadsheet fs-3"></i>
+                            </div>
+                            <h5 class="mt-2">Original Billing</h5>
+                            <p class="text-muted">RAGLE EQ BILLINGS - APRIL 2025 (JG REVIEWED)</p>
+                        </div>
+                        <div class="col-md-3 text-center mb-3 mb-md-0">
+                            <div class="process-step d-inline-block p-3 rounded-circle bg-primary bg-opacity-25 mb-2">
+                                <i class="bi bi-pencil-square fs-3"></i>
+                            </div>
+                            <h5 class="mt-2">PM Edits</h5>
+                            <p class="text-muted">EQMO. BILLING ALLOCATIONS - APRIL 2025 (TR-FINAL)</p>
+                        </div>
+                        <div class="col-md-3 text-center mb-3 mb-md-0">
+                            <div class="process-step d-inline-block p-3 rounded-circle bg-primary bg-opacity-25 mb-2">
+                                <i class="bi bi-check-circle fs-3"></i>
+                            </div>
+                            <h5 class="mt-2">Review & Approve</h5>
+                            <p class="text-muted">Compare changes and approve updates</p>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <div class="process-step d-inline-block p-3 rounded-circle bg-primary bg-opacity-25 mb-2">
+                                <i class="bi bi-file-earmark-arrow-down fs-3"></i>
+                            </div>
+                            <h5 class="mt-2">Generate Exports</h5>
+                            <p class="text-muted">Create region-based exports (DFW, HOU, WTX)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Placeholder for actual data load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Display sample data
+        document.getElementById('total-billed').textContent = "$286,425";
+        document.getElementById('asset-count').textContent = "152";
+        document.getElementById('job-count').textContent = "43";
+        document.getElementById('avg-daily-rate').textContent = "$275";
+        
+        // Create billing chart
+        const billingCtx = document.getElementById('billing-chart').getContext('2d');
+        new Chart(billingCtx, {
+            type: 'bar',
+            data: {
+                labels: ['January', 'February', 'March', 'April', 'May'],
+                datasets: [{
+                    label: 'DFW',
+                    data: [112500, 108300, 124500, 118700, 0],
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    borderWidth: 1
+                }, {
+                    label: 'HOU',
+                    data: [85300, 79400, 92200, 88100, 0],
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderWidth: 1
+                }, {
+                    label: 'WTX',
+                    data: [78500, 75200, 82600, 79625, 0],
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Amount ($)'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Create region distribution chart
+        const regionCtx = document.getElementById('region-chart').getContext('2d');
+        new Chart(regionCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['DFW', 'HOU', 'WTX'],
+                datasets: [{
+                    data: [118700, 88100, 79625],
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.6)', 
+                        'rgba(54, 162, 235, 0.6)',
+                        'rgba(255, 99, 132, 0.6)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+        
+        // Populate activity table
+        const activityTableBody = document.getElementById('activity-table-body');
+        activityTableBody.innerHTML = ''; // Clear loading message
+        
+        const sampleActivities = [
+            { date: '2025-05-15', activity: 'Exports Generated', user: 'Admin User', details: 'April 2025 Billing Exports', status: 'Completed' },
+            { date: '2025-05-14', activity: 'Billing Approved', user: 'John Smith', details: 'April 2025 PM Changes', status: 'Completed' },
+            { date: '2025-05-13', activity: 'Comparison Generated', user: 'Admin User', details: 'Original vs. PM Edits', status: 'Completed' },
+            { date: '2025-05-12', activity: 'PM Edits Uploaded', user: 'Jane Doe', details: 'EQMO BILLING ALLOCATIONS', status: 'Completed' },
+            { date: '2025-05-10', activity: 'Original Billing Uploaded', user: 'John Smith', details: 'RAGLE EQ BILLINGS', status: 'Completed' }
+        ];
+        
+        sampleActivities.forEach(activity => {
+            const row = document.createElement('tr');
+            
+            // Add status class
+            if (activity.status === 'Completed') {
+                row.classList.add('table-success');
+            } else if (activity.status === 'In Progress') {
+                row.classList.add('table-warning');
+            } else if (activity.status === 'Failed') {
+                row.classList.add('table-danger');
+            }
+            
+            row.innerHTML = `
+                <td>${activity.date}</td>
+                <td>${activity.activity}</td>
+                <td>${activity.user}</td>
+                <td>${activity.details}</td>
+                <td>${activity.status}</td>
+            `;
+            
+            activityTableBody.appendChild(row);
+        });
+    });
+</script>
+{% endblock %}

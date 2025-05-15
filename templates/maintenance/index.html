@@ -1,0 +1,330 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3">Maintenance Management Dashboard</h1>
+            <p class="text-muted">Track and manage equipment maintenance activities</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <!-- Summary Cards -->
+        <div class="col-12 col-md-6 col-lg-3 mb-3">
+            <div class="card stat-card bg-primary bg-opacity-25">
+                <div class="card-body p-3">
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="stat-value" id="scheduled-pm">--</div>
+                            <div class="stat-label">Scheduled PM</div>
+                        </div>
+                        <div class="col-4 text-end">
+                            <i class="bi bi-calendar-check fs-1 opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-3 mb-3">
+            <div class="card stat-card bg-success bg-opacity-25">
+                <div class="card-body p-3">
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="stat-value" id="completed-wo">--</div>
+                            <div class="stat-label">Completed WO</div>
+                        </div>
+                        <div class="col-4 text-end">
+                            <i class="bi bi-check-circle fs-1 opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-3 mb-3">
+            <div class="card stat-card bg-warning bg-opacity-25">
+                <div class="card-body p-3">
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="stat-value" id="in-progress-wo">--</div>
+                            <div class="stat-label">In Progress</div>
+                        </div>
+                        <div class="col-4 text-end">
+                            <i class="bi bi-gear fs-1 opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-3 mb-3">
+            <div class="card stat-card bg-danger bg-opacity-25">
+                <div class="card-body p-3">
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="stat-value" id="overdue-pm">--</div>
+                            <div class="stat-label">Overdue</div>
+                        </div>
+                        <div class="col-4 text-end">
+                            <i class="bi bi-exclamation-triangle fs-1 opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <!-- Maintenance Cost Chart -->
+        <div class="col-12 col-lg-8 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Maintenance Costs by Equipment Category</h5>
+                </div>
+                <div class="card-body">
+                    <div style="height: 300px" id="maintenance-cost-chart">
+                        <div class="d-flex h-100 justify-content-center align-items-center">
+                            <p class="text-muted">Loading maintenance cost data...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Maintenance Type Distribution -->
+        <div class="col-12 col-lg-4 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Maintenance Type Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <div style="height: 300px" id="maintenance-type-chart">
+                        <div class="d-flex h-100 justify-content-center align-items-center">
+                            <p class="text-muted">Loading maintenance type data...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <!-- Work Orders Table -->
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Recent Work Orders</h5>
+                    <a href="{{ url_for('maintenance.work_orders') }}" class="btn btn-sm btn-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>WO #</th>
+                                    <th>Equipment ID</th>
+                                    <th>Type</th>
+                                    <th>Service Date</th>
+                                    <th>Engine Hours</th>
+                                    <th>Performed By</th>
+                                    <th>Cost</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="wo-table-body">
+                                <tr>
+                                    <td colspan="8" class="text-center">Loading work order data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Upcoming Maintenance -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Upcoming Preventive Maintenance</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Equipment ID</th>
+                                    <th>Type</th>
+                                    <th>Service Type</th>
+                                    <th>Due Date</th>
+                                    <th>Current Hours</th>
+                                    <th>Service Hours</th>
+                                    <th>Hours Remaining</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pm-table-body">
+                                <tr>
+                                    <td colspan="8" class="text-center">Loading preventive maintenance data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Placeholder for actual data load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Display sample data
+        document.getElementById('scheduled-pm').textContent = "15";
+        document.getElementById('completed-wo').textContent = "32";
+        document.getElementById('in-progress-wo').textContent = "8";
+        document.getElementById('overdue-pm').textContent = "3";
+        
+        // Create maintenance cost chart
+        const costCtx = document.getElementById('maintenance-cost-chart').getContext('2d');
+        new Chart(costCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Excavators', 'Dozers', 'Loaders', 'Trucks', 'Other'],
+                datasets: [{
+                    label: 'Preventive',
+                    data: [12500, 9800, 8400, 15100, 4700],
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    borderWidth: 1
+                }, {
+                    label: 'Repair',
+                    data: [8300, 5400, 7200, 11200, 3500],
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Cost ($)'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Create maintenance type distribution chart
+        const typeCtx = document.getElementById('maintenance-type-chart').getContext('2d');
+        new Chart(typeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Preventive', 'Repair', 'Inspection', 'Other'],
+                datasets: [{
+                    data: [45, 30, 20, 5],
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.6)', 
+                        'rgba(255, 99, 132, 0.6)',
+                        'rgba(54, 162, 235, 0.6)',
+                        'rgba(255, 206, 86, 0.6)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+        
+        // Populate work orders table
+        const woTableBody = document.getElementById('wo-table-body');
+        woTableBody.innerHTML = ''; // Clear loading message
+        
+        const sampleWOs = [
+            { id: 1, equipmentId: 'EX-81', type: 'Preventive', date: '2025-05-10', hours: 1250, by: 'John Smith', cost: 850, status: 'Completed' },
+            { id: 2, equipmentId: 'DT-11', type: 'Repair', date: '2025-05-12', hours: 980, by: 'Mike Johnson', cost: 1230, status: 'In Progress' },
+            { id: 3, equipmentId: 'LP-116', type: 'Inspection', date: '2025-05-15', hours: 1430, by: 'David Wilson', cost: 350, status: 'Scheduled' },
+            { id: 4, equipmentId: 'PT-276', type: 'Preventive', date: '2025-05-08', hours: 3250, by: 'John Smith', cost: 680, status: 'Completed' },
+            { id: 5, equipmentId: 'ME-58', type: 'Repair', date: '2025-05-13', hours: 780, by: 'Robert Brown', cost: 920, status: 'In Progress' }
+        ];
+        
+        sampleWOs.forEach(wo => {
+            const row = document.createElement('tr');
+            
+            // Add status class
+            if (wo.status === 'Completed') {
+                row.classList.add('table-success');
+            } else if (wo.status === 'In Progress') {
+                row.classList.add('table-warning');
+            } else if (wo.status === 'Scheduled') {
+                row.classList.add('table-info');
+            }
+            
+            row.innerHTML = `
+                <td>${wo.id}</td>
+                <td>${wo.equipmentId}</td>
+                <td>${wo.type}</td>
+                <td>${wo.date}</td>
+                <td>${wo.hours.toLocaleString()}</td>
+                <td>${wo.by}</td>
+                <td>$${wo.cost.toLocaleString()}</td>
+                <td>${wo.status}</td>
+            `;
+            
+            woTableBody.appendChild(row);
+        });
+        
+        // Populate PM table
+        const pmTableBody = document.getElementById('pm-table-body');
+        pmTableBody.innerHTML = ''; // Clear loading message
+        
+        const samplePMs = [
+            { equipmentId: 'EX-84', type: 'Excavator', serviceType: '250 Hr Service', dueDate: '2025-05-20', currentHours: 230, serviceHours: 250, remaining: 20, status: 'Upcoming' },
+            { equipmentId: 'DT-13', type: 'Dozer', serviceType: '500 Hr Service', dueDate: '2025-05-18', currentHours: 485, serviceHours: 500, remaining: 15, status: 'Due Soon' },
+            { equipmentId: 'LP-115', type: 'Loader', serviceType: '1000 Hr Service', dueDate: '2025-05-30', currentHours: 950, serviceHours: 1000, remaining: 50, status: 'Upcoming' },
+            { equipmentId: 'ME-54', type: 'Mini Excavator', serviceType: '250 Hr Service', dueDate: '2025-05-16', currentHours: 245, serviceHours: 250, remaining: 5, status: 'Due Soon' },
+            { equipmentId: 'PT-270', type: 'Pickup Truck', serviceType: '5000 Mile Service', dueDate: '2025-05-25', currentHours: 4800, serviceHours: 5000, remaining: 200, status: 'Upcoming' }
+        ];
+        
+        samplePMs.forEach(pm => {
+            const row = document.createElement('tr');
+            
+            // Add status class
+            if (pm.status === 'Due Soon') {
+                row.classList.add('table-warning');
+            } else if (pm.status === 'Overdue') {
+                row.classList.add('table-danger');
+            } else {
+                row.classList.add('table-light');
+            }
+            
+            row.innerHTML = `
+                <td>${pm.equipmentId}</td>
+                <td>${pm.type}</td>
+                <td>${pm.serviceType}</td>
+                <td>${pm.dueDate}</td>
+                <td>${pm.currentHours.toLocaleString()}</td>
+                <td>${pm.serviceHours.toLocaleString()}</td>
+                <td>${pm.remaining.toLocaleString()}</td>
+                <td>${pm.status}</td>
+            `;
+            
+            pmTableBody.appendChild(row);
+        });
+    });
+</script>
+{% endblock %}

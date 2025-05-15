@@ -74,3 +74,4 @@ def api_consumption():
 def register_blueprint(app):
     """Register the fuel blueprint with the app."""
     app.register_blueprint(fuel_bp)
+    return fuel_bp

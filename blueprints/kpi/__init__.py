@@ -74,3 +74,4 @@ def api_metrics():
 def register_blueprint(app):
     """Register the KPI blueprint with the app."""
     app.register_blueprint(kpi_bp)
+    return kpi_bp

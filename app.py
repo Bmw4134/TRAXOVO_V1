@@ -101,11 +101,27 @@ from blueprints.parsers import parser_bp
 try:
     from blueprints.kaizen import kaizen_bp
     from blueprints.map import map_bp, register_blueprint as register_map_blueprint
+    from blueprints.utilization import utilization_bp, register_blueprint as register_utilization_blueprint
+    from blueprints.maintenance import maintenance_bp, register_blueprint as register_maintenance_blueprint
+    from blueprints.fuel import fuel_bp, register_blueprint as register_fuel_blueprint
+    from blueprints.kpi import kpi_bp, register_blueprint as register_kpi_blueprint
+    from blueprints.fringe import fringe_bp, register_blueprint as register_fringe_blueprint
+    from blueprints.depreciation import depreciation_bp, register_blueprint as register_depreciation_blueprint
+    from blueprints.bpp import bpp_bp, register_blueprint as register_bpp_blueprint
+    from blueprints.billing import billing_bp, register_blueprint as register_billing_blueprint
     
     # Register blueprints
     app.register_blueprint(parser_bp)
     app.register_blueprint(kaizen_bp)
     register_map_blueprint(app)
+    register_utilization_blueprint(app)
+    register_maintenance_blueprint(app)
+    register_fuel_blueprint(app)
+    register_kpi_blueprint(app)
+    register_fringe_blueprint(app)
+    register_depreciation_blueprint(app)
+    register_bpp_blueprint(app)
+    register_billing_blueprint(app)
     logger.info("Registered application blueprints")
 except ImportError as e:
     logger.warning(f"Could not register all blueprints: {e}")

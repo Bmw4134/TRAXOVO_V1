@@ -86,3 +86,4 @@ def api_assignments():
 def register_blueprint(app):
     """Register the fringe blueprint with the app."""
     app.register_blueprint(fringe_bp)
+    return fringe_bp

@@ -82,3 +82,4 @@ def api_nbv():
 def register_blueprint(app):
     """Register the depreciation blueprint with the app."""
     app.register_blueprint(depreciation_bp)
+    return depreciation_bp

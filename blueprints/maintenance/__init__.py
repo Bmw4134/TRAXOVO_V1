@@ -94,3 +94,4 @@ def api_work_orders():
 def register_blueprint(app):
     """Register the maintenance blueprint with the app."""
     app.register_blueprint(maintenance_bp)
+    return maintenance_bp

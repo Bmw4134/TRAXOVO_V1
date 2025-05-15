@@ -82,3 +82,4 @@ def api_metrics():
 def register_blueprint(app):
     """Register the utilization blueprint with the app."""
     app.register_blueprint(utilization_bp)
+    return utilization_bp

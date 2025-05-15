@@ -25,13 +25,15 @@ if not os.path.exists(DATA_DIR):
     os.makedirs(DATA_DIR)
 SCHEDULE_CONFIG_FILE = os.path.join(DATA_DIR, 'schedule_config.json')
 
-# Default update times
+# Default update times based on business requirements
 DEFAULT_SCHEDULE = {
-    "morning_update": "07:00",    # 7:00 AM
-    "midday_update": "12:00",     # 12:00 PM
-    "evening_update": "17:00",    # 5:00 PM
-    "weekend_update": "08:00",    # 8:00 AM on weekends
-    "max_age_hours": 4            # Maximum age of data before forcing update
+    "early_morning_update": "06:45",  # 6:45 AM - Pull GaugeSmart data for same-day report
+    "morning_report": "08:30",        # 8:30 AM - Run same-day report (LS/NOJ)
+    "prior_day_report": "09:30",      # 9:30 AM - Run prior day report (LS/EE/NOJ)
+    "midday_update": "12:00",         # 12:00 PM - Additional data update
+    "evening_update": "17:00",        # 5:00 PM - Evening data update
+    "weekend_update": "08:00",        # 8:00 AM - Weekend update
+    "max_age_hours": 4                # Maximum age of data before forcing update
 }
 
 # Load schedule configuration

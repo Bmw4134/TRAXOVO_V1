@@ -1,6 +1,6 @@
 {
   "activity_report": {
-    "generated_at": "2025-05-15T16:41:08.389261",
+    "generated_at": "2025-05-15T16:56:24.448304",
     "metrics": {
       "total_assets": 94,
       "active_assets": 81,
@@ -610,7 +610,7 @@
     ]
   },
   "maintenance_report": {
-    "generated_at": "2025-05-15T16:41:08.391685",
+    "generated_at": "2025-05-15T16:56:24.449579",
     "maintenance_items": [
       {
         "asset_id": "PT-279 (AARON CONCHA)",

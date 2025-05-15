@@ -1,0 +1,610 @@
+{
+  "generated_at": "2025-05-15T16:56:24.448304",
+  "metrics": {
+    "total_assets": 94,
+    "active_assets": 81,
+    "inactive_assets": 13,
+    "activity_by_day": {
+      "2025-05-15": {
+        "active": 44,
+        "inactive": 0
+      },
+      "2025-05-01": {
+        "active": 1,
+        "inactive": 0
+      },
+      "2025-05-14": {
+        "active": 20,
+        "inactive": 0
+      },
+      "2025-04-07": {
+        "active": 1,
+        "inactive": 0
+      },
+      "2025-05-05": {
+        "active": 1,
+        "inactive": 0
+      },
+      "2025-04-12": {
+        "active": 1,
+        "inactive": 0
+      },
+      "2025-03-12": {
+        "active": 1,
+        "inactive": 0
+      },
+      "2022-12-06": {
+        "active": 0,
+        "inactive": 2
+      },
+      "2025-05-09": {
+        "active": 1,
+        "inactive": 0
+      },
+      "2022-09-06": {
+        "active": 0,
+        "inactive": 1
+      },
+      "2023-05-02": {
+        "active": 0,
+        "inactive": 2
+      },
+      "2025-05-07": {
+        "active": 1,
+        "inactive": 0
+      },
+      "2023-01-18": {
+        "active": 0,
+        "inactive": 1
+      },
+      "2025-04-30": {
+        "active": 1,
+        "inactive": 0
+      },
+      "2025-05-13": {
+        "active": 1,
+        "inactive": 0
+      },
+      "2023-11-10": {
+        "active": 0,
+        "inactive": 1
+      },
+      "2022-11-10": {
+        "active": 0,
+        "inactive": 1
+      },
+      "2025-02-27": {
+        "active": 1,
+        "inactive": 0
+      },
+      "2023-05-04": {
+        "active": 0,
+        "inactive": 1
+      },
+      "2025-05-12": {
+        "active": 0,
+        "inactive": 0
+      },
+      "2025-05-11": {
+        "active": 0,
+        "inactive": 0
+      },
+      "2025-05-10": {
+        "active": 0,
+        "inactive": 0
+      }
+    },
+    "activity_by_category": {
+      "Pickup Truck": {
+        "active": 7,
+        "inactive": 0,
+        "total": 7
+      },
+      "Truck Mounted Attenuator (TMA)": {
+        "active": 5,
+        "inactive": 0,
+        "total": 5
+      },
+      "Dump Trailer": {
+        "active": 3,
+        "inactive": 0,
+        "total": 3
+      },
+      "Walk Behind Saw": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "Personal Vehicle": {
+        "active": 3,
+        "inactive": 0,
+        "total": 3
+      },
+      "ASPHALT DISTRIBUTOR TRAILER": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "Heavy Truck": {
+        "active": 7,
+        "inactive": 0,
+        "total": 7
+      },
+      "Excavator - Large": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "Vacuum Trailer": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "Wheel Loader": {
+        "active": 5,
+        "inactive": 0,
+        "total": 5
+      },
+      "Message Board": {
+        "active": 6,
+        "inactive": 0,
+        "total": 6
+      },
+      "Z-Class Volumetric Mixer": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "Medium Truck": {
+        "active": 3,
+        "inactive": 3,
+        "total": 6
+      },
+      "Flatbed Trailer": {
+        "active": 2,
+        "inactive": 0,
+        "total": 2
+      },
+      "Boat": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "Skid Steer": {
+        "active": 4,
+        "inactive": 4,
+        "total": 8
+      },
+      "Step Deck Trailer": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "Maintenance Truck - Lube": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "Air Compressor": {
+        "active": 2,
+        "inactive": 0,
+        "total": 2
+      },
+      "Excavator": {
+        "active": 7,
+        "inactive": 1,
+        "total": 8
+      },
+      "Arrow Board": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "Vacuum": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "Sweeper": {
+        "active": 3,
+        "inactive": 1,
+        "total": 4
+      },
+      "Man Lift": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "Roller": {
+        "active": 4,
+        "inactive": 1,
+        "total": 5
+      },
+      "Dozer": {
+        "active": 2,
+        "inactive": 0,
+        "total": 2
+      },
+      "Crane": {
+        "active": 3,
+        "inactive": 0,
+        "total": 3
+      },
+      "Backhoe": {
+        "active": 2,
+        "inactive": 3,
+        "total": 5
+      },
+      "Telehandler": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "Grader": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      }
+    },
+    "activity_by_location": {
+      "24-04 DALLAS SH 310 INTERSECTION IMPROV": {
+        "active": 2,
+        "inactive": 0,
+        "total": 2
+      },
+      "2023-032 SH 345 BRIDGE REHABILITATION": {
+        "active": 8,
+        "inactive": 0,
+        "total": 8
+      },
+      "2024-025 LIBERTY FM 787 EMC BRIDGE": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "5201 - 5399 Grace Point Ln, Houston, TX 77048": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "HOU YARD/SHOP": {
+        "active": 4,
+        "inactive": 0,
+        "total": 4
+      },
+      " Decker Dr, Baytown, TX 77520": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "2021-017 Plano Collin Creek Culvert Imp": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "4499 - 4301 Fall Creek Hwy, Granbury, TX 76049": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "DFW Yard": {
+        "active": 25,
+        "inactive": 6,
+        "total": 31
+      },
+      "": {
+        "active": 7,
+        "inactive": 4,
+        "total": 11
+      },
+      " Dallas North Tollway N, Dallas, TX 75219": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "12712 - 12720 Chinaberry Ct, Fort Worth, TX 76040": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "3652 - 3686 Dallas Pkwy, Plano, TX 75093": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "2304 - 2272 Decker Dr, Baytown, TX 77520": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "2024-024 (1) TARRANT CS INTERSECTION IMPROV": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "2024-004 City of Dallas Sidewalk 2024 (YARD)": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "2024-030 Matagorda SH 35 Bridge Replacement": {
+        "active": 3,
+        "inactive": 0,
+        "total": 3
+      },
+      "2024-019 (15) Tarrant VA Bridge Rehab": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "2023-006 (OFFICE) Tarrant SH 183 Bridge": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      " Woodall Rodgers Fwy, Dallas, TX 75201": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "2023-034 DALLAS IH 45 BRIDGE MAINTENANCE": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "2022-023 Riverfront & Cadiz Bridge Improvement": {
+        "active": 5,
+        "inactive": 0,
+        "total": 5
+      },
+      " Dallas Pkwy, Plano, TX 75093": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "9701 - 10229 Oak Grove Rd, Fort Worth, TX 76140": {
+        "active": 1,
+        "inactive": 1,
+        "total": 2
+      },
+      "TEXDIST": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      " Dallas North Tollway N, Plano, TX 75093": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "2023-014 (1) TARRANT IH 20 US 81 BR": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      " S Belt Line Rd, Coppell, TX 75019": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "8128 - 8118 N Belt Line Rd, Irving, TX 75063": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "2400 - 2416 Sarah Jane Ln, Fort Worth, TX 76119": {
+        "active": 0,
+        "inactive": 1,
+        "total": 1
+      },
+      "2024-023 TARRANT RIVERSIDE BRIDGE REHAB": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "2024-004 CoD Sidewalks 2024 (#23-BFR1)": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "7808 - 7912 County Road 1005, Cleburne, TX 76044": {
+        "active": 0,
+        "inactive": 1,
+        "total": 1
+      },
+      "2023-007 Ector BI 20E Rehab Roadway": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      "2024-004 CoD Sidewalks 2024 (#17)": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      },
+      " E Jefferson Blvd, Dallas, TX 75203": {
+        "active": 1,
+        "inactive": 0,
+        "total": 1
+      }
+    },
+    "utilization_rate": 86.17021276595744,
+    "avg_engine_hours": 4173.253731343284,
+    "inactive_durations": [],
+    "activity_by_day_sorted": [
+      {
+        "date": "2025-05-15",
+        "active": 44,
+        "inactive": 0
+      },
+      {
+        "date": "2025-05-14",
+        "active": 20,
+        "inactive": 0
+      },
+      {
+        "date": "2025-05-13",
+        "active": 1,
+        "inactive": 0
+      },
+      {
+        "date": "2025-05-12",
+        "active": 0,
+        "inactive": 0
+      },
+      {
+        "date": "2025-05-11",
+        "active": 0,
+        "inactive": 0
+      },
+      {
+        "date": "2025-05-10",
+        "active": 0,
+        "inactive": 0
+      },
+      {
+        "date": "2025-05-09",
+        "active": 1,
+        "inactive": 0
+      }
+    ],
+    "maintenance_due": [
+      {
+        "asset_id": "PT-279 (AARON CONCHA)",
+        "asset_label": "PT-279 (AARON CONCHA) FORD F250 XL 2024 Pickup Truck +",
+        "engine_hours": 1474.0,
+        "hours_until_maintenance": 26.0
+      },
+      {
+        "asset_id": "MT-08",
+        "asset_label": "MT-08 FORD F550 2013 Medium Truck ",
+        "engine_hours": 9472.0,
+        "hours_until_maintenance": 28.0
+      }
+    ]
+  },
+  "top_categories": [
+    {
+      "category": "Skid Steer",
+      "count": 8,
+      "active": 4,
+      "inactive": 4
+    },
+    {
+      "category": "Excavator",
+      "count": 8,
+      "active": 7,
+      "inactive": 1
+    },
+    {
+      "category": "Pickup Truck",
+      "count": 7,
+      "active": 7,
+      "inactive": 0
+    },
+    {
+      "category": "Heavy Truck",
+      "count": 7,
+      "active": 7,
+      "inactive": 0
+    },
+    {
+      "category": "Message Board",
+      "count": 6,
+      "active": 6,
+      "inactive": 0
+    },
+    {
+      "category": "Medium Truck",
+      "count": 6,
+      "active": 3,
+      "inactive": 3
+    },
+    {
+      "category": "Truck Mounted Attenuator (TMA)",
+      "count": 5,
+      "active": 5,
+      "inactive": 0
+    },
+    {
+      "category": "Wheel Loader",
+      "count": 5,
+      "active": 5,
+      "inactive": 0
+    },
+    {
+      "category": "Roller",
+      "count": 5,
+      "active": 4,
+      "inactive": 1
+    },
+    {
+      "category": "Backhoe",
+      "count": 5,
+      "active": 2,
+      "inactive": 3
+    }
+  ],
+  "top_locations": [
+    {
+      "location": "DFW Yard",
+      "count": 31,
+      "active": 25,
+      "inactive": 6
+    },
+    {
+      "location": "",
+      "count": 11,
+      "active": 7,
+      "inactive": 4
+    },
+    {
+      "location": "2023-032 SH 345 BRIDGE REHABILITATION",
+      "count": 8,
+      "active": 8,
+      "inactive": 0
+    },
+    {
+      "location": "2022-023 Riverfront & Cadiz Bridge Improvement",
+      "count": 5,
+      "active": 5,
+      "inactive": 0
+    },
+    {
+      "location": "HOU YARD/SHOP",
+      "count": 4,
+      "active": 4,
+      "inactive": 0
+    },
+    {
+      "location": "2024-030 Matagorda SH 35 Bridge Replacement",
+      "count": 3,
+      "active": 3,
+      "inactive": 0
+    },
+    {
+      "location": "24-04 DALLAS SH 310 INTERSECTION IMPROV",
+      "count": 2,
+      "active": 2,
+      "inactive": 0
+    },
+    {
+      "location": "9701 - 10229 Oak Grove Rd, Fort Worth, TX 76140",
+      "count": 2,
+      "active": 1,
+      "inactive": 1
+    },
+    {
+      "location": "2024-025 LIBERTY FM 787 EMC BRIDGE",
+      "count": 1,
+      "active": 1,
+      "inactive": 0
+    },
+    {
+      "location": "5201 - 5399 Grace Point Ln, Houston, TX 77048",
+      "count": 1,
+      "active": 1,
+      "inactive": 0
+    }
+  ]
+}

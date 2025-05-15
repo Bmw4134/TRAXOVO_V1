@@ -1,0 +1,9 @@
+{
+  "GAUGE_API_URL": "https://api.gaugesmart.com/AssetList/",
+  "GAUGE_API_KEY": "28dcba94c01e453fa8e9215a068f30e4",
+  "GAUGE_API_USER": "",
+  "ENABLE_AUTO_UPDATES": true,
+  "MORNING_UPDATE_TIME": "07:00",
+  "MIDDAY_UPDATE_TIME": "12:00",
+  "EVENING_UPDATE_TIME": "17:00"
+}

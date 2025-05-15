@@ -1,0 +1,228 @@
+// map.js - Scripts for map visualization using Leaflet.js
+
+let map;
+let markers = [];
+let assetMarkers = {};
+
+// Initialize the map on the dashboard
+function initializeMap(assets) {
+    // Check if the map container exists
+    const mapContainer = document.getElementById('map-container');
+    if (!mapContainer) return;
+    
+    // Initialize the map
+    map = L.map('map-container').setView([32.7767, -96.7970], 10); // Dallas area
+    
+    // Add the tile layer (OpenStreetMap)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 18
+    }).addTo(map);
+    
+    // Add markers for each asset with location data
+    if (assets && assets.length > 0) {
+        addAssetsToMap(assets);
+    } else {
+        // If no assets data provided, fetch from API
+        fetch('/api/assets')
+            .then(response => response.json())
+            .then(data => {
+                addAssetsToMap(data);
+            })
+            .catch(error => console.error('Error fetching asset data:', error));
+    }
+}
+
+// Initialize a single asset map for the detail page
+function initializeAssetMap(asset) {
+    const assetMapContainer = document.getElementById('asset-detail-map');
+    if (!assetMapContainer || !asset) return;
+    
+    if (!asset.Latitude || !asset.Longitude) {
+        assetMapContainer.innerHTML = '<div class="alert alert-warning">No location data available for this asset</div>';
+        return;
+    }
+    
+    // Initialize the map centered on the asset
+    const assetMap = L.map('asset-detail-map').setView([asset.Latitude, asset.Longitude], 14);
+    
+    // Add the tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 18
+    }).addTo(assetMap);
+    
+    // Create a custom icon based on asset status
+    const markerIcon = L.divIcon({
+        html: `<div class="marker-icon ${asset.Active ? 'active' : 'inactive'}">${asset.AssetIdentifier}</div>`,
+        className: '',
+        iconSize: [40, 40]
+    });
+    
+    // Add the marker
+    const marker = L.marker([asset.Latitude, asset.Longitude], {icon: markerIcon})
+        .addTo(assetMap)
+        .bindPopup(`
+            <strong>${asset.Label || asset.AssetIdentifier}</strong><br>
+            Status: ${asset.Active ? 'Active' : 'Inactive'}<br>
+            Location: ${asset.Location || 'Unknown'}<br>
+            Last Updated: ${asset.EventDateTimeString || 'Unknown'}
+        `);
+    
+    // Open the popup
+    marker.openPopup();
+}
+
+// Add assets to the map
+function addAssetsToMap(assets) {
+    // Clear existing markers
+    if (markers.length > 0) {
+        markers.forEach(marker => map.removeLayer(marker));
+        markers = [];
+    }
+    
+    // Group assets by location for clustering
+    const assetsByLocation = {};
+    
+    assets.forEach(asset => {
+        if (!asset.Latitude || !asset.Longitude) return;
+        
+        const locationKey = `${asset.Latitude.toFixed(4)},${asset.Longitude.toFixed(4)}`;
+        
+        if (!assetsByLocation[locationKey]) {
+            assetsByLocation[locationKey] = [];
+        }
+        
+        assetsByLocation[locationKey].push(asset);
+    });
+    
+    // Create markers for each location
+    for (const locationKey in assetsByLocation) {
+        const [lat, lng] = locationKey.split(',').map(coord => parseFloat(coord));
+        const assetsAtLocation = assetsByLocation[locationKey];
+        
+        // Create marker content
+        let popupContent = '<div class="map-popup">';
+        popupContent += `<h6>${assetsAtLocation[0].Location || 'Unknown Location'}</h6>`;
+        popupContent += `<div class="map-popup-content">`;
+        
+        assetsAtLocation.forEach(asset => {
+            const statusClass = asset.Active ? 'text-success' : 'text-danger';
+            popupContent += `
+                <div class="mb-2">
+                    <strong class="${statusClass}">${asset.AssetIdentifier}</strong>: 
+                    ${asset.Label ? asset.Label.split(' ').slice(1).join(' ') : 'Unknown'}
+                    <br>
+                    <small>${asset.AssetCategory || 'Unknown'} - ${asset.AssetMake || ''} ${asset.AssetModel || ''}</small>
+                    <br>
+                    <a href="/asset/${asset.AssetIdentifier}" class="btn btn-sm btn-outline-primary mt-1">Details</a>
+                </div>
+            `;
+        });
+        
+        popupContent += '</div></div>';
+        
+        // Create a circle marker with color based on status
+        // Size based on number of assets at location
+        const size = Math.max(8, Math.min(15, 8 + assetsAtLocation.length));
+        
+        // Determine if the location has any active assets
+        const hasActiveAssets = assetsAtLocation.some(asset => asset.Active);
+        
+        const marker = L.circleMarker([lat, lng], {
+            radius: size,
+            fillColor: hasActiveAssets ? '#28a745' : '#dc3545',
+            color: '#fff',
+            weight: 2,
+            opacity: 1,
+            fillOpacity: 0.8
+        }).addTo(map);
+        
+        // Add label with count
+        if (assetsAtLocation.length > 1) {
+            const label = L.divIcon({
+                html: `<div class="map-marker-label">${assetsAtLocation.length}</div>`,
+                className: '',
+                iconSize: [20, 20]
+            });
+            
+            L.marker([lat, lng], {icon: label}).addTo(map);
+        }
+        
+        // Bind popup to marker
+        marker.bindPopup(popupContent);
+        
+        // Store marker reference
+        markers.push(marker);
+        
+        // Store individual asset markers for filtering
+        assetsAtLocation.forEach(asset => {
+            assetMarkers[asset.AssetIdentifier] = marker;
+        });
+    }
+    
+    // Fit map bounds to markers if there are any
+    if (markers.length > 0) {
+        const group = new L.featureGroup(markers);
+        map.fitBounds(group.getBounds().pad(0.1));
+    }
+}
+
+// Filter markers on the map based on criteria
+function filterMapMarkers(status, category, location) {
+    fetch(`/api/assets?status=${status}&category=${category}&location=${location}`)
+        .then(response => response.json())
+        .then(data => {
+            // Clear and re-add markers
+            if (map) {
+                addAssetsToMap(data);
+            }
+        })
+        .catch(error => console.error('Error fetching filtered asset data:', error));
+}
+
+// Add custom CSS for map markers
+document.head.insertAdjacentHTML('beforeend', `
+<style>
+    .marker-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: #007bff;
+    }
+    
+    .marker-icon.active {
+        background-color: #28a745;
+    }
+    
+    .marker-icon.inactive {
+        background-color: #dc3545;
+    }
+    
+    .map-popup {
+        min-width: 200px;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .map-popup h6 {
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+    }
+    
+    .map-marker-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 10px;
+    }
+</style>
+`);

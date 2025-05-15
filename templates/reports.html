@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block title %}Fleet Reports - Fleet Management{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1 class="h3">Fleet Activity Reports</h1>
+        <p class="text-muted">
+            Overview of your fleet's status, distribution by category, and location.
+        </p>
+    </div>
+</div>
+
+<!-- Status Overview -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Status Overview</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="status-chart"></canvas>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <h5 class="m-0 text-success">{{ status_counts.active }}</h5>
+                        <small class="text-muted">Active Assets</small>
+                    </div>
+                    <div class="col-6">
+                        <h5 class="m-0 text-danger">{{ status_counts.inactive }}</h5>
+                        <small class="text-muted">Inactive Assets</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Assets by Category</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="category-chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Location Distribution -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Assets by Location</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="location-chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Activity Summary Table -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Activity Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Total Assets</th>
+                                <th>Active</th>
+                                <th>Inactive</th>
+                                <th>Activity Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for category, count in category_counts.items() %}
+                                {% set active_count = namespace(value=0) %}
+                                {% set inactive_count = namespace(value=0) %}
+                                
+                                <!-- Calculate active and inactive counts for this category -->
+                                {% for asset in assets if asset.AssetCategory == category %}
+                                    {% if asset.Active %}
+                                        {% set active_count.value = active_count.value + 1 %}
+                                    {% else %}
+                                        {% set inactive_count.value = inactive_count.value + 1 %}
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                <tr>
+                                    <td>{{ category }}</td>
+                                    <td>{{ count }}</td>
+                                    <td class="text-success">{{ active_count.value }}</td>
+                                    <td class="text-danger">{{ inactive_count.value }}</td>
+                                    <td>
+                                        {% if count > 0 %}
+                                            {% set activity_rate = (active_count.value / count * 100) | round %}
+                                            <div class="progress" style="height: 10px;">
+                                                <div class="progress-bar 
+                                                    {% if activity_rate > 70 %}bg-success
+                                                    {% elif activity_rate > 30 %}bg-warning
+                                                    {% else %}bg-danger{% endif %}" 
+                                                    role="progressbar" 
+                                                    style="width: {{ activity_rate }}%;" 
+                                                    aria-valuenow="{{ activity_rate }}" 
+                                                    aria-valuemin="0" 
+                                                    aria-valuemax="100">
+                                                </div>
+                                            </div>
+                                            <small>{{ activity_rate }}%</small>
+                                        {% else %}
+                                            <small>N/A</small>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Initialize charts with data when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        // Prepare data for charts
+        const statusCounts = {
+            active: {{ status_counts.active }},
+            inactive: {{ status_counts.inactive }}
+        };
+        
+        const categoryCounts = {
+            {% for category, count in category_counts.items() %}
+                "{{ category }}": {{ count }}{% if not loop.last %},{% endif %}
+            {% endfor %}
+        };
+        
+        const locationCounts = {
+            {% for location, count in location_counts.items() %}
+                "{{ location }}": {{ count }}{% if not loop.last %},{% endif %}
+            {% endfor %}
+        };
+        
+        // Initialize charts with the data
+        initializeCharts(statusCounts, categoryCounts, locationCounts);
+    });
+</script>
+{% endblock %}

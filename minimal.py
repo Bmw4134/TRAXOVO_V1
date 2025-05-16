@@ -413,46 +413,9 @@ class AssetDriverMapping(db.Model):
     def __repr__(self):
         return f'<AssetDriverMapping {self.asset_id}-{self.driver_id}>'
 
-# Add asset-driver management routes
-@app.route('/asset-drivers/')
-# Temporarily removed login requirement for testing
-# @login_required
-def asset_driver_list():
-    """Display list of asset-driver assignments"""
-    current_assignments = AssetDriverMapping.query.filter_by(is_current=True).all()
-    all_assignments = AssetDriverMapping.query.all()
-    assets = Asset.query.all()
-    drivers = Driver.query.all()
-    
-    # Calculate statistics
-    total_assignments = len(all_assignments)
-    current_count = len(current_assignments)
-    historical_count = total_assignments - current_count
-    total_assets = Asset.query.count()
-    assigned_assets = AssetDriverMapping.query.filter_by(is_current=True).with_entities(AssetDriverMapping.asset_id).distinct().count()
-    total_drivers = Driver.query.count()
-    active_drivers = Driver.query.filter_by(active=True).count()
-    
-    # Calculate percentages safely
-    asset_assignment_percentage = (assigned_assets / total_assets * 100) if total_assets > 0 else 0
-    driver_active_percentage = (active_drivers / total_drivers * 100) if total_drivers > 0 else 0
-    
-    return render_template('asset_drivers/list.html', 
-                          assignments=current_assignments,
-                          all_assignments=all_assignments,
-                          assets=assets,
-                          drivers=drivers,
-                          stats={
-                              'total_assignments': total_assignments,
-                              'current_assignments': current_count,
-                              'historical_assignments': historical_count,
-                              'total_assets': total_assets,
-                              'assets_assigned': assigned_assets,
-                              'total_drivers': total_drivers,
-                              'active_drivers': active_drivers,
-                              'asset_assignment_percentage': asset_assignment_percentage,
-                              'driver_active_percentage': driver_active_percentage
-                          })
+# Register the asset-driver blueprint
+from routes.asset_drivers import asset_drivers
+app.register_blueprint(asset_drivers)
 
 @app.route('/asset-drivers/assign', methods=['GET', 'POST'])
 # Temporarily removed login requirement for testing

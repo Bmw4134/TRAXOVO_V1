@@ -75,7 +75,7 @@
                                     <div>
                                         <i class="bi bi-file-earmark-excel me-2"></i> {{ export.name }}
                                         <br>
-                                        <small class="text-muted">{{ export.date }}</small>
+                                        <small class="text-muted">{{ export.time }}</small>
                                     </div>
                                     <span class="badge bg-primary rounded-pill">
                                         <i class="bi bi-download"></i>
@@ -178,16 +178,16 @@
                                         {% if processed_data.changes %}
                                             {% for change in processed_data.changes %}
                                                 <tr>
-                                                    <td>{{ change.job_number }}</td>
-                                                    <td>{{ change.equipment_id }}</td>
-                                                    <td>{{ change.description }}</td>
-                                                    <td>{{ change.original_value }}</td>
-                                                    <td>{{ change.new_value }}</td>
+                                                    <td>{{ change.JobNumber }}</td>
+                                                    <td>{{ change.EquipmentID }}</td>
+                                                    <td>{{ change.Description }}</td>
+                                                    <td>{{ change.OriginalValue }}</td>
+                                                    <td>{{ change.NewValue }}</td>
                                                     <td>
-                                                        {% if change.change_type == 'increase' %}
-                                                            <span class="badge bg-success">+{{ change.difference }}</span>
-                                                        {% elif change.change_type == 'decrease' %}
-                                                            <span class="badge bg-danger">{{ change.difference }}</span>
+                                                        {% if change.ChangeType == 'Increase' %}
+                                                            <span class="badge bg-success">+{{ change.Difference }}</span>
+                                                        {% elif change.ChangeType == 'Decrease' %}
+                                                            <span class="badge bg-danger">{{ change.Difference }}</span>
                                                         {% else %}
                                                             <span class="badge bg-warning">Changed</span>
                                                         {% endif %}
@@ -215,7 +215,7 @@
                                     <div class="col-md-6">
                                         <div class="card border-info">
                                             <div class="card-body text-center">
-                                                <h3 class="mb-1">{{ processed_data.formula_stats.total }}</h3>
+                                                <h3 class="mb-1">{{ processed_data.formula_stats.total_formulas }}</h3>
                                                 <p class="text-muted mb-0">Total Formulas</p>
                                             </div>
                                         </div>
@@ -223,7 +223,7 @@
                                     <div class="col-md-6">
                                         <div class="card border-success">
                                             <div class="card-body text-center">
-                                                <h3 class="mb-1">{{ processed_data.formula_stats.preserved }}%</h3>
+                                                <h3 class="mb-1">{{ (processed_data.formula_stats.preservation_rate * 100)|round|int }}%</h3>
                                                 <p class="text-muted mb-0">Preservation Rate</p>
                                             </div>
                                         </div>
@@ -244,12 +244,12 @@
                                             {% for sheet in processed_data.formula_stats.sheets %}
                                                 <tr>
                                                     <td>{{ sheet.name }}</td>
-                                                    <td>{{ sheet.count }}</td>
+                                                    <td>{{ sheet.formulas }}</td>
                                                     <td>
-                                                        {% if sheet.preserved %}
+                                                        {% if sheet.status == 'Complete' %}
                                                             <span class="badge bg-success">Preserved</span>
                                                         {% else %}
-                                                            <span class="badge bg-warning">Modified</span>
+                                                            <span class="badge bg-warning">{{ sheet.status }}</span>
                                                         {% endif %}
                                                     </td>
                                                 </tr>

@@ -9,6 +9,12 @@ It also includes functions for PM allocation processing to compare original and 
 allocation files and generating accounting-ready exports.
 """
 
+# ---------------------------------------------------------------------------------
+# PM Allocation Processing Functions
+# These functions handle the PM allocation processing workflow, comparing original
+# and updated allocation files, preserving formulas, and generating exports.
+# ---------------------------------------------------------------------------------
+
 import os
 import pandas as pd
 import numpy as np
@@ -412,6 +418,421 @@ def _generate_csv_export(data, output_path, region='ALL'):
     # Export to CSV
     export_df.to_csv(output_path, index=False)
     return True
+
+# ---------------------------------------------------------------------------------
+# Main Interface Functions
+# These functions are used by the main application to process billing allocations
+# ---------------------------------------------------------------------------------
+
+def process_billing_allocation(file_path):
+    """
+    Process a billing allocation file and extract the data
+    
+    Args:
+        file_path (str): Path to the billing allocation Excel file
+        
+    Returns:
+        DataFrame: Processed billing allocation data
+    """
+    try:
+        # Load data from Excel file
+        data = pd.read_excel(file_path, sheet_name=None)
+        
+        # Initialize result DataFrame
+        result_df = pd.DataFrame()
+        
+        # Process each sheet
+        for sheet_name, df in data.items():
+            # Skip empty sheets
+            if df.empty:
+                continue
+                
+            # Skip sheets that don't appear to have allocation data
+            if not any('job' in col.lower() for col in df.columns if isinstance(col, str)):
+                continue
+                
+            # Convert non-string column names to strings
+            df.columns = [str(col) for col in df.columns]
+            
+            # Standardize column names
+            for col in df.columns:
+                if not isinstance(col, str):
+                    continue
+                    
+                lcol = col.lower()
+                if 'job' in lcol and ('number' in lcol or 'id' in lcol or 'code' in lcol):
+                    df.rename(columns={col: 'JobNumber'}, inplace=True)
+                elif 'equip' in lcol and ('id' in lcol or 'number' in lcol or 'code' in lcol):
+                    df.rename(columns={col: 'EquipmentID'}, inplace=True)
+                elif 'description' in lcol or 'desc' == lcol:
+                    df.rename(columns={col: 'Description'}, inplace=True)
+                elif any(term in lcol for term in ['hour', 'hrs', 'allocation', 'days']):
+                    df.rename(columns={col: 'AllocationValue'}, inplace=True)
+                elif 'region' in lcol:
+                    df.rename(columns={col: 'Region'}, inplace=True)
+            
+            # Determine region if not specified
+            if 'Region' not in df.columns:
+                if 'DFW' in sheet_name:
+                    df['Region'] = 'DFW'
+                elif 'HOU' in sheet_name:
+                    df['Region'] = 'HOU'
+                elif 'WT' in sheet_name:
+                    df['Region'] = 'WT'
+                else:
+                    df['Region'] = 'UNKNOWN'
+            
+            # Add source sheet name
+            df['SourceSheet'] = sheet_name
+            
+            # Append to result
+            result_df = pd.concat([result_df, df], ignore_index=True)
+        
+        return result_df
+    
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print(f"Error processing file {file_path}: {str(e)}")
+        return pd.DataFrame()  # Return empty DataFrame on error
+
+def compare_allocation_data(original_df, updated_df):
+    """
+    Compare original and updated allocation data to identify changes
+    
+    Args:
+        original_df (DataFrame): Original allocation data
+        updated_df (DataFrame): Updated allocation data
+        
+    Returns:
+        DataFrame: Comparison results with changes highlighted
+    """
+    try:
+        # Ensure required columns exist
+        required_cols = ['EquipmentID', 'JobNumber', 'AllocationValue']
+        for col in required_cols:
+            if col not in original_df.columns:
+                original_df[col] = None
+            if col not in updated_df.columns:
+                updated_df[col] = None
+        
+        # Merge dataframes on equipment ID and job number
+        merged_df = pd.merge(
+            original_df, 
+            updated_df,
+            on=['EquipmentID', 'JobNumber'],
+            how='outer',
+            suffixes=('_orig', '_new')
+        )
+        
+        # Create a new DataFrame to hold comparison results
+        comparison_df = pd.DataFrame()
+        
+        # Add data from merged DataFrame
+        comparison_df['JobNumber'] = merged_df['JobNumber']
+        comparison_df['EquipmentID'] = merged_df['EquipmentID']
+        
+        # Use description from original or updated data
+        comparison_df['Description'] = merged_df.apply(
+            lambda row: row.get('Description_new', row.get('Description_orig', 'Unknown')),
+            axis=1
+        )
+        
+        # Get region from original or updated data
+        comparison_df['Region'] = merged_df.apply(
+            lambda row: row.get('Region_new', row.get('Region_orig', 'UNKNOWN')),
+            axis=1
+        )
+        
+        # Handle allocation values for comparison
+        comparison_df['OriginalValue'] = merged_df['AllocationValue_orig'].fillna(0)
+        comparison_df['NewValue'] = merged_df['AllocationValue_new'].fillna(0)
+        comparison_df['Difference'] = comparison_df['NewValue'] - comparison_df['OriginalValue']
+        comparison_df['ChangeType'] = comparison_df['Difference'].apply(
+            lambda x: 'No Change' if x == 0 else ('Increase' if x > 0 else 'Decrease')
+        )
+        
+        # Filter out rows with no changes
+        comparison_df = comparison_df[comparison_df['ChangeType'] != 'No Change'].copy()
+        
+        return comparison_df
+    
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print(f"Error comparing allocation data: {str(e)}")
+        return pd.DataFrame()  # Return empty DataFrame on error
+
+def export_allocation_comparison(comparison_df, output_path):
+    """
+    Export comparison data to Excel with formatting
+    
+    Args:
+        comparison_df (DataFrame): Comparison data with changes
+        output_path (str): Path to save the formatted Excel file
+        
+    Returns:
+        bool: Success status
+    """
+    try:
+        if comparison_df.empty:
+            return False
+            
+        # Create Excel writer
+        writer = pd.ExcelWriter(output_path, engine='openpyxl')
+        
+        # Write data to Excel
+        comparison_df.to_excel(writer, sheet_name='Comparison', index=False)
+        
+        # Get workbook and worksheet
+        workbook = writer.book
+        worksheet = writer.sheets['Comparison']
+        
+        # Create formats for different cell types
+        header_format = {
+            'bold': True,
+            'bg_color': '#D3D3D3',
+            'border': 1
+        }
+        
+        increase_format = {
+            'font_color': '#006100',  # Dark green
+            'bg_color': '#C6EFCE'     # Light green
+        }
+        
+        decrease_format = {
+            'font_color': '#9C0006',  # Dark red
+            'bg_color': '#FFC7CE'     # Light red
+        }
+        
+        # Apply conditional formatting for the Difference column
+        diff_col_idx = comparison_df.columns.get_loc('Difference') + 1  # +1 because Excel uses 1-based indexing
+        
+        # Apply formatting using openpyxl
+        for i, row in enumerate(worksheet.iter_rows(min_row=2, max_row=len(comparison_df)+1, min_col=diff_col_idx, max_col=diff_col_idx)):
+            cell = row[0]
+            if cell.value is not None:
+                if cell.value > 0:
+                    cell.font = openpyxl.styles.Font(color=increase_format['font_color'])
+                    cell.fill = openpyxl.styles.PatternFill(start_color=increase_format['bg_color'], 
+                                                     end_color=increase_format['bg_color'], 
+                                                     fill_type='solid')
+                elif cell.value < 0:
+                    cell.font = openpyxl.styles.Font(color=decrease_format['font_color'])
+                    cell.fill = openpyxl.styles.PatternFill(start_color=decrease_format['bg_color'], 
+                                                     end_color=decrease_format['bg_color'], 
+                                                     fill_type='solid')
+        
+        # Add totals row at the bottom
+        total_row = len(comparison_df) + 2
+        worksheet.cell(row=total_row, column=1, value='TOTAL')
+        worksheet.cell(row=total_row, column=1).font = openpyxl.styles.Font(bold=True)
+        
+        # Add sum formula for the difference column
+        worksheet.cell(row=total_row, column=diff_col_idx, value=f'=SUM(${get_column_letter(diff_col_idx)}$2:${get_column_letter(diff_col_idx)}${total_row-1})')
+        worksheet.cell(row=total_row, column=diff_col_idx).font = openpyxl.styles.Font(bold=True)
+        
+        # Format header row
+        for i, cell in enumerate(worksheet[1]):
+            cell.font = openpyxl.styles.Font(bold=True)
+            cell.fill = openpyxl.styles.PatternFill(start_color=header_format['bg_color'], 
+                                             end_color=header_format['bg_color'], 
+                                             fill_type='solid')
+        
+        # Auto-adjust column widths
+        for col in worksheet.columns:
+            max_length = 0
+            column = col[0].column_letter
+            for cell in col:
+                if cell.value:
+                    cell_length = len(str(cell.value))
+                    if cell_length > max_length:
+                        max_length = cell_length
+            
+            adjusted_width = (max_length + 2) * 1.2
+            worksheet.column_dimensions[column].width = min(adjusted_width, 30)
+        
+        # Save the workbook
+        writer.close()
+        return True
+    
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print(f"Error exporting comparison data: {str(e)}")
+        return False
+
+def export_with_formula_preservation(original_file, updated_file, output_path):
+    """
+    Export data with formula preservation
+    
+    Args:
+        original_file (str): Path to original Excel file
+        updated_file (str): Path to updated Excel file
+        output_path (str): Path to save the output file
+        
+    Returns:
+        dict: Statistics about formula preservation
+    """
+    try:
+        # Load workbooks
+        orig_wb = openpyxl.load_workbook(original_file, data_only=False)
+        updated_wb = openpyxl.load_workbook(updated_file, data_only=False)
+        
+        # Create new workbook for output
+        output_wb = openpyxl.Workbook()
+        
+        # Remove default sheet
+        if 'Sheet' in output_wb.sheetnames:
+            del output_wb['Sheet']
+        
+        # Track statistics
+        stats = {
+            'total_formulas': 0,
+            'preserved_formulas': 0,
+            'sheets': []
+        }
+        
+        # Process each sheet in updated workbook
+        for sheet_name in updated_wb.sheetnames:
+            # Skip if sheet doesn't exist in original workbook
+            if sheet_name not in orig_wb.sheetnames:
+                stats['sheets'].append({
+                    'name': sheet_name,
+                    'formulas': 0,
+                    'preserved': 0,
+                    'status': 'New sheet - no formulas to preserve'
+                })
+                continue
+            
+            # Get sheets
+            orig_sheet = orig_wb[sheet_name]
+            updated_sheet = updated_wb[sheet_name]
+            
+            # Create new sheet in output workbook
+            output_sheet = output_wb.create_sheet(sheet_name)
+            
+            # Copy data from updated sheet to output sheet
+            for row in updated_sheet.iter_rows():
+                for cell in row:
+                    output_sheet.cell(row=cell.row, column=cell.column, value=cell.value)
+            
+            # Extract formulas from original sheet
+            sheet_formulas = 0
+            preserved = 0
+            
+            for row in orig_sheet.iter_rows():
+                for cell in row:
+                    if cell.data_type == 'f':  # Formula
+                        formula = cell.value
+                        if formula and isinstance(formula, str) and formula.startswith('='):
+                            sheet_formulas += 1
+                            stats['total_formulas'] += 1
+                            
+                            # Get cell reference
+                            cell_ref = f"{get_column_letter(cell.column)}{cell.row}"
+                            
+                            # Try to preserve formula in output sheet
+                            try:
+                                output_sheet[cell_ref] = formula
+                                preserved += 1
+                                stats['preserved_formulas'] += 1
+                            except Exception as cell_error:
+                                print(f"Could not preserve formula {formula} in {sheet_name}!{cell_ref}: {str(cell_error)}")
+            
+            # Copy column widths and formatting
+            for col_idx, col in enumerate(updated_sheet.columns, 1):
+                letter = get_column_letter(col_idx)
+                try:
+                    output_sheet.column_dimensions[letter].width = updated_sheet.column_dimensions[letter].width
+                except:
+                    pass  # Ignore errors with column dimensions
+            
+            # Add sheet stats
+            stats['sheets'].append({
+                'name': sheet_name,
+                'formulas': sheet_formulas,
+                'preserved': preserved,
+                'status': 'Complete' if preserved == sheet_formulas else 'Partial'
+            })
+        
+        # Save output workbook
+        output_wb.save(output_path)
+        
+        # Calculate overall preservation rate
+        if stats['total_formulas'] > 0:
+            stats['preservation_rate'] = stats['preserved_formulas'] / stats['total_formulas']
+        else:
+            stats['preservation_rate'] = 1.0
+            
+        return stats
+    
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print(f"Error preserving formulas: {str(e)}")
+        return {
+            'total_formulas': 0,
+            'preserved_formulas': 0,
+            'preservation_rate': 0,
+            'sheets': [],
+            'error': str(e)
+        }
+
+def generate_region_exports(data_df, export_dir, region=None):
+    """
+    Generate region-specific exports for accounting system import
+    
+    Args:
+        data_df (DataFrame): Processed allocation data
+        export_dir (str): Directory to save exports to
+        region (str, optional): Region to filter data for, or None for all regions
+        
+    Returns:
+        list: Paths to generated export files
+    """
+    exports = []
+    
+    try:
+        # Ensure directory exists
+        os.makedirs(export_dir, exist_ok=True)
+        
+        # Create timestamp for filenames
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        
+        # Define regions to export
+        regions = ['DFW', 'HOU', 'WT'] if region is None else [region]
+        
+        # Generate export for each region
+        for region_code in regions:
+            # Filter data for the region
+            if 'Region' in data_df.columns:
+                region_data = data_df[data_df['Region'] == region_code].copy()
+            else:
+                region_data = pd.DataFrame()
+            
+            # Skip if no data for this region
+            if region_data.empty:
+                continue
+                
+            # Define export filename
+            export_filename = f"PM_ALLOCATION_{region_code}_{timestamp}.xlsx"
+            export_path = os.path.join(export_dir, export_filename)
+            
+            # Export to Excel
+            region_data.to_excel(export_path, index=False)
+            exports.append({
+                'region': region_code,
+                'path': export_path,
+                'records': len(region_data)
+            })
+    
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print(f"Error generating region exports: {str(e)}")
+    
+    return exports
 
 class BillingProcessor:
     """Class for processing and combining monthly billing data"""

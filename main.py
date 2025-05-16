@@ -1620,14 +1620,8 @@ def pm_allocation_processor():
                     'size': round(os.path.getsize(file_path) / (1024 * 1024), 2),  # Size in MB
                     'icon': icon
                 })
-            file_date = datetime.fromtimestamp(file_stats.st_mtime).strftime('%Y-%m-%d %H:%M')
-            recent_exports.append({
-                'name': file,
-                'path': f'pm_allocations/{file}',
-                'date': file_date
-            })
     except Exception as e:
-        logging.error(f"Error loading recent exports: {e}")
+        app.logger.error(f"Error loading recent exports: {e}")
     
     # Handle file upload and processing
     if request.method == 'POST':

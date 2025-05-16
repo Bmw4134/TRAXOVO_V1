@@ -1,187 +1,89 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - SYSTEMSMITH</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('index') }}">SYSTEMSMITH</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('index') }}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('assets') }}">Assets</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('reports') }}">Reports</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-{% block title %}Fleet Management Dashboard{% endblock %}
-
-{% block content %}
-<div class="row mb-4">
-    <div class="col-md-12">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h1 class="h3">Fleet Dashboard</h1>
-            <div class="d-flex">
-                <div class="input-group">
-                    <input type="text" id="search-input" class="form-control" placeholder="Search assets...">
-                    <button class="btn btn-outline-secondary" type="button">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Stats Cards -->
-<div class="row mb-4">
-    <div class="col-md-4">
-        <div class="card stats-card bg-dark text-white">
-            <div class="card-body">
-                <div class="stats-value">{{ total_assets }}</div>
-                <div class="stats-label">Total Assets</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card stats-card bg-success text-white">
-            <div class="card-body">
-                <div class="stats-value">{{ active_assets }}</div>
-                <div class="stats-label">Active</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card stats-card bg-danger text-white">
-            <div class="card-body">
-                <div class="stats-value">{{ inactive_assets }}</div>
-                <div class="stats-label">Inactive</div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Map Section -->
-<div class="row mb-4">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0">Asset Locations</h5>
-            </div>
-            <div class="card-body">
-                <div id="map-container"></div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Filters Section -->
-<div class="row mb-4">
-    <div class="col-md-12">
-        <div class="card filter-section">
-            <div class="card-body">
-                <h5 class="card-title">Filter Assets</h5>
-                <form id="filter-form" class="row g-3">
-                    <div class="col-md-3">
-                        <label for="status-filter" class="form-label">Status</label>
-                        <select id="status-filter" class="form-select">
-                            <option value="all" {% if current_status == 'all' %}selected{% endif %}>All</option>
-                            <option value="active" {% if current_status == 'active' %}selected{% endif %}>Active</option>
-                            <option value="inactive" {% if current_status == 'inactive' %}selected{% endif %}>Inactive</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="category-filter" class="form-label">Category</label>
-                        <select id="category-filter" class="form-select">
-                            <option value="all" {% if current_category == 'all' %}selected{% endif %}>All Categories</option>
-                            {% for category in categories %}
-                                <option value="{{ category }}" {% if current_category == category %}selected{% endif %}>{{ category }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="location-filter" class="form-label">Location</label>
-                        <select id="location-filter" class="form-select">
-                            <option value="all" {% if current_location == 'all' %}selected{% endif %}>All Locations</option>
-                            {% for location in locations %}
-                                <option value="{{ location }}" {% if current_location == location %}selected{% endif %}>{{ location }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-md-3 d-flex align-items-end">
-                        <div class="d-grid gap-2 d-md-flex w-100">
-                            <button type="submit" class="btn btn-primary me-md-2 w-100">Apply Filters</button>
-                            <button type="button" id="clear-filters" class="btn btn-outline-secondary w-100">Clear</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Asset Cards -->
-<div class="row">
-    {% if assets|length == 0 %}
-        <div class="col-md-12">
-            <div class="alert alert-info">
-                <h4 class="alert-heading">No assets found</h4>
-                <p>No assets match your current filter criteria. Try changing your filters or clearing them to see all assets.</p>
-            </div>
-        </div>
-    {% else %}
-        {% for asset in assets %}
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card asset-card {% if asset.Active %}active{% else %}inactive{% endif %}">
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">
-                            <span class="status-indicator {% if asset.Active %}status-active{% else %}status-inactive{% endif %}"></span>
-                            {{ asset.AssetIdentifier }}
-                        </h5>
-                        <a href="/asset/{{ asset.AssetIdentifier }}" class="btn btn-sm btn-outline-primary">
-                            <i class="fas fa-info-circle"></i>
-                        </a>
+                        <h4 class="mb-0">Fleet Dashboard</h4>
+                        <span class="badge bg-primary">{{ current_user.username }}</span>
                     </div>
                     <div class="card-body">
-                        <h6 class="card-subtitle mb-2 text-muted">{{ asset.AssetMake }} {{ asset.AssetModel }}</h6>
-                        <p class="card-text">
-                            <strong>Category:</strong> {{ asset.AssetCategory or 'N/A' }}<br>
-                            <strong>Status:</strong> <span class="{% if asset.Active %}text-success{% else %}text-danger{% endif %}">{{ 'Active' if asset.Active else 'Inactive' }}</span><br>
-                            <strong>Location:</strong> {{ asset.Location or 'Unknown' }}<br>
-                            <strong>Last Updated:</strong> {{ asset.FormattedDateTime or asset.EventDateTimeString or 'N/A' }}
-                        </p>
-                        <button class="btn btn-sm btn-outline-secondary" onclick="toggleDetails('{{ asset.AssetIdentifier }}')">
-                            <i class="fas fa-cog"></i> Details
-                        </button>
-                    </div>
-                    <div id="details-{{ asset.AssetIdentifier }}" class="card-footer" style="display: none;">
-                        <small class="text-muted">
-                            <strong>Serial Number:</strong> {{ asset.SerialNumber or 'N/A' }}<br>
-                            <strong>Engine Hours:</strong> {{ asset.Engine1Hours or 'N/A' }}<br>
-                            <strong>Days Inactive:</strong> {{ asset.DaysInactive or 'N/A' }}<br>
-                            <strong>Reason:</strong> {{ asset.Reason or 'N/A' }}<br>
-                            <strong>Battery:</strong> {{ asset.BackupBatteryPct or 'N/A' }}%<br>
-                            <strong>Voltage:</strong> {{ asset.Voltage or 'N/A' }}V
-                        </small>
+                        <h5>Welcome to SYSTEMSMITH Fleet Management</h5>
+                        <p>Use the navigation above to access different parts of the system.</p>
+                        
+                        <div class="row mt-4">
+                            <div class="col-md-4">
+                                <div class="card text-white bg-primary mb-3">
+                                    <div class="card-header">Active Assets</div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">701</h5>
+                                        <p class="card-text">Total assets currently being tracked</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card text-white bg-success mb-3">
+                                    <div class="card-header">Driver Reports</div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">Today's Metrics</h5>
+                                        <p class="card-text">
+                                            <span class="badge bg-warning me-2">173</span> Late Starts<br>
+                                            <span class="badge bg-danger me-2">92</span> Not On Job
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card text-white bg-info mb-3">
+                                    <div class="card-header">Daily Updates</div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">System Status</h5>
+                                        <p class="card-text">Last API Sync: <span id="sync-time">Today at 8:45 AM</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        {% endfor %}
-    {% endif %}
-</div>
-{% endblock %}
+        </div>
+    </div>
 
-{% block extra_js %}
-<script>
-    // Initialize map with asset data when the page loads
-    document.addEventListener('DOMContentLoaded', function() {
-        // Create an array of assets from the server-rendered template
-        const assets = [
-            {% for asset in assets %}
-                {
-                    AssetIdentifier: "{{ asset.AssetIdentifier }}",
-                    Label: "{{ asset.Label }}",
-                    AssetCategory: "{{ asset.AssetCategory }}",
-                    AssetMake: "{{ asset.AssetMake }}",
-                    AssetModel: "{{ asset.AssetModel }}",
-                    Location: "{{ asset.Location }}",
-                    Active: {{ 'true' if asset.Active else 'false' }},
-                    Latitude: {{ asset.Latitude or 'null' }},
-                    Longitude: {{ asset.Longitude or 'null' }},
-                    EventDateTimeString: "{{ asset.EventDateTimeString }}",
-                    Reason: "{{ asset.Reason }}"
-                }{% if not loop.last %},{% endif %}
-            {% endfor %}
-        ];
-        
-        // Initialize the map with asset data
-        initializeMap(assets);
-    });
-</script>
-{% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

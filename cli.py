@@ -6,8 +6,8 @@ import os
 from datetime import datetime
 from flask.cli import with_appcontext
 from werkzeug.security import generate_password_hash
-from app import db
-from models import User, Asset, AssetHistory, MaintenanceRecord, APIConfig
+# Import db directly from models to avoid circular imports
+from models import db, User, Asset, AssetHistory, MaintenanceRecord, APIConfig
 
 
 @click.command('init-db')

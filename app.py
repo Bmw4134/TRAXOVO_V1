@@ -1,9 +1,6 @@
 import os
 import logging
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, session
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from sqlalchemy.orm import DeclarativeBase
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from utils import load_data, filter_assets, get_asset_by_id, get_asset_categories, get_asset_locations, get_asset_status
 from datetime import datetime, timedelta
@@ -31,13 +28,9 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_pre_ping": True,
 }
 
-# Initialize database
-class Base(DeclarativeBase):
-    pass
-
-db = SQLAlchemy(model_class=Base)
-db.init_app(app)
-migrate = Migrate(app, db)
+# Import database module
+from db import db, init_app
+init_app(app)
 
 # Initialize login manager
 login_manager = LoginManager()
@@ -47,7 +40,7 @@ login_manager.login_message = "Please log in to access this page."
 login_manager.login_message_category = "warning"
 
 # Import models after db initialization to avoid circular imports
-from models import User, Asset, AssetHistory, MaintenanceRecord, APIConfig  # noqa: E402
+from models import User, Asset, AssetHistory, MaintenanceRecord, APIConfig, Geofence
 
 # Import blueprints
 from blueprints.reports import reports_bp  # noqa: E402
@@ -58,6 +51,8 @@ app.register_blueprint(reports_bp)
 @login_manager.user_loader
 def load_user(user_id):
     """Load user by ID for Flask-Login"""
+    # Import the User model directly to avoid circular imports
+    from models.models import User
     return User.query.get(int(user_id))
 
 # Create initial admin users (will only be created if they don't exist)

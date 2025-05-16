@@ -1,117 +1,143 @@
 """
 Attendance Analytics Module
 
-This module handles historical data tracking and trend analysis for attendance reports.
-It provides functions to:
-1. Store attendance report results in the database
-2. Calculate week-over-week and month-over-month trends
-3. Generate charts and visualizations for attendance metrics
-4. Identify pattern anomalies and top drivers with issues
+This module provides functions for analyzing attendance data
+and generating trend reports for historical pattern identification.
 """
 
-import os
-import json
 import logging
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
-from sqlalchemy import func, desc, and_
+from sqlalchemy import func
 from app import db
-from models.attendance import AttendanceRecord, Driver, JobSite, AttendanceTrend
 from models import Asset
-from utils.file_processor import read_excel_file
+from models.attendance import Driver, JobSite, AttendanceRecord, AttendanceTrend
 
 # Initialize logger
 logger = logging.getLogger(__name__)
 
 def get_or_create_driver(name, employee_id, asset_id=None, department=None):
     """
-    Get or create a driver record
+    Get an existing driver or create a new one
     
     Args:
         name (str): Driver name
-        employee_id (str): Employee ID
-        asset_id (int, optional): Associated asset ID
-        department (str, optional): Department
+        employee_id (str): Unique employee ID
+        asset_id (int, optional): Asset ID associated with the driver
+        department (str, optional): Department/region the driver belongs to
         
     Returns:
         Driver: Driver object
     """
     try:
+        # Try to find existing driver
         driver = Driver.query.filter_by(employee_id=employee_id).first()
         
-        if not driver:
-            driver = Driver(
+        if driver:
+            # Update existing driver if needed
+            updated = False
+            if asset_id and driver.asset_id != asset_id:
+                driver.asset_id = asset_id
+                updated = True
+            if department and driver.department != department:
+                driver.department = department
+                updated = True
+            
+            if updated:
+                driver.updated_at = datetime.utcnow()
+                db.session.commit()
+            
+            return driver
+        else:
+            # Create new driver
+            new_driver = Driver(
                 name=name,
                 employee_id=employee_id,
                 asset_id=asset_id,
                 department=department,
-                is_active=True
+                active=True,
+                created_at=datetime.utcnow(),
+                updated_at=datetime.utcnow()
             )
-            db.session.add(driver)
+            db.session.add(new_driver)
             db.session.commit()
-            logger.info(f"Created new driver: {name} ({employee_id})")
-        elif asset_id and driver.asset_id != asset_id:
-            # Update asset if different
-            driver.asset_id = asset_id
-            db.session.commit()
-            logger.info(f"Updated asset for driver {name} to {asset_id}")
-            
-        return driver
+            return new_driver
+    
     except Exception as e:
+        logger.error(f"Error getting or creating driver: {e}")
         db.session.rollback()
-        logger.error(f"Error getting/creating driver: {e}")
         return None
 
-def get_or_create_job_site(name, job_number, location=None):
+def get_or_create_job_site(name, job_number, address=None, city=None, state=None, latitude=None, longitude=None):
     """
-    Get or create a job site record
+    Get an existing job site or create a new one
     
     Args:
         name (str): Job site name
-        job_number (str): Job number
-        location (dict, optional): Location data with lat/long
+        job_number (str): Unique job number
+        address (str, optional): Job site address
+        city (str, optional): Job site city
+        state (str, optional): Job site state
+        latitude (float, optional): Job site latitude
+        longitude (float, optional): Job site longitude
         
     Returns:
         JobSite: JobSite object
     """
     try:
+        # Try to find existing job site
         job_site = JobSite.query.filter_by(job_number=job_number).first()
         
-        if not job_site:
-            job_site = JobSite(
+        if job_site:
+            # Update existing job site if needed
+            updated = False
+            if name and job_site.name != name:
+                job_site.name = name
+                updated = True
+                
+            if updated:
+                job_site.updated_at = datetime.utcnow()
+                db.session.commit()
+            
+            return job_site
+        else:
+            # Create new job site
+            new_job_site = JobSite(
                 name=name,
                 job_number=job_number,
-                is_active=True
+                address=address,
+                city=city,
+                state=state,
+                latitude=latitude,
+                longitude=longitude,
+                active=True,
+                created_at=datetime.utcnow(),
+                updated_at=datetime.utcnow()
             )
-            
-            if location:
-                job_site.latitude = location.get('latitude')
-                job_site.longitude = location.get('longitude')
-                
-            db.session.add(job_site)
+            db.session.add(new_job_site)
             db.session.commit()
-            logger.info(f"Created new job site: {name} ({job_number})")
-            
-        return job_site
+            return new_job_site
+    
     except Exception as e:
+        logger.error(f"Error getting or creating job site: {e}")
         db.session.rollback()
-        logger.error(f"Error getting/creating job site: {e}")
         return None
 
-def save_attendance_record(report_date, driver_id, asset_id, job_site_id, status_type, 
-                          expected_start=None, actual_start=None, expected_end=None, 
-                          actual_end=None, minutes_late=None, minutes_early=None, 
-                          expected_job_id=None, actual_job_id=None, notes=None):
+def save_attendance_record(report_date, driver_id, job_site_id, status_type, 
+                          asset_id=None, expected_start=None, actual_start=None, 
+                          expected_end=None, actual_end=None, minutes_late=None, 
+                          minutes_early=None, expected_job_id=None, actual_job_id=None, 
+                          notes=None):
     """
-    Save attendance record to database for historical tracking
+    Save an attendance record
     
     Args:
-        report_date (datetime): Date of the report
+        report_date (date): Date of the attendance record
         driver_id (int): Driver ID
-        asset_id (int): Asset ID
         job_site_id (int): Job site ID
-        status_type (str): Status type (LATE_START, EARLY_END, NOT_ON_JOB)
+        status_type (str): Status type ('LATE_START', 'EARLY_END', 'NOT_ON_JOB')
+        asset_id (int, optional): Asset ID
         expected_start (datetime, optional): Expected start time
         actual_start (datetime, optional): Actual start time
         expected_end (datetime, optional): Expected end time
@@ -120,39 +146,75 @@ def save_attendance_record(report_date, driver_id, asset_id, job_site_id, status
         minutes_early (int, optional): Minutes early
         expected_job_id (int, optional): Expected job site ID
         actual_job_id (int, optional): Actual job site ID
-        notes (str, optional): Additional notes
+        notes (str, optional): Notes
         
     Returns:
-        AttendanceRecord: Saved attendance record
+        AttendanceRecord: AttendanceRecord object
     """
     try:
-        # Check if record already exists for this driver & date & status_type
-        existing = AttendanceRecord.query.filter_by(
+        # Check if record already exists for this driver, date, and status type
+        existing_record = AttendanceRecord.query.filter_by(
             report_date=report_date,
             driver_id=driver_id,
             status_type=status_type
         ).first()
         
-        if existing:
-            # Update existing record
-            existing.asset_id = asset_id
-            existing.job_site_id = job_site_id
-            existing.expected_start = expected_start
-            existing.actual_start = actual_start
-            existing.expected_end = expected_end
-            existing.actual_end = actual_end
-            existing.minutes_late = minutes_late
-            existing.minutes_early = minutes_early
-            existing.expected_job_id = expected_job_id
-            existing.actual_job_id = actual_job_id
-            existing.notes = notes
+        if existing_record:
+            # Update existing record if needed
+            updated = False
             
-            db.session.commit()
-            logger.info(f"Updated attendance record for driver {driver_id} on {report_date}")
-            return existing
+            if job_site_id and existing_record.job_site_id != job_site_id:
+                existing_record.job_site_id = job_site_id
+                updated = True
+                
+            if asset_id and existing_record.asset_id != asset_id:
+                existing_record.asset_id = asset_id
+                updated = True
+                
+            if expected_start and existing_record.expected_start != expected_start:
+                existing_record.expected_start = expected_start
+                updated = True
+                
+            if actual_start and existing_record.actual_start != actual_start:
+                existing_record.actual_start = actual_start
+                updated = True
+                
+            if expected_end and existing_record.expected_end != expected_end:
+                existing_record.expected_end = expected_end
+                updated = True
+                
+            if actual_end and existing_record.actual_end != actual_end:
+                existing_record.actual_end = actual_end
+                updated = True
+                
+            if minutes_late is not None and existing_record.minutes_late != minutes_late:
+                existing_record.minutes_late = minutes_late
+                updated = True
+                
+            if minutes_early is not None and existing_record.minutes_early != minutes_early:
+                existing_record.minutes_early = minutes_early
+                updated = True
+                
+            if expected_job_id and existing_record.expected_job_id != expected_job_id:
+                existing_record.expected_job_id = expected_job_id
+                updated = True
+                
+            if actual_job_id and existing_record.actual_job_id != actual_job_id:
+                existing_record.actual_job_id = actual_job_id
+                updated = True
+                
+            if notes and existing_record.notes != notes:
+                existing_record.notes = notes
+                updated = True
+                
+            if updated:
+                existing_record.updated_at = datetime.utcnow()
+                db.session.commit()
+                
+            return existing_record
         else:
             # Create new record
-            record = AttendanceRecord(
+            new_record = AttendanceRecord(
                 report_date=report_date,
                 driver_id=driver_id,
                 asset_id=asset_id,
@@ -166,750 +228,926 @@ def save_attendance_record(report_date, driver_id, asset_id, job_site_id, status
                 minutes_early=minutes_early,
                 expected_job_id=expected_job_id,
                 actual_job_id=actual_job_id,
-                notes=notes
+                notes=notes,
+                created_at=datetime.utcnow(),
+                updated_at=datetime.utcnow()
             )
-            
-            db.session.add(record)
+            db.session.add(new_record)
             db.session.commit()
-            logger.info(f"Saved new attendance record for driver {driver_id} on {report_date}")
-            return record
+            return new_record
+    
     except Exception as e:
-        db.session.rollback()
         logger.error(f"Error saving attendance record: {e}")
+        db.session.rollback()
         return None
 
-def process_attendance_report(report_file_path, report_date=None, report_type=None):
+def get_attendance_records(start_date=None, end_date=None, driver_id=None, 
+                          job_site_id=None, status_type=None, department=None):
     """
-    Process attendance report and save records to database
+    Get attendance records based on filters
     
     Args:
-        report_file_path (str): Path to report Excel file
-        report_date (datetime, optional): Report date, defaults to file date or today
-        report_type (str, optional): Report type (PRIOR_DAY or CURRENT_DAY)
+        start_date (date, optional): Start date for filter
+        end_date (date, optional): End date for filter
+        driver_id (int, optional): Filter by driver ID
+        job_site_id (int, optional): Filter by job site ID
+        status_type (str, optional): Filter by status type
+        department (str, optional): Filter by department
         
     Returns:
-        dict: Processing results
+        list: List of AttendanceRecord objects
     """
     try:
-        logger.info(f"Processing attendance report: {report_file_path}")
+        # Start with base query
+        query = AttendanceRecord.query
         
-        # Extract report date from filename if not provided
-        if not report_date:
-            filename = os.path.basename(report_file_path)
-            date_parts = filename.split('_')
-            if len(date_parts) > 1:
-                try:
-                    date_str = date_parts[1].split('.')[0]  # Format: YYYY-MM-DD
-                    report_date = datetime.strptime(date_str, "%Y-%m-%d").date()
-                except:
-                    report_date = datetime.now().date()
-            else:
-                report_date = datetime.now().date()
+        # Apply filters
+        if start_date:
+            query = query.filter(AttendanceRecord.report_date >= start_date)
         
-        # Read the Excel file
-        df = read_excel_file(report_file_path)
+        if end_date:
+            query = query.filter(AttendanceRecord.report_date <= end_date)
         
-        if df is None or df.empty:
-            logger.error(f"Failed to read report file or file is empty: {report_file_path}")
-            return {'success': False, 'error': 'Failed to read report file or file is empty'}
+        if driver_id:
+            query = query.filter(AttendanceRecord.driver_id == driver_id)
         
-        # Define required columns based on report format
-        if 'Driver' not in df.columns or 'Asset' not in df.columns:
-            logger.error(f"Report file does not have required columns: {report_file_path}")
-            return {'success': False, 'error': 'Report file does not have required columns'}
+        if job_site_id:
+            query = query.filter(AttendanceRecord.job_site_id == job_site_id)
         
-        # Process each row in the report
-        records_processed = 0
-        late_start_count = 0
-        early_end_count = 0
-        not_on_job_count = 0
+        if status_type:
+            query = query.filter(AttendanceRecord.status_type == status_type)
         
-        for _, row in df.iterrows():
-            try:
-                # Extract driver info - format might be "Name (ID)" or just "Name"
-                driver_name = row.get('Driver', '').strip()
-                employee_id = None
-                
-                # Try to extract employee ID from driver name
-                if '(' in driver_name and ')' in driver_name:
-                    parts = driver_name.split('(')
-                    driver_name = parts[0].strip()
-                    employee_id = parts[1].split(')')[0].strip()
-                
-                # If no employee ID, use name as ID
-                if not employee_id:
-                    employee_id = f"EMP-{driver_name.replace(' ', '')}"
-                
-                # Get asset info
-                asset_identifier = str(row.get('Asset', '')).strip()
-                
-                # Try to get asset from database
-                asset = Asset.query.filter_by(asset_identifier=asset_identifier).first()
-                asset_id = asset.id if asset else None
-                
-                # Get or create job site
-                job_site_name = str(row.get('Job Site', '')).strip()
-                job_number = str(row.get('Job Number', '')).strip()
-                
-                if not job_number and 'Job #' in df.columns:
-                    job_number = str(row.get('Job #', '')).strip()
-                
-                # If still no job number, generate one
-                if not job_number:
-                    job_number = f"JOB-{job_site_name.replace(' ', '')}"
-                
-                job_site = get_or_create_job_site(job_site_name, job_number)
-                job_site_id = job_site.id if job_site else None
-                
-                # Get driver record
-                department = str(row.get('Department', '')).strip()
-                driver = get_or_create_driver(driver_name, employee_id, asset_id, department)
-                driver_id = driver.id if driver else None
-                
-                if not driver_id or not job_site_id:
-                    logger.warning(f"Missing driver or job site for row: {row}")
-                    continue
-                
-                # Process status types
-                # LATE START
-                if 'Late Start' in df.columns and row.get('Late Start', '').strip().upper() in ['YES', 'Y', 'TRUE', '1']:
-                    expected_start = None
-                    actual_start = None
-                    minutes_late = None
-                    
-                    # Try to parse time values
-                    if 'Expected Start' in df.columns:
-                        try:
-                            expected_start_str = str(row.get('Expected Start', '')).strip()
-                            expected_start = datetime.strptime(f"{report_date.strftime('%Y-%m-%d')} {expected_start_str}", "%Y-%m-%d %H:%M")
-                        except:
-                            pass
-                            
-                    if 'Actual Start' in df.columns:
-                        try:
-                            actual_start_str = str(row.get('Actual Start', '')).strip()
-                            actual_start = datetime.strptime(f"{report_date.strftime('%Y-%m-%d')} {actual_start_str}", "%Y-%m-%d %H:%M")
-                        except:
-                            pass
-                    
-                    if 'Minutes Late' in df.columns:
-                        try:
-                            minutes_late = int(row.get('Minutes Late', 0))
-                        except:
-                            pass
-                    
-                    # Save record
-                    save_attendance_record(
-                        report_date=report_date,
-                        driver_id=driver_id,
-                        asset_id=asset_id,
-                        job_site_id=job_site_id,
-                        status_type='LATE_START',
-                        expected_start=expected_start,
-                        actual_start=actual_start,
-                        minutes_late=minutes_late
-                    )
-                    late_start_count += 1
-                
-                # EARLY END
-                if 'Early End' in df.columns and row.get('Early End', '').strip().upper() in ['YES', 'Y', 'TRUE', '1']:
-                    expected_end = None
-                    actual_end = None
-                    minutes_early = None
-                    
-                    # Try to parse time values
-                    if 'Expected End' in df.columns:
-                        try:
-                            expected_end_str = str(row.get('Expected End', '')).strip()
-                            expected_end = datetime.strptime(f"{report_date.strftime('%Y-%m-%d')} {expected_end_str}", "%Y-%m-%d %H:%M")
-                        except:
-                            pass
-                            
-                    if 'Actual End' in df.columns:
-                        try:
-                            actual_end_str = str(row.get('Actual End', '')).strip()
-                            actual_end = datetime.strptime(f"{report_date.strftime('%Y-%m-%d')} {actual_end_str}", "%Y-%m-%d %H:%M")
-                        except:
-                            pass
-                    
-                    if 'Minutes Early' in df.columns:
-                        try:
-                            minutes_early = int(row.get('Minutes Early', 0))
-                        except:
-                            pass
-                    
-                    # Save record
-                    save_attendance_record(
-                        report_date=report_date,
-                        driver_id=driver_id,
-                        asset_id=asset_id,
-                        job_site_id=job_site_id,
-                        status_type='EARLY_END',
-                        expected_end=expected_end,
-                        actual_end=actual_end,
-                        minutes_early=minutes_early
-                    )
-                    early_end_count += 1
-                
-                # NOT ON JOB
-                if 'Not On Job' in df.columns and row.get('Not On Job', '').strip().upper() in ['YES', 'Y', 'TRUE', '1']:
-                    expected_job_id = None
-                    actual_job_id = None
-                    
-                    # Try to get expected job site
-                    if 'Expected Job' in df.columns:
-                        expected_job_name = str(row.get('Expected Job', '')).strip()
-                        expected_job_number = f"JOB-{expected_job_name.replace(' ', '')}"
-                        expected_job = get_or_create_job_site(expected_job_name, expected_job_number)
-                        expected_job_id = expected_job.id if expected_job else None
-                    
-                    # Try to get actual job site
-                    if 'Actual Job' in df.columns:
-                        actual_job_name = str(row.get('Actual Job', '')).strip()
-                        actual_job_number = f"JOB-{actual_job_name.replace(' ', '')}"
-                        actual_job = get_or_create_job_site(actual_job_name, actual_job_number)
-                        actual_job_id = actual_job.id if actual_job else None
-                    
-                    # Save record
-                    save_attendance_record(
-                        report_date=report_date,
-                        driver_id=driver_id,
-                        asset_id=asset_id,
-                        job_site_id=job_site_id,
-                        status_type='NOT_ON_JOB',
-                        expected_job_id=expected_job_id,
-                        actual_job_id=actual_job_id
-                    )
-                    not_on_job_count += 1
-                
-                records_processed += 1
-                
-            except Exception as e:
-                logger.error(f"Error processing row: {e}")
-                continue
+        if department:
+            query = query.join(Driver).filter(Driver.department == department)
         
-        # Update trend summaries
-        update_attendance_trends(report_date)
+        # Order by date (newest first)
+        query = query.order_by(AttendanceRecord.report_date.desc())
+        
+        return query.all()
+    
+    except Exception as e:
+        logger.error(f"Error getting attendance records: {e}")
+        return []
+
+def get_driver_stats(driver_id, start_date=None, end_date=None):
+    """
+    Get attendance statistics for a specific driver
+    
+    Args:
+        driver_id (int): Driver ID
+        start_date (date, optional): Start date for filter
+        end_date (date, optional): End date for filter
+        
+    Returns:
+        dict: Statistics for the driver
+    """
+    try:
+        # Set default date range if not provided
+        if not end_date:
+            end_date = datetime.now().date()
+        
+        if not start_date:
+            start_date = end_date - timedelta(days=30)
+        
+        # Get driver details
+        driver = Driver.query.get(driver_id)
+        if not driver:
+            return None
+        
+        # Get attendance records for the driver
+        records = get_attendance_records(
+            start_date=start_date,
+            end_date=end_date,
+            driver_id=driver_id
+        )
+        
+        # Count incidents by type
+        late_starts = sum(1 for r in records if r.status_type == 'LATE_START')
+        early_ends = sum(1 for r in records if r.status_type == 'EARLY_END')
+        not_on_job = sum(1 for r in records if r.status_type == 'NOT_ON_JOB')
+        total_incidents = late_starts + early_ends + not_on_job
+        
+        # Get average times
+        late_minutes = [r.minutes_late for r in records if r.status_type == 'LATE_START' and r.minutes_late is not None]
+        avg_late_minutes = sum(late_minutes) / len(late_minutes) if late_minutes else 0
+        
+        early_minutes = [r.minutes_early for r in records if r.status_type == 'EARLY_END' and r.minutes_early is not None]
+        avg_early_minutes = sum(early_minutes) / len(early_minutes) if early_minutes else 0
+        
+        # Get job sites with issues
+        problem_sites = {}
+        for record in records:
+            site_name = record.job_site.name if record.job_site else 'Unknown'
+            if site_name not in problem_sites:
+                problem_sites[site_name] = 0
+            problem_sites[site_name] += 1
+        
+        # Sort job sites by incident count
+        problem_sites = dict(sorted(problem_sites.items(), key=lambda x: x[1], reverse=True))
+        
+        # Calculate recent trend
+        recent_date = end_date - timedelta(days=7)
+        recent_records = [r for r in records if r.report_date >= recent_date]
+        recent_incidents = len(recent_records)
         
         return {
-            'success': True,
-            'records_processed': records_processed,
-            'late_start_count': late_start_count,
-            'early_end_count': early_end_count,
-            'not_on_job_count': not_on_job_count,
-            'report_date': report_date
+            'driver': {
+                'id': driver.id,
+                'name': driver.name,
+                'employee_id': driver.employee_id,
+                'department': driver.department
+            },
+            'stats': {
+                'total_incidents': total_incidents,
+                'late_starts': late_starts,
+                'early_ends': early_ends,
+                'not_on_job': not_on_job,
+                'avg_late_minutes': avg_late_minutes,
+                'avg_early_minutes': avg_early_minutes,
+                'recent_incidents': recent_incidents,
+                'problem_sites': problem_sites,
+                'start_date': start_date,
+                'end_date': end_date
+            }
         }
     
     except Exception as e:
-        logger.error(f"Error processing attendance report: {e}")
-        return {'success': False, 'error': str(e)}
+        logger.error(f"Error getting driver stats: {e}")
+        return None
+
+def get_job_site_stats(job_site_id, start_date=None, end_date=None):
+    """
+    Get attendance statistics for a specific job site
+    
+    Args:
+        job_site_id (int): Job site ID
+        start_date (date, optional): Start date for filter
+        end_date (date, optional): End date for filter
+        
+    Returns:
+        dict: Statistics for the job site
+    """
+    try:
+        # Set default date range if not provided
+        if not end_date:
+            end_date = datetime.now().date()
+        
+        if not start_date:
+            start_date = end_date - timedelta(days=30)
+        
+        # Get job site details
+        job_site = JobSite.query.get(job_site_id)
+        if not job_site:
+            return None
+        
+        # Get attendance records for the job site
+        records = get_attendance_records(
+            start_date=start_date,
+            end_date=end_date,
+            job_site_id=job_site_id
+        )
+        
+        # Count incidents by type
+        late_starts = sum(1 for r in records if r.status_type == 'LATE_START')
+        early_ends = sum(1 for r in records if r.status_type == 'EARLY_END')
+        not_on_job = sum(1 for r in records if r.status_type == 'NOT_ON_JOB')
+        total_incidents = late_starts + early_ends + not_on_job
+        
+        # Get problem drivers
+        problem_drivers = {}
+        for record in records:
+            driver_name = record.driver.name if record.driver else 'Unknown'
+            if driver_name not in problem_drivers:
+                problem_drivers[driver_name] = 0
+            problem_drivers[driver_name] += 1
+        
+        # Sort drivers by incident count
+        problem_drivers = dict(sorted(problem_drivers.items(), key=lambda x: x[1], reverse=True))
+        
+        # Calculate recent trend
+        recent_date = end_date - timedelta(days=7)
+        recent_records = [r for r in records if r.report_date >= recent_date]
+        recent_incidents = len(recent_records)
+        
+        return {
+            'job_site': {
+                'id': job_site.id,
+                'name': job_site.name,
+                'job_number': job_site.job_number,
+                'address': job_site.address,
+                'city': job_site.city,
+                'state': job_site.state
+            },
+            'stats': {
+                'total_incidents': total_incidents,
+                'late_starts': late_starts,
+                'early_ends': early_ends,
+                'not_on_job': not_on_job,
+                'recent_incidents': recent_incidents,
+                'problem_drivers': problem_drivers,
+                'start_date': start_date,
+                'end_date': end_date
+            }
+        }
+    
+    except Exception as e:
+        logger.error(f"Error getting job site stats: {e}")
+        return None
+
+def get_department_stats(department, start_date=None, end_date=None):
+    """
+    Get attendance statistics for a specific department
+    
+    Args:
+        department (str): Department name
+        start_date (date, optional): Start date for filter
+        end_date (date, optional): End date for filter
+        
+    Returns:
+        dict: Statistics for the department
+    """
+    try:
+        # Set default date range if not provided
+        if not end_date:
+            end_date = datetime.now().date()
+        
+        if not start_date:
+            start_date = end_date - timedelta(days=30)
+        
+        # Get attendance records for the department
+        records = get_attendance_records(
+            start_date=start_date,
+            end_date=end_date,
+            department=department
+        )
+        
+        # Count incidents by type
+        late_starts = sum(1 for r in records if r.status_type == 'LATE_START')
+        early_ends = sum(1 for r in records if r.status_type == 'EARLY_END')
+        not_on_job = sum(1 for r in records if r.status_type == 'NOT_ON_JOB')
+        total_incidents = late_starts + early_ends + not_on_job
+        
+        # Get problem drivers
+        problem_drivers = {}
+        for record in records:
+            driver_name = record.driver.name if record.driver else 'Unknown'
+            if driver_name not in problem_drivers:
+                problem_drivers[driver_name] = 0
+            problem_drivers[driver_name] += 1
+        
+        # Sort drivers by incident count
+        problem_drivers = dict(sorted(problem_drivers.items(), key=lambda x: x[1], reverse=True))
+        
+        # Get problem job sites
+        problem_sites = {}
+        for record in records:
+            site_name = record.job_site.name if record.job_site else 'Unknown'
+            if site_name not in problem_sites:
+                problem_sites[site_name] = 0
+            problem_sites[site_name] += 1
+        
+        # Sort job sites by incident count
+        problem_sites = dict(sorted(problem_sites.items(), key=lambda x: x[1], reverse=True))
+        
+        # Calculate recent trend
+        recent_date = end_date - timedelta(days=7)
+        recent_records = [r for r in records if r.report_date >= recent_date]
+        recent_incidents = len(recent_records)
+        
+        return {
+            'department': department,
+            'stats': {
+                'total_incidents': total_incidents,
+                'late_starts': late_starts,
+                'early_ends': early_ends,
+                'not_on_job': not_on_job,
+                'recent_incidents': recent_incidents,
+                'problem_drivers': problem_drivers,
+                'problem_sites': problem_sites,
+                'start_date': start_date,
+                'end_date': end_date
+            }
+        }
+    
+    except Exception as e:
+        logger.error(f"Error getting department stats: {e}")
+        return None
 
 def update_attendance_trends(report_date):
     """
-    Update attendance trend summary data for a given date
+    Update attendance trends for a specific date
+    
+    This function calculates and updates trend data for:
+    - Individual drivers
+    - Job sites
+    - Departments
+    - Overall system
     
     Args:
-        report_date (datetime): Report date
+        report_date (date): Report date
         
     Returns:
-        bool: Success or failure
+        bool: True if update was successful, False otherwise
     """
     try:
-        # Calculate counts for each status type
-        late_start_count = AttendanceRecord.query.filter(
-            AttendanceRecord.report_date == report_date,
-            AttendanceRecord.status_type == 'LATE_START'
-        ).count()
+        logger.info(f"Updating attendance trends for {report_date}")
         
-        early_end_count = AttendanceRecord.query.filter(
-            AttendanceRecord.report_date == report_date,
-            AttendanceRecord.status_type == 'EARLY_END'
-        ).count()
+        # Get attendance records for the date
+        records = get_attendance_records(
+            start_date=report_date,
+            end_date=report_date
+        )
         
-        not_on_job_count = AttendanceRecord.query.filter(
-            AttendanceRecord.report_date == report_date,
-            AttendanceRecord.status_type == 'NOT_ON_JOB'
-        ).count()
+        # Initialize counters
+        overall_late_start = 0
+        overall_early_end = 0
+        overall_not_on_job = 0
         
-        # Update or create trend records
-        for status_type, count in [
-            ('LATE_START', late_start_count),
-            ('EARLY_END', early_end_count),
-            ('NOT_ON_JOB', not_on_job_count)
-        ]:
-            # Check if trend record exists
+        # Process driver trends
+        drivers_processed = set()
+        for record in records:
+            # Skip if driver already processed for this date
+            if record.driver_id in drivers_processed:
+                continue
+                
+            drivers_processed.add(record.driver_id)
+            
+            # Get all records for this driver on this date
+            driver_records = [r for r in records if r.driver_id == record.driver_id]
+            
+            # Count incident types
+            late_starts = sum(1 for r in driver_records if r.status_type == 'LATE_START')
+            early_ends = sum(1 for r in driver_records if r.status_type == 'EARLY_END')
+            not_on_job = sum(1 for r in driver_records if r.status_type == 'NOT_ON_JOB')
+            total = late_starts + early_ends + not_on_job
+            
+            # Add to overall counts
+            overall_late_start += late_starts
+            overall_early_end += early_ends
+            overall_not_on_job += not_on_job
+            
+            # Get driver for department info
+            driver = Driver.query.get(record.driver_id)
+            department = driver.department if driver else None
+            
+            # Get previous week data for comparison
+            prev_week_date = report_date - timedelta(days=7)
+            prev_week_trend = AttendanceTrend.query.filter_by(
+                trend_date=prev_week_date,
+                trend_type='DRIVER',
+                driver_id=record.driver_id
+            ).first()
+            
+            # Get previous month data for comparison
+            prev_month_date = report_date - timedelta(days=30)
+            prev_month_trend = AttendanceTrend.query.filter_by(
+                trend_date=prev_month_date,
+                trend_type='DRIVER',
+                driver_id=record.driver_id
+            ).first()
+            
+            # Calculate week-over-week and month-over-month changes
+            wow_change = None
+            if prev_week_trend and prev_week_trend.total_incidents > 0:
+                wow_change = (total - prev_week_trend.total_incidents) / prev_week_trend.total_incidents
+                
+            mom_change = None
+            if prev_month_trend and prev_month_trend.total_incidents > 0:
+                mom_change = (total - prev_month_trend.total_incidents) / prev_month_trend.total_incidents
+            
+            # Detect recurring patterns
+            recurring_pattern = False
+            pattern_description = None
+            
+            # Check for consistent issues on same day of week
+            day_of_week = report_date.weekday()
+            last_4_weeks = [report_date - timedelta(days=7*i) for i in range(1, 5)]
+            
+            same_day_trends = []
+            for past_date in last_4_weeks:
+                past_trend = AttendanceTrend.query.filter_by(
+                    trend_type='DRIVER',
+                    driver_id=record.driver_id
+                ).filter(
+                    AttendanceTrend.trend_date >= past_date,
+                    AttendanceTrend.trend_date < past_date + timedelta(days=1)
+                ).first()
+                
+                if past_trend:
+                    same_day_trends.append(past_trend)
+            
+            # Check if there are incidents for at least 3 of the past 4 same days of week
+            if len(same_day_trends) >= 3 and all(t.total_incidents > 0 for t in same_day_trends):
+                day_names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+                recurring_pattern = True
+                pattern_description = f"Recurring issues on {day_names[day_of_week]}"
+            
+            # Update or create trend record
             trend = AttendanceTrend.query.filter_by(
                 trend_date=report_date,
-                trend_type='DAILY',
-                status_type=status_type
+                trend_type='DRIVER',
+                driver_id=record.driver_id
             ).first()
             
             if trend:
-                trend.count = count
-                db.session.commit()
+                # Update existing trend
+                trend.late_start_count = late_starts
+                trend.early_end_count = early_ends
+                trend.not_on_job_count = not_on_job
+                trend.total_incidents = total
+                trend.week_over_week_change = wow_change
+                trend.month_over_month_change = mom_change
+                trend.recurring_pattern = recurring_pattern
+                trend.pattern_description = pattern_description
+                trend.department = department
+                trend.updated_at = datetime.utcnow()
             else:
+                # Create new trend
                 trend = AttendanceTrend(
                     trend_date=report_date,
-                    trend_type='DAILY',
-                    status_type=status_type,
-                    count=count
+                    trend_type='DRIVER',
+                    driver_id=record.driver_id,
+                    late_start_count=late_starts,
+                    early_end_count=early_ends,
+                    not_on_job_count=not_on_job,
+                    total_incidents=total,
+                    week_over_week_change=wow_change,
+                    month_over_month_change=mom_change,
+                    recurring_pattern=recurring_pattern,
+                    pattern_description=pattern_description,
+                    department=department,
+                    created_at=datetime.utcnow(),
+                    updated_at=datetime.utcnow()
                 )
                 db.session.add(trend)
-                db.session.commit()
-        
-        # Calculate and update weekly trends if this is the last day of the week
-        if report_date.weekday() == 6:  # Sunday (0=Monday, 6=Sunday)
-            week_start = report_date - timedelta(days=6)
             
-            for status_type in ['LATE_START', 'EARLY_END', 'NOT_ON_JOB']:
-                weekly_count = AttendanceRecord.query.filter(
-                    AttendanceRecord.report_date.between(week_start, report_date),
-                    AttendanceRecord.status_type == status_type
-                ).count()
-                
-                # Create or update weekly trend
-                weekly_trend = AttendanceTrend.query.filter_by(
-                    trend_date=report_date,
-                    trend_type='WEEKLY',
-                    status_type=status_type
-                ).first()
-                
-                if weekly_trend:
-                    weekly_trend.count = weekly_count
-                    db.session.commit()
-                else:
-                    weekly_trend = AttendanceTrend(
-                        trend_date=report_date,
-                        trend_type='WEEKLY',
-                        status_type=status_type,
-                        count=weekly_count
-                    )
-                    db.session.add(weekly_trend)
-                    db.session.commit()
+            db.session.commit()
         
-        # Calculate and update monthly trends if this is the last day of the month
-        last_day_of_month = (report_date.replace(day=28) + timedelta(days=4)).replace(day=1) - timedelta(days=1)
-        if report_date.day == last_day_of_month.day:
-            month_start = report_date.replace(day=1)
-            
-            for status_type in ['LATE_START', 'EARLY_END', 'NOT_ON_JOB']:
-                monthly_count = AttendanceRecord.query.filter(
-                    AttendanceRecord.report_date.between(month_start, report_date),
-                    AttendanceRecord.status_type == status_type
-                ).count()
-                
-                # Create or update monthly trend
-                monthly_trend = AttendanceTrend.query.filter_by(
-                    trend_date=report_date,
-                    trend_type='MONTHLY',
-                    status_type=status_type
-                ).first()
-                
-                if monthly_trend:
-                    monthly_trend.count = monthly_count
-                    db.session.commit()
-                else:
-                    monthly_trend = AttendanceTrend(
-                        trend_date=report_date,
-                        trend_type='MONTHLY',
-                        status_type=status_type,
-                        count=monthly_count
-                    )
-                    db.session.add(monthly_trend)
-                    db.session.commit()
-        
-        return True
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"Error updating attendance trends: {e}")
-        return False
-
-def get_attendance_trends(start_date, end_date, status_type=None, driver_id=None, job_site_id=None):
-    """
-    Get attendance trends for a date range
-    
-    Args:
-        start_date (datetime): Start date
-        end_date (datetime): End date
-        status_type (str, optional): Filter by status type
-        driver_id (int, optional): Filter by driver ID
-        job_site_id (int, optional): Filter by job site ID
-        
-    Returns:
-        dict: Dictionary with trend data
-    """
-    try:
-        query = db.session.query(
-            func.date(AttendanceRecord.report_date).label('date'),
-            func.count(AttendanceRecord.id).label('count')
-        ).filter(
-            AttendanceRecord.report_date.between(start_date, end_date)
-        ).group_by(
-            func.date(AttendanceRecord.report_date)
-        )
-        
-        if status_type and status_type != 'all':
-            query = query.filter(AttendanceRecord.status_type == status_type)
-        
-        if driver_id and driver_id != 'all':
-            query = query.filter(AttendanceRecord.driver_id == driver_id)
-            
-        if job_site_id and job_site_id != 'all':
-            query = query.filter(AttendanceRecord.job_site_id == job_site_id)
-            
-        results = query.all()
-        
-        dates = [r.date for r in results]
-        counts = [r.count for r in results]
-        
-        # Fill in missing dates with zero counts
-        all_dates = []
-        current_date = start_date
-        while current_date <= end_date:
-            all_dates.append(current_date.date() if isinstance(current_date, datetime) else current_date)
-            current_date += timedelta(days=1)
-        
-        filled_counts = []
-        for date in all_dates:
-            if date in dates:
-                idx = dates.index(date)
-                filled_counts.append(counts[idx])
-            else:
-                filled_counts.append(0)
-        
-        return {
-            'dates': all_dates,
-            'counts': filled_counts,
-            'total': sum(filled_counts),
-            'average': round(sum(filled_counts) / len(filled_counts), 2) if filled_counts else 0
-        }
-    except Exception as e:
-        logger.error(f"Error getting attendance trends: {e}")
-        return {
-            'dates': [],
-            'counts': [],
-            'total': 0,
-            'average': 0
-        }
-
-def get_top_drivers_with_issues(start_date, end_date, status_type='LATE_START', limit=10):
-    """
-    Get top drivers with attendance issues of a specific type
-    
-    Args:
-        start_date (datetime): Start date
-        end_date (datetime): End date
-        status_type (str): Status type (LATE_START, EARLY_END, NOT_ON_JOB)
-        limit (int, optional): Limit number of results
-        
-    Returns:
-        list: List of drivers with issue counts and trends
-    """
-    try:
-        # Get current period counts
-        current_results = db.session.query(
-            AttendanceRecord.driver_id,
-            func.count(AttendanceRecord.id).label('issue_count')
-        ).filter(
-            AttendanceRecord.report_date.between(start_date, end_date),
-            AttendanceRecord.status_type == status_type
-        ).group_by(
-            AttendanceRecord.driver_id
-        ).order_by(
-            desc('issue_count')
-        ).limit(limit).all()
-        
-        # Calculate previous period for trend comparison
-        period_length = (end_date - start_date).days + 1
-        prev_end_date = start_date - timedelta(days=1)
-        prev_start_date = prev_end_date - timedelta(days=period_length)
-        
-        # Get driver details and calculate trends
-        driver_data = []
-        for r in current_results:
-            driver = Driver.query.get(r.driver_id)
-            
-            if not driver:
+        # Process job site trends
+        sites_processed = set()
+        for record in records:
+            # Skip if job site already processed for this date
+            if record.job_site_id in sites_processed:
                 continue
                 
-            # Get asset details
-            asset = Asset.query.get(driver.asset_id) if driver.asset_id else None
-            asset_identifier = asset.asset_identifier if asset else 'Unknown'
+            sites_processed.add(record.job_site_id)
             
-            # Get previous period count for this driver
-            prev_count = db.session.query(
-                func.count(AttendanceRecord.id)
-            ).filter(
-                AttendanceRecord.report_date.between(prev_start_date, prev_end_date),
-                AttendanceRecord.status_type == status_type,
-                AttendanceRecord.driver_id == r.driver_id
-            ).scalar() or 0
+            # Get all records for this job site on this date
+            site_records = [r for r in records if r.job_site_id == record.job_site_id]
             
-            # Calculate trend percentage
-            if prev_count == 0:
-                trend = 100 if r.issue_count > 0 else 0
-            else:
-                trend = round(((r.issue_count - prev_count) / prev_count) * 100, 1)
+            # Count incident types
+            late_starts = sum(1 for r in site_records if r.status_type == 'LATE_START')
+            early_ends = sum(1 for r in site_records if r.status_type == 'EARLY_END')
+            not_on_job = sum(1 for r in site_records if r.status_type == 'NOT_ON_JOB')
+            total = late_starts + early_ends + not_on_job
             
-            # Get last incident date
-            last_incident = db.session.query(
-                AttendanceRecord.report_date
-            ).filter(
-                AttendanceRecord.driver_id == r.driver_id,
-                AttendanceRecord.status_type == status_type
-            ).order_by(
-                AttendanceRecord.report_date.desc()
+            # Get previous week data for comparison
+            prev_week_date = report_date - timedelta(days=7)
+            prev_week_trend = AttendanceTrend.query.filter_by(
+                trend_date=prev_week_date,
+                trend_type='JOB_SITE',
+                job_site_id=record.job_site_id
             ).first()
             
-            last_incident_date = last_incident.report_date.strftime('%Y-%m-%d') if last_incident else 'Unknown'
+            # Get previous month data for comparison
+            prev_month_date = report_date - timedelta(days=30)
+            prev_month_trend = AttendanceTrend.query.filter_by(
+                trend_date=prev_month_date,
+                trend_type='JOB_SITE',
+                job_site_id=record.job_site_id
+            ).first()
             
-            driver_data.append({
-                'id': r.driver_id,
-                'name': driver.name,
-                'asset': {'asset_identifier': asset_identifier},
-                'department': driver.department or 'Unknown',
-                'incident_count': r.issue_count,
-                'last_incident': last_incident_date,
-                'trend': trend
-            })
+            # Calculate week-over-week and month-over-month changes
+            wow_change = None
+            if prev_week_trend and prev_week_trend.total_incidents > 0:
+                wow_change = (total - prev_week_trend.total_incidents) / prev_week_trend.total_incidents
+                
+            mom_change = None
+            if prev_month_trend and prev_month_trend.total_incidents > 0:
+                mom_change = (total - prev_month_trend.total_incidents) / prev_month_trend.total_incidents
+            
+            # Update or create trend record
+            trend = AttendanceTrend.query.filter_by(
+                trend_date=report_date,
+                trend_type='JOB_SITE',
+                job_site_id=record.job_site_id
+            ).first()
+            
+            if trend:
+                # Update existing trend
+                trend.late_start_count = late_starts
+                trend.early_end_count = early_ends
+                trend.not_on_job_count = not_on_job
+                trend.total_incidents = total
+                trend.week_over_week_change = wow_change
+                trend.month_over_month_change = mom_change
+                trend.updated_at = datetime.utcnow()
+            else:
+                # Create new trend
+                trend = AttendanceTrend(
+                    trend_date=report_date,
+                    trend_type='JOB_SITE',
+                    job_site_id=record.job_site_id,
+                    late_start_count=late_starts,
+                    early_end_count=early_ends,
+                    not_on_job_count=not_on_job,
+                    total_incidents=total,
+                    week_over_week_change=wow_change,
+                    month_over_month_change=mom_change,
+                    created_at=datetime.utcnow(),
+                    updated_at=datetime.utcnow()
+                )
+                db.session.add(trend)
+            
+            db.session.commit()
         
-        return driver_data
+        # Process department trends
+        departments = set()
+        for record in records:
+            driver = Driver.query.get(record.driver_id)
+            if driver and driver.department:
+                departments.add(driver.department)
+        
+        for department in departments:
+            # Get all records for this department on this date
+            dept_records = []
+            for record in records:
+                driver = Driver.query.get(record.driver_id)
+                if driver and driver.department == department:
+                    dept_records.append(record)
+            
+            # Count incident types
+            late_starts = sum(1 for r in dept_records if r.status_type == 'LATE_START')
+            early_ends = sum(1 for r in dept_records if r.status_type == 'EARLY_END')
+            not_on_job = sum(1 for r in dept_records if r.status_type == 'NOT_ON_JOB')
+            total = late_starts + early_ends + not_on_job
+            
+            # Get previous week data for comparison
+            prev_week_date = report_date - timedelta(days=7)
+            prev_week_trend = AttendanceTrend.query.filter_by(
+                trend_date=prev_week_date,
+                trend_type='DEPARTMENT',
+                department=department
+            ).first()
+            
+            # Get previous month data for comparison
+            prev_month_date = report_date - timedelta(days=30)
+            prev_month_trend = AttendanceTrend.query.filter_by(
+                trend_date=prev_month_date,
+                trend_type='DEPARTMENT',
+                department=department
+            ).first()
+            
+            # Calculate week-over-week and month-over-month changes
+            wow_change = None
+            if prev_week_trend and prev_week_trend.total_incidents > 0:
+                wow_change = (total - prev_week_trend.total_incidents) / prev_week_trend.total_incidents
+                
+            mom_change = None
+            if prev_month_trend and prev_month_trend.total_incidents > 0:
+                mom_change = (total - prev_month_trend.total_incidents) / prev_month_trend.total_incidents
+            
+            # Update or create trend record
+            trend = AttendanceTrend.query.filter_by(
+                trend_date=report_date,
+                trend_type='DEPARTMENT',
+                department=department
+            ).first()
+            
+            if trend:
+                # Update existing trend
+                trend.late_start_count = late_starts
+                trend.early_end_count = early_ends
+                trend.not_on_job_count = not_on_job
+                trend.total_incidents = total
+                trend.week_over_week_change = wow_change
+                trend.month_over_month_change = mom_change
+                trend.updated_at = datetime.utcnow()
+            else:
+                # Create new trend
+                trend = AttendanceTrend(
+                    trend_date=report_date,
+                    trend_type='DEPARTMENT',
+                    department=department,
+                    late_start_count=late_starts,
+                    early_end_count=early_ends,
+                    not_on_job_count=not_on_job,
+                    total_incidents=total,
+                    week_over_week_change=wow_change,
+                    month_over_month_change=mom_change,
+                    created_at=datetime.utcnow(),
+                    updated_at=datetime.utcnow()
+                )
+                db.session.add(trend)
+            
+            db.session.commit()
+        
+        # Process overall trends
+        total_incidents = overall_late_start + overall_early_end + overall_not_on_job
+        
+        # Get previous week data for comparison
+        prev_week_date = report_date - timedelta(days=7)
+        prev_week_trend = AttendanceTrend.query.filter_by(
+            trend_date=prev_week_date,
+            trend_type='OVERALL'
+        ).first()
+        
+        # Get previous month data for comparison
+        prev_month_date = report_date - timedelta(days=30)
+        prev_month_trend = AttendanceTrend.query.filter_by(
+            trend_date=prev_month_date,
+            trend_type='OVERALL'
+        ).first()
+        
+        # Calculate week-over-week and month-over-month changes
+        wow_change = None
+        if prev_week_trend and prev_week_trend.total_incidents > 0:
+            wow_change = (total_incidents - prev_week_trend.total_incidents) / prev_week_trend.total_incidents
+            
+        mom_change = None
+        if prev_month_trend and prev_month_trend.total_incidents > 0:
+            mom_change = (total_incidents - prev_month_trend.total_incidents) / prev_month_trend.total_incidents
+        
+        # Update or create overall trend record
+        trend = AttendanceTrend.query.filter_by(
+            trend_date=report_date,
+            trend_type='OVERALL'
+        ).first()
+        
+        if trend:
+            # Update existing trend
+            trend.late_start_count = overall_late_start
+            trend.early_end_count = overall_early_end
+            trend.not_on_job_count = overall_not_on_job
+            trend.total_incidents = total_incidents
+            trend.week_over_week_change = wow_change
+            trend.month_over_month_change = mom_change
+            trend.updated_at = datetime.utcnow()
+        else:
+            # Create new trend
+            trend = AttendanceTrend(
+                trend_date=report_date,
+                trend_type='OVERALL',
+                late_start_count=overall_late_start,
+                early_end_count=overall_early_end,
+                not_on_job_count=overall_not_on_job,
+                total_incidents=total_incidents,
+                week_over_week_change=wow_change,
+                month_over_month_change=mom_change,
+                created_at=datetime.utcnow(),
+                updated_at=datetime.utcnow()
+            )
+            db.session.add(trend)
+        
+        db.session.commit()
+        
+        return True
+    
     except Exception as e:
-        logger.error(f"Error getting top drivers with issues: {e}")
-        return []
+        logger.error(f"Error updating attendance trends: {e}")
+        db.session.rollback()
+        return False
 
-def get_attendance_by_job_site(start_date, end_date, limit=5):
+def get_attendance_trends(trend_type='OVERALL', entity_id=None, department=None, 
+                        start_date=None, end_date=None):
     """
-    Get attendance issues grouped by job site
+    Get attendance trends
     
     Args:
-        start_date (datetime): Start date
-        end_date (datetime): End date
-        limit (int): Maximum number of job sites to return
+        trend_type (str, optional): Trend type ('OVERALL', 'DRIVER', 'JOB_SITE', 'DEPARTMENT')
+        entity_id (int, optional): Entity ID (driver_id or job_site_id)
+        department (str, optional): Department name
+        start_date (date, optional): Start date for filter
+        end_date (date, optional): End date for filter
         
     Returns:
-        dict: Dictionary with job site attendance data
+        list: List of AttendanceTrend objects
     """
     try:
-        # Get counts by job site and status type
-        results = db.session.query(
-            AttendanceRecord.job_site_id,
-            AttendanceRecord.status_type,
-            func.count(AttendanceRecord.id).label('count')
-        ).filter(
-            AttendanceRecord.report_date.between(start_date, end_date)
-        ).group_by(
-            AttendanceRecord.job_site_id,
-            AttendanceRecord.status_type
-        ).all()
+        # Set default date range if not provided
+        if not end_date:
+            end_date = datetime.now().date()
         
-        # Group by job site
-        job_site_data = {}
-        for r in results:
-            job_site = JobSite.query.get(r.job_site_id)
-            
-            if not job_site:
-                continue
-                
-            job_site_name = job_site.name
-            
-            if job_site_name not in job_site_data:
-                job_site_data[job_site_name] = {
-                    'job_site_id': r.job_site_id,
-                    'job_site_name': job_site_name,
-                    'LATE_START': 0,
-                    'EARLY_END': 0,
-                    'NOT_ON_JOB': 0,
-                    'total': 0
-                }
-            
-            job_site_data[job_site_name][r.status_type] = r.count
-            job_site_data[job_site_name]['total'] += r.count
+        if not start_date:
+            start_date = end_date - timedelta(days=30)
         
-        # Convert to list and sort by total
-        job_sites_list = list(job_site_data.values())
-        job_sites_list.sort(key=lambda x: x['total'], reverse=True)
+        # Start with base query
+        query = AttendanceTrend.query.filter_by(trend_type=trend_type)
         
-        # Limit to top N job sites
-        top_job_sites = job_sites_list[:limit]
+        # Apply entity filters
+        if trend_type == 'DRIVER' and entity_id:
+            query = query.filter_by(driver_id=entity_id)
+        elif trend_type == 'JOB_SITE' and entity_id:
+            query = query.filter_by(job_site_id=entity_id)
+        elif trend_type == 'DEPARTMENT' and department:
+            query = query.filter_by(department=department)
         
-        # Prepare data for chart
-        labels = [site['job_site_name'] for site in top_job_sites]
-        late_start_data = [site['LATE_START'] for site in top_job_sites]
-        early_end_data = [site['EARLY_END'] for site in top_job_sites]
-        not_on_job_data = [site['NOT_ON_JOB'] for site in top_job_sites]
+        # Apply date range filter
+        query = query.filter(
+            AttendanceTrend.trend_date >= start_date,
+            AttendanceTrend.trend_date <= end_date
+        )
         
-        return {
-            'labels': labels,
-            'late_start_data': late_start_data,
-            'early_end_data': early_end_data,
-            'not_on_job_data': not_on_job_data,
-            'job_sites': top_job_sites
-        }
+        # Order by date (oldest first for charting)
+        query = query.order_by(AttendanceTrend.trend_date.asc())
+        
+        return query.all()
+    
     except Exception as e:
-        logger.error(f"Error getting attendance by job site: {e}")
-        return {
-            'labels': [],
-            'late_start_data': [],
-            'early_end_data': [],
-            'not_on_job_data': [],
-            'job_sites': []
-        }
+        logger.error(f"Error getting attendance trends: {e}")
+        return []
 
-def get_weekly_comparison_data(status_type, weeks=4):
+def get_problem_entities(trend_type='DRIVER', min_incidents=5, period_days=30):
     """
-    Get weekly comparison data for a specific status type
+    Get entities with recurring attendance issues
     
     Args:
-        status_type (str): Status type (LATE_START, EARLY_END, NOT_ON_JOB)
-        weeks (int): Number of weeks to compare
+        trend_type (str, optional): Entity type ('DRIVER', 'JOB_SITE', 'DEPARTMENT')
+        min_incidents (int, optional): Minimum number of incidents to be considered a problem
+        period_days (int, optional): Number of days to look back
         
     Returns:
-        dict: Dictionary with weekly comparison data
+        list: List of problem entities with statistics
     """
     try:
         end_date = datetime.now().date()
+        start_date = end_date - timedelta(days=period_days)
         
-        # Get data for each week
-        weekly_data = []
-        labels = []
-        counts = []
+        # Get trends for the period
+        trends = get_attendance_trends(
+            trend_type=trend_type,
+            start_date=start_date,
+            end_date=end_date
+        )
         
-        for i in range(weeks):
-            week_end = end_date - timedelta(days=(7 * i + end_date.weekday()))
-            week_start = week_end - timedelta(days=6)
-            
-            # Format week label
-            week_label = f"Week {weeks-i}"
-            
-            # Try to get from pre-aggregated weekly trends first
-            weekly_trend = AttendanceTrend.query.filter_by(
-                trend_date=week_end,
-                trend_type='WEEKLY',
-                status_type=status_type
-            ).first()
-            
-            if weekly_trend:
-                count = weekly_trend.count
-            else:
-                # Calculate on-the-fly if not pre-aggregated
-                count = AttendanceRecord.query.filter(
-                    AttendanceRecord.report_date.between(week_start, week_end),
-                    AttendanceRecord.status_type == status_type
-                ).count()
-            
-            weekly_data.append({
-                'week': week_label,
-                'start_date': week_start.strftime('%Y-%m-%d'),
-                'end_date': week_end.strftime('%Y-%m-%d'),
-                'count': count
-            })
-            
-            labels.append(week_label)
-            counts.append(count)
+        # Group by entity
+        entities = {}
         
-        return {
-            'weekly_data': weekly_data,
-            'labels': labels,
-            'counts': counts
-        }
+        for trend in trends:
+            # Get entity ID based on trend type
+            entity_id = None
+            entity_name = None
+            
+            if trend_type == 'DRIVER':
+                entity_id = trend.driver_id
+                driver = Driver.query.get(entity_id)
+                entity_name = driver.name if driver else f"Driver {entity_id}"
+            elif trend_type == 'JOB_SITE':
+                entity_id = trend.job_site_id
+                job_site = JobSite.query.get(entity_id)
+                entity_name = job_site.name if job_site else f"Job Site {entity_id}"
+            elif trend_type == 'DEPARTMENT':
+                entity_id = trend.department
+                entity_name = trend.department
+            
+            if not entity_id:
+                continue
+            
+            # Initialize entity data
+            if entity_id not in entities:
+                entities[entity_id] = {
+                    'id': entity_id,
+                    'name': entity_name,
+                    'total_incidents': 0,
+                    'late_starts': 0,
+                    'early_ends': 0,
+                    'not_on_job': 0,
+                    'days_with_incidents': 0,
+                    'recurring_pattern': False,
+                    'pattern_description': None,
+                    'recent_trend': 0  # positive = improving, negative = worsening
+                }
+            
+            # Add trend data
+            entities[entity_id]['total_incidents'] += trend.total_incidents
+            entities[entity_id]['late_starts'] += trend.late_start_count
+            entities[entity_id]['early_ends'] += trend.early_end_count
+            entities[entity_id]['not_on_job'] += trend.not_on_job_count
+            
+            if trend.total_incidents > 0:
+                entities[entity_id]['days_with_incidents'] += 1
+            
+            if trend.recurring_pattern:
+                entities[entity_id]['recurring_pattern'] = True
+                entities[entity_id]['pattern_description'] = trend.pattern_description
+            
+            # Track most recent trend change
+            if trend.week_over_week_change is not None:
+                entities[entity_id]['recent_trend'] = trend.week_over_week_change
+        
+        # Filter to entities with minimum incidents
+        problem_entities = [e for e in entities.values() if e['total_incidents'] >= min_incidents]
+        
+        # Sort by total incidents (most problematic first)
+        problem_entities.sort(key=lambda x: x['total_incidents'], reverse=True)
+        
+        return problem_entities
+    
     except Exception as e:
-        logger.error(f"Error getting weekly comparison data: {e}")
-        return {
-            'weekly_data': [],
-            'labels': [],
-            'counts': []
-        }
+        logger.error(f"Error getting problem entities: {e}")
+        return []
 
-def calculate_trend_percentage(current_count, previous_count):
+def generate_attendance_report(start_date=None, end_date=None):
     """
-    Calculate trend percentage change
+    Generate a comprehensive attendance report
     
     Args:
-        current_count (int): Current count
-        previous_count (int): Previous count
+        start_date (date, optional): Start date for report
+        end_date (date, optional): End date for report
         
     Returns:
-        float: Percentage change
-    """
-    if previous_count == 0:
-        return 100 if current_count > 0 else 0
-    
-    return round(((current_count - previous_count) / previous_count) * 100, 1)
-
-def get_trend_summary():
-    """
-    Get summary of attendance trends
-    
-    Returns:
-        dict: Dictionary with trend summary
+        dict: Report data
     """
     try:
-        today = datetime.now()
-        yesterday = today - timedelta(days=1)
-        last_week = today - timedelta(days=7)
-        last_month = today - timedelta(days=30)
+        # Set default date range if not provided
+        if not end_date:
+            end_date = datetime.now().date()
         
-        # Get counts for different periods
-        yesterday_data = {
-            'late_start': get_attendance_trends(yesterday, yesterday, status_type='LATE_START')['total'],
-            'early_end': get_attendance_trends(yesterday, yesterday, status_type='EARLY_END')['total'],
-            'not_on_job': get_attendance_trends(yesterday, yesterday, status_type='NOT_ON_JOB')['total']
-        }
+        if not start_date:
+            start_date = end_date - timedelta(days=30)
         
-        last_week_data = {
-            'late_start': get_attendance_trends(last_week, yesterday, status_type='LATE_START')['total'],
-            'early_end': get_attendance_trends(last_week, yesterday, status_type='EARLY_END')['total'],
-            'not_on_job': get_attendance_trends(last_week, yesterday, status_type='NOT_ON_JOB')['total']
-        }
+        # Get overall trends
+        overall_trends = get_attendance_trends(
+            trend_type='OVERALL',
+            start_date=start_date,
+            end_date=end_date
+        )
         
-        last_month_data = {
-            'late_start': get_attendance_trends(last_month, yesterday, status_type='LATE_START')['total'],
-            'early_end': get_attendance_trends(last_month, yesterday, status_type='EARLY_END')['total'],
-            'not_on_job': get_attendance_trends(last_month, yesterday, status_type='NOT_ON_JOB')['total']
-        }
+        # Calculate overall statistics
+        total_late_starts = sum(t.late_start_count for t in overall_trends)
+        total_early_ends = sum(t.early_end_count for t in overall_trends)
+        total_not_on_job = sum(t.not_on_job_count for t in overall_trends)
+        total_incidents = sum(t.total_incidents for t in overall_trends)
         
-        # Get previous periods for comparison
-        previous_week = last_week - timedelta(days=7)
-        previous_week_data = {
-            'late_start': get_attendance_trends(previous_week, last_week, status_type='LATE_START')['total'],
-            'early_end': get_attendance_trends(previous_week, last_week, status_type='EARLY_END')['total'],
-            'not_on_job': get_attendance_trends(previous_week, last_week, status_type='NOT_ON_JOB')['total']
-        }
+        # Get department trends
+        department_trends = {}
+        departments = db.session.query(Driver.department).distinct().all()
         
-        previous_month = last_month - timedelta(days=30)
-        previous_month_data = {
-            'late_start': get_attendance_trends(previous_month, last_month, status_type='LATE_START')['total'],
-            'early_end': get_attendance_trends(previous_month, last_month, status_type='EARLY_END')['total'],
-            'not_on_job': get_attendance_trends(previous_month, last_month, status_type='NOT_ON_JOB')['total']
-        }
+        for dept in departments:
+            department = dept[0]
+            if not department:
+                continue
+                
+            dept_trends = get_attendance_trends(
+                trend_type='DEPARTMENT',
+                department=department,
+                start_date=start_date,
+                end_date=end_date
+            )
+            
+            if dept_trends:
+                department_trends[department] = {
+                    'trends': dept_trends,
+                    'total_incidents': sum(t.total_incidents for t in dept_trends),
+                    'late_starts': sum(t.late_start_count for t in dept_trends),
+                    'early_ends': sum(t.early_end_count for t in dept_trends),
+                    'not_on_job': sum(t.not_on_job_count for t in dept_trends)
+                }
         
-        # Calculate week-over-week and month-over-month trends
-        wow_trends = {
-            'late_start': calculate_trend_percentage(last_week_data['late_start'], previous_week_data['late_start']),
-            'early_end': calculate_trend_percentage(last_week_data['early_end'], previous_week_data['early_end']),
-            'not_on_job': calculate_trend_percentage(last_week_data['not_on_job'], previous_week_data['not_on_job'])
-        }
+        # Get problem drivers
+        problem_drivers = get_problem_entities(
+            trend_type='DRIVER',
+            min_incidents=3,
+            period_days=(end_date - start_date).days
+        )
         
-        mom_trends = {
-            'late_start': calculate_trend_percentage(last_month_data['late_start'], previous_month_data['late_start']),
-            'early_end': calculate_trend_percentage(last_month_data['early_end'], previous_month_data['early_end']),
-            'not_on_job': calculate_trend_percentage(last_month_data['not_on_job'], previous_month_data['not_on_job'])
-        }
+        # Get problem job sites
+        problem_sites = get_problem_entities(
+            trend_type='JOB_SITE',
+            min_incidents=3,
+            period_days=(end_date - start_date).days
+        )
+        
+        # Prepare chart data
+        dates = [t.trend_date.strftime('%Y-%m-%d') for t in overall_trends]
+        late_start_data = [t.late_start_count for t in overall_trends]
+        early_end_data = [t.early_end_count for t in overall_trends]
+        not_on_job_data = [t.not_on_job_count for t in overall_trends]
         
         return {
-            'yesterday': yesterday_data,
-            'last_week': last_week_data,
-            'last_month': last_month_data,
-            'wow_trends': wow_trends,
-            'mom_trends': mom_trends
+            'period': {
+                'start_date': start_date,
+                'end_date': end_date,
+                'days': (end_date - start_date).days + 1
+            },
+            'overall': {
+                'total_incidents': total_incidents,
+                'late_starts': total_late_starts,
+                'early_ends': total_early_ends,
+                'not_on_job': total_not_on_job,
+                'avg_per_day': total_incidents / len(overall_trends) if overall_trends else 0
+            },
+            'departments': department_trends,
+            'problem_drivers': problem_drivers[:10],  # Top 10
+            'problem_sites': problem_sites[:10],      # Top 10
+            'chart_data': {
+                'dates': dates,
+                'late_starts': late_start_data,
+                'early_ends': early_end_data,
+                'not_on_job': not_on_job_data
+            }
         }
+    
     except Exception as e:
-        logger.error(f"Error getting trend summary: {e}")
-        return {
-            'yesterday': {'late_start': 0, 'early_end': 0, 'not_on_job': 0},
-            'last_week': {'late_start': 0, 'early_end': 0, 'not_on_job': 0},
-            'last_month': {'late_start': 0, 'early_end': 0, 'not_on_job': 0},
-            'wow_trends': {'late_start': 0, 'early_end': 0, 'not_on_job': 0},
-            'mom_trends': {'late_start': 0, 'early_end': 0, 'not_on_job': 0}
-        }
+        logger.error(f"Error generating attendance report: {e}")
+        return None

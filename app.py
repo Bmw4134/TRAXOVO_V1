@@ -533,93 +533,74 @@ def gps_efficiency():
 @login_required
 def attendance_trends():
     """Display attendance trends and analytics"""
+    from models.attendance import Driver, JobSite, AttendanceRecord
+    from utils.attendance_analytics import (
+        get_trend_summary, 
+        get_top_drivers_with_issues, 
+        get_weekly_comparison_data, 
+        get_attendance_by_job_site,
+        get_attendance_trends
+    )
+    
     # Get filter parameters
-    date_range = request.args.get('date_range', '30')
+    date_range = int(request.args.get('date_range', '30'))
     status_type = request.args.get('status_type', 'all')
-    job_site = request.args.get('job_site', 'all')
+    job_site_id = request.args.get('job_site', 'all')
     
-    # For demo purposes, use placeholder data
-    # In production, this would use the attendance_analytics.py module
+    # Calculate date ranges for queries
+    end_date = datetime.now().date()
+    start_date = end_date - timedelta(days=date_range)
     
-    # Calculate trend data
-    trends = {
-        'yesterday': {
-            'late_start': 8,
-            'early_end': 4,
-            'not_on_job': 2
-        },
-        'last_week': {
-            'late_start': 26,
-            'early_end': 18,
-            'not_on_job': 9
-        },
-        'last_month': {
-            'late_start': 95,
-            'early_end': 62,
-            'not_on_job': 31
-        },
-        'wow_trends': {
-            'late_start': -12,
-            'early_end': 5,
-            'not_on_job': -8
-        },
-        'mom_trends': {
-            'late_start': -5,
-            'early_end': 2,
-            'not_on_job': -10
-        }
+    # Get trend summary data
+    trends = get_trend_summary()
+    
+    # Get chart data for attendance trends over time
+    all_trends_data = {}
+    for status in ['LATE_START', 'EARLY_END', 'NOT_ON_JOB']:
+        trend_data = get_attendance_trends(
+            start_date=datetime.now().date() - timedelta(days=7),
+            end_date=datetime.now().date(),
+            status_type=status
+        )
+        all_trends_data[status] = trend_data
+    
+    # Format trend data for chart
+    trend_dates = all_trends_data['LATE_START']['dates'][-7:]  # Last 7 days
+    chart_data = {
+        'labels': [d.strftime('%b %d') if isinstance(d, datetime) else d.strftime('%b %d') for d in trend_dates],
+        'late_start': all_trends_data['LATE_START']['counts'][-7:],
+        'early_end': all_trends_data['EARLY_END']['counts'][-7:],
+        'not_on_job': all_trends_data['NOT_ON_JOB']['counts'][-7:]
     }
     
-    # Sample top drivers with attendance issues
-    top_drivers = [
-        {
-            'id': 1,
-            'name': 'John Smith',
-            'asset': {'asset_identifier': 'ET-25'},
-            'department': 'Construction',
-            'incident_count': 7,
-            'last_incident': '2025-05-15',
-            'trend': 10
-        },
-        {
-            'id': 2,
-            'name': 'Michael Brown',
-            'asset': {'asset_identifier': 'ET-32'},
-            'department': 'Construction',
-            'incident_count': 5,
-            'last_incident': '2025-05-14',
-            'trend': -15
-        },
-        {
-            'id': 3,
-            'name': 'Robert Johnson',
-            'asset': {'asset_identifier': 'ET-18'},
-            'department': 'Construction',
-            'incident_count': 4,
-            'last_incident': '2025-05-13',
-            'trend': 0
-        }
-    ]
+    # Get weekly comparison data
+    weekly_comparison = get_weekly_comparison_data('LATE_START', weeks=4)
     
-    # Get total drivers for percentage calculations
-    total_drivers = 86
+    # Get top drivers with attendance issues
+    selected_status = status_type if status_type != 'all' else 'LATE_START'
+    top_drivers = get_top_drivers_with_issues(start_date, end_date, selected_status, limit=10)
+    
+    # Get attendance by job site
+    job_site_data = get_attendance_by_job_site(start_date, end_date, limit=5)
+    
+    # Get total drivers count for percentage calculations
+    total_drivers = Driver.query.filter_by(is_active=True).count() or 1
     
     # Get job sites for filter
-    job_sites = [
-        {'id': 1, 'name': 'Site A - 2022-023 Riverfront Bridge'},
-        {'id': 2, 'name': 'Site B - 2023-032 SH 345 Bridge'},
-        {'id': 3, 'name': 'Site C - 2024-015 Main St Expansion'}
-    ]
+    job_sites = JobSite.query.filter_by(is_active=True).order_by(JobSite.name).all()
     
     return render_template('reports/trends.html',
                           title="Attendance Trends",
                           trends=trends,
+                          chart_data=chart_data,
+                          weekly_comparison=weekly_comparison,
                           top_drivers=top_drivers,
+                          job_site_data=job_site_data,
                           total_drivers=total_drivers,
                           job_sites=job_sites,
-                          date_range=int(date_range),
+                          date_range=date_range,
                           status_type=status_type,
-                          job_site=job_site,
+                          job_site=job_site_id,
                           last_updated=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
 @app.route('/download_report/<path:report_path>')

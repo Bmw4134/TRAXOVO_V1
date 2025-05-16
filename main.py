@@ -236,6 +236,84 @@ def upload_timecard():
     except Exception as e:
         flash(f'Error uploading timecard: {str(e)}', 'danger')
         return redirect(url_for('reports'))
+        
+@app.route('/upload-pm-allocation', methods=['POST'])
+@login_required
+def upload_pm_allocation():
+    """Handle PM allocation file uploads"""
+    if 'original_file' not in request.files or 'updated_file' not in request.files:
+        flash('Both original and updated files are required', 'danger')
+        return redirect(url_for('reports'))
+        
+    original_file = request.files['original_file']
+    updated_file = request.files['updated_file']
+    region = request.form.get('region', 'all')
+    
+    if original_file.filename == '' or updated_file.filename == '':
+        flash('Both original and updated files are required', 'danger')
+        return redirect(url_for('reports'))
+        
+    if not original_file.filename.endswith(('.xlsx', '.xlsm', '.xls')) or not updated_file.filename.endswith(('.xlsx', '.xlsm', '.xls')):
+        flash('Invalid file format. Please upload Excel files.', 'danger')
+        return redirect(url_for('reports'))
+        
+    try:
+        # Create uploads directory if it doesn't exist
+        os.makedirs('uploads', exist_ok=True)
+        
+        # Save the files
+        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+        original_filename = f"pm_original_{timestamp}_{original_file.filename}"
+        updated_filename = f"pm_updated_{timestamp}_{updated_file.filename}"
+        
+        original_path = os.path.join('uploads', original_filename)
+        updated_path = os.path.join('uploads', updated_filename)
+        
+        original_file.save(original_path)
+        updated_file.save(updated_path)
+        
+        # Process the files - import the processor here to avoid circular imports
+        try:
+            from utils.billing_processor import process_pm_allocation
+            result = process_pm_allocation(original_path, updated_path, region)
+        except ImportError:
+            # Create a basic implementation if module doesn't exist
+            result = {
+                'success': True,
+                'message': 'Files uploaded successfully. Processing module will be implemented in future updates.',
+                'export_files': []
+            }
+            
+        if result['success']:
+            # If we have export files, provide links to them
+            if 'export_files' in result and result['export_files']:
+                export_links = []
+                for export_file in result['export_files']:
+                    filename = os.path.basename(export_file)
+                    export_links.append(f'<a href="/download-export/{filename}">{filename}</a>')
+                
+                export_html = '<br>'.join(export_links)
+                flash(f"{result['message']}<br>Generated exports:<br>{export_html}", 'success')
+            else:
+                flash(result['message'], 'success')
+        else:
+            flash(f"Error processing PM allocation: {result['message']}", 'danger')
+            
+        return redirect(url_for('reports'))
+        
+    except Exception as e:
+        flash(f'Error uploading PM allocation files: {str(e)}', 'danger')
+        return redirect(url_for('reports'))
+
+@app.route('/download-export/<path:export_path>')
+@login_required
+def download_export(export_path):
+    """Download an export file"""
+    try:
+        return send_from_directory('exports', export_path, as_attachment=True)
+    except Exception as e:
+        flash(f'Error downloading export: {str(e)}', 'danger')
+        return redirect(url_for('reports'))
 
 # Error Handlers
 @app.errorhandler(404)

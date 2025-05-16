@@ -529,6 +529,99 @@ def gps_efficiency():
     flash('GPS efficiency analytics would be displayed here', 'info')
     return redirect(url_for('report_dashboard'))
 
+@app.route('/attendance/trends')
+@login_required
+def attendance_trends():
+    """Display attendance trends and analytics"""
+    # Get filter parameters
+    date_range = request.args.get('date_range', '30')
+    status_type = request.args.get('status_type', 'all')
+    job_site = request.args.get('job_site', 'all')
+    
+    # For demo purposes, use placeholder data
+    # In production, this would use the attendance_analytics.py module
+    
+    # Calculate trend data
+    trends = {
+        'yesterday': {
+            'late_start': 8,
+            'early_end': 4,
+            'not_on_job': 2
+        },
+        'last_week': {
+            'late_start': 26,
+            'early_end': 18,
+            'not_on_job': 9
+        },
+        'last_month': {
+            'late_start': 95,
+            'early_end': 62,
+            'not_on_job': 31
+        },
+        'wow_trends': {
+            'late_start': -12,
+            'early_end': 5,
+            'not_on_job': -8
+        },
+        'mom_trends': {
+            'late_start': -5,
+            'early_end': 2,
+            'not_on_job': -10
+        }
+    }
+    
+    # Sample top drivers with attendance issues
+    top_drivers = [
+        {
+            'id': 1,
+            'name': 'John Smith',
+            'asset': {'asset_identifier': 'ET-25'},
+            'department': 'Construction',
+            'incident_count': 7,
+            'last_incident': '2025-05-15',
+            'trend': 10
+        },
+        {
+            'id': 2,
+            'name': 'Michael Brown',
+            'asset': {'asset_identifier': 'ET-32'},
+            'department': 'Construction',
+            'incident_count': 5,
+            'last_incident': '2025-05-14',
+            'trend': -15
+        },
+        {
+            'id': 3,
+            'name': 'Robert Johnson',
+            'asset': {'asset_identifier': 'ET-18'},
+            'department': 'Construction',
+            'incident_count': 4,
+            'last_incident': '2025-05-13',
+            'trend': 0
+        }
+    ]
+    
+    # Get total drivers for percentage calculations
+    total_drivers = 86
+    
+    # Get job sites for filter
+    job_sites = [
+        {'id': 1, 'name': 'Site A - 2022-023 Riverfront Bridge'},
+        {'id': 2, 'name': 'Site B - 2023-032 SH 345 Bridge'},
+        {'id': 3, 'name': 'Site C - 2024-015 Main St Expansion'}
+    ]
+    
+    return render_template('reports/trends.html',
+                          title="Attendance Trends",
+                          trends=trends,
+                          top_drivers=top_drivers,
+                          total_drivers=total_drivers,
+                          job_sites=job_sites,
+                          date_range=int(date_range),
+                          status_type=status_type,
+                          job_site=job_site,
+                          last_updated=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+
 @app.route('/download_report/<path:report_path>')
 @login_required
 def download_report(report_path):

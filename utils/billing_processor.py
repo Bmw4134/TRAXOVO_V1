@@ -3,6 +3,7 @@ Billing Processor Module
 
 This module handles the comparison of original and PM-edited billing files,
 identifies changes, and generates region-based exports for accounting.
+It also supports selective updates from PM edits to the master billing file.
 """
 
 import os
@@ -13,6 +14,7 @@ import numpy as np
 from datetime import datetime
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+import re
 
 # Initialize logger
 logger = logging.getLogger(__name__)
@@ -479,6 +481,260 @@ def generate_all_region_exports(edited_file=None, month='APRIL', year='2025'):
     except Exception as e:
         logger.error(f"Error generating region exports: {e}")
         return {'status': 'error', 'message': str(e)}
+
+def process_pm_allocation(original_file, pm_file, region='all'):
+    """
+    Process PM allocation updates for specific project(s)
+    
+    This function handles selective updates from PM-edited allocation files
+    to the master billing file. It only updates rows/jobs that correspond 
+    with the specific PM file upload.
+    
+    Args:
+        original_file (str): Path to original master billing Excel file
+        pm_file (str): Path to PM-edited billing Excel file
+        region (str): Region to filter by ('all', 'DFW', 'HOU', 'WTX')
+        
+    Returns:
+        dict: Process status and information about changes
+    """
+    try:
+        logger.info(f"Processing PM allocation update: {os.path.basename(pm_file)}")
+        
+        # Create export directory if it doesn't exist
+        exports_dir = 'exports'
+        os.makedirs(exports_dir, exist_ok=True)
+        
+        # Identify project number from filename (assuming standard naming convention)
+        project_pattern = re.compile(r'(\d{4}-\d{3})')
+        project_match = project_pattern.search(os.path.basename(pm_file))
+        
+        if project_match:
+            project_number = project_match.group(1)
+            logger.info(f"Detected project number: {project_number}")
+        else:
+            # If no project number found in filename, try to extract from sheet content
+            logger.warning("No project number found in filename, will attempt to identify from content")
+            project_number = None
+        
+        # Load the files
+        try:
+            master_df = pd.read_excel(original_file)
+            pm_df = pd.read_excel(pm_file)
+            
+            logger.info(f"Loaded master file with {len(master_df)} records")
+            logger.info(f"Loaded PM file with {len(pm_df)} records")
+        except Exception as e:
+            logger.error(f"Error loading Excel files: {e}")
+            return {
+                'success': False,
+                'message': f"Error loading files: {str(e)}"
+            }
+        
+        # Standardize column names
+        master_columns = {col.lower().strip().replace(' ', '_'): col for col in master_df.columns}
+        pm_columns = {col.lower().strip().replace(' ', '_'): col for col in pm_df.columns}
+        
+        # Identify key columns in both dataframes
+        asset_keywords = ['asset', 'equipment', 'asset_id', 'equipment_id']
+        job_keywords = ['job', 'job_code', 'job_#', 'job_number', 'project']
+        days_keywords = ['days', 'day_count', 'billing_days']
+        notes_keywords = ['notes', 'comments', 'remarks']
+        
+        # Find column names in master dataframe
+        master_asset_col = next((master_columns[key] for key in asset_keywords if key in master_columns), None)
+        master_job_col = next((master_columns[key] for key in job_keywords if key in master_columns), None)
+        master_days_col = next((master_columns[key] for key in days_keywords if key in master_columns), None)
+        master_notes_col = next((master_columns[key] for key in notes_keywords if key in master_columns), None)
+        
+        # Find column names in PM dataframe
+        pm_asset_col = next((pm_columns[key] for key in asset_keywords if key in pm_columns), None)
+        pm_job_col = next((pm_columns[key] for key in job_keywords if key in pm_columns), None)
+        pm_days_col = next((pm_columns[key] for key in days_keywords if key in pm_columns), None)
+        pm_notes_col = next((pm_columns[key] for key in notes_keywords if key in pm_columns), None)
+        
+        # Check if required columns were found
+        if not all([master_asset_col, master_job_col, pm_asset_col, pm_job_col]):
+            missing = []
+            if not master_asset_col: missing.append("master asset column")
+            if not master_job_col: missing.append("master job column")
+            if not pm_asset_col: missing.append("PM asset column")
+            if not pm_job_col: missing.append("PM job column")
+            
+            return {
+                'success': False,
+                'message': f"Could not identify required columns: {', '.join(missing)}"
+            }
+        
+        # If no project number from filename, try to extract from job codes
+        if not project_number and pm_job_col:
+            # Look at job codes in PM file to identify project pattern
+            job_codes = pm_df[pm_job_col].astype(str).str.strip().dropna().unique()
+            
+            # Try to extract project number from job codes
+            for code in job_codes:
+                match = project_pattern.search(code)
+                if match:
+                    project_number = match.group(1)
+                    logger.info(f"Extracted project number from job code: {project_number}")
+                    break
+        
+        if not project_number:
+            logger.warning("Could not determine project number, will update all matching assets")
+        
+        # Create copies with standardized columns for tracking changes
+        master_copy = master_df.copy()
+        pm_copy = pm_df.copy()
+        
+        # Convert asset columns to string for reliable matching
+        master_copy[master_asset_col] = master_copy[master_asset_col].astype(str).str.strip().str.upper()
+        pm_copy[pm_asset_col] = pm_copy[pm_asset_col].astype(str).str.strip().str.upper()
+        
+        # Track changes for reporting
+        changes = {
+            'updated_assets': [],
+            'updated_jobs': [],
+            'updated_days': [],
+            'updated_notes': []
+        }
+        
+        # Identify which rows to update in the master
+        if project_number:
+            # If we have a project number, filter for rows with that project
+            # Check if master has job column with this project
+            if master_job_col:
+                project_rows = master_copy[master_copy[master_job_col].astype(str).str.contains(project_number, na=False)]
+                logger.info(f"Found {len(project_rows)} records in master for project {project_number}")
+            else:
+                logger.warning(f"No job column found in master, cannot filter by project {project_number}")
+                project_rows = master_copy
+        else:
+            # If no project number, use all rows (will still match by asset)
+            project_rows = master_copy
+        
+        # If filtering by region, apply that filter
+        if region.lower() != 'all' and 'region' in master_copy.columns:
+            region_rows = project_rows[project_rows['region'].str.contains(region, case=False, na=False)]
+            logger.info(f"Filtered to {len(region_rows)} records for region: {region}")
+            project_rows = region_rows
+        
+        # Get list of assets in PM file
+        pm_assets = set(pm_copy[pm_asset_col].unique())
+        logger.info(f"PM file contains {len(pm_assets)} unique assets")
+        
+        # Identify assets in both files
+        master_assets = set(project_rows[master_asset_col].unique())
+        common_assets = pm_assets.intersection(master_assets)
+        logger.info(f"Found {len(common_assets)} assets in both master and PM files")
+        
+        # Update the master dataframe with PM changes for matching assets
+        update_count = 0
+        for asset in common_assets:
+            # Get master rows for this asset (within project scope)
+            master_rows = project_rows[project_rows[master_asset_col] == asset]
+            
+            # Get PM rows for this asset
+            pm_rows = pm_copy[pm_copy[pm_asset_col] == asset]
+            
+            if len(master_rows) > 0 and len(pm_rows) > 0:
+                # Get the index of the master row to update
+                master_idx = master_rows.index[0]
+                
+                # Get the PM data for this asset
+                pm_row = pm_rows.iloc[0]
+                
+                # Update job if specified in both
+                if master_job_col and pm_job_col and pd.notna(pm_row[pm_job_col]):
+                    old_job = master_df.loc[master_idx, master_job_col]
+                    new_job = pm_row[pm_job_col]
+                    
+                    if str(old_job) != str(new_job):
+                        master_df.loc[master_idx, master_job_col] = new_job
+                        changes['updated_jobs'].append({
+                            'asset': asset,
+                            'old': old_job,
+                            'new': new_job
+                        })
+                
+                # Update days if specified in both
+                if master_days_col and pm_days_col and pd.notna(pm_row[pm_days_col]):
+                    old_days = master_df.loc[master_idx, master_days_col]
+                    new_days = pm_row[pm_days_col]
+                    
+                    # Convert to float for numeric comparison
+                    try:
+                        old_days_num = float(old_days) if pd.notna(old_days) else 0
+                        new_days_num = float(new_days) if pd.notna(new_days) else 0
+                        
+                        if old_days_num != new_days_num:
+                            master_df.loc[master_idx, master_days_col] = new_days
+                            changes['updated_days'].append({
+                                'asset': asset,
+                                'old': old_days_num,
+                                'new': new_days_num
+                            })
+                    except ValueError:
+                        logger.warning(f"Could not convert days to numbers: {old_days}, {new_days}")
+                
+                # Update notes if specified in both
+                if master_notes_col and pm_notes_col and pd.notna(pm_row[pm_notes_col]):
+                    old_notes = str(master_df.loc[master_idx, master_notes_col]) if pd.notna(master_df.loc[master_idx, master_notes_col]) else ''
+                    new_notes = str(pm_row[pm_notes_col])
+                    
+                    if old_notes.strip() != new_notes.strip():
+                        master_df.loc[master_idx, master_notes_col] = new_notes
+                        changes['updated_notes'].append({
+                            'asset': asset,
+                            'old': old_notes,
+                            'new': new_notes
+                        })
+                
+                # Track the updated asset
+                changes['updated_assets'].append(asset)
+                update_count += 1
+        
+        # Remove duplicates from updated assets list
+        changes['updated_assets'] = list(set(changes['updated_assets']))
+        
+        # Generate a timestamped filename for the updated master
+        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+        original_basename = os.path.basename(original_file)
+        
+        # Create updated filename
+        if project_number:
+            updated_master_filename = f"UPDATED_{project_number}_{timestamp}_{original_basename}"
+        else:
+            updated_master_filename = f"UPDATED_PM_CHANGES_{timestamp}_{original_basename}"
+        
+        updated_master_path = os.path.join(exports_dir, updated_master_filename)
+        
+        # Save the updated master file
+        master_df.to_excel(updated_master_path, index=False)
+        
+        # Generate region-specific exports if requested
+        export_files = [updated_master_path]
+        if region.lower() != 'all':
+            # Generate region-specific export
+            region_export = generate_regional_export(master_df, region)
+            if region_export:
+                export_files.append(region_export)
+                
+        # Return success with change summary
+        return {
+            'success': True,
+            'message': f"Successfully updated {update_count} assets with PM changes from {project_number if project_number else 'uploaded file'}.",
+            'changes': changes,
+            'export_files': export_files
+        }
+        
+    except Exception as e:
+        logger.error(f"Error processing PM allocation: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+        return {
+            'success': False,
+            'message': f"Error processing PM allocation: {str(e)}"
+        }
 
 def run_billing_process(original_file=None, edited_file=None, month='APRIL', year='2025'):
     """

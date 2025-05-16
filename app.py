@@ -850,3 +850,49 @@ def manual_update():
         logger.error(f"Error manually updating data: {e}")
     
     return redirect(url_for('admin_settings'))
+
+
+@app.route('/api/update-assets', methods=['POST'])
+@login_required
+def api_update_assets():
+    """API endpoint for updating assets with progress feedback"""
+    if not current_user.is_admin:
+        return jsonify({
+            'success': False,
+            'message': 'Permission denied. Admin access required.'
+        }), 403
+    
+    try:
+        # Start the update process
+        from gauge_api import update_asset_data
+        assets = update_asset_data(force=True)
+        
+        if assets:
+            # Generate reports
+            from reports_processor import generate_reports
+            generate_reports(assets)
+            
+            # Reload global assets_data if needed
+            global assets_data
+            assets_data = assets
+            
+            # Return success
+            return jsonify({
+                'success': True,
+                'message': f'Successfully updated asset data. Retrieved {len(assets)} assets.',
+                'asset_count': len(assets),
+                'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Failed to update asset data from API. Check your API configuration.',
+                'step': 'API fetch failed'
+            }), 500
+    except Exception as e:
+        logger.error(f"Error in API asset update: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'Error during update: {str(e)}',
+            'step': 'exception'
+        }), 500

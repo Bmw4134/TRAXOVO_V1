@@ -446,6 +446,93 @@ def generate_regional_export(edited_df, region_code, month='APRIL', year='2025')
         logger.error(f"Error generating regional export: {e}")
         return None
 
+def generate_regional_export(df, region_code, month='APRIL', year='2025'):
+    """
+    Generate billing export for a specific region
+    
+    Args:
+        df (DataFrame): DataFrame with billing data
+        region_code (int): Region code (2=DFW, 3=WTX, 4=HOU)
+        month (str): Month name for the billing period
+        year (str): Year for the billing period
+        
+    Returns:
+        str: Path to the generated export file, or None if generation failed
+    """
+    try:
+        # Map region code to name
+        region_name = {2: 'DFW', 3: 'WTX', 4: 'HOU'}.get(region_code, f'Region-{region_code}')
+        
+        # Create exports directory if it doesn't exist
+        export_dir = os.path.join('exports', f"{year}-{month}")
+        os.makedirs(export_dir, exist_ok=True)
+        
+        # File name for the export
+        export_file = os.path.join(export_dir, f"{region_name}-{month}-{year}-BILLING.xlsx")
+        
+        # Filter data for this region and create a copy
+        region_df = df[df['DISTRICT'] == region_code].copy()
+        
+        # If no data found for this region, return None
+        if region_df.empty:
+            logger.warning(f"No data found for region {region_name}")
+            return None
+        
+        # Create a new Excel workbook
+        workbook = openpyxl.Workbook()
+        sheet = workbook.active
+        sheet.title = f"{region_name} Billing"
+        
+        # Add headers
+        headers = ['JOB', 'ASSET', 'DESCRIPTION', 'TOTAL DAYS', 'DAILY RATE', 'TOTAL', 'NOTES']
+        for col, header in enumerate(headers, 1):
+            sheet.cell(row=1, column=col).value = header
+            sheet.cell(row=1, column=col).font = Font(bold=True)
+        
+        # Add data rows
+        row = 2
+        for _, billing_row in region_df.iterrows():
+            # Handle default cost codes if job code is missing
+            job_code = billing_row.get('JOB_CODE', '')
+            if not job_code or pd.isna(job_code):
+                # Default to 9000 100M or 9000 100F
+                asset_type = billing_row.get('ASSET_TYPE', '').upper()
+                if 'MECH' in asset_type:
+                    job_code = '9000 100M'
+                else:
+                    job_code = '9000 100F'
+            
+            # Write data
+            sheet.cell(row=row, column=1).value = job_code
+            sheet.cell(row=row, column=2).value = billing_row.get('ASSET_ID', '')
+            sheet.cell(row=row, column=3).value = billing_row.get('DESCRIPTION', '')
+            sheet.cell(row=row, column=4).value = billing_row.get('DAYS', 0)
+            sheet.cell(row=row, column=5).value = billing_row.get('DAILY_RATE', 0)
+            
+            # Calculate total
+            days = billing_row.get('DAYS', 0)
+            rate = billing_row.get('DAILY_RATE', 0)
+            total = days * rate if days and rate else 0
+            sheet.cell(row=row, column=6).value = total
+            
+            # Add notes
+            sheet.cell(row=row, column=7).value = billing_row.get('NOTES', '')
+            
+            row += 1
+        
+        # Format the sheet
+        for col in range(1, len(headers) + 1):
+            sheet.column_dimensions[openpyxl.utils.get_column_letter(col)].width = 15
+        
+        # Save the workbook
+        workbook.save(export_file)
+        logger.info(f"Generated {region_name} export: {export_file}")
+        return export_file
+    
+    except Exception as e:
+        logger.error(f"Error generating {region_name} export: {e}")
+        return None
+
 def generate_all_region_exports(edited_file=None, month='APRIL', year='2025'):
     """
     Generate billing exports for all regions

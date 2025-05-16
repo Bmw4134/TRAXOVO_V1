@@ -73,45 +73,62 @@ def process_timecard_entries(df):
         }
     }
     
-    # Try to determine if this is the correct format
-    required_columns = ["Employee", "Job", "Date", "Hours", "In", "Out"]
-    
-    # Create normalized column mapping (handle various column name formats)
-    column_mapping = {}
-    for col in df.columns:
-        for req_col in required_columns:
-            if req_col.lower() in col.lower():
-                column_mapping[req_col] = col
-                break
-    
-    # Ensure we have all required columns
-    missing_cols = [col for col in required_columns if col not in column_mapping]
-    if missing_cols:
-        logger.warning(f"Missing columns: {missing_cols}")
+    # Try to determine if this is the Ground Works format
+    # Check if this is the Ground Works format (has specific columns)
+    if 'ProjectNo' in df.columns and 'EmployeeNo' in df.columns and 'Employee' in df.columns:
+        logger.info("Detected Ground Works timecard format")
         
-        # Try alternative column names
-        alt_mappings = {
-            "Employee": ["Name", "Employee Name", "Driver", "Worker"],
-            "Job": ["Job Name", "Job Number", "JobID", "Project", "Task"],
-            "Date": ["Work Date", "Time Date", "Entry Date"],
-            "Hours": ["Total Hours", "Work Hours", "Duration"],
-            "In": ["Time In", "Clock In", "Start Time"],
-            "Out": ["Time Out", "Clock Out", "End Time"]
+        # Map columns to our standard format
+        column_mapping = {
+            "Employee": "Employee",
+            "Job": "ProjectNo",
+            "Date": "Date",
+            "Hours": "Hours"
         }
         
-        for req_col in missing_cols:
-            for alt_col in alt_mappings.get(req_col, []):
-                for df_col in df.columns:
-                    if alt_col.lower() in df_col.lower():
-                        column_mapping[req_col] = df_col
-                        logger.info(f"Found alternative mapping: {req_col} -> {df_col}")
-                        break
-    
-    # Final check for required columns
-    missing_cols = [col for col in required_columns if col not in column_mapping]
-    if missing_cols:
-        logger.error(f"Still missing required columns: {missing_cols}")
-        return {"error": f"Missing required columns: {missing_cols}"}
+        # Time In/Out might not be available in this format, but we can still process other data
+        # We'll use the date without specific times
+    else:
+        # Standard format - try to determine column mapping
+        required_columns = ["Employee", "Job", "Date", "Hours"]
+        optional_columns = ["In", "Out"]
+        
+        # Create normalized column mapping (handle various column name formats)
+        column_mapping = {}
+        for col in df.columns:
+            for req_col in required_columns + optional_columns:
+                if req_col.lower() in col.lower():
+                    column_mapping[req_col] = col
+                    break
+        
+        # Ensure we have all required columns
+        missing_cols = [col for col in required_columns if col not in column_mapping]
+        if missing_cols:
+            logger.warning(f"Missing columns: {missing_cols}")
+            
+            # Try alternative column names
+            alt_mappings = {
+                "Employee": ["Name", "Employee Name", "Driver", "Worker", "EmployeeNo"],
+                "Job": ["Job Name", "Job Number", "JobID", "Project", "Task", "ProjectNo", "ProjectDescription"],
+                "Date": ["Work Date", "Time Date", "Entry Date"],
+                "Hours": ["Total Hours", "Work Hours", "Duration"],
+                "In": ["Time In", "Clock In", "Start Time"],
+                "Out": ["Time Out", "Clock Out", "End Time"]
+            }
+            
+            for req_col in missing_cols:
+                for alt_col in alt_mappings.get(req_col, []):
+                    for df_col in df.columns:
+                        if alt_col.lower() in df_col.lower():
+                            column_mapping[req_col] = df_col
+                            logger.info(f"Found alternative mapping: {req_col} -> {df_col}")
+                            break
+        
+        # Final check for required columns
+        missing_cols = [col for col in required_columns if col not in column_mapping]
+        if missing_cols:
+            logger.error(f"Still missing required columns: {missing_cols}")
+            return {"error": f"Missing required columns: {missing_cols}"}
     
     # Normalize column names
     df_processed = df.rename(columns={column_mapping[col]: col for col in column_mapping})
@@ -141,9 +158,16 @@ def process_timecard_entries(df):
             job = str(row.get('Job', '')).strip()
             date = row.get('Date')
             hours = float(row.get('Hours', 0))
-            time_in = row.get('In')
-            time_out = row.get('Out')
             
+            # Ground Works format may not have Time In/Out explicitly
+            time_in = row.get('In') if 'In' in row else None
+            time_out = row.get('Out') if 'Out' in row else None
+            
+            # Check for ProjectDescription as a fallback for job name
+            if job == '' and 'ProjectDescription' in df_processed.columns:
+                job = str(row.get('ProjectDescription', '')).strip()
+            
+            # Skip empty rows
             if pd.isnull(employee) or pd.isnull(job) or pd.isnull(date):
                 continue
                 

@@ -375,6 +375,84 @@ with app.app_context():
         logger.info("Admin user created")
 
 
+# Add asset-driver management models directly in minimal.py to avoid import issues
+class Driver(db.Model):
+    """Driver model for storing driver information"""
+    __tablename__ = 'drivers'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128), nullable=False)
+    employee_id = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    department = db.Column(db.String(64))
+    region = db.Column(db.String(64))
+    active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def __repr__(self):
+        return f"<Driver {self.name}>"
+
+class AssetDriverMapping(db.Model):
+    """Asset-Driver relationship model for tracking assignments"""
+    __tablename__ = 'asset_driver_mappings'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    asset_id = db.Column(db.Integer, db.ForeignKey('assets.id'), nullable=False, index=True)
+    driver_id = db.Column(db.Integer, db.ForeignKey('drivers.id'), nullable=False, index=True)
+    start_date = db.Column(db.Date, nullable=False)
+    end_date = db.Column(db.Date, nullable=True)
+    is_current = db.Column(db.Boolean, default=True)
+    notes = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Define relationships
+    asset = db.relationship('Asset', backref=db.backref('driver_assignments', lazy='dynamic'))
+    driver = db.relationship('Driver', backref=db.backref('asset_assignments', lazy='dynamic'))
+    
+    def __repr__(self):
+        return f'<AssetDriverMapping {self.asset_id}-{self.driver_id}>'
+
+# Add asset-driver management routes
+@app.route('/asset-drivers/')
+@login_required
+def asset_driver_list():
+    """Display list of asset-driver assignments"""
+    current_assignments = AssetDriverMapping.query.filter_by(is_current=True).all()
+    all_assignments = AssetDriverMapping.query.all()
+    assets = Asset.query.all()
+    drivers = Driver.query.all()
+    
+    # Calculate statistics
+    total_assignments = len(all_assignments)
+    current_count = len(current_assignments)
+    historical_count = total_assignments - current_count
+    total_assets = Asset.query.count()
+    assigned_assets = AssetDriverMapping.query.filter_by(is_current=True).with_entities(AssetDriverMapping.asset_id).distinct().count()
+    total_drivers = Driver.query.count()
+    active_drivers = Driver.query.filter_by(active=True).count()
+    
+    # Calculate percentages safely
+    asset_assignment_percentage = (assigned_assets / total_assets * 100) if total_assets > 0 else 0
+    driver_active_percentage = (active_drivers / total_drivers * 100) if total_drivers > 0 else 0
+    
+    return render_template('asset_drivers/list.html', 
+                          assignments=current_assignments,
+                          all_assignments=all_assignments,
+                          assets=assets,
+                          drivers=drivers,
+                          stats={
+                              'total_assignments': total_assignments,
+                              'current_assignments': current_count,
+                              'historical_assignments': historical_count,
+                              'total_assets': total_assets,
+                              'assets_assigned': assigned_assets,
+                              'total_drivers': total_drivers,
+                              'active_drivers': active_drivers,
+                              'asset_assignment_percentage': asset_assignment_percentage,
+                              'driver_active_percentage': driver_active_percentage
+                          })
+
 # Run the app
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))

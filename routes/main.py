@@ -8,7 +8,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from datetime import datetime
 from werkzeug.security import check_password_hash
 
-from models import User, Asset, AssetHistory, MaintenanceRecord, APIConfig, Geofence, db
+from models import User, Asset, APIConfig, db
 from utils import load_data, filter_assets, get_asset_by_id, get_asset_categories, get_asset_locations, get_asset_status
 
 # Configure logging

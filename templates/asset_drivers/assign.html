@@ -1,99 +1,71 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
-{% block title %}{{ title }}{% endblock %}
+{% block title %}Assign Driver to Asset{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>{{ title }}</h1>
-        <div>
-            <a href="{{ url_for('asset_drivers.asset_driver_list') }}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back to List
-            </a>
-        </div>
-    </div>
-
     <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">{{ 'Edit Assignment' if editing else 'Create New Assignment' }}</h5>
-                </div>
+        <div class="col-md-12 mb-4">
+            <div class="card border-0 shadow-sm">
                 <div class="card-body">
-                    <form method="post" action="{{ form_action }}">
+                    <h1 class="mb-4">Assign Driver to Asset</h1>
+                    
+                    <form method="POST" action="/asset-drivers/assign">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="asset_id" class="form-label">Asset <span class="text-danger">*</span></label>
-                                <select class="form-select" id="asset_id" name="asset_id" required>
-                                    <option value="">Select Asset</option>
-                                    {% for asset in assets %}
-                                    <option value="{{ asset.id }}" {% if assignment and assignment.asset_id == asset.id %}selected{% endif %}>
-                                        {{ asset.asset_identifier }} - {{ asset.label or 'Unnamed' }}
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                                <div class="form-text">Select the asset to be assigned</div>
+                                <div class="form-group mb-3">
+                                    <label for="asset_id">Select Asset</label>
+                                    <select class="form-select" id="asset_id" name="asset_id" required>
+                                        <option value="">-- Select Asset --</option>
+                                        {% for asset in assets %}
+                                        <option value="{{ asset.id }}" {% if asset.driver_assignments and asset.driver_assignments|selectattr('is_current')|list|length > 0 %}disabled{% endif %}>
+                                            {{ asset.asset_identifier }} - {{ asset.label or 'Unnamed Asset' }}
+                                            {% if asset.driver_assignments and asset.driver_assignments|selectattr('is_current')|list|length > 0 %}
+                                                (Already Assigned)
+                                            {% endif %}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
                             </div>
                             <div class="col-md-6">
-                                <label for="driver_id" class="form-label">Driver <span class="text-danger">*</span></label>
-                                <select class="form-select" id="driver_id" name="driver_id" required>
-                                    <option value="">Select Driver</option>
-                                    {% for driver in drivers %}
-                                    <option value="{{ driver.id }}" {% if assignment and assignment.driver_id == driver.id %}selected{% endif %}>
-                                        {{ driver.name }} ({{ driver.employee_id }})
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                                <div class="form-text">Select the driver to be assigned</div>
+                                <div class="form-group mb-3">
+                                    <label for="driver_id">Select Driver</label>
+                                    <select class="form-select" id="driver_id" name="driver_id" required>
+                                        <option value="">-- Select Driver --</option>
+                                        {% for driver in drivers %}
+                                        <option value="{{ driver.id }}" {% if not driver.active %}disabled{% endif %}>
+                                            {{ driver.name }} ({{ driver.employee_id }})
+                                            {% if not driver.active %}
+                                                (Inactive)
+                                            {% endif %}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
                             </div>
                         </div>
-
+                        
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="start_date" class="form-label">Start Date <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control" id="start_date" name="start_date" 
-                                      value="{{ assignment.start_date.strftime('%Y-%m-%d') if assignment and assignment.start_date else today }}" required>
-                                <div class="form-text">Assignment start date</div>
+                                <div class="form-group mb-3">
+                                    <label for="start_date">Start Date</label>
+                                    <input type="date" class="form-control" id="start_date" name="start_date" required value="{{ today.strftime('%Y-%m-%d') }}">
+                                </div>
                             </div>
-                            {% if editing %}
                             <div class="col-md-6">
-                                <label for="end_date" class="form-label">End Date</label>
-                                <input type="date" class="form-control" id="end_date" name="end_date" 
-                                      value="{{ assignment.end_date.strftime('%Y-%m-%d') if assignment and assignment.end_date else '' }}">
-                                <div class="form-text">Leave blank for current assignments</div>
+                                <div class="form-group mb-3">
+                                    <label for="notes">Notes (Optional)</label>
+                                    <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                                </div>
                             </div>
-                            {% endif %}
                         </div>
-
-                        {% if editing %}
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="is_current" name="is_current" 
-                                  {% if not assignment or assignment.is_current %}checked{% endif %}>
-                            <label class="form-check-label" for="is_current">Current Assignment</label>
-                            <div class="form-text">Uncheck if this assignment has ended</div>
-                        </div>
-                        {% endif %}
-
-                        <div class="mb-3">
-                            <label for="notes" class="form-label">Notes</label>
-                            <textarea class="form-control" id="notes" name="notes" rows="3">{{ assignment.notes if assignment else '' }}</textarea>
-                            <div class="form-text">Additional information about this assignment</div>
-                        </div>
-
-                        <div class="alert alert-info mb-4">
-                            <i class="fas fa-info-circle me-2"></i>
-                            {% if editing %}
-                            Make changes to the assignment details above and save to update the record.
-                            {% else %}
-                            When a new assignment is created, any previous active assignment for this asset will be automatically ended.
-                            {% endif %}
-                        </div>
-
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-{% if editing %}save{% else %}plus{% endif %}"></i> 
-                                {{ 'Update Assignment' if editing else 'Create Assignment' }}
-                            </button>
+                        
+                        <div class="form-group mt-4">
+                            <button type="submit" class="btn btn-primary">Assign Driver</button>
+                            <a href="/asset-drivers/" class="btn btn-outline-secondary ms-2">Cancel</a>
                         </div>
                     </form>
                 </div>

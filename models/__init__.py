@@ -1,15 +1,9 @@
 """
 Models package for database models
 """
-# Import all models from the core module and expose them at the package level
-from models.core import (
-    User,
-    Asset,
-    AssetHistory,
-    MaintenanceRecord,
-    APIConfig,
-    Geofence,
-)
+# Import all models from the models module and expose them at the package level
+from models.models import User, Asset, AssetDriverMapping, APIConfig
+from models.core import Driver
 
 # Also make db available through the models package
-from database import db
+from db import db

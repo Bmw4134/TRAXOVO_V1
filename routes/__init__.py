@@ -1,4 +1,4 @@
 """
 Routes package for the application
 """
-from routes.main import register_routes
+# This package contains route modules for the application

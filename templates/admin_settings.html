@@ -76,10 +76,21 @@
                             <li><i class="bi bi-person me-2"></i> 112 With Driver Assignments</li>
                         </ul>
                     </div>
-                    <div class="d-grid">
-                        <button type="button" class="btn btn-info" onclick="manualUpdate()">
-                            <i class="bi bi-arrow-repeat me-2"></i> Manually Update Data
-                        </button>
+                    <div class="card-footer bg-dark border-light">
+                        <div class="d-grid">
+                            <button type="button" class="btn btn-info" onclick="manualUpdate()">
+                                <i class="bi bi-arrow-repeat me-2"></i> Update Assets from Gauge API
+                            </button>
+                        </div>
+                        <div id="apiUpdateProgress" class="mt-3 d-none">
+                            <div class="progress mb-2">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <p class="text-center text-muted small" id="updateStatus">Connecting to Gauge API...</p>
+                        </div>
+                        <p class="text-center text-muted small mt-2">
+                            <i class="bi bi-info-circle me-1"></i> Updates asset data directly from the Gauge API
+                        </p>
                     </div>
                 </div>
             </div>
@@ -137,21 +148,107 @@
 
 <script>
     function manualUpdate() {
-        // Show loading indicator
-        const btn = event.target;
+        // Get the button and create progress elements
+        const btn = event.target.closest('button');
         const originalText = btn.innerHTML;
+        
+        // Show loading indicator on button
         btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Updating...';
         btn.disabled = true;
         
-        // Simulate API call with setTimeout
-        setTimeout(() => {
+        // Show progress container
+        const progressContainer = document.getElementById('apiUpdateProgress');
+        progressContainer.classList.remove('d-none');
+        document.getElementById('updateStatus').textContent = 'Connecting to Gauge API...';
+        progressContainer.querySelector('.progress-bar').style.width = '0%';
+        
+        // Get the progress bar and status elements
+        const progressBar = progressContainer.querySelector('.progress-bar');
+        const statusText = document.getElementById('updateStatus');
+        
+        // Simulate initial progress steps
+        let progress = 0;
+        const updateProgress = () => {
+            progress += 5;
+            
+            // Update progress based on current phase
+            if (progress <= 20) {
+                statusText.textContent = 'Authenticating with Gauge API...';
+            } else if (progress <= 40) {
+                statusText.textContent = 'Fetching asset data...';
+            } else if (progress <= 60) {
+                statusText.textContent = 'Processing asset information...';
+            } else if (progress <= 80) {
+                statusText.textContent = 'Updating database records...';
+            } else {
+                statusText.textContent = 'Generating reports...';
+            }
+            
+            progressBar.style.width = progress + '%';
+            
+            // Continue progress simulation until API responds
+            if (progress < 95) {
+                setTimeout(updateProgress, 250);
+            }
+        };
+        
+        // Start progress simulation
+        setTimeout(updateProgress, 250);
+        
+        // Make the actual API call using fetch
+        fetch('/api/update-assets', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            // Complete the progress bar
+            progress = 100;
+            progressBar.style.width = '100%';
+            
+            // Parse the JSON response
+            return response.json().then(data => {
+                if (!response.ok) {
+                    throw new Error(data.message || 'Error updating assets');
+                }
+                return data;
+            });
+        })
+        .then(data => {
+            // Update success UI
+            statusText.textContent = `Successfully updated ${data.asset_count} assets at ${data.timestamp}`;
+            progressBar.classList.remove('progress-bar-animated');
+            
             // Reset button
             btn.innerHTML = originalText;
             btn.disabled = false;
             
+            // Update asset count display if it exists
+            const assetCountElement = document.getElementById('assetCount');
+            if (assetCountElement) {
+                assetCountElement.textContent = data.asset_count;
+            }
+            
             // Show success message
-            alert('Data updated successfully!');
-        }, 2000);
+            setTimeout(() => {
+                alert('Asset data updated successfully!');
+            }, 500);
+        })
+        .catch(error => {
+            // Update error UI
+            statusText.textContent = `Error: ${error.message}`;
+            progressBar.classList.remove('progress-bar-animated', 'bg-primary');
+            progressBar.classList.add('bg-danger');
+            
+            // Reset button
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            
+            console.error('Error updating assets:', error);
+        });
     }
 </script>
 {% endblock %}

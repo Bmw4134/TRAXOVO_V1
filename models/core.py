@@ -24,7 +24,6 @@ class Driver(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Define the relationships
-    attendance_records = relationship('AttendanceRecord', backref='driver')
     asset_assignments = relationship('AssetDriverMapping', back_populates='driver')
     
     def __repr__(self):

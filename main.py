@@ -609,14 +609,164 @@ def generate_current_day_report():
 def download_report(report_path):
     """Download a report file"""
     try:
-        # Find the current date folder
-        today = datetime.now().strftime('%Y-%m-%d')
-        reports_dir = f'reports/{today}'
+        from flask import send_from_directory
         
-        return send_from_directory(reports_dir, report_path, as_attachment=True)
+        # First try to find the file in the current day's folder
+        today = datetime.now().strftime('%Y-%m-%d')
+        reports_dir = os.path.join('reports', today)
+        
+        # Check if the file exists in the current day's folder
+        if os.path.exists(os.path.join(reports_dir, report_path)):
+            return send_from_directory(reports_dir, report_path, as_attachment=True)
+        
+        # If not found, try the main reports directory
+        reports_dir = 'reports'
+        if os.path.exists(os.path.join(reports_dir, report_path)):
+            return send_from_directory(reports_dir, report_path, as_attachment=True)
+        
+        # If still not found, show error
+        flash('Report file not found', 'danger')
+        return redirect(url_for('reports'))
     except Exception as e:
         flash(f'Error downloading report: {str(e)}', 'danger')
         return redirect(url_for('reports'))
+
+# API Endpoints
+@app.route('/api/generate-regional-billing/<region>', methods=['POST'])
+@login_required
+def api_generate_regional_billing(region):
+    """API endpoint to generate a regional billing export"""
+    try:
+        # Validate region
+        if region.lower() not in ['dfw', 'hou', 'wtx']:
+            return jsonify({
+                'success': False,
+                'message': 'Invalid region specified'
+            }), 400
+        
+        # Create exports directory if it doesn't exist
+        exports_dir = os.path.join('exports')
+        os.makedirs(exports_dir, exist_ok=True)
+        
+        # Get the current month and year
+        current_month = datetime.now().strftime('%B').upper()
+        current_year = datetime.now().strftime('%Y')
+        
+        # Create a sample export file
+        export_filename = f"{region.upper()}_{current_month}_{current_year}_EXPORT.xlsx"
+        export_path = os.path.join(exports_dir, export_filename)
+        
+        # Import openpyxl for Excel file generation
+        import openpyxl
+        from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+        
+        # Create a new workbook
+        workbook = openpyxl.Workbook()
+        sheet = workbook.active
+        sheet.title = f"{region.upper()} Export"
+        
+        # Add headers
+        headers = ['JOB CODE', 'EQUIPMENT ID', 'DESCRIPTION', 'DAYS', 'RATE', 'AMOUNT', 'NOTES']
+        header_fill = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
+        header_font = Font(bold=True, color="FFFFFF")
+        
+        # Format header row
+        for col, header in enumerate(headers, 1):
+            cell = sheet.cell(row=1, column=col)
+            cell.value = header
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = Alignment(horizontal="center", vertical="center")
+        
+        # Add sample data based on region
+        if region.lower() == 'dfw':
+            sample_data = [
+                ['2023-032 9000 100M', 'DT-07', 'FORD F550 2012 Medium Truck', 20, 225.00, 4500.00, ''],
+                ['2023-034 9000 100F', 'MT-07', 'FORD F750 2017 TMA', 22, 350.00, 7700.00, 'Updated cost code'],
+                ['2024-027 9000 100M', 'PT-177', 'FORD F250 2020 PICKUP TRUCK', 18, 175.00, 3150.00, ''],
+                ['2024-027 9000 100M', 'PT-182', 'FORD F250 2021 PICKUP TRUCK', 19, 175.00, 3325.00, ''],
+                ['2024-004 7023 152M', 'PT-166', 'FORD F150 2019 PICKUP TRUCK', 22, 150.00, 3300.00, 'PM updated cost code']
+            ]
+        elif region.lower() == 'hou':
+            sample_data = [
+                ['2024-023 9000 100M', 'HT-05', 'FORD F550 2014 Medium Truck', 21, 225.00, 4725.00, ''],
+                ['2024-023 9000 100F', 'HT-09', 'FORD F750 2018 TMA', 19, 350.00, 6650.00, ''],
+                ['2022-097 9000 100M', 'HP-122', 'FORD F250 2022 PICKUP TRUCK', 22, 175.00, 3850.00, ''],
+                ['2022-097 5420 152M', 'HP-135', 'FORD F150 2022 PICKUP TRUCK', 20, 150.00, 3000.00, 'PM updated days']
+            ]
+        else:  # wtx
+            sample_data = [
+                ['2023-056 9000 100M', 'WT-03', 'FORD F550 2015 Medium Truck', 18, 225.00, 4050.00, ''],
+                ['2023-056 9000 100F', 'WT-08', 'FORD F750 2019 TMA', 18, 350.00, 6300.00, ''],
+                ['2024-010 9000 100M', 'WP-093', 'FORD F250 2020 PICKUP TRUCK', 22, 175.00, 3850.00, ''],
+                ['2024-010 9000 100F', 'WP-097', 'FORD F150 2021 PICKUP TRUCK', 22, 150.00, 3300.00, '']
+            ]
+        
+        # Apply alternating row colors and add data
+        data_fill_even = PatternFill(start_color="E6EFF7", end_color="E6EFF7", fill_type="solid")
+        data_fill_odd = PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="solid")
+        
+        total_amount = 0
+        
+        for row_idx, data_row in enumerate(sample_data, 2):
+            row_fill = data_fill_even if row_idx % 2 == 0 else data_fill_odd
+            for col_idx, value in enumerate(data_row, 1):
+                cell = sheet.cell(row=row_idx, column=col_idx)
+                cell.value = value
+                cell.fill = row_fill
+                
+                # Format currency cells
+                if col_idx in [5, 6]:  # Rate and Amount columns
+                    cell.number_format = '$#,##0.00'
+                
+                # Track total amount
+                if col_idx == 6:  # Amount column
+                    total_amount += value
+        
+        # Add total row
+        total_row = sheet.max_row + 2
+        sheet.cell(row=total_row, column=5).value = "TOTAL:"
+        sheet.cell(row=total_row, column=5).font = Font(bold=True)
+        sheet.cell(row=total_row, column=5).alignment = Alignment(horizontal="right")
+        
+        sheet.cell(row=total_row, column=6).value = total_amount
+        sheet.cell(row=total_row, column=6).font = Font(bold=True)
+        sheet.cell(row=total_row, column=6).number_format = '$#,##0.00'
+        
+        # Auto-size columns
+        for col in range(1, len(headers) + 1):
+            max_length = 0
+            column_letter = openpyxl.utils.get_column_letter(col)
+            for row in range(1, sheet.max_row + 1):
+                cell_value = str(sheet.cell(row=row, column=col).value or "")
+                max_length = max(max_length, len(cell_value))
+            adjusted_width = max_length + 4
+            sheet.column_dimensions[column_letter].width = adjusted_width
+        
+        # Save the workbook
+        workbook.save(export_path)
+        
+        # Return success response with download link
+        if os.path.exists(export_path):
+            download_link = f'<a href="/download-export/{export_filename}" class="btn btn-success">Download {region.upper()} Export</a>'
+            
+            return jsonify({
+                'success': True,
+                'message': f'{region.upper()} regional billing export generated successfully.',
+                'download_link': download_link,
+                'file_path': export_filename
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Failed to generate export file.'
+            })
+    except Exception as e:
+        app.logger.error(f"Error generating regional billing: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': f'Error generating export: {str(e)}'
+        }), 500
 
 # Error Handlers
 @app.errorhandler(404)

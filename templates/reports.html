@@ -366,5 +366,24 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/regional_billing.js') }}"></script>
+    
+    <script>
+        // Create an alerts container for the JavaScript functions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if alerts container exists, create if not
+            if (!document.getElementById('alerts-container')) {
+                const alertsContainer = document.createElement('div');
+                alertsContainer.id = 'alerts-container';
+                alertsContainer.className = 'container mt-3';
+                
+                // Insert after the navbar
+                const navbar = document.querySelector('nav');
+                if (navbar) {
+                    navbar.parentNode.insertBefore(alertsContainer, navbar.nextSibling);
+                }
+            }
+        });
+    </script>
 </body>
 </html>

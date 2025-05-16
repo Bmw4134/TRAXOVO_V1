@@ -107,7 +107,7 @@ class MaintenanceTask(db.Model):
         return delta.days
 
 
-class MaintenancePart(Base):
+class MaintenancePart(db.Model):
     """Model for parts used in maintenance"""
     __tablename__ = 'maintenance_parts'
     
@@ -136,7 +136,7 @@ class MaintenancePart(Base):
         return self.unit_cost * self.quantity
 
 
-class MaintenanceHistory(Base):
+class MaintenanceHistory(db.Model):
     """Model for tracking maintenance history"""
     __tablename__ = 'maintenance_history'
     
@@ -163,7 +163,7 @@ class MaintenanceHistory(Base):
         return f"<MaintenanceHistory(id={self.id}, asset_id={self.asset_id}, date='{self.date}')>"
 
 
-class MaintenanceSchedule(Base):
+class MaintenanceSchedule(db.Model):
     """Model for recurring maintenance schedules"""
     __tablename__ = 'maintenance_schedules'
     
@@ -215,7 +215,7 @@ class MaintenanceSchedule(Base):
         return None
 
 
-class MaintenanceNotification(Base):
+class MaintenanceNotification(db.Model):
     """Model for maintenance notifications and reminders"""
     __tablename__ = 'maintenance_notifications'
     

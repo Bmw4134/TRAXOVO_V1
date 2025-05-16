@@ -14,6 +14,55 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+def process_timecard(file_path):
+    """
+    Process a timecard file and return structured data
+    
+    Args:
+        file_path (str): Path to the timecard Excel file
+        
+    Returns:
+        dict: Dictionary with success status and message
+    """
+    try:
+        logger.info(f"Processing timecard file: {file_path}")
+        
+        # Create reports directory if it doesn't exist
+        reports_dir = os.path.join('reports', datetime.now().strftime('%Y-%m-%d'))
+        os.makedirs(reports_dir, exist_ok=True)
+        
+        # Load the timecard data
+        timecard_data = load_timecard_data(file_path)
+        
+        if "error" in timecard_data:
+            return {
+                "success": False,
+                "message": f"Error processing timecard: {timecard_data['error']}"
+            }
+            
+        # Generate attendance report
+        report_file = os.path.join(reports_dir, f"attendance_report_{datetime.now().strftime('%Y%m%d%H%M%S')}.xlsx")
+        generate_attendance_report(timecard_data, output_path=report_file)
+        
+        # Return success message with stats
+        driver_count = len(timecard_data["drivers"])
+        job_count = len(timecard_data["jobs"])
+        total_hours = timecard_data["summary"]["total_hours"]
+        
+        return {
+            "success": True,
+            "message": f"Processed timecard with {driver_count} drivers, {job_count} jobs, and {total_hours} total hours.",
+            "report_file": report_file,
+            "data": timecard_data
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in process_timecard: {e}")
+        return {
+            "success": False,
+            "message": f"Error processing timecard: {str(e)}"
+        }
+
 def load_timecard_data(file_path):
     """
     Load timecard data from Ground Works Excel file

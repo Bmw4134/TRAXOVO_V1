@@ -619,9 +619,23 @@ def process_pm_allocation(original_file, pm_file, region='all', month='', fsi_fo
         dict: Dictionary with results and file paths
     """
     try:
+        logger.info(f"Processing PM allocation files: Original: {original_file}, PM: {pm_file}")
+        logger.info(f"Parameters - Region: {region}, Month: {month}, FSI Format: {fsi_format}")
+        
         # Load Excel files
-        original_df = pd.read_excel(original_file)
-        pm_df = pd.read_excel(pm_file)
+        try:
+            original_df = pd.read_excel(original_file)
+            pm_df = pd.read_excel(pm_file)
+            
+            logger.info(f"Files loaded successfully. Original shape: {original_df.shape}, PM shape: {pm_df.shape}")
+            logger.info(f"Original columns: {list(original_df.columns)}")
+            logger.info(f"PM columns: {list(pm_df.columns)}")
+        except Exception as e:
+            logger.error(f"Error loading Excel files: {str(e)}", exc_info=True)
+            return {
+                'success': False,
+                'message': f"Error loading files: {str(e)}"
+            }
         
         # Extract month from filename if not provided
         if not month:
@@ -632,15 +646,35 @@ def process_pm_allocation(original_file, pm_file, region='all', month='', fsi_fo
             else:
                 # Default to current month
                 month = datetime.now().strftime('%B %Y').upper()
+            
+            logger.info(f"Month determined from filename: {month}")
         
         # Compare files
-        comparison = compare_pm_files(original_df, pm_df, region)
+        try:
+            comparison = compare_pm_files(original_df, pm_df, region)
+            logger.info("Files compared successfully")
+        except Exception as e:
+            logger.error(f"Error comparing files: {str(e)}", exc_info=True)
+            return {
+                'success': False,
+                'message': f"Error comparing files: {str(e)}"
+            }
         
         # Generate comparison file
-        comparison_file = generate_comparison_file(comparison, month)
+        try:
+            comparison_file = generate_comparison_file(comparison, month)
+            logger.info(f"Comparison file generated: {comparison_file}")
+        except Exception as e:
+            logger.error(f"Error generating comparison file: {str(e)}", exc_info=True)
+            comparison_file = ""
         
         # Generate region exports
-        export_results = generate_region_exports(comparison, pm_df, month, fsi_format=fsi_format)
+        try:
+            export_results = generate_region_exports(pm_df, month=month, fsi_format=fsi_format)
+            logger.info(f"Export files generated: {list(export_results.get('export_files', {}).keys())}")
+        except Exception as e:
+            logger.error(f"Error generating export files: {str(e)}", exc_info=True)
+            export_results = {'export_files': {}}
         
         # Count changes
         num_changes = len(comparison.get('changes', []))
@@ -648,10 +682,80 @@ def process_pm_allocation(original_file, pm_file, region='all', month='', fsi_fo
         num_removed = len(comparison.get('removed', []))
         total_changes = num_changes + num_added + num_removed
         
+        # Format comparison data for template display
+        formatted_comparison = {
+            'changed_rows': [],
+            'added_rows': [],
+            'removed_rows': []
+        }
+        
+        # Format changed rows
+        if not comparison.get('changes').empty:
+            changes_df = comparison.get('changes')
+            
+            # Group changes by asset to combine multiple field changes for the same asset
+            grouped_changes = {}
+            for _, row in changes_df.iterrows():
+                key = f"{row.get('DIV', '')}-{row.get('JOB', '')}-{row.get('ASSET_ID', '')}"
+                
+                if key not in grouped_changes:
+                    grouped_changes[key] = {
+                        'div': row.get('DIV', ''),
+                        'job': row.get('JOB', ''),
+                        'asset_id': row.get('ASSET_ID', ''),
+                        'equipment': row.get('EQUIPMENT_DESCRIPTION', ''),
+                        'changes': []
+                    }
+                
+                # Add this field change
+                grouped_changes[key]['changes'].append({
+                    'field': row.get('CHANGED_FIELD', ''),
+                    'original': row.get('ORIGINAL_VALUE', ''),
+                    'updated': row.get('UPDATED_VALUE', '')
+                })
+            
+            # Convert to list
+            formatted_comparison['changed_rows'] = list(grouped_changes.values())
+            
+        # Format added rows
+        if not comparison.get('added').empty:
+            added_df = comparison.get('added')
+            for _, row in added_df.iterrows():
+                formatted_comparison['added_rows'].append({
+                    'div': row.get('DIV', ''),
+                    'job': row.get('JOB', ''),
+                    'asset_id': row.get('ASSET_ID', ''),
+                    'equipment': row.get('EQUIPMENT_DESCRIPTION', ''),
+                    'driver': row.get('DRIVER', ''),
+                    'allocation': row.get('UNIT_ALLOCATION', 0),
+                    'cost_code': row.get('COST_CODE', ''),
+                    'revision_amount': row.get('REVISION', 0)
+                })
+        
+        # Format removed rows
+        if not comparison.get('removed').empty:
+            removed_df = comparison.get('removed')
+            for _, row in removed_df.iterrows():
+                formatted_comparison['removed_rows'].append({
+                    'div': row.get('DIV', ''),
+                    'job': row.get('JOB', ''),
+                    'asset_id': row.get('ASSET_ID', ''),
+                    'equipment': row.get('EQUIPMENT_DESCRIPTION', ''),
+                    'driver': row.get('DRIVER', ''),
+                    'allocation': row.get('UNIT_ALLOCATION', 0),
+                    'cost_code': row.get('COST_CODE', ''),
+                    'allocation_amount': row.get('UNIT_ALLOCATION_AMOUNT', 0)
+                })
+        
+        logger.info(f"Comparison results: {total_changes} total changes")
+        logger.info(f"Changed fields: {num_changes}, Added rows: {num_added}, Removed rows: {num_removed}")
+        
         return {
             'success': True,
             'comparison_file': comparison_file,
             'export_files': export_results.get('export_files', {}),
+            'comparison': formatted_comparison,
+            'message': f"Successfully processed PM allocation files for {month}",
             'changes': {
                 'total': total_changes,
                 'changed_fields': num_changes,
@@ -661,8 +765,8 @@ def process_pm_allocation(original_file, pm_file, region='all', month='', fsi_fo
         }
         
     except Exception as e:
-        logger.error(f"Error processing PM allocation files: {str(e)}")
+        logger.error(f"Error processing PM allocation files: {str(e)}", exc_info=True)
         return {
             'success': False,
-            'message': str(e)
+            'message': f"Error processing files: {str(e)}"
         }

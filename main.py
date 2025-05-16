@@ -1212,8 +1212,8 @@ def maintenance():
 @app.route('/reports')
 @login_required
 def reports():
-    """Redirect to the reports module index"""
-    return redirect(url_for('reports.index'))
+    """Render the reports dashboard page"""
+    return render_template('reports.html')
 
 # Create database tables
 with app.app_context():

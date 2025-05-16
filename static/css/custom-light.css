@@ -1,171 +1,150 @@
-/* Custom Light Theme for SYSTEMSMITH */
+/* Custom Light Theme */
+
 :root {
-  --primary-bg: #f8f9fa;
-  --secondary-bg: #e9ecef;
-  --card-bg: #ffffff;
-  --text-color: #343a40;
-  --text-muted: #6c757d;
-  --border-color: #dee2e6;
-  --accent-color: #0d6efd;
-  --success-color: #198754;
-  --warning-color: #ffc107;
-  --danger-color: #dc3545;
-  --info-color: #0dcaf0;
+  --bs-body-bg: #ffffff;
+  --bs-body-color: #212529;
+  --bs-primary: #0d6efd;
+  --bs-secondary: #6c757d;
+  --bs-success: #28a745;
+  --bs-info: #17a2b8;
+  --bs-warning: #ffc107;
+  --bs-danger: #dc3545;
+  --bs-light: #f8f9fa;
+  --bs-dark: #343a40;
 }
 
+/* Core elements */
 body {
-  background-color: var(--primary-bg);
-  color: var(--text-color);
+  background-color: #f8f9fa !important;
+  color: #212529 !important;
 }
 
 .navbar {
-  background-color: #343a40 !important;
+  background-color: #f8f9fa !important;
+  border-bottom: 1px solid #dee2e6 !important;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
 }
 
+.navbar-brand, .nav-link {
+  color: #0d6efd !important;
+}
+
+.nav-link.active {
+  font-weight: bold !important;
+}
+
+/* Card styling */
 .card {
-  background-color: var(--card-bg);
-  border: 1px solid var(--border-color);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff !important;
+  color: #212529 !important;
+  border: 1px solid #dee2e6 !important;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+  margin-bottom: 1rem !important;
 }
 
 .card-header {
-  background-color: rgba(0, 0, 0, 0.03);
-  border-bottom: 1px solid var(--border-color);
+  background-color: #f8f9fa !important;
+  border-bottom: 1px solid #dee2e6 !important;
+  color: #212529 !important;
 }
 
+/* Table styling */
 .table {
-  color: var(--text-color);
+  color: #212529 !important;
+  background-color: #ffffff !important;
+  border-color: #dee2e6 !important;
 }
 
-.table-striped > tbody > tr:nth-of-type(odd) {
-  background-color: rgba(0, 0, 0, 0.02);
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(0, 0, 0, 0.03) !important;
 }
 
-.btn-outline-info, 
-.btn-outline-secondary,
-.btn-outline-primary,
-.btn-outline-success,
-.btn-outline-warning,
-.btn-outline-danger {
-  color: var(--text-color);
-  border-color: var(--border-color);
+.table th {
+  border-top: none !important;
+  background-color: #f8f9fa !important;
 }
 
-.btn-outline-info:hover,
-.btn-outline-secondary:hover,
-.btn-outline-primary:hover,
-.btn-outline-success:hover,
-.btn-outline-warning:hover,
-.btn-outline-danger:hover {
-  color: white;
+/* Status colors and indicators */
+.bg-primary, .btn-primary {
+  background-color: #0d6efd !important;
+  border-color: #0d6efd !important;
 }
 
-/* Status colors */
-.bg-success, .badge-success {
-  background-color: var(--success-color) !important;
-  color: white;
+.bg-success, .btn-success {
+  background-color: #28a745 !important;
+  border-color: #28a745 !important;
 }
 
-.bg-warning, .badge-warning {
-  background-color: var(--warning-color) !important;
-  color: #343a40;
+.bg-info, .btn-info {
+  background-color: #17a2b8 !important;
+  border-color: #17a2b8 !important;
 }
 
-.bg-danger, .badge-danger {
-  background-color: var(--danger-color) !important;
-  color: white;
+.bg-warning, .btn-warning {
+  background-color: #ffc107 !important;
+  border-color: #ffc107 !important;
 }
 
-.bg-info, .badge-info {
-  background-color: var(--info-color) !important;
-  color: #343a40;
+.bg-danger, .btn-danger {
+  background-color: #dc3545 !important;
+  border-color: #dc3545 !important;
+}
+
+.text-primary {
+  color: #0d6efd !important;
+}
+
+.text-success {
+  color: #28a745 !important;
+}
+
+.text-info {
+  color: #17a2b8 !important;
+}
+
+.text-warning {
+  color: #ffc107 !important;
+}
+
+.text-danger {
+  color: #dc3545 !important;
+}
+
+/* Make darker text for better readability */
+.text-muted {
+  color: #6c757d !important;
 }
 
 /* Form controls */
 .form-control {
-  background-color: white;
-  border: 1px solid var(--border-color);
-  color: var(--text-color);
+  border-color: #ced4da !important;
 }
 
 .form-control:focus {
-  background-color: white;
-  border-color: var(--accent-color);
-  color: var(--text-color);
+  border-color: #80bdff !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
 }
 
-/* Feature cards */
-.feature-card {
-  background-color: var(--card-bg);
-  border-radius: 8px;
-  transition: transform 0.3s ease;
+/* Fix any dark mode elements that might remain */
+[data-bs-theme="dark"] {
+  --bs-body-bg: #ffffff !important;
+  --bs-body-color: #212529 !important;
 }
 
-.feature-card:hover {
-  transform: translateY(-5px);
+.bg-dark {
+  background-color: #f8f9fa !important;
+  color: #212529 !important;
 }
 
-/* Dashboard metrics */
-.metric-card {
-  background-color: var(--card-bg);
-  border-left: 4px solid var(--accent-color);
+.text-white {
+  color: #212529 !important;
 }
 
-.metric-card.active {
-  border-left-color: var(--success-color);
-}
-
-.metric-card.warning {
-  border-left-color: var(--warning-color);
-}
-
-.metric-card.danger {
-  border-left-color: var(--danger-color);
-}
-
-/* Activity feed */
-.activity-item {
-  background-color: var(--card-bg);
-  border-left: 3px solid var(--border-color);
-}
-
-.activity-item:hover {
-  background-color: var(--secondary-bg);
-}
-
-/* Reports section */
-.report-card {
-  background-color: var(--card-bg);
-  transition: box-shadow 0.3s ease;
-}
-
-.report-card:hover {
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-}
-
-/* Footer */
-.footer {
-  background-color: var(--secondary-bg);
-  color: var(--text-muted);
-}
-
-/* Status indicators */
-.status-indicator {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  display: inline-block;
-  margin-right: 5px;
-}
-
-.status-indicator.online {
-  background-color: var(--success-color);
-}
-
-.status-indicator.offline {
-  background-color: var(--danger-color);
-}
-
-.status-indicator.warning {
-  background-color: var(--warning-color);
+/* Dashboard stats */
+.dashboard-stat-card {
+  background-color: #ffffff !important;
+  color: #212529 !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+  padding: 1.5rem !important;
 }

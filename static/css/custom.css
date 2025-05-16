@@ -114,6 +114,32 @@
     background-color: rgba(13, 202, 240, 0.1);
 }
 
+/* Apply indicator styles to report rows based on type */
+.driver-report-table tbody.late-start-row tr {
+    border-left: 3px solid #dc3545;
+}
+
+.driver-report-table tbody.early-end-row tr {
+    border-left: 3px solid #ffc107;
+}
+
+.driver-report-table tbody.not-on-job-row tr {
+    border-left: 3px solid #6c757d;
+}
+
+/* Apply a subtle background color to each report type's table */
+.driver-report-table tbody.late-start-row {
+    background-color: rgba(220, 53, 69, 0.05);
+}
+
+.driver-report-table tbody.early-end-row {
+    background-color: rgba(255, 193, 7, 0.05);
+}
+
+.driver-report-table tbody.not-on-job-row {
+    background-color: rgba(108, 117, 125, 0.05);
+}
+
 /* Styling for different report types */
 .late-start-row {
     border-left: 3px solid #dc3545;

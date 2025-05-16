@@ -496,9 +496,28 @@ def generate_html_summary(reports, report_date):
             if file_path and os.path.exists(file_path):
                 html += f"<h2>{report_type.replace('_', ' ').title()} - {report_name.replace('_', ' ').title()}</h2>\n"
                 
-                # Read the CSV and create a table
+                # Read the CSV and create a table with our custom styling
                 df = pd.read_csv(file_path)
-                html += df.to_html(index=False)
+                
+                # Determine report-specific class for styling
+                report_class = 'driver-report-table'
+                row_class = ''
+                if 'late_start' in report_name:
+                    row_class = 'late-start-row'
+                elif 'early_end' in report_name:
+                    row_class = 'early-end-row'
+                elif 'not_on_job' in report_name:
+                    row_class = 'not-on-job-row'
+                
+                # Generate HTML table with class for dark theme
+                table_html = df.to_html(index=False, classes=[report_class])
+                
+                # Add row class to make different report types visually distinct
+                if row_class:
+                    # Add class to the first row (after the header row)
+                    table_html = table_html.replace('<tbody>', f'<tbody class="{row_class}">')
+                
+                html += table_html
     
     # Close HTML
     html += """

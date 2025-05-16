@@ -211,20 +211,31 @@
                                     <h5>Upload PM Allocation File</h5>
                                     <form action="/upload-pm-allocation" method="post" enctype="multipart/form-data">
                                         <div class="row">
-                                            <div class="col-md-6">
+                                            <div class="col-md-4">
                                                 <div class="mb-3">
                                                     <label for="original_file" class="form-label">Original Allocation</label>
                                                     <input class="form-control" type="file" id="original_file" name="original_file" accept=".xlsx,.xls">
                                                 </div>
                                             </div>
-                                            <div class="col-md-6">
+                                            <div class="col-md-4">
                                                 <div class="mb-3">
-                                                    <label for="edited_file" class="form-label">PM Edited Allocation</label>
-                                                    <input class="form-control" type="file" id="edited_file" name="edited_file" accept=".xlsx,.xls">
+                                                    <label for="updated_file" class="form-label">PM Edited Allocation</label>
+                                                    <input class="form-control" type="file" id="updated_file" name="updated_file" accept=".xlsx,.xls">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="mb-3">
+                                                    <label for="region" class="form-label">Region</label>
+                                                    <select class="form-select" id="region" name="region">
+                                                        <option value="all" selected>All Regions</option>
+                                                        <option value="DFW">DFW</option>
+                                                        <option value="HOU">HOU</option>
+                                                        <option value="WTX">WTX</option>
+                                                    </select>
                                                 </div>
                                             </div>
                                         </div>
-                                        <button type="submit" class="btn btn-primary">Upload and Compare</button>
+                                        <button type="submit" class="btn btn-primary">Upload and Process</button>
                                     </form>
                                 </div>
 

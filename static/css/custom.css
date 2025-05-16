@@ -1,38 +1,40 @@
-/* Custom styles to improve visibility with dark theme */
+/* Custom styles for improved light theme visibility */
 
-/* Lighter backgrounds for cards and containers */
+/* Card styling for light theme */
 .card {
-    background-color: #2a2a2a;
-    border-color: #3a3a3a;
+    background-color: #ffffff;
+    border-color: #e9ecef;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .card-header {
-    background-color: #343a40;
-    color: white;
+    background-color: #f8f9fa;
+    color: #212529;
+    border-bottom: 1px solid #e9ecef;
 }
 
 /* Table styling for better readability */
 .table {
-    color: #e9ecef;
-    border-color: #495057;
+    color: #212529;
+    border-color: #e9ecef;
 }
 
 .table-striped tbody tr:nth-of-type(odd) {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: rgba(0, 0, 0, 0.02);
 }
 
 .table-hover tbody tr:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(0, 0, 0, 0.05);
 }
 
 .table th {
-    background-color: #343a40;
-    color: #fff;
-    border-color: #495057;
+    background-color: #f8f9fa;
+    color: #212529;
+    border-color: #e9ecef;
 }
 
 .table td {
-    border-color: #495057;
+    border-color: #e9ecef;
 }
 
 /* Special styling for PM allocation tables */
@@ -40,51 +42,52 @@
     margin-top: 15px;
     border-radius: 5px;
     overflow: hidden;
-    border: 1px solid #495057;
+    border: 1px solid #dee2e6;
 }
 
 .pm-table th {
-    background-color: #343a40;
-    color: white;
+    background-color: #f8f9fa;
+    color: #212529;
     font-weight: 600;
 }
 
 .pm-table td {
-    color: #e9ecef;
+    color: #212529;
 }
 
-.pm-table .table-dark {
-    background-color: #212529;
-    color: #e9ecef;
+.pm-table .table-light {
+    background-color: #ffffff;
+    color: #212529;
 }
 
 /* Report view content styling */
 .report-view-content {
     padding: 15px;
-    background-color: #2c3034;
+    background-color: #ffffff;
     border-radius: 5px;
+    border: 1px solid #dee2e6;
 }
 
 .report-view-content table {
     width: 100%;
     margin-bottom: 1rem;
-    border: 2px solid #6c757d;
-    background-color: #2c3034;
+    border: 1px solid #dee2e6;
+    background-color: #ffffff;
 }
 
 .report-view-content th {
-    background-color: #212529;
-    color: #fff;
+    background-color: #f8f9fa;
+    color: #212529;
     padding: 12px 15px;
     font-weight: bold;
-    border-bottom: 2px solid #0dcaf0;
+    border-bottom: 1px solid #0d6efd;
 }
 
 .report-view-content td {
     padding: 12px 15px;
-    color: #ffffff;
-    border-color: #495057;
-    background-color: #343a40;
+    color: #212529;
+    border-color: #dee2e6;
+    background-color: #ffffff;
 }
 
 /* Driver report specific styling */
@@ -92,36 +95,36 @@
     width: 100%;
     margin-bottom: 1.5rem;
     border-collapse: collapse;
-    border: 2px solid #6c757d;
-    background-color: #2c3034;
+    border: 1px solid #dee2e6;
+    background-color: #ffffff;
 }
 
 .driver-report-table th {
-    background-color: #0d6efd;
-    color: #ffffff;
+    background-color: #f8f9fa;
+    color: #212529;
     padding: 15px;
     font-weight: 600;
     text-align: left;
-    border-bottom: 2px solid #0dcaf0;
+    border-bottom: 1px solid #0d6efd;
 }
 
 .driver-report-table td {
     padding: 12px 15px;
-    color: #ffffff;
-    background-color: #343a40;
-    border-bottom: 1px solid #495057;
+    color: #212529;
+    background-color: #ffffff;
+    border-bottom: 1px solid #dee2e6;
 }
 
 .driver-report-table tr:nth-of-type(odd) {
-    background-color: #3e444a;
+    background-color: rgba(0, 0, 0, 0.02);
 }
 
 .driver-report-table tr:nth-of-type(even) {
-    background-color: #343a40;
+    background-color: #ffffff;
 }
 
 .driver-report-table tr:hover {
-    background-color: rgba(13, 202, 240, 0.3);
+    background-color: rgba(13, 110, 253, 0.1);
 }
 
 /* Apply indicator styles to report rows based on type */

@@ -84,6 +84,23 @@ def download_report(report_path):
     except Exception as e:
         flash(f'Error downloading report: {str(e)}', 'danger')
         return redirect(url_for('reports.driver_reports'))
+        
+@reports_bp.route('/download-export/<path:export_path>')
+@login_required
+def download_export(export_path):
+    """Download a specific export file."""
+    try:
+        exports_dir = os.path.join(os.getcwd(), 'exports')
+        full_path = os.path.join(exports_dir, export_path)
+        
+        if not os.path.exists(full_path):
+            flash('Export file not found', 'danger')
+            return redirect(url_for('reports.index'))
+        
+        return send_file(full_path, as_attachment=True)
+    except Exception as e:
+        flash(f'Error downloading export: {str(e)}', 'danger')
+        return redirect(url_for('reports.index'))
 
 @reports_bp.route('/view/<path:report_path>')
 @login_required

@@ -453,6 +453,157 @@ def asset_driver_list():
                               'driver_active_percentage': driver_active_percentage
                           })
 
+@app.route('/asset-drivers/assign', methods=['GET', 'POST'])
+@login_required
+def assign_driver():
+    """Assign a driver to an asset"""
+    if request.method == 'POST':
+        asset_id = request.form.get('asset_id')
+        driver_id = request.form.get('driver_id')
+        start_date_str = request.form.get('start_date')
+        notes = request.form.get('notes')
+        
+        # Validate inputs
+        if not asset_id or not driver_id or not start_date_str:
+            flash('All required fields must be filled in', 'danger')
+            return redirect(url_for('assign_driver'))
+        
+        # Convert date string to date object
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+        
+        # Check if asset exists
+        asset = Asset.query.get(asset_id)
+        if not asset:
+            flash('Selected asset does not exist', 'danger')
+            return redirect(url_for('assign_driver'))
+        
+        # Check if driver exists
+        driver = Driver.query.get(driver_id)
+        if not driver:
+            flash('Selected driver does not exist', 'danger')
+            return redirect(url_for('assign_driver'))
+        
+        # Check if asset is already assigned to another driver
+        existing_assignment = AssetDriverMapping.query.filter_by(asset_id=asset_id, is_current=True).first()
+        if existing_assignment:
+            flash(f'Asset {asset.asset_identifier} is already assigned to {existing_assignment.driver.name}', 'warning')
+            return redirect(url_for('assign_driver'))
+        
+        # Create new assignment
+        new_assignment = AssetDriverMapping(
+            asset_id=asset_id,
+            driver_id=driver_id,
+            start_date=start_date,
+            is_current=True,
+            notes=notes
+        )
+        
+        try:
+            db.session.add(new_assignment)
+            db.session.commit()
+            flash(f'Asset {asset.asset_identifier} successfully assigned to {driver.name}', 'success')
+            return redirect(url_for('asset_driver_list'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error assigning driver: {str(e)}', 'danger')
+            return redirect(url_for('assign_driver'))
+    
+    # GET request - display form
+    assets = Asset.query.all()
+    drivers = Driver.query.filter_by(active=True).all()
+    
+    return render_template('asset_drivers/assign.html', 
+                          assets=assets, 
+                          drivers=drivers,
+                          today=datetime.now())
+
+@app.route('/asset-drivers/end-assignment/<int:assignment_id>', methods=['GET', 'POST'])
+@login_required
+def end_assignment(assignment_id):
+    """End an existing asset-driver assignment"""
+    assignment = AssetDriverMapping.query.get_or_404(assignment_id)
+    
+    if request.method == 'POST':
+        end_date_str = request.form.get('end_date')
+        notes = request.form.get('notes')
+        
+        # Validate inputs
+        if not end_date_str:
+            flash('End date is required', 'danger')
+            return redirect(url_for('end_assignment', assignment_id=assignment_id))
+        
+        # Convert date string to date object
+        end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+        
+        # Validate end date is not before start date
+        if end_date < assignment.start_date:
+            flash('End date cannot be before start date', 'danger')
+            return redirect(url_for('end_assignment', assignment_id=assignment_id))
+        
+        # Update assignment
+        assignment.end_date = end_date
+        assignment.is_current = False
+        if notes:
+            assignment.notes = notes
+        
+        try:
+            db.session.commit()
+            flash(f'Assignment of {assignment.asset.asset_identifier} to {assignment.driver.name} has been ended', 'success')
+            return redirect(url_for('asset_driver_list'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error ending assignment: {str(e)}', 'danger')
+            return redirect(url_for('end_assignment', assignment_id=assignment_id))
+    
+    # GET request - display form
+    return render_template('asset_drivers/end_assignment.html', 
+                          assignment=assignment,
+                          today=datetime.now())
+
+@app.route('/asset-drivers/import')
+@login_required
+def import_drivers():
+    """Import drivers from timecard data"""
+    try:
+        # Get list of unique drivers from timecards in the last month
+        from utils.timecard_processor import get_unique_drivers
+        drivers_data = get_unique_drivers()
+        
+        # Count of drivers before import
+        before_count = Driver.query.count()
+        
+        # Import new drivers
+        for driver_info in drivers_data:
+            # Check if driver already exists by employee ID
+            existing_driver = Driver.query.filter_by(employee_id=driver_info['employee_id']).first()
+            if not existing_driver:
+                # Create new driver
+                new_driver = Driver(
+                    name=driver_info['name'],
+                    employee_id=driver_info['employee_id'],
+                    department=driver_info.get('department'),
+                    region=driver_info.get('region'),
+                    active=True
+                )
+                db.session.add(new_driver)
+        
+        db.session.commit()
+        
+        # Count new drivers added
+        after_count = Driver.query.count()
+        new_drivers = after_count - before_count
+        
+        if new_drivers > 0:
+            flash(f'Successfully imported {new_drivers} new drivers from timecard data', 'success')
+        else:
+            flash('No new drivers found in timecard data', 'info')
+            
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error importing drivers: {str(e)}', 'danger')
+    
+    return redirect(url_for('asset_driver_list'))
+
 # Run the app
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))

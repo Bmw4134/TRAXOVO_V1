@@ -188,6 +188,55 @@ def reports():
     """Render the reports page"""
     return render_template('reports.html', title='Reports')
 
+@app.route('/upload-timecard', methods=['POST'])
+@login_required
+def upload_timecard():
+    """Handle timecard file uploads"""
+    if 'timecard_file' not in request.files:
+        flash('No file selected', 'danger')
+        return redirect(url_for('reports'))
+        
+    file = request.files['timecard_file']
+    file_type = request.form.get('file_type', 'standard')
+    
+    if file.filename == '':
+        flash('No file selected', 'danger')
+        return redirect(url_for('reports'))
+        
+    if not file.filename.endswith(('.xlsx', '.xls')):
+        flash('Invalid file format. Please upload an Excel file.', 'danger')
+        return redirect(url_for('reports'))
+        
+    try:
+        # Create uploads directory if it doesn't exist
+        os.makedirs('uploads', exist_ok=True)
+        
+        # Save the file
+        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+        filename = f"timecard_{timestamp}_{file.filename}"
+        file_path = os.path.join('uploads', filename)
+        file.save(file_path)
+        
+        # Process the file based on its type
+        if file_type == 'standard':
+            # Import standard timecard processing function
+            from utils.timecard_processor import process_timecard
+            result = process_timecard(file_path)
+        else:
+            # Handle other file types if needed
+            result = {'success': False, 'message': 'Unknown file type'}
+            
+        if result['success']:
+            flash(result['message'], 'success')
+        else:
+            flash(f"Error processing timecard: {result['message']}", 'danger')
+            
+        return redirect(url_for('reports'))
+        
+    except Exception as e:
+        flash(f'Error uploading timecard: {str(e)}', 'danger')
+        return redirect(url_for('reports'))
+
 # Error Handlers
 @app.errorhandler(404)
 def page_not_found(e):

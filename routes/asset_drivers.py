@@ -11,7 +11,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required
 from sqlalchemy import desc
 
-from minimal import db, Asset, Driver, AssetDriverMapping
+from main import db, Asset, Driver, AssetDriverMapping
 from utils.asset_driver_mapper import import_asset_driver_assignments, get_unique_drivers
 
 asset_drivers = Blueprint('asset_drivers', __name__, url_prefix='/asset-drivers')

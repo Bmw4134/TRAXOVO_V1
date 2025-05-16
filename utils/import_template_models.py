@@ -3,7 +3,7 @@ Models for import templates
 """
 
 from datetime import datetime
-from minimal import db
+from main import db
 
 
 class ModelTemplate:
@@ -42,7 +42,7 @@ class AssetDriverImportTemplate(ModelTemplate):
     @classmethod
     def map_to_model(cls, row_data):
         """Map row data to model fields"""
-        from minimal import AssetDriverMapping, Asset, Driver
+        from main import AssetDriverMapping, Asset, Driver
         
         # Get the asset by identifier
         asset = Asset.query.filter_by(asset_identifier=row_data['asset_identifier']).first()

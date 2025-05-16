@@ -24,7 +24,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Database models (imported here to avoid circular imports)
-from minimal import db, Asset, Driver, AssetDriverMapping
+from main import db, Asset, Driver, AssetDriverMapping
 
 class AssetDriverMappingBuilder:
     """Class to build asset-driver mappings from multiple data sources"""

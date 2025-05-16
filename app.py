@@ -18,6 +18,9 @@ app.secret_key = os.environ.get("SESSION_SECRET", "fleet-management-default-key"
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=30)
 
 # Configure database
+
+# Import timecard processor
+from utils.timecard_processor import load_timecard_data, generate_attendance_report
 database_url = os.environ.get("DATABASE_URL")
 if database_url and database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)

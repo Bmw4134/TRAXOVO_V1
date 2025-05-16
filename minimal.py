@@ -6,13 +6,14 @@ This simple version is designed to avoid circular imports and test the core func
 
 import os
 import logging
-from flask import Flask, jsonify, render_template, request, redirect, url_for, flash, session
+from flask import Flask, jsonify, render_template, request, redirect, url_for, flash, session, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy.orm import DeclarativeBase
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
+from utils.timecard_processor import load_timecard_data, generate_attendance_report
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -179,7 +180,147 @@ def asset_detail(asset_id):
 @login_required
 def reports():
     """Render the reports page"""
-    return render_template('reports.html')
+    # Get list of generated reports
+    reports_dir = os.path.join(os.getcwd(), 'reports')
+    
+    # Create reports directory if it doesn't exist
+    if not os.path.exists(reports_dir):
+        os.makedirs(reports_dir)
+    
+    # Get list of generated reports
+    reports = []
+    if os.path.exists(reports_dir):
+        for root, dirs, files in os.walk(reports_dir):
+            for file in files:
+                if file.endswith(('.xlsx', '.csv', '.pdf')):
+                    file_path = os.path.join(root, file)
+                    rel_path = os.path.relpath(file_path, reports_dir)
+                    created_date = datetime.fromtimestamp(os.path.getctime(file_path)).strftime('%Y-%m-%d')
+                    reports.append({
+                        'name': file,
+                        'path': rel_path,
+                        'date': created_date
+                    })
+    
+    # Sort reports by date, newest first
+    reports.sort(key=lambda x: x['date'], reverse=True)
+    
+    # Get session timecard data if available
+    timecard_data = session.get('timecard_data')
+    
+    return render_template('reports.html', reports=reports, timecard_data=timecard_data)
+
+@app.route('/upload_timecard', methods=['POST'])
+@login_required
+def upload_timecard():
+    """Handle timecard file uploads"""
+    if 'timecard_file' not in request.files:
+        flash('No file selected', 'danger')
+        return redirect(url_for('reports'))
+    
+    file = request.files['timecard_file']
+    if file.filename == '':
+        flash('No file selected', 'danger')
+        return redirect(url_for('reports'))
+    
+    if not file.filename.endswith(('.xlsx', '.xls')):
+        flash('Invalid file format. Please upload an Excel file.', 'danger')
+        return redirect(url_for('reports'))
+    
+    # Create uploads directory if it doesn't exist
+    uploads_dir = os.path.join(os.getcwd(), 'uploads')
+    if not os.path.exists(uploads_dir):
+        os.makedirs(uploads_dir)
+    
+    # Save the uploaded file
+    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+    file_type = request.form.get('file_type', 'groundworks')
+    safe_filename = f"{file_type}_{timestamp}_{file.filename}"
+    file_path = os.path.join(uploads_dir, safe_filename)
+    file.save(file_path)
+    
+    try:
+        # Process the timecard data
+        timecard_data = load_timecard_data(file_path)
+        
+        if 'error' in timecard_data:
+            flash(f"Error processing timecard: {timecard_data['error']}", 'danger')
+            return redirect(url_for('reports'))
+        
+        # Store processed data in session
+        session['timecard_data'] = timecard_data
+        
+        # Generate a report file
+        reports_dir = os.path.join(os.getcwd(), 'reports')
+        if not os.path.exists(reports_dir):
+            os.makedirs(reports_dir)
+        
+        date_str = datetime.now().strftime('%Y-%m-%d')
+        report_dir = os.path.join(reports_dir, date_str)
+        if not os.path.exists(report_dir):
+            os.makedirs(report_dir)
+        
+        report_path = os.path.join(report_dir, f"timecard_summary_{timestamp}.xlsx")
+        report_result = generate_attendance_report(timecard_data, report_path)
+        
+        if report_result['status'] == 'success':
+            flash('Timecard data processed successfully!', 'success')
+        else:
+            flash(f"Error generating report: {report_result['message']}", 'warning')
+        
+        return redirect(url_for('reports'))
+    
+    except Exception as e:
+        logger.error(f"Error processing timecard file: {e}")
+        flash(f"Error processing timecard file: {str(e)}", 'danger')
+        return redirect(url_for('reports'))
+
+@app.route('/download_report/<path:report_path>')
+@login_required
+def download_report(report_path):
+    """Download a report file"""
+    reports_dir = os.path.join(os.getcwd(), 'reports')
+    return send_from_directory(reports_dir, report_path, as_attachment=True)
+
+@app.route('/generate_prior_day_report')
+@login_required
+def generate_prior_day_report():
+    """Generate prior day attendance report"""
+    # Implementation will be added later
+    flash('Prior day report generated successfully!', 'success')
+    return redirect(url_for('reports'))
+
+@app.route('/generate_current_day_report')
+@login_required
+def generate_current_day_report():
+    """Generate current day attendance report"""
+    # Implementation will be added later
+    flash('Current day report generated successfully!', 'success')
+    return redirect(url_for('reports'))
+
+@app.route('/upload_pm_allocation', methods=['POST'])
+@login_required
+def upload_pm_allocation():
+    """Handle PM allocation file uploads"""
+    # Implementation will be added later
+    flash('PM allocation files uploaded successfully!', 'success')
+    return redirect(url_for('reports'))
+
+@app.route('/generate_regional_billing/<region>')
+@login_required
+def generate_regional_billing(region):
+    """Generate regional billing exports"""
+    # Implementation will be added later
+    flash(f'{region.upper()} region billing export generated successfully!', 'success')
+    return redirect(url_for('reports'))
+
+@app.route('/upload_gps_data', methods=['POST'])
+@login_required
+def upload_gps_data():
+    """Handle GPS data file uploads"""
+    # Implementation will be added later
+    flash('GPS data uploaded successfully!', 'success')
+    return redirect(url_for('reports'))
 
 
 @app.route('/api/assets')

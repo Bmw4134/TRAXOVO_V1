@@ -221,10 +221,19 @@ def upload_pm_allocation():
         except ValueError:
             month = datetime.now().strftime('%B %Y').upper()
         
+        # Log parameters
+        logging.info(f"PM Allocation Upload - Month: {month}, Region: {region}, FSI Format: {fsi_format}")
+        logging.info(f"Original file: {original_file.filename}, Updated file: {updated_file.filename}")
+        
         # Create uploads directory if it doesn't exist
         uploads_dir = os.path.join(os.getcwd(), 'uploads')
         if not os.path.exists(uploads_dir):
             os.makedirs(uploads_dir)
+            
+        # Create exports directory if it doesn't exist
+        exports_dir = os.path.join(os.getcwd(), 'exports')
+        if not os.path.exists(exports_dir):
+            os.makedirs(exports_dir)
             
         # Save uploaded files
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -233,15 +242,22 @@ def upload_pm_allocation():
         
         original_file.save(original_path)
         updated_file.save(updated_path)
+        logging.info(f"Files saved to: {original_path} and {updated_path}")
         
         # Process the files
-        result = process_pm_allocation(
-            original_file=original_path,
-            pm_file=updated_path,
-            region=region,
-            month=month,
-            fsi_format=fsi_format
-        )
+        try:
+            result = process_pm_allocation(
+                original_file=original_path,
+                pm_file=updated_path,
+                region=region,
+                month=month,
+                fsi_format=fsi_format
+            )
+            logging.info(f"PM Allocation processing result: {result.get('success')}")
+        except Exception as e:
+            logging.error(f"Error in PM Allocation processing: {str(e)}", exc_info=True)
+            flash(f"An error occurred during processing: {str(e)}", 'danger')
+            return redirect(url_for('reports.pm_allocation'))
         
         if not result['success']:
             flash(f"Error processing files: {result.get('message', 'Unknown error')}", 'danger')
@@ -253,10 +269,14 @@ def upload_pm_allocation():
             'original_file': os.path.basename(original_path),
             'pm_file': os.path.basename(updated_path),
             'month': month,
-            'export_files': result.get('export_files', []),
+            'export_files': result.get('export_files', {}),
             'comparison_file': result.get('comparison_file', ''),
+            'comparison': result.get('comparison', {}),
             'changes': result.get('changes', {})
         }
+        
+        # Log stored data
+        logging.info(f"Stored PM allocation result in session: {session.get('pm_allocation_result', {}).keys()}")
         
         # Redirect to results page
         return redirect(url_for('reports.pm_allocation_results'))
@@ -270,117 +290,114 @@ def upload_pm_allocation():
 @login_required
 def pm_allocation_results():
     """Display results of PM allocation processing."""
+    # Import required modules
+    import logging
+    import pandas as pd
+    import os
+    from flask import session, flash, redirect, url_for, render_template
+    
     # Get result from session
     result = session.get('pm_allocation_result')
     if not result:
         flash('No PM allocation results found. Please upload files first.', 'warning')
         return redirect(url_for('reports.pm_allocation'))
     
-    # Load the comparison file to show details
-    comparison_file = result.get('comparison_file')
+    # Initialize comparison data structure
+    comparison = {
+        'changed_rows': [],
+        'added_rows': [],
+        'removed_rows': []
+    }
     
-    if not comparison_file or not os.path.exists(comparison_file):
-        flash('Comparison file not found', 'warning')
-        comparison = {
-            'changed_rows': [],
-            'added_rows': [],
-            'removed_rows': []
-        }
+    # Check if comparison data is already in the result
+    if 'comparison' in result:
+        comparison = result.get('comparison', comparison)
+        logging.info(f"Using comparison data from session")
     else:
-        # Load comparison data from file
-        try:
-            comparison_data = pd.read_excel(comparison_file, sheet_name=None)
-            
-            # Process data into a format suitable for the template
-            comparison = {
-                'changed_rows': [],
-                'added_rows': [],
-                'removed_rows': []
-            }
-            
-            # Process changed rows
-            if 'Changes' in comparison_data:
-                changes_df = comparison_data['Changes']
+        # If not, load from file
+        comparison_file = result.get('comparison_file')
+        
+        if comparison_file and os.path.exists(comparison_file):
+            # Load comparison data from file
+            try:
+                logging.info(f"Loading comparison data from file: {comparison_file}")
+                comparison_data = pd.read_excel(comparison_file, sheet_name=None)
                 
-                # Group by the row identifier (first 4 columns typically)
-                current_row = None
-                for _, row in changes_df.iterrows():
-                    row_dict = row.to_dict()
+                # Process changed rows if available
+                if 'Changes' in comparison_data:
+                    changes_df = comparison_data['Changes']
                     
-                    # Check if this is a new row or continuation of changes for current row
-                    row_id = f"{row['DIV']}-{row['JOB']}-{row['ASSET ID']}"
-                    
-                    if current_row is None or current_row['row_id'] != row_id:
-                        # Start a new row
-                        current_row = {
-                            'row_id': row_id,
-                            'div': row['DIV'],
-                            'job': row['JOB'],
-                            'asset_id': row['ASSET ID'],
-                            'equipment': row['EQUIPMENT DESCRIPTION'],
-                            'changes': [],
-                            'original': {},
-                            'updated': {}
-                        }
-                        comparison['changed_rows'].append(current_row)
-                    
-                    # Add this change to the current row
-                    field = row.get('CHANGED FIELD', '')
-                    if field:
-                        current_row['changes'].append({
-                            'field': field,
-                            'original': row.get('ORIGINAL VALUE', ''),
-                            'updated': row.get('UPDATED VALUE', '')
-                        })
+                    if len(changes_df) > 0:
+                        logging.info(f"Processing {len(changes_df)} changed rows")
                         
-                        # Track original and updated values for calculations
-                        if field == 'REVISION':
-                            current_row['original']['revision_amount'] = float(row.get('ORIGINAL VALUE', 0))
-                            current_row['updated']['revision_amount'] = float(row.get('UPDATED VALUE', 0))
-            
-            # Process added rows
-            if 'Added' in comparison_data:
-                added_df = comparison_data['Added']
-                for _, row in added_df.iterrows():
-                    comparison['added_rows'].append({
-                        'div': row.get('DIV', ''),
-                        'job': row.get('JOB', ''),
-                        'asset_id': row.get('ASSET ID', ''),
-                        'equipment': row.get('EQUIPMENT DESCRIPTION', ''),
-                        'driver': row.get('DRIVER', ''),
-                        'allocation': row.get('UNIT ALLOCATION', ''),
-                        'cost_code': row.get('COST CODE', ''),
-                        'revision_amount': row.get('REVISION', 0)
-                    })
-            
-            # Process removed rows
-            if 'Removed' in comparison_data:
-                removed_df = comparison_data['Removed']
-                for _, row in removed_df.iterrows():
-                    comparison['removed_rows'].append({
-                        'div': row.get('DIV', ''),
-                        'job': row.get('JOB', ''),
-                        'asset_id': row.get('ASSET ID', ''),
-                        'equipment': row.get('EQUIPMENT DESCRIPTION', ''),
-                        'driver': row.get('DRIVER', ''),
-                        'allocation': row.get('UNIT ALLOCATION', ''),
-                        'cost_code': row.get('COST CODE', ''),
-                        'allocation_amount': row.get('UNIT ALLOCATION AMOUNT', 0)
-                    })
-                    
-        except Exception as e:
-            logging.error(f"Error loading comparison file: {str(e)}")
-            flash(f'Error loading comparison data: {str(e)}', 'warning')
-            comparison = {
-                'changed_rows': [],
-                'added_rows': [],
-                'removed_rows': []
-            }
+                        # Process each row
+                        current_row = None
+                        for _, row in changes_df.iterrows():
+                            row_dict = row.to_dict()
+                            
+                            # Get row ID safely
+                            div = str(row_dict.get('DIV', ''))
+                            job = str(row_dict.get('JOB', ''))
+                            asset_id = str(row_dict.get('ASSET ID', ''))
+                            row_id = f"{div}-{job}-{asset_id}"
+                            
+                            # Create or update row entry
+                            if current_row is None or current_row['row_id'] != row_id:
+                                if current_row is not None:
+                                    comparison['changed_rows'].append(current_row)
+                                
+                                current_row = {
+                                    'row_id': row_id,
+                                    'div': div,
+                                    'job': job,
+                                    'asset_id': asset_id,
+                                    'equipment': str(row_dict.get('EQUIPMENT DESCRIPTION', '')),
+                                    'changes': [],
+                                    'original': {},
+                                    'updated': {}
+                                }
+                            
+                            # Add the change
+                            current_row['changes'].append({
+                                'field': str(row_dict.get('FIELD', '')),
+                                'original': str(row_dict.get('ORIGINAL', '')),
+                                'updated': str(row_dict.get('UPDATED', ''))
+                            })
+                        
+                        # Add the last row
+                        if current_row is not None:
+                            comparison['changed_rows'].append(current_row)
+                
+                # Process added rows if available
+                if 'Added Rows' in comparison_data:
+                    added_df = comparison_data['Added Rows']
+                    if len(added_df) > 0:
+                        for _, row in added_df.iterrows():
+                            comparison['added_rows'].append(row.to_dict())
+                
+                # Process removed rows if available  
+                if 'Removed Rows' in comparison_data:
+                    removed_df = comparison_data['Removed Rows']
+                    if len(removed_df) > 0:
+                        for _, row in removed_df.iterrows():
+                            comparison['removed_rows'].append(row.to_dict())
+                            
+            except Exception as e:
+                logging.error(f"Error loading comparison data: {str(e)}", exc_info=True)
+                flash(f"Error processing comparison data: {str(e)}", 'warning')
+        else:
+            logging.warning(f"Comparison file not found: {comparison_file}")
+            flash('Comparison file not found or could not be loaded. Using basic report data.', 'warning')
     
+    # Process the export files
+    export_files = result.get('export_files', {})
+    
+    # Render the results page
     return render_template('pm_allocation_results.html',
                           title='PM Allocation Results',
                           result=result,
-                          comparison=comparison)
+                          comparison=comparison,
+                          export_files=export_files)
 
 @reports_bp.route('/generate-region-exports')
 @login_required

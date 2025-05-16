@@ -500,12 +500,11 @@ def generate_comparison_file(comparison, month, output_dir='exports'):
     
     return output_file
 
-def generate_region_exports(comparison, pm_df, month, export_dir='exports', fsi_format=False):
+def generate_region_exports(pm_df, month, export_dir='exports', fsi_format=False):
     """
     Generate region-specific export files.
     
     Args:
-        comparison (dict): Comparison results from compare_pm_files
         pm_df (DataFrame): PM-edited allocation data
         month (str): Month of the data (e.g., "APRIL 2025")
         export_dir (str): Directory to save the output files
@@ -514,21 +513,37 @@ def generate_region_exports(comparison, pm_df, month, export_dir='exports', fsi_
     Returns:
         dict: Dictionary with export file paths
     """
+    logger.info(f"Generating region exports for {month}")
+    logger.info(f"PM dataframe shape: {pm_df.shape}")
+    logger.info(f"PM columns: {list(pm_df.columns)}")
+    
     # Create output directory if it doesn't exist
     if not os.path.exists(export_dir):
         os.makedirs(export_dir)
     
     # Preprocess PM dataframe if not already done
-    pm_df = preprocess_pm_data(pm_df)
+    try:
+        pm_df = preprocess_pm_data(pm_df.copy())
+        logger.info(f"Preprocessed PM dataframe shape: {pm_df.shape}")
+    except Exception as e:
+        logger.error(f"Error preprocessing PM data: {str(e)}", exc_info=True)
+        return {'export_files': {}}
     
-    # Get region map from comparison or generate new one
-    if comparison and 'region_map' in comparison:
-        region_map = comparison['region_map']
-    else:
+    # Generate region map
+    try:
         region_map = identify_regions(pm_df)
+        logger.info(f"Region map: {region_map}")
+    except Exception as e:
+        logger.error(f"Error identifying regions: {str(e)}", exc_info=True)
+        region_map = {}
     
     # Add region column based on DIV
-    pm_df['REGION'] = pm_df['DIV'].map(region_map)
+    try:
+        pm_df['REGION'] = pm_df['DIV'].map(region_map)
+        logger.info(f"Regions detected: {pm_df['REGION'].unique()}")
+    except Exception as e:
+        logger.error(f"Error mapping regions: {str(e)}", exc_info=True)
+        pm_df['REGION'] = 'UNKNOWN'
     
     # Create timestamp for filenames
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -567,37 +582,46 @@ def generate_region_exports(comparison, pm_df, month, export_dir='exports', fsi_
         
         # FSI import format if requested
         if fsi_format:
-            fsi_file = os.path.join(
-                export_dir, 
-                f"{region}_{month.replace(' ', '_')}_FSI_IMPORT_{timestamp}.csv"
-            )
-            
-            # Create FSI format
-            fsi_df = region_df.copy()
-            
-            # FSI format requires specific columns with specific names
-            fsi_columns = {
-                'DIV': 'Division',
-                'JOB': 'Job',
-                'COST_CODE': 'Cost Code',
-                'UNIT_ALLOCATION_AMOUNT': 'Amount'
-            }
-            
-            # Create the FSI format dataframe
-            fsi_export_df = pd.DataFrame()
-            
-            for fsi_col, original_col in fsi_columns.items():
-                if fsi_col in fsi_df.columns:
-                    fsi_export_df[original_col] = fsi_df[fsi_col]
+            try:
+                fsi_file = os.path.join(
+                    export_dir, 
+                    f"{region}_{month.replace(' ', '_')}_FSI_IMPORT_{timestamp}.csv"
+                )
+                
+                # Create FSI format
+                fsi_df = region_df.copy()
+                
+                # FSI format requires specific columns with specific names
+                fsi_columns = {
+                    'DIV': 'Division',
+                    'JOB': 'Job',
+                    'COST_CODE': 'Cost Code',
+                    'UNIT_ALLOCATION_AMOUNT': 'Amount'
+                }
+                
+                # Create the FSI format dataframe
+                fsi_export_df = pd.DataFrame()
+                
+                for fsi_col, original_col in fsi_columns.items():
+                    if fsi_col in fsi_df.columns:
+                        fsi_export_df[original_col] = fsi_df[fsi_col]
+                    else:
+                        logger.warning(f"Missing column {fsi_col} for FSI format in region {region}")
+                        fsi_export_df[original_col] = ''
+                
+                # Add description field (Asset ID + Equipment Description)
+                if 'ASSET_ID' in fsi_df.columns and 'EQUIPMENT_DESCRIPTION' in fsi_df.columns:
+                    fsi_export_df['Description'] = fsi_df['ASSET_ID'].astype(str) + ' - ' + fsi_df['EQUIPMENT_DESCRIPTION'].astype(str)
                 else:
-                    fsi_export_df[original_col] = ''
-            
-            # Add description field (Asset ID + Equipment Description)
-            fsi_export_df['Description'] = fsi_df['ASSET_ID'] + ' - ' + fsi_df['EQUIPMENT_DESCRIPTION']
-            
-            # Export FSI format
-            fsi_export_df.to_csv(fsi_file, index=False)
-            export_files[f"{region}_fsi"] = fsi_file
+                    logger.warning(f"Missing ASSET_ID or EQUIPMENT_DESCRIPTION columns for FSI format in region {region}")
+                    fsi_export_df['Description'] = 'Unknown equipment'
+                
+                # Export FSI format
+                fsi_export_df.to_csv(fsi_file, index=False)
+                export_files[f"{region}_fsi"] = fsi_file
+                logger.info(f"FSI export for {region} saved to {fsi_file}")
+            except Exception as e:
+                logger.error(f"Error generating FSI format for {region}: {str(e)}", exc_info=True)
     
     return {
         'success': True,

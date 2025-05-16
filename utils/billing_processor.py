@@ -1,1038 +1,418 @@
 """
 Billing Processor Utility
 
-This module contains functions for processing PM billing allocation files,
-comparing versions, and generating regional export files.
+This module handles the processing of monthly billing data from multiple sources,
+including SELECT and RAGLE billing files, and applies the formulas from the
+EQ MONTHLY BILLINGS WORKING SPREADSHEET.
 """
+
 import os
-import re
 import pandas as pd
 import numpy as np
-import logging
 from datetime import datetime
-from openpyxl import Workbook
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+import openpyxl
 from openpyxl.utils import get_column_letter
+from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-# Define colors for highlighting changes
-HIGHLIGHT_ADDED = PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")  # Light green
-HIGHLIGHT_REMOVED = PatternFill(start_color="FFC7CE", end_color="FFC7CE", fill_type="solid")  # Light red
-HIGHLIGHT_CHANGED = PatternFill(start_color="FFEB9C", end_color="FFEB9C", fill_type="solid")  # Light yellow
-
-# Define border styles
-THIN_BORDER = Border(
-    left=Side(style='thin'),
-    right=Side(style='thin'),
-    top=Side(style='thin'),
-    bottom=Side(style='thin')
-)
-
-HEADER_FONT = Font(bold=True, size=12)
-NORMAL_FONT = Font(size=11)
-
-def clean_column_names(df):
-    """
-    Standardize column names in the dataframe.
+class BillingProcessor:
+    """Class for processing and combining monthly billing data"""
     
-    Args:
-        df (DataFrame): The DataFrame to clean
+    def __init__(self):
+        """Initialize the billing processor"""
+        self.source_dir = 'attached_assets'
+        self.output_dir = 'exports/billing'
         
-    Returns:
-        DataFrame: DataFrame with standardized column names
-    """
-    # Convert all column names to uppercase and replace spaces with underscores
-    df.columns = [str(col).strip().upper().replace(' ', '_') for col in df.columns]
-    
-    # Map common variations to standardized names
-    column_mapping = {
-        'DIV.': 'DIV',
-        'DIVISION': 'DIV',
-        'JOB_CODE': 'JOB',
-        'JOB_NUMBER': 'JOB',
-        'EQUIP._ID': 'ASSET_ID',
-        'EQUIPMENT_ID': 'ASSET_ID',
-        'EQUIPMENT': 'EQUIPMENT_DESCRIPTION',
-        'EQUIP._DESCRIPTION': 'EQUIPMENT_DESCRIPTION',
-        'ASSET_DESCRIPTION': 'EQUIPMENT_DESCRIPTION',
-        'OPERATOR': 'DRIVER',
-        'EMPLOYEE': 'DRIVER',
-        'ALLOCATION': 'UNIT_ALLOCATION',
-        'UNITS': 'UNIT_ALLOCATION',
-        'UNIT_ALLOC.': 'UNIT_ALLOCATION',
-        'COST_CENTER': 'COST_CODE',
-        'CC': 'COST_CODE',
-        'UNIT_PRICE': 'RATE',
-        'PRICE': 'RATE',
-        'EXTENDED': 'UNIT_ALLOCATION_AMOUNT',
-        'TOTAL': 'UNIT_ALLOCATION_AMOUNT',
-        'AMOUNT': 'UNIT_ALLOCATION_AMOUNT',
-        'REVISIONS': 'REVISION',
-        'ADJUSTMENT': 'REVISION',
-        'NOTES': 'COMMENTS',
-        'COMMENT': 'COMMENTS'
-    }
-    
-    # Replace column names if they exist in the mapping
-    df = df.rename(columns={col: column_mapping.get(col, col) for col in df.columns})
-    
-    return df
-
-def preprocess_pm_data(df):
-    """
-    Preprocess PM allocation data.
-    
-    Args:
-        df (DataFrame): The DataFrame to preprocess
+        # Ensure output directory exists
+        os.makedirs(self.output_dir, exist_ok=True)
         
-    Returns:
-        DataFrame: Preprocessed DataFrame
-    """
-    # Skip header rows until we find the actual data header row
-    header_row = None
-    for i in range(min(20, len(df))):
-        row = df.iloc[i].astype(str)
-        # Look for pattern of header row - check if any of these key terms exist in the row
-        potential_header_terms = ['JOB', 'DIV', 'ASSET', 'EQUIPMENT', 'ALLOCATION', 'RATE']
-        if any(any(term.upper() in str(cell).upper() for term in potential_header_terms) for cell in row):
-            header_row = i
-            break
-    
-    # If we found a header row, reset the headers
-    if header_row is not None:
-        # Get the header values
-        headers = df.iloc[header_row].values
-        # Use the headers as column names
-        df.columns = headers
-        # Remove the header row and previous rows
-        df = df.iloc[header_row+1:].reset_index(drop=True)
-    
-    # Clean up column names
-    df = clean_column_names(df)
-    
-    # Map common column variations to expected column names
-    column_mapping = {
-        # Division column variations
-        'DIVISION': 'DIV',
-        'DIV.': 'DIV',
-        'REGION': 'DIV',
-        # Job column variations
-        'JOB_NUMBER': 'JOB',
-        'JOB_NO': 'JOB',
-        'JOB_#': 'JOB',
-        'JOB_NUM': 'JOB',
-        'PROJECT': 'JOB',
-        'PROJECT_NUMBER': 'JOB',
-        # Asset ID variations
-        'ASSET': 'ASSET_ID',
-        'EQUIPMENT_ID': 'ASSET_ID',
-        'EQUIPMENT_NUMBER': 'ASSET_ID',
-        'EQ_ID': 'ASSET_ID',
-        'EQUIP': 'ASSET_ID',
-        'EQUIPMENT_#': 'ASSET_ID',
-        # Description variations
-        'DESCRIPTION': 'EQUIPMENT_DESCRIPTION',
-        'EQUIP_DESC': 'EQUIPMENT_DESCRIPTION',
-        'DESC': 'EQUIPMENT_DESCRIPTION',
-        'EQUIPMENT': 'EQUIPMENT_DESCRIPTION',
-        'EQ_DESCRIPTION': 'EQUIPMENT_DESCRIPTION',
-        # Allocation variations
-        'ALLOCATION': 'UNIT_ALLOCATION',
-        'UNITS': 'UNIT_ALLOCATION',
-        'UNIT': 'UNIT_ALLOCATION',
-        'HOURS': 'UNIT_ALLOCATION',
-        'ALLOCATED_HOURS': 'UNIT_ALLOCATION',
-        # Rate variations
-        'PRICE': 'RATE',
-        'HOURLY_RATE': 'RATE',
-        'COST': 'RATE',
-        'UNIT_RATE': 'RATE',
-        'PRICE_PER_UNIT': 'RATE'
-    }
-    
-    # Apply column mapping
-    df = df.rename(columns={col: column_mapping.get(col, col) for col in df.columns})
-    
-    # If we still don't have required columns, try to identify them by matching similar column names
-    required_cols = ['DIV', 'JOB', 'ASSET_ID', 'EQUIPMENT_DESCRIPTION', 'UNIT_ALLOCATION', 'RATE']
-    
-    # For each required column that's missing
-    for req_col in required_cols:
-        if req_col not in df.columns:
-            # Try to find a similar column based on substring matching
-            for col in df.columns:
-                if req_col.replace('_', '') in col.replace('_', ''):
-                    df = df.rename(columns={col: req_col})
-                    break
-    
-    # Check if required columns exist after our attempts to map them
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    
-    # If we're still missing columns, we need to create them with default values
-    logger.warning(f"Missing required columns after mapping: {', '.join(missing_cols)}")
-    for col in missing_cols:
-        df[col] = np.nan  # Create empty columns for missing required columns
-    
-    # Convert numeric columns
-    numeric_cols = ['UNIT_ALLOCATION', 'RATE']
-    for col in numeric_cols:
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
-    
-    # Calculate unit allocation amount if not present
-    if 'UNIT_ALLOCATION_AMOUNT' not in df.columns:
-        df['UNIT_ALLOCATION_AMOUNT'] = df['UNIT_ALLOCATION'] * df['RATE']
-    
-    # Ensure REVISION column exists
-    if 'REVISION' not in df.columns:
-        df['REVISION'] = 0
-    else:
-        df['REVISION'] = pd.to_numeric(df['REVISION'], errors='coerce').fillna(0)
-    
-    # Ensure COMMENTS column exists
-    if 'COMMENTS' not in df.columns:
-        df['COMMENTS'] = ''
-    
-    # Fill NaN values
-    df = df.fillna('')
-    
-    # Ensure asset ID is string for consistent comparison
-    df['ASSET_ID'] = df['ASSET_ID'].astype(str)
-    df['JOB'] = df['JOB'].astype(str)
-    
-    return df
-
-def identify_regions(df):
-    """
-    Identify regions based on division codes.
-    
-    Args:
-        df (DataFrame): The DataFrame to analyze
+        # Initialize file paths
+        self.select_file = None
+        self.ragle_file = None
+        self.monthly_billing_file = None
         
-    Returns:
-        dict: Dictionary mapping division codes to regions
-    """
-    region_map = {}
-    
-    # Define region patterns
-    dfw_pattern = r'^(D|DF)'  # Dallas/Fort Worth starts with D or DF
-    hou_pattern = r'^(H|HO)'  # Houston starts with H or HO
-    wtx_pattern = r'^(W|WT)'  # West Texas starts with W or WT
-    
-    # Map divisions to regions
-    for div in df['DIV'].unique():
-        if pd.isna(div) or div == '':
-            continue
+        # Key sheet names in the monthly billing spreadsheet
+        self.key_sheets = {
+            'M-SELECT': 'SELECT master equipment data',
+            'M-RAGLE': 'RAGLE master equipment data',
+            'ATOS': 'Asset time on site tracking data',
+            'TRKG': 'Truck usage calculation data',
+            'DUSG-PT': 'Daily usage for pickup trucks'
+        }
+        
+        # Output files
+        self.output_monthly_file = None
+        self.output_csv_file = None
+        
+    def find_source_files(self):
+        """Find all source files needed for processing"""
+        print("Searching for source files...")
+        
+        for filename in os.listdir(self.source_dir):
+            # Find SELECT billing file
+            if 'SELECT' in filename.upper() and 'BILLINGS' in filename.upper() and filename.endswith('.xlsx'):
+                self.select_file = os.path.join(self.source_dir, filename)
+                print(f"Found SELECT billing file: {filename}")
             
-        div_str = str(div).upper()
-        
-        if re.match(dfw_pattern, div_str):
-            region_map[div_str] = 'DFW'
-        elif re.match(hou_pattern, div_str):
-            region_map[div_str] = 'HOU'
-        elif re.match(wtx_pattern, div_str):
-            region_map[div_str] = 'WTX'
-        else:
-            region_map[div_str] = 'OTHER'
-    
-    return region_map
-
-def compare_pm_files(original_df, pm_df, region=None):
-    """
-    Compare original and PM-edited files to find differences.
-    
-    Args:
-        original_df (DataFrame): Original allocation data
-        pm_df (DataFrame): PM-edited allocation data
-        region (str, optional): Region to filter on (DFW, HOU, WTX, or ALL)
-        
-    Returns:
-        dict: Dictionary containing changes, added and removed rows
-    """
-    # Preprocess dataframes
-    original_df = preprocess_pm_data(original_df)
-    pm_df = preprocess_pm_data(pm_df)
-    
-    # Add region column based on DIV
-    region_map = identify_regions(pd.concat([original_df, pm_df]))
-    original_df['REGION'] = original_df['DIV'].map(region_map)
-    pm_df['REGION'] = pm_df['DIV'].map(region_map)
-    
-    # Filter by region if specified
-    if region and region.upper() != 'ALL':
-        original_df = original_df[original_df['REGION'] == region.upper()]
-        pm_df = pm_df[pm_df['REGION'] == region.upper()]
-    
-    # Create unique identifier for each row (DIV-JOB-ASSET_ID)
-    original_df['ROW_ID'] = original_df['DIV'] + '-' + original_df['JOB'] + '-' + original_df['ASSET_ID']
-    pm_df['ROW_ID'] = pm_df['DIV'] + '-' + pm_df['JOB'] + '-' + pm_df['ASSET_ID']
-    
-    # Find rows that exist in both dataframes
-    common_rows = pd.merge(
-        original_df, pm_df, on='ROW_ID', suffixes=('_ORIG', '_PM')
-    )
-    
-    # Find added and removed rows
-    added_rows = pm_df[~pm_df['ROW_ID'].isin(original_df['ROW_ID'])]
-    removed_rows = original_df[~original_df['ROW_ID'].isin(pm_df['ROW_ID'])]
-    
-    # Check for changes in common rows
-    changes = []
-    for _, row in common_rows.iterrows():
-        row_changes = []
-        
-        # Fields to compare
-        fields_to_compare = [
-            ('UNIT_ALLOCATION', 'Unit Allocation'),
-            ('RATE', 'Rate'),
-            ('UNIT_ALLOCATION_AMOUNT', 'Unit Allocation Amount'),
-            ('REVISION', 'Revision'),
-            ('COMMENTS', 'Comments')
-        ]
-        
-        for field, field_name in fields_to_compare:
-            orig_value = row[f'{field}_ORIG']
-            pm_value = row[f'{field}_PM']
+            # Find RAGLE billing file
+            elif 'RAGLE' in filename.upper() and 'BILLINGS' in filename.upper() and filename.endswith(('.xlsx', '.xlsm')):
+                self.ragle_file = os.path.join(self.source_dir, filename)
+                print(f"Found RAGLE billing file: {filename}")
             
-            # Special handling for numeric fields
-            if field in ['UNIT_ALLOCATION', 'RATE', 'UNIT_ALLOCATION_AMOUNT', 'REVISION']:
-                # Convert to float for comparison
-                try:
-                    orig_value = float(orig_value) if orig_value != '' else 0
-                    pm_value = float(pm_value) if pm_value != '' else 0
-                    
-                    # Check if values are different (beyond rounding error)
-                    if abs(orig_value - pm_value) > 0.01:
-                        row_changes.append({
-                            'DIV': row['DIV_ORIG'],
-                            'JOB': row['JOB_ORIG'],
-                            'ASSET_ID': row['ASSET_ID_ORIG'],
-                            'EQUIPMENT_DESCRIPTION': row['EQUIPMENT_DESCRIPTION_ORIG'],
-                            'CHANGED_FIELD': field_name,
-                            'ORIGINAL_VALUE': str(orig_value),
-                            'UPDATED_VALUE': str(pm_value)
-                        })
-                except (ValueError, TypeError):
-                    # If conversion fails, compare as strings
-                    if str(orig_value) != str(pm_value):
-                        row_changes.append({
-                            'DIV': row['DIV_ORIG'],
-                            'JOB': row['JOB_ORIG'],
-                            'ASSET_ID': row['ASSET_ID_ORIG'],
-                            'EQUIPMENT_DESCRIPTION': row['EQUIPMENT_DESCRIPTION_ORIG'],
-                            'CHANGED_FIELD': field_name,
-                            'ORIGINAL_VALUE': str(orig_value),
-                            'UPDATED_VALUE': str(pm_value)
-                        })
-            else:
-                # Compare string fields
-                if str(orig_value) != str(pm_value):
-                    row_changes.append({
-                        'DIV': row['DIV_ORIG'],
-                        'JOB': row['JOB_ORIG'],
-                        'ASSET_ID': row['ASSET_ID_ORIG'],
-                        'EQUIPMENT_DESCRIPTION': row['EQUIPMENT_DESCRIPTION_ORIG'],
-                        'CHANGED_FIELD': field_name,
-                        'ORIGINAL_VALUE': str(orig_value),
-                        'UPDATED_VALUE': str(pm_value)
-                    })
+            # Find monthly billing working spreadsheet
+            elif 'EQ MONTHLY BILLINGS WORKING SPREADSHEET' in filename.upper() and filename.endswith('.xlsx'):
+                self.monthly_billing_file = os.path.join(self.source_dir, filename)
+                print(f"Found monthly billing spreadsheet: {filename}")
         
-        changes.extend(row_changes)
-    
-    # Create DataFrames from the results
-    changes_df = pd.DataFrame(changes) if changes else pd.DataFrame()
-    
-    # Return the comparison results
-    return {
-        'changes': changes_df,
-        'added': added_rows,
-        'removed': removed_rows,
-        'region_map': region_map
-    }
-
-def generate_comparison_file(comparison, month, output_dir='exports'):
-    """
-    Generate Excel file with comparison results.
-    
-    Args:
-        comparison (dict): Comparison results from compare_pm_files
-        month (str): Month of the data (e.g., "APRIL 2025")
-        output_dir (str): Directory to save the output file
+        # Check if all required files were found
+        if not self.select_file:
+            print("WARNING: SELECT billing file not found")
+        if not self.ragle_file:
+            print("WARNING: RAGLE billing file not found")
+        if not self.monthly_billing_file:
+            print("WARNING: Monthly billing spreadsheet not found")
         
-    Returns:
-        str: Path to the generated file
-    """
-    # Create output directory if it doesn't exist
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
+        return (self.select_file is not None and 
+                self.ragle_file is not None and 
+                self.monthly_billing_file is not None)
     
-    # Count changes
-    num_changes = len(comparison.get('changes', []))
-    num_added = len(comparison.get('added', []))
-    num_removed = len(comparison.get('removed', []))
-    total_changes = num_changes + num_added + num_removed
-    
-    # Create filename with timestamp and change count
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    output_file = os.path.join(
-        output_dir, 
-        f"PM_ALLOCATION_COMPARISON_{month.replace(' ', '_')}_{total_changes}_CHANGES_{timestamp}.xlsx"
-    )
-    
-    # Create Excel workbook
-    wb = Workbook()
-    
-    # Summary sheet
-    summary_sheet = wb.active
-    summary_sheet.title = "Summary"
-    
-    # Add summary information
-    summary_sheet['A1'] = f"PM ALLOCATION COMPARISON - {month}"
-    summary_sheet['A1'].font = Font(bold=True, size=14)
-    summary_sheet.merge_cells('A1:F1')
-    
-    summary_sheet['A3'] = "Generated On:"
-    summary_sheet['B3'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    
-    summary_sheet['A4'] = "Total Changes:"
-    summary_sheet['B4'] = total_changes
-    
-    summary_sheet['A5'] = "Changed Fields:"
-    summary_sheet['B5'] = num_changes
-    
-    summary_sheet['A6'] = "Added Rows:"
-    summary_sheet['B6'] = num_added
-    
-    summary_sheet['A7'] = "Removed Rows:"
-    summary_sheet['B7'] = num_removed
-    
-    # Apply styling
-    for cell in ['A3', 'A4', 'A5', 'A6', 'A7']:
-        summary_sheet[cell].font = Font(bold=True)
-    
-    # Changes sheet
-    if not comparison.get('changes').empty:
-        changes_df = comparison.get('changes')
-        changes_sheet = wb.create_sheet("Changes")
+    def extract_select_data(self):
+        """Extract data from SELECT billing file"""
+        if not self.select_file:
+            print("SELECT billing file not found")
+            return None
         
-        # Write headers
-        headers = ['DIV', 'JOB', 'ASSET ID', 'EQUIPMENT DESCRIPTION', 'CHANGED FIELD', 'ORIGINAL VALUE', 'UPDATED VALUE']
-        for col_num, header in enumerate(headers, 1):
-            cell = changes_sheet.cell(row=1, column=col_num)
-            cell.value = header
-            cell.font = HEADER_FONT
-            cell.fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
-            cell.alignment = Alignment(horizontal='center', vertical='center')
-            cell.border = THIN_BORDER
+        print(f"Extracting data from SELECT billing file: {os.path.basename(self.select_file)}")
         
-        # Write data
-        for row_num, row in enumerate(changes_df.itertuples(), 2):
-            # DIV
-            cell = changes_sheet.cell(row=row_num, column=1)
-            cell.value = getattr(row, 'DIV', '')
-            cell.border = THIN_BORDER
-            
-            # JOB
-            cell = changes_sheet.cell(row=row_num, column=2)
-            cell.value = getattr(row, 'JOB', '')
-            cell.border = THIN_BORDER
-            
-            # ASSET ID
-            cell = changes_sheet.cell(row=row_num, column=3)
-            cell.value = getattr(row, 'ASSET_ID', '')
-            cell.border = THIN_BORDER
-            
-            # EQUIPMENT DESCRIPTION
-            cell = changes_sheet.cell(row=row_num, column=4)
-            cell.value = getattr(row, 'EQUIPMENT_DESCRIPTION', '')
-            cell.border = THIN_BORDER
-            
-            # CHANGED FIELD
-            cell = changes_sheet.cell(row=row_num, column=5)
-            cell.value = getattr(row, 'CHANGED_FIELD', '')
-            cell.font = Font(bold=True)
-            cell.border = THIN_BORDER
-            
-            # ORIGINAL VALUE
-            cell = changes_sheet.cell(row=row_num, column=6)
-            cell.value = getattr(row, 'ORIGINAL_VALUE', '')
-            cell.fill = HIGHLIGHT_REMOVED
-            cell.border = THIN_BORDER
-            
-            # UPDATED VALUE
-            cell = changes_sheet.cell(row=row_num, column=7)
-            cell.value = getattr(row, 'UPDATED_VALUE', '')
-            cell.fill = HIGHLIGHT_ADDED
-            cell.border = THIN_BORDER
-        
-        # Auto-adjust column widths
-        for col in changes_sheet.columns:
-            max_length = 0
-            column = col[0].column_letter
-            for cell in col:
-                if cell.value:
-                    cell_length = len(str(cell.value))
-                    if cell_length > max_length:
-                        max_length = cell_length
-            
-            adjusted_width = (max_length + 2) * 1.2
-            changes_sheet.column_dimensions[column].width = adjusted_width
-    
-    # Added rows sheet
-    if not comparison.get('added').empty:
-        added_df = comparison.get('added')
-        added_sheet = wb.create_sheet("Added")
-        
-        # Get columns to include
-        columns_to_include = ['DIV', 'JOB', 'ASSET_ID', 'EQUIPMENT_DESCRIPTION', 'DRIVER', 
-                              'UNIT_ALLOCATION', 'RATE', 'UNIT_ALLOCATION_AMOUNT', 'COST_CODE', 
-                              'REVISION', 'COMMENTS']
-        
-        # Filter columns that exist in the dataframe
-        display_columns = [col for col in columns_to_include if col in added_df.columns]
-        
-        # Write headers
-        headers = [col.replace('_', ' ').title() for col in display_columns]
-        for col_num, header in enumerate(headers, 1):
-            cell = added_sheet.cell(row=1, column=col_num)
-            cell.value = header
-            cell.font = HEADER_FONT
-            cell.fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
-            cell.alignment = Alignment(horizontal='center', vertical='center')
-            cell.border = THIN_BORDER
-        
-        # Write data
-        for row_num, row in enumerate(added_df.itertuples(), 2):
-            for col_num, col in enumerate(display_columns, 1):
-                cell = added_sheet.cell(row=row_num, column=col_num)
-                cell.value = getattr(row, col, '')
-                cell.fill = HIGHLIGHT_ADDED
-                cell.border = THIN_BORDER
-        
-        # Auto-adjust column widths
-        for col in added_sheet.columns:
-            max_length = 0
-            column = col[0].column_letter
-            for cell in col:
-                if cell.value:
-                    cell_length = len(str(cell.value))
-                    if cell_length > max_length:
-                        max_length = cell_length
-            
-            adjusted_width = (max_length + 2) * 1.2
-            added_sheet.column_dimensions[column].width = adjusted_width
-    
-    # Removed rows sheet
-    if not comparison.get('removed').empty:
-        removed_df = comparison.get('removed')
-        removed_sheet = wb.create_sheet("Removed")
-        
-        # Get columns to include
-        columns_to_include = ['DIV', 'JOB', 'ASSET_ID', 'EQUIPMENT_DESCRIPTION', 'DRIVER', 
-                              'UNIT_ALLOCATION', 'RATE', 'UNIT_ALLOCATION_AMOUNT', 'COST_CODE', 
-                              'REVISION', 'COMMENTS']
-        
-        # Filter columns that exist in the dataframe
-        display_columns = [col for col in columns_to_include if col in removed_df.columns]
-        
-        # Write headers
-        headers = [col.replace('_', ' ').title() for col in display_columns]
-        for col_num, header in enumerate(headers, 1):
-            cell = removed_sheet.cell(row=1, column=col_num)
-            cell.value = header
-            cell.font = HEADER_FONT
-            cell.fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
-            cell.alignment = Alignment(horizontal='center', vertical='center')
-            cell.border = THIN_BORDER
-        
-        # Write data
-        for row_num, row in enumerate(removed_df.itertuples(), 2):
-            for col_num, col in enumerate(display_columns, 1):
-                cell = removed_sheet.cell(row=row_num, column=col_num)
-                cell.value = getattr(row, col, '')
-                cell.fill = HIGHLIGHT_REMOVED
-                cell.border = THIN_BORDER
-        
-        # Auto-adjust column widths
-        for col in removed_sheet.columns:
-            max_length = 0
-            column = col[0].column_letter
-            for cell in col:
-                if cell.value:
-                    cell_length = len(str(cell.value))
-                    if cell_length > max_length:
-                        max_length = cell_length
-            
-            adjusted_width = (max_length + 2) * 1.2
-            removed_sheet.column_dimensions[column].width = adjusted_width
-    
-    # Save the file
-    wb.save(output_file)
-    
-    return output_file
-
-def generate_region_exports(pm_df, month, export_dir='exports', fsi_format=False):
-    """
-    Generate region-specific export files.
-    
-    Args:
-        pm_df (DataFrame): PM-edited allocation data
-        month (str): Month of the data (e.g., "APRIL 2025")
-        export_dir (str): Directory to save the output files
-        fsi_format (bool): Whether to include FSI import format export
-        
-    Returns:
-        dict: Dictionary with export file paths
-    """
-    logger.info(f"Generating region exports for {month}")
-    logger.info(f"PM dataframe shape: {pm_df.shape}")
-    logger.info(f"PM columns: {list(pm_df.columns)}")
-    
-    # Create output directory if it doesn't exist
-    if not os.path.exists(export_dir):
-        os.makedirs(export_dir)
-    
-    # Preprocess PM dataframe if not already done
-    try:
-        pm_df = preprocess_pm_data(pm_df.copy())
-        logger.info(f"Preprocessed PM dataframe shape: {pm_df.shape}")
-    except Exception as e:
-        logger.error(f"Error preprocessing PM data: {str(e)}", exc_info=True)
-        return {'export_files': {}}
-    
-    # Generate region map
-    try:
-        region_map = identify_regions(pm_df)
-        logger.info(f"Region map: {region_map}")
-    except Exception as e:
-        logger.error(f"Error identifying regions: {str(e)}", exc_info=True)
-        region_map = {}
-    
-    # Add region column based on DIV
-    try:
-        pm_df['REGION'] = pm_df['DIV'].map(region_map)
-        logger.info(f"Regions detected: {pm_df['REGION'].unique()}")
-    except Exception as e:
-        logger.error(f"Error mapping regions: {str(e)}", exc_info=True)
-        pm_df['REGION'] = 'UNKNOWN'
-    
-    # Create timestamp for filenames
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    
-    # Dictionary to store export file paths
-    export_files = {}
-    
-    # Process for each region
-    for region in ['DFW', 'HOU', 'WTX']:
-        # Filter by region
-        region_df = pm_df[pm_df['REGION'] == region].copy()
-        
-        if region_df.empty:
-            logger.info(f"No data for region {region}")
-            continue
-        
-        # Standard export format
-        export_file = os.path.join(
-            export_dir, 
-            f"{region}_{month.replace(' ', '_')}_{timestamp}.csv"
-        )
-        
-        # Select and reorder columns
-        export_columns = [
-            'DIV', 'JOB', 'ASSET_ID', 'EQUIPMENT_DESCRIPTION', 'DRIVER', 
-            'UNIT_ALLOCATION', 'RATE', 'UNIT_ALLOCATION_AMOUNT', 'COST_CODE', 
-            'REVISION', 'COMMENTS'
-        ]
-        
-        # Filter columns that exist
-        export_columns = [col for col in export_columns if col in region_df.columns]
-        
-        # Export standard format
-        region_df[export_columns].to_csv(export_file, index=False)
-        export_files[f"{region}_standard"] = export_file
-        
-        # FSI import format if requested
-        if fsi_format:
-            try:
-                fsi_file = os.path.join(
-                    export_dir, 
-                    f"{region}_{month.replace(' ', '_')}_FSI_IMPORT_{timestamp}.csv"
-                )
-                
-                # Create FSI format
-                fsi_df = region_df.copy()
-                
-                # FSI format requires specific columns with specific names
-                fsi_columns = {
-                    'DIV': 'Division',
-                    'JOB': 'Job',
-                    'COST_CODE': 'Cost Code',
-                    'UNIT_ALLOCATION_AMOUNT': 'Amount'
-                }
-                
-                # Create the FSI format dataframe
-                fsi_export_df = pd.DataFrame()
-                
-                for fsi_col, original_col in fsi_columns.items():
-                    if fsi_col in fsi_df.columns:
-                        fsi_export_df[original_col] = fsi_df[fsi_col]
-                    else:
-                        logger.warning(f"Missing column {fsi_col} for FSI format in region {region}")
-                        fsi_export_df[original_col] = ''
-                
-                # Add description field (Asset ID + Equipment Description)
-                if 'ASSET_ID' in fsi_df.columns and 'EQUIPMENT_DESCRIPTION' in fsi_df.columns:
-                    fsi_export_df['Description'] = fsi_df['ASSET_ID'].astype(str) + ' - ' + fsi_df['EQUIPMENT_DESCRIPTION'].astype(str)
-                else:
-                    logger.warning(f"Missing ASSET_ID or EQUIPMENT_DESCRIPTION columns for FSI format in region {region}")
-                    fsi_export_df['Description'] = 'Unknown equipment'
-                
-                # Export FSI format
-                fsi_export_df.to_csv(fsi_file, index=False)
-                export_files[f"{region}_fsi"] = fsi_file
-                logger.info(f"FSI export for {region} saved to {fsi_file}")
-            except Exception as e:
-                logger.error(f"Error generating FSI format for {region}: {str(e)}", exc_info=True)
-    
-    return {
-        'success': True,
-        'export_files': export_files
-    }
-
-def process_pm_allocation(original_file, pm_file, region='all', month='', fsi_format=False):
-    """
-    Process PM allocation files and generate comparison and exports.
-    
-    Args:
-        original_file (str): Path to original allocation file
-        pm_file (str): Path to PM-edited allocation file
-        region (str): Region to filter (DFW, HOU, WTX, ALL)
-        month (str): Month of the data (e.g., "APRIL 2025")
-        fsi_format (bool): Whether to include FSI import format export
-        
-    Returns:
-        dict: Dictionary with results and file paths
-    """
-    try:
-        logger.info(f"Processing PM allocation files: Original: {original_file}, PM: {pm_file}")
-        logger.info(f"Parameters - Region: {region}, Month: {month}, FSI Format: {fsi_format}")
-        
-        # Extract month from filename if not provided
-        if not month:
-            month_pattern = r'(JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER)\s+\d{4}'
-            match = re.search(month_pattern, os.path.basename(pm_file), re.IGNORECASE)
-            if match:
-                month = match.group(0).upper()
-            else:
-                # Default to current month
-                month = datetime.now().strftime('%B %Y').upper()
-            
-            logger.info(f"Month determined from filename: {month}")
-        
-        # Load and preprocess Excel files with enhanced format detection
         try:
-            # First attempt: Try to determine if we need to skip rows by examining file
-            def find_header_row(file_path):
-                # Read first 20 rows to find header
-                sample_df = pd.read_excel(file_path, nrows=20, header=None)
-                # Look for key column identifiers in each row
-                for i in range(sample_df.shape[0]):
-                    row = sample_df.iloc[i].astype(str)
-                    # Common column header terms
-                    header_terms = ['DIV', 'DIVISION', 'JOB', 'ASSET', 'EQUIPMENT', 'DESCRIPTION', 'AMOUNT', 'ALLOCATION']
-                    if sum(row.str.contains('|'.join(header_terms), case=False, regex=True)) >= 3:
-                        logger.info(f"Found likely header row at position {i} in {file_path}")
-                        return i
+            # Read Excel file
+            xl = pd.ExcelFile(self.select_file)
+            sheet_names = xl.sheet_names
+            
+            # Find the main data sheet - typically the first non-empty sheet
+            main_sheet = None
+            for sheet in sheet_names:
+                df = pd.read_excel(self.select_file, sheet_name=sheet, nrows=5)
+                if not df.empty:
+                    main_sheet = sheet
+                    break
+            
+            if not main_sheet:
+                print("No data found in SELECT billing file")
                 return None
             
-            # Try to find header rows in both files
-            original_header_row = find_header_row(original_file)
-            pm_header_row = find_header_row(pm_file)
+            # Read data from the main sheet
+            select_data = pd.read_excel(self.select_file, sheet_name=main_sheet)
+            print(f"Extracted {len(select_data)} rows from SELECT billing file")
             
-            # Load files with appropriate header rows
-            logger.info(f"Loading original file with header row: {original_header_row}")
-            original_df = pd.read_excel(
-                original_file, 
-                header=original_header_row if original_header_row is not None else 0,
-                engine='openpyxl'
-            )
+            return select_data
             
-            logger.info(f"Loading PM file with header row: {pm_header_row}")
-            pm_df = pd.read_excel(
-                pm_file, 
-                header=pm_header_row if pm_header_row is not None else 0,
-                engine='openpyxl'
-            )
+        except Exception as e:
+            print(f"Error extracting SELECT data: {str(e)}")
+            return None
+    
+    def extract_ragle_data(self):
+        """Extract data from RAGLE billing file"""
+        if not self.ragle_file:
+            print("RAGLE billing file not found")
+            return None
+        
+        print(f"Extracting data from RAGLE billing file: {os.path.basename(self.ragle_file)}")
+        
+        try:
+            # Read Excel file
+            xl = pd.ExcelFile(self.ragle_file)
+            sheet_names = xl.sheet_names
             
-            # Clean up and standardize column names
-            logger.info(f"Original columns before cleaning: {list(original_df.columns)}")
-            logger.info(f"PM columns before cleaning: {list(pm_df.columns)}")
+            # Find the main data sheet - typically the first sheet with 'BILLINGS' in the name
+            main_sheet = None
+            for sheet in sheet_names:
+                if 'BILLINGS' in sheet.upper() or 'BILLING' in sheet.upper() or 'EQ' in sheet.upper():
+                    main_sheet = sheet
+                    break
             
-            # Function to clean and standardize column names
-            def clean_and_map_columns(df):
-                # Clean column names: strip spaces, convert to uppercase
-                df.columns = [str(col).strip().upper().replace(' ', '_') for col in df.columns]
-                
-                # Create mapping for common column name variations
-                column_mapping = {
-                    # Division/Region related
-                    'DIVISION': 'DIV',
-                    'DIVISION_CODE': 'DIV',
-                    'DIV_CODE': 'DIV',
-                    'REGION': 'DIV',
-                    'OFFICE': 'DIV',
-                    # Job related
-                    'JOB_NUMBER': 'JOB',
-                    'JOB_#': 'JOB',
-                    'JOB_NO': 'JOB',
-                    'JOB_NO.': 'JOB',
-                    'PROJECT': 'JOB',
-                    'PROJECT_NUMBER': 'JOB',
-                    'PROJECT_#': 'JOB',
-                    # Asset related
-                    'ASSET': 'ASSET_ID',
-                    'ASSET_NO': 'ASSET_ID',
-                    'ASSET_NO.': 'ASSET_ID',
-                    'ASSET_NUM': 'ASSET_ID',
-                    'ASSET_NUMBER': 'ASSET_ID',
-                    'EQUIPMENT_ID': 'ASSET_ID',
-                    'EQUIPMENT_NO': 'ASSET_ID',
-                    'EQUIPMENT_NO.': 'ASSET_ID',
-                    'EQUIPMENT_NUMBER': 'ASSET_ID',
-                    'EQ_ID': 'ASSET_ID',
-                    'EQ_NO': 'ASSET_ID',
-                    'EQ_NO.': 'ASSET_ID',
-                    'EQ_NUM': 'ASSET_ID',
-                    'EQ_NUMBER': 'ASSET_ID',
-                    # Description related
-                    'DESCRIPTION': 'EQUIPMENT_DESCRIPTION',
-                    'DESC': 'EQUIPMENT_DESCRIPTION',
-                    'EQUIPMENT': 'EQUIPMENT_DESCRIPTION',
-                    'EQUIPMENT_DESC': 'EQUIPMENT_DESCRIPTION',
-                    'EQUIPMENT_DESCRIPTION': 'EQUIPMENT_DESCRIPTION',
-                    'EQ_DESC': 'EQUIPMENT_DESCRIPTION',
-                    'EQ_DESCRIPTION': 'EQUIPMENT_DESCRIPTION',
-                    # Allocation related
-                    'ALLOCATION': 'UNIT_ALLOCATION',
-                    'HOURS': 'UNIT_ALLOCATION',
-                    'UNITS': 'UNIT_ALLOCATION',
-                    'UNIT_HRS': 'UNIT_ALLOCATION',
-                    'UNIT_HOURS': 'UNIT_ALLOCATION',
-                    'QUANTITY': 'UNIT_ALLOCATION',
-                    'QTY': 'UNIT_ALLOCATION',
-                    # Rate related
-                    'RATE': 'RATE',
-                    'PRICE': 'RATE',
-                    'UNIT_PRICE': 'RATE',
-                    'UNIT_RATE': 'RATE',
-                    'HOURLY_RATE': 'RATE',
-                    'PRICE_PER_UNIT': 'RATE',
-                    # Amount related
-                    'AMOUNT': 'UNIT_ALLOCATION_AMOUNT',
-                    'TOTAL': 'UNIT_ALLOCATION_AMOUNT',
-                    'TOTAL_AMOUNT': 'UNIT_ALLOCATION_AMOUNT',
-                    'EXTENDED_AMOUNT': 'UNIT_ALLOCATION_AMOUNT',
-                    'EXTENSION': 'UNIT_ALLOCATION_AMOUNT',
-                }
-                
-                # Rename columns that match exactly
-                exact_matches = {col: column_mapping[col] for col in df.columns if col in column_mapping}
-                df = df.rename(columns=exact_matches)
-                
-                # For remaining columns, try partial matching
-                for col in df.columns:
-                    if col not in column_mapping.values():  # Skip if already a standardized name
-                        # Find best match based on column name
-                        for pattern, standard in column_mapping.items():
-                            if pattern in col:
-                                df = df.rename(columns={col: standard})
-                                logger.info(f"Mapped column '{col}' to standard name '{standard}'")
-                                break
-                
-                # Identify required columns that are missing
-                required_cols = ['DIV', 'JOB', 'ASSET_ID', 'EQUIPMENT_DESCRIPTION', 'UNIT_ALLOCATION', 'RATE']
-                missing_cols = [col for col in required_cols if col not in df.columns]
-                
-                # Try to infer missing columns from data
-                if missing_cols:
-                    logger.warning(f"Missing required columns: {missing_cols}")
+            # If no billing sheet found, use the first sheet
+            if not main_sheet and sheet_names:
+                main_sheet = sheet_names[0]
+            
+            if not main_sheet:
+                print("No data found in RAGLE billing file")
+                return None
+            
+            # Read data from the main sheet
+            ragle_data = pd.read_excel(self.ragle_file, sheet_name=main_sheet)
+            print(f"Extracted {len(ragle_data)} rows from RAGLE billing file")
+            
+            return ragle_data
+            
+        except Exception as e:
+            print(f"Error extracting RAGLE data: {str(e)}")
+            return None
+    
+    def extract_formulas(self):
+        """Extract key formulas from monthly billing file"""
+        if not self.monthly_billing_file:
+            print("Monthly billing file not found")
+            return None
+        
+        print(f"Extracting formulas from monthly billing file: {os.path.basename(self.monthly_billing_file)}")
+        
+        try:
+            # Load workbook using openpyxl to access formulas
+            wb = openpyxl.load_workbook(self.monthly_billing_file, data_only=False)
+            
+            formulas = {}
+            
+            # Extract formulas from key sheets
+            for sheet_name in self.key_sheets:
+                if sheet_name in wb.sheetnames:
+                    sheet = wb[sheet_name]
+                    sheet_formulas = {}
                     
-                    # Check first few rows of each column for matching patterns
-                    for missing_col in missing_cols:
-                        pattern = missing_col.replace('_', '').lower()
-                        
-                        for col in df.columns:
-                            if col not in column_mapping.values():  # Only check non-standardized columns
-                                # Look at first few values
-                                sample = df[col].astype(str).head(5)
-                                if any(pattern in val.lower() for val in sample if pd.notna(val)):
-                                    df = df.rename(columns={col: missing_col})
-                                    logger.info(f"Inferred column '{col}' as '{missing_col}' based on data content")
-                                    missing_cols.remove(missing_col)
-                                    break
-                
-                # Add placeholder columns for any still missing required columns
-                for col in missing_cols:
-                    logger.warning(f"Adding placeholder column for missing required column: {col}")
-                    df[col] = np.nan
-                
-                # Calculate UNIT_ALLOCATION_AMOUNT if missing
-                if 'UNIT_ALLOCATION_AMOUNT' not in df.columns:
-                    if 'UNIT_ALLOCATION' in df.columns and 'RATE' in df.columns:
-                        # Convert to numeric, coercing errors to NaN
-                        # First check if the columns exist and are not None
-                        if df['UNIT_ALLOCATION'].notna().any():
-                            df['UNIT_ALLOCATION'] = pd.to_numeric(df['UNIT_ALLOCATION'].astype(str), errors='coerce')
-                        
-                        if df['RATE'].notna().any():
-                            df['RATE'] = pd.to_numeric(df['RATE'].astype(str), errors='coerce')
-                        
-                        # Calculate amount as allocation * rate
-                        df['UNIT_ALLOCATION_AMOUNT'] = df['UNIT_ALLOCATION'].fillna(0) * df['RATE'].fillna(0)
-                        logger.info("Calculated UNIT_ALLOCATION_AMOUNT from UNIT_ALLOCATION and RATE")
-                
-                return df
+                    # Scan cells for formulas
+                    for row in sheet.iter_rows():
+                        for cell in row:
+                            if cell.data_type == 'f':  # Formula
+                                formula_text = cell.value
+                                if formula_text and isinstance(formula_text, str) and formula_text.startswith('='):
+                                    # Store formula with its cell reference
+                                    cell_ref = f"{get_column_letter(cell.column)}{cell.row}"
+                                    sheet_formulas[cell_ref] = formula_text
+                    
+                    formulas[sheet_name] = sheet_formulas
+                    print(f"Extracted {len(sheet_formulas)} formulas from sheet {sheet_name}")
             
-            # Apply the cleaning and mapping to both dataframes
-            original_df = clean_and_map_columns(original_df)
-            pm_df = clean_and_map_columns(pm_df)
-            
-            # Remove any unnamed columns
-            original_df = original_df.loc[:, ~original_df.columns.str.contains('^UNNAMED', case=False, na=False)]
-            pm_df = pm_df.loc[:, ~pm_df.columns.str.contains('^UNNAMED', case=False, na=False)]
-            
-            logger.info(f"Files processed successfully. Original shape: {original_df.shape}, PM shape: {pm_df.shape}")
-            logger.info(f"Original columns after processing: {list(original_df.columns)}")
-            logger.info(f"PM columns after processing: {list(pm_df.columns)}")
+            return formulas
         
         except Exception as e:
-            logger.error(f"Error preprocessing Excel files: {str(e)}", exc_info=True)
+            print(f"Error extracting formulas: {str(e)}")
+            return None
+    
+    def create_formula_template(self, formulas):
+        """Create a formula template workbook"""
+        if not formulas:
+            print("No formulas to create template from")
+            return None
+        
+        print("Creating formula template workbook...")
+        
+        try:
+            # Create a new workbook
+            wb = openpyxl.Workbook()
+            
+            # Remove default sheet
+            if 'Sheet' in wb.sheetnames:
+                wb.remove(wb['Sheet'])
+            
+            # Add a summary sheet
+            summary = wb.create_sheet("Summary")
+            summary.cell(row=1, column=1).value = "Monthly Billing Formula Template"
+            summary.cell(row=1, column=1).font = Font(bold=True, size=14)
+            
+            # Add sheet list to summary
+            summary.cell(row=3, column=1).value = "Sheet Name"
+            summary.cell(row=3, column=1).font = Font(bold=True)
+            
+            summary.cell(row=3, column=2).value = "Formula Count"
+            summary.cell(row=3, column=2).font = Font(bold=True)
+            
+            # Add sheets with formulas
+            row = 4
+            for sheet_name, sheet_formulas in formulas.items():
+                # Add to summary
+                summary.cell(row=row, column=1).value = sheet_name
+                summary.cell(row=row, column=2).value = len(sheet_formulas)
+                row += 1
+                
+                # Create a sheet
+                sheet = wb.create_sheet(sheet_name)
+                
+                # Add header
+                sheet.cell(row=1, column=1).value = f"{sheet_name} Formula Template"
+                sheet.cell(row=1, column=1).font = Font(bold=True, size=14)
+                
+                # Add formula list
+                sheet.cell(row=3, column=1).value = "Cell"
+                sheet.cell(row=3, column=1).font = Font(bold=True)
+                
+                sheet.cell(row=3, column=2).value = "Formula"
+                sheet.cell(row=3, column=2).font = Font(bold=True)
+                
+                # Add formulas
+                row = 4
+                for cell_ref, formula in sheet_formulas.items():
+                    sheet.cell(row=row, column=1).value = cell_ref
+                    sheet.cell(row=row, column=2).value = formula
+                    row += 1
+            
+            # Save template
+            template_path = os.path.join(self.output_dir, "Formula_Template.xlsx")
+            wb.save(template_path)
+            print(f"Saved formula template to {os.path.basename(template_path)}")
+            
+            return template_path
+        
+        except Exception as e:
+            print(f"Error creating formula template: {str(e)}")
+            return None
+    
+    def combine_data(self, select_data, ragle_data):
+        """Combine data from SELECT and RAGLE files"""
+        if select_data is None and ragle_data is None:
+            print("No data to combine")
+            return None
+        
+        print("Combining SELECT and RAGLE data...")
+        
+        try:
+            combined_data = []
+            
+            # Process SELECT data if available
+            if select_data is not None:
+                # Standardize column names by converting to uppercase
+                select_data.columns = [str(col).upper() for col in select_data.columns]
+                
+                # Add source column
+                select_data['DATA_SOURCE'] = 'SELECT'
+                combined_data.append(select_data)
+            
+            # Process RAGLE data if available
+            if ragle_data is not None:
+                # Standardize column names by converting to uppercase
+                ragle_data.columns = [str(col).upper() for col in ragle_data.columns]
+                
+                # Add source column
+                ragle_data['DATA_SOURCE'] = 'RAGLE'
+                combined_data.append(ragle_data)
+            
+            # Combine the data
+            if combined_data:
+                # Use concat with join='outer' to keep all columns from both dataframes
+                result = pd.concat(combined_data, ignore_index=True, sort=False, join='outer')
+                print(f"Combined data has {len(result)} rows and {len(result.columns)} columns")
+                return result
+            else:
+                return None
+            
+        except Exception as e:
+            print(f"Error combining data: {str(e)}")
+            return None
+    
+    def save_combined_data(self, combined_data):
+        """Save combined data to Excel workbook"""
+        if combined_data is None:
+            print("No combined data to save")
+            return False
+        
+        print("Saving combined billing data...")
+        
+        try:
+            # Create output filename with timestamp
+            timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+            output_excel = os.path.join(self.output_dir, f"Combined_Billing_Data_{timestamp}.xlsx")
+            output_csv = os.path.join(self.output_dir, f"Combined_Billing_Data_{timestamp}.csv")
+            
+            # Save to Excel
+            combined_data.to_excel(output_excel, index=False, sheet_name="Combined_Data")
+            print(f"Saved combined data to Excel: {os.path.basename(output_excel)}")
+            
+            # Save to CSV
+            combined_data.to_csv(output_csv, index=False)
+            print(f"Saved combined data to CSV: {os.path.basename(output_csv)}")
+            
+            # Store output file paths
+            self.output_monthly_file = output_excel
+            self.output_csv_file = output_csv
+            
+            return True
+            
+        except Exception as e:
+            print(f"Error saving combined data: {str(e)}")
+            return False
+    
+    def process_all(self):
+        """Process all billing data files"""
+        print("Starting billing data processing...")
+        
+        # Find all source files
+        if not self.find_source_files():
+            print("ERROR: Not all required source files were found")
             return {
                 'success': False,
-                'message': f"Error processing files: {str(e)}"
+                'message': 'Not all required source files were found. Please check logs for details.',
+                'files': {
+                    'select': self.select_file,
+                    'ragle': self.ragle_file,
+                    'monthly': self.monthly_billing_file
+                }
             }
         
-        # Compare files
-        try:
-            comparison = compare_pm_files(original_df, pm_df, region)
-            logger.info("Files compared successfully")
-        except Exception as e:
-            logger.error(f"Error comparing files: {str(e)}", exc_info=True)
-            return {
-                'success': False,
-                'message': f"Error comparing files: {str(e)}"
-            }
+        # Extract data from SELECT file
+        select_data = self.extract_select_data()
         
-        # Generate comparison file
-        try:
-            comparison_file = generate_comparison_file(comparison, month)
-            logger.info(f"Comparison file generated: {comparison_file}")
-        except Exception as e:
-            logger.error(f"Error generating comparison file: {str(e)}", exc_info=True)
-            comparison_file = ""
+        # Extract data from RAGLE file
+        ragle_data = self.extract_ragle_data()
         
-        # Generate region exports
-        try:
-            export_results = generate_region_exports(pm_df, month=month, fsi_format=fsi_format)
-            logger.info(f"Export files generated: {list(export_results.get('export_files', {}).keys())}")
-        except Exception as e:
-            logger.error(f"Error generating export files: {str(e)}", exc_info=True)
-            export_results = {'export_files': {}}
+        # Extract formulas from monthly billing file
+        formulas = self.extract_formulas()
         
-        # Count changes
-        num_changes = len(comparison.get('changes', []))
-        num_added = len(comparison.get('added', []))
-        num_removed = len(comparison.get('removed', []))
-        total_changes = num_changes + num_added + num_removed
+        # Create formula template
+        if formulas:
+            template_path = self.create_formula_template(formulas)
+        else:
+            template_path = None
         
-        # Format comparison data for template display
-        formatted_comparison = {
-            'changed_rows': [],
-            'added_rows': [],
-            'removed_rows': []
-        }
+        # Combine data from SELECT and RAGLE files
+        combined_data = self.combine_data(select_data, ragle_data)
         
-        # Format changed rows
-        if not comparison.get('changes').empty:
-            changes_df = comparison.get('changes')
-            
-            # Group changes by asset to combine multiple field changes for the same asset
-            grouped_changes = {}
-            for _, row in changes_df.iterrows():
-                key = f"{row.get('DIV', '')}-{row.get('JOB', '')}-{row.get('ASSET_ID', '')}"
-                
-                if key not in grouped_changes:
-                    grouped_changes[key] = {
-                        'div': row.get('DIV', ''),
-                        'job': row.get('JOB', ''),
-                        'asset_id': row.get('ASSET_ID', ''),
-                        'equipment': row.get('EQUIPMENT_DESCRIPTION', ''),
-                        'changes': []
-                    }
-                
-                # Add this field change
-                grouped_changes[key]['changes'].append({
-                    'field': row.get('CHANGED_FIELD', ''),
-                    'original': row.get('ORIGINAL_VALUE', ''),
-                    'updated': row.get('UPDATED_VALUE', '')
-                })
-            
-            # Convert to list
-            formatted_comparison['changed_rows'] = list(grouped_changes.values())
-            
-        # Format added rows
-        if not comparison.get('added').empty:
-            added_df = comparison.get('added')
-            for _, row in added_df.iterrows():
-                formatted_comparison['added_rows'].append({
-                    'div': row.get('DIV', ''),
-                    'job': row.get('JOB', ''),
-                    'asset_id': row.get('ASSET_ID', ''),
-                    'equipment': row.get('EQUIPMENT_DESCRIPTION', ''),
-                    'driver': row.get('DRIVER', ''),
-                    'allocation': row.get('UNIT_ALLOCATION', 0),
-                    'cost_code': row.get('COST_CODE', ''),
-                    'revision_amount': row.get('REVISION', 0)
-                })
+        # Save combined data
+        if combined_data is not None:
+            self.save_combined_data(combined_data)
         
-        # Format removed rows
-        if not comparison.get('removed').empty:
-            removed_df = comparison.get('removed')
-            for _, row in removed_df.iterrows():
-                formatted_comparison['removed_rows'].append({
-                    'div': row.get('DIV', ''),
-                    'job': row.get('JOB', ''),
-                    'asset_id': row.get('ASSET_ID', ''),
-                    'equipment': row.get('EQUIPMENT_DESCRIPTION', ''),
-                    'driver': row.get('DRIVER', ''),
-                    'allocation': row.get('UNIT_ALLOCATION', 0),
-                    'cost_code': row.get('COST_CODE', ''),
-                    'allocation_amount': row.get('UNIT_ALLOCATION_AMOUNT', 0)
-                })
-        
-        logger.info(f"Comparison results: {total_changes} total changes")
-        logger.info(f"Changed fields: {num_changes}, Added rows: {num_added}, Removed rows: {num_removed}")
-        
+        # Return results
         return {
             'success': True,
-            'comparison_file': comparison_file,
-            'export_files': export_results.get('export_files', {}),
-            'comparison': formatted_comparison,
-            'message': f"Successfully processed PM allocation files for {month}",
-            'changes': {
-                'total': total_changes,
-                'changed_fields': num_changes,
-                'added_rows': num_added,
-                'removed_rows': num_removed
+            'message': 'Billing data processed successfully',
+            'files': {
+                'select': self.select_file,
+                'ragle': self.ragle_file,
+                'monthly': self.monthly_billing_file,
+                'combined_excel': self.output_monthly_file,
+                'combined_csv': self.output_csv_file,
+                'template': template_path
+            },
+            'stats': {
+                'select_rows': len(select_data) if select_data is not None else 0,
+                'ragle_rows': len(ragle_data) if ragle_data is not None else 0,
+                'combined_rows': len(combined_data) if combined_data is not None else 0,
+                'formula_count': sum(len(f) for f in formulas.values()) if formulas else 0
             }
         }
+
+
+def process_monthly_billing():
+    """Process monthly billing data"""
+    processor = BillingProcessor()
+    return processor.process_all()
+
+
+if __name__ == "__main__":
+    # Run the processor when executed directly
+    result = process_monthly_billing()
+    print("\nProcessing complete!")
+    print(f"Success: {result['success']}")
+    print(f"Message: {result['message']}")
+    
+    if result['success']:
+        print("\nStatistics:")
+        print(f"SELECT rows: {result['stats']['select_rows']}")
+        print(f"RAGLE rows: {result['stats']['ragle_rows']}")
+        print(f"Combined rows: {result['stats']['combined_rows']}")
+        print(f"Formulas extracted: {result['stats']['formula_count']}")
         
-    except Exception as e:
-        logger.error(f"Error processing PM allocation files: {str(e)}", exc_info=True)
-        return {
-            'success': False,
-            'message': f"Error processing files: {str(e)}"
-        }
+        print("\nOutput files:")
+        if result['files']['combined_excel']:
+            print(f"Combined Excel: {os.path.basename(result['files']['combined_excel'])}")
+        if result['files']['combined_csv']:
+            print(f"Combined CSV: {os.path.basename(result['files']['combined_csv'])}")
+        if result['files']['template']:
+            print(f"Formula template: {os.path.basename(result['files']['template'])}")

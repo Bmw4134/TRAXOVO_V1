@@ -71,8 +71,8 @@ class MaintenanceTask(db.Model):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relationships
-    asset = relationship('Asset')
-    technician = relationship('User', backref='assigned_maintenance')
+    asset = relationship('Asset', foreign_keys=[asset_id])
+    technician = relationship('User', foreign_keys=[technician_id], backref='assigned_maintenance')
     parts = relationship('MaintenancePart', back_populates='maintenance_task')
     
     def __repr__(self):

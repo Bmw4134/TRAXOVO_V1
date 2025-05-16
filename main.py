@@ -426,8 +426,8 @@ def upload_pm_allocation():
         
         # Process the files - import the processor here to avoid circular imports
         try:
-            from utils.billing_processor import process_pm_allocation
-            result = process_pm_allocation(original_path, updated_path, region)
+            from utils.pm_processor import process_pm_allocation
+            result = process_pm_allocation()
         except ImportError:
             # Create a basic implementation if module doesn't exist
             result = {

@@ -93,10 +93,10 @@
                         </div>
                         <h5 class="card-title">Driver Reports</h5>
                         <p class="card-text">Daily attendance reports including Late Start, Early End, and Not On Job.</p>
-                        <a href="{{ url_for('reports.driver_reports') }}" class="btn btn-primary mt-3">
+                        <a href="{{ url_for('generate_prior_day_report') }}" class="btn btn-primary mt-3">
                             <i class="bi bi-eye me-2"></i> View Reports
                         </a>
-                        <a href="{{ url_for('reports.generate_daily_driver_report') }}" class="btn btn-outline-secondary mt-2">
+                        <a href="{{ url_for('generate_current_day_report') }}" class="btn btn-outline-secondary mt-2">
                             <i class="bi bi-plus-circle me-2"></i> Generate New
                         </a>
                     </div>

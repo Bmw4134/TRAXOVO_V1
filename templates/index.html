@@ -28,7 +28,7 @@
                         <a class="nav-link" href="{{ url_for('maintenance') }}">Maintenance</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('reports.index') }}">Reports</a>
+                        <a class="nav-link" href="{{ url_for('reports') }}">Reports</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('upload_files') }}">Upload Files</a>
@@ -73,7 +73,7 @@
                 <a href="{{ url_for('asset_map') }}" class="btn btn-outline-info">
                     <i class="bi bi-geo-alt me-2"></i> Map
                 </a>
-                <a href="{{ url_for('reports.index') }}" class="btn btn-primary ms-2">
+                <a href="{{ url_for('reports') }}" class="btn btn-primary ms-2">
                     <i class="bi bi-file-earmark-text me-2"></i> Reports
                 </a>
             </div>
@@ -122,8 +122,8 @@
                             </div>
                         </div>
                         <div class="mt-3">
-                            <a href="{{ url_for('reports.driver_reports') }}" class="btn btn-sm btn-outline-light">View Reports</a>
-                            <a href="{{ url_for('generate_prior_day_report') }}" class="btn btn-sm btn-outline-info ms-2">Generate Report</a>
+                            <a href="{{ url_for('generate_prior_day_report') }}" class="btn btn-sm btn-outline-light">View Reports</a>
+                            <a href="{{ url_for('generate_current_day_report') }}" class="btn btn-sm btn-outline-info ms-2">Generate Report</a>
                         </div>
                     </div>
                 </div>
@@ -148,7 +148,7 @@
                             <span class="badge bg-{{ 'success' if api_online else 'danger' }}">{{ 'Online' if api_online else 'Offline' }}</span>
                         </div>
                         <div class="mt-3">
-                            <a href="{{ url_for('reports.pm_allocation') }}" class="btn btn-sm btn-outline-light">PM Allocation</a>
+                            <a href="{{ url_for('upload_pm_allocation') }}" class="btn btn-sm btn-outline-light">PM Allocation</a>
                             <a href="{{ url_for('admin_settings') }}" class="btn btn-sm btn-outline-info ms-2">API Settings</a>
                         </div>
                     </div>

@@ -1,607 +1,270 @@
 """
-Process PM Allocation files for April 2025
+Process PM Allocations and Incorporate Custom Formulas
 
-This script processes the PM Allocation Excel files and generates the required
-reconciliation reports and outputs.
+This script extracts the key formulas from the monthly billing spreadsheet
+and applies them to the processed PM allocation data.
 """
+
 import os
 import pandas as pd
+import numpy as np
 from datetime import datetime
 import openpyxl
-from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
-import shutil
-import glob
+from openpyxl.utils import get_column_letter
+from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
 
-def setup_directories():
-    """Setup necessary directories for outputs"""
-    os.makedirs('exports', exist_ok=True)
-    os.makedirs('exports/pm_allocations', exist_ok=True)
-    os.makedirs('exports/pm_allocations/april_2025', exist_ok=True)
-    
-    # Timestamp for this run
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    os.makedirs(f'exports/pm_allocations/april_2025/{timestamp}', exist_ok=True)
-    
-    return f'exports/pm_allocations/april_2025/{timestamp}'
 
-def load_excel_file(file_path):
-    """Load Excel file and return sheets as dict of dataframes"""
+def create_formula_template():
+    """
+    Create a template workbook with the key formulas from the monthly billing spreadsheet.
+    """
+    print("Creating formula template for PM allocations...")
+    
+    # Source file path
+    source_file = 'attached_assets/EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx'
+    
+    # Check if source file exists
+    if not os.path.exists(source_file):
+        print(f"Source file not found: {source_file}")
+        return False
+    
+    # Output directory
+    output_dir = 'exports/pm_templates'
+    os.makedirs(output_dir, exist_ok=True)
+    
+    # Create new workbook
+    wb = openpyxl.Workbook()
+    
+    # Remove default sheet
+    if 'Sheet' in wb.sheetnames:
+        wb.remove(wb['Sheet'])
+    
+    # Load source workbook to extract formulas
     try:
-        print(f"Loading file: {file_path}")
-        sheets = pd.read_excel(file_path, sheet_name=None)
+        print(f"Loading source workbook: {source_file}")
+        source_wb = openpyxl.load_workbook(source_file, data_only=False)
         
-        print(f"  Loaded {len(sheets)} sheets: {list(sheets.keys())}")
-        for sheet_name, df in sheets.items():
-            if not df.empty:
-                print(f"  Sheet '{sheet_name}': {df.shape[0]} rows, {df.shape[1]} columns")
-            else:
-                print(f"  Sheet '{sheet_name}': Empty")
+        # List of important sheets to process
+        key_sheets = ['M-SELECT', 'M-RAGLE', 'ATOS']
         
-        return sheets
+        # Create sheets and copy headers and key formulas
+        for sheet_name in key_sheets:
+            if sheet_name in source_wb.sheetnames:
+                print(f"Processing sheet: {sheet_name}")
+                
+                # Create sheet in new workbook
+                new_sheet = wb.create_sheet(sheet_name)
+                
+                # Get source sheet
+                source_sheet = source_wb[sheet_name]
+                
+                # Copy headers (first 5 rows)
+                for row in range(1, 6):
+                    for col in range(1, min(30, source_sheet.max_column + 1)):
+                        source_cell = source_sheet.cell(row=row, column=col)
+                        new_cell = new_sheet.cell(row=row, column=col)
+                        
+                        # Copy value and style
+                        new_cell.value = source_cell.value
+                        
+                        # Apply basic formatting
+                        if source_cell.font and source_cell.font.bold:
+                            new_cell.font = Font(bold=True)
+                
+                # Find and copy key formulas
+                formula_count = 0
+                for row in range(1, min(50, source_sheet.max_row + 1)):
+                    for col in range(1, min(30, source_sheet.max_column + 1)):
+                        source_cell = source_sheet.cell(row=row, column=col)
+                        
+                        # Check if cell contains a formula
+                        if source_cell.formula:
+                            new_cell = new_sheet.cell(row=row, column=col)
+                            formula = source_cell.formula
+                            
+                            # Save the formula
+                            new_cell.value = f"={formula}"
+                            formula_count += 1
+                            
+                            # Print first few formulas for verification
+                            if formula_count <= 5:
+                                print(f"  - Formula at {get_column_letter(col)}{row}: {formula[:50]}...")
+                
+                print(f"  - Copied {formula_count} formulas from {sheet_name}")
+        
+        # Save the template
+        output_file = os.path.join(output_dir, "PM_Formula_Template.xlsx")
+        wb.save(output_file)
+        print(f"Formula template saved to: {output_file}")
+        
+        return True
+        
     except Exception as e:
-        print(f"Error loading {file_path}: {str(e)}")
-        return None
+        print(f"Error creating formula template: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return False
 
-def find_final_revision_file():
-    """Find the final revision file based on naming patterns"""
-    files = glob.glob("attached_assets/*APRIL*2025*FINAL*REVISIONS*.xlsx")
-    if not files:
-        files = glob.glob("attached_assets/*APRIL*2025*TR*.xlsx")
-    
-    # Sort by modification time to get the latest
-    if files:
-        return sorted(files, key=os.path.getmtime)[-1]
-    
-    return None
 
-def find_job_specific_files():
-    """Find job-specific allocation files"""
-    job_files = glob.glob("attached_assets/202*-*EQMO*APRIL*2025*.xlsx")
-    return job_files
-
-def extract_job_number_from_filename(filename):
-    """Extract the job number from a filename"""
-    # Base filename without path
-    base = os.path.basename(filename)
+def consolidate_pm_allocation_data():
+    """
+    Consolidate the processed PM allocation data
+    """
+    print("\nConsolidating PM allocation data...")
     
-    # Look for patterns like 2023-032, 2024-016, etc.
-    for part in base.split():
-        if part.startswith('202') and '-' in part:
-            return part
+    # Directory with PM allocation files
+    allocation_dir = 'exports/pm_allocations'
     
-    return "Unknown"
-
-def process_allocation_file(file_path, output_dir):
-    """Process a PM allocation file and extract key information"""
-    sheets = load_excel_file(file_path)
-    if not sheets:
-        return None
+    # Output directory
+    output_dir = 'exports/pm_processed'
+    os.makedirs(output_dir, exist_ok=True)
     
-    job_id = extract_job_number_from_filename(file_path)
+    # Find the consolidated data file
+    consolidated_file = os.path.join(allocation_dir, 'FINAL_PM_ALLOCATION_DATA.xlsx')
     
-    # Main dataframe is usually in "EQ ALLOCATIONS - ALL DIV" or similar
-    main_sheet_key = None
-    for key in sheets.keys():
-        if 'EQ ALLOCATIONS' in key or 'ALLOCATION' in key or 'ALL DIV' in key:
-            main_sheet_key = key
-            break
+    if not os.path.exists(consolidated_file):
+        print(f"Consolidated data file not found: {consolidated_file}")
+        return False
     
-    if not main_sheet_key and 'ALL' in sheets:
-        main_sheet_key = 'ALL'
-    
-    if not main_sheet_key:
-        print(f"Could not find main allocation sheet in {file_path}")
-        return None
-    
-    # Process the main sheet
-    df = sheets[main_sheet_key]
-    
-    # Clean up and prepare the dataframe - handle different formats
-    # Skip header rows
-    header_row = None
-    for i in range(min(10, len(df))):
-        # Look for rows containing key headers
-        row = df.iloc[i].astype(str)
-        if any('COST CODE' in val.upper() for val in row.values) or \
-           any('EQUIP' in val.upper() and 'ID' in val.upper() for val in row.values):
-            header_row = i
-            break
-    
-    if header_row is not None:
-        # If we found a header row, use it
-        df = df.iloc[header_row:].reset_index(drop=True)
-        df.columns = df.iloc[0]
-        df = df.iloc[1:].reset_index(drop=True)
-    
-    # Filter out completely empty rows
-    df = df.dropna(how='all')
-    
-    # Extract only rows with equipment data
-    equipment_df = df[df.iloc[:, 1].notna()]  # Equipment ID is typically in column 1
-    
-    # Basic summary
-    total_items = len(equipment_df)
-    
-    # Find days column (typically column with QTY or DAYS)
-    days_col = None
-    amount_col = None
-    
-    if len(equipment_df.columns) > 0:
-        for i, col_name in enumerate(equipment_df.columns):
-            col_str = str(col_name).upper()
-            if 'DAY' in col_str or 'QTY' in col_str:
-                days_col = i
-            elif 'AMOUNT' in col_str or 'TOTAL' in col_str:
-                amount_col = i
-    
-    # If we couldn't find by name, use default positions
-    if days_col is None and len(equipment_df.columns) > 3:
-        days_col = 3
-    if amount_col is None and len(equipment_df.columns) > 5:
-        amount_col = 5
-    
-    # Calculate totals
-    total_days = 0
-    total_amount = 0
-    
-    if total_items > 0:
-        if days_col is not None:
-            try:
-                # Convert to numeric, coercing errors to NaN
-                days_series = pd.to_numeric(equipment_df.iloc[:, days_col], errors='coerce')
-                total_days = days_series.sum()
-            except:
-                print(f"Warning: Could not calculate total days")
+    try:
+        # Read the consolidated data
+        print(f"Reading consolidated data from: {consolidated_file}")
+        df = pd.read_excel(consolidated_file)
         
-        if amount_col is not None:
-            try:
-                # Convert to numeric, coercing errors to NaN
-                amount_series = pd.to_numeric(equipment_df.iloc[:, amount_col], errors='coerce')
-                total_amount = amount_series.sum()
-            except:
-                print(f"Warning: Could not calculate total amount")
-    
-    # Create a summary Excel file
-    output_file = os.path.join(output_dir, f"PM_Allocation_Summary_{job_id}.xlsx")
-    
-    # Save processed data
-    with pd.ExcelWriter(output_file, engine='openpyxl') as writer:
-        equipment_df.to_excel(writer, sheet_name='Processed Data', index=False)
+        # Create a pivot table by job number
+        print("Creating pivot table by job number...")
+        
+        # Try to identify job number column
+        job_col = None
+        for col in df.columns:
+            if 'JOB' in str(col).upper() and 'NUMBER' in str(col).upper():
+                job_col = col
+                break
+        
+        if job_col is None:
+            print("Could not identify job number column")
+            # Try using the second column as a fallback
+            if len(df.columns) >= 2:
+                job_col = df.columns[1]
+                print(f"Using {job_col} as job number column")
+            else:
+                print("Not enough columns to identify job number")
+                return False
+        
+        # Create a workbook to store the pivot data
+        wb = openpyxl.Workbook()
+        
+        # Remove default sheet
+        if 'Sheet' in wb.sheetnames:
+            wb.remove(wb['Sheet'])
         
         # Create summary sheet
-        summary = pd.DataFrame([
-            ['Job Number', job_id],
-            ['Source File', os.path.basename(file_path)],
-            ['Total Equipment Items', total_items],
-            ['Total Billing Days', total_days],
-            ['Total Billing Amount', total_amount],
-            ['Processing Date', datetime.now().strftime("%Y-%m-%d %H:%M")],
-        ])
-        summary.to_excel(writer, sheet_name='Summary', index=False, header=False)
-    
-    # Enhance the Excel file styling
-    wb = openpyxl.load_workbook(output_file)
-    
-    # Format the Summary sheet
-    if 'Summary' in wb.sheetnames:
-        ws = wb['Summary']
-        for row in ws.iter_rows(min_row=1, max_row=6, min_col=1, max_col=2):
-            row[0].font = Font(bold=True)
-            if row[0].value == 'Total Billing Amount':
-                row[1].number_format = '$#,##0.00'
-    
-    # Format the data sheet
-    if 'Processed Data' in wb.sheetnames:
-        ws = wb['Processed Data']
-        header_row = 1
+        summary_sheet = wb.create_sheet("Summary")
         
-        # Format headers
-        for cell in ws[header_row]:
-            cell.font = Font(bold=True)
-            cell.fill = PatternFill(start_color="D9D9D9", end_color="D9D9D9", fill_type="solid")
-        
-        # Auto-size columns
-        for column in ws.columns:
-            max_length = 0
-            column_letter = column[0].column_letter
-            for cell in column:
-                try:
-                    if len(str(cell.value)) > max_length:
-                        max_length = len(str(cell.value))
-                except:
-                    pass
-            adjusted_width = (max_length + 2)
-            ws.column_dimensions[column_letter].width = min(adjusted_width, 40)
-        
-        # Format currency columns
-        amount_col = None
-        rate_col = None
-        day_col = None
-        
-        # Find columns containing amounts, rates and days
-        for i, cell in enumerate(ws[header_row], 1):
-            header_text = str(cell.value).upper() if cell.value else ""
-            if "AMOUNT" in header_text or "TOTAL" in header_text:
-                amount_col = i
-            elif "RATE" in header_text:
-                rate_col = i
-            elif "DAY" in header_text or "QTY" in header_text:
-                day_col = i
-        
-        # Apply formatting to these columns
-        if amount_col:
-            for row in range(2, ws.max_row + 1):
-                cell = ws.cell(row=row, column=amount_col)
-                cell.number_format = '$#,##0.00'
-        
-        if rate_col:
-            for row in range(2, ws.max_row + 1):
-                cell = ws.cell(row=row, column=rate_col)
-                cell.number_format = '$#,##0.00'
-        
-        if day_col:
-            for row in range(2, ws.max_row + 1):
-                cell = ws.cell(row=row, column=day_col)
-                cell.number_format = '0'
-    
-    wb.save(output_file)
-    
-    return {
-        'job_id': job_id,
-        'file_path': file_path,
-        'output_file': output_file,
-        'total_items': total_items,
-        'total_days': total_days,
-        'total_amount': total_amount
-    }
-
-def compare_allocation_revisions(original_files, final_file, output_dir):
-    """Compare original allocations with final revisions to highlight changes"""
-    final_sheets = load_excel_file(final_file)
-    if not final_sheets:
-        return None
-    
-    # Choose the main sheet from final file
-    main_sheet_key = None
-    for key in final_sheets.keys():
-        if 'EQ ALLOCATIONS' in key or 'ALLOCATION' in key or 'ALL DIV' in key:
-            main_sheet_key = key
-            break
-    
-    if not main_sheet_key and 'ALL' in final_sheets:
-        main_sheet_key = 'ALL'
-    
-    if not main_sheet_key:
-        print(f"Could not find main allocation sheet in final file {final_file}")
-        return None
-    
-    final_df = final_sheets[main_sheet_key]
-    
-    # Process and clean final dataframe as before
-    header_row = None
-    for i in range(min(10, len(final_df))):
-        row = final_df.iloc[i].astype(str)
-        if any('COST CODE' in val.upper() for val in row.values) or \
-           any('EQUIP' in val.upper() and 'ID' in val.upper() for val in row.values):
-            header_row = i
-            break
-    
-    if header_row is not None:
-        final_df = final_df.iloc[header_row:].reset_index(drop=True)
-        final_df.columns = final_df.iloc[0]
-        final_df = final_df.iloc[1:].reset_index(drop=True)
-    
-    # Filter out completely empty rows
-    final_df = final_df.dropna(how='all')
-    
-    # Extract only rows with equipment data
-    final_equipment_df = final_df[final_df.iloc[:, 1].notna()]
-    
-    # Process each original file and compare
-    comparison_results = []
-    
-    for orig_file in original_files:
-        job_id = extract_job_number_from_filename(orig_file)
-        orig_sheets = load_excel_file(orig_file)
-        if not orig_sheets:
-            continue
-        
-        # Find the main sheet
-        orig_main_sheet = None
-        for key in orig_sheets.keys():
-            if 'EQ ALLOCATIONS' in key or 'ALLOCATION' in key or 'ALL DIV' in key:
-                orig_main_sheet = key
-                break
-        
-        if not orig_main_sheet and 'ALL' in orig_sheets:
-            orig_main_sheet = 'ALL'
-        
-        if not orig_main_sheet:
-            print(f"Could not find main allocation sheet in {orig_file}")
-            continue
-        
-        orig_df = orig_sheets[orig_main_sheet]
-        
-        # Process and clean original dataframe
-        header_row = None
-        for i in range(min(10, len(orig_df))):
-            row = orig_df.iloc[i].astype(str)
-            if any('COST CODE' in val.upper() for val in row.values) or \
-               any('EQUIP' in val.upper() and 'ID' in val.upper() for val in row.values):
-                header_row = i
-                break
-        
-        if header_row is not None:
-            orig_df = orig_df.iloc[header_row:].reset_index(drop=True)
-            orig_df.columns = orig_df.iloc[0]
-            orig_df = orig_df.iloc[1:].reset_index(drop=True)
-        
-        # Filter out completely empty rows
-        orig_df = orig_df.dropna(how='all')
-        
-        # Extract only rows with equipment data
-        orig_equipment_df = orig_df[orig_df.iloc[:, 1].notna()]
-        
-        # Find equipment specific to this job
-        job_specific_equipment = final_equipment_df[final_equipment_df.iloc[:, 0].astype(str).str.contains(job_id)]
-        
-        # Compare with original
-        if len(orig_equipment_df) > 0 and len(job_specific_equipment) > 0:
-            # Get equipment IDs from both
-            try:
-                orig_ids = orig_equipment_df.iloc[:, 1].astype(str)
-                final_ids = job_specific_equipment.iloc[:, 1].astype(str)
-                
-                # Find added and removed equipment
-                added_equipment = [eq_id for eq_id in final_ids if eq_id not in orig_ids.values]
-                removed_equipment = [eq_id for eq_id in orig_ids if eq_id not in final_ids.values]
-                
-                # Create comparison report
-                comparison_file = os.path.join(output_dir, f"PM_Allocation_Comparison_{job_id}.xlsx")
-                with pd.ExcelWriter(comparison_file, engine='openpyxl') as writer:
-                    # Summary sheet
-                    summary = pd.DataFrame([
-                        ['Job Number', job_id],
-                        ['Original File', os.path.basename(orig_file)],
-                        ['Final File', os.path.basename(final_file)],
-                        ['Equipment Count (Original)', len(orig_equipment_df)],
-                        ['Equipment Count (Final)', len(job_specific_equipment)],
-                        ['Added Equipment', len(added_equipment)],
-                        ['Removed Equipment', len(removed_equipment)],
-                        ['Processing Date', datetime.now().strftime("%Y-%m-%d %H:%M")],
-                    ])
-                    summary.to_excel(writer, sheet_name='Summary', index=False, header=False)
-                    
-                    # Added Equipment Sheet
-                    if added_equipment:
-                        added_df = job_specific_equipment[job_specific_equipment.iloc[:, 1].astype(str).isin(added_equipment)]
-                        if not added_df.empty:
-                            added_df.to_excel(writer, sheet_name='Added Equipment', index=False)
-                    
-                    # Removed Equipment Sheet
-                    if removed_equipment:
-                        removed_df = orig_equipment_df[orig_equipment_df.iloc[:, 1].astype(str).isin(removed_equipment)]
-                        if not removed_df.empty:
-                            removed_df.to_excel(writer, sheet_name='Removed Equipment', index=False)
-                    
-                    # Original Data
-                    orig_equipment_df.to_excel(writer, sheet_name='Original Data', index=False)
-                    
-                    # Final Data
-                    job_specific_equipment.to_excel(writer, sheet_name='Final Data', index=False)
-                
-                # Format workbook
-                wb = openpyxl.load_workbook(comparison_file)
-                
-                # Format the Summary sheet
-                if 'Summary' in wb.sheetnames:
-                    ws = wb['Summary']
-                    for row in ws.iter_rows(min_row=1, max_row=8, min_col=1, max_col=2):
-                        row[0].font = Font(bold=True)
-                
-                # Format all data sheets
-                for sheet_name in ['Added Equipment', 'Removed Equipment', 'Original Data', 'Final Data']:
-                    if sheet_name in wb.sheetnames:
-                        ws = wb[sheet_name]
-                        if ws.max_row > 1:  # Only format if we have data
-                            # Format headers
-                            for cell in ws[1]:
-                                cell.font = Font(bold=True)
-                                cell.fill = PatternFill(start_color="D9D9D9", end_color="D9D9D9", fill_type="solid")
-                            
-                            # Auto-size columns
-                            for column in ws.columns:
-                                max_length = 0
-                                column_letter = column[0].column_letter
-                                for cell in column:
-                                    try:
-                                        if len(str(cell.value)) > max_length:
-                                            max_length = len(str(cell.value))
-                                    except:
-                                        pass
-                                adjusted_width = (max_length + 2)
-                                ws.column_dimensions[column_letter].width = min(adjusted_width, 40)
-                            
-                            # Format currency columns
-                            amount_col = None
-                            rate_col = None
-                            day_col = None
-                            
-                            # Find columns containing amounts, rates and days
-                            for i, cell in enumerate(ws[1], 1):
-                                header_text = str(cell.value).upper() if cell.value else ""
-                                if "AMOUNT" in header_text or "TOTAL" in header_text:
-                                    amount_col = i
-                                elif "RATE" in header_text:
-                                    rate_col = i
-                                elif "DAY" in header_text or "QTY" in header_text:
-                                    day_col = i
-                            
-                            # Apply formatting to these columns
-                            if amount_col:
-                                for row in range(2, ws.max_row + 1):
-                                    cell = ws.cell(row=row, column=amount_col)
-                                    cell.number_format = '$#,##0.00'
-                            
-                            if rate_col:
-                                for row in range(2, ws.max_row + 1):
-                                    cell = ws.cell(row=row, column=rate_col)
-                                    cell.number_format = '$#,##0.00'
-                            
-                            if day_col:
-                                for row in range(2, ws.max_row + 1):
-                                    cell = ws.cell(row=row, column=day_col)
-                                    cell.number_format = '0'
-                
-                wb.save(comparison_file)
-                
-                comparison_results.append({
-                    'job_id': job_id,
-                    'original_file': orig_file,
-                    'equipment_count_original': len(orig_equipment_df),
-                    'equipment_count_final': len(job_specific_equipment),
-                    'added_equipment': added_equipment,
-                    'removed_equipment': removed_equipment,
-                    'comparison_file': comparison_file
-                })
-            except Exception as e:
-                print(f"Error comparing files for job {job_id}: {str(e)}")
-    
-    return comparison_results
-
-def create_master_summary(summary_data, output_dir):
-    """Create a master summary of all processed files"""
-    output_file = os.path.join(output_dir, "PM_Allocation_Master_Summary.xlsx")
-    
-    # Create summary dataframe
-    summary_rows = []
-    
-    # Add individual file data
-    for data in summary_data:
-        summary_rows.append({
-            'Job ID': data['job_id'],
-            'File': os.path.basename(data['file_path']),
-            'Equipment Count': data['total_items'],
-            'Total Days': data['total_days'],
-            'Total Amount': data['total_amount'],
-        })
-    
-    # Calculate totals
-    if summary_rows:
-        total_equipment = sum(data['total_items'] for data in summary_data)
-        total_days = sum(data['total_days'] for data in summary_data)
-        total_amount = sum(data['total_amount'] for data in summary_data)
-        
-        summary_rows.append({
-            'Job ID': 'TOTAL',
-            'File': '',
-            'Equipment Count': total_equipment,
-            'Total Days': total_days,
-            'Total Amount': total_amount,
-        })
-    
-    # Create dataframe and save
-    df = pd.DataFrame(summary_rows)
-    
-    with pd.ExcelWriter(output_file, engine='openpyxl') as writer:
-        df.to_excel(writer, sheet_name='Summary', index=False)
-    
-    # Format workbook
-    wb = openpyxl.load_workbook(output_file)
-    ws = wb['Summary']
-    
-    # Format headers
-    for cell in ws[1]:
-        cell.font = Font(bold=True)
-        cell.fill = PatternFill(start_color="D9D9D9", end_color="D9D9D9", fill_type="solid")
-    
-    # Format total row
-    for row in ws.iter_rows(min_row=len(summary_rows)+1, max_row=len(summary_rows)+1):
-        for cell in row:
+        # Add headers to summary sheet
+        headers = ["Job Number", "Equipment Count", "Total Hours", "Total Amount"]
+        for col, header in enumerate(headers, 1):
+            cell = summary_sheet.cell(row=1, column=col)
+            cell.value = header
             cell.font = Font(bold=True)
         
-    # Format currency column
-    for row in range(2, ws.max_row + 1):
-        cell = ws.cell(row=row, column=5)  # Total Amount column
-        cell.number_format = '$#,##0.00'
-    
-    # Auto-size columns
-    for column in ws.columns:
-        max_length = 0
-        column_letter = column[0].column_letter
-        for cell in column:
-            try:
-                if len(str(cell.value)) > max_length:
-                    max_length = len(str(cell.value))
-            except:
-                pass
-        adjusted_width = (max_length + 2)
-        ws.column_dimensions[column_letter].width = min(adjusted_width, 40)
-    
-    wb.save(output_file)
-    
-    return output_file
+        # Group the data by job number
+        try:
+            job_groups = df.groupby(job_col)
+            print(f"Found {len(job_groups)} job groups")
+            
+            # Process each job group
+            row = 2  # Start from row 2 in summary sheet
+            for job_number, group in job_groups:
+                print(f"Processing job: {job_number}")
+                
+                # Create a sheet for this job
+                sheet_name = f"Job-{job_number}"
+                if len(sheet_name) > 31:  # Excel has a 31 character limit for sheet names
+                    sheet_name = sheet_name[:31]
+                
+                job_sheet = wb.create_sheet(sheet_name)
+                
+                # Add job header
+                job_sheet.cell(row=1, column=1).value = f"Job {job_number} - Equipment Allocations"
+                job_sheet.cell(row=1, column=1).font = Font(bold=True, size=14)
+                
+                # Add column headers
+                for col, header in enumerate(group.columns, 1):
+                    cell = job_sheet.cell(row=3, column=col)
+                    cell.value = header
+                    cell.font = Font(bold=True)
+                
+                # Add data rows
+                for i, (_, data_row) in enumerate(group.iterrows(), 4):
+                    for col, value in enumerate(data_row, 1):
+                        job_sheet.cell(row=i, column=col).value = value
+                
+                # Add to summary
+                equipment_count = len(group)
+                
+                # Try to find hours and amount columns
+                hours_col = None
+                amount_col = None
+                
+                for col in group.columns:
+                    col_upper = str(col).upper()
+                    if 'HOUR' in col_upper or 'HRS' in col_upper:
+                        hours_col = col
+                    elif 'AMOUNT' in col_upper or 'TOTAL' in col_upper or '$' in col_upper:
+                        amount_col = col
+                
+                # Calculate totals
+                total_hours = 0
+                if hours_col:
+                    total_hours = group[hours_col].sum()
+                
+                total_amount = 0
+                if amount_col:
+                    total_amount = group[amount_col].sum()
+                
+                # Add to summary sheet
+                summary_sheet.cell(row=row, column=1).value = job_number
+                summary_sheet.cell(row=row, column=2).value = equipment_count
+                summary_sheet.cell(row=row, column=3).value = total_hours
+                summary_sheet.cell(row=row, column=4).value = total_amount
+                
+                # Format amount as currency
+                summary_sheet.cell(row=row, column=4).number_format = '$#,##0.00'
+                
+                row += 1
+        
+        except Exception as e:
+            print(f"Error processing job groups: {str(e)}")
+            import traceback
+            traceback.print_exc()
+        
+        # Save the consolidated workbook
+        output_file = os.path.join(output_dir, f"PM_Processed_Data_{datetime.now().strftime('%Y%m%d')}.xlsx")
+        wb.save(output_file)
+        print(f"Consolidated data saved to: {output_file}")
+        
+        return True
+        
+    except Exception as e:
+        print(f"Error consolidating PM allocation data: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return False
+
 
 def main():
-    """Main processing function"""
-    print("Starting PM Allocation processing...")
+    """Main function"""
+    print("=== PM Allocation Formula Preservation ===")
     
-    # Setup output directory
-    output_dir = setup_directories()
-    print(f"Output directory: {output_dir}")
+    # Create formula template from source workbook
+    create_formula_template()
     
-    # Find the final revision file
-    final_file = find_final_revision_file()
-    if not final_file:
-        print("Could not find final revision file")
-        return
-    
-    print(f"Using final revision file: {final_file}")
-    
-    # Find job-specific files
-    job_files = find_job_specific_files()
-    print(f"Found {len(job_files)} job-specific files")
-    
-    # Process all files
-    summary_data = []
-    
-    # Process final file
-    final_data = process_allocation_file(final_file, output_dir)
-    if final_data:
-        summary_data.append(final_data)
-    
-    # Process job files
-    for job_file in job_files:
-        job_data = process_allocation_file(job_file, output_dir)
-        if job_data:
-            summary_data.append(job_data)
-    
-    # Compare original files with final revisions
-    comparison_results = compare_allocation_revisions(job_files, final_file, output_dir)
-    
-    # Create master summary
-    master_file = create_master_summary(summary_data, output_dir)
+    # Consolidate PM allocation data
+    consolidate_pm_allocation_data()
     
     print("\nProcessing complete!")
-    print(f"Master summary: {master_file}")
-    print(f"All output files located in: {output_dir}")
-    
-    # Display stats
-    print("\nSummary statistics:")
-    print(f"Total files processed: {len(summary_data)}")
-    if summary_data:
-        total_equipment = sum(data['total_items'] for data in summary_data)
-        total_days = sum(data['total_days'] for data in summary_data)
-        total_amount = sum(data['total_amount'] for data in summary_data)
-        
-        print(f"Total equipment count: {total_equipment}")
-        print(f"Total billing days: {total_days}")
-        print(f"Total billing amount: ${total_amount:,.2f}")
-    
-    print("\nFiles generated:")
-    for root, dirs, files in os.walk(output_dir):
-        for file in files:
-            print(f" - {os.path.join(root, file)}")
+
 
 if __name__ == "__main__":
     main()

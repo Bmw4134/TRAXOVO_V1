@@ -38,16 +38,31 @@ def extract_key_formulas(source_wb, sheet_name):
     ws = source_wb[sheet_name]
     formulas = {}
     
-    # Extract formulas (limiting to first 100 rows and 30 columns for performance)
-    max_row = min(100, ws.max_row)
-    max_col = min(30, ws.max_column)
+    # Focus on specific regions for better performance
+    key_ranges = {
+        'M-SELECT': [(10, 20, 1, 15), (30, 40, 5, 15)],  # Rows 10-20 and 30-40, cols 1-15
+        'M-RAGLE': [(10, 20, 1, 15), (25, 35, 5, 15)],   # Rows 10-20 and 25-35, cols 1-15
+        'ATOS': [(5, 15, 1, 10)],                        # Rows 5-15, cols 1-10
+        'EHRS-PT': [(5, 15, 1, 10)],                     # Rows 5-15, cols 1-10
+        'EHrs': [(5, 15, 1, 10)]                         # Rows 5-15, cols 1-10
+    }
     
-    for row in range(1, max_row + 1):
-        for col in range(1, max_col + 1):
-            cell = ws.cell(row=row, column=col)
-            if cell.formula:
-                cell_ref = f"{get_column_letter(col)}{row}"
-                formulas[cell_ref] = cell.formula
+    # Use default range if sheet not in key_ranges
+    ranges_to_check = key_ranges.get(sheet_name, [(1, 30, 1, 15)])
+    
+    # Extract formulas from specific ranges
+    for start_row, end_row, start_col, end_col in ranges_to_check:
+        for row in range(start_row, end_row + 1):
+            for col in range(start_col, end_col + 1):
+                try:
+                    cell = ws.cell(row=row, column=col)
+                    if cell.formula:
+                        cell_ref = f"{get_column_letter(col)}{row}"
+                        formulas[cell_ref] = cell.formula
+                        # Also print the formula we found for debugging
+                        print(f"  Found formula in {sheet_name} at {cell_ref}: {cell.formula[:50]}{'...' if len(cell.formula) > 50 else ''}")
+                except Exception as e:
+                    print(f"  Error accessing cell at {row},{col}: {e}")
                 
     return formulas
 

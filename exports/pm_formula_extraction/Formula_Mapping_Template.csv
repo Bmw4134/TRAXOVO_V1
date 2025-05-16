@@ -1,0 +1,6 @@
+Sheet,Formula Type,Description
+M-SELECT,Equipment Hours Allocation,Allocation of equipment hours by job
+M-RAGLE,Billing Rate Calculation,Calculation of billing rates by equipment type
+ATOS,Asset Time on Site,Total time spent by asset on each job site
+TRKG,Truck Usage Calculation,Calculation of truck usage metrics
+DUSG-PT,Daily Usage Pickup Trucks,Daily usage metrics for pickup trucks

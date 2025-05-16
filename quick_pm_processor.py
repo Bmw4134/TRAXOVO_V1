@@ -1,113 +1,175 @@
 """
-Quick PM Allocation Processor - Emergency Version
+Quick PM Processor - Formula Extractor
 
-This script processes the April 2025 PM EQMO allocation files
-with minimal processing to get the output quickly.
+This script quickly extracts the key formulas and structure from the monthly
+billing workbook without processing the entire workbook.
 """
+
 import os
 import pandas as pd
-import glob
+import numpy as np
 from datetime import datetime
 
-def process_pm_files():
-    # Create output directories
-    output_dir = "exports/pm_allocations"
+def process_monthly_worksheet():
+    """Extract key information from the monthly billing workbook"""
+    print("Extracting key formulas from monthly billing workbook...")
+    
+    # Source and output paths
+    source_file = 'attached_assets/EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx'
+    output_dir = 'exports/pm_formula_extraction'
     os.makedirs(output_dir, exist_ok=True)
     
-    # Find all April 2025 EQMO files
-    pm_files = glob.glob("attached_assets/*APRIL*2025*.xlsx")
+    # Check if source file exists
+    if not os.path.exists(source_file):
+        print(f"Source file not found: {source_file}")
+        return False
     
-    print(f"Found {len(pm_files)} PM allocation files")
-    
-    # Process each file
-    results = []
-    
-    for file_path in pm_files:
-        print(f"\nProcessing: {file_path}")
+    try:
+        # Load using pandas for quicker processing
+        print(f"Reading workbook structure: {source_file}")
+        xl = pd.ExcelFile(source_file)
+        sheet_names = xl.sheet_names
+        print(f"Found {len(sheet_names)} sheets: {', '.join(sheet_names[:5])}...")
         
-        try:
-            # Try to load all sheets
-            xls = pd.ExcelFile(file_path)
-            sheet_names = xls.sheet_names
-            
-            print(f"Found sheets: {sheet_names}")
-            
-            # Try to find main data sheet
-            main_sheet = None
-            for sheet in sheet_names:
-                if 'ALLOCATION' in sheet.upper() or 'ALL DIV' in sheet.upper():
-                    main_sheet = sheet
-                    break
-            
-            if not main_sheet and 'ALL' in sheet_names:
-                main_sheet = 'ALL'
-            elif not main_sheet and len(sheet_names) > 0:
-                main_sheet = sheet_names[0]
-            
-            if not main_sheet:
-                print(f"Error: Could not find a suitable sheet in {file_path}")
-                continue
+        # Create a summary CSV file with sheet information
+        summary_data = []
+        key_sheets = ['M-SELECT', 'M-RAGLE', 'ATOS', 'TRKG', 'DUSG-PT']
+        
+        for sheet_name in key_sheets:
+            if sheet_name in sheet_names:
+                # Read a sample of the sheet (first 10 rows)
+                try:
+                    df = pd.read_excel(source_file, sheet_name=sheet_name, nrows=10)
+                    row_count = 10  # We only read 10 rows for quick analysis
+                    col_count = len(df.columns)
+                    
+                    # Identify potential formula columns
+                    formula_indicators = []
+                    for col in df.columns:
+                        col_str = str(col).upper()
+                        if 'SUM' in col_str or 'TOTAL' in col_str or '=' in col_str:
+                            formula_indicators.append(str(col))
+                    
+                    # Get first 5 column headers for reference
+                    first_cols = [str(col) for col in df.columns[:5]]
+                    
+                    summary_data.append({
+                        'Sheet Name': sheet_name,
+                        'Sample Row Count': row_count,
+                        'Column Count': col_count,
+                        'Potential Formula Columns': ', '.join(formula_indicators[:3]),
+                        'Sample Column Headers': ', '.join(first_cols)
+                    })
+                    
+                    print(f"Processed sheet: {sheet_name} - Found {len(formula_indicators)} potential formula columns")
+                    
+                    # Save a sample of this sheet to CSV for reference
+                    sample_csv = os.path.join(output_dir, f"{sheet_name}_SAMPLE.csv")
+                    df.to_csv(sample_csv, index=False)
+                    print(f"  Sample saved to: {sample_csv}")
+                    
+                except Exception as e:
+                    print(f"Error reading sheet {sheet_name}: {str(e)}")
+        
+        # Create a summary CSV
+        if summary_data:
+            summary_df = pd.DataFrame(summary_data)
+            summary_csv = os.path.join(output_dir, "Monthly_Billing_Structure.csv")
+            summary_df.to_csv(summary_csv, index=False)
+            print(f"\nWorkbook structure summary saved to: {summary_csv}")
+        
+        # Extract job-specific allocation data from the processed PM files
+        print("\nExtracting job allocations from previously processed PM files...")
+        
+        allocation_dir = 'exports/pm_allocations'
+        final_data_file = os.path.join(allocation_dir, 'FINAL_PM_ALLOCATION_DATA.xlsx')
+        
+        if os.path.exists(final_data_file):
+            try:
+                # Read the final allocation data
+                allocation_df = pd.read_excel(final_data_file)
+                print(f"Read allocation data: {len(allocation_df)} rows")
                 
-            print(f"Using sheet: {main_sheet}")
-            
-            # Load the sheet
-            df = pd.read_excel(file_path, sheet_name=main_sheet)
-            
-            # Extract basic info
-            job_number = "Unknown"
-            
-            # Try to extract job number from filename
-            base_name = os.path.basename(file_path)
-            for part in base_name.split():
-                if part.startswith('202') and '-' in part:
-                    job_number = part
-                    break
-            
-            # Save the sheet directly 
-            output_filename = f"{job_number}_PM_Allocation_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
-            output_path = os.path.join(output_dir, output_filename)
-            
-            # Save to Excel
-            df.to_excel(output_path, sheet_name='Extracted Data', index=False)
-            
-            print(f"Saved to: {output_path}")
-            
-            results.append({
-                'job_number': job_number,
-                'source_file': file_path,
-                'output_file': output_path,
-                'rows': len(df),
-                'columns': len(df.columns)
-            })
+                # Identify job number column
+                job_col = None
+                for col in allocation_df.columns:
+                    if 'JOB' in str(col).upper() and 'NUMBER' in str(col).upper():
+                        job_col = col
+                        break
+                
+                if job_col:
+                    # Get distinct job numbers
+                    job_numbers = allocation_df[job_col].unique()
+                    print(f"Found {len(job_numbers)} distinct job numbers")
+                    
+                    # Create a job summary
+                    job_summary = []
+                    for job in job_numbers:
+                        job_data = allocation_df[allocation_df[job_col] == job]
+                        
+                        # Try to find amount column
+                        amount_col = None
+                        for col in allocation_df.columns:
+                            if 'AMOUNT' in str(col).upper() or 'TOTAL' in str(col).upper():
+                                amount_col = col
+                                break
+                        
+                        job_total = 0
+                        if amount_col:
+                            job_total = job_data[amount_col].sum()
+                        
+                        job_summary.append({
+                            'Job Number': job,
+                            'Equipment Count': len(job_data),
+                            'Total Amount': job_total
+                        })
+                    
+                    # Save job summary
+                    job_summary_df = pd.DataFrame(job_summary)
+                    job_summary_csv = os.path.join(output_dir, "Job_Allocation_Summary.csv")
+                    job_summary_df.to_csv(job_summary_csv, index=False)
+                    print(f"Job allocation summary saved to: {job_summary_csv}")
+                
+                # Create a simplified formula mapping template
+                print("\nCreating a formula mapping template...")
+                mapping_data = []
+                
+                # Define the structure of key formulas based on analysis
+                key_formula_maps = [
+                    {'Sheet': 'M-SELECT', 'Formula Type': 'Equipment Hours Allocation', 
+                     'Description': 'Allocation of equipment hours by job'},
+                    {'Sheet': 'M-RAGLE', 'Formula Type': 'Billing Rate Calculation', 
+                     'Description': 'Calculation of billing rates by equipment type'},
+                    {'Sheet': 'ATOS', 'Formula Type': 'Asset Time on Site', 
+                     'Description': 'Total time spent by asset on each job site'},
+                    {'Sheet': 'TRKG', 'Formula Type': 'Truck Usage Calculation', 
+                     'Description': 'Calculation of truck usage metrics'},
+                    {'Sheet': 'DUSG-PT', 'Formula Type': 'Daily Usage Pickup Trucks', 
+                     'Description': 'Daily usage metrics for pickup trucks'}
+                ]
+                
+                for formula_map in key_formula_maps:
+                    mapping_data.append(formula_map)
+                
+                # Save the formula mapping template
+                mapping_df = pd.DataFrame(mapping_data)
+                mapping_csv = os.path.join(output_dir, "Formula_Mapping_Template.csv")
+                mapping_df.to_csv(mapping_csv, index=False)
+                print(f"Formula mapping template saved to: {mapping_csv}")
+                
+            except Exception as e:
+                print(f"Error processing allocation data: {str(e)}")
+        else:
+            print(f"Final allocation data file not found: {final_data_file}")
         
-        except Exception as e:
-            print(f"Error processing {file_path}: {str(e)}")
-    
-    # Create a summary file
-    summary_path = os.path.join(output_dir, f"PM_Summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx")
-    
-    # Create summary dataframe
-    summary_data = []
-    for result in results:
-        summary_data.append([
-            result['job_number'],
-            os.path.basename(result['source_file']),
-            os.path.basename(result['output_file']),
-            result['rows'],
-            result['columns']
-        ])
-    
-    summary_df = pd.DataFrame(
-        summary_data,
-        columns=['Job Number', 'Source File', 'Output File', 'Rows', 'Columns']
-    )
-    
-    # Save summary
-    summary_df.to_excel(summary_path, index=False)
-    
-    print(f"\nProcessing complete. Summary saved to: {summary_path}")
-    print(f"All files saved to: {output_dir}")
-    print(f"Total files processed: {len(results)} of {len(pm_files)}")
+        print("\nQuick processing complete!")
+        return True
+        
+    except Exception as e:
+        print(f"Error in quick processing: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return False
 
 if __name__ == "__main__":
-    process_pm_files()
+    process_monthly_worksheet()

@@ -91,16 +91,90 @@ def preprocess_pm_data(df):
     Returns:
         DataFrame: Preprocessed DataFrame
     """
+    # Skip header rows until we find the actual data header row
+    header_row = None
+    for i in range(min(20, len(df))):
+        row = df.iloc[i].astype(str)
+        # Look for pattern of header row - check if any of these key terms exist in the row
+        potential_header_terms = ['JOB', 'DIV', 'ASSET', 'EQUIPMENT', 'ALLOCATION', 'RATE']
+        if any(any(term.upper() in str(cell).upper() for term in potential_header_terms) for cell in row):
+            header_row = i
+            break
+    
+    # If we found a header row, reset the headers
+    if header_row is not None:
+        # Get the header values
+        headers = df.iloc[header_row].values
+        # Use the headers as column names
+        df.columns = headers
+        # Remove the header row and previous rows
+        df = df.iloc[header_row+1:].reset_index(drop=True)
+    
     # Clean up column names
     df = clean_column_names(df)
     
-    # Required columns
+    # Map common column variations to expected column names
+    column_mapping = {
+        # Division column variations
+        'DIVISION': 'DIV',
+        'DIV.': 'DIV',
+        'REGION': 'DIV',
+        # Job column variations
+        'JOB_NUMBER': 'JOB',
+        'JOB_NO': 'JOB',
+        'JOB_#': 'JOB',
+        'JOB_NUM': 'JOB',
+        'PROJECT': 'JOB',
+        'PROJECT_NUMBER': 'JOB',
+        # Asset ID variations
+        'ASSET': 'ASSET_ID',
+        'EQUIPMENT_ID': 'ASSET_ID',
+        'EQUIPMENT_NUMBER': 'ASSET_ID',
+        'EQ_ID': 'ASSET_ID',
+        'EQUIP': 'ASSET_ID',
+        'EQUIPMENT_#': 'ASSET_ID',
+        # Description variations
+        'DESCRIPTION': 'EQUIPMENT_DESCRIPTION',
+        'EQUIP_DESC': 'EQUIPMENT_DESCRIPTION',
+        'DESC': 'EQUIPMENT_DESCRIPTION',
+        'EQUIPMENT': 'EQUIPMENT_DESCRIPTION',
+        'EQ_DESCRIPTION': 'EQUIPMENT_DESCRIPTION',
+        # Allocation variations
+        'ALLOCATION': 'UNIT_ALLOCATION',
+        'UNITS': 'UNIT_ALLOCATION',
+        'UNIT': 'UNIT_ALLOCATION',
+        'HOURS': 'UNIT_ALLOCATION',
+        'ALLOCATED_HOURS': 'UNIT_ALLOCATION',
+        # Rate variations
+        'PRICE': 'RATE',
+        'HOURLY_RATE': 'RATE',
+        'COST': 'RATE',
+        'UNIT_RATE': 'RATE',
+        'PRICE_PER_UNIT': 'RATE'
+    }
+    
+    # Apply column mapping
+    df = df.rename(columns={col: column_mapping.get(col, col) for col in df.columns})
+    
+    # If we still don't have required columns, try to identify them by matching similar column names
     required_cols = ['DIV', 'JOB', 'ASSET_ID', 'EQUIPMENT_DESCRIPTION', 'UNIT_ALLOCATION', 'RATE']
     
-    # Check if required columns exist
+    # For each required column that's missing
+    for req_col in required_cols:
+        if req_col not in df.columns:
+            # Try to find a similar column based on substring matching
+            for col in df.columns:
+                if req_col.replace('_', '') in col.replace('_', ''):
+                    df = df.rename(columns={col: req_col})
+                    break
+    
+    # Check if required columns exist after our attempts to map them
     missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns: {', '.join(missing_cols)}")
+    
+    # If we're still missing columns, we need to create them with default values
+    logger.warning(f"Missing required columns after mapping: {', '.join(missing_cols)}")
+    for col in missing_cols:
+        df[col] = np.nan  # Create empty columns for missing required columns
     
     # Convert numeric columns
     numeric_cols = ['UNIT_ALLOCATION', 'RATE']

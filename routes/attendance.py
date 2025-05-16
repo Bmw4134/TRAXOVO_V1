@@ -1,235 +1,281 @@
 """
-Driver Attendance Module
-
-This module handles routes for displaying and analyzing driver attendance data.
+Attendance Analysis Routes
+This module contains routes for displaying attendance analytics and trend data.
 """
-from datetime import datetime, timedelta
-import calendar
-from flask import Blueprint, render_template, request, jsonify
+import os
+import numpy as np
+import pandas as pd
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required
+from datetime import datetime, timedelta
 from sqlalchemy import func, desc, and_
-from app import db
-from models.reports import Driver, DriverAttendance, Jobsite
+from models.attendance import Driver, JobSite, AttendanceRecord, AttendanceTrend
+from db import db
 
-# Create blueprint
-attendance_bp = Blueprint('attendance', __name__)
+# Create the attendance blueprint
+attendance_bp = Blueprint('attendance', __name__, url_prefix='/attendance')
 
-@attendance_bp.route('/attendance', methods=['GET'])
+@attendance_bp.route('/')
 @login_required
-def attendance_dashboard():
-    """Display the driver attendance dashboard"""
+def index():
+    """Attendance dashboard main page."""
+    return redirect(url_for('attendance.trends'))
+
+@attendance_bp.route('/trends')
+@login_required
+def trends():
+    """Display attendance trends and analytics."""
     # Get query parameters
-    start_date_str = request.args.get('start_date')
-    end_date_str = request.args.get('end_date')
-    driver_id = request.args.get('driver_id')
-    jobsite_id = request.args.get('jobsite_id')
-    flag_filter = request.args.get('flag')
+    date_range = request.args.get('date_range', '30')
+    try:
+        date_range = int(date_range)
+    except ValueError:
+        date_range = 30
     
-    # Set default date range to current month if not provided
-    today = datetime.today()
-    if not start_date_str:
-        start_date = datetime(today.year, today.month, 1).date()
-    else:
-        try:
-            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-        except ValueError:
-            start_date = datetime(today.year, today.month, 1).date()
+    region = request.args.get('region', 'all')
+    incident_type = request.args.get('incident_type', 'all')
     
-    if not end_date_str:
-        # Default to last day of current month
-        last_day = calendar.monthrange(today.year, today.month)[1]
-        end_date = datetime(today.year, today.month, last_day).date()
-    else:
-        try:
-            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-        except ValueError:
-            # Default to today if invalid
-            end_date = today.date()
+    # Calculate date range
+    end_date = datetime.now().date()
+    start_date = end_date - timedelta(days=date_range)
     
-    # Build the base query
-    query = db.session.query(
-        DriverAttendance,
-        Driver
-    ).join(
-        Driver, DriverAttendance.driver_id == Driver.id
-    ).filter(
-        DriverAttendance.date.between(start_date, end_date)
+    # Base query for attendance records
+    base_query = AttendanceRecord.query.filter(
+        AttendanceRecord.report_date.between(start_date, end_date)
     )
     
-    # Apply filters if provided
-    if driver_id:
-        query = query.filter(DriverAttendance.driver_id == driver_id)
+    # Apply region filter if specified
+    if region != 'all':
+        # Join with driver to filter by region
+        base_query = base_query.join(Driver).filter(Driver.region == region)
     
-    if jobsite_id:
-        query = query.filter(DriverAttendance.jobsite_id == jobsite_id)
+    # Apply incident type filter if specified
+    if incident_type != 'all':
+        base_query = base_query.filter(AttendanceRecord.status_type == incident_type.upper())
     
-    if flag_filter:
-        if flag_filter == 'late_start':
-            query = query.filter(DriverAttendance.late_start == True)
-        elif flag_filter == 'early_end':
-            query = query.filter(DriverAttendance.early_end == True)
-        elif flag_filter == 'no_jobsite':
-            query = query.filter(DriverAttendance.no_jobsite == True)
-        elif flag_filter == 'any_flag':
-            query = query.filter(
-                (DriverAttendance.late_start == True) | 
-                (DriverAttendance.early_end == True) | 
-                (DriverAttendance.no_jobsite == True)
+    # Get summary counts
+    summary = {
+        'total_incidents': base_query.count(),
+        'late_starts': base_query.filter(AttendanceRecord.status_type == 'LATE_START').count(),
+        'early_ends': base_query.filter(AttendanceRecord.status_type == 'EARLY_END').count(),
+        'not_on_job': base_query.filter(AttendanceRecord.status_type == 'NOT_ON_JOB').count()
+    }
+    
+    # Get all available regions
+    regions = [r[0] for r in Driver.query.with_entities(Driver.region).distinct().all() if r[0]]
+    
+    # Get daily data for chart
+    daily_data = {}
+    date_range_list = [(end_date - timedelta(days=i)).strftime('%Y-%m-%d') for i in range(date_range)]
+    date_range_list.reverse()  # Oldest to newest
+    
+    daily_data['dates'] = date_range_list
+    daily_data['late_starts'] = []
+    daily_data['early_ends'] = []
+    daily_data['not_on_job'] = []
+    
+    for date_str in date_range_list:
+        date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
+        
+        # Query counts for each status type on this date
+        late_count = base_query.filter(
+            AttendanceRecord.report_date == date_obj,
+            AttendanceRecord.status_type == 'LATE_START'
+        ).count()
+        
+        early_count = base_query.filter(
+            AttendanceRecord.report_date == date_obj,
+            AttendanceRecord.status_type == 'EARLY_END'
+        ).count()
+        
+        noj_count = base_query.filter(
+            AttendanceRecord.report_date == date_obj,
+            AttendanceRecord.status_type == 'NOT_ON_JOB'
+        ).count()
+        
+        daily_data['late_starts'].append(late_count)
+        daily_data['early_ends'].append(early_count)
+        daily_data['not_on_job'].append(noj_count)
+    
+    # Get top drivers with attendance issues
+    top_drivers_query = db.session.query(
+        AttendanceRecord.driver_id,
+        func.count(AttendanceRecord.id).label('total_incidents')
+    ).filter(
+        AttendanceRecord.report_date.between(start_date, end_date)
+    )
+    
+    if incident_type != 'all':
+        top_drivers_query = top_drivers_query.filter(AttendanceRecord.status_type == incident_type.upper())
+    
+    top_drivers_query = top_drivers_query.group_by(
+        AttendanceRecord.driver_id
+    ).order_by(
+        desc('total_incidents')
+    ).limit(10)
+    
+    top_drivers = []
+    for driver_id, total_incidents in top_drivers_query.all():
+        driver = Driver.query.get(driver_id)
+        if driver:
+            # Calculate trend (change from previous period)
+            prev_start_date = start_date - timedelta(days=date_range)
+            prev_end_date = end_date - timedelta(days=date_range)
+            
+            prev_incidents = AttendanceRecord.query.filter(
+                AttendanceRecord.driver_id == driver_id,
+                AttendanceRecord.report_date.between(prev_start_date, prev_end_date)
             )
+            
+            if incident_type != 'all':
+                prev_incidents = prev_incidents.filter(AttendanceRecord.status_type == incident_type.upper())
+            
+            prev_count = prev_incidents.count()
+            
+            if prev_count > 0:
+                trend = ((total_incidents - prev_count) / prev_count) * 100
+            else:
+                trend = 100 if total_incidents > 0 else 0
+                
+            top_drivers.append({
+                'id': driver.id,
+                'name': driver.name,
+                'employee_id': driver.employee_id,
+                'asset_id': driver.asset_id,
+                'total_incidents': total_incidents,
+                'trend': round(trend)
+            })
     
-    # Order by date descending
-    query = query.order_by(desc(DriverAttendance.date))
+    # Get top job sites with attendance issues
+    top_sites_query = db.session.query(
+        AttendanceRecord.job_site_id,
+        func.count(AttendanceRecord.id).label('total_incidents')
+    ).filter(
+        AttendanceRecord.report_date.between(start_date, end_date)
+    )
     
-    # Execute query
-    attendance_records = query.all()
+    if incident_type != 'all':
+        top_sites_query = top_sites_query.filter(AttendanceRecord.status_type == incident_type.upper())
     
-    # Get all drivers and jobsites for filter dropdowns
-    drivers = Driver.query.order_by(Driver.name).all()
-    jobsites = Jobsite.query.order_by(Jobsite.name).all()
+    top_sites_query = top_sites_query.group_by(
+        AttendanceRecord.job_site_id
+    ).order_by(
+        desc('total_incidents')
+    ).limit(10)
     
-    # Calculate summary statistics
-    total_records = len(attendance_records)
-    total_hours = sum(record[0].total_hours or 0 for record in attendance_records)
-    billable_hours = sum(record[0].billable_hours or 0 for record in attendance_records)
+    top_sites = []
+    for site_id, total_incidents in top_sites_query.all():
+        site = JobSite.query.get(site_id)
+        if site:
+            # Calculate trend (change from previous period)
+            prev_start_date = start_date - timedelta(days=date_range)
+            prev_end_date = end_date - timedelta(days=date_range)
+            
+            prev_incidents = AttendanceRecord.query.filter(
+                AttendanceRecord.job_site_id == site_id,
+                AttendanceRecord.report_date.between(prev_start_date, prev_end_date)
+            )
+            
+            if incident_type != 'all':
+                prev_incidents = prev_incidents.filter(AttendanceRecord.status_type == incident_type.upper())
+            
+            prev_count = prev_incidents.count()
+            
+            if prev_count > 0:
+                trend = ((total_incidents - prev_count) / prev_count) * 100
+            else:
+                trend = 100 if total_incidents > 0 else 0
+                
+            top_sites.append({
+                'id': site.id,
+                'name': site.name,
+                'job_number': site.job_number,
+                'total_incidents': total_incidents,
+                'trend': round(trend)
+            })
     
-    # Count flags
-    late_starts = sum(1 for record in attendance_records if record[0].late_start)
-    early_ends = sum(1 for record in attendance_records if record[0].early_end)
-    no_jobsites = sum(1 for record in attendance_records if record[0].no_jobsite)
+    # Weekly heatmap data
+    weekly_heatmap = []
+    days_of_week = 7
+    hours_of_day = 14  # 5 AM to 7 PM
     
-    # Calculate efficiency
-    efficiency = (billable_hours / total_hours * 100) if total_hours > 0 else 0
+    for day in range(days_of_week):  # 0=Monday to 6=Sunday
+        for hour in range(5, 19):  # 5 AM to 7 PM
+            # Count incidents for this day of week and hour of day
+            day_query = base_query.filter(
+                func.extract('dow', AttendanceRecord.report_date) == (day + 1) % 7 + 1
+            )
+            
+            # For Late Start, use actual_start hour, for Early End use actual_end hour
+            if incident_type == 'late_start':
+                hour_count = day_query.filter(
+                    AttendanceRecord.status_type == 'LATE_START',
+                    func.extract('hour', AttendanceRecord.actual_start) == hour
+                ).count()
+            elif incident_type == 'early_end':
+                hour_count = day_query.filter(
+                    AttendanceRecord.status_type == 'EARLY_END',
+                    func.extract('hour', AttendanceRecord.actual_end) == hour
+                ).count()
+            else:
+                hour_count = day_query.filter(
+                    AttendanceRecord.status_type.in_(['LATE_START', 'EARLY_END', 'NOT_ON_JOB']),
+                    func.extract('hour', AttendanceRecord.report_date) == hour
+                ).count()
+            
+            weekly_heatmap.append({'x': hour, 'y': day, 'v': hour_count})
     
     return render_template(
-        'attendance/dashboard.html',
-        attendance_records=attendance_records,
-        drivers=drivers,
-        jobsites=jobsites,
-        start_date=start_date,
-        end_date=end_date,
-        selected_driver_id=driver_id,
-        selected_jobsite_id=jobsite_id,
-        selected_flag=flag_filter,
-        stats={
-            'total_records': total_records,
-            'total_hours': total_hours,
-            'billable_hours': billable_hours,
-            'efficiency': efficiency,
-            'late_starts': late_starts,
-            'early_ends': early_ends,
-            'no_jobsites': no_jobsites
-        }
+        'attendance_trends.html',
+        title='Attendance Trends',
+        summary=summary,
+        daily_data=daily_data,
+        weekly_heatmap=weekly_heatmap,
+        top_drivers=top_drivers,
+        top_sites=top_sites,
+        date_range=date_range,
+        region=region,
+        regions=regions,
+        incident_type=incident_type
     )
 
-@attendance_bp.route('/attendance/api/summary', methods=['GET'])
+@attendance_bp.route('/driver/<int:driver_id>')
 @login_required
-def attendance_summary_api():
-    """API endpoint for attendance summary data"""
+def driver_details(driver_id):
+    """Display detailed attendance history for a specific driver."""
+    driver = Driver.query.get_or_404(driver_id)
+    
     # Get query parameters
-    period = request.args.get('period', 'week')  # 'day', 'week', 'month'
+    date_range = request.args.get('date_range', '90')
+    try:
+        date_range = int(date_range)
+    except ValueError:
+        date_range = 90
     
-    # Calculate date range based on period
-    today = datetime.today()
-    if period == 'day':
-        start_date = today.date()
-        end_date = today.date()
-    elif period == 'week':
-        # Start from Monday of current week
-        start_date = (today - timedelta(days=today.weekday())).date()
-        end_date = today.date()
-    else:  # month
-        start_date = datetime(today.year, today.month, 1).date()
-        end_date = today.date()
+    # Calculate date range
+    end_date = datetime.now().date()
+    start_date = end_date - timedelta(days=date_range)
     
-    # Query for summary data
-    data = db.session.query(
-        func.date(DriverAttendance.date).label('date'),
-        func.count(DriverAttendance.id).label('total'),
-        func.sum(func.cast(DriverAttendance.late_start, db.Integer)).label('late_starts'),
-        func.sum(func.cast(DriverAttendance.early_end, db.Integer)).label('early_ends'),
-        func.sum(func.cast(DriverAttendance.no_jobsite, db.Integer)).label('no_jobsites'),
-        func.sum(DriverAttendance.total_hours).label('total_hours'),
-        func.sum(DriverAttendance.billable_hours).label('billable_hours')
-    ).filter(
-        DriverAttendance.date.between(start_date, end_date)
-    ).group_by(
-        func.date(DriverAttendance.date)
+    # Get attendance records for this driver
+    attendance_records = AttendanceRecord.query.filter(
+        AttendanceRecord.driver_id == driver_id,
+        AttendanceRecord.report_date.between(start_date, end_date)
     ).order_by(
-        func.date(DriverAttendance.date)
+        AttendanceRecord.report_date.desc()
     ).all()
     
-    # Format for chart display
-    result = {
-        'dates': [str(row.date) for row in data],
-        'total_records': [row.total for row in data],
-        'late_starts': [row.late_starts or 0 for row in data],
-        'early_ends': [row.early_ends or 0 for row in data],
-        'no_jobsites': [row.no_jobsites or 0 for row in data],
-        'total_hours': [float(row.total_hours or 0) for row in data],
-        'billable_hours': [float(row.billable_hours or 0) for row in data],
-    }
+    # Count by incident type
+    late_starts = sum(1 for r in attendance_records if r.status_type == 'LATE_START')
+    early_ends = sum(1 for r in attendance_records if r.status_type == 'EARLY_END')
+    not_on_job = sum(1 for r in attendance_records if r.status_type == 'NOT_ON_JOB')
     
-    return jsonify(result)
-
-@attendance_bp.route('/attendance/api/driver-stats', methods=['GET'])
-@login_required
-def driver_stats_api():
-    """API endpoint for driver-specific statistics"""
-    # Get query parameters
-    start_date_str = request.args.get('start_date')
-    end_date_str = request.args.get('end_date')
-    
-    # Set default date range to current month if not provided
-    today = datetime.today()
-    if not start_date_str:
-        start_date = datetime(today.year, today.month, 1).date()
-    else:
-        try:
-            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-        except ValueError:
-            start_date = datetime(today.year, today.month, 1).date()
-    
-    if not end_date_str:
-        end_date = today.date()
-    else:
-        try:
-            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-        except ValueError:
-            end_date = today.date()
-    
-    # Query for driver statistics
-    driver_stats = db.session.query(
-        Driver.id,
-        Driver.name,
-        func.count(DriverAttendance.id).label('attendance_count'),
-        func.sum(func.cast(DriverAttendance.late_start, db.Integer)).label('late_starts'),
-        func.sum(func.cast(DriverAttendance.early_end, db.Integer)).label('early_ends'),
-        func.sum(func.cast(DriverAttendance.no_jobsite, db.Integer)).label('no_jobsites'),
-        func.sum(DriverAttendance.total_hours).label('total_hours'),
-        func.sum(DriverAttendance.billable_hours).label('billable_hours')
-    ).join(
-        DriverAttendance, Driver.id == DriverAttendance.driver_id
-    ).filter(
-        DriverAttendance.date.between(start_date, end_date)
-    ).group_by(
-        Driver.id, Driver.name
-    ).order_by(
-        func.sum(DriverAttendance.total_hours).desc()
-    ).all()
-    
-    # Format for chart display
-    result = {
-        'drivers': [driver.name for driver in driver_stats],
-        'attendance_counts': [driver.attendance_count for driver in driver_stats],
-        'late_starts': [driver.late_starts or 0 for driver in driver_stats],
-        'early_ends': [driver.early_ends or 0 for driver in driver_stats],
-        'no_jobsites': [driver.no_jobsites or 0 for driver in driver_stats],
-        'total_hours': [float(driver.total_hours or 0) for driver in driver_stats],
-        'billable_hours': [float(driver.billable_hours or 0) for driver in driver_stats],
-        'efficiency': [
-            round((float(driver.billable_hours or 0) / float(driver.total_hours or 1)) * 100, 2) 
-            for driver in driver_stats
-        ]
-    }
-    
-    return jsonify(result)
+    return render_template(
+        'driver_details.html',
+        title=f'Driver Details: {driver.name}',
+        driver=driver,
+        attendance_records=attendance_records,
+        late_starts=late_starts,
+        early_ends=early_ends,
+        not_on_job=not_on_job,
+        date_range=date_range
+    )

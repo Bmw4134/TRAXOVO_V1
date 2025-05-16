@@ -720,21 +720,6 @@ def process_pm_allocation(original_file, pm_file, region='all', month='', fsi_fo
         logger.info(f"Processing PM allocation files: Original: {original_file}, PM: {pm_file}")
         logger.info(f"Parameters - Region: {region}, Month: {month}, FSI Format: {fsi_format}")
         
-        # Load Excel files
-        try:
-            original_df = pd.read_excel(original_file)
-            pm_df = pd.read_excel(pm_file)
-            
-            logger.info(f"Files loaded successfully. Original shape: {original_df.shape}, PM shape: {pm_df.shape}")
-            logger.info(f"Original columns: {list(original_df.columns)}")
-            logger.info(f"PM columns: {list(pm_df.columns)}")
-        except Exception as e:
-            logger.error(f"Error loading Excel files: {str(e)}", exc_info=True)
-            return {
-                'success': False,
-                'message': f"Error loading files: {str(e)}"
-            }
-        
         # Extract month from filename if not provided
         if not month:
             month_pattern = r'(JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER)\s+\d{4}'
@@ -746,6 +731,185 @@ def process_pm_allocation(original_file, pm_file, region='all', month='', fsi_fo
                 month = datetime.now().strftime('%B %Y').upper()
             
             logger.info(f"Month determined from filename: {month}")
+        
+        # Load and preprocess Excel files with enhanced format detection
+        try:
+            # First attempt: Try to determine if we need to skip rows by examining file
+            def find_header_row(file_path):
+                # Read first 20 rows to find header
+                sample_df = pd.read_excel(file_path, nrows=20, header=None)
+                # Look for key column identifiers in each row
+                for i in range(sample_df.shape[0]):
+                    row = sample_df.iloc[i].astype(str)
+                    # Common column header terms
+                    header_terms = ['DIV', 'DIVISION', 'JOB', 'ASSET', 'EQUIPMENT', 'DESCRIPTION', 'AMOUNT', 'ALLOCATION']
+                    if sum(row.str.contains('|'.join(header_terms), case=False, regex=True)) >= 3:
+                        logger.info(f"Found likely header row at position {i} in {file_path}")
+                        return i
+                return None
+            
+            # Try to find header rows in both files
+            original_header_row = find_header_row(original_file)
+            pm_header_row = find_header_row(pm_file)
+            
+            # Load files with appropriate header rows
+            logger.info(f"Loading original file with header row: {original_header_row}")
+            original_df = pd.read_excel(
+                original_file, 
+                header=original_header_row if original_header_row is not None else 0,
+                engine='openpyxl'
+            )
+            
+            logger.info(f"Loading PM file with header row: {pm_header_row}")
+            pm_df = pd.read_excel(
+                pm_file, 
+                header=pm_header_row if pm_header_row is not None else 0,
+                engine='openpyxl'
+            )
+            
+            # Clean up and standardize column names
+            logger.info(f"Original columns before cleaning: {list(original_df.columns)}")
+            logger.info(f"PM columns before cleaning: {list(pm_df.columns)}")
+            
+            # Function to clean and standardize column names
+            def clean_and_map_columns(df):
+                # Clean column names: strip spaces, convert to uppercase
+                df.columns = [str(col).strip().upper().replace(' ', '_') for col in df.columns]
+                
+                # Create mapping for common column name variations
+                column_mapping = {
+                    # Division/Region related
+                    'DIVISION': 'DIV',
+                    'DIVISION_CODE': 'DIV',
+                    'DIV_CODE': 'DIV',
+                    'REGION': 'DIV',
+                    'OFFICE': 'DIV',
+                    # Job related
+                    'JOB_NUMBER': 'JOB',
+                    'JOB_#': 'JOB',
+                    'JOB_NO': 'JOB',
+                    'JOB_NO.': 'JOB',
+                    'PROJECT': 'JOB',
+                    'PROJECT_NUMBER': 'JOB',
+                    'PROJECT_#': 'JOB',
+                    # Asset related
+                    'ASSET': 'ASSET_ID',
+                    'ASSET_NO': 'ASSET_ID',
+                    'ASSET_NO.': 'ASSET_ID',
+                    'ASSET_NUM': 'ASSET_ID',
+                    'ASSET_NUMBER': 'ASSET_ID',
+                    'EQUIPMENT_ID': 'ASSET_ID',
+                    'EQUIPMENT_NO': 'ASSET_ID',
+                    'EQUIPMENT_NO.': 'ASSET_ID',
+                    'EQUIPMENT_NUMBER': 'ASSET_ID',
+                    'EQ_ID': 'ASSET_ID',
+                    'EQ_NO': 'ASSET_ID',
+                    'EQ_NO.': 'ASSET_ID',
+                    'EQ_NUM': 'ASSET_ID',
+                    'EQ_NUMBER': 'ASSET_ID',
+                    # Description related
+                    'DESCRIPTION': 'EQUIPMENT_DESCRIPTION',
+                    'DESC': 'EQUIPMENT_DESCRIPTION',
+                    'EQUIPMENT': 'EQUIPMENT_DESCRIPTION',
+                    'EQUIPMENT_DESC': 'EQUIPMENT_DESCRIPTION',
+                    'EQUIPMENT_DESCRIPTION': 'EQUIPMENT_DESCRIPTION',
+                    'EQ_DESC': 'EQUIPMENT_DESCRIPTION',
+                    'EQ_DESCRIPTION': 'EQUIPMENT_DESCRIPTION',
+                    # Allocation related
+                    'ALLOCATION': 'UNIT_ALLOCATION',
+                    'HOURS': 'UNIT_ALLOCATION',
+                    'UNITS': 'UNIT_ALLOCATION',
+                    'UNIT_HRS': 'UNIT_ALLOCATION',
+                    'UNIT_HOURS': 'UNIT_ALLOCATION',
+                    'QUANTITY': 'UNIT_ALLOCATION',
+                    'QTY': 'UNIT_ALLOCATION',
+                    # Rate related
+                    'RATE': 'RATE',
+                    'PRICE': 'RATE',
+                    'UNIT_PRICE': 'RATE',
+                    'UNIT_RATE': 'RATE',
+                    'HOURLY_RATE': 'RATE',
+                    'PRICE_PER_UNIT': 'RATE',
+                    # Amount related
+                    'AMOUNT': 'UNIT_ALLOCATION_AMOUNT',
+                    'TOTAL': 'UNIT_ALLOCATION_AMOUNT',
+                    'TOTAL_AMOUNT': 'UNIT_ALLOCATION_AMOUNT',
+                    'EXTENDED_AMOUNT': 'UNIT_ALLOCATION_AMOUNT',
+                    'EXTENSION': 'UNIT_ALLOCATION_AMOUNT',
+                }
+                
+                # Rename columns that match exactly
+                exact_matches = {col: column_mapping[col] for col in df.columns if col in column_mapping}
+                df = df.rename(columns=exact_matches)
+                
+                # For remaining columns, try partial matching
+                for col in df.columns:
+                    if col not in column_mapping.values():  # Skip if already a standardized name
+                        # Find best match based on column name
+                        for pattern, standard in column_mapping.items():
+                            if pattern in col:
+                                df = df.rename(columns={col: standard})
+                                logger.info(f"Mapped column '{col}' to standard name '{standard}'")
+                                break
+                
+                # Identify required columns that are missing
+                required_cols = ['DIV', 'JOB', 'ASSET_ID', 'EQUIPMENT_DESCRIPTION', 'UNIT_ALLOCATION', 'RATE']
+                missing_cols = [col for col in required_cols if col not in df.columns]
+                
+                # Try to infer missing columns from data
+                if missing_cols:
+                    logger.warning(f"Missing required columns: {missing_cols}")
+                    
+                    # Check first few rows of each column for matching patterns
+                    for missing_col in missing_cols:
+                        pattern = missing_col.replace('_', '').lower()
+                        
+                        for col in df.columns:
+                            if col not in column_mapping.values():  # Only check non-standardized columns
+                                # Look at first few values
+                                sample = df[col].astype(str).head(5)
+                                if any(pattern in val.lower() for val in sample if pd.notna(val)):
+                                    df = df.rename(columns={col: missing_col})
+                                    logger.info(f"Inferred column '{col}' as '{missing_col}' based on data content")
+                                    missing_cols.remove(missing_col)
+                                    break
+                
+                # Add placeholder columns for any still missing required columns
+                for col in missing_cols:
+                    logger.warning(f"Adding placeholder column for missing required column: {col}")
+                    df[col] = np.nan
+                
+                # Calculate UNIT_ALLOCATION_AMOUNT if missing
+                if 'UNIT_ALLOCATION_AMOUNT' not in df.columns:
+                    if 'UNIT_ALLOCATION' in df.columns and 'RATE' in df.columns:
+                        # Convert to numeric, coercing errors to NaN
+                        df['UNIT_ALLOCATION'] = pd.to_numeric(df['UNIT_ALLOCATION'], errors='coerce')
+                        df['RATE'] = pd.to_numeric(df['RATE'], errors='coerce')
+                        
+                        # Calculate amount as allocation * rate
+                        df['UNIT_ALLOCATION_AMOUNT'] = df['UNIT_ALLOCATION'] * df['RATE']
+                        logger.info("Calculated UNIT_ALLOCATION_AMOUNT from UNIT_ALLOCATION and RATE")
+                
+                return df
+            
+            # Apply the cleaning and mapping to both dataframes
+            original_df = clean_and_map_columns(original_df)
+            pm_df = clean_and_map_columns(pm_df)
+            
+            # Remove any unnamed columns
+            original_df = original_df.loc[:, ~original_df.columns.str.contains('^UNNAMED', case=False, na=False)]
+            pm_df = pm_df.loc[:, ~pm_df.columns.str.contains('^UNNAMED', case=False, na=False)]
+            
+            logger.info(f"Files processed successfully. Original shape: {original_df.shape}, PM shape: {pm_df.shape}")
+            logger.info(f"Original columns after processing: {list(original_df.columns)}")
+            logger.info(f"PM columns after processing: {list(pm_df.columns)}")
+        
+        except Exception as e:
+            logger.error(f"Error preprocessing Excel files: {str(e)}", exc_info=True)
+            return {
+                'success': False,
+                'message': f"Error processing files: {str(e)}"
+            }
         
         # Compare files
         try:

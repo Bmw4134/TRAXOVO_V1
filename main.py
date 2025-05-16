@@ -182,6 +182,70 @@ def asset_detail(asset_id):
     asset = Asset.query.get_or_404(asset_id)
     return render_template('asset_detail.html', title=f'Asset {asset.asset_identifier}', asset=asset)
 
+@app.route('/map')
+@login_required
+def asset_map():
+    """Render the asset map view"""
+    return render_template('map_view.html', title='Asset Location Map')
+    
+@app.route('/admin/settings')
+@login_required
+def admin_settings():
+    """Admin settings page"""
+    return render_template('admin_settings.html', title='API Settings')
+
+@app.route('/api/assets')
+@login_required
+def api_assets():
+    """API endpoint for asset data used in the map"""
+    assets = Asset.query.all()
+    asset_list = []
+    
+    for asset in assets:
+        # Determine if this is a relevant asset (PT-**, PT-**S, PT-**U, ET-**)
+        is_relevant = False
+        employee_id = None
+        has_employee = False
+        
+        if asset.asset_identifier:
+            asset_id = asset.asset_identifier
+            if (asset_id.startswith('PT-') or 
+                asset_id.startswith('ET-') or 
+                'PT-' in asset_id or 
+                'ET-' in asset_id):
+                is_relevant = True
+                
+        # Check for employee connections in description or other fields
+        if asset.description:
+            if 'EMP-' in asset.description or 'EMPLOYEE' in asset.description.upper():
+                has_employee = True
+                # Try to extract employee ID with regex
+                import re
+                emp_match = re.search(r'EMP[-:]?(\d+)', asset.description, re.IGNORECASE)
+                if emp_match:
+                    employee_id = f"EMP-{emp_match.group(1)}"
+        
+        # Create formatted asset data
+        asset_data = {
+            'id': asset.id,
+            'asset_identifier': asset.asset_identifier,
+            'description': asset.description,
+            'status': asset.status or 'Unknown',
+            'latitude': asset.latitude,
+            'longitude': asset.longitude,
+            'last_update_time': asset.last_location_update.strftime('%Y-%m-%d %H:%M:%S') if asset.last_location_update else None,
+            'location': asset.location,
+            'asset_category': asset.asset_category,
+            'is_relevant': is_relevant,
+            'has_employee': has_employee,
+            'employee_id': employee_id,
+            'region': 'North'  # Placeholder - would be determined by actual location data
+        }
+        
+        asset_list.append(asset_data)
+    
+    return jsonify(asset_list)
+
 @app.route('/reports-dashboard')
 @login_required
 def reports_dashboard():

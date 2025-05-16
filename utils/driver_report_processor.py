@@ -299,11 +299,52 @@ def generate_prior_day_report(activity_data, driving_data, report_date=None):
     
     logger.info(f"Generating prior day report for: {report_date}")
     
+    # Filter activity data to only include relevant vehicle types (PT-**, PT-**S, PT-**U, ET-**)
+    if 'Asset_ID' in activity_data.columns:
+        # Create relevant vehicle pattern
+        relevant_pattern = r'^(PT-|ET-)'
+        # Apply the filter
+        filtered_activity_data = activity_data[
+            activity_data['Asset_ID'].str.contains(relevant_pattern, case=False, na=False, regex=True)
+        ].copy()
+        
+        # Log the filtering results
+        logger.info(f"Filtered activity data from {len(activity_data)} to {len(filtered_activity_data)} rows based on vehicle type")
+        
+        # Replace the original data with filtered data
+        activity_data = filtered_activity_data
+    
+    # If an Employee_ID column doesn't exist, try to extract it or create a placeholder
+    if 'Employee_ID' not in activity_data.columns:
+        # First check if there's a column that might contain employee IDs
+        employee_id_columns = [col for col in activity_data.columns if 'employee' in col.lower() and 'id' in col.lower()]
+        
+        if employee_id_columns:
+            # Use the first matching column
+            activity_data['Employee_ID'] = activity_data[employee_id_columns[0]]
+            logger.info(f"Using {employee_id_columns[0]} as Employee_ID column")
+        else:
+            # Create a placeholder and try to extract from other fields
+            activity_data['Employee_ID'] = 'N/A'
+            
+            # Try to extract from Driver field using a regex pattern for employee IDs
+            if 'Driver' in activity_data.columns:
+                # Extract EMP-#### pattern if it exists
+                activity_data['Employee_ID'] = activity_data['Driver'].str.extract(r'(EMP-\d+)', expand=False)
+                logger.info("Extracted Employee_ID from Driver field where possible")
+    
     # Combine data sources
-    combined_data = pd.concat([
-        activity_data[['Driver', 'Asset_ID', 'Date', 'Timestamp', 'Time', 'Hour', 'Minute', 'Location', 'Job']],
-        driving_data[['Driver', 'Date', 'Timestamp', 'Time', 'Hour', 'Minute', 'Location', 'Job']]
-    ])
+    # Include Employee_ID if it exists
+    if 'Employee_ID' in activity_data.columns:
+        combined_data = pd.concat([
+            activity_data[['Driver', 'Employee_ID', 'Asset_ID', 'Date', 'Timestamp', 'Time', 'Hour', 'Minute', 'Location', 'Job']],
+            driving_data[['Driver', 'Date', 'Timestamp', 'Time', 'Hour', 'Minute', 'Location', 'Job']]
+        ])
+    else:
+        combined_data = pd.concat([
+            activity_data[['Driver', 'Asset_ID', 'Date', 'Timestamp', 'Time', 'Hour', 'Minute', 'Location', 'Job']],
+            driving_data[['Driver', 'Date', 'Timestamp', 'Time', 'Hour', 'Minute', 'Location', 'Job']]
+        ])
     
     # Process first and last entries by driver
     first_entries = extract_first_last_entry(combined_data, report_date, group_by='Driver')

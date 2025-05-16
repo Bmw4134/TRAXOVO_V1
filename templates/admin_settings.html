@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+{% block title %}API Settings{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>API Configuration Settings</h1>
+            <p class="text-muted">Configure API connection settings for data sources</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-2"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card bg-dark text-white">
+                <div class="card-header bg-primary">
+                    <h5 class="mb-0">Gauge API Settings</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{{ url_for('admin_settings') }}">
+                        <div class="mb-3">
+                            <label for="gauge_api_url" class="form-label">API URL</label>
+                            <input type="text" class="form-control" id="gauge_api_url" name="gauge_api_url" 
+                                   placeholder="https://api.gaugesmart.com/v1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="gauge_api_username" class="form-label">API Username</label>
+                            <input type="text" class="form-control" id="gauge_api_username" name="gauge_api_username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="gauge_api_password" class="form-label">API Password</label>
+                            <input type="password" class="form-control" id="gauge_api_password" name="gauge_api_password" required>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="auto_refresh" name="auto_refresh" checked>
+                            <label class="form-check-label" for="auto_refresh">Auto refresh data (every 30 minutes)</label>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Save Settings</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card bg-dark text-white">
+                <div class="card-header bg-info">
+                    <h5 class="mb-0">Data Update Status</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h6>Last Data Update</h6>
+                        <p class="text-light">May 16, 2025 - 12:42 PM</p>
+                    </div>
+                    <div class="mb-4">
+                        <h6>Connection Status</h6>
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-success me-2">Connected</span>
+                            <span>API connection is active</span>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <h6>Asset Data Stats</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-truck me-2"></i> 156 Total Assets</li>
+                            <li><i class="bi bi-geo-alt me-2"></i> 134 With Location Data</li>
+                            <li><i class="bi bi-person me-2"></i> 112 With Driver Assignments</li>
+                        </ul>
+                    </div>
+                    <div class="d-grid">
+                        <button type="button" class="btn btn-info" onclick="manualUpdate()">
+                            <i class="bi bi-arrow-repeat me-2"></i> Manually Update Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card bg-dark text-white">
+                <div class="card-header bg-secondary">
+                    <h5 class="mb-0">Additional Integration Settings</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <h6>Email Notifications</h6>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enableEmails" checked>
+                                    <label class="form-check-label" for="enableEmails">Enable email notifications</label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="dailyReports" checked>
+                                    <label class="form-check-label" for="dailyReports">Send daily report summary</label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="alertEmails">
+                                    <label class="form-check-label" for="alertEmails">Send alerts for exceptions</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <h6>System Settings</h6>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="debugMode">
+                                    <label class="form-check-label" for="debugMode">Enable debug mode</label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="extendedLogging">
+                                    <label class="form-check-label" for="extendedLogging">Use extended logging</label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="backupData" checked>
+                                    <label class="form-check-label" for="backupData">Backup data before updates</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function manualUpdate() {
+        // Show loading indicator
+        const btn = event.target;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Updating...';
+        btn.disabled = true;
+        
+        // Simulate API call with setTimeout
+        setTimeout(() => {
+            // Reset button
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            
+            // Show success message
+            alert('Data updated successfully!');
+        }, 2000);
+    }
+</script>
+{% endblock %}

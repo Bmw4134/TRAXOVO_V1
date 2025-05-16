@@ -1,0 +1,324 @@
+{% extends 'base.html' %}
+
+{% block title %}Asset Location Map{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>Asset Location Map</h1>
+            <p class="text-muted">Real-time tracking of all fleet assets</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ url_for('assets') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-2"></i> Back to Assets
+            </a>
+            <a href="#" class="btn btn-primary ms-2" onclick="refreshMap()">
+                <i class="bi bi-arrow-clockwise me-2"></i> Refresh
+            </a>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-3 mb-3">
+            <div class="card bg-dark text-white">
+                <div class="card-header bg-primary">
+                    <h5 class="mb-0">Filter Assets</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="regionFilter" class="form-label">Region</label>
+                        <select id="regionFilter" class="form-select" onchange="filterAssets()">
+                            <option value="all">All Regions</option>
+                            <option value="North">North</option>
+                            <option value="South">South</option>
+                            <option value="East">East</option>
+                            <option value="West">West</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="typeFilter" class="form-label">Asset Type</label>
+                        <select id="typeFilter" class="form-select" onchange="filterAssets()">
+                            <option value="all">All Types</option>
+                            <option value="PT">Personal Trucks (PT-**)</option>
+                            <option value="ET">Equipment Trucks (ET-**)</option>
+                            <option value="HE">Heavy Equipment</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="statusFilter" class="form-label">Status</label>
+                        <select id="statusFilter" class="form-select" onchange="filterAssets()">
+                            <option value="all">All Statuses</option>
+                            <option value="active">Active</option>
+                            <option value="idle">Idle</option>
+                            <option value="maintenance">Maintenance</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="employeeOnlyFilter" onchange="filterAssets()">
+                        <label class="form-check-label" for="employeeOnlyFilter">Only show employee-assigned vehicles</label>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button class="btn btn-primary" onclick="resetFilters()">
+                            <i class="bi bi-x-circle me-2"></i> Reset Filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card bg-dark text-white mt-3">
+                <div class="card-header bg-info">
+                    <h5 class="mb-0">Map Legend</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="me-2" style="width: 20px; height: 20px; background-color: #28a745; border-radius: 50%;"></div>
+                        <span>Active (Moving)</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="me-2" style="width: 20px; height: 20px; background-color: #ffc107; border-radius: 50%;"></div>
+                        <span>Idle (Stationary)</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="me-2" style="width: 20px; height: 20px; background-color: #dc3545; border-radius: 50%;"></div>
+                        <span>Maintenance</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="me-2" style="width: 20px; height: 20px; background-color: #6f42c1; border-radius: 50%;"></div>
+                        <span>Employee Assigned</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9 mb-3">
+            <div class="card bg-dark text-white" style="height: 700px;">
+                <div class="card-body p-0">
+                    <div id="map" style="width: 100%; height: 100%; border-radius: .25rem;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <div class="card bg-dark text-white">
+                <div class="card-header bg-primary">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Asset Locations</h5>
+                        <span class="badge bg-light text-dark" id="assetCount">0 Assets</span>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover csv-data-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Asset ID</th>
+                                    <th>Description</th>
+                                    <th>Driver/Employee</th>
+                                    <th>Last Updated</th>
+                                    <th>Status</th>
+                                    <th>Location</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="assetTableBody">
+                                <!-- Asset data will be populated here by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Leaflet Map CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" crossorigin=""/>
+
+<!-- Leaflet Map JS -->
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" crossorigin=""></script>
+
+<script>
+    // Map initialization
+    let map;
+    let markers = [];
+    let assets = [];
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        initMap();
+        loadAssets();
+    });
+    
+    function initMap() {
+        // Create map centered on US
+        map = L.map('map').setView([39.8283, -98.5795], 4);
+        
+        // Add OpenStreetMap tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 18
+        }).addTo(map);
+    }
+    
+    function loadAssets() {
+        // Fetch assets from API
+        fetch('/api/assets')
+            .then(response => response.json())
+            .then(data => {
+                assets = data;
+                updateMapMarkers();
+                updateAssetTable();
+                document.getElementById('assetCount').textContent = `${assets.length} Assets`;
+            })
+            .catch(error => {
+                console.error('Error fetching assets:', error);
+            });
+    }
+    
+    function updateMapMarkers() {
+        // Clear existing markers
+        markers.forEach(marker => map.removeLayer(marker));
+        markers = [];
+        
+        // Apply filters
+        const region = document.getElementById('regionFilter').value;
+        const type = document.getElementById('typeFilter').value;
+        const status = document.getElementById('statusFilter').value;
+        const employeeOnly = document.getElementById('employeeOnlyFilter').checked;
+        
+        const filteredAssets = assets.filter(asset => {
+            if (region !== 'all' && asset.region !== region) return false;
+            
+            if (type !== 'all') {
+                if (type === 'PT' && !asset.asset_identifier.startsWith('PT-')) return false;
+                if (type === 'ET' && !asset.asset_identifier.startsWith('ET-')) return false;
+                if (type === 'HE' && !(asset.asset_category === 'Heavy Equipment')) return false;
+            }
+            
+            if (status !== 'all' && asset.status.toLowerCase() !== status.toLowerCase()) return false;
+            
+            if (employeeOnly && !asset.has_employee) return false;
+            
+            return true;
+        });
+        
+        // Add markers for filtered assets
+        filteredAssets.forEach(asset => {
+            if (asset.latitude && asset.longitude) {
+                // Determine marker color based on status
+                let markerColor;
+                if (asset.status === 'Active') {
+                    markerColor = '#28a745'; // Green
+                } else if (asset.status === 'Idle') {
+                    markerColor = '#ffc107'; // Yellow
+                } else if (asset.status === 'Maintenance') {
+                    markerColor = '#dc3545'; // Red
+                } else {
+                    markerColor = '#6c757d'; // Gray
+                }
+                
+                // Create marker with custom style
+                const marker = L.circleMarker([asset.latitude, asset.longitude], {
+                    radius: 8,
+                    fillColor: asset.has_employee ? '#6f42c1' : markerColor,
+                    color: '#fff',
+                    weight: 1,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                }).addTo(map);
+                
+                // Add popup with asset info
+                marker.bindPopup(`
+                    <strong>${asset.asset_identifier}</strong><br>
+                    ${asset.description || 'No description'}<br>
+                    <span class="badge ${asset.status === 'Active' ? 'bg-success' : (asset.status === 'Idle' ? 'bg-warning' : 'bg-danger')}">${asset.status}</span><br>
+                    ${asset.driver_name ? `Driver: ${asset.driver_name}` : 'No driver assigned'}<br>
+                    Last updated: ${asset.last_update_time || 'Unknown'}
+                `);
+                
+                markers.push(marker);
+            }
+        });
+        
+        // Update asset count in table
+        document.getElementById('assetCount').textContent = `${filteredAssets.length} Assets`;
+        
+        // Update asset table
+        updateAssetTable(filteredAssets);
+    }
+    
+    function updateAssetTable(filteredAssets) {
+        const assets = filteredAssets || this.assets;
+        const tableBody = document.getElementById('assetTableBody');
+        tableBody.innerHTML = '';
+        
+        assets.forEach(asset => {
+            const row = document.createElement('tr');
+            
+            // Format status badge
+            let statusBadgeClass = 'bg-secondary';
+            if (asset.status === 'Active') statusBadgeClass = 'bg-success';
+            if (asset.status === 'Idle') statusBadgeClass = 'bg-warning';
+            if (asset.status === 'Maintenance') statusBadgeClass = 'bg-danger';
+            
+            row.innerHTML = `
+                <td>${asset.asset_identifier}</td>
+                <td>${asset.description || 'No description'}</td>
+                <td>${asset.driver_name || (asset.has_employee ? 'Employee Assigned' : 'None')}</td>
+                <td>${asset.last_update_time || 'Unknown'}</td>
+                <td><span class="badge ${statusBadgeClass}">${asset.status}</span></td>
+                <td>${asset.location || 'Unknown'}</td>
+                <td>
+                    <a href="/asset/${asset.id}" class="btn btn-sm btn-info">
+                        <i class="bi bi-info-circle"></i>
+                    </a>
+                </td>
+            `;
+            
+            tableBody.appendChild(row);
+        });
+    }
+    
+    function filterAssets() {
+        updateMapMarkers();
+    }
+    
+    function resetFilters() {
+        document.getElementById('regionFilter').value = 'all';
+        document.getElementById('typeFilter').value = 'all';
+        document.getElementById('statusFilter').value = 'all';
+        document.getElementById('employeeOnlyFilter').checked = false;
+        updateMapMarkers();
+    }
+    
+    function refreshMap() {
+        loadAssets();
+    }
+    
+    // Center map on asset when clicked in table
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.closest('tr') && e.target.closest('tbody#assetTableBody')) {
+            const row = e.target.closest('tr');
+            const assetId = row.cells[0].textContent;
+            const asset = assets.find(a => a.asset_identifier === assetId);
+            
+            if (asset && asset.latitude && asset.longitude) {
+                map.setView([asset.latitude, asset.longitude], 13);
+                
+                // Find and open the marker popup
+                markers.forEach(marker => {
+                    if (marker.getLatLng().lat === asset.latitude && marker.getLatLng().lng === asset.longitude) {
+                        marker.openPopup();
+                    }
+                });
+            }
+        }
+    });
+</script>
+{% endblock %}

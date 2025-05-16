@@ -122,7 +122,12 @@ def register_routes(app):
             # Otherwise, we'll let the client handle filtering for better UX
             if category != 'all' or status != 'all' or location != 'all' or query:
                 # Filter assets using the utility function
-                filtered_data = filter_assets(data, status, category, location)
+                filtered_data = filter_assets(
+                    data, 
+                    status=status if status != 'all' else 'all',
+                    category=category if category != 'all' else 'all', 
+                    location=location if location != 'all' else 'all'
+                )
                 
                 # Additional query search
                 if query:
@@ -148,9 +153,15 @@ def register_routes(app):
     @login_required
     def api_asset_detail(asset_id):
         """API endpoint to get a specific asset by ID"""
-        data = get_asset_by_id(asset_id)
-        if data:
-            return jsonify(data)
+        # Load all assets first
+        from gauge_api import get_asset_data
+        assets_data = get_asset_data()
+        
+        # Get specific asset by ID
+        asset = get_asset_by_id(assets_data, asset_id)
+        
+        if asset:
+            return jsonify(asset)
         return jsonify({"error": "Asset not found"}), 404
     
     @app.errorhandler(404)

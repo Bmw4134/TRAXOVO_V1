@@ -182,9 +182,9 @@ def asset_detail(asset_id):
     asset = Asset.query.get_or_404(asset_id)
     return render_template('asset_detail.html', title=f'Asset {asset.asset_identifier}', asset=asset)
 
-@app.route('/reports')
+@app.route('/reports-dashboard')
 @login_required
-def reports():
+def reports_dashboard():
     """Render the reports page"""
     return render_template('reports.html', title='Reports', datetime=datetime)
 
@@ -1193,12 +1193,27 @@ try:
 except ImportError as e:
     logging.error(f"Failed to register maintenance blueprint: {str(e)}")
     
+# Register reports blueprint
+try:
+    from routes.reports import reports_bp
+    app.register_blueprint(reports_bp)
+    logging.info("Registered reports blueprint")
+except ImportError as e:
+    logging.error(f"Failed to register reports blueprint: {str(e)}")
+    
 # Add maintenance route to main app
 @app.route('/maintenance')
 @login_required
 def maintenance():
     """Redirect to the maintenance module index"""
     return redirect(url_for('maintenance.index'))
+
+# Add reports route to main app
+@app.route('/reports')
+@login_required
+def reports():
+    """Redirect to the reports module index"""
+    return redirect(url_for('reports.index'))
 
 # Create database tables
 with app.app_context():

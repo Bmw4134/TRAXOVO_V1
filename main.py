@@ -5,7 +5,7 @@ Main application entry point
 import os
 from datetime import datetime
 
-from flask import Flask, render_template, redirect, url_for, flash, request, jsonify, send_from_directory
+from flask import Flask, render_template, redirect, url_for, flash, request, jsonify, send_from_directory, current_app
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
@@ -1184,6 +1184,21 @@ try:
     logging.info("Registered asset_drivers blueprint")
 except ImportError as e:
     logging.error(f"Failed to register asset_drivers blueprint: {str(e)}")
+
+# Register maintenance blueprint
+try:
+    from routes.maintenance import maintenance_bp
+    app.register_blueprint(maintenance_bp)
+    logging.info("Registered maintenance blueprint")
+except ImportError as e:
+    logging.error(f"Failed to register maintenance blueprint: {str(e)}")
+    
+# Add maintenance route to main app
+@app.route('/maintenance')
+@login_required
+def maintenance():
+    """Redirect to the maintenance module index"""
+    return redirect(url_for('maintenance.index'))
 
 # Create database tables
 with app.app_context():

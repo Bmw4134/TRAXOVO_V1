@@ -108,13 +108,13 @@
                         <div class="report-icon text-success">
                             <i class="bi bi-cash-stack"></i>
                         </div>
-                        <h5 class="card-title">Regional Billing</h5>
+                        <h5 class="card-title">PM Billing Allocation</h5>
                         <p class="card-text">Monthly equipment billing reconciliation and regional export files.</p>
-                        <a href="#" class="btn btn-primary mt-3">
+                        <a href="{{ url_for('reports.pm_allocation') }}" class="btn btn-primary mt-3">
                             <i class="bi bi-eye me-2"></i> View Reports
                         </a>
-                        <a href="#" class="btn btn-outline-secondary mt-2">
-                            <i class="bi bi-plus-circle me-2"></i> Generate New
+                        <a href="{{ url_for('reports.pm_allocation') }}" class="btn btn-outline-secondary mt-2">
+                            <i class="bi bi-plus-circle me-2"></i> Upload Files
                         </a>
                     </div>
                 </div>

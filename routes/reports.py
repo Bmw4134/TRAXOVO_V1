@@ -145,6 +145,296 @@ def view_report(report_path):
         flash(f'Error viewing report: {str(e)}', 'danger')
         return redirect(url_for('reports.driver_reports'))
 
+@reports_bp.route('/pm-allocation')
+@login_required
+def pm_allocation():
+    """PM Allocation reconciliation upload page."""
+    # Get current month in YYYY-MM format for default value
+    current_month = datetime.now().strftime('%Y-%m')
+    
+    # List recent comparison reports
+    exports_dir = os.path.join(os.getcwd(), 'exports')
+    if not os.path.exists(exports_dir):
+        os.makedirs(exports_dir)
+        
+    recent_reports = []
+    for filename in os.listdir(exports_dir):
+        if filename.endswith('.xlsx') and 'COMPARISON' in filename:
+            file_path = os.path.join(exports_dir, filename)
+            created_time = datetime.fromtimestamp(os.path.getctime(file_path))
+            
+            # Extract month from filename
+            month_match = re.search(r'(\w+\s+\d{4})', filename)
+            month = month_match.group(1) if month_match else 'Unknown'
+            
+            # Estimate number of changes from filename
+            changes_match = re.search(r'(\d+)_CHANGES', filename)
+            changes = changes_match.group(1) if changes_match else '0'
+            
+            recent_reports.append({
+                'date_generated': created_time.strftime('%Y-%m-%d %H:%M'),
+                'month': month,
+                'filename': filename,
+                'changes': changes,
+                'path': file_path
+            })
+    
+    # Sort by most recent first
+    recent_reports.sort(key=lambda x: x['date_generated'], reverse=True)
+    
+    return render_template('pm_allocation_upload.html', 
+                          title='PM Allocation Reconciliation',
+                          current_month=current_month,
+                          recent_reports=recent_reports[:10])  # Show only 10 most recent
+                          
+@reports_bp.route('/upload-pm-allocation', methods=['POST'])
+@login_required
+def upload_pm_allocation():
+    """Process uploaded PM allocation files."""
+    try:
+        if 'original_file' not in request.files or 'updated_file' not in request.files:
+            flash('Both original and updated files must be uploaded', 'danger')
+            return redirect(url_for('reports.pm_allocation'))
+            
+        original_file = request.files['original_file']
+        updated_file = request.files['updated_file']
+        
+        if original_file.filename == '' or updated_file.filename == '':
+            flash('Both files must be selected', 'danger')
+            return redirect(url_for('reports.pm_allocation'))
+            
+        # Validate file types
+        if not (original_file.filename.endswith(('.xlsx', '.xlsm', '.xls')) and 
+                updated_file.filename.endswith(('.xlsx', '.xlsm', '.xls'))):
+            flash('Only Excel files are supported (.xlsx, .xlsm, .xls)', 'danger')
+            return redirect(url_for('reports.pm_allocation'))
+        
+        # Get form parameters
+        month_input = request.form.get('month', '')
+        region = request.form.get('region', 'all')
+        fsi_format = request.form.get('fsi_format') == 'on'
+        
+        # Convert YYYY-MM format to readable month format
+        try:
+            month_date = datetime.strptime(month_input, '%Y-%m')
+            month = month_date.strftime('%B %Y').upper()  # e.g., "APRIL 2025"
+        except ValueError:
+            month = datetime.now().strftime('%B %Y').upper()
+        
+        # Create uploads directory if it doesn't exist
+        uploads_dir = os.path.join(os.getcwd(), 'uploads')
+        if not os.path.exists(uploads_dir):
+            os.makedirs(uploads_dir)
+            
+        # Save uploaded files
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        original_path = os.path.join(uploads_dir, f'ORIGINAL_{timestamp}_{original_file.filename}')
+        updated_path = os.path.join(uploads_dir, f'UPDATED_{timestamp}_{updated_file.filename}')
+        
+        original_file.save(original_path)
+        updated_file.save(updated_path)
+        
+        # Process the files
+        result = process_pm_allocation(
+            original_file=original_path,
+            pm_file=updated_path,
+            region=region,
+            month=month,
+            fsi_format=fsi_format
+        )
+        
+        if not result['success']:
+            flash(f"Error processing files: {result.get('message', 'Unknown error')}", 'danger')
+            return redirect(url_for('reports.pm_allocation'))
+            
+        # Store processing result in session for display
+        session['pm_allocation_result'] = {
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'original_file': os.path.basename(original_path),
+            'pm_file': os.path.basename(updated_path),
+            'month': month,
+            'export_files': result.get('export_files', []),
+            'comparison_file': result.get('comparison_file', ''),
+            'changes': result.get('changes', {})
+        }
+        
+        # Redirect to results page
+        return redirect(url_for('reports.pm_allocation_results'))
+        
+    except Exception as e:
+        logging.error(f"Error processing PM allocation files: {str(e)}")
+        flash(f'Error processing files: {str(e)}', 'danger')
+        return redirect(url_for('reports.pm_allocation'))
+
+@reports_bp.route('/pm-allocation-results')
+@login_required
+def pm_allocation_results():
+    """Display results of PM allocation processing."""
+    # Get result from session
+    result = session.get('pm_allocation_result')
+    if not result:
+        flash('No PM allocation results found. Please upload files first.', 'warning')
+        return redirect(url_for('reports.pm_allocation'))
+    
+    # Load the comparison file to show details
+    comparison_file = result.get('comparison_file')
+    
+    if not comparison_file or not os.path.exists(comparison_file):
+        flash('Comparison file not found', 'warning')
+        comparison = {
+            'changed_rows': [],
+            'added_rows': [],
+            'removed_rows': []
+        }
+    else:
+        # Load comparison data from file
+        try:
+            comparison_data = pd.read_excel(comparison_file, sheet_name=None)
+            
+            # Process data into a format suitable for the template
+            comparison = {
+                'changed_rows': [],
+                'added_rows': [],
+                'removed_rows': []
+            }
+            
+            # Process changed rows
+            if 'Changes' in comparison_data:
+                changes_df = comparison_data['Changes']
+                
+                # Group by the row identifier (first 4 columns typically)
+                current_row = None
+                for _, row in changes_df.iterrows():
+                    row_dict = row.to_dict()
+                    
+                    # Check if this is a new row or continuation of changes for current row
+                    row_id = f"{row['DIV']}-{row['JOB']}-{row['ASSET ID']}"
+                    
+                    if current_row is None or current_row['row_id'] != row_id:
+                        # Start a new row
+                        current_row = {
+                            'row_id': row_id,
+                            'div': row['DIV'],
+                            'job': row['JOB'],
+                            'asset_id': row['ASSET ID'],
+                            'equipment': row['EQUIPMENT DESCRIPTION'],
+                            'changes': [],
+                            'original': {},
+                            'updated': {}
+                        }
+                        comparison['changed_rows'].append(current_row)
+                    
+                    # Add this change to the current row
+                    field = row.get('CHANGED FIELD', '')
+                    if field:
+                        current_row['changes'].append({
+                            'field': field,
+                            'original': row.get('ORIGINAL VALUE', ''),
+                            'updated': row.get('UPDATED VALUE', '')
+                        })
+                        
+                        # Track original and updated values for calculations
+                        if field == 'REVISION':
+                            current_row['original']['revision_amount'] = float(row.get('ORIGINAL VALUE', 0))
+                            current_row['updated']['revision_amount'] = float(row.get('UPDATED VALUE', 0))
+            
+            # Process added rows
+            if 'Added' in comparison_data:
+                added_df = comparison_data['Added']
+                for _, row in added_df.iterrows():
+                    comparison['added_rows'].append({
+                        'div': row.get('DIV', ''),
+                        'job': row.get('JOB', ''),
+                        'asset_id': row.get('ASSET ID', ''),
+                        'equipment': row.get('EQUIPMENT DESCRIPTION', ''),
+                        'driver': row.get('DRIVER', ''),
+                        'allocation': row.get('UNIT ALLOCATION', ''),
+                        'cost_code': row.get('COST CODE', ''),
+                        'revision_amount': row.get('REVISION', 0)
+                    })
+            
+            # Process removed rows
+            if 'Removed' in comparison_data:
+                removed_df = comparison_data['Removed']
+                for _, row in removed_df.iterrows():
+                    comparison['removed_rows'].append({
+                        'div': row.get('DIV', ''),
+                        'job': row.get('JOB', ''),
+                        'asset_id': row.get('ASSET ID', ''),
+                        'equipment': row.get('EQUIPMENT DESCRIPTION', ''),
+                        'driver': row.get('DRIVER', ''),
+                        'allocation': row.get('UNIT ALLOCATION', ''),
+                        'cost_code': row.get('COST CODE', ''),
+                        'allocation_amount': row.get('UNIT ALLOCATION AMOUNT', 0)
+                    })
+                    
+        except Exception as e:
+            logging.error(f"Error loading comparison file: {str(e)}")
+            flash(f'Error loading comparison data: {str(e)}', 'warning')
+            comparison = {
+                'changed_rows': [],
+                'added_rows': [],
+                'removed_rows': []
+            }
+    
+    return render_template('pm_allocation_results.html',
+                          title='PM Allocation Results',
+                          result=result,
+                          comparison=comparison)
+
+@reports_bp.route('/generate-region-exports')
+@login_required
+def generate_region_exports():
+    """Generate region-specific allocation exports."""
+    month = request.args.get('month', datetime.now().strftime('%B %Y').upper())
+    
+    # Find the most recent PM-edited file for this month
+    uploads_dir = os.path.join(os.getcwd(), 'uploads')
+    if not os.path.exists(uploads_dir):
+        flash('No uploaded files found', 'danger')
+        return redirect(url_for('reports.pm_allocation'))
+    
+    # Get all PM-edited files for this month
+    pm_files = []
+    month_pattern = month.replace(' ', '_').upper()
+    for filename in os.listdir(uploads_dir):
+        if filename.startswith('UPDATED_') and month_pattern in filename:
+            file_path = os.path.join(uploads_dir, filename)
+            created_time = os.path.getctime(file_path)
+            pm_files.append((file_path, created_time))
+    
+    if not pm_files:
+        flash(f'No PM-edited files found for {month}', 'danger')
+        return redirect(url_for('reports.pm_allocation'))
+    
+    # Use the most recent file
+    pm_files.sort(key=lambda x: x[1], reverse=True)
+    latest_pm_file = pm_files[0][0]
+    
+    # Generate exports for all regions
+    try:
+        result = generate_region_exports(
+            comparison=None,  # We don't have comparison data here, function will recalculate
+            pm_df=pd.read_excel(latest_pm_file),
+            month=month,
+            export_dir='exports',
+            fsi_format=True  # Always include FSI format as an option
+        )
+        
+        if not result.get('success', False):
+            flash(f"Error generating exports: {result.get('message', 'Unknown error')}", 'danger')
+            return redirect(url_for('reports.pm_allocation'))
+        
+        flash(f"Generated exports for all regions for {month}", 'success')
+        
+        # Redirect to PM allocation page
+        return redirect(url_for('reports.pm_allocation'))
+        
+    except Exception as e:
+        logging.error(f"Error generating region exports: {str(e)}")
+        flash(f'Error generating exports: {str(e)}', 'danger')
+        return redirect(url_for('reports.pm_allocation'))
+
 @reports_bp.route('/generate-daily-driver-report', methods=['GET', 'POST'])
 @login_required
 def generate_daily_driver_report():

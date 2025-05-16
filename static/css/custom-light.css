@@ -1,0 +1,171 @@
+/* Custom Light Theme for SYSTEMSMITH */
+:root {
+  --primary-bg: #f8f9fa;
+  --secondary-bg: #e9ecef;
+  --card-bg: #ffffff;
+  --text-color: #343a40;
+  --text-muted: #6c757d;
+  --border-color: #dee2e6;
+  --accent-color: #0d6efd;
+  --success-color: #198754;
+  --warning-color: #ffc107;
+  --danger-color: #dc3545;
+  --info-color: #0dcaf0;
+}
+
+body {
+  background-color: var(--primary-bg);
+  color: var(--text-color);
+}
+
+.navbar {
+  background-color: #343a40 !important;
+}
+
+.card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  background-color: rgba(0, 0, 0, 0.03);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.table {
+  color: var(--text-color);
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.btn-outline-info, 
+.btn-outline-secondary,
+.btn-outline-primary,
+.btn-outline-success,
+.btn-outline-warning,
+.btn-outline-danger {
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+.btn-outline-info:hover,
+.btn-outline-secondary:hover,
+.btn-outline-primary:hover,
+.btn-outline-success:hover,
+.btn-outline-warning:hover,
+.btn-outline-danger:hover {
+  color: white;
+}
+
+/* Status colors */
+.bg-success, .badge-success {
+  background-color: var(--success-color) !important;
+  color: white;
+}
+
+.bg-warning, .badge-warning {
+  background-color: var(--warning-color) !important;
+  color: #343a40;
+}
+
+.bg-danger, .badge-danger {
+  background-color: var(--danger-color) !important;
+  color: white;
+}
+
+.bg-info, .badge-info {
+  background-color: var(--info-color) !important;
+  color: #343a40;
+}
+
+/* Form controls */
+.form-control {
+  background-color: white;
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+}
+
+.form-control:focus {
+  background-color: white;
+  border-color: var(--accent-color);
+  color: var(--text-color);
+}
+
+/* Feature cards */
+.feature-card {
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Dashboard metrics */
+.metric-card {
+  background-color: var(--card-bg);
+  border-left: 4px solid var(--accent-color);
+}
+
+.metric-card.active {
+  border-left-color: var(--success-color);
+}
+
+.metric-card.warning {
+  border-left-color: var(--warning-color);
+}
+
+.metric-card.danger {
+  border-left-color: var(--danger-color);
+}
+
+/* Activity feed */
+.activity-item {
+  background-color: var(--card-bg);
+  border-left: 3px solid var(--border-color);
+}
+
+.activity-item:hover {
+  background-color: var(--secondary-bg);
+}
+
+/* Reports section */
+.report-card {
+  background-color: var(--card-bg);
+  transition: box-shadow 0.3s ease;
+}
+
+.report-card:hover {
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Footer */
+.footer {
+  background-color: var(--secondary-bg);
+  color: var(--text-muted);
+}
+
+/* Status indicators */
+.status-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 5px;
+}
+
+.status-indicator.online {
+  background-color: var(--success-color);
+}
+
+.status-indicator.offline {
+  background-color: var(--danger-color);
+}
+
+.status-indicator.warning {
+  background-color: var(--warning-color);
+}

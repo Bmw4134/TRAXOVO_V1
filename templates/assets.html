@@ -37,30 +37,82 @@
         </div>
     </nav>
 
-    <div class="container mt-4">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="mb-0">Fleet Assets</h4>
-                <div>
-                    <button class="btn btn-sm btn-primary" id="refreshAssets">Refresh Data</button>
-                    <div class="btn-group ms-2">
-                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown">
-                            Filter
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="filterDropdown">
-                            <li><h6 class="dropdown-header">Category</h6></li>
-                            <li><a class="dropdown-item filter-category" href="#" data-category="all">All Categories</a></li>
-                            <li><a class="dropdown-item filter-category" href="#" data-category="Heavy Equipment">Heavy Equipment</a></li>
-                            <li><a class="dropdown-item filter-category" href="#" data-category="Light Duty">Light Duty</a></li>
-                            <li><a class="dropdown-item filter-category" href="#" data-category="Trucks">Trucks</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><h6 class="dropdown-header">Status</h6></li>
-                            <li><a class="dropdown-item filter-status" href="#" data-status="all">All Status</a></li>
-                            <li><a class="dropdown-item filter-status" href="#" data-status="Available">Available</a></li>
-                            <li><a class="dropdown-item filter-status" href="#" data-status="In Use">In Use</a></li>
-                            <li><a class="dropdown-item filter-status" href="#" data-status="Maintenance">Maintenance</a></li>
-                        </ul>
+    <div class="container-fluid mt-4">
+        <div class="row mb-4">
+            <div class="col-lg-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-funnel-fill me-2"></i>Advanced Search & Filters</h5>
                     </div>
+                    <div class="card-body">
+                        <form id="assetSearchForm" class="row g-3">
+                            <div class="col-md-4">
+                                <label for="searchQuery" class="form-label">Search Equipment</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                    <input type="text" class="form-control" id="searchQuery" placeholder="ID, Label, Serial #, etc.">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="categoryFilter" class="form-label">Category</label>
+                                <select class="form-select" id="categoryFilter">
+                                    <option value="all" selected>All Categories</option>
+                                    {% for category in categories %}
+                                    <option value="{{ category }}">{{ category }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="statusFilter" class="form-label">Status</label>
+                                <select class="form-select" id="statusFilter">
+                                    <option value="all" selected>All Status</option>
+                                    {% for status in statuses %}
+                                    <option value="{{ status }}">{{ status }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="locationFilter" class="form-label">Location</label>
+                                <select class="form-select" id="locationFilter">
+                                    <option value="all" selected>All Locations</option>
+                                    {% for location in locations %}
+                                    <option value="{{ location }}">{{ location }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="sortBy" class="form-label">Sort By</label>
+                                <select class="form-select" id="sortBy">
+                                    <option value="id">ID</option>
+                                    <option value="label">Label</option>
+                                    <option value="category">Category</option>
+                                    <option value="updated">Last Updated</option>
+                                </select>
+                            </div>
+                            <div class="col-12 mt-3">
+                                <div class="d-flex justify-content-between">
+                                    <button type="button" class="btn btn-primary" id="applyFilters">
+                                        <i class="bi bi-funnel me-2"></i><span id="filterBtnText">Apply Filters</span>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary" id="resetFilters">
+                                        <i class="bi bi-arrow-repeat me-2"></i>Reset
+                                    </button>
+                                    <button type="button" class="btn btn-success" id="refreshAssets">
+                                        <i class="bi bi-arrow-clockwise me-2"></i>Refresh Data
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0"><i class="bi bi-truck me-2"></i>Fleet Assets</h4>
+                <div>
+                    <span class="badge bg-primary rounded-pill" id="assetCount">{{ asset_count|default(0) }}</span> Assets
                 </div>
             </div>
             <div class="card-body">
@@ -112,5 +164,318 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Asset Management JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize variables
+            let allAssets = [];
+            let filteredAssets = [];
+            const assetTable = document.getElementById('assetsTable');
+            const assetCount = document.getElementById('assetCount');
+            const searchForm = document.getElementById('assetSearchForm');
+            const searchQuery = document.getElementById('searchQuery');
+            const categoryFilter = document.getElementById('categoryFilter');
+            const statusFilter = document.getElementById('statusFilter');
+            const locationFilter = document.getElementById('locationFilter');
+            const sortBySelect = document.getElementById('sortBy');
+            const applyFiltersBtn = document.getElementById('applyFilters');
+            const resetFiltersBtn = document.getElementById('resetFilters');
+            const refreshAssetsBtn = document.getElementById('refreshAssets');
+            
+            // Load initial data
+            loadAssets();
+            
+            // Event listeners
+            if (applyFiltersBtn) {
+                applyFiltersBtn.addEventListener('click', function() {
+                    applyFilters();
+                });
+            }
+            
+            if (resetFiltersBtn) {
+                resetFiltersBtn.addEventListener('click', function() {
+                    resetFilters();
+                });
+            }
+            
+            if (refreshAssetsBtn) {
+                refreshAssetsBtn.addEventListener('click', function() {
+                    refreshAssets();
+                });
+            }
+            
+            // Search input event - filter as you type
+            if (searchQuery) {
+                searchQuery.addEventListener('input', function() {
+                    applyFilters();
+                });
+            }
+            
+            // Select dropdowns change events
+            if (categoryFilter) categoryFilter.addEventListener('change', applyFilters);
+            if (statusFilter) statusFilter.addEventListener('change', applyFilters);
+            if (locationFilter) locationFilter.addEventListener('change', applyFilters);
+            if (sortBySelect) sortBySelect.addEventListener('change', applyFilters);
+            
+            // Function to load asset data from API
+            function loadAssets() {
+                showLoading();
+                
+                fetch('/api/assets')
+                    .then(response => response.json())
+                    .then(data => {
+                        allAssets = data;
+                        filteredAssets = [...allAssets];
+                        applyFilters();
+                        hideLoading();
+                    })
+                    .catch(error => {
+                        console.error('Error loading assets:', error);
+                        showError('Failed to load asset data. Please try again.');
+                        hideLoading();
+                    });
+            }
+            
+            // Function to apply all filters and update the table
+            function applyFilters() {
+                // Show loading indicator on button
+                const applyBtn = document.getElementById('applyFilters');
+                const btnText = document.getElementById('filterBtnText');
+                if (applyBtn && btnText) {
+                    const originalText = btnText.textContent;
+                    btnText.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Filtering...';
+                    applyBtn.disabled = true;
+                    
+                    // Show loading in table
+                    showLoading();
+                    
+                    // Add slight delay to allow UI to update
+                    setTimeout(() => {
+                        performFiltering();
+                        btnText.textContent = originalText;
+                        applyBtn.disabled = false;
+                    }, 300);
+                } else {
+                    performFiltering();
+                }
+            }
+            
+            // Actual filtering logic
+            function performFiltering() {
+                // Get filter values
+                const query = searchQuery ? searchQuery.value.toLowerCase() : '';
+                const category = categoryFilter ? categoryFilter.value : 'all';
+                const status = statusFilter ? statusFilter.value : 'all';
+                const location = locationFilter ? locationFilter.value : 'all';
+                const sortBy = sortBySelect ? sortBySelect.value : 'id';
+                
+                // Start with all assets
+                filteredAssets = [...allAssets];
+                
+                // Apply search query filter
+                if (query) {
+                    filteredAssets = filteredAssets.filter(asset => {
+                        return (
+                            (asset.asset_identifier && asset.asset_identifier.toLowerCase().includes(query)) ||
+                            (asset.label && asset.label.toLowerCase().includes(query)) ||
+                            (asset.asset_category && asset.asset_category.toLowerCase().includes(query)) ||
+                            (asset.location && asset.location.toLowerCase().includes(query)) ||
+                            (asset.serial_number && asset.serial_number.toLowerCase().includes(query))
+                        );
+                    });
+                }
+                
+                // Apply category filter
+                if (category !== 'all') {
+                    filteredAssets = filteredAssets.filter(asset => 
+                        asset.asset_category === category
+                    );
+                }
+                
+                // Apply status filter
+                if (status !== 'all') {
+                    filteredAssets = filteredAssets.filter(asset => 
+                        asset.status === status
+                    );
+                }
+                
+                // Apply location filter
+                if (location !== 'all') {
+                    filteredAssets = filteredAssets.filter(asset => 
+                        asset.location && asset.location.includes(location)
+                    );
+                }
+                
+                // Sort assets
+                sortAssets(sortBy);
+                
+                // Update the table
+                updateAssetTable();
+            }
+            
+            // Function to sort assets based on selected criteria
+            function sortAssets(sortBy) {
+                filteredAssets.sort((a, b) => {
+                    switch(sortBy) {
+                        case 'id':
+                            return (a.asset_identifier || '').localeCompare(b.asset_identifier || '');
+                        case 'label':
+                            return (a.label || '').localeCompare(b.label || '');
+                        case 'category':
+                            return (a.asset_category || '').localeCompare(b.asset_category || '');
+                        case 'updated':
+                            const dateA = a.updated_at ? new Date(a.updated_at) : new Date(0);
+                            const dateB = b.updated_at ? new Date(b.updated_at) : new Date(0);
+                            return dateB - dateA; // Newest first
+                        default:
+                            return 0;
+                    }
+                });
+            }
+            
+            // Function to update the asset table with filtered assets
+            function updateAssetTable() {
+                // Clear existing table content
+                if (!assetTable) return;
+                
+                assetTable.innerHTML = '';
+                
+                // Add filtered assets to the table
+                filteredAssets.forEach(asset => {
+                    const row = document.createElement('tr');
+                    
+                    // Create status badge
+                    let statusBadge = '<span class="badge bg-secondary">Unknown</span>';
+                    if (asset.status === 'Available') {
+                        statusBadge = '<span class="badge bg-success">Available</span>';
+                    } else if (asset.status === 'In Use') {
+                        statusBadge = '<span class="badge bg-primary">In Use</span>';
+                    } else if (asset.status === 'Maintenance') {
+                        statusBadge = '<span class="badge bg-warning">Maintenance</span>';
+                    } else if (asset.status === 'Out of Service') {
+                        statusBadge = '<span class="badge bg-danger">Out of Service</span>';
+                    }
+                    
+                    // Format date if available
+                    const formattedDate = asset.updated_at 
+                        ? new Date(asset.updated_at).toLocaleString() 
+                        : 'N/A';
+                    
+                    row.innerHTML = `
+                        <td>${asset.asset_identifier || 'N/A'}</td>
+                        <td>${asset.label || 'N/A'}</td>
+                        <td>${asset.asset_category || 'N/A'}</td>
+                        <td>${asset.location || 'N/A'}</td>
+                        <td>${statusBadge}</td>
+                        <td>${formattedDate}</td>
+                        <td>
+                            <a href="/asset/${asset.id}" class="btn btn-sm btn-info">
+                                <i class="bi bi-eye me-1"></i>View
+                            </a>
+                        </td>
+                    `;
+                    
+                    assetTable.appendChild(row);
+                });
+                
+                // Update asset count
+                if (assetCount) {
+                    assetCount.textContent = filteredAssets.length;
+                }
+                
+                // Show message if no assets
+                if (filteredAssets.length === 0) {
+                    const noDataRow = document.createElement('tr');
+                    noDataRow.innerHTML = `
+                        <td colspan="7" class="text-center py-5">
+                            <div class="d-flex flex-column align-items-center">
+                                <i class="bi bi-search h1 text-muted mb-3"></i>
+                                <h5 class="text-muted">No assets found matching your criteria</h5>
+                                <p class="text-muted">Try changing your search or filter settings</p>
+                                <button class="btn btn-outline-primary" onclick="resetFilters()">
+                                    Reset Filters
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    assetTable.appendChild(noDataRow);
+                }
+            }
+            
+            // Function to reset all filters
+            function resetFilters() {
+                if (searchQuery) searchQuery.value = '';
+                if (categoryFilter) categoryFilter.value = 'all';
+                if (statusFilter) statusFilter.value = 'all';
+                if (locationFilter) locationFilter.value = 'all';
+                if (sortBySelect) sortBySelect.value = 'id';
+                
+                filteredAssets = [...allAssets];
+                updateAssetTable();
+            }
+            
+            // Function to refresh asset data
+            function refreshAssets() {
+                showLoading();
+                
+                // Show refresh progress
+                if (refreshAssetsBtn) {
+                    const originalText = refreshAssetsBtn.innerHTML;
+                    refreshAssetsBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Refreshing...';
+                    refreshAssetsBtn.disabled = true;
+                    
+                    setTimeout(() => {
+                        loadAssets();
+                        refreshAssetsBtn.innerHTML = originalText;
+                        refreshAssetsBtn.disabled = false;
+                    }, 1000);
+                } else {
+                    loadAssets();
+                }
+            }
+            
+            // Helper functions for loading states
+            function showLoading() {
+                const tableBody = assetTable;
+                if (!tableBody) return;
+                
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-3 text-muted">Loading asset data...</p>
+                        </td>
+                    </tr>
+                `;
+            }
+            
+            function hideLoading() {
+                // Nothing to do here as updateAssetTable will replace content
+            }
+            
+            function showError(message) {
+                const tableBody = assetTable;
+                if (!tableBody) return;
+                
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <div class="text-danger mb-3">
+                                <i class="bi bi-exclamation-triangle-fill h1"></i>
+                            </div>
+                            <h5 class="text-danger">Error Loading Data</h5>
+                            <p class="text-muted">${message}</p>
+                            <button class="btn btn-outline-primary mt-3" onclick="refreshAssets()">
+                                <i class="bi bi-arrow-repeat me-2"></i>Try Again
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }
+        });
+    </script>
 </body>
 </html>

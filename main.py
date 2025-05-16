@@ -315,6 +315,91 @@ def download_export(export_path):
         flash(f'Error downloading export: {str(e)}', 'danger')
         return redirect(url_for('reports'))
 
+@app.route('/generate-prior-day-report')
+@login_required
+def generate_prior_day_report():
+    """Generate prior day attendance report"""
+    try:
+        from utils.driver_report_generator import generate_prior_day_report
+        
+        # Get yesterday's date
+        yesterday = datetime.now().date() - timedelta(days=1)
+        
+        # Generate the report
+        late_starts, early_ends, not_on_job, report_path = generate_prior_day_report(report_date=yesterday)
+        
+        if report_path and os.path.exists(report_path):
+            flash(f'Prior day report for {yesterday.strftime("%Y-%m-%d")} generated successfully', 'success')
+            
+            # Return summary data
+            late_count = len(late_starts) if late_starts is not None and not late_starts.empty else 0
+            early_count = len(early_ends) if early_ends is not None and not early_ends.empty else 0
+            not_on_job_count = len(not_on_job) if not_on_job is not None and not not_on_job.empty else 0
+            
+            summary = f"Summary: {late_count} late starts, {early_count} early ends, {not_on_job_count} not on job"
+            flash(summary, 'info')
+            
+            # Create a download link for the report
+            filename = os.path.basename(report_path)
+            download_link = f'<a href="/download-report/{filename}" class="btn btn-primary">Download Report</a>'
+            flash(download_link, 'success')
+        else:
+            flash('No data available for prior day report', 'warning')
+            
+        return redirect(url_for('reports'))
+    except Exception as e:
+        flash(f'Error generating prior day report: {str(e)}', 'danger')
+        return redirect(url_for('reports'))
+
+@app.route('/generate-current-day-report')
+@login_required
+def generate_current_day_report():
+    """Generate current day attendance report"""
+    try:
+        from utils.driver_report_generator import generate_current_day_report
+        
+        # Get today's date
+        today = datetime.now().date()
+        
+        # Generate the report
+        late_starts, not_on_job, report_path = generate_current_day_report(report_date=today)
+        
+        if report_path and os.path.exists(report_path):
+            flash(f'Current day report for {today.strftime("%Y-%m-%d")} generated successfully', 'success')
+            
+            # Return summary data
+            late_count = len(late_starts) if late_starts is not None and not late_starts.empty else 0
+            not_on_job_count = len(not_on_job) if not_on_job is not None and not not_on_job.empty else 0
+            
+            summary = f"Summary: {late_count} late starts, {not_on_job_count} not on job"
+            flash(summary, 'info')
+            
+            # Create a download link for the report
+            filename = os.path.basename(report_path)
+            download_link = f'<a href="/download-report/{filename}" class="btn btn-primary">Download Report</a>'
+            flash(download_link, 'success')
+        else:
+            flash('No data available for current day report', 'warning')
+            
+        return redirect(url_for('reports'))
+    except Exception as e:
+        flash(f'Error generating current day report: {str(e)}', 'danger')
+        return redirect(url_for('reports'))
+
+@app.route('/download-report/<path:report_path>')
+@login_required
+def download_report(report_path):
+    """Download a report file"""
+    try:
+        # Find the current date folder
+        today = datetime.now().strftime('%Y-%m-%d')
+        reports_dir = f'reports/{today}'
+        
+        return send_from_directory(reports_dir, report_path, as_attachment=True)
+    except Exception as e:
+        flash(f'Error downloading report: {str(e)}', 'danger')
+        return redirect(url_for('reports'))
+
 # Error Handlers
 @app.errorhandler(404)
 def page_not_found(e):

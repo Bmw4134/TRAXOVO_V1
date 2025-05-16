@@ -14,6 +14,11 @@ os.makedirs('exports/pm_allocations', exist_ok=True)
 
 # Find all the EQMO PM Billing files with April 2025 in the name
 pm_files = glob.glob('attached_assets/*EQMO*APRIL*2025*.xlsx')
+
+# Also add the main working spreadsheet
+monthly_billing_file = 'attached_assets/EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx'
+if os.path.exists(monthly_billing_file):
+    pm_files.append(monthly_billing_file)
 print(f"Found {len(pm_files)} PM allocation files")
 
 # Process the files

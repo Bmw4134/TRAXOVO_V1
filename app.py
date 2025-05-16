@@ -114,10 +114,12 @@ try:
     from blueprints.bpp import bpp_bp, register_blueprint as register_bpp_blueprint
     from blueprints.billing import billing_bp, register_blueprint as register_billing_blueprint
     from blueprints.attendance import attendance_bp, register_blueprint as register_attendance_blueprint
+    from routes.asset_drivers import asset_drivers_bp
     
     # Register blueprints
     app.register_blueprint(parser_bp)
     app.register_blueprint(kaizen_bp)
+    app.register_blueprint(asset_drivers_bp)
     register_map_blueprint(app)
     register_utilization_blueprint(app)
     register_maintenance_blueprint(app)

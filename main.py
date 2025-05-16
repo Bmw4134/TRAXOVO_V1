@@ -1377,6 +1377,11 @@ def reports():
 @login_required
 def pm_allocation_processor():
     """Handle PM allocation file upload and processing"""
+    import shutil
+    import openpyxl
+    import pandas as pd
+    from utils import billing_processor
+    
     # Initialize variables for template
     result = None
     processed_data = None
@@ -1385,16 +1390,236 @@ def pm_allocation_processor():
     # Create required directories if they don't exist
     uploads_dir = os.path.join(app.root_path, 'uploads', 'pm_allocations')
     exports_dir = os.path.join(app.root_path, 'exports', 'pm_allocations')
+    assets_dir = os.path.join(app.root_path, 'attached_assets')
     os.makedirs(uploads_dir, exist_ok=True)
     os.makedirs(exports_dir, exist_ok=True)
     
+    # Function to process PM allocation files
+    def process_pm_allocation_files(original_file, updated_file, region='ALL'):
+        """Process PM allocation files and generate comparison reports"""
+        try:
+            # Process original file
+            original_data = billing_processor.process_billing_allocation(original_file)
+            # Process updated file
+            updated_data = billing_processor.process_billing_allocation(updated_file)
+            
+            # Compare the two dataframes to identify changes
+            comparison = billing_processor.compare_allocation_data(original_data, updated_data)
+            
+            # Generate export files
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            export_filename = f"PM_ALLOCATION_COMPARISON_{timestamp}.xlsx"
+            export_path = os.path.join(exports_dir, export_filename)
+            
+            # Save to Excel with formatting
+            billing_processor.export_allocation_comparison(comparison, export_path)
+            
+            # Generate region-specific exports if requested
+            regional_exports = []
+            if region != 'ALL':
+                region_filename = f"PM_ALLOCATION_{region}_{timestamp}.xlsx"
+                region_path = os.path.join(exports_dir, region_filename)
+                # Filter by region and export
+                region_data = updated_data[updated_data['region'] == region]
+                region_data.to_excel(region_path, index=False)
+                regional_exports.append({
+                    'name': region_filename,
+                    'path': f"pm_allocations/{region_filename}",
+                    'description': f"Export filtered for {region} region",
+                    'icon': 'bi-geo-alt'
+                })
+            
+            # Generate formula-preserved output
+            formula_filename = f"PM_ALLOCATION_FORMULAS_{timestamp}.xlsx"
+            formula_path = os.path.join(exports_dir, formula_filename)
+            formula_stats = billing_processor.export_with_formula_preservation(
+                original_file, updated_file, formula_path
+            )
+            
+            # Prepare result object
+            export_files = [
+                {
+                    'name': export_filename,
+                    'path': f"pm_allocations/{export_filename}",
+                    'description': "Detailed comparison of original and updated allocations",
+                    'icon': 'bi-file-earmark-diff'
+                },
+                {
+                    'name': formula_filename,
+                    'path': f"pm_allocations/{formula_filename}",
+                    'description': "Updated allocation data with preserved formulas",
+                    'icon': 'bi-file-earmark-spreadsheet'
+                }
+            ]
+            
+            # Add regional exports if any
+            export_files.extend(regional_exports)
+            
+            # Prepare processed data for display
+            processed_data = {
+                'total_files': 2,
+                'total_records': len(updated_data),
+                'change_count': len(comparison),
+                'changes': comparison.to_dict('records') if not comparison.empty else [],
+                'formula_stats': formula_stats
+            }
+            
+            # Success response
+            result = {
+                'success': True,
+                'message': f"Successfully processed PM allocation files with {len(comparison)} changes detected",
+                'export_files': export_files
+            }
+            
+            return {'result': result, 'data': processed_data}
+            
+        except Exception as e:
+            app.logger.error(f"Error processing PM allocation files: {str(e)}")
+            traceback.print_exc()
+            return {
+                'result': {
+                    'success': False,
+                    'message': f"Error processing PM allocation files: {str(e)}"
+                },
+                'data': None
+            }
+    
+    # Auto-process feature - look for specific files in the attached_assets directory
+    if request.args.get('auto_process') == 'true':
+        try:
+            # Look for original and updated allocation files in the attached_assets directory
+            original_file_path = None
+            updated_file_path = None
+            
+            # Match filenames based on patterns
+            for file in os.listdir(assets_dir):
+                if os.path.isfile(os.path.join(assets_dir, file)):
+                    # Original file (doesn't have "FINAL" or "REVISION" in the name)
+                    if file.lower().startswith("eqmo. billing allocations") and not "copy" in file.lower() and not "final" in file.lower() and not "revision" in file.lower() and file.endswith(".xlsx"):
+                        original_file_path = os.path.join(assets_dir, file)
+                    # Updated file (has "FINAL" or "REVISION" in the name)
+                    elif file.lower().startswith("eqmo. billing allocations") and ("final" in file.lower() or "revision" in file.lower()) and file.endswith(".xlsx"):
+                        updated_file_path = os.path.join(assets_dir, file)
+            
+            if original_file_path and updated_file_path:
+                region = request.args.get('region', 'ALL')
+                
+                # Create a timestamp for unique filenames
+                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                uid = uuid.uuid4().hex[:8]
+                
+                # Create file paths for saving
+                original_dest = os.path.join(uploads_dir, f"{timestamp}_{uid}_original.xlsx")
+                updated_dest = os.path.join(uploads_dir, f"{timestamp}_{uid}_updated.xlsx")
+                
+                # Copy files to uploads directory
+                shutil.copy2(original_file_path, original_dest)
+                shutil.copy2(updated_file_path, updated_dest)
+                
+                # Process the files
+                processor_result = process_pm_allocation_files(original_dest, updated_dest, region)
+                result = processor_result['result']
+                processed_data = processor_result['data']
+                
+                # Log success
+                app.logger.info(f"Auto-processed PM allocation files: {original_file_path} and {updated_file_path}")
+                flash(f"Successfully auto-processed PM allocation files", "success")
+            else:
+                # If exact files not found, provide more details in the error message
+                found_files = [f for f in os.listdir(assets_dir) if os.path.isfile(os.path.join(assets_dir, f)) and f.lower().startswith("eqmo")]
+                if found_files:
+                    flash(f"Could not identify original and updated PM allocation files among: {', '.join(found_files)}", "warning")
+                else:
+                    flash("Could not find any PM allocation files to auto-process", "warning")
+                
+        except Exception as e:
+            app.logger.error(f"Error auto-processing PM allocation files: {str(e)}")
+            traceback.print_exc()
+            flash(f"Error auto-processing files: {str(e)}", "danger")
+    
+    # Handle manual file upload
+    if request.method == 'POST':
+        try:
+            # Check if files were uploaded
+            if 'original_file' not in request.files or 'updated_file' not in request.files:
+                flash('Both original and updated files are required', 'danger')
+                return render_template('pm_allocation.html', result=None, processed_data=None, recent_exports=recent_exports)
+            
+            original_file = request.files['original_file']
+            updated_file = request.files['updated_file']
+            region = request.form.get('region', 'ALL')
+            
+            # Validate files
+            if original_file.filename == '' or updated_file.filename == '':
+                flash('Both files must be selected', 'danger')
+                return render_template('pm_allocation.html', result=None, processed_data=None, recent_exports=recent_exports)
+            
+            # Ensure filenames are secure
+            original_filename = secure_filename(original_file.filename or "")
+            updated_filename = secure_filename(updated_file.filename or "")
+            
+            # Add unique identifier to prevent overwriting
+            uid = uuid.uuid4().hex[:8]
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            
+            # Create file paths for saving
+            original_path = os.path.join(uploads_dir, f"{timestamp}_{uid}_original_{original_filename}")
+            updated_path = os.path.join(uploads_dir, f"{timestamp}_{uid}_updated_{updated_filename}")
+            
+            # Save the uploaded files
+            original_file.save(original_path)
+            updated_file.save(updated_path)
+            
+            # Process the files
+            processor_result = process_pm_allocation_files(original_path, updated_path, region)
+            result = processor_result['result']
+            processed_data = processor_result['data']
+            
+            # Log success
+            app.logger.info(f"Processed PM allocation files: {original_filename} and {updated_filename}")
+            flash(f"Successfully processed PM allocation files", "success")
+            
+        except Exception as e:
+            app.logger.error(f"Error processing PM allocation files: {str(e)}")
+            traceback.print_exc()
+            flash(f"Error processing files: {str(e)}", "danger")
+    
     # Check for recent exports
     try:
+        # Import traceback for error handling
+        import traceback
+        
         export_files = os.listdir(exports_dir)
         export_files.sort(key=lambda x: os.path.getmtime(os.path.join(exports_dir, x)), reverse=True)
-        for file in export_files[:5]:  # Show only the 5 most recent exports
-            file_path = os.path.join(exports_dir, file)
-            file_stats = os.stat(file_path)
+        
+        # Get the 5 most recent export files
+        for filename in export_files[:5]:
+            if filename.endswith('.xlsx'):
+                file_path = os.path.join(exports_dir, filename)
+                file_mod_time = datetime.fromtimestamp(os.path.getmtime(file_path))
+                
+                # Determine file type and icon
+                file_type = 'Unknown'
+                icon = 'bi-file-earmark'
+                
+                if 'COMPARISON' in filename:
+                    file_type = 'Comparison Report'
+                    icon = 'bi-file-earmark-diff'
+                elif 'FORMULAS' in filename:
+                    file_type = 'Formula-Preserved Output'
+                    icon = 'bi-file-earmark-spreadsheet'
+                elif any(region in filename for region in ['DFW', 'HOU', 'WT']):
+                    file_type = f'Regional Export ({filename.split("_")[2]})'
+                    icon = 'bi-geo-alt'
+                
+                recent_exports.append({
+                    'name': filename,
+                    'path': f"pm_allocations/{filename}",
+                    'type': file_type,
+                    'time': file_mod_time,
+                    'size': round(os.path.getsize(file_path) / (1024 * 1024), 2),  # Size in MB
+                    'icon': icon
+                })
             file_date = datetime.fromtimestamp(file_stats.st_mtime).strftime('%Y-%m-%d %H:%M')
             recent_exports.append({
                 'name': file,

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assets - SYSTEMSMITH</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('index') }}">SYSTEMSMITH</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('assets') }}">Assets</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('reports') }}">Reports</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Fleet Assets</h4>
+                <div>
+                    <button class="btn btn-sm btn-primary" id="refreshAssets">Refresh Data</button>
+                    <div class="btn-group ms-2">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown">
+                            Filter
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="filterDropdown">
+                            <li><h6 class="dropdown-header">Category</h6></li>
+                            <li><a class="dropdown-item filter-category" href="#" data-category="all">All Categories</a></li>
+                            <li><a class="dropdown-item filter-category" href="#" data-category="Heavy Equipment">Heavy Equipment</a></li>
+                            <li><a class="dropdown-item filter-category" href="#" data-category="Light Duty">Light Duty</a></li>
+                            <li><a class="dropdown-item filter-category" href="#" data-category="Trucks">Trucks</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><h6 class="dropdown-header">Status</h6></li>
+                            <li><a class="dropdown-item filter-status" href="#" data-status="all">All Status</a></li>
+                            <li><a class="dropdown-item filter-status" href="#" data-status="Available">Available</a></li>
+                            <li><a class="dropdown-item filter-status" href="#" data-status="In Use">In Use</a></li>
+                            <li><a class="dropdown-item filter-status" href="#" data-status="Maintenance">Maintenance</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Label</th>
+                                <th>Category</th>
+                                <th>Location</th>
+                                <th>Status</th>
+                                <th>Last Updated</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="assetsTable">
+                            {% for asset in assets %}
+                            <tr>
+                                <td>{{ asset.asset_identifier }}</td>
+                                <td>{{ asset.label }}</td>
+                                <td>{{ asset.asset_category }}</td>
+                                <td>{{ asset.location }}</td>
+                                <td>
+                                    {% if asset.status == 'Available' %}
+                                    <span class="badge bg-success">{{ asset.status }}</span>
+                                    {% elif asset.status == 'In Use' %}
+                                    <span class="badge bg-primary">{{ asset.status }}</span>
+                                    {% elif asset.status == 'Maintenance' %}
+                                    <span class="badge bg-warning">{{ asset.status }}</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">{{ asset.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ asset.updated_at.strftime('%Y-%m-%d %H:%M') if asset.updated_at else 'N/A' }}</td>
+                                <td>
+                                    <a href="{{ url_for('asset_detail', asset_id=asset.asset_identifier) }}" class="btn btn-sm btn-info">View</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer text-muted">
+                Total Assets: {{ assets|length }}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

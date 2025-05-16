@@ -1,6 +1,6 @@
 {
-  "last_run": "2025-05-15T22:27:19.148040",
+  "last_run": "2025-05-16T02:09:31.356864",
   "success": true,
-  "message": "Successfully updated 701 assets",
-  "asset_count": 701
+  "message": "Scheduler initialized",
+  "asset_count": 0
 }

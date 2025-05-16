@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}PM Allocation Reconciliation{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="mb-4">PM Billing Allocation Reconciliation</h2>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Upload Files for Comparison</h5>
+                </div>
+                <div class="card-body">
+                    <p>Upload the original master allocation file and the PM-edited version to identify and compare changes.</p>
+                    
+                    <form action="{{ url_for('reports.upload_pm_allocation') }}" method="post" enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="original_file" class="form-label">Original Master Allocation File:</label>
+                                    <input type="file" class="form-control" id="original_file" name="original_file" accept=".xlsx,.xlsm,.xls" required>
+                                    <small class="form-text text-muted">Upload the original master billing allocation file (Excel format).</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="updated_file" class="form-label">PM-Edited Allocation File:</label>
+                                    <input type="file" class="form-control" id="updated_file" name="updated_file" accept=".xlsx,.xlsm,.xls" required>
+                                    <small class="form-text text-muted">Upload the PM-edited version of the billing allocation file (Excel format).</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="month" class="form-label">Month:</label>
+                                    <input type="month" class="form-control" id="month" name="month" value="{{ current_month }}" required>
+                                    <small class="form-text text-muted">Select the month for the billing allocations.</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="region" class="form-label">Region Filter (Optional):</label>
+                                    <select class="form-select" id="region" name="region">
+                                        <option value="all" selected>All Regions</option>
+                                        <option value="DFW">DFW (Division 1)</option>
+                                        <option value="HOU">HOU (Division 2)</option>
+                                        <option value="WTX">WTX (Division 3)</option>
+                                    </select>
+                                    <small class="form-text text-muted">Filter comparison to a specific region.</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="fsi_format" name="fsi_format">
+                            <label class="form-check-label" for="fsi_format">Generate FSI Import Format</label>
+                            <small class="form-text text-muted d-block">Check to also generate region-specific exports in FSI import format.</small>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Process Allocations</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Comparison Reports</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_reports %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date Generated</th>
+                                    <th>Month</th>
+                                    <th>File</th>
+                                    <th>Changes</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for report in recent_reports %}
+                                <tr>
+                                    <td>{{ report.date_generated }}</td>
+                                    <td>{{ report.month }}</td>
+                                    <td>{{ report.filename }}</td>
+                                    <td>{{ report.changes }}</td>
+                                    <td>
+                                        <a href="{{ url_for('reports.download_export', export_path=report.filename) }}" class="btn btn-sm btn-primary">Download</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No recent comparison reports found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

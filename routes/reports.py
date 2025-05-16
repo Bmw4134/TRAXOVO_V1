@@ -6,10 +6,13 @@ This module handles the routes related to generating and accessing reports.
 import os
 import csv
 import logging
+import json
+import re
 from datetime import datetime, timedelta
 import pandas as pd
 from flask import Blueprint, render_template, redirect, url_for, flash, request, send_file, jsonify
 from flask_login import login_required
+from utils.billing_processor import process_pm_allocation, load_billing_files, compare_billing_data, create_comparison_report, generate_region_exports
 
 # Create the reports blueprint
 reports_bp = Blueprint('reports', __name__, url_prefix='/reports')

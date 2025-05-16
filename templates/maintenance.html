@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maintenance Scheduling - SYSTEMSMITH</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        .maintenance-card {
+            border-left: 4px solid;
+            transition: transform 0.2s;
+        }
+        .maintenance-card:hover {
+            transform: translateY(-3px);
+        }
+        .priority-high {
+            border-left-color: #dc3545;
+        }
+        .priority-medium {
+            border-left-color: #ffc107;
+        }
+        .priority-low {
+            border-left-color: #0dcaf0;
+        }
+        .priority-completed {
+            border-left-color: #198754;
+        }
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+        }
+        .calendar-day {
+            height: 120px;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 5px;
+            overflow-y: auto;
+        }
+        .calendar-day:hover {
+            background-color: rgba(255,255,255,0.05);
+        }
+        .calendar-day.inactive {
+            background-color: rgba(0,0,0,0.2);
+        }
+        .calendar-day.today {
+            background-color: rgba(13, 110, 253, 0.15);
+            border: 1px solid rgba(13, 110, 253, 0.5);
+        }
+        .maintenance-tag {
+            padding: 2px 5px;
+            margin: 2px 0;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+        }
+        .maintenance-tag.service {
+            background-color: rgba(25, 135, 84, 0.2);
+            border: 1px solid rgba(25, 135, 84, 0.5);
+        }
+        .maintenance-tag.repair {
+            background-color: rgba(220, 53, 69, 0.2);
+            border: 1px solid rgba(220, 53, 69, 0.5);
+        }
+        .maintenance-tag.inspection {
+            background-color: rgba(255, 193, 7, 0.2);
+            border: 1px solid rgba(255, 193, 7, 0.5);
+        }
+        .maintenance-icon {
+            font-size: 1.25rem;
+            margin-right: 5px;
+        }
+        .filter-btn {
+            border-radius: 20px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        .date-selector {
+            cursor: pointer;
+            border-radius: 20px;
+            padding: 5px 15px;
+            transition: all 0.2s;
+        }
+        .date-selector:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        .gauge-chart {
+            position: relative;
+            width: 100%;
+            min-height: 140px;
+        }
+        .gauge-value {
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .asset-thumbnail {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body data-bs-theme="dark">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">SYSTEMSMITH</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('assets') }}">Assets</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('maintenance') }}">Maintenance</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('reports') }}">Reports</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('upload_files') }}">Upload Files</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div id="flash-messages" class="mb-4">
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message | safe }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h1 class="mb-4">Maintenance Scheduling</h1>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newMaintenanceModal">
+                    <i class="bi bi-plus-circle me-1"></i> Schedule Maintenance
+                </button>
+                <button type="button" class="btn btn-outline-secondary ms-2" id="toggleViewBtn">
+                    <i class="bi bi-calendar3 me-1"></i> Calendar View
+                </button>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-3 mb-4">
+                <div class="card bg-dark">
+                    <div class="card-body">
+                        <h5 class="card-title">Upcoming Maintenance</h5>
+                        <div class="gauge-chart">
+                            <canvas id="upcomingGauge" height="80"></canvas>
+                            <div class="gauge-value">{{ maintenance_stats.upcoming }}</div>
+                        </div>
+                        <p class="text-muted">Tasks scheduled in next 30 days</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="card bg-dark">
+                    <div class="card-body">
+                        <h5 class="card-title">Completed</h5>
+                        <div class="gauge-chart">
+                            <canvas id="completedGauge" height="80"></canvas>
+                            <div class="gauge-value">{{ maintenance_stats.completed }}</div>
+                        </div>
+                        <p class="text-muted">Tasks completed in last 30 days</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="card bg-dark">
+                    <div class="card-body">
+                        <h5 class="card-title">Overdue</h5>
+                        <div class="gauge-chart">
+                            <canvas id="overdueGauge" height="80"></canvas>
+                            <div class="gauge-value">{{ maintenance_stats.overdue }}</div>
+                        </div>
+                        <p class="text-muted">Tasks past their due date</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="card bg-dark">
+                    <div class="card-body">
+                        <h5 class="card-title">Average Resolution</h5>
+                        <div class="gauge-chart">
+                            <canvas id="resolutionGauge" height="80"></canvas>
+                            <div class="gauge-value">{{ maintenance_stats.avg_days }} days</div>
+                        </div>
+                        <p class="text-muted">From scheduled to completion</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card bg-dark">
+                    <div class="card-header bg-dark d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Maintenance Tasks</h5>
+                        <div>
+                            <button class="btn btn-sm filter-btn btn-outline-primary active" data-filter="all">All</button>
+                            <button class="btn btn-sm filter-btn btn-outline-success" data-filter="service">Service</button>
+                            <button class="btn btn-sm filter-btn btn-outline-danger" data-filter="repair">Repair</button>
+                            <button class="btn btn-sm filter-btn btn-outline-warning" data-filter="inspection">Inspection</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-view">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Asset</th>
+                                            <th>Task</th>
+                                            <th>Type</th>
+                                            <th>Scheduled Date</th>
+                                            <th>Due Date</th>
+                                            <th>Priority</th>
+                                            <th>Status</th>
+                                            <th>Assigned To</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for task in maintenance_tasks %}
+                                        <tr class="maintenance-item" data-type="{{ task.type }}">
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    {% if task.asset.image_url %}
+                                                    <img src="{{ task.asset.image_url }}" alt="{{ task.asset.label }}" class="asset-thumbnail me-2">
+                                                    {% else %}
+                                                    <div class="me-2 text-center" style="width: 60px; height: 60px; background-color: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; border-radius: 4px;">
+                                                        <i class="bi bi-truck" style="font-size: 1.5rem;"></i>
+                                                    </div>
+                                                    {% endif %}
+                                                    <div>
+                                                        <h6 class="mb-0">{{ task.asset.label }}</h6>
+                                                        <small class="text-muted">{{ task.asset.asset_identifier }}</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>{{ task.title }}</td>
+                                            <td>
+                                                {% if task.type == 'service' %}
+                                                <span class="badge bg-success">Service</span>
+                                                {% elif task.type == 'repair' %}
+                                                <span class="badge bg-danger">Repair</span>
+                                                {% elif task.type == 'inspection' %}
+                                                <span class="badge bg-warning">Inspection</span>
+                                                {% else %}
+                                                <span class="badge bg-secondary">Other</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ task.scheduled_date.strftime('%m/%d/%Y') }}</td>
+                                            <td>
+                                                {% if task.due_date %}
+                                                {{ task.due_date.strftime('%m/%d/%Y') }}
+                                                {% else %}
+                                                -
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if task.priority == 'high' %}
+                                                <span class="badge bg-danger">High</span>
+                                                {% elif task.priority == 'medium' %}
+                                                <span class="badge bg-warning">Medium</span>
+                                                {% else %}
+                                                <span class="badge bg-info">Low</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if task.status == 'completed' %}
+                                                <span class="badge bg-success">Completed</span>
+                                                {% elif task.status == 'in_progress' %}
+                                                <span class="badge bg-primary">In Progress</span>
+                                                {% elif task.status == 'pending' %}
+                                                <span class="badge bg-secondary">Pending</span>
+                                                {% elif task.status == 'overdue' %}
+                                                <span class="badge bg-danger">Overdue</span>
+                                                {% else %}
+                                                <span class="badge bg-info">Scheduled</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ task.assigned_to }}</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#viewMaintenanceModal" data-id="{{ task.id }}">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#editMaintenanceModal" data-id="{{ task.id }}">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                {% if task.status != 'completed' %}
+                                                <button class="btn btn-sm btn-success complete-task" data-id="{{ task.id }}">
+                                                    <i class="bi bi-check-lg"></i>
+                                                </button>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="calendar-view" style="display: none;">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="date-selector" id="prevMonth">
+                                    <i class="bi bi-chevron-left"></i> Previous Month
+                                </div>
+                                <h5 class="mb-0" id="calendarMonth">May 2025</h5>
+                                <div class="date-selector" id="nextMonth">
+                                    Next Month <i class="bi bi-chevron-right"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-2">
+                                <div class="col"><div class="text-center fw-bold">Sunday</div></div>
+                                <div class="col"><div class="text-center fw-bold">Monday</div></div>
+                                <div class="col"><div class="text-center fw-bold">Tuesday</div></div>
+                                <div class="col"><div class="text-center fw-bold">Wednesday</div></div>
+                                <div class="col"><div class="text-center fw-bold">Thursday</div></div>
+                                <div class="col"><div class="text-center fw-bold">Friday</div></div>
+                                <div class="col"><div class="text-center fw-bold">Saturday</div></div>
+                            </div>
+                            
+                            <div id="calendarGrid">
+                                <!-- Calendar days will be generated via JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Maintenance Modal -->
+    <div class="modal fade" id="newMaintenanceModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Schedule New Maintenance</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="newMaintenanceForm" action="{{ url_for('add_maintenance') }}" method="post">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="asset_id" class="form-label">Asset</label>
+                                <select class="form-select" id="asset_id" name="asset_id" required>
+                                    <option value="" selected disabled>Select Asset</option>
+                                    {% for asset in assets %}
+                                    <option value="{{ asset.id }}">{{ asset.label }} ({{ asset.asset_identifier }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="maintenance_type" class="form-label">Maintenance Type</label>
+                                <select class="form-select" id="maintenance_type" name="maintenance_type" required>
+                                    <option value="" selected disabled>Select Type</option>
+                                    <option value="service">Scheduled Service</option>
+                                    <option value="repair">Repair/Fix</option>
+                                    <option value="inspection">Inspection</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="title" name="title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="scheduled_date" class="form-label">Scheduled Date</label>
+                                <input type="date" class="form-control" id="scheduled_date" name="scheduled_date" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="due_date" class="form-label">Due Date (Optional)</label>
+                                <input type="date" class="form-control" id="due_date" name="due_date">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="assigned_to" class="form-label">Assigned To</label>
+                                <input type="text" class="form-control" id="assigned_to" name="assigned_to">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="priority" class="form-label">Priority</label>
+                                <select class="form-select" id="priority" name="priority" required>
+                                    <option value="low">Low</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="estimated_cost" class="form-label">Estimated Cost (USD)</label>
+                            <input type="number" class="form-control" id="estimated_cost" name="estimated_cost" min="0" step="0.01">
+                        </div>
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Additional Notes</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="2"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" form="newMaintenanceForm" class="btn btn-primary">Schedule Maintenance</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Maintenance Modal -->
+    <div class="modal fade" id="viewMaintenanceModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Maintenance Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6>Asset</h6>
+                            <p id="view-asset">PT-245 (Ford F-150)</p>
+                            
+                            <h6>Type</h6>
+                            <p id="view-type"><span class="badge bg-success">Service</span></p>
+                            
+                            <h6>Title</h6>
+                            <p id="view-title">Oil Change & Routine Maintenance</p>
+                            
+                            <h6>Description</h6>
+                            <p id="view-description">Complete oil change, oil filter, air filter, and full inspection.</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Status</h6>
+                            <p id="view-status"><span class="badge bg-primary">Scheduled</span></p>
+                            
+                            <h6>Dates</h6>
+                            <p id="view-dates">
+                                <strong>Scheduled:</strong> 05/20/2025<br>
+                                <strong>Due:</strong> 05/27/2025<br>
+                                <strong>Completed:</strong> -
+                            </p>
+                            
+                            <h6>Priority</h6>
+                            <p id="view-priority"><span class="badge bg-warning">Medium</span></p>
+                            
+                            <h6>Assigned To</h6>
+                            <p id="view-assigned">John Mechanic</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Estimated Cost</h6>
+                            <p id="view-cost">$250.00</p>
+                            
+                            <h6>Notes</h6>
+                            <p id="view-notes">Vehicle shows signs of brake pad wear, consider replacement during service.</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Service History</h6>
+                            <div id="view-history">
+                                <small class="d-block text-muted mb-1">03/15/2025 - Oil Change</small>
+                                <small class="d-block text-muted mb-1">01/10/2025 - Brake Replacement</small>
+                                <small class="d-block text-muted">11/05/2024 - Transmission Service</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="editTaskBtn">Edit</button>
+                    <button type="button" class="btn btn-success" id="completeTaskBtn">Mark as Completed</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Maintenance Modal -->
+    <div class="modal fade" id="editMaintenanceModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Maintenance Task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editMaintenanceForm" action="{{ url_for('update_maintenance') }}" method="post">
+                        <input type="hidden" id="edit_task_id" name="task_id">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="edit_asset_id" class="form-label">Asset</label>
+                                <select class="form-select" id="edit_asset_id" name="asset_id" required>
+                                    {% for asset in assets %}
+                                    <option value="{{ asset.id }}">{{ asset.label }} ({{ asset.asset_identifier }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit_maintenance_type" class="form-label">Maintenance Type</label>
+                                <select class="form-select" id="edit_maintenance_type" name="maintenance_type" required>
+                                    <option value="service">Scheduled Service</option>
+                                    <option value="repair">Repair/Fix</option>
+                                    <option value="inspection">Inspection</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_title" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="edit_title" name="title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_description" class="form-label">Description</label>
+                            <textarea class="form-control" id="edit_description" name="description" rows="3"></textarea>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="edit_scheduled_date" class="form-label">Scheduled Date</label>
+                                <input type="date" class="form-control" id="edit_scheduled_date" name="scheduled_date" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit_due_date" class="form-label">Due Date (Optional)</label>
+                                <input type="date" class="form-control" id="edit_due_date" name="due_date">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="edit_assigned_to" class="form-label">Assigned To</label>
+                                <input type="text" class="form-control" id="edit_assigned_to" name="assigned_to">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit_priority" class="form-label">Priority</label>
+                                <select class="form-select" id="edit_priority" name="priority" required>
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="edit_estimated_cost" class="form-label">Estimated Cost (USD)</label>
+                                <input type="number" class="form-control" id="edit_estimated_cost" name="estimated_cost" min="0" step="0.01">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit_status" class="form-label">Status</label>
+                                <select class="form-select" id="edit_status" name="status" required>
+                                    <option value="scheduled">Scheduled</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="in_progress">In Progress</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="overdue">Overdue</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_notes" class="form-label">Additional Notes</label>
+                            <textarea class="form-control" id="edit_notes" name="notes" rows="2"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_completion_notes" class="form-label">Completion Notes</label>
+                            <textarea class="form-control" id="edit_completion_notes" name="completion_notes" rows="2"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" form="editMaintenanceForm" class="btn btn-primary">Update Task</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script>
+        // Toggle between list and calendar view
+        const toggleViewBtn = document.getElementById('toggleViewBtn');
+        const listView = document.querySelector('.list-view');
+        const calendarView = document.querySelector('.calendar-view');
+        
+        toggleViewBtn.addEventListener('click', function() {
+            if (listView.style.display !== 'none') {
+                listView.style.display = 'none';
+                calendarView.style.display = 'block';
+                toggleViewBtn.innerHTML = '<i class="bi bi-list me-1"></i> List View';
+                generateCalendar(new Date());
+            } else {
+                listView.style.display = 'block';
+                calendarView.style.display = 'none';
+                toggleViewBtn.innerHTML = '<i class="bi bi-calendar3 me-1"></i> Calendar View';
+            }
+        });
+
+        // Filtering by maintenance type
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const maintenanceItems = document.querySelectorAll('.maintenance-item');
+        
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const filter = this.getAttribute('data-filter');
+                
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                maintenanceItems.forEach(item => {
+                    if (filter === 'all' || item.getAttribute('data-type') === filter) {
+                        item.style.display = '';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Initialize gauge charts
+        function initGauges() {
+            // Upcoming Gauge
+            new Chart(document.getElementById('upcomingGauge'), {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [{{ maintenance_stats.upcoming }}, {{ 30 - maintenance_stats.upcoming }}],
+                        backgroundColor: ['rgba(13, 110, 253, 0.8)', 'rgba(0, 0, 0, 0.1)'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    cutout: '80%',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+            
+            // Completed Gauge
+            new Chart(document.getElementById('completedGauge'), {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [{{ maintenance_stats.completed }}, {{ 30 - maintenance_stats.completed }}],
+                        backgroundColor: ['rgba(25, 135, 84, 0.8)', 'rgba(0, 0, 0, 0.1)'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    cutout: '80%',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+            
+            // Overdue Gauge
+            new Chart(document.getElementById('overdueGauge'), {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [{{ maintenance_stats.overdue }}, {{ 30 - maintenance_stats.overdue }}],
+                        backgroundColor: ['rgba(220, 53, 69, 0.8)', 'rgba(0, 0, 0, 0.1)'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    cutout: '80%',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+            
+            // Resolution Time Gauge
+            new Chart(document.getElementById('resolutionGauge'), {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [{{ maintenance_stats.avg_days }}, {{ 14 - maintenance_stats.avg_days if 14 - maintenance_stats.avg_days > 0 else 0 }}],
+                        backgroundColor: ['rgba(255, 193, 7, 0.8)', 'rgba(0, 0, 0, 0.1)'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    cutout: '80%',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // Calendar functionality
+        function generateCalendar(date) {
+            const year = date.getFullYear();
+            const month = date.getMonth();
+            
+            // Update calendar month title
+            document.getElementById('calendarMonth').textContent = `${date.toLocaleString('default', { month: 'long' })} ${year}`;
+            
+            // Get first and last day of month
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            
+            // Find the first Sunday (or first day of the week) to start the calendar
+            let startDate = new Date(firstDay);
+            startDate.setDate(firstDay.getDate() - firstDay.getDay());
+            
+            // Find the last Saturday (or last day of the week) to end the calendar
+            let endDate = new Date(lastDay);
+            endDate.setDate(lastDay.getDate() + (6 - lastDay.getDay()));
+            
+            const calendarGrid = document.getElementById('calendarGrid');
+            calendarGrid.innerHTML = '';
+            
+            // Get current date for highlighting today
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // Create calendar grid
+            let currentRow;
+            let currentDate = new Date(startDate);
+            
+            while (currentDate <= endDate) {
+                // Start a new row for each week
+                if (currentDate.getDay() === 0) {
+                    currentRow = document.createElement('div');
+                    currentRow.className = 'row mb-2';
+                    calendarGrid.appendChild(currentRow);
+                }
+                
+                // Create day cell
+                const dayCol = document.createElement('div');
+                dayCol.className = 'col';
+                
+                const dayCell = document.createElement('div');
+                dayCell.className = 'calendar-day';
+                
+                // Check if date is in current month
+                if (currentDate.getMonth() !== month) {
+                    dayCell.classList.add('inactive');
+                }
+                
+                // Check if date is today
+                const currentDateCopy = new Date(currentDate);
+                currentDateCopy.setHours(0, 0, 0, 0);
+                
+                if (currentDateCopy.getTime() === today.getTime()) {
+                    dayCell.classList.add('today');
+                }
+                
+                // Add date number
+                const dateNumber = document.createElement('div');
+                dateNumber.textContent = currentDate.getDate();
+                dateNumber.className = 'fw-bold mb-1';
+                dayCell.appendChild(dateNumber);
+                
+                // Add maintenance events for this day
+                // This would be populated from the maintenance_tasks data
+                // For demonstration, adding sample events
+                const sampleEvents = [
+                    { date: '2025-05-20', type: 'service', title: 'Oil Change: PT-245' },
+                    { date: '2025-05-15', type: 'repair', title: 'Brake Repair: ET-14' },
+                    { date: '2025-05-22', type: 'inspection', title: 'Annual Inspection: PT-173' }
+                ];
+                
+                // Format current date to match sample data format
+                const formattedDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
+                
+                // Add events that match this date
+                sampleEvents.forEach(event => {
+                    if (event.date === formattedDate) {
+                        const eventEl = document.createElement('div');
+                        eventEl.className = `maintenance-tag ${event.type}`;
+                        eventEl.textContent = event.title;
+                        dayCell.appendChild(eventEl);
+                    }
+                });
+                
+                // For actual implementation, use the maintenance_tasks data:
+                {% for task in maintenance_tasks %}
+                // Check if this task is on the current calendar day
+                if ('{{ task.scheduled_date.strftime("%Y-%m-%d") }}' === formattedDate) {
+                    const eventEl = document.createElement('div');
+                    eventEl.className = `maintenance-tag {{ task.type }}`;
+                    eventEl.textContent = '{{ task.title }}';
+                    eventEl.setAttribute('data-id', '{{ task.id }}');
+                    eventEl.addEventListener('click', function() {
+                        // Open task details modal
+                        const viewModal = new bootstrap.Modal(document.getElementById('viewMaintenanceModal'));
+                        // Set modal content based on task data
+                        viewModal.show();
+                    });
+                    dayCell.appendChild(eventEl);
+                }
+                {% endfor %}
+                
+                dayCol.appendChild(dayCell);
+                currentRow.appendChild(dayCol);
+                
+                // Move to next day
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+        }
+        
+        // Month navigation
+        document.getElementById('prevMonth').addEventListener('click', function() {
+            const currentMonth = document.getElementById('calendarMonth').textContent;
+            const [month, year] = currentMonth.split(' ');
+            const date = new Date(`${month} 1, ${year}`);
+            date.setMonth(date.getMonth() - 1);
+            generateCalendar(date);
+        });
+        
+        document.getElementById('nextMonth').addEventListener('click', function() {
+            const currentMonth = document.getElementById('calendarMonth').textContent;
+            const [month, year] = currentMonth.split(' ');
+            const date = new Date(`${month} 1, ${year}`);
+            date.setMonth(date.getMonth() + 1);
+            generateCalendar(date);
+        });
+        
+        // Complete task functionality
+        document.querySelectorAll('.complete-task').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const taskId = this.getAttribute('data-id');
+                if (confirm('Mark this maintenance task as completed?')) {
+                    // Send completion request to server
+                    fetch(`/complete-maintenance/${taskId}`, {
+                        method: 'POST'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.location.reload();
+                        } else {
+                            alert('Error: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while completing the task');
+                    });
+                }
+            });
+        });
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initGauges();
+        });
+        
+        // Edit task button in view modal
+        document.getElementById('editTaskBtn').addEventListener('click', function() {
+            // Close view modal and open edit modal
+            const viewModal = bootstrap.Modal.getInstance(document.getElementById('viewMaintenanceModal'));
+            viewModal.hide();
+            
+            const taskId = document.getElementById('viewMaintenanceModal').getAttribute('data-task-id');
+            const editModal = new bootstrap.Modal(document.getElementById('editMaintenanceModal'));
+            document.getElementById('edit_task_id').value = taskId;
+            // Populate edit form with task data
+            
+            editModal.show();
+        });
+        
+        // Complete task button in view modal
+        document.getElementById('completeTaskBtn').addEventListener('click', function() {
+            const taskId = document.getElementById('viewMaintenanceModal').getAttribute('data-task-id');
+            if (confirm('Mark this maintenance task as completed?')) {
+                // Send completion request to server
+                fetch(`/complete-maintenance/${taskId}`, {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while completing the task');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

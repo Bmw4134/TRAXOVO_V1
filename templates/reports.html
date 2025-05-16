@@ -1,1065 +1,354 @@
-{% extends 'base.html' %}
-
-{% block title %}Fleet Reports - Fleet Management{% endblock %}
-
-{% block extra_css %}
-<style>
-    .dashboard-stat {
-        padding: 15px;
-        border-radius: 5px;
-        margin-bottom: 20px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s ease;
-    }
-    .dashboard-stat:hover {
-        transform: translateY(-5px);
-    }
-    .dashboard-stat .stat-value {
-        font-size: 2.5rem;
-        font-weight: bold;
-        margin-bottom: 0;
-    }
-    .dashboard-stat .stat-label {
-        font-size: 1rem;
-        text-transform: uppercase;
-    }
-    .dashboard-stat .percent-change {
-        font-size: 0.9rem;
-        margin-top: 5px;
-    }
-    .maintenance-card {
-        transition: all 0.2s ease;
-    }
-    .maintenance-card:hover {
-        transform: translateX(5px);
-    }
-    .priority-high {
-        border-left: 4px solid var(--bs-danger);
-    }
-    .priority-medium {
-        border-left: 4px solid var(--bs-warning);
-    }
-    .priority-low {
-        border-left: 4px solid var(--bs-info);
-    }
-    .activity-timeline {
-        position: relative;
-        padding-left: 30px;
-    }
-    .activity-timeline::before {
-        content: '';
-        position: absolute;
-        left: 10px;
-        top: 0;
-        height: 100%;
-        width: 2px;
-        background-color: rgba(255, 255, 255, 0.1);
-    }
-    .timeline-item {
-        position: relative;
-        margin-bottom: 20px;
-        padding-bottom: 20px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    .timeline-item:last-child {
-        border-bottom: none;
-    }
-    .timeline-dot {
-        position: absolute;
-        left: -30px;
-        top: 0;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background-color: var(--bs-primary);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .nav-pills .nav-link.active {
-        background-color: var(--bs-primary);
-    }
-    .tab-pane {
-        padding: 20px 0;
-    }
-</style>
-{% endblock %}
-
-{% block content %}
-<div class="row mb-4">
-    <div class="col-md-12 d-flex justify-content-between align-items-center">
-        <div>
-            <h1 class="h3">Fleet Activity Reports</h1>
-            <p class="text-muted mb-0">
-                Comprehensive overview and analytics of your fleet's performance and status.
-            </p>
-        </div>
-        <div>
-            <span class="badge bg-info">
-                Last Updated: <span id="last-update-time">{{ last_updated }}</span>
-            </span>
-        </div>
-    </div>
-</div>
-
-<!-- Reports Navigation Tabs -->
-<div class="row mb-4">
-    <div class="col-md-12">
-        <ul class="nav nav-pills" id="reportsTab" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="overview-tab" data-bs-toggle="pill" data-bs-target="#overview" type="button" role="tab" aria-controls="overview" aria-selected="true">
-                    <i class="fas fa-chart-pie me-1"></i> Overview
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="maintenance-tab" data-bs-toggle="pill" data-bs-target="#maintenance" type="button" role="tab" aria-controls="maintenance" aria-selected="false">
-                    <i class="fas fa-tools me-1"></i> Maintenance
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="activity-tab" data-bs-toggle="pill" data-bs-target="#activity" type="button" role="tab" aria-controls="activity" aria-selected="false">
-                    <i class="fas fa-history me-1"></i> Activity Tracking
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="utilization-tab" data-bs-toggle="pill" data-bs-target="#utilization" type="button" role="tab" aria-controls="utilization" aria-selected="false">
-                    <i class="fas fa-tachometer-alt me-1"></i> Utilization
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="driver-reports-tab" data-bs-toggle="pill" data-bs-target="#driver-reports" type="button" role="tab" aria-controls="driver-reports" aria-selected="false">
-                    <i class="fas fa-user-hard-hat me-1"></i> Driver Reports
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="billing-tab" data-bs-toggle="pill" data-bs-target="#billing" type="button" role="tab" aria-controls="billing" aria-selected="false">
-                    <i class="fas fa-file-invoice-dollar me-1"></i> Billing
-                </button>
-            </li>
-        </ul>
-    </div>
-</div>
-
-<!-- Tab Content -->
-<div class="tab-content" id="reportsTabContent">
-    <!-- OVERVIEW TAB -->
-    <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
-        <!-- Quick Stats -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="dashboard-stat bg-dark">
-                    <p class="stat-value">{{ status_counts.active + status_counts.inactive }}</p>
-                    <p class="stat-label">Total Assets</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="dashboard-stat bg-success">
-                    <p class="stat-value">{{ status_counts.active }}</p>
-                    <p class="stat-label">Active Assets</p>
-                    <p class="percent-change">
-                        {{ (status_counts.active / (status_counts.active + status_counts.inactive) * 100) | round(1) }}% of Fleet
-                    </p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="dashboard-stat bg-danger">
-                    <p class="stat-value">{{ status_counts.inactive }}</p>
-                    <p class="stat-label">Inactive Assets</p>
-                    <p class="percent-change">
-                        {{ (status_counts.inactive / (status_counts.active + status_counts.inactive) * 100) | round(1) }}% of Fleet
-                    </p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="dashboard-stat bg-info">
-                    <p class="stat-value">{{ maintenance_due_count }}</p>
-                    <p class="stat-label">Maintenance Due</p>
-                </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - SYSTEMSMITH</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('index') }}">SYSTEMSMITH</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('assets') }}">Assets</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('reports') }}">Reports</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                    </li>
+                </ul>
             </div>
         </div>
+    </nav>
 
-        <!-- Status Overview and Categories -->
-        <div class="row mb-4">
-            <div class="col-md-4">
-                <div class="card h-100">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Status Overview</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-container">
-                            <canvas id="status-chart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-8">
-                <div class="card h-100">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Assets by Category</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-container">
-                            <canvas id="category-chart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Location Distribution -->
-        <div class="row mb-4">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">Assets by Location</h5>
-                        <div class="btn-group btn-group-sm" role="group">
-                            <button type="button" class="btn btn-outline-secondary active" id="show-chart">Chart</button>
-                            <button type="button" class="btn btn-outline-secondary" id="show-table">Table</button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div id="location-chart-container" class="chart-container">
-                            <canvas id="location-chart"></canvas>
-                        </div>
-                        <div id="location-table-container" class="table-responsive" style="display: none;">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Location</th>
-                                        <th>Total</th>
-                                        <th>Active</th>
-                                        <th>Inactive</th>
-                                        <th>Activity Rate</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for location, count in location_counts.items() %}
-                                        {% set active_count = namespace(value=0) %}
-                                        {% set inactive_count = namespace(value=0) %}
-                                        
-                                        <!-- Calculate active and inactive counts for this location -->
-                                        {% for asset in assets if asset.Location == location %}
-                                            {% if asset.Active %}
-                                                {% set active_count.value = active_count.value + 1 %}
-                                            {% else %}
-                                                {% set inactive_count.value = inactive_count.value + 1 %}
-                                            {% endif %}
-                                        {% endfor %}
-                                        
-                                        <tr>
-                                            <td>{{ location }}</td>
-                                            <td>{{ count }}</td>
-                                            <td class="text-success">{{ active_count.value }}</td>
-                                            <td class="text-danger">{{ inactive_count.value }}</td>
-                                            <td>
-                                                {% if count > 0 %}
-                                                    {% set activity_rate = (active_count.value / count * 100) | round %}
-                                                    <div class="progress" style="height: 10px;">
-                                                        <div class="progress-bar 
-                                                            {% if activity_rate > 70 %}bg-success
-                                                            {% elif activity_rate > 30 %}bg-warning
-                                                            {% else %}bg-danger{% endif %}" 
-                                                            role="progressbar" 
-                                                            style="width: {{ activity_rate }}%;" 
-                                                            aria-valuenow="{{ activity_rate }}" 
-                                                            aria-valuemin="0" 
-                                                            aria-valuemax="100">
-                                                        </div>
-                                                    </div>
-                                                    <small>{{ activity_rate }}%</small>
-                                                {% else %}
-                                                    <small>N/A</small>
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Activity Summary Table -->
+    <div class="container mt-4">
         <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">Activity Summary by Category</h5>
-                        <div class="input-group input-group-sm" style="width: 250px;">
-                            <input type="text" id="table-search" class="form-control" placeholder="Search categories...">
-                            <button class="btn btn-outline-secondary" type="button">
-                                <i class="fas fa-search"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover" id="activity-table">
-                                <thead>
-                                    <tr>
-                                        <th>Category</th>
-                                        <th>Total Assets</th>
-                                        <th>Active</th>
-                                        <th>Inactive</th>
-                                        <th>Activity Rate</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for category, count in category_counts.items() %}
-                                        {% set active_count = namespace(value=0) %}
-                                        {% set inactive_count = namespace(value=0) %}
-                                        
-                                        <!-- Calculate active and inactive counts for this category -->
-                                        {% for asset in assets if asset.AssetCategory == category %}
-                                            {% if asset.Active %}
-                                                {% set active_count.value = active_count.value + 1 %}
-                                            {% else %}
-                                                {% set inactive_count.value = inactive_count.value + 1 %}
-                                            {% endif %}
-                                        {% endfor %}
-                                        
-                                        <tr>
-                                            <td>{{ category }}</td>
-                                            <td>{{ count }}</td>
-                                            <td class="text-success">{{ active_count.value }}</td>
-                                            <td class="text-danger">{{ inactive_count.value }}</td>
-                                            <td>
-                                                {% if count > 0 %}
-                                                    {% set activity_rate = (active_count.value / count * 100) | round %}
-                                                    <div class="progress" style="height: 10px;">
-                                                        <div class="progress-bar 
-                                                            {% if activity_rate > 70 %}bg-success
-                                                            {% elif activity_rate > 30 %}bg-warning
-                                                            {% else %}bg-danger{% endif %}" 
-                                                            role="progressbar" 
-                                                            style="width: {{ activity_rate }}%;" 
-                                                            aria-valuenow="{{ activity_rate }}" 
-                                                            aria-valuemin="0" 
-                                                            aria-valuemax="100">
-                                                        </div>
-                                                    </div>
-                                                    <small>{{ activity_rate }}%</small>
-                                                {% else %}
-                                                    <small>N/A</small>
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MAINTENANCE TAB -->
-    <div class="tab-pane fade" id="maintenance" role="tabpanel" aria-labelledby="maintenance-tab">
-        <!-- Maintenance Summary Cards -->
-        <div class="row mb-4">
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Upcoming Maintenance</h5>
-                        <div class="display-1 text-warning mb-3">
-                            <i class="fas fa-tools"></i>
-                        </div>
-                        <h2 class="mb-0">{{ maintenance_due_count }}</h2>
-                        <p class="text-muted">Assets requiring attention</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">High Priority</h5>
-                        <div class="display-1 text-danger mb-3">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
-                        <h2 class="mb-0">{{ high_priority_maintenance }}</h2>
-                        <p class="text-muted">Assets needing immediate service</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Average Engine Hours</h5>
-                        <div class="display-1 text-info mb-3">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                        <h2 class="mb-0">{{ avg_engine_hours | round }}</h2>
-                        <p class="text-muted">Hours per active asset</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Maintenance Due List -->
-        <div class="row">
-            <div class="col-md-12">
+            <!-- Report Selection Sidebar -->
+            <div class="col-md-3">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title mb-0">Maintenance Schedule</h5>
+                        <h5 class="mb-0">Report Types</h5>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <a href="#driver-reports" class="list-group-item list-group-item-action active" data-bs-toggle="list">Driver Attendance</a>
+                        <a href="#billing-reports" class="list-group-item list-group-item-action" data-bs-toggle="list">PM Billing Allocation</a>
+                        <a href="#gps-reports" class="list-group-item list-group-item-action" data-bs-toggle="list">Work Zone GPS</a>
+                        <a href="#maintenance-reports" class="list-group-item list-group-item-action" data-bs-toggle="list">Maintenance ROI</a>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">Upload Data</h5>
                     </div>
                     <div class="card-body">
-                        {% if maintenance_items %}
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Asset ID</th>
-                                            <th>Description</th>
-                                            <th>Engine Hours</th>
-                                            <th>Service Type</th>
-                                            <th>Hours Remaining</th>
-                                            <th>Priority</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for item in maintenance_items %}
-                                            <tr class="maintenance-card priority-{{ item.priority|lower }}">
-                                                <td><strong>{{ item.asset_id }}</strong></td>
-                                                <td>{{ item.asset_label }}</td>
-                                                <td>{{ item.engine_hours }}</td>
-                                                <td>{{ item.service_type }}</td>
-                                                <td>{{ item.hours_remaining }}</td>
-                                                <td>
-                                                    <span class="badge bg-{{ 'danger' if item.priority == 'High' else 'warning' if item.priority == 'Medium' else 'info' }}">
-                                                        {{ item.priority }}
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <a href="/asset/{{ item.asset_id }}" class="btn btn-sm btn-outline-primary">
-                                                        Details
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
+                        <form action="{{ url_for('upload_timecard') }}" method="post" enctype="multipart/form-data">
+                            <div class="mb-3">
+                                <label for="timecard_file" class="form-label">Timecard File</label>
+                                <input class="form-control" type="file" id="timecard_file" name="timecard_file" accept=".xlsx,.xls">
                             </div>
-                        {% else %}
-                            <div class="alert alert-info">
-                                <i class="fas fa-info-circle me-2"></i> No maintenance items currently due.
+                            <div class="mb-3">
+                                <label for="file_type" class="form-label">File Type</label>
+                                <select class="form-select" id="file_type" name="file_type">
+                                    <option value="groundworks">Ground Works</option>
+                                    <option value="accounting">Accounting System</option>
+                                </select>
                             </div>
-                        {% endif %}
+                            <button type="submit" class="btn btn-primary">Upload</button>
+                        </form>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- ACTIVITY TRACKING TAB -->
-    <div class="tab-pane fade" id="activity" role="tabpanel" aria-labelledby="activity-tab">
-        <!-- Activity Timeline -->
-        <div class="row mb-4">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Recent Activity Timeline</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="activity-timeline">
-                            {% for event in recent_activities %}
-                                <div class="timeline-item">
-                                    <div class="timeline-dot">
-                                        <i class="fas fa-{{ event.icon }} fa-xs text-white"></i>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <h6>{{ event.title }}</h6>
-                                        <small class="text-muted">{{ event.time }}</small>
-                                    </div>
-                                    <p>{{ event.description }}</p>
-                                    {% if event.location %}
-                                        <small class="text-muted">
-                                            <i class="fas fa-map-marker-alt me-1"></i> {{ event.location }}
-                                        </small>
-                                    {% endif %}
+            <!-- Main Content Area -->
+            <div class="col-md-9">
+                <div class="tab-content">
+                    <!-- Driver Attendance Reports -->
+                    <div class="tab-pane fade show active" id="driver-reports">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h4 class="mb-0">Driver Attendance Reports</h4>
+                                <div>
+                                    <button class="btn btn-sm btn-primary" id="generate-prior-day">Prior Day Report</button>
+                                    <button class="btn btn-sm btn-outline-primary" id="generate-current-day">Current Day Report</button>
                                 </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Activity Trends Chart -->
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Activity Trends (Last 7 Days)</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-container">
-                            <canvas id="activity-trend-chart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-info">
+                                    <strong>Driver Attendance Module</strong>
+                                    <p>Generate and view daily driver attendance reports including late starts, early ends, and not-on-job status.</p>
+                                </div>
 
-    <!-- UTILIZATION TAB -->
-    <div class="tab-pane fade" id="utilization" role="tabpanel" aria-labelledby="utilization-tab">
-        <!-- Utilization Metrics -->
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Utilization by Category</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-container">
-                            <canvas id="utilization-chart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Engine Hours Distribution</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-container">
-                            <canvas id="engine-hours-chart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Top Utilized Assets -->
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Top Utilized Assets</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Asset ID</th>
-                                        <th>Description</th>
-                                        <th>Category</th>
-                                        <th>Engine Hours</th>
-                                        <th>Utilization Score</th>
-                                        <th>Details</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for asset in top_utilized_assets %}
-                                        <tr>
-                                            <td><strong>{{ asset.AssetIdentifier }}</strong></td>
-                                            <td>{{ asset.Label }}</td>
-                                            <td>{{ asset.AssetCategory }}</td>
-                                            <td>{{ asset.Engine1Hours }}</td>
-                                            <td>
-                                                <div class="progress" style="height: 10px;">
-                                                    <div class="progress-bar bg-success" 
-                                                         role="progressbar" 
-                                                         style="width: {{ asset.utilization_score }}%;" 
-                                                         aria-valuenow="{{ asset.utilization_score }}" 
-                                                         aria-valuemin="0" 
-                                                         aria-valuemax="100">
-                                                    </div>
+                                {% if timecard_data %}
+                                <div class="mt-4">
+                                    <h5>Recent Timecard Data</h5>
+                                    <div class="card bg-dark text-white">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <h6>Date Range</h6>
+                                                    <p>{{ timecard_data.date_range.start }} to {{ timecard_data.date_range.end }}</p>
                                                 </div>
-                                                <small>{{ asset.utilization_score }}%</small>
-                                            </td>
-                                            <td>
-                                                <a href="/asset/{{ asset.AssetIdentifier }}" class="btn btn-sm btn-outline-primary">
-                                                    View
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- DRIVER REPORTS TAB -->
-    <div class="tab-pane fade" id="driver-reports" role="tabpanel" aria-labelledby="driver-reports-tab">
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Prior Day Reports</h5>
-                    </div>
-                    <div class="card-body">
-                        <p>Generate late start, early end, and not on job reports for the previous day.</p>
-                        <form action="{{ url_for('generate_prior_day_report') }}" method="post">
-                            <div class="mb-3">
-                                <label for="prior-date" class="form-label">Select Date</label>
-                                <input type="date" class="form-control" id="prior-date" name="date" value="{{ yesterday }}">
-                            </div>
-                            <button type="submit" class="btn btn-primary">Generate Report</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Current Day Reports</h5>
-                    </div>
-                    <div class="card-body">
-                        <p>Generate late start and not on job reports for the current day.</p>
-                        <form action="{{ url_for('generate_current_day_report') }}" method="post">
-                            <div class="mb-3">
-                                <label for="current-date" class="form-label">Select Date</label>
-                                <input type="date" class="form-control" id="current-date" name="date" value="{{ today }}">
-                            </div>
-                            <button type="submit" class="btn btn-primary">Generate Report</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="row mb-4">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Recent Driver Reports</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Type</th>
-                                        <th>Total Drivers</th>
-                                        <th>Late Start</th>
-                                        <th>Early End</th>
-                                        <th>Not on Job</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>2025-05-15</td>
-                                        <td>Prior Day</td>
-                                        <td>86</td>
-                                        <td>8</td>
-                                        <td>4</td>
-                                        <td>2</td>
-                                        <td>
-                                            <button type="button" class="btn btn-sm btn-primary">View</button>
-                                            <button type="button" class="btn btn-sm btn-outline-secondary">Download</button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>2025-05-15</td>
-                                        <td>Current Day</td>
-                                        <td>86</td>
-                                        <td>6</td>
-                                        <td>-</td>
-                                        <td>3</td>
-                                        <td>
-                                            <button type="button" class="btn btn-sm btn-primary">View</button>
-                                            <button type="button" class="btn btn-sm btn-outline-secondary">Download</button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>2025-05-14</td>
-                                        <td>Prior Day</td>
-                                        <td>82</td>
-                                        <td>5</td>
-                                        <td>2</td>
-                                        <td>1</td>
-                                        <td>
-                                            <button type="button" class="btn btn-sm btn-primary">View</button>
-                                            <button type="button" class="btn btn-sm btn-outline-secondary">Download</button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- BILLING TAB -->
-    <div class="tab-pane fade" id="billing" role="tabpanel" aria-labelledby="billing-tab">
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Regional Billing Exports</h5>
-                    </div>
-                    <div class="card-body">
-                        <p>Generate billing export files for each region (DFW, WTX, HOU).</p>
-                        <form action="{{ url_for('generate_regional_billing') }}" method="post">
-                            <div class="mb-3">
-                                <label for="billing-month" class="form-label">Select Month</label>
-                                <input type="month" class="form-control" id="billing-month" name="month" value="{{ current_month }}">
-                            </div>
-                            <button type="submit" class="btn btn-primary">Generate Exports</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">PM Allocation Review</h5>
-                    </div>
-                    <div class="card-body">
-                        <p>Review PM allocation changes and approve for master billing update.</p>
-                        <form action="{{ url_for('review_pm_allocations') }}" method="post">
-                            <div class="mb-3">
-                                <label for="pm-month" class="form-label">Select Month</label>
-                                <input type="month" class="form-control" id="pm-month" name="month" value="{{ current_month }}">
-                            </div>
-                            <button type="submit" class="btn btn-primary">Review Allocations</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="row mb-4">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Recent Billing Exports</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Month</th>
-                                        <th>Region</th>
-                                        <th>Asset Count</th>
-                                        <th>Total Hours</th>
-                                        <th>Total Amount</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>April 2025</td>
-                                        <td>DFW</td>
-                                        <td>278</td>
-                                        <td>5,842</td>
-                                        <td>$345,876</td>
-                                        <td><span class="badge bg-success">Finalized</span></td>
-                                        <td>
-                                            <button type="button" class="btn btn-sm btn-primary">View</button>
-                                            <button type="button" class="btn btn-sm btn-outline-secondary">Download</button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>April 2025</td>
-                                        <td>WTX</td>
-                                        <td>156</td>
-                                        <td>3,271</td>
-                                        <td>$187,254</td>
-                                        <td><span class="badge bg-success">Finalized</span></td>
-                                        <td>
-                                            <button type="button" class="btn btn-sm btn-primary">View</button>
-                                            <button type="button" class="btn btn-sm btn-outline-secondary">Download</button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>April 2025</td>
-                                        <td>HOU</td>
-                                        <td>184</td>
-                                        <td>4,127</td>
-                                        <td>$229,467</td>
-                                        <td><span class="badge bg-success">Finalized</span></td>
-                                        <td>
-                                            <button type="button" class="btn btn-sm btn-primary">View</button>
-                                            <button type="button" class="btn btn-sm btn-outline-secondary">Download</button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">PM Allocation Changes</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i> No pending PM allocation changes to review at this time.
-                        </div>
-                        
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Month</th>
-                                        <th>PM</th>
-                                        <th>Asset Changes</th>
-                                        <th>Added Hours</th>
-                                        <th>Removed Hours</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>March 2025</td>
-                                        <td>John Smith</td>
-                                        <td>12</td>
-                                        <td>86</td>
-                                        <td>24</td>
-                                        <td><span class="badge bg-success">Approved</span></td>
-                                        <td>
-                                            <button type="button" class="btn btn-sm btn-primary">View Changes</button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>March 2025</td>
-                                        <td>Sarah Jones</td>
-                                        <td>8</td>
-                                        <td>42</td>
-                                        <td>16</td>
-                                        <td><span class="badge bg-success">Approved</span></td>
-                                        <td>
-                                            <button type="button" class="btn btn-sm btn-primary">View Changes</button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
+                                                <div class="col-md-4">
+                                                    <h6>Drivers</h6>
+                                                    <p>{{ timecard_data.drivers|length }}</p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <h6>Total Hours</h6>
+                                                    <p>{{ timecard_data.summary.total_hours }}</p>
+                                                </div>
+                                            </div>
+                                            <div class="row mt-3">
+                                                <div class="col-md-4">
+                                                    <h6>Late Starts</h6>
+                                                    <p>{{ timecard_data.summary.late_starts }}</p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <h6>PTO Entries</h6>
+                                                    <p>{{ timecard_data.summary.pto_entries }}</p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <h6>Total Entries</h6>
+                                                    <p>{{ timecard_data.summary.total_entries }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
-{% block extra_js %}
-<script>
-    // Initialize charts with data when the page loads
-    document.addEventListener('DOMContentLoaded', function() {
-        // Prepare data for charts
-        const statusCounts = {
-            active: {{ status_counts.active }},
-            inactive: {{ status_counts.inactive }}
-        };
-        
-        const categoryCounts = {
-            {% for category, count in category_counts.items() %}
-                "{{ category }}": {{ count }}{% if not loop.last %},{% endif %}
-            {% endfor %}
-        };
-        
-        const locationCounts = {
-            {% for location, count in location_counts.items() %}
-                "{{ location }}": {{ count }}{% if not loop.last %},{% endif %}
-            {% endfor %}
-        };
-        
-        // Toggle between chart and table view for locations
-        const showChartBtn = document.getElementById('show-chart');
-        const showTableBtn = document.getElementById('show-table');
-        const chartContainer = document.getElementById('location-chart-container');
-        const tableContainer = document.getElementById('location-table-container');
-        
-        if (showChartBtn && showTableBtn) {
-            showChartBtn.addEventListener('click', function() {
-                chartContainer.style.display = 'block';
-                tableContainer.style.display = 'none';
-                showChartBtn.classList.add('active');
-                showTableBtn.classList.remove('active');
-            });
-            
-            showTableBtn.addEventListener('click', function() {
-                chartContainer.style.display = 'none';
-                tableContainer.style.display = 'block';
-                showTableBtn.classList.add('active');
-                showChartBtn.classList.remove('active');
-            });
-        }
-        
-        // Table search functionality
-        const tableSearch = document.getElementById('table-search');
-        if (tableSearch) {
-            tableSearch.addEventListener('keyup', function() {
-                const searchValue = this.value.toLowerCase();
-                const tableRows = document.querySelectorAll('#activity-table tbody tr');
-                
-                tableRows.forEach(row => {
-                    const text = row.textContent.toLowerCase();
-                    if (text.includes(searchValue)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            });
-        }
-        
-        // Initialize overview charts
-        initializeCharts(statusCounts, categoryCounts, locationCounts);
-        
-        // Initialize activity trend chart (if on that tab)
-        const activityTrendChart = document.getElementById('activity-trend-chart');
-        if (activityTrendChart) {
-            // Last 7 days data
-            const activityDays = {{ activity_trend_days|tojson }};
-            const activityActive = {{ activity_trend_active|tojson }};
-            const activityInactive = {{ activity_trend_inactive|tojson }};
-            
-            new Chart(activityTrendChart, {
-                type: 'line',
-                data: {
-                    labels: activityDays,
-                    datasets: [
-                        {
-                            label: 'Active Assets',
-                            data: activityActive,
-                            borderColor: 'rgba(40, 167, 69, 1)',
-                            backgroundColor: 'rgba(40, 167, 69, 0.1)',
-                            borderWidth: 2,
-                            fill: true,
-                            tension: 0.4
-                        },
-                        {
-                            label: 'Inactive Assets',
-                            data: activityInactive,
-                            borderColor: 'rgba(220, 53, 69, 1)',
-                            backgroundColor: 'rgba(220, 53, 69, 0.1)',
-                            borderWidth: 2,
-                            fill: true,
-                            tension: 0.4
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: { color: 'white' },
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                        },
-                        x: {
-                            ticks: { color: 'white' },
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                            labels: { color: 'white' }
-                        }
-                    }
-                }
-            });
-        }
-        
-        // Initialize utilization charts (if on that tab)
-        const utilizationChart = document.getElementById('utilization-chart');
-        if (utilizationChart) {
-            const categories = Object.keys(categoryCounts);
-            const utilizationRates = [75, 62, 88, 45, 70, 80, 30, 55, 65, 40]; // Example data
-            
-            new Chart(utilizationChart, {
-                type: 'bar',
-                data: {
-                    labels: categories,
-                    datasets: [{
-                        label: 'Utilization Rate (%)',
-                        data: utilizationRates,
-                        backgroundColor: 'rgba(54, 162, 235, 0.8)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            max: 100,
-                            ticks: { color: 'white' },
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                        },
-                        y: {
-                            ticks: { color: 'white' },
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    }
-                }
-            });
-        }
-        
-        const engineHoursChart = document.getElementById('engine-hours-chart');
-        if (engineHoursChart) {
-            // Example distribution data
-            const hoursBuckets = ['0-500', '501-1000', '1001-2000', '2001-5000', '5000+'];
-            const hoursDistribution = [15, 22, 30, 18, 10];
-            
-            new Chart(engineHoursChart, {
-                type: 'pie',
-                data: {
-                    labels: hoursBuckets,
-                    datasets: [{
-                        data: hoursDistribution,
-                        backgroundColor: [
-                            'rgba(54, 162, 235, 0.8)',
-                            'rgba(75, 192, 192, 0.8)',
-                            'rgba(255, 206, 86, 0.8)',
-                            'rgba(153, 102, 255, 0.8)',
-                            'rgba(255, 99, 132, 0.8)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                            labels: { color: 'white' }
-                        }
-                    }
-                }
-            });
-        }
-    });
-</script>
-{% endblock %}
+                                <div class="mt-4">
+                                    <h5>Driver Summary</h5>
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Driver</th>
+                                                    <th>Days Worked</th>
+                                                    <th>Total Hours</th>
+                                                    <th>Late Starts</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for driver, data in timecard_data.drivers.items() %}
+                                                <tr>
+                                                    <td>{{ driver }}</td>
+                                                    <td>{{ data.days_worked|length }}</td>
+                                                    <td>{{ data.total_hours }}</td>
+                                                    <td>
+                                                        {% if data.late_starts > 0 %}
+                                                        <span class="badge bg-warning">{{ data.late_starts }}</span>
+                                                        {% else %}
+                                                        <span class="badge bg-success">0</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        <a href="#" class="btn btn-sm btn-info">View Details</a>
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <div class="alert alert-warning">
+                                    No timecard data has been uploaded yet. Please upload a timecard file to view attendance reports.
+                                </div>
+                                {% endif %}
+
+                                <div class="mt-4">
+                                    <h5>Recent Reports</h5>
+                                    <div class="list-group">
+                                        {% if reports %}
+                                            {% for report in reports %}
+                                            <a href="{{ url_for('download_report', report_path=report.path) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                                {{ report.name }}
+                                                <span class="badge bg-primary rounded-pill">{{ report.date }}</span>
+                                            </a>
+                                            {% endfor %}
+                                        {% else %}
+                                            <div class="list-group-item">No reports generated yet.</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PM Billing Allocation Reports -->
+                    <div class="tab-pane fade" id="billing-reports">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h4 class="mb-0">PM Billing Allocation</h4>
+                                <button class="btn btn-sm btn-primary" id="generate-billing">Generate Reports</button>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-info">
+                                    <strong>PM Billing Module</strong>
+                                    <p>Compare PM edits against original data, identify deltas in job code, asset, day counts, and notes.</p>
+                                </div>
+                                
+                                <div class="mt-4">
+                                    <h5>Upload PM Allocation File</h5>
+                                    <form action="{{ url_for('upload_pm_allocation') }}" method="post" enctype="multipart/form-data">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label for="original_file" class="form-label">Original Allocation</label>
+                                                    <input class="form-control" type="file" id="original_file" name="original_file" accept=".xlsx,.xls">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label for="edited_file" class="form-label">PM Edited Allocation</label>
+                                                    <input class="form-control" type="file" id="edited_file" name="edited_file" accept=".xlsx,.xls">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Upload and Compare</button>
+                                    </form>
+                                </div>
+
+                                <div class="mt-4">
+                                    <h5>Regional Exports</h5>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="card">
+                                                <div class="card-body text-center">
+                                                    <h5 class="card-title">DFW Region</h5>
+                                                    <p class="card-text">Generate DFW region export file for accounting import.</p>
+                                                    <a href="{{ url_for('generate_regional_billing', region='dfw') }}" class="btn btn-primary">Generate</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="card">
+                                                <div class="card-body text-center">
+                                                    <h5 class="card-title">WTX Region</h5>
+                                                    <p class="card-text">Generate WTX region export file for accounting import.</p>
+                                                    <a href="{{ url_for('generate_regional_billing', region='wtx') }}" class="btn btn-primary">Generate</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="card">
+                                                <div class="card-body text-center">
+                                                    <h5 class="card-title">HOU Region</h5>
+                                                    <p class="card-text">Generate HOU region export file for accounting import.</p>
+                                                    <a href="{{ url_for('generate_regional_billing', region='hou') }}" class="btn btn-primary">Generate</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Work Zone GPS Reports -->
+                    <div class="tab-pane fade" id="gps-reports">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="mb-0">Work Zone GPS Efficiency</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-info">
+                                    <strong>Work Zone GPS Module</strong>
+                                    <p>Analyze GPS data to ensure drivers are within expected work zones during reported hours.</p>
+                                </div>
+                                
+                                <div class="mt-4">
+                                    <h5>GPS Data Import</h5>
+                                    <form action="{{ url_for('upload_gps_data') }}" method="post" enctype="multipart/form-data">
+                                        <div class="mb-3">
+                                            <label for="gps_file" class="form-label">GPS Data File</label>
+                                            <input class="form-control" type="file" id="gps_file" name="gps_file" accept=".xlsx,.xls,.csv,.json">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Upload GPS Data</button>
+                                    </form>
+                                </div>
+
+                                <div class="mt-4">
+                                    <h5>Cross-Reference Analysis</h5>
+                                    <button class="btn btn-primary" id="analyze-gps">Analyze GPS vs. Timecards</button>
+                                    
+                                    <div class="card mt-3 bg-dark text-white">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <h6>Entries Analyzed</h6>
+                                                    <p id="entries-analyzed">-</p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <h6>Location Matches</h6>
+                                                    <p id="location-matches">-</p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <h6>Discrepancies</h6>
+                                                    <p id="location-discrepancies">-</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Maintenance ROI Reports -->
+                    <div class="tab-pane fade" id="maintenance-reports">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="mb-0">Maintenance ROI Analysis</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-info">
+                                    <strong>Maintenance ROI Module</strong>
+                                    <p>Analyze maintenance costs versus operational performance to optimize asset lifecycle management.</p>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h5 class="card-title">Maintenance Cost Analysis</h5>
+                                                <p class="card-text">Compare maintenance expenses against asset performance and uptime.</p>
+                                                <a href="#" class="btn btn-primary">Generate Report</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h5 class="card-title">Asset Lifecycle Projection</h5>
+                                                <p class="card-text">Project optimal replacement timing based on cost and performance data.</p>
+                                                <a href="#" class="btn btn-primary">Generate Report</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

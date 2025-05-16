@@ -14,7 +14,9 @@ import pytz
 
 from app import db
 from models import Asset
+from models.attendance import Driver, JobSite, AttendanceRecord
 from utils.geofence_processor import is_point_in_geofence
+from utils.attendance_analytics import get_or_create_driver, get_or_create_job_site, save_attendance_record
 
 # Initialize logger
 logger = logging.getLogger(__name__)
@@ -138,6 +140,50 @@ def process_prior_day_attendance(date=None):
                     driver_record['status'].append('Late Start')
                     report_data['late_starts'].append(driver_record.copy())
                     report_data['summary']['late_start_count'] += 1
+                    
+                    # Store this in the historical database for trend analysis
+                    try:
+                        # Get or create driver record
+                        driver_name = row.get('Driver', '')
+                        employee_id = f"EMP-{driver_name.replace(' ', '')}"  # Generate ID if none exists
+                        
+                        # Get asset ID
+                        asset_identifier = row.get('Vehicle ID', '')
+                        asset = Asset.query.filter_by(asset_identifier=asset_identifier).first()
+                        asset_id = asset.id if asset else None
+                        
+                        # Get or create driver
+                        driver = get_or_create_driver(
+                            name=driver_name,
+                            employee_id=employee_id,
+                            asset_id=asset_id,
+                            department=row.get('Region', '')
+                        )
+                        
+                        # Get or create job site
+                        job_site_name = row.get('Assigned Job', 'Unknown')
+                        job_site = get_or_create_job_site(
+                            name=job_site_name,
+                            job_number=f"JOB-{job_site_name.replace(' ', '')}"
+                        )
+                        
+                        # Save attendance record
+                        if driver and job_site:
+                            expected_start_dt = datetime.combine(process_date, EXPECTED_START_TIME)
+                            actual_start_dt = datetime.combine(process_date, actual_start)
+                            
+                            save_attendance_record(
+                                report_date=process_date,
+                                driver_id=driver.id,
+                                asset_id=asset_id,
+                                job_site_id=job_site.id,
+                                status_type='LATE_START',
+                                expected_start=expected_start_dt,
+                                actual_start=actual_start_dt,
+                                minutes_late=late_minutes
+                            )
+                    except Exception as e:
+                        logger.error(f"Error saving historical late start record: {e}")
             else:
                 driver_record['actual_start'] = 'No data'
                 driver_record['late_by'] = 'N/A'
@@ -159,6 +205,50 @@ def process_prior_day_attendance(date=None):
                     driver_record['status'].append('Early End')
                     report_data['early_ends'].append(driver_record.copy())
                     report_data['summary']['early_end_count'] += 1
+                    
+                    # Store this in the historical database for trend analysis
+                    try:
+                        # Get or create driver record
+                        driver_name = row.get('Driver', '')
+                        employee_id = f"EMP-{driver_name.replace(' ', '')}"  # Generate ID if none exists
+                        
+                        # Get asset ID
+                        asset_identifier = row.get('Vehicle ID', '')
+                        asset = Asset.query.filter_by(asset_identifier=asset_identifier).first()
+                        asset_id = asset.id if asset else None
+                        
+                        # Get or create driver
+                        driver = get_or_create_driver(
+                            name=driver_name,
+                            employee_id=employee_id,
+                            asset_id=asset_id,
+                            department=row.get('Region', '')
+                        )
+                        
+                        # Get or create job site
+                        job_site_name = row.get('Assigned Job', 'Unknown')
+                        job_site = get_or_create_job_site(
+                            name=job_site_name,
+                            job_number=f"JOB-{job_site_name.replace(' ', '')}"
+                        )
+                        
+                        # Save attendance record
+                        if driver and job_site:
+                            expected_end_dt = datetime.combine(process_date, EXPECTED_END_TIME)
+                            actual_end_dt = datetime.combine(process_date, actual_end)
+                            
+                            save_attendance_record(
+                                report_date=process_date,
+                                driver_id=driver.id,
+                                asset_id=asset_id,
+                                job_site_id=job_site.id,
+                                status_type='EARLY_END',
+                                expected_end=expected_end_dt,
+                                actual_end=actual_end_dt,
+                                minutes_early=early_minutes
+                            )
+                    except Exception as e:
+                        logger.error(f"Error saving historical early end record: {e}")
             else:
                 driver_record['actual_end'] = 'No data'
                 driver_record['early_by'] = 'N/A'
@@ -186,6 +276,53 @@ def process_prior_day_attendance(date=None):
                 driver_record['status'].append('Not On Job')
                 report_data['not_on_job'].append(driver_record.copy())
                 report_data['summary']['not_on_job_count'] += 1
+                
+                # Store this in the historical database for trend analysis
+                try:
+                    # Get or create driver record
+                    driver_name = row.get('Driver', '')
+                    employee_id = f"EMP-{driver_name.replace(' ', '')}"  # Generate ID if none exists
+                    
+                    # Get asset ID
+                    asset_identifier = row.get('Vehicle ID', '')
+                    asset = Asset.query.filter_by(asset_identifier=asset_identifier).first()
+                    asset_id = asset.id if asset else None
+                    
+                    # Get or create driver
+                    driver = get_or_create_driver(
+                        name=driver_name,
+                        employee_id=employee_id,
+                        asset_id=asset_id,
+                        department=row.get('Region', '')
+                    )
+                    
+                    # Get or create job site (assigned)
+                    expected_job_name = row.get('Assigned Job', 'Unknown')
+                    expected_job = get_or_create_job_site(
+                        name=expected_job_name,
+                        job_number=f"JOB-{expected_job_name.replace(' ', '')}"
+                    )
+                    
+                    # Get or create job site (actual)
+                    actual_job_name = row.get('Last Location', 'Unknown Location')
+                    actual_job = get_or_create_job_site(
+                        name=actual_job_name,
+                        job_number=f"JOB-{actual_job_name.replace(' ', '')}"
+                    )
+                    
+                    # Save attendance record
+                    if driver and expected_job:
+                        save_attendance_record(
+                            report_date=process_date,
+                            driver_id=driver.id,
+                            asset_id=asset_id,
+                            job_site_id=expected_job.id,  # Use assigned job site as primary
+                            status_type='NOT_ON_JOB',
+                            expected_job_id=expected_job.id,
+                            actual_job_id=actual_job.id if actual_job else None
+                        )
+                except Exception as e:
+                    logger.error(f"Error saving historical not on job record: {e}")
         
         # Convert status lists to strings
         for category in ['late_starts', 'early_ends', 'not_on_job']:

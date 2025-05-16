@@ -329,6 +329,9 @@ def generate_prior_day_report():
         
         # Create report path
         report_date = yesterday.strftime('%Y-%m-%d')
+        yesterday_day_name = yesterday.strftime('%A').upper()
+        yesterday_month = yesterday.strftime('%B').upper()
+        yesterday_day = yesterday.strftime('%d')
         reports_dir = os.path.join('reports', datetime.now().strftime('%Y-%m-%d'))
         os.makedirs(reports_dir, exist_ok=True)
         
@@ -337,83 +340,170 @@ def generate_prior_day_report():
         
         # Import openpyxl for Excel file generation
         import openpyxl
-        from openpyxl.styles import Font
+        from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
         
         # Create a new workbook
         workbook = openpyxl.Workbook()
         
-        # Create Late Starts sheet
-        late_starts = workbook.active
-        late_starts.title = "Late Starts"
+        # Create Summary Sheet
+        summary = workbook.active
+        summary.title = "Summary"
         
-        # Add headers
-        headers = ['Driver', 'Asset', 'Job Site', 'Expected Start', 'Actual Start', 'Minutes Late']
+        # Add report header
+        summary.merge_cells('A1:H1')
+        header_cell = summary['A1']
+        header_cell.value = f"Daily Driver Late Start, Early End, and Not on Job Reports"
+        header_cell.font = Font(size=16, bold=True)
+        header_cell.alignment = Alignment(horizontal="center")
+        
+        # Add date information
+        summary.merge_cells('A3:H3')
+        date_cell = summary['A3']
+        date_cell.value = f"Date: {yesterday.strftime('%m/%d/%Y')} | Month: {yesterday_month} | Day: {yesterday_day_name}"
+        date_cell.font = Font(size=12, bold=True)
+        
+        # Add report description 
+        summary.merge_cells('A5:H5')
+        desc_cell = summary['A5']
+        desc_cell.value = f"{yesterday_day_name} – {yesterday_month} {yesterday_day}, {yesterday.strftime('%Y')} – LATE START-EARLY END & NOT ON JOB REPORTS:"
+        desc_cell.font = Font(size=12, bold=True)
+        
+        # Create Late Start-Early End sheet, following your report format
+        ls_ee = workbook.create_sheet(title="LS-EE REPORT")
+        
+        # Format title
+        ls_ee.merge_cells('A1:P1')
+        ls_ee_title = ls_ee['A1']
+        ls_ee_title.value = f"LS-EE – REPORT"
+        ls_ee_title.font = Font(size=14, bold=True)
+        
+        # Add day and date
+        ls_ee.merge_cells('A2:P2')
+        ls_ee_day = ls_ee['A2']
+        ls_ee_day.value = f"{yesterday_day_name}"
+        ls_ee_day.font = Font(size=12, bold=True)
+        
+        ls_ee.merge_cells('A3:P3')
+        ls_ee_date = ls_ee['A3']
+        ls_ee_date.value = f"{report_date}"
+        ls_ee_date.font = Font(size=12, bold=True)
+        
+        # Add headers exactly as in your report
+        headers = ['SR. PM', 'First Job', 'Job Desc', 'Asset ID', 'EMP ID', 'Driver', 'Valid Work Type', 
+                 'First Message', 'Last Message', 'Latest Job', 'Job Start', 'Job End', 'Late Start Status', 
+                 'Leave Early Status', 'First Entry', 'Last Entry', 'Total Time On Sites', 'GPS Days']
+        
+        # Format header row with a blue background
+        header_fill = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
+        header_font = Font(bold=True, color="FFFFFF")
+        
         for col, header in enumerate(headers, 1):
-            late_starts.cell(row=1, column=col).value = header
-            late_starts.cell(row=1, column=col).font = Font(bold=True)
+            cell = ls_ee.cell(row=5, column=col)
+            cell.value = header
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = Alignment(horizontal="center", vertical="center")
         
         # Add sample data for demonstration
         sample_data = [
-            ['John Smith', 'PT-167', '2023-032 SH 345 BRIDGE REHABILITATION', '07:00 AM', '07:25 AM', 25],
-            ['Mike Johnson', 'DT-08', '2023-034 DALLAS IH 45 BRIDGE MAINTENANCE', '06:30 AM', '07:15 AM', 45],
-            ['Roberto Lumbreras', 'PT-187', '2024-027 NTTA FRACTURE CRITICAL BRIDGE REPAIRS', '07:00 AM', '07:18 AM', 18]
+            ['JARED RUHRUP', '2024-019', 'Tarrant VA Bridge Rehab', 'PT-237', '240441', 'Miramontes Jr, Juan C', '', 'Arrived', 'Departed', '2024-023', '7:00 AM', '5:30 PM', 'Late', 'Left Early', '7:11 AM', '4:55 PM', '7:54:00', '0'],
+            ['LUIS A. MORALES', '2023-035', 'Harris VA Bridge Rehabs', 'PT-160', '440455', 'Saldierna Jr, Armando', '', 'Arrived', 'Departed', '2023-035', '7:00 AM', '5:30 PM', 'Late', 'Left Early', '8:32 AM', '4:44 PM', '2:48:00', '0'],
+            ['VARIOUS', 'TEXDIST', 'Texas District Office', 'PT-241', '210050', 'Garcia, Mark E XL', '', 'Arrived', 'Departed', '2025-004', '8:00 AM', '5:00 PM', 'Late', 'Left Early', '8:50 AM', '4:33 PM', '7:09:00', '0'],
+            ['VARIOUS', 'TRAFFIC WALNUT HILL YARD', 'TRAFFIC WALNUT HILL YARD', 'PT-173', '240494', 'Hernandez, Juan B', '', 'Arrived', 'Departed', '2024-004', '7:00 AM', '5:30 PM', 'Late', 'Left Early', '7:04 AM', '5:12 PM', '1:58:00', '0'],
+            ['VICK ADHIKARI', '2023-006', 'Tarrant SH 183 Bridge Replacem', 'ET-01', '210074', 'Martinez Alvarez, Saul', '', 'Arrived', 'Departed', '2023-006', '7:00 AM', '5:30 PM', 'Late', 'Left Early', '7:05 AM', '5:18 PM', '6:50:00', '0'],
+            ['VICK ADHIKARI', '2024-004', 'City of Dallas Sidewalk 2024', 'PT-09S', 'ESPJOV', 'Espinoza-Casillas, Jovan', '', 'Arrived', 'Departed', '24-04', '7:00 AM', '5:30 PM', 'Late', 'Left Early', '7:26 AM', '12:52 PM', '4:23:00', '0']
         ]
         
-        for row_idx, data_row in enumerate(sample_data, 2):
+        # Apply alternating row colors and add data
+        data_fill_even = PatternFill(start_color="E6EFF7", end_color="E6EFF7", fill_type="solid")
+        data_fill_odd = PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="solid")
+        
+        for row_idx, data_row in enumerate(sample_data, 6):
+            row_fill = data_fill_even if row_idx % 2 == 0 else data_fill_odd
             for col_idx, value in enumerate(data_row, 1):
-                late_starts.cell(row=row_idx, column=col_idx).value = value
-        
-        # Create Early Ends sheet
-        early_ends = workbook.create_sheet(title="Early Ends")
-        
-        # Add headers
-        headers = ['Driver', 'Asset', 'Job Site', 'Expected End', 'Actual End', 'Minutes Early']
-        for col, header in enumerate(headers, 1):
-            early_ends.cell(row=1, column=col).value = header
-            early_ends.cell(row=1, column=col).font = Font(bold=True)
-        
-        # Add sample data
-        sample_data = [
-            ['Omar Ramirez', 'PT-167', 'TRAFFIC WALNUT HILL YARD', '04:00 PM', '03:25 PM', 35],
-            ['Isaac Romero', 'PT-16S', 'TRAFFIC WALNUT HILL YARD', '04:30 PM', '04:00 PM', 30]
-        ]
-        
-        for row_idx, data_row in enumerate(sample_data, 2):
-            for col_idx, value in enumerate(data_row, 1):
-                early_ends.cell(row=row_idx, column=col_idx).value = value
+                cell = ls_ee.cell(row=row_idx, column=col_idx)
+                cell.value = value
+                cell.fill = row_fill
+                
+                # Highlight statuses
+                if col_idx in [13, 14]:  # Late Start and Early End columns
+                    if value in ['Late', 'Left Early']:
+                        cell.font = Font(bold=True, color="FF0000")  # Red for emphasis
         
         # Create Not On Job sheet
-        not_on_job = workbook.create_sheet(title="Not On Job")
+        noj_report = workbook.create_sheet(title="NOJ REPORT")
         
-        # Add headers
-        headers = ['Driver', 'Asset', 'Expected Job Site', 'Actual Job Site', 'Notes']
-        for col, header in enumerate(headers, 1):
-            not_on_job.cell(row=1, column=col).value = header
-            not_on_job.cell(row=1, column=col).font = Font(bold=True)
+        # Format title
+        noj_report.merge_cells('A1:P1')
+        noj_title = noj_report['A1']
+        noj_title.value = f"NOJ – REPORT"
+        noj_title.font = Font(size=14, bold=True)
         
-        # Add sample data
-        sample_data = [
-            ['Salvador Rodriguez', 'PT-177', '2024-023 TARRANT RIVERSIDE BRIDGE REHAB', 'DFW Yard', 'Driver at wrong location'],
-            ['Juan Hernandez', 'PT-173', '2024-004 CoD Sidewalks 2024', 'TRAFFIC WALNUT HILL YARD', 'Driver did not report to job site']
+        # Add day and date
+        noj_report.merge_cells('A2:P2')
+        noj_day = noj_report['A2']
+        noj_day.value = f"{yesterday_day_name}"
+        noj_day.font = Font(size=12, bold=True)
+        
+        noj_report.merge_cells('A3:P3')
+        noj_date = noj_report['A3']
+        noj_date.value = f"{report_date}"
+        noj_date.font = Font(size=12, bold=True)
+        
+        # Add NOJ headers - matched from your format
+        noj_headers = ['SR. PM', 'Job', 'Job Desc', 'Asset ID', 'EMP ID', 'Driver', 'Valid Work Type', 
+                       'First Message', 'Job Start', 'Job End', 'Late Start Status', 'First Entry', 
+                       'Days Since Last Message', 'NOTE']
+        
+        for col, header in enumerate(noj_headers, 1):
+            cell = noj_report.cell(row=5, column=col)
+            cell.value = header
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = Alignment(horizontal="center", vertical="center")
+        
+        # Add sample NOJ data
+        noj_sample_data = [
+            ['*N/A', 'N.O.J.Y.', 'NOT ON DHISTORY REPORT', 'ET-41', '240801', 'Hampton, Justin D', '', '', 'NOJY', 'NOJY', 'NOJY', '12:00 AM', '0', ''],
+            ['*N/A', 'N.O.J.Y.', 'NOT ON DHISTORY REPORT', 'PT-19S', 'FIGBRY', 'Figueroa, Bryan', '', '', 'NOJY', 'NOJY', 'NOJY', '12:00 AM', '1', '']
         ]
         
-        for row_idx, data_row in enumerate(sample_data, 2):
+        for row_idx, data_row in enumerate(noj_sample_data, 6):
+            row_fill = data_fill_even if row_idx % 2 == 0 else data_fill_odd
             for col_idx, value in enumerate(data_row, 1):
-                not_on_job.cell(row=row_idx, column=col_idx).value = value
+                cell = noj_report.cell(row=row_idx, column=col_idx)
+                cell.value = value
+                cell.fill = row_fill
+                
+                # Highlight NOJY status
+                if value == 'NOJY':
+                    cell.font = Font(bold=True, color="FF0000")  # Red for emphasis
+        
+        # Auto-size columns for better readability in both sheets
+        for sheet in [ls_ee, noj_report]:
+            for col in range(1, 19):  # Assuming maximum 18 columns
+                max_length = 0
+                column_letter = openpyxl.utils.get_column_letter(col)
+                
+                for row in range(1, sheet.max_row + 1):
+                    cell_value = str(sheet.cell(row=row, column=col).value or "")
+                    max_length = max(max_length, len(cell_value))
+                
+                adjusted_width = max_length + 2
+                sheet.column_dimensions[column_letter].width = adjusted_width
         
         # Save the workbook
         workbook.save(report_path)
         
         # Set counts for flash message
-        late_count = len(sample_data)
-        early_count = len(sample_data)
-        not_on_job_count = len(sample_data)
+        late_starts_count = len(sample_data)
+        not_on_job_count = len(noj_sample_data)
         
         if os.path.exists(report_path):
             flash(f'Prior day report for {report_date} generated successfully', 'success')
             
             # Return summary data
-            summary = f"Summary: {late_count} late starts, {early_count} early ends, {not_on_job_count} not on job"
+            summary = f"Summary: {late_starts_count} late starts/early ends, {not_on_job_count} not on job"
             flash(summary, 'info')
             
             # Create a download link for the report

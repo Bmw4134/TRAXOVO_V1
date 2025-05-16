@@ -883,11 +883,15 @@ def process_pm_allocation(original_file, pm_file, region='all', month='', fsi_fo
                 if 'UNIT_ALLOCATION_AMOUNT' not in df.columns:
                     if 'UNIT_ALLOCATION' in df.columns and 'RATE' in df.columns:
                         # Convert to numeric, coercing errors to NaN
-                        df['UNIT_ALLOCATION'] = pd.to_numeric(df['UNIT_ALLOCATION'], errors='coerce')
-                        df['RATE'] = pd.to_numeric(df['RATE'], errors='coerce')
+                        # First check if the columns exist and are not None
+                        if df['UNIT_ALLOCATION'].notna().any():
+                            df['UNIT_ALLOCATION'] = pd.to_numeric(df['UNIT_ALLOCATION'].astype(str), errors='coerce')
+                        
+                        if df['RATE'].notna().any():
+                            df['RATE'] = pd.to_numeric(df['RATE'].astype(str), errors='coerce')
                         
                         # Calculate amount as allocation * rate
-                        df['UNIT_ALLOCATION_AMOUNT'] = df['UNIT_ALLOCATION'] * df['RATE']
+                        df['UNIT_ALLOCATION_AMOUNT'] = df['UNIT_ALLOCATION'].fillna(0) * df['RATE'].fillna(0)
                         logger.info("Calculated UNIT_ALLOCATION_AMOUNT from UNIT_ALLOCATION and RATE")
                 
                 return df

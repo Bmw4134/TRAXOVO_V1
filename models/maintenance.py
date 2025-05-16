@@ -6,7 +6,7 @@ This module defines the database models for maintenance scheduling, tracking, an
 from datetime import datetime, timedelta
 from sqlalchemy import Column, Integer, String, Float, Boolean, Date, DateTime, Text, ForeignKey, Enum
 from sqlalchemy.orm import relationship
-from db import Base
+from db import db, Base
 import enum
 
 
@@ -35,7 +35,7 @@ class MaintenanceStatus(enum.Enum):
     CANCELLED = "cancelled"
 
 
-class MaintenanceTask(Base):
+class MaintenanceTask(db.Model):
     """Model for maintenance tasks"""
     __tablename__ = 'maintenance_tasks'
 

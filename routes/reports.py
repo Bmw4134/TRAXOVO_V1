@@ -175,12 +175,59 @@ def generate_daily_driver_report():
         # Normalize column names by removing trailing 'x' characters
         df_activity.columns = [col.replace('x', '') if col.endswith('x') else col for col in df_activity.columns]
         
-        # Extract datetime from the EventDateTime column
+        # Extract datetime from the EventDateTime column - handle timezone strings safely
+        df_activity['EventDateTime'] = df_activity['EventDateTime'].str.replace(' CT', '').str.replace(' ET', '')
         df_activity['Date Time'] = pd.to_datetime(df_activity['EventDateTime'], errors='coerce')
         df_activity['Date'] = df_activity['Date Time'].dt.date
         
-        # Use AssetLabel as the driver identifier for now
-        df_activity['Driver'] = df_activity['AssetLabel']
+        # Extract employee ID and name from AssetLabel if it follows the pattern: #EMPID - NAME VEHICLE INFO
+        # Example: #210003 - AMMAR I. ELHAMAD FORD F150 2024 Personal Vehicle +
+        df_activity['Employee ID'] = df_activity['AssetLabel'].str.extract(r'#(\d+)').iloc[:, 0]
+        df_activity['Driver'] = df_activity['AssetLabel'].str.extract(r'#\d+ - ([\w\s\.]+)').iloc[:, 0]
+        df_activity['Asset'] = df_activity['AssetLabel'].str.extract(r'- [\w\s\.]+ ([\w\s\d\-\+]+)$').iloc[:, 0]
+        
+        # Process DrivingHistory file for more employee/job data
+        try:
+            # Skip the first 7 rows which contain metadata, and use the 8th row as headers
+            df_driving = pd.read_csv(driving_history_path, skiprows=7)
+            
+            # Extract employee data
+            df_driving['Employee ID'] = df_driving['Textbox53'].str.extract(r'#(\d+)').iloc[:, 0]
+            df_driving['Driver'] = df_driving['Textbox53'].str.extract(r'#\d+ - ([\w\s\.]+)').iloc[:, 0]
+            df_driving['Asset'] = df_driving['Textbox53'].str.extract(r'- [\w\s\.]+ ([\w\s\d\-\+]+)$').iloc[:, 0]
+            df_driving['Job'] = df_driving['Location'].str.extract(r'(JOB\d+)').iloc[:, 0]
+            df_driving['Job Description'] = df_driving['Location'].str.extract(r'JOB\d+ - ([\w\s\-\+\.]+)').iloc[:, 0]
+            
+            # Extract phone number from ContactPhone
+            df_driving['Phone'] = df_driving['ContactPhone']
+            
+            # Create a lookup dictionary for employee information
+            employee_info = {}
+            for _, row in df_driving.dropna(subset=['Employee ID']).iterrows():
+                emp_id = str(row['Employee ID'])
+                if emp_id not in employee_info:
+                    employee_info[emp_id] = {
+                        'Driver': row['Driver'],
+                        'Phone': row['Phone'],
+                        'Job': row.get('Job', ''),
+                        'Job Description': row.get('Job Description', ''),
+                        'Asset': row['Asset']
+                    }
+            
+            # Enrich activity data with employee info
+            for idx, row in df_activity.iterrows():
+                emp_id = str(row['Employee ID'])
+                if emp_id in employee_info:
+                    if pd.isna(df_activity.at[idx, 'Driver']) or df_activity.at[idx, 'Driver'] == '':
+                        df_activity.at[idx, 'Driver'] = employee_info[emp_id]['Driver']
+                    df_activity.at[idx, 'Phone'] = employee_info[emp_id]['Phone']
+                    df_activity.at[idx, 'Job'] = employee_info[emp_id]['Job']
+                    df_activity.at[idx, 'Job Description'] = employee_info[emp_id]['Job Description']
+                    if pd.isna(df_activity.at[idx, 'Asset']) or df_activity.at[idx, 'Asset'] == '':
+                        df_activity.at[idx, 'Asset'] = employee_info[emp_id]['Asset']
+        except Exception as e:
+            logging.warning(f"Could not fully process driving history: {str(e)}")
+            # Continue with limited data
         
         # Filter to yesterday's date
         df_yesterday = df_activity[df_activity['Date'] == yesterday]
@@ -258,8 +305,11 @@ def generate_daily_driver_report():
         late_start_sheet = workbook.active
         late_start_sheet.title = 'Late Start'
         
-        # Add headers to Late Start sheet
-        late_start_headers = ['Driver', 'Asset', 'First Entry Time', 'Location', 'Status']
+        # Add headers to Late Start sheet - include all requested fields
+        late_start_headers = [
+            'Employee ID', 'Driver Name', 'Phone', 'Asset', 'First Entry Time', 
+            'Location', 'Job', 'Job Description', 'Date', 'Status'
+        ]
         for col, header in enumerate(late_start_headers, 1):
             cell = late_start_sheet.cell(row=1, column=col)
             cell.value = header
@@ -273,22 +323,47 @@ def generate_daily_driver_report():
             for row_idx, (_, row) in enumerate(df_late_start.iterrows(), 2):
                 row_fill = data_fill_even if row_idx % 2 == 0 else data_fill_odd
                 
-                late_start_sheet.cell(row=row_idx, column=1).value = row['Driver']
-                late_start_sheet.cell(row=row_idx, column=2).value = row['Driver']  # Asset is same as driver for now
-                late_start_sheet.cell(row=row_idx, column=3).value = row['Date Time'].strftime('%H:%M:%S')
-                late_start_sheet.cell(row=row_idx, column=4).value = row.get('Location', 'Unknown')
-                late_start_sheet.cell(row=row_idx, column=5).value = 'LATE START'
+                # First set of columns
+                late_start_sheet.cell(row=row_idx, column=1).value = row.get('Employee ID', '')
+                late_start_sheet.cell(row=row_idx, column=2).value = row.get('Driver', '')
+                late_start_sheet.cell(row=row_idx, column=3).value = row.get('Phone', '')
+                late_start_sheet.cell(row=row_idx, column=4).value = row.get('Asset', '')
                 
-                for col in range(1, 6):
+                # Time and location
+                if 'Date Time' in row and not pd.isna(row['Date Time']):
+                    late_start_sheet.cell(row=row_idx, column=5).value = row['Date Time'].strftime('%H:%M:%S')
+                else:
+                    late_start_sheet.cell(row=row_idx, column=5).value = 'Unknown'
+                    
+                late_start_sheet.cell(row=row_idx, column=6).value = row.get('Location', 'Unknown')
+                
+                # Job information
+                late_start_sheet.cell(row=row_idx, column=7).value = row.get('Job', '')
+                late_start_sheet.cell(row=row_idx, column=8).value = row.get('Job Description', '')
+                
+                # Date and status
+                if 'Date' in row and not pd.isna(row['Date']):
+                    late_start_sheet.cell(row=row_idx, column=9).value = row['Date'].strftime('%Y-%m-%d')
+                else:
+                    late_start_sheet.cell(row=row_idx, column=9).value = yesterday_str
+                
+                late_start_sheet.cell(row=row_idx, column=10).value = 'LATE START'
+                
+                # Apply styling to all cells in the row
+                for col in range(1, 11):
                     cell = late_start_sheet.cell(row=row_idx, column=col)
                     cell.fill = row_fill
                     cell.border = border
+                    cell.alignment = Alignment(vertical='center')
         
         # Create Early End sheet
         early_end_sheet = workbook.create_sheet(title='Early End')
         
-        # Add headers to Early End sheet
-        early_end_headers = ['Driver', 'Asset', 'Last Entry Time', 'Location', 'Status']
+        # Add headers to Early End sheet - include all requested fields
+        early_end_headers = [
+            'Employee ID', 'Driver Name', 'Phone', 'Asset', 'Last Entry Time', 
+            'Location', 'Job', 'Job Description', 'Date', 'Status'
+        ]
         for col, header in enumerate(early_end_headers, 1):
             cell = early_end_sheet.cell(row=1, column=col)
             cell.value = header
@@ -302,16 +377,38 @@ def generate_daily_driver_report():
             for row_idx, (_, row) in enumerate(df_early_end.iterrows(), 2):
                 row_fill = data_fill_even if row_idx % 2 == 0 else data_fill_odd
                 
-                early_end_sheet.cell(row=row_idx, column=1).value = row['Driver']
-                early_end_sheet.cell(row=row_idx, column=2).value = row['Driver']  # Asset is same as driver for now
-                early_end_sheet.cell(row=row_idx, column=3).value = row['Date Time'].strftime('%H:%M:%S')
-                early_end_sheet.cell(row=row_idx, column=4).value = row.get('Location', 'Unknown')
-                early_end_sheet.cell(row=row_idx, column=5).value = 'EARLY END'
+                # First set of columns
+                early_end_sheet.cell(row=row_idx, column=1).value = row.get('Employee ID', '')
+                early_end_sheet.cell(row=row_idx, column=2).value = row.get('Driver', '')
+                early_end_sheet.cell(row=row_idx, column=3).value = row.get('Phone', '')
+                early_end_sheet.cell(row=row_idx, column=4).value = row.get('Asset', '')
                 
-                for col in range(1, 6):
+                # Time and location
+                if 'Date Time' in row and not pd.isna(row['Date Time']):
+                    early_end_sheet.cell(row=row_idx, column=5).value = row['Date Time'].strftime('%H:%M:%S')
+                else:
+                    early_end_sheet.cell(row=row_idx, column=5).value = 'Unknown'
+                    
+                early_end_sheet.cell(row=row_idx, column=6).value = row.get('Location', 'Unknown')
+                
+                # Job information
+                early_end_sheet.cell(row=row_idx, column=7).value = row.get('Job', '')
+                early_end_sheet.cell(row=row_idx, column=8).value = row.get('Job Description', '')
+                
+                # Date and status
+                if 'Date' in row and not pd.isna(row['Date']):
+                    early_end_sheet.cell(row=row_idx, column=9).value = row['Date'].strftime('%Y-%m-%d')
+                else:
+                    early_end_sheet.cell(row=row_idx, column=9).value = yesterday_str
+                
+                early_end_sheet.cell(row=row_idx, column=10).value = 'EARLY END'
+                
+                # Apply styling to all cells in the row
+                for col in range(1, 11):
                     cell = early_end_sheet.cell(row=row_idx, column=col)
                     cell.fill = row_fill
                     cell.border = border
+                    cell.alignment = Alignment(vertical='center')
         
         # Create Summary sheet
         summary_sheet = workbook.create_sheet(title='Summary')

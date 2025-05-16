@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Import Asset-Driver Relationships{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('asset_drivers.asset_driver_list') }}">Asset-Driver Relationships</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Import</li>
+                </ol>
+            </nav>
+            
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h4 class="mb-0">Import Asset-Driver Relationships</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <form method="POST" enctype="multipart/form-data">
+                                <div class="mb-3">
+                                    <label for="file" class="form-label">Select Excel File</label>
+                                    <input type="file" class="form-control" id="file" name="file" accept=".xlsx,.xlsm,.xls" required>
+                                    <div class="form-text text-muted">
+                                        Select an Excel file containing asset-driver mappings. The system will look for a sheet named "DRIVERS".
+                                    </div>
+                                </div>
+                                
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-upload"></i> Upload and Process
+                                    </button>
+                                    <a href="{{ url_for('asset_drivers.asset_driver_list') }}" class="btn btn-secondary">
+                                        <i class="fas fa-arrow-left"></i> Back to List
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-dark text-white">
+                                    <h5 class="mb-0">File Format Information</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p>The system expects an Excel file with the following format:</p>
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item">A sheet named "DRIVERS" containing asset-driver assignments</li>
+                                        <li class="list-group-item">Columns for Asset ID, Driver Name/Employee Name, and Employee ID</li>
+                                        <li class="list-group-item">The monthly equipment billings spreadsheet typically has this format</li>
+                                    </ul>
+                                    
+                                    <div class="alert alert-info mt-3">
+                                        <h6 class="alert-heading"><i class="fas fa-info-circle"></i> Note:</h6>
+                                        <p class="mb-0">
+                                            This import will update existing driver-asset relationships and create new ones
+                                            as needed. Existing drivers will be matched by name or ID.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

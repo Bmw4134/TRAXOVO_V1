@@ -328,27 +328,55 @@ def cross_reference_with_gps(timecard_data, gps_data):
     
     return result
 
-def generate_attendance_report(timecard_data, output_path=None):
+def generate_attendance_report(timecard_data, output_path=None, include_asset_data=True):
     """
     Generate attendance report from timecard data
     
     Args:
         timecard_data (dict): Processed timecard data
         output_path (str, optional): Path to save Excel report
+        include_asset_data (bool): Whether to include asset-driver relationships
         
     Returns:
         dict: Report summary
     """
+    # Import here to avoid circular imports
+    try:
+        from models import Driver, Asset
+        from utils.asset_driver_mapper import extract_asset_driver_mappings
+        db_access = True
+    except ImportError:
+        logger.warning("Could not import database models, asset data will be limited")
+        db_access = False
+    
     # Create summary dataframes
     driver_summary = []
     for driver, data in timecard_data["drivers"].items():
+        # Try to find asset assigned to this driver if db_access is available
+        asset_id = None
+        asset_name = None
+        
+        if db_access and include_asset_data:
+            try:
+                # Look up driver in database by name
+                driver_obj = Driver.query.filter(Driver.name.ilike(f"%{driver}%")).first()
+                if driver_obj and driver_obj.asset_id:
+                    asset = Asset.query.get(driver_obj.asset_id)
+                    if asset:
+                        asset_id = asset.asset_identifier
+                        asset_name = asset.label or asset.asset_identifier
+            except Exception as e:
+                logger.warning(f"Error looking up driver asset: {e}")
+        
         driver_summary.append({
             "Driver": driver,
             "Total Hours": data["total_hours"],
             "PTO Hours": data["pto_hours"],
             "Days Worked": len(data["days_worked"]),
             "Late Starts": data["late_starts"],
-            "Jobs Worked": len(data["job_entries"])
+            "Jobs Worked": len(data["job_entries"]),
+            "Asset ID": asset_id,
+            "Asset Name": asset_name
         })
     
     job_summary = []
@@ -357,21 +385,84 @@ def generate_attendance_report(timecard_data, output_path=None):
             "Job": job,
             "Total Hours": data["total_hours"],
             "Employee Count": len(data["employees"]),
-            "Entry Count": len(data["entries"])
+            "Entry Count": len(data["entries"]),
+            "Avg Hours Per Employee": round(data["total_hours"] / len(data["employees"]), 2) if data["employees"] else 0
         })
     
     # Convert to DataFrames
     driver_df = pd.DataFrame(driver_summary)
     job_df = pd.DataFrame(job_summary)
     
+    # Add additional calculations to driver summary
+    if not driver_df.empty:
+        if "Total Hours" in driver_df.columns and "Days Worked" in driver_df.columns:
+            driver_df["Avg Hours Per Day"] = driver_df.apply(
+                lambda row: round(row["Total Hours"] / row["Days Worked"], 2) if row["Days Worked"] > 0 else 0, 
+                axis=1
+            )
+    
     # Generate Excel report if output path provided
     if output_path:
         try:
             with pd.ExcelWriter(output_path, engine='openpyxl') as writer:
+                # Create overview sheet with explanation
+                overview_data = {
+                    "Report Section": [
+                        "Overview",
+                        "Driver Summary",
+                        "Job Summary", 
+                        "Detailed Entries",
+                        "Late Starts",
+                        "PTO Summary"
+                    ],
+                    "Description": [
+                        "This report summarizes timecard data for the period " + 
+                        f"{timecard_data['date_range']['start']} to {timecard_data['date_range']['end']}",
+                        "Shows total hours, PTO, and attendance patterns for each driver",
+                        "Breaks down hours worked by job site",
+                        "Contains individual timecard entries with dates and hours",
+                        "Lists all instances where drivers started after 7:00 AM",
+                        "Summarizes PTO usage by driver"
+                    ]
+                }
+                
+                # Add report statistics
+                overview_stats = {
+                    "Statistic": [
+                        "Total Entries",
+                        "Total Hours",
+                        "PTO Hours",
+                        "Late Starts",
+                        "Unique Drivers",
+                        "Unique Job Sites"
+                    ],
+                    "Value": [
+                        timecard_data["summary"]["total_entries"],
+                        timecard_data["summary"]["total_hours"],
+                        sum(data["pto_hours"] for data in timecard_data["drivers"].values()),
+                        timecard_data["summary"]["late_starts"],
+                        len(timecard_data["drivers"]),
+                        len(timecard_data["jobs"])
+                    ]
+                }
+                
+                # Write overview and stats to Excel
+                pd.DataFrame(overview_data).to_excel(writer, sheet_name='Report Guide', index=False, startrow=1)
+                pd.DataFrame(overview_stats).to_excel(writer, sheet_name='Report Guide', index=False, startrow=10)
+                
+                # Format the overview sheet
+                workbook = writer.book
+                overview_sheet = writer.sheets['Report Guide']
+                
+                # Add title
+                overview_sheet['A1'] = "Timecard Analysis Report"
+                overview_sheet['A1'].font = workbook.add_format({'bold': True, 'size': 16}).font
+                
+                # Write main summary sheets
                 driver_df.to_excel(writer, sheet_name='Driver Summary', index=False)
                 job_df.to_excel(writer, sheet_name='Job Summary', index=False)
                 
-                # Create detailed sheets
+                # Create detailed entries sheet
                 detailed_entries = []
                 for driver, data in timecard_data["drivers"].items():
                     for job, job_data in data["job_entries"].items():
@@ -383,19 +474,67 @@ def generate_attendance_report(timecard_data, output_path=None):
                                 "Hours": entry["hours"],
                                 "Time In": entry["time_in"],
                                 "Time Out": entry["time_out"],
-                                "Is PTO": entry["is_pto"],
-                                "Is Late": entry["is_late"]
+                                "Is PTO": "Yes" if entry["is_pto"] else "No",
+                                "Is Late": "Yes" if entry["is_late"] else "No"
                             })
                 
                 entries_df = pd.DataFrame(detailed_entries)
                 entries_df.to_excel(writer, sheet_name='Detailed Entries', index=False)
+                
+                # Create late starts sheet
+                late_entries = [entry for entry in detailed_entries if entry["Is Late"] == "Yes"]
+                if late_entries:
+                    late_df = pd.DataFrame(late_entries)
+                    late_df.to_excel(writer, sheet_name='Late Starts', index=False)
+                
+                # Create PTO summary sheet
+                pto_entries = [entry for entry in detailed_entries if entry["Is PTO"] == "Yes"]
+                if pto_entries:
+                    pto_df = pd.DataFrame(pto_entries)
+                    pto_df.to_excel(writer, sheet_name='PTO Summary', index=False)
+                
+                # Try to add asset data from most recent monthly billing if available
+                if include_asset_data:
+                    try:
+                        # Look for billing files
+                        billing_files = []
+                        for root, dirs, files in os.walk("attached_assets"):
+                            for file in files:
+                                if "MONTHLY BILLINGS" in file.upper() and file.endswith((".xlsx", ".xlsm")):
+                                    billing_files.append(os.path.join(root, file))
+                        
+                        if billing_files:
+                            # Use the most recent file
+                            billing_files.sort(key=os.path.getmtime, reverse=True)
+                            recent_file = billing_files[0]
+                            
+                            # Extract asset-driver mappings
+                            mappings_result = extract_asset_driver_mappings(recent_file, sheet_name="DRIVERS")
+                            
+                            if mappings_result.get("status") == "success":
+                                # Create asset mapping sheet
+                                mapping_data = []
+                                for asset_id, data in mappings_result.get("mappings", {}).items():
+                                    mapping_data.append({
+                                        "Asset ID": asset_id,
+                                        "Driver Name": data.get("employee_name"),
+                                        "Employee ID": data.get("employee_id")
+                                    })
+                                
+                                mapping_df = pd.DataFrame(mapping_data)
+                                mapping_df.to_excel(writer, sheet_name='Asset-Driver Mapping', index=False)
+                                
+                                logger.info(f"Added asset-driver mapping from {recent_file}")
+                    except Exception as e:
+                        logger.warning(f"Error adding asset-driver mapping: {e}")
             
             return {
                 "status": "success",
                 "report_path": output_path,
                 "driver_count": len(driver_summary),
                 "job_count": len(job_summary),
-                "total_hours": timecard_data["summary"]["total_hours"]
+                "total_hours": timecard_data["summary"]["total_hours"],
+                "message": "Report generated with enhanced data visualization and explanations"
             }
         except Exception as e:
             logger.error(f"Error generating Excel report: {e}")

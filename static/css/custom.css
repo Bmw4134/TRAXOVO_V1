@@ -14,6 +14,7 @@
 /* Table styling for better readability */
 .table {
     color: #e9ecef;
+    border-color: #495057;
 }
 
 .table-striped tbody tr:nth-of-type(odd) {
@@ -22,6 +23,39 @@
 
 .table-hover tbody tr:hover {
     background-color: rgba(255, 255, 255, 0.1);
+}
+
+.table th {
+    background-color: #343a40;
+    color: #fff;
+    border-color: #495057;
+}
+
+.table td {
+    border-color: #495057;
+}
+
+/* Special styling for PM allocation tables */
+.pm-table {
+    margin-top: 15px;
+    border-radius: 5px;
+    overflow: hidden;
+    border: 1px solid #495057;
+}
+
+.pm-table th {
+    background-color: #343a40;
+    color: white;
+    font-weight: 600;
+}
+
+.pm-table td {
+    color: #e9ecef;
+}
+
+.pm-table .table-dark {
+    background-color: #212529;
+    color: #e9ecef;
 }
 
 /* Make form controls more visible */
@@ -81,6 +115,33 @@ h1, h2, h3, h4, h5, h6 {
 
 .report-table td {
     background-color: #2a2a2a;
+    color: #ffffff;
+}
+
+/* Report view tab styles for better readability */
+.report-view-content {
+    background-color: #f8f9fa; 
+    color: #212529;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+/* Pre elements in report views */
+pre {
+    background-color: #f8f9fa;
+    color: #212529;
+    padding: 15px;
+    border-radius: 5px;
+    white-space: pre-wrap;
+    font-family: monospace;
+}
+
+/* Ensure text in report view is always readable */
+.tab-content {
+    background-color: #f8f9fa;
+    color: #212529;
+    border-radius: 0 0 5px 5px;
+    padding: 15px;
 }
 
 /* Highlight changes in comparison reports */

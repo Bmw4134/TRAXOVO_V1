@@ -17,14 +17,16 @@
             font-weight: bold;
         }
         .original-value {
-            background-color: #ffc7ce;
-            padding: 2px 5px;
+            background-color: rgba(220, 53, 69, 0.3);
+            color: #ffffff;
+            padding: 4px 8px;
             border-radius: 3px;
             font-family: monospace;
         }
         .updated-value {
-            background-color: #c6efce;
-            padding: 2px 5px;
+            background-color: rgba(25, 135, 84, 0.3);
+            color: #ffffff;
+            padding: 4px 8px;
             border-radius: 3px;
             font-family: monospace;
         }
@@ -246,7 +248,7 @@
                                 </button>
                             </li>
                         </ul>
-                        <div class="tab-content" id="changesTabsContent">
+                        <div class="tab-content report-view-content" id="changesTabsContent">
                             <!-- Changed Rows Tab -->
                             <div class="tab-pane fade show active" id="changed" role="tabpanel" aria-labelledby="changed-tab">
                                 {% if comparison.changed_rows %}

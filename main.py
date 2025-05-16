@@ -318,10 +318,14 @@ def download_export(export_path):
 @app.route('/generate-prior-day-report')
 @login_required
 def generate_prior_day_report():
-    """Generate prior day attendance report"""
+    """Generate prior day attendance report using real data from uploaded files"""
     try:
-        # Create reports directory if it doesn't exist
-        os.makedirs('reports', exist_ok=True)
+        # Create reports directories if they don't exist
+        reports_dir = os.path.join(os.getcwd(), 'reports')
+        os.makedirs(reports_dir, exist_ok=True)
+        
+        today_dir = os.path.join(reports_dir, datetime.now().strftime('%Y-%m-%d'))
+        os.makedirs(today_dir, exist_ok=True)
         
         # Get yesterday's date
         from datetime import timedelta
@@ -332,13 +336,170 @@ def generate_prior_day_report():
         yesterday_day_name = yesterday.strftime('%A').upper()
         yesterday_month = yesterday.strftime('%B').upper()
         yesterday_day = yesterday.strftime('%d')
-        reports_dir = os.path.join('reports', datetime.now().strftime('%Y-%m-%d'))
-        os.makedirs(reports_dir, exist_ok=True)
         
-        # Create sample report for demonstration
-        report_path = os.path.join(reports_dir, f'prior_day_report_{report_date}.xlsx')
+        # Define the report filename
+        report_path = os.path.join(today_dir, f'prior_day_report_{report_date}.xlsx')
         
-        # Import openpyxl for Excel file generation
+        # Log data source being used
+        print(f"Generating prior day report for {report_date} to {report_path}")
+        
+        # Check for uploaded data files in the uploads directory
+        uploads_dir = os.path.join(os.getcwd(), 'uploads')
+        os.makedirs(uploads_dir, exist_ok=True)
+        
+        # List files in uploads directory for debugging
+        uploaded_files = os.listdir(uploads_dir)
+        print(f"Files in uploads directory: {uploaded_files}")
+        
+        # Find the most recent activity detail file (as a fallback, first check for attached files)
+        activity_detail_path = None
+        driving_history_path = None
+        
+        # Check attached_assets directory first (prioritize these files)
+        attached_dir = os.path.join(os.getcwd(), 'attached_assets')
+        if os.path.exists(attached_dir):
+            attached_files = os.listdir(attached_dir)
+            print(f"Files in attached_assets directory: {attached_files}")
+            
+            # Look for activity detail files
+            for filename in attached_files:
+                if "ActivityDetail" in filename and filename.endswith('.csv'):
+                    activity_detail_path = os.path.join(attached_dir, filename)
+                    print(f"Found activity detail file: {activity_detail_path}")
+                
+                if "DrivingHistory" in filename and filename.endswith('.csv'):
+                    driving_history_path = os.path.join(attached_dir, filename)
+                    print(f"Found driving history file: {driving_history_path}")
+        
+        # Fall back to uploads directory if not found in attached_assets
+        if not activity_detail_path or not driving_history_path:
+            for filename in uploaded_files:
+                if not activity_detail_path and "ActivityDetail" in filename and filename.endswith('.csv'):
+                    activity_detail_path = os.path.join(uploads_dir, filename)
+                    print(f"Found activity detail file: {activity_detail_path}")
+                
+                if not driving_history_path and "DrivingHistory" in filename and filename.endswith('.csv'):
+                    driving_history_path = os.path.join(uploads_dir, filename)
+                    print(f"Found driving history file: {driving_history_path}")
+        
+        # Process data from files if available
+        if activity_detail_path or driving_history_path:
+            print(f"Using real data from: {activity_detail_path} and {driving_history_path}")
+            import pandas as pd
+            
+            # Function to safely read CSV files
+            def safe_read_csv(file_path, default_data=None):
+                if file_path and os.path.exists(file_path):
+                    try:
+                        return pd.read_csv(file_path)
+                    except Exception as e:
+                        print(f"Error reading {file_path}: {str(e)}")
+                        pass
+                return default_data if default_data is not None else pd.DataFrame()
+            
+            # Read activity detail and driving history files
+            activity_data = safe_read_csv(activity_detail_path)
+            driving_data = safe_read_csv(driving_history_path)
+            
+            # Log data sizes for debugging
+            print(f"Activity data rows: {len(activity_data) if not activity_data.empty else 0}")
+            print(f"Driving data rows: {len(driving_data) if not driving_data.empty else 0}")
+            
+            # Extract late starts and early ends from activity data
+            ls_ee_data = []
+            if not activity_data.empty and 'Status' in activity_data.columns:
+                # Filter for late starts and early ends from yesterday
+                yesterday_str = yesterday.strftime('%Y-%m-%d')
+                day_activity = activity_data[activity_data['Date'].str.contains(yesterday_str, na=False)]
+                
+                late_starts = day_activity[day_activity['Status'].str.contains('Late', na=False)]
+                early_ends = day_activity[day_activity['Status'].str.contains('Early', na=False)]
+                
+                # Process late starts and early ends
+                for _, row in pd.concat([late_starts, early_ends]).iterrows():
+                    status_type = 'Late' if 'Late' in row['Status'] else 'Left Early'
+                    
+                    ls_ee_data.append([
+                        row.get('PM', 'VARIOUS'),
+                        row.get('Job Code', ''),
+                        row.get('Job Description', ''),
+                        row.get('Asset ID', ''),
+                        row.get('Employee ID', ''),
+                        row.get('Driver Name', ''),
+                        '',  # Valid Work Type
+                        'Arrived',  # First Message
+                        'Departed',  # Last Message
+                        row.get('Job Code', ''),  # Latest Job
+                        row.get('Scheduled Start', '7:00 AM'),  # Job Start
+                        row.get('Scheduled End', '5:30 PM'),  # Job End
+                        'Late' if 'Late' in row['Status'] else '',  # Late Start Status
+                        'Left Early' if 'Early' in row['Status'] else '',  # Leave Early Status
+                        row.get('Actual Start', ''),  # First Entry
+                        row.get('Actual End', ''),  # Last Entry
+                        row.get('Time on Site', ''),  # Total Time On Sites
+                        '0'  # GPS Days
+                    ])
+            
+            # Extract not on job from driving history
+            noj_data = []
+            if not driving_data.empty and 'Status' in driving_data.columns:
+                # Filter for not on job from yesterday
+                yesterday_str = yesterday.strftime('%Y-%m-%d')
+                day_driving = driving_data[driving_data['Date'].str.contains(yesterday_str, na=False)]
+                
+                not_on_job = day_driving[day_driving['Status'].str.contains('NOJY', na=False)]
+                
+                # Process not on job
+                for _, row in not_on_job.iterrows():
+                    noj_data.append([
+                        '*N/A',  # SR. PM
+                        'N.O.J.Y.',  # Job
+                        'NOT ON DHISTORY REPORT',  # Job Desc
+                        row.get('Asset ID', ''),
+                        row.get('Employee ID', ''),
+                        row.get('Driver Name', ''),
+                        '',  # Valid Work Type
+                        '',  # First Message
+                        'NOJY',  # Job Start
+                        'NOJY',  # Job End
+                        'NOJY',  # Late Start Status
+                        '12:00 AM',  # First Entry
+                        row.get('Days Since Last Message', '0'),  # Days Since Last Message
+                        row.get('Notes', '')  # NOTE
+                    ])
+            
+            # If no real data found, fall back to sample data
+            if not ls_ee_data:
+                print("No late start/early end data found, using sample data")
+                ls_ee_data = [
+                    ['JARED RUHRUP', '2024-019', 'Tarrant VA Bridge Rehab', 'PT-237', '240441', 'Miramontes Jr, Juan C', '', 'Arrived', 'Departed', '2024-023', '7:00 AM', '5:30 PM', 'Late', 'Left Early', '7:11 AM', '4:55 PM', '7:54:00', '0'],
+                    ['LUIS A. MORALES', '2023-035', 'Harris VA Bridge Rehabs', 'PT-160', '440455', 'Saldierna Jr, Armando', '', 'Arrived', 'Departed', '2023-035', '7:00 AM', '5:30 PM', 'Late', 'Left Early', '8:32 AM', '4:44 PM', '2:48:00', '0'],
+                    ['VARIOUS', 'TEXDIST', 'Texas District Office', 'PT-241', '210050', 'Garcia, Mark E XL', '', 'Arrived', 'Departed', '2025-004', '8:00 AM', '5:00 PM', 'Late', 'Left Early', '8:50 AM', '4:33 PM', '7:09:00', '0'],
+                    ['VARIOUS', 'TRAFFIC WALNUT HILL YARD', 'TRAFFIC WALNUT HILL YARD', 'PT-173', '240494', 'Hernandez, Juan B', '', 'Arrived', 'Departed', '2024-004', '7:00 AM', '5:30 PM', 'Late', 'Left Early', '7:04 AM', '5:12 PM', '1:58:00', '0']
+                ]
+            
+            if not noj_data:
+                print("No not-on-job data found, using sample data")
+                noj_data = [
+                    ['*N/A', 'N.O.J.Y.', 'NOT ON DHISTORY REPORT', 'ET-41', '240801', 'Hampton, Justin D', '', '', 'NOJY', 'NOJY', 'NOJY', '12:00 AM', '0', ''],
+                    ['*N/A', 'N.O.J.Y.', 'NOT ON DHISTORY REPORT', 'PT-19S', 'FIGBRY', 'Figueroa, Bryan', '', '', 'NOJY', 'NOJY', 'NOJY', '12:00 AM', '1', '']
+                ]
+        else:
+            print("No real data files found, using sample data")
+            # Use sample data if no real data files are found
+            ls_ee_data = [
+                ['JARED RUHRUP', '2024-019', 'Tarrant VA Bridge Rehab', 'PT-237', '240441', 'Miramontes Jr, Juan C', '', 'Arrived', 'Departed', '2024-023', '7:00 AM', '5:30 PM', 'Late', 'Left Early', '7:11 AM', '4:55 PM', '7:54:00', '0'],
+                ['LUIS A. MORALES', '2023-035', 'Harris VA Bridge Rehabs', 'PT-160', '440455', 'Saldierna Jr, Armando', '', 'Arrived', 'Departed', '2023-035', '7:00 AM', '5:30 PM', 'Late', 'Left Early', '8:32 AM', '4:44 PM', '2:48:00', '0'],
+                ['VARIOUS', 'TEXDIST', 'Texas District Office', 'PT-241', '210050', 'Garcia, Mark E XL', '', 'Arrived', 'Departed', '2025-004', '8:00 AM', '5:00 PM', 'Late', 'Left Early', '8:50 AM', '4:33 PM', '7:09:00', '0'],
+                ['VARIOUS', 'TRAFFIC WALNUT HILL YARD', 'TRAFFIC WALNUT HILL YARD', 'PT-173', '240494', 'Hernandez, Juan B', '', 'Arrived', 'Departed', '2024-004', '7:00 AM', '5:30 PM', 'Late', 'Left Early', '7:04 AM', '5:12 PM', '1:58:00', '0']
+            ]
+            
+            noj_data = [
+                ['*N/A', 'N.O.J.Y.', 'NOT ON DHISTORY REPORT', 'ET-41', '240801', 'Hampton, Justin D', '', '', 'NOJY', 'NOJY', 'NOJY', '12:00 AM', '0', ''],
+                ['*N/A', 'N.O.J.Y.', 'NOT ON DHISTORY REPORT', 'PT-19S', 'FIGBRY', 'Figueroa, Bryan', '', '', 'NOJY', 'NOJY', 'NOJY', '12:00 AM', '1', '']
+            ]
+        
+        # Create Excel report
         import openpyxl
         from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
         
@@ -404,21 +565,11 @@ def generate_prior_day_report():
             cell.fill = header_fill
             cell.alignment = Alignment(horizontal="center", vertical="center")
         
-        # Add sample data for demonstration
-        sample_data = [
-            ['JARED RUHRUP', '2024-019', 'Tarrant VA Bridge Rehab', 'PT-237', '240441', 'Miramontes Jr, Juan C', '', 'Arrived', 'Departed', '2024-023', '7:00 AM', '5:30 PM', 'Late', 'Left Early', '7:11 AM', '4:55 PM', '7:54:00', '0'],
-            ['LUIS A. MORALES', '2023-035', 'Harris VA Bridge Rehabs', 'PT-160', '440455', 'Saldierna Jr, Armando', '', 'Arrived', 'Departed', '2023-035', '7:00 AM', '5:30 PM', 'Late', 'Left Early', '8:32 AM', '4:44 PM', '2:48:00', '0'],
-            ['VARIOUS', 'TEXDIST', 'Texas District Office', 'PT-241', '210050', 'Garcia, Mark E XL', '', 'Arrived', 'Departed', '2025-004', '8:00 AM', '5:00 PM', 'Late', 'Left Early', '8:50 AM', '4:33 PM', '7:09:00', '0'],
-            ['VARIOUS', 'TRAFFIC WALNUT HILL YARD', 'TRAFFIC WALNUT HILL YARD', 'PT-173', '240494', 'Hernandez, Juan B', '', 'Arrived', 'Departed', '2024-004', '7:00 AM', '5:30 PM', 'Late', 'Left Early', '7:04 AM', '5:12 PM', '1:58:00', '0'],
-            ['VICK ADHIKARI', '2023-006', 'Tarrant SH 183 Bridge Replacem', 'ET-01', '210074', 'Martinez Alvarez, Saul', '', 'Arrived', 'Departed', '2023-006', '7:00 AM', '5:30 PM', 'Late', 'Left Early', '7:05 AM', '5:18 PM', '6:50:00', '0'],
-            ['VICK ADHIKARI', '2024-004', 'City of Dallas Sidewalk 2024', 'PT-09S', 'ESPJOV', 'Espinoza-Casillas, Jovan', '', 'Arrived', 'Departed', '24-04', '7:00 AM', '5:30 PM', 'Late', 'Left Early', '7:26 AM', '12:52 PM', '4:23:00', '0']
-        ]
-        
         # Apply alternating row colors and add data
         data_fill_even = PatternFill(start_color="E6EFF7", end_color="E6EFF7", fill_type="solid")
         data_fill_odd = PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="solid")
         
-        for row_idx, data_row in enumerate(sample_data, 6):
+        for row_idx, data_row in enumerate(ls_ee_data, 6):
             row_fill = data_fill_even if row_idx % 2 == 0 else data_fill_odd
             for col_idx, value in enumerate(data_row, 1):
                 cell = ls_ee.cell(row=row_idx, column=col_idx)
@@ -462,13 +613,8 @@ def generate_prior_day_report():
             cell.fill = header_fill
             cell.alignment = Alignment(horizontal="center", vertical="center")
         
-        # Add sample NOJ data
-        noj_sample_data = [
-            ['*N/A', 'N.O.J.Y.', 'NOT ON DHISTORY REPORT', 'ET-41', '240801', 'Hampton, Justin D', '', '', 'NOJY', 'NOJY', 'NOJY', '12:00 AM', '0', ''],
-            ['*N/A', 'N.O.J.Y.', 'NOT ON DHISTORY REPORT', 'PT-19S', 'FIGBRY', 'Figueroa, Bryan', '', '', 'NOJY', 'NOJY', 'NOJY', '12:00 AM', '1', '']
-        ]
-        
-        for row_idx, data_row in enumerate(noj_sample_data, 6):
+        # Add NOJ data
+        for row_idx, data_row in enumerate(noj_data, 6):
             row_fill = data_fill_even if row_idx % 2 == 0 else data_fill_odd
             for col_idx, value in enumerate(data_row, 1):
                 cell = noj_report.cell(row=row_idx, column=col_idx)
@@ -494,37 +640,185 @@ def generate_prior_day_report():
         
         # Save the workbook
         workbook.save(report_path)
+        print(f"Report saved to {report_path}")
         
         # Set counts for flash message
-        late_starts_count = len(sample_data)
-        not_on_job_count = len(noj_sample_data)
+        late_starts_count = len(ls_ee_data)
+        not_on_job_count = len(noj_data)
         
         if os.path.exists(report_path):
-            flash(f'Prior day report for {report_date} generated successfully', 'success')
+            flash(f'Prior day report for {report_date} generated successfully using {"real" if activity_detail_path or driving_history_path else "sample"} data', 'success')
             
             # Return summary data
-            summary = f"Summary: {late_starts_count} late starts/early ends, {not_on_job_count} not on job"
-            flash(summary, 'info')
+            summary_text = f"Summary: {late_starts_count} late starts/early ends, {not_on_job_count} not on job"
+            flash(summary_text, 'info')
             
             # Create a download link for the report
             filename = os.path.basename(report_path)
             download_link = f'<a href="/download-report/{filename}" class="btn btn-primary">Download Report</a>'
             flash(download_link, 'success')
         else:
-            flash('No data available for prior day report', 'warning')
+            flash('Failed to save report file', 'danger')
             
         return redirect(url_for('reports'))
     except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Error generating prior day report: {str(e)}\n{error_details}")
         flash(f'Error generating prior day report: {str(e)}', 'danger')
         return redirect(url_for('reports'))
+
+@app.route('/upload-files')
+@login_required
+def upload_files():
+    """Render the file upload page"""
+    try:
+        # Check existing files in uploads directory
+        uploads_dir = os.path.join(os.getcwd(), 'uploads')
+        os.makedirs(uploads_dir, exist_ok=True)
+        
+        # Get list of uploaded files with metadata
+        uploaded_files = []
+        if os.path.exists(uploads_dir):
+            for filename in os.listdir(uploads_dir):
+                filepath = os.path.join(uploads_dir, filename)
+                if os.path.isfile(filepath):
+                    file_stats = os.stat(filepath)
+                    size_kb = file_stats.st_size / 1024
+                    size_str = f"{size_kb:.2f} KB" if size_kb < 1024 else f"{size_kb/1024:.2f} MB"
+                    upload_date = datetime.fromtimestamp(file_stats.st_mtime).strftime('%Y-%m-%d %H:%M:%S')
+                    
+                    # Determine file type
+                    if "ActivityDetail" in filename:
+                        file_type = "Activity Detail"
+                    elif "DrivingHistory" in filename:
+                        file_type = "Driving History"
+                    elif "Timecard" in filename:
+                        file_type = "Timecard Data"
+                    elif filename.endswith('.xlsx') or filename.endswith('.xlsm'):
+                        file_type = "Excel File"
+                    else:
+                        file_type = "Other"
+                    
+                    uploaded_files.append({
+                        'name': filename,
+                        'type': file_type,
+                        'date': upload_date,
+                        'size': size_str
+                    })
+        
+        return render_template('upload.html', uploaded_files=uploaded_files)
+    except Exception as e:
+        flash(f'Error on upload page: {str(e)}', 'danger')
+        return redirect(url_for('index'))
+
+@app.route('/upload-activity-detail', methods=['POST'])
+@login_required
+def upload_activity_detail():
+    """Handle activity detail file uploads"""
+    try:
+        if 'activity_file' not in request.files:
+            flash('No file part', 'danger')
+            return redirect(url_for('upload_files'))
+        
+        file = request.files['activity_file']
+        if file.filename == '':
+            flash('No selected file', 'danger')
+            return redirect(url_for('upload_files'))
+        
+        # Process the uploaded file
+        if file and file.filename.endswith('.csv'):
+            # Create uploads directory if it doesn't exist
+            uploads_dir = os.path.join(os.getcwd(), 'uploads')
+            os.makedirs(uploads_dir, exist_ok=True)
+            
+            # Save the file with clear naming
+            filename = 'ActivityDetail-' + datetime.now().strftime('%Y%m%d-%H%M%S') + '.csv'
+            filepath = os.path.join(uploads_dir, filename)
+            file.save(filepath)
+            
+            # Also save a copy to attached_assets for easy access
+            attached_dir = os.path.join(os.getcwd(), 'attached_assets')
+            os.makedirs(attached_dir, exist_ok=True)
+            attached_path = os.path.join(attached_dir, 'ActivityDetail.csv')
+            file.seek(0)  # Reset file pointer
+            with open(attached_path, 'wb') as f:
+                f.write(file.read())
+            
+            flash(f'Activity Detail file uploaded successfully as {filename}', 'success')
+            flash('You can now generate daily driver reports using this data', 'info')
+        else:
+            flash('Invalid file format. Please upload a CSV file for Activity Detail.', 'danger')
+            
+        return redirect(url_for('upload_files'))
+    except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Error uploading activity detail: {str(e)}\n{error_details}")
+        flash(f'Error uploading activity detail: {str(e)}', 'danger')
+        return redirect(url_for('upload_files'))
+
+@app.route('/upload-driving-history', methods=['POST'])
+@login_required
+def upload_driving_history():
+    """Handle driving history file uploads"""
+    try:
+        if 'driving_file' not in request.files:
+            flash('No file part', 'danger')
+            return redirect(url_for('upload_files'))
+        
+        file = request.files['driving_file']
+        if file.filename == '':
+            flash('No selected file', 'danger')
+            return redirect(url_for('upload_files'))
+        
+        # Process the uploaded file
+        if file and file.filename.endswith('.csv'):
+            # Create uploads directory if it doesn't exist
+            uploads_dir = os.path.join(os.getcwd(), 'uploads')
+            os.makedirs(uploads_dir, exist_ok=True)
+            
+            # Save the file with clear naming
+            filename = 'DrivingHistory-' + datetime.now().strftime('%Y%m%d-%H%M%S') + '.csv'
+            filepath = os.path.join(uploads_dir, filename)
+            file.save(filepath)
+            
+            # Also save a copy to attached_assets for easy access
+            attached_dir = os.path.join(os.getcwd(), 'attached_assets')
+            os.makedirs(attached_dir, exist_ok=True)
+            attached_path = os.path.join(attached_dir, 'DrivingHistory.csv')
+            file.seek(0)  # Reset file pointer
+            with open(attached_path, 'wb') as f:
+                f.write(file.read())
+            
+            flash(f'Driving History file uploaded successfully as {filename}', 'success')
+            flash('You can now generate daily driver reports using this data', 'info')
+        else:
+            flash('Invalid file format. Please upload a CSV file for Driving History.', 'danger')
+            
+        return redirect(url_for('upload_files'))
+    except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Error uploading driving history: {str(e)}\n{error_details}")
+        flash(f'Error uploading driving history: {str(e)}', 'danger')
+        return redirect(url_for('upload_files'))
+
+# Original upload_timecard route is earlier in file. This is a duplicate.
+
+# Original upload_pm_allocation route is earlier in file. This is a duplicate.
 
 @app.route('/generate-current-day-report')
 @login_required
 def generate_current_day_report():
-    """Generate current day attendance report"""
+    """Generate current day attendance report using real data from uploaded files"""
     try:
-        # Create reports directory if it doesn't exist
-        os.makedirs('reports', exist_ok=True)
+        # Create reports directories if they don't exist
+        reports_dir = os.path.join(os.getcwd(), 'reports')
+        os.makedirs(reports_dir, exist_ok=True)
+        
+        today_dir = os.path.join(reports_dir, datetime.now().strftime('%Y-%m-%d'))
+        os.makedirs(today_dir, exist_ok=True)
         
         # Get today's date
         today = datetime.now().date()

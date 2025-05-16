@@ -3,15 +3,20 @@ SYSTEMSMITH: Fleet Management System
 Main application entry point
 """
 import os
+import uuid
 from datetime import datetime
+import json
+from pathlib import Path
 
 from flask import Flask, render_template, redirect, url_for, flash, request, jsonify, send_from_directory, current_app
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
 import logging
+import pandas as pd
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -1366,6 +1371,132 @@ def maintenance():
 def reports():
     """Render the reports dashboard page"""
     return render_template('reports.html')
+
+# PM Allocation Upload and Processing
+@app.route('/pm-allocation', methods=['GET', 'POST'])
+@login_required
+def pm_allocation_processor():
+    """Handle PM allocation file upload and processing"""
+    # Initialize variables for template
+    result = None
+    processed_data = None
+    recent_exports = []
+    
+    # Create required directories if they don't exist
+    uploads_dir = os.path.join(app.root_path, 'uploads', 'pm_allocations')
+    exports_dir = os.path.join(app.root_path, 'exports', 'pm_allocations')
+    os.makedirs(uploads_dir, exist_ok=True)
+    os.makedirs(exports_dir, exist_ok=True)
+    
+    # Check for recent exports
+    try:
+        export_files = os.listdir(exports_dir)
+        export_files.sort(key=lambda x: os.path.getmtime(os.path.join(exports_dir, x)), reverse=True)
+        for file in export_files[:5]:  # Show only the 5 most recent exports
+            file_path = os.path.join(exports_dir, file)
+            file_stats = os.stat(file_path)
+            file_date = datetime.fromtimestamp(file_stats.st_mtime).strftime('%Y-%m-%d %H:%M')
+            recent_exports.append({
+                'name': file,
+                'path': f'pm_allocations/{file}',
+                'date': file_date
+            })
+    except Exception as e:
+        logging.error(f"Error loading recent exports: {e}")
+    
+    # Handle file upload and processing
+    if request.method == 'POST':
+        try:
+            # Check if files were uploaded
+            if 'original_file' not in request.files or 'updated_file' not in request.files:
+                flash('Both original and updated files are required', 'danger')
+                return render_template('pm_allocation.html', result=None, processed_data=None, recent_exports=recent_exports)
+            
+            original_file = request.files['original_file']
+            updated_file = request.files['updated_file']
+            region = request.form.get('region', 'ALL')
+            
+            # Validate files
+            if original_file.filename == '' or updated_file.filename == '':
+                flash('Both files must be selected', 'danger')
+                return render_template('pm_allocation.html', result=None, processed_data=None, recent_exports=recent_exports)
+            
+            # Ensure filenames are secure
+            original_filename = secure_filename(original_file.filename or "")
+            updated_filename = secure_filename(updated_file.filename or "")
+            
+            # Add unique identifier to prevent overwriting
+            uid = uuid.uuid4().hex[:8]
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            original_path = os.path.join(uploads_dir, f"{timestamp}_{uid}_original_{original_filename}")
+            updated_path = os.path.join(uploads_dir, f"{timestamp}_{uid}_updated_{updated_filename}")
+            
+            # Save uploaded files
+            original_file.save(original_path)
+            updated_file.save(updated_path)
+            
+            # Process the PM allocation files using the billing processor
+            from utils.billing_processor import process_pm_allocation
+            
+            # Call the processor function
+            processed_result = process_pm_allocation(
+                original_path, 
+                updated_path, 
+                region=region,
+                export_dir=exports_dir
+            )
+            
+            # Prepare result for display
+            if processed_result.get('success'):
+                result = {
+                    'success': True,
+                    'message': f"Successfully processed PM allocation files for region: {region}",
+                    'export_files': []
+                }
+                
+                # Add export files to result
+                for export_file in processed_result.get('export_files', []):
+                    file_type = 'csv' if export_file.endswith('.csv') else 'excel'
+                    icon = 'bi-filetype-csv' if file_type == 'csv' else 'bi-filetype-xlsx'
+                    result['export_files'].append({
+                        'name': os.path.basename(export_file),
+                        'path': f"pm_allocations/{os.path.basename(export_file)}",
+                        'description': f"{'CSV Import File' if file_type == 'csv' else 'Excel Report'} - {region}",
+                        'icon': icon
+                    })
+                
+                # Extract processed data for display
+                processed_data = {
+                    'total_files': 2,
+                    'total_records': processed_result.get('total_records', 0),
+                    'change_count': len(processed_result.get('changes', [])),
+                    'changes': processed_result.get('changes', []),
+                    'formula_stats': {
+                        'total': processed_result.get('formula_count', 0),
+                        'preserved': int(processed_result.get('formula_preservation_rate', 0) * 100),
+                        'sheets': processed_result.get('formula_sheets', [])
+                    }
+                }
+                
+                flash("PM allocation files processed successfully. Export files have been generated.", "success")
+            else:
+                result = {
+                    'success': False,
+                    'message': f"Error processing PM allocation files: {processed_result.get('error', 'Unknown error')}"
+                }
+                flash(f"Error processing files: {processed_result.get('error', 'Unknown error')}", "danger")
+                
+        except Exception as e:
+            logging.error(f"PM allocation processing error: {str(e)}")
+            result = {
+                'success': False,
+                'message': f"Error processing PM allocation files: {str(e)}"
+            }
+            flash(f"Error processing files: {str(e)}", "danger")
+    
+    return render_template('pm_allocation.html', result=result, processed_data=processed_data, recent_exports=recent_exports)
+
+# This function is already defined elsewhere as download_export
 
 # Create database tables and test account
 with app.app_context():

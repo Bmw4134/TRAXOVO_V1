@@ -3,157 +3,44 @@
 {% block title %}Assign Driver to Asset{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="container py-4">
     <div class="row">
-        <div class="col-md-12 mb-4">
-            <div class="card border-0 shadow-sm">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Assign Driver to Asset</h4>
+                </div>
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h1 class="mb-0">Assign Driver to Asset</h1>
-                        <a href="{{ url_for('asset_driver_list') }}" class="btn btn-outline-secondary">
-                            <i class="fas fa-arrow-left"></i> Back to List
-                        </a>
-                    </div>
-                    
-                    {% with messages = get_flashed_messages(with_categories=true) %}
-                      {% if messages %}
-                        {% for category, message in messages %}
-                          <div class="alert alert-{{ category }}">{{ message }}</div>
-                        {% endfor %}
-                      {% endif %}
-                    {% endwith %}
-                    
-                    <form method="POST" action="{{ url_for('assign_driver') }}">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        
-                        <div class="row">
-                            <!-- Asset Selection -->
-                            <div class="col-md-6 mb-4">
-                                <div class="card h-100">
-                                    <div class="card-header bg-primary text-white">
-                                        <h5 class="mb-0"><i class="fas fa-truck me-2"></i> Select Asset</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="form-group mb-3">
-                                            <label for="asset_id" class="form-label">Asset</label>
-                                            <select class="form-select" id="asset_id" name="asset_id" required>
-                                                <option value="">-- Select an Asset --</option>
-                                                {% for asset in assets %}
-                                                <option value="{{ asset.id }}">{{ asset.asset_identifier }} - {{ asset.label }}</option>
-                                                {% endfor %}
-                                            </select>
-                                            <div class="form-text">Select the asset to be assigned to a driver</div>
-                                        </div>
-                                        
-                                        <div class="mt-4">
-                                            <div id="assetDetails" class="d-none">
-                                                <h6>Asset Details</h6>
-                                                <table class="table table-sm">
-                                                    <tr>
-                                                        <th style="width: 40%">Asset ID:</th>
-                                                        <td id="assetId">-</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>Description:</th>
-                                                        <td id="assetDescription">-</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>Type:</th>
-                                                        <td id="assetType">-</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>Status:</th>
-                                                        <td id="assetStatus">-</td>
-                                                    </tr>
-                                                </table>
-                                            </div>
-                                            <div id="assetPlaceholder">
-                                                <div class="alert alert-secondary">
-                                                    <i class="fas fa-info-circle"></i> Asset details will appear here once selected.
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Driver Selection -->
-                            <div class="col-md-6 mb-4">
-                                <div class="card h-100">
-                                    <div class="card-header bg-info text-white">
-                                        <h5 class="mb-0"><i class="fas fa-user me-2"></i> Select Driver</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="form-group mb-3">
-                                            <label for="driver_id" class="form-label">Driver</label>
-                                            <select class="form-select" id="driver_id" name="driver_id" required>
-                                                <option value="">-- Select a Driver --</option>
-                                                {% for driver in drivers %}
-                                                <option value="{{ driver.id }}">{{ driver.name }} ({{ driver.employee_id }})</option>
-                                                {% endfor %}
-                                            </select>
-                                            <div class="form-text">Select the driver to be assigned to this asset</div>
-                                        </div>
-                                        
-                                        <div class="mt-4">
-                                            <div id="driverDetails" class="d-none">
-                                                <h6>Driver Details</h6>
-                                                <table class="table table-sm">
-                                                    <tr>
-                                                        <th style="width: 40%">Name:</th>
-                                                        <td id="driverName">-</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>Employee ID:</th>
-                                                        <td id="driverId">-</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>Department:</th>
-                                                        <td id="driverDepartment">-</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>Region:</th>
-                                                        <td id="driverRegion">-</td>
-                                                    </tr>
-                                                </table>
-                                            </div>
-                                            <div id="driverPlaceholder">
-                                                <div class="alert alert-secondary">
-                                                    <i class="fas fa-info-circle"></i> Driver details will appear here once selected.
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                    <form method="POST" action="{{ url_for('asset_drivers.assign') }}">
+                        <div class="mb-3">
+                            <label for="asset_id" class="form-label">Asset</label>
+                            <select class="form-select" id="asset_id" name="asset_id" required>
+                                <option value="">Select Asset</option>
+                                {% for asset in assets %}
+                                <option value="{{ asset.id }}">{{ asset.asset_identifier }} - {{ asset.description }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
-                        
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label for="start_date" class="form-label">Start Date</label>
-                                    <input type="date" class="form-control" id="start_date" name="start_date" 
-                                           required value="{{ today.strftime('%Y-%m-%d') }}">
-                                    <div class="form-text">Date when the assignment begins</div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label for="notes" class="form-label">Notes</label>
-                                    <textarea class="form-control" id="notes" name="notes" rows="3" 
-                                              placeholder="Optional notes about this assignment"></textarea>
-                                    <div class="form-text">Any additional information about this assignment</div>
-                                </div>
-                            </div>
+                        <div class="mb-3">
+                            <label for="driver_id" class="form-label">Driver</label>
+                            <select class="form-select" id="driver_id" name="driver_id" required>
+                                <option value="">Select Driver</option>
+                                {% for driver in drivers %}
+                                <option value="{{ driver.id }}">{{ driver.name }} {% if driver.department %}({{ driver.department }}){% endif %}</option>
+                                {% endfor %}
+                            </select>
                         </div>
-                        
-                        <div class="form-group mt-4 text-center">
-                            <button type="submit" class="btn btn-primary btn-lg px-5">
-                                <i class="fas fa-user-plus me-2"></i> Assign Driver
-                            </button>
-                            <a href="{{ url_for('asset_driver_list') }}" class="btn btn-outline-secondary btn-lg ms-2">
-                                Cancel
-                            </a>
+                        <div class="mb-3">
+                            <label for="start_date" class="form-label">Start Date</label>
+                            <input type="date" class="form-control" id="start_date" name="start_date" value="{{ today }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Notes</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('asset_drivers.list_assignments') }}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Create Assignment</button>
                         </div>
                     </form>
                 </div>
@@ -165,54 +52,53 @@
 
 {% block scripts %}
 <script>
+    // Add filters for the asset and driver dropdowns
     document.addEventListener('DOMContentLoaded', function() {
-        // Asset selection handler
         const assetSelect = document.getElementById('asset_id');
-        const assetDetails = document.getElementById('assetDetails');
-        const assetPlaceholder = document.getElementById('assetPlaceholder');
+        const driverSelect = document.getElementById('driver_id');
         
-        assetSelect.addEventListener('change', function() {
-            if (this.value) {
-                // In a real implementation, you would fetch asset details from the server
-                // For now we'll just show the element with placeholder data
-                assetDetails.classList.remove('d-none');
-                assetPlaceholder.classList.add('d-none');
-                
-                // In a real implementation, update these fields with data from API
-                document.getElementById('assetId').textContent = this.options[this.selectedIndex].text.split(' - ')[0];
-                document.getElementById('assetDescription').textContent = this.options[this.selectedIndex].text.split(' - ')[1] || 'No description available';
-                document.getElementById('assetType').textContent = 'Equipment';  // Placeholder
-                document.getElementById('assetStatus').textContent = 'Available';  // Placeholder
-            } else {
-                assetDetails.classList.add('d-none');
-                assetPlaceholder.classList.remove('d-none');
+        // Add filter for asset dropdown
+        const assetFilter = document.createElement('input');
+        assetFilter.className = 'form-control mb-2';
+        assetFilter.placeholder = 'Filter assets...';
+        assetFilter.addEventListener('input', function() {
+            const filter = this.value.toLowerCase();
+            for (const option of assetSelect.options) {
+                if (option.value === '') continue; // Skip placeholder
+                const text = option.text.toLowerCase();
+                option.style.display = text.includes(filter) ? '' : 'none';
             }
         });
         
-        // Driver selection handler
-        const driverSelect = document.getElementById('driver_id');
-        const driverDetails = document.getElementById('driverDetails');
-        const driverPlaceholder = document.getElementById('driverPlaceholder');
+        // Add filter for driver dropdown
+        const driverFilter = document.createElement('input');
+        driverFilter.className = 'form-control mb-2';
+        driverFilter.placeholder = 'Filter drivers...';
+        driverFilter.addEventListener('input', function() {
+            const filter = this.value.toLowerCase();
+            for (const option of driverSelect.options) {
+                if (option.value === '') continue; // Skip placeholder
+                const text = option.text.toLowerCase();
+                option.style.display = text.includes(filter) ? '' : 'none';
+            }
+        });
         
-        driverSelect.addEventListener('change', function() {
+        // Insert filters before the selects
+        assetSelect.parentNode.insertBefore(assetFilter, assetSelect);
+        driverSelect.parentNode.insertBefore(driverFilter, driverSelect);
+        
+        // Check if an asset is already assigned
+        assetSelect.addEventListener('change', function() {
             if (this.value) {
-                // In a real implementation, you would fetch driver details from the server
-                // For now we'll just show the element with placeholder data
-                driverDetails.classList.remove('d-none');
-                driverPlaceholder.classList.add('d-none');
-                
-                // In a real implementation, update these fields with data from API
-                const driverText = this.options[this.selectedIndex].text;
-                const driverName = driverText.split(' (')[0];
-                const driverId = driverText.includes('(') ? driverText.split('(')[1].replace(')', '') : '';
-                
-                document.getElementById('driverName').textContent = driverName;
-                document.getElementById('driverId').textContent = driverId;
-                document.getElementById('driverDepartment').textContent = 'Field Operations';  // Placeholder
-                document.getElementById('driverRegion').textContent = 'DFW';  // Placeholder
-            } else {
-                driverDetails.classList.add('d-none');
-                driverPlaceholder.classList.remove('d-none');
+                // Check if this asset already has an assignment
+                fetch(`{{ url_for('asset_drivers.check_asset_assignment') }}?asset_id=${this.value}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.has_assignment) {
+                            alert(`Warning: This asset is currently assigned to ${data.driver_name}. Creating a new assignment will end the current one.`);
+                        }
+                    })
+                    .catch(error => console.error('Error checking asset assignment:', error));
             }
         });
     });

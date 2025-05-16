@@ -58,6 +58,31 @@
     color: #e9ecef;
 }
 
+/* Report view content styling */
+.report-view-content {
+    padding: 15px;
+    background-color: #2c3034;
+    border-radius: 5px;
+}
+
+.report-view-content table {
+    width: 100%;
+    margin-bottom: 1rem;
+    border: 1px solid #495057;
+}
+
+.report-view-content th {
+    background-color: #343a40;
+    color: #fff;
+    padding: 10px;
+}
+
+.report-view-content td {
+    padding: 8px 10px;
+    color: #e9ecef;
+    border-color: #495057;
+}
+
 /* Make form controls more visible */
 .form-control {
     background-color: #343a40;

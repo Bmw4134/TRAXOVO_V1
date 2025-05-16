@@ -184,7 +184,7 @@
                             <div class="mb-3">
                                 <label for="export_month" class="form-label">Month</label>
                                 <select class="form-select" id="export_month" name="month">
-                                    <option value="{{ current_month|replace('-', ' ').upper() }}" selected>Current Month</option>
+                                    <option value="{{ current_month|replace(' ', '-')|upper() }}" selected>Current Month</option>
                                     {% for report in recent_reports %}
                                     <option value="{{ report.month }}">{{ report.month }}</option>
                                     {% endfor %}

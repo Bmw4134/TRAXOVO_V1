@@ -41,6 +41,29 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+# Create a test account for VP access
+def create_test_account():
+    """Create a test account for VP access"""
+    try:
+        # Check if test account already exists
+        test_user = User.query.filter_by(username='vp_access').first()
+        if test_user is None:
+            test_user = User(
+                username='vp_access',
+                email='vp@company.com',
+                is_admin=True,
+                first_name='VP',
+                last_name='Access'
+            )
+            test_user.set_password('Fleet2025!')
+            db.session.add(test_user)
+            db.session.commit()
+            print("VP test account created successfully")
+        return True
+    except Exception as e:
+        print(f"Error creating VP test account: {e}")
+        return False
+
 # User model for authentication
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
@@ -1344,10 +1367,12 @@ def reports():
     """Render the reports dashboard page"""
     return render_template('reports.html')
 
-# Create database tables
+# Create database tables and test account
 with app.app_context():
     db.create_all()
     logging.info("Database tables created")
+    # Create VP test account
+    create_test_account()
 
 # Run the application
 if __name__ == "__main__":

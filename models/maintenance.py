@@ -71,7 +71,7 @@ class MaintenanceTask(db.Model):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relationships
-    asset = relationship('Asset', backref='maintenance_tasks')
+    asset = relationship('Asset')
     technician = relationship('User', backref='assigned_maintenance')
     parts = relationship('MaintenancePart', back_populates='maintenance_task')
     

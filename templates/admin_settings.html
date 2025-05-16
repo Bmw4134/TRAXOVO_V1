@@ -27,15 +27,17 @@
                         <div class="mb-3">
                             <label for="gauge_api_url" class="form-label">API URL</label>
                             <input type="text" class="form-control" id="gauge_api_url" name="gauge_api_url" 
-                                   placeholder="https://api.gaugesmart.com/v1" required>
+                                   value="{{ gauge_api_url }}" placeholder="https://api.gaugesmart.com/v1" required>
                         </div>
                         <div class="mb-3">
                             <label for="gauge_api_username" class="form-label">API Username</label>
-                            <input type="text" class="form-control" id="gauge_api_username" name="gauge_api_username" required>
+                            <input type="text" class="form-control" id="gauge_api_username" name="gauge_api_username" 
+                                   value="{{ gauge_api_username }}" required>
                         </div>
                         <div class="mb-3">
                             <label for="gauge_api_password" class="form-label">API Password</label>
-                            <input type="password" class="form-control" id="gauge_api_password" name="gauge_api_password" required>
+                            <input type="password" class="form-control" id="gauge_api_password" name="gauge_api_password" 
+                                   placeholder="Enter password here" required>
                         </div>
                         <div class="mb-3 form-check">
                             <input type="checkbox" class="form-check-input" id="auto_refresh" name="auto_refresh" checked>

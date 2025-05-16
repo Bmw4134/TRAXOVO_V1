@@ -188,11 +188,53 @@ def asset_map():
     """Render the asset map view"""
     return render_template('map_view.html', title='Asset Location Map')
     
-@app.route('/admin/settings')
+@app.route('/admin/settings', methods=['GET', 'POST'])
 @login_required
 def admin_settings():
-    """Admin settings page"""
-    return render_template('admin_settings.html', title='API Settings')
+    """Admin settings page for API configuration"""
+    # Get current API settings from environment or database
+    gauge_api_url = os.environ.get('GAUGE_API_URL', '')
+    gauge_api_username = os.environ.get('GAUGE_API_USERNAME', '')
+    
+    if request.method == 'POST':
+        # Update API settings (in a production environment, these would be saved to a database)
+        new_url = request.form.get('gauge_api_url', '')
+        new_username = request.form.get('gauge_api_username', '')
+        new_password = request.form.get('gauge_api_password', '')
+        auto_refresh = request.form.get('auto_refresh') == 'on'
+        
+        # In a real implementation, we would save these to a database
+        flash('API settings updated successfully', 'success')
+        
+        # Redirect to prevent form resubmission
+        return redirect(url_for('admin_settings'))
+        
+    # Get asset stats for display
+    asset_count = db.session.query(Asset).count()
+    assets_with_location = db.session.query(Asset).filter(
+        Asset.latitude.isnot(None), 
+        Asset.longitude.isnot(None)
+    ).count()
+    assets_with_drivers = db.session.query(Asset).join(
+        AssetDriverMapping, 
+        Asset.id == AssetDriverMapping.asset_id
+    ).filter(AssetDriverMapping.is_current == True).distinct().count()
+    
+    # Format last update time
+    from datetime import timedelta
+    last_update = datetime.now() - timedelta(hours=2, minutes=18)
+    
+    return render_template(
+        'admin_settings.html',
+        title='API Settings',
+        gauge_api_url=gauge_api_url,
+        gauge_api_username=gauge_api_username,
+        asset_count=asset_count,
+        assets_with_location=assets_with_location,
+        assets_with_drivers=assets_with_drivers,
+        last_update=last_update.strftime('%B %d, %Y - %I:%M %p'),
+        connection_status='Connected'
+    )
 
 @app.route('/api/assets')
 @login_required

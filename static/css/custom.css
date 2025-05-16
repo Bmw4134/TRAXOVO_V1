@@ -68,19 +68,23 @@
 .report-view-content table {
     width: 100%;
     margin-bottom: 1rem;
-    border: 1px solid #495057;
+    border: 2px solid #6c757d;
+    background-color: #2c3034;
 }
 
 .report-view-content th {
-    background-color: #343a40;
+    background-color: #212529;
     color: #fff;
-    padding: 10px;
+    padding: 12px 15px;
+    font-weight: bold;
+    border-bottom: 2px solid #0dcaf0;
 }
 
 .report-view-content td {
-    padding: 8px 10px;
-    color: #e9ecef;
+    padding: 12px 15px;
+    color: #ffffff;
     border-color: #495057;
+    background-color: #343a40;
 }
 
 /* Driver report specific styling */
@@ -88,30 +92,36 @@
     width: 100%;
     margin-bottom: 1.5rem;
     border-collapse: collapse;
-    border: 1px solid #495057;
+    border: 2px solid #6c757d;
+    background-color: #2c3034;
 }
 
 .driver-report-table th {
-    background-color: #212529;
+    background-color: #0d6efd;
     color: #ffffff;
-    padding: 12px 10px;
+    padding: 15px;
     font-weight: 600;
     text-align: left;
     border-bottom: 2px solid #0dcaf0;
 }
 
 .driver-report-table td {
-    padding: 10px;
-    color: #e9ecef;
+    padding: 12px 15px;
+    color: #ffffff;
+    background-color: #343a40;
     border-bottom: 1px solid #495057;
 }
 
 .driver-report-table tr:nth-of-type(odd) {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: #3e444a;
+}
+
+.driver-report-table tr:nth-of-type(even) {
+    background-color: #343a40;
 }
 
 .driver-report-table tr:hover {
-    background-color: rgba(13, 202, 240, 0.1);
+    background-color: rgba(13, 202, 240, 0.3);
 }
 
 /* Apply indicator styles to report rows based on type */

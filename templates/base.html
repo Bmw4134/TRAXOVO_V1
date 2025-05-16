@@ -32,41 +32,23 @@
                             <i class="bi bi-speedometer2 me-1"></i> Dashboard
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if '/reports' in request.path %}active{% endif %}" 
-                           href="{{ url_for('reports') }}">
-                            <i class="bi bi-graph-up me-1"></i> Reports
-                        </a>
-                    </li>
+
                     <li class="nav-item">
                         <a class="nav-link {% if '/map' in request.path %}active{% endif %}" 
-                           href="{{ url_for('map.index') }}">
+                           href="{{ url_for('index') }}">
                             <i class="bi bi-map me-1"></i> Map View
                         </a>
                     </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle {% if '/parser/' in request.path %}active{% endif %}" 
-                           href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <li class="nav-item">
+                        <a class="nav-link {% if '/report_dashboard' in request.path %}active{% endif %}" 
+                           href="{{ url_for('report_dashboard') }}">
+                            <i class="bi bi-file-bar-graph me-1"></i> Reports
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">
                             <i class="bi bi-file-earmark-arrow-up me-1"></i> File Management
                         </a>
-                        <ul class="dropdown-menu">
-                            <li>
-                                <a class="dropdown-item" href="{{ url_for('parser.index') }}">
-                                    <i class="bi bi-folder me-1"></i> File Dashboard
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{{ url_for('parser.upload') }}">
-                                    <i class="bi bi-upload me-1"></i> Upload Files
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item" href="{{ url_for('parser.compare') }}">
-                                    <i class="bi bi-arrow-left-right me-1"></i> Compare Files
-                                </a>
-                            </li>
-                        </ul>
                     </li>
                     {% if current_user.is_admin %}
                     <li class="nav-item dropdown">

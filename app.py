@@ -49,6 +49,12 @@ login_manager.login_message_category = "warning"
 # Import models after db initialization to avoid circular imports
 from models import User, Asset, AssetHistory, MaintenanceRecord, APIConfig  # noqa: E402
 
+# Import blueprints
+from blueprints.reports import reports_bp  # noqa: E402
+
+# Register blueprints
+app.register_blueprint(reports_bp)
+
 @login_manager.user_loader
 def load_user(user_id):
     """Load user by ID for Flask-Login"""
@@ -433,32 +439,109 @@ def reports():
                           recent_activities=recent_activities,
                           last_updated=last_updated)
 
-@app.route('/reports/attendance')
+@app.route('/report_dashboard')
 @login_required
-def attendance_reports():
-    """Render the attendance reports page"""
-    from reports.attendance import generate_same_day_report, generate_prior_day_report
+def report_dashboard():
+    """Main reports dashboard"""
+    # Get dates for default form values
+    today = datetime.now().strftime('%Y-%m-%d')
+    yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+    current_month = datetime.now().strftime('%Y-%m')
     
-    # Generate reports
-    same_day_report = None
-    prior_day_report = None
+    return render_template('reports_dashboard.html',
+                          title="Reports Dashboard",
+                          today=today,
+                          yesterday=yesterday,
+                          current_month=current_month,
+                          attendance_reports=[],
+                          billing_exports=[])
+                          
+@app.route('/generate_prior_day_report', methods=['POST'])
+@login_required
+def generate_prior_day_report():
+    """Generate prior day attendance report"""
+    date_str = request.form.get('date')
     
-    try:
-        # Only generate if we have assets data
-        if assets_data:
-            same_day_report = generate_same_day_report(assets_data)
-            prior_day_report = generate_prior_day_report(assets_data)
-    except Exception as e:
-        logger.error(f"Error generating attendance reports: {e}")
-        flash(f"Error generating reports: {str(e)}", "danger")
+    if not date_str:
+        flash('Please provide a valid date', 'danger')
+        return redirect(url_for('report_dashboard'))
     
-    # Format last updated time
-    last_updated = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    flash(f'Prior day report for {date_str} would be processed here', 'info')
+    return redirect(url_for('report_dashboard'))
+
+@app.route('/generate_current_day_report', methods=['POST'])
+@login_required
+def generate_current_day_report():
+    """Generate current day attendance report"""
+    date_str = request.form.get('date')
     
-    return render_template('attendance_reports.html',
-                          same_day_report=same_day_report,
-                          prior_day_report=prior_day_report,
-                          last_updated=last_updated)
+    if not date_str:
+        flash('Please provide a valid date', 'danger')
+        return redirect(url_for('report_dashboard'))
+    
+    flash(f'Current day report for {date_str} would be processed here', 'info')
+    return redirect(url_for('report_dashboard'))
+
+@app.route('/generate_regional_billing', methods=['POST'])
+@login_required
+def generate_regional_billing():
+    """Generate regional billing exports"""
+    month_str = request.form.get('month')
+    
+    if not month_str:
+        flash('Please provide a valid month', 'danger')
+        return redirect(url_for('report_dashboard'))
+    
+    flash(f'Regional billing exports for {month_str} would be generated here', 'info')
+    return redirect(url_for('report_dashboard'))
+
+@app.route('/review_pm_allocations', methods=['POST'])
+@login_required
+def review_pm_allocations():
+    """Review PM allocation changes"""
+    month_str = request.form.get('month')
+    
+    if not month_str:
+        flash('Please provide a valid month', 'danger')
+        return redirect(url_for('report_dashboard'))
+    
+    flash(f'PM allocation review for {month_str} would be processed here', 'info')
+    return redirect(url_for('report_dashboard'))
+
+@app.route('/equipment_utilization')
+@login_required
+def equipment_utilization():
+    """Equipment utilization report"""
+    flash('Equipment utilization reports would be displayed here', 'info')
+    return redirect(url_for('report_dashboard'))
+
+@app.route('/maintenance_roi')
+@login_required
+def maintenance_roi():
+    """Maintenance ROI report"""
+    flash('Maintenance ROI analytics would be displayed here', 'info')
+    return redirect(url_for('report_dashboard'))
+
+@app.route('/gps_efficiency')
+@login_required
+def gps_efficiency():
+    """GPS efficiency report"""
+    flash('GPS efficiency analytics would be displayed here', 'info')
+    return redirect(url_for('report_dashboard'))
+
+@app.route('/download_report/<path:report_path>')
+@login_required
+def download_report(report_path):
+    """Download a report file"""
+    flash('Report download would be processed here', 'info')
+    return redirect(url_for('report_dashboard'))
+
+@app.route('/download_export/<path:export_path>')
+@login_required
+def download_export(export_path):
+    """Download an export file"""
+    flash('Export download would be processed here', 'info')
+    return redirect(url_for('report_dashboard'))
 
 @app.route('/reports/maintenance')
 @login_required

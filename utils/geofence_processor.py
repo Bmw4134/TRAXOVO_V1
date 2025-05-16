@@ -7,10 +7,45 @@ This module handles processing and management of geofence data, including:
 - Combined geofence logic for site identification
 """
 
+# Add function for attendance processor
+def is_point_in_geofence(lat, lon, geofence_lat, geofence_lon, radius):
+    """
+    Check if a point (lat, lon) is within a circular geofence
+    
+    Args:
+        lat (float): Latitude of the point
+        lon (float): Longitude of the point
+        geofence_lat (float): Latitude of the geofence center
+        geofence_lon (float): Longitude of the geofence center
+        radius (float): Radius of the geofence in meters
+        
+    Returns:
+        bool: True if the point is within the geofence, False otherwise
+    """
+    # Simple Euclidean distance check (approximation for small distances)
+    # For more accuracy, we'd use the haversine formula for longer distances
+    earth_radius = 6371000  # Earth radius in meters
+    
+    # Convert to radians
+    lat1 = math.radians(lat)
+    lon1 = math.radians(lon)
+    lat2 = math.radians(geofence_lat)
+    lon2 = math.radians(geofence_lon)
+    
+    # Haversine formula
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+    a = math.sin(dlat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon/2)**2
+    c = 2 * math.asin(math.sqrt(a))
+    distance = earth_radius * c
+    
+    return distance <= radius
+
 import os
 import pandas as pd
 import json
 import logging
+import math
 from datetime import datetime
 import numpy as np
 from sqlalchemy.exc import SQLAlchemyError

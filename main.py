@@ -186,7 +186,7 @@ def asset_detail(asset_id):
 @login_required
 def reports():
     """Render the reports page"""
-    return render_template('reports.html', title='Reports')
+    return render_template('reports.html', title='Reports', datetime=datetime)
 
 @app.route('/upload-timecard', methods=['POST'])
 @login_required
@@ -728,11 +728,24 @@ def api_generate_regional_billing(region):
     """API endpoint to generate a regional billing export"""
     try:
         # Validate region
-        if region.lower() not in ['dfw', 'hou', 'wtx']:
-            return jsonify({
-                'success': False,
-                'message': 'Invalid region specified'
-            }), 400
+        valid_regions = ['dfw', 'houston', 'west_texas']
+        if region not in valid_regions:
+            return jsonify({'success': False, 'message': f'Invalid region: {region}'}), 400
+        
+        # Create exports directory if it doesn't exist
+        exports_dir = os.path.join(os.getcwd(), 'exports')
+        os.makedirs(exports_dir, exist_ok=True)
+        
+        # Generate a sample export file for demonstration
+        current_time = datetime.now().strftime('%Y%m%d_%H%M%S')
+        export_path = os.path.join(exports_dir, f'{region}_billing_export_{current_time}.xlsx')
+        
+        # Create a simple Excel file
+        import openpyxl
+        from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+        
+        wb = openpyxl.Workbook()
+        ws = wb.active
         
         # Create exports directory if it doesn't exist
         exports_dir = os.path.join('exports')

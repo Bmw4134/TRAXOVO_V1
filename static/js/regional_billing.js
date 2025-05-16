@@ -1,116 +1,119 @@
 /**
- * Regional Billing Generation functionality
+ * Regional Billing Exports JavaScript
+ * 
  * This script handles the generation of regional billing exports
+ * through API endpoints and displays success/error messages.
  */
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Set up event listeners for regional billing buttons
-    const dfwButton = document.getElementById('generate-dfw');
-    const houButton = document.getElementById('generate-hou');
-    const wtxButton = document.getElementById('generate-wtx');
+    // Set up event listeners for regional export buttons
+    const dfwButton = document.getElementById('generate-dfw-export');
+    const houstonButton = document.getElementById('generate-houston-export');
+    const westTexasButton = document.getElementById('generate-west-texas-export');
     
+    // Add event listeners if buttons exist
     if (dfwButton) {
         dfwButton.addEventListener('click', function() {
-            generateRegionalBilling('dfw');
+            generateRegionalExport('dfw');
         });
     }
     
-    if (houButton) {
-        houButton.addEventListener('click', function() {
-            generateRegionalBilling('hou');
+    if (houstonButton) {
+        houstonButton.addEventListener('click', function() {
+            generateRegionalExport('houston');
         });
     }
     
-    if (wtxButton) {
-        wtxButton.addEventListener('click', function() {
-            generateRegionalBilling('wtx');
+    if (westTexasButton) {
+        westTexasButton.addEventListener('click', function() {
+            generateRegionalExport('west_texas');
+        });
+    }
+    
+    /**
+     * Function to generate regional billing export via API call
+     * @param {string} region - The region to generate export for (dfw, houston, west_texas)
+     */
+    function generateRegionalExport(region) {
+        // Show loading state
+        const button = document.getElementById(`generate-${region}-export`);
+        const originalText = button.innerHTML;
+        
+        button.disabled = true;
+        button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+        
+        // Make API call to generate the export
+        fetch(`/api/generate-regional-billing/${region}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Reset button state
+            button.disabled = false;
+            button.innerHTML = originalText;
+            
+            // Create alert container if it doesn't exist
+            const alertsContainer = document.getElementById('alerts-container');
+            
+            // Display success or error message
+            if (data.success) {
+                // Create success alert
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-success alert-dismissible fade show';
+                alert.innerHTML = `
+                    <strong>Success!</strong> ${data.message}
+                    <a href="${data.download_url}" class="btn btn-sm btn-primary ms-3">Download Export</a>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                
+                // Add to alerts container
+                alertsContainer.appendChild(alert);
+                
+                // Initialize dismissible alert
+                new bootstrap.Alert(alert);
+            } else {
+                // Create error alert
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-danger alert-dismissible fade show';
+                alert.innerHTML = `
+                    <strong>Error!</strong> ${data.message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                
+                // Add to alerts container
+                alertsContainer.appendChild(alert);
+                
+                // Initialize dismissible alert
+                new bootstrap.Alert(alert);
+            }
+        })
+        .catch(error => {
+            // Reset button state
+            button.disabled = false;
+            button.innerHTML = originalText;
+            
+            // Create alert container if it doesn't exist
+            const alertsContainer = document.getElementById('alerts-container');
+            
+            // Create error alert
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-danger alert-dismissible fade show';
+            alert.innerHTML = `
+                <strong>Error!</strong> An unexpected error occurred while generating the export.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            
+            // Add to alerts container
+            alertsContainer.appendChild(alert);
+            
+            // Initialize dismissible alert
+            new bootstrap.Alert(alert);
+            
+            console.error('Export error:', error);
         });
     }
 });
-
-/**
- * Generate a regional billing export
- * @param {string} region - The region code (dfw, hou, wtx)
- */
-function generateRegionalBilling(region) {
-    // Show loading state
-    const button = document.getElementById(`generate-${region}`);
-    const originalText = button.textContent;
-    button.disabled = true;
-    button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Generating...';
-    
-    // Make AJAX request to generate the regional billing export
-    fetch(`/api/generate-regional-billing/${region}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        // Reset button state
-        button.disabled = false;
-        button.textContent = originalText;
-        
-        // Handle response
-        if (data.success) {
-            // Show success message
-            showAlert('success', data.message);
-            
-            // Add download link if provided
-            if (data.download_link) {
-                const alertsContainer = document.getElementById('alerts-container');
-                if (alertsContainer) {
-                    const downloadAlert = document.createElement('div');
-                    downloadAlert.className = 'alert alert-success';
-                    downloadAlert.innerHTML = data.download_link;
-                    alertsContainer.appendChild(downloadAlert);
-                    
-                    // Scroll to the alerts container
-                    alertsContainer.scrollIntoView({ behavior: 'smooth' });
-                }
-            }
-        } else {
-            // Show error message
-            showAlert('danger', data.message || 'An error occurred while generating the export.');
-        }
-    })
-    .catch(error => {
-        // Reset button state
-        button.disabled = false;
-        button.textContent = originalText;
-        
-        // Show error message
-        console.error('Error:', error);
-        showAlert('danger', 'An error occurred while generating the export. Please try again.');
-    });
-}
-
-/**
- * Show an alert message
- * @param {string} type - The alert type (success, danger, warning, info)
- * @param {string} message - The message to display
- */
-function showAlert(type, message) {
-    const alertsContainer = document.getElementById('alerts-container');
-    if (!alertsContainer) {
-        console.error('Alerts container not found');
-        return;
-    }
-    
-    const alert = document.createElement('div');
-    alert.className = `alert alert-${type} alert-dismissible fade show`;
-    alert.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    `;
-    
-    alertsContainer.appendChild(alert);
-    
-    // Auto-dismiss after 5 seconds
-    setTimeout(() => {
-        const bsAlert = new bootstrap.Alert(alert);
-        bsAlert.close();
-    }, 5000);
-}

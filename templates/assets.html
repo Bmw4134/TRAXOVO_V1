@@ -94,7 +94,7 @@
                                 </td>
                                 <td>{{ asset.updated_at.strftime('%Y-%m-%d %H:%M') if asset.updated_at else 'N/A' }}</td>
                                 <td>
-                                    <a href="{{ url_for('asset_detail', asset_id=asset.asset_identifier) }}" class="btn btn-sm btn-info">View</a>
+                                    <a href="{{ url_for('asset_detail', asset_id=asset.id) }}" class="btn btn-sm btn-info">View</a>
                                 </td>
                             </tr>
                             {% endfor %}

@@ -83,6 +83,50 @@
     border-color: #495057;
 }
 
+/* Driver report specific styling */
+.driver-report-table {
+    width: 100%;
+    margin-bottom: 1.5rem;
+    border-collapse: collapse;
+    border: 1px solid #495057;
+}
+
+.driver-report-table th {
+    background-color: #212529;
+    color: #ffffff;
+    padding: 12px 10px;
+    font-weight: 600;
+    text-align: left;
+    border-bottom: 2px solid #0dcaf0;
+}
+
+.driver-report-table td {
+    padding: 10px;
+    color: #e9ecef;
+    border-bottom: 1px solid #495057;
+}
+
+.driver-report-table tr:nth-of-type(odd) {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.driver-report-table tr:hover {
+    background-color: rgba(13, 202, 240, 0.1);
+}
+
+/* Styling for different report types */
+.late-start-row {
+    border-left: 3px solid #dc3545;
+}
+
+.early-end-row {
+    border-left: 3px solid #ffc107;
+}
+
+.not-on-job-row {
+    border-left: 3px solid #6c757d;
+}
+
 /* Make form controls more visible */
 .form-control {
     background-color: #343a40;

@@ -449,19 +449,24 @@ def generate_html_summary(reports, report_date):
     Returns:
         HTML string with report summary
     """
-    # Create HTML header
+    # Create HTML header with dark theme friendly styles
     html = f"""<!DOCTYPE html>
 <html>
 <head>
     <title>Driver Report Summary - {report_date}</title>
     <style>
-        body {{ font-family: Arial, sans-serif; margin: 20px; }}
-        h1, h2 {{ color: #333366; }}
-        table {{ border-collapse: collapse; width: 100%; margin-bottom: 20px; }}
-        th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
-        th {{ background-color: #f2f2f2; }}
-        tr:nth-child(even) {{ background-color: #f9f9f9; }}
-        .summary {{ background-color: #e6f2ff; padding: 10px; border-radius: 5px; margin-bottom: 20px; }}
+        body {{ font-family: Arial, sans-serif; margin: 20px; background-color: #212529; color: #e9ecef; }}
+        h1, h2 {{ color: #0dcaf0; }}
+        table {{ border-collapse: collapse; width: 100%; margin-bottom: 20px; border: 1px solid #495057; }}
+        th, td {{ border: 1px solid #495057; padding: 10px; text-align: left; }}
+        th {{ background-color: #343a40; color: #ffffff; border-bottom: 2px solid #0dcaf0; }}
+        tr:nth-child(even) {{ background-color: rgba(255, 255, 255, 0.05); }}
+        tr:hover {{ background-color: rgba(13, 202, 240, 0.1); }}
+        .summary {{ background-color: #2c3034; padding: 15px; border-radius: 5px; margin-bottom: 20px; border-left: 4px solid #0dcaf0; }}
+        .late-start-row {{ border-left: 3px solid #dc3545; }}
+        .early-end-row {{ border-left: 3px solid #ffc107; }}
+        .not-on-job-row {{ border-left: 3px solid #6c757d; }}
+        .driver-report-table {{ width: 100%; margin-bottom: 1.5rem; border: 1px solid #495057; }}
     </style>
 </head>
 <body>

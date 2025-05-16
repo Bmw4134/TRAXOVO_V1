@@ -1373,14 +1373,23 @@ def reports():
     return render_template('reports.html')
 
 # PM Allocation Upload and Processing
-@app.route('/pm-allocation', methods=['GET', 'POST'])
+@app.route('/pm_allocation', methods=['GET', 'POST'])
 @login_required
 def pm_allocation_processor():
     """Handle PM allocation file upload and processing"""
     import shutil
+    import traceback
     import openpyxl
     import pandas as pd
     from utils import billing_processor
+    from werkzeug.utils import secure_filename
+    
+    # Define allowed file extensions
+    ALLOWED_EXTENSIONS = {'xlsx'}
+    
+    def allowed_file(filename):
+        """Check if a file has an allowed extension"""
+        return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
     
     # Initialize variables for template
     result = None
@@ -1393,6 +1402,80 @@ def pm_allocation_processor():
     assets_dir = os.path.join(app.root_path, 'attached_assets')
     os.makedirs(uploads_dir, exist_ok=True)
     os.makedirs(exports_dir, exist_ok=True)
+    
+    # Auto-process PM allocation files if requested or handle form upload
+    auto_process = request.args.get('auto_process') == 'true'
+    
+    # Handle form submission for manual file upload
+    if request.method == 'POST':
+        # Check if the post request has the file parts
+        if 'original_file' not in request.files or 'updated_file' not in request.files:
+            flash('Both original and updated files are required', 'danger')
+            return render_template('pm_allocation.html')
+            
+        original_file = request.files['original_file']
+        updated_file = request.files['updated_file']
+        
+        # If user does not select files, browser submits empty files without filenames
+        if original_file.filename == '' or updated_file.filename == '':
+            flash('Both files must be selected', 'danger')
+            return render_template('pm_allocation.html')
+            
+        # Check if files are allowed
+        if (original_file and allowed_file(original_file.filename) and 
+            updated_file and allowed_file(updated_file.filename)):
+            
+            # Save the uploaded files
+            original_filename = secure_filename(original_file.filename)
+            updated_filename = secure_filename(updated_file.filename)
+            
+            original_path = os.path.join(uploads_dir, original_filename)
+            updated_path = os.path.join(uploads_dir, updated_filename)
+            
+            original_file.save(original_path)
+            updated_file.save(updated_path)
+            
+            # Process the uploaded files
+            region = request.form.get('region', 'ALL')
+            try:
+                result = process_pm_allocation_files(original_path, updated_path, region)
+                flash('Files uploaded and processed successfully', 'success')
+                processed_data = result
+            except Exception as e:
+                flash(f'Processing failed: {str(e)}', 'danger')
+        else:
+            flash('Only Excel files (.xlsx) are allowed', 'danger')
+    
+    # Handle auto-processing
+    elif auto_process:
+        # Find the latest original and updated files in attached_assets
+        original_filename = None
+        updated_filename = None
+        
+        for filename in os.listdir(assets_dir):
+            if filename.lower().endswith('.xlsx') and 'EQMO. BILLING ALLOCATIONS' in filename:
+                # Look for the revision or updated file
+                if 'FINAL REVISIONS' in filename or 'REVISIONS' in filename:
+                    # Updated/revised file
+                    if updated_filename is None or filename > updated_filename:
+                        updated_filename = filename
+                # Original files typically don't have "revision" in the name
+                elif original_filename is None or filename > original_filename:
+                    original_filename = filename
+        
+        if original_filename and updated_filename:
+            original_path = os.path.join(assets_dir, original_filename)
+            updated_path = os.path.join(assets_dir, updated_filename)
+            
+            # Process the found files
+            try:
+                result = process_pm_allocation_files(original_path, updated_path)
+                flash(f'Auto-processed files: {original_filename} and {updated_filename}', 'success')
+                processed_data = result
+            except Exception as e:
+                flash(f'Auto-processing failed: {str(e)}', 'danger')
+        else:
+            flash('Could not find suitable PM allocation files for auto-processing', 'warning')
     
     # Function to process PM allocation files
     def process_pm_allocation_files(original_file, updated_file, region='ALL'):

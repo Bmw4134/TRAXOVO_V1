@@ -43,13 +43,16 @@ login_manager.login_message = "Please log in to access this page."
 login_manager.login_message_category = "warning"
 
 # Import models after db initialization to avoid circular imports
-from models import User, Asset, AssetHistory, MaintenanceRecord, APIConfig, Geofence
+from models.models import User, Asset, AssetDriverMapping, APIConfig
+from models.core import Driver
 
 # Import blueprints
 from blueprints.reports import reports_bp  # noqa: E402
+from routes.asset_drivers import asset_drivers_bp  # noqa: E402
 
 # Register blueprints
 app.register_blueprint(reports_bp)
+app.register_blueprint(asset_drivers_bp)
 
 @login_manager.user_loader
 def load_user(user_id):

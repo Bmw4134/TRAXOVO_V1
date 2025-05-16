@@ -13,184 +13,189 @@
         </div>
     </div>
 
+    {% if preview_data %}
+    <!-- Preview Data -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Preview Import Data</h5>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="fas fa-info-circle fa-lg me-2"></i>
+                    <h6 class="mb-0">Import Summary</h6>
+                </div>
+                <p class="mb-1">Found <strong>{{ preview_data|length }}</strong> total entries.</p>
+                <p class="mb-0">Valid assignments: <strong>{{ valid_count }}</strong></p>
+                <p class="mb-0">Invalid entries: <strong>{{ preview_data|length - valid_count }}</strong></p>
+            </div>
+
+            {% if has_valid_rows %}
+            <form method="post" action="{{ url_for('asset_drivers.confirm_import') }}">
+                <input type="hidden" name="session_id" value="{{ session_id }}">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Asset</th>
+                                <th>Driver</th>
+                                <th>Start Date</th>
+                                <th>Message</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in preview_data %}
+                            <tr class="{% if item.status == 'valid' %}table-success{% else %}table-danger{% endif %}">
+                                <td>
+                                    {% if item.status == 'valid' %}
+                                    <span class="badge bg-success">Valid</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">Error</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if item.status == 'valid' %}
+                                    <div class="fw-bold">{{ item.asset.asset_identifier }}</div>
+                                    <div class="small text-muted">{{ item.asset.label }}</div>
+                                    {% else %}
+                                    {{ item.asset_id_raw if item.asset_id_raw else item.asset_id }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if item.status == 'valid' %}
+                                    <div class="fw-bold">{{ item.driver.name }}</div>
+                                    <div class="small text-muted">{{ item.driver.employee_id }}</div>
+                                    {% else %}
+                                    {{ item.driver_id_raw if item.driver_id_raw else item.driver_id }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if item.start_date %}
+                                    {{ item.start_date.strftime('%Y-%m-%d') }}
+                                    {% else %}
+                                    <span class="text-muted">Today</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if item.status == 'valid' %}
+                                    <span class="text-success">Ready to import</span>
+                                    {% else %}
+                                    <span class="text-danger">{{ item.message }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-file-import"></i> Confirm Import ({{ valid_count }} assignments)
+                    </button>
+                    <a href="{{ url_for('asset_drivers.import_asset_drivers') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i> Cancel Import
+                    </a>
+                </div>
+            </form>
+            {% else %}
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                No valid assignments found in the imported file. Please check your data and try again.
+            </div>
+            <div class="d-grid gap-2 mt-4">
+                <a href="{{ url_for('asset_drivers.import_asset_drivers') }}" class="btn btn-primary">
+                    <i class="fas fa-upload"></i> Try Another File
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <!-- File Upload Form -->
     <div class="row">
-        <div class="col-md-8 mx-auto">
-            <div class="card mb-4">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0">Upload Assignment Data</h5>
                 </div>
                 <div class="card-body">
-                    <form method="post" enctype="multipart/form-data" action="{{ url_for('asset_drivers.import_asset_drivers') }}">
-                        {{ form.csrf_token }}
-                        
-                        <div class="mb-3">
-                            <label for="file" class="form-label">Assignment File (Excel/CSV)</label>
+                    <form method="post" action="{{ url_for('asset_drivers.import_asset_drivers') }}" enctype="multipart/form-data">
+                        <div class="mb-4">
+                            <label for="file" class="form-label">Select File</label>
                             <input type="file" class="form-control" id="file" name="file" accept=".xlsx,.xls,.csv" required>
-                            <div class="form-text text-muted">
-                                Upload an Excel or CSV file containing asset-driver assignments. 
-                                The file should contain columns for asset identifier, driver identifier, and optionally start date.
+                            <div class="form-text">
+                                Upload an Excel (.xlsx, .xls) or CSV file containing asset-driver assignments.
                             </div>
                         </div>
-                        
-                        <div class="mb-3">
-                            <label for="asset_column" class="form-label">Asset Identifier Column</label>
-                            <input type="text" class="form-control" id="asset_column" name="asset_column" 
-                                   value="{{ request.form.get('asset_column', 'Asset ID') }}" required>
-                            <div class="form-text text-muted">
-                                Column name containing asset identifiers
+
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <label for="asset_column" class="form-label">Asset Column</label>
+                                <input type="text" class="form-control" id="asset_column" name="asset_column" value="Asset ID">
+                                <div class="form-text">Column containing asset identifiers</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="driver_column" class="form-label">Driver Column</label>
+                                <input type="text" class="form-control" id="driver_column" name="driver_column" value="Driver ID">
+                                <div class="form-text">Column containing driver identifiers</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="start_date_column" class="form-label">Start Date Column</label>
+                                <input type="text" class="form-control" id="start_date_column" name="start_date_column" value="Start Date">
+                                <div class="form-text">Optional: column with start dates</div>
                             </div>
                         </div>
-                        
-                        <div class="mb-3">
-                            <label for="driver_column" class="form-label">Driver Identifier Column</label>
-                            <input type="text" class="form-control" id="driver_column" name="driver_column" 
-                                   value="{{ request.form.get('driver_column', 'Driver ID') }}" required>
-                            <div class="form-text text-muted">
-                                Column name containing driver identifiers (name or employee ID)
+
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="has_header" name="has_header" checked>
+                                <label class="form-check-label" for="has_header">
+                                    File has header row
+                                </label>
                             </div>
+                            <div class="form-text">Check if your file has column headers in the first row</div>
                         </div>
-                        
-                        <div class="mb-3">
-                            <label for="start_date_column" class="form-label">Start Date Column (Optional)</label>
-                            <input type="text" class="form-control" id="start_date_column" name="start_date_column" 
-                                   value="{{ request.form.get('start_date_column', 'Start Date') }}">
-                            <div class="form-text text-muted">
-                                Column name containing assignment start dates. If left blank, today's date will be used.
+
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="end_previous" name="end_previous" checked>
+                                <label class="form-check-label" for="end_previous">
+                                    End previous assignments
+                                </label>
                             </div>
+                            <div class="form-text">Automatically end any current assignments for assets in this import</div>
                         </div>
-                        
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="has_header" name="has_header" checked>
-                            <label class="form-check-label" for="has_header">File has header row</label>
-                        </div>
-                        
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="end_previous" name="end_previous" checked>
-                            <label class="form-check-label" for="end_previous">End previous assignments for assets</label>
-                            <div class="form-text text-muted">
-                                If checked, any existing current assignments for the assets will be ended automatically.
+
+                        <div class="alert alert-info mb-4">
+                            <div class="d-flex">
+                                <div class="me-3">
+                                    <i class="fas fa-info-circle fa-2x"></i>
+                                </div>
+                                <div>
+                                    <h6>Import Instructions</h6>
+                                    <p class="mb-1">Your file should contain at least two columns:</p>
+                                    <ul class="mb-1">
+                                        <li>Asset identifier (must match system asset IDs)</li>
+                                        <li>Driver identifier (name or employee ID)</li>
+                                        <li>Optional: Start date in a common date format</li>
+                                    </ul>
+                                    <p class="mb-0">If a start date is not provided, the current date will be used.</p>
+                                </div>
                             </div>
                         </div>
 
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-upload"></i> Upload and Process
+                                <i class="fas fa-upload"></i> Upload and Preview
                             </button>
                         </div>
                     </form>
-                </div>
-            </div>
-            
-            {% if preview_data %}
-            <div class="card mb-4">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">Import Preview</h5>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover mb-0">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>Asset</th>
-                                    <th>Driver</th>
-                                    <th>Start Date</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for row in preview_data %}
-                                <tr>
-                                    <td>
-                                        {% if row.status == 'error' %}
-                                            <span class="text-danger">{{ row.asset_id }}</span>
-                                        {% else %}
-                                            {{ row.asset.asset_identifier }} - {{ row.asset.label }}
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if row.status == 'error' %}
-                                            <span class="text-danger">{{ row.driver_id }}</span>
-                                        {% else %}
-                                            {{ row.driver.name }} ({{ row.driver.employee_id }})
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ row.start_date }}</td>
-                                    <td>
-                                        {% if row.status == 'error' %}
-                                            <span class="badge bg-danger">Error: {{ row.message }}</span>
-                                        {% elif row.status == 'warning' %}
-                                            <span class="badge bg-warning text-dark">Warning: {{ row.message }}</span>
-                                        {% else %}
-                                            <span class="badge bg-success">Ready to Import</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="card-footer">
-                    <form method="post" action="{{ url_for('asset_drivers.confirm_import') }}">
-                        {{ form.csrf_token }}
-                        <input type="hidden" name="session_id" value="{{ session_id }}">
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-success" {% if not has_valid_rows %}disabled{% endif %}>
-                                <i class="fas fa-check"></i> Confirm Import ({{ valid_count }} valid records)
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            {% endif %}
-            
-            <div class="card mb-4">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0">Import Instructions</h5>
-                </div>
-                <div class="card-body">
-                    <h6>File Format Requirements:</h6>
-                    <ul>
-                        <li>Accepted formats: Excel (.xlsx, .xls) or CSV (.csv)</li>
-                        <li>Required columns: Asset ID (asset identifier) and Driver ID (driver name or employee ID)</li>
-                        <li>Optional columns: Start Date</li>
-                    </ul>
-                    
-                    <h6>Example Data:</h6>
-                    <div class="table-responsive">
-                        <table class="table table-sm table-bordered">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>Asset ID</th>
-                                    <th>Driver ID</th>
-                                    <th>Start Date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>EQ-1234</td>
-                                    <td>John Smith</td>
-                                    <td>2025-05-01</td>
-                                </tr>
-                                <tr>
-                                    <td>VEH-5678</td>
-                                    <td>123456</td>
-                                    <td>2025-05-15</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <h6>Notes:</h6>
-                    <ul>
-                        <li>Asset ID must match an existing asset identifier in the system</li>
-                        <li>Driver ID can be either the driver's name or employee ID</li>
-                        <li>If Start Date is not provided, today's date will be used</li>
-                        <li>Date format should be YYYY-MM-DD</li>
-                    </ul>
                 </div>
             </div>
         </div>
     </div>
+    {% endif %}
 </div>
 {% endblock %}

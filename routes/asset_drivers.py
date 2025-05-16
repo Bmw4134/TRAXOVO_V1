@@ -1,236 +1,344 @@
 """
-Asset-Driver Relationship Routes
+Asset-Driver Management Routes
 
-This module provides routes for viewing and managing the relationships
-between assets and their assigned drivers.
+This module provides routes and functionality for managing asset-driver relationships,
+including assigning drivers to assets, importing assignments from files, and viewing
+current and historical assignments.
 """
 
 import os
-import logging
-from datetime import datetime
-from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash, current_app
+import uuid
+import pandas as pd
+from datetime import datetime, date
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, abort
 from flask_login import login_required, current_user
-from models import db, Asset, Driver
-from utils.asset_driver_mapper import extract_asset_driver_mappings, update_drivers_in_database, generate_driver_asset_report
 from werkzeug.utils import secure_filename
+from werkzeug.datastructures import FileStorage
+from sqlalchemy import func, desc
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from models.models import Asset, AssetDriverMapping
+from models.core import Driver
+from utils.asset_driver_mapper import process_assignment_file, validate_assignments
+from app import db
 
 # Create blueprint
-asset_drivers_bp = Blueprint('asset_drivers', __name__)
+asset_drivers_bp = Blueprint('asset_drivers', __name__, url_prefix='/asset-drivers')
 
-@asset_drivers_bp.route('/asset-drivers')
+@asset_drivers_bp.route('/')
 @login_required
 def asset_driver_list():
-    """Display asset-driver relationships"""
+    """
+    Display list of asset-driver assignments with filtering options
+    """
+    # Get filter parameters
+    asset_id = request.args.get('asset_id', type=int)
+    driver_id = request.args.get('driver_id', type=int)
+    status = request.args.get('status')
     
-    try:
-        # Get all drivers with assigned assets
-        drivers_with_assets = Driver.query.filter(Driver.asset_id.isnot(None)).all()
-        
-        # Get all assets with assigned drivers
-        assets_with_drivers = Asset.query.filter(Asset.driver_id.isnot(None)).all()
-        
-        # Count metrics
-        total_assets = Asset.query.count()
-        total_drivers = Driver.query.count()
-        assigned_assets = len(assets_with_drivers)
-        assigned_drivers = len(drivers_with_assets)
-        
-        return render_template(
-            'asset_drivers/list.html',
-            title='Asset-Driver Relationships',
-            assets=assets_with_drivers,
-            drivers=drivers_with_assets,
-            metrics={
-                'total_assets': total_assets,
-                'total_drivers': total_drivers,
-                'assigned_assets': assigned_assets,
-                'assigned_drivers': assigned_drivers,
-                'unassigned_assets': total_assets - assigned_assets,
-                'unassigned_drivers': total_drivers - assigned_drivers
-            }
-        )
-    except Exception as e:
-        logger.error(f"Error retrieving asset-driver relationships: {e}")
-        flash(f"Error retrieving asset-driver data: {str(e)}", "danger")
-        return render_template('error.html', error=str(e))
+    # Build query with filters
+    query = AssetDriverMapping.query.join(Asset)
+    
+    if asset_id:
+        query = query.filter(AssetDriverMapping.asset_id == asset_id)
+    
+    if driver_id:
+        query = query.filter(AssetDriverMapping.driver_id == driver_id)
+    
+    if status == 'current':
+        query = query.filter(AssetDriverMapping.is_current == True)
+    elif status == 'historical':
+        query = query.filter(AssetDriverMapping.is_current == False)
+    
+    # Get assignments with pagination
+    assignments = query.order_by(desc(AssetDriverMapping.start_date)).all()
+    
+    # Get assets and drivers for filter dropdowns
+    assets = Asset.query.order_by(Asset.asset_identifier).all()
+    drivers = Driver.query.order_by(Driver.name).all()
+    
+    # Calculate statistics
+    stats = {
+        'total_assignments': AssetDriverMapping.query.count(),
+        'current_assignments': AssetDriverMapping.query.filter_by(is_current=True).count(),
+        'historical_assignments': AssetDriverMapping.query.filter_by(is_current=False).count(),
+        'total_assets': Asset.query.count(),
+        'assets_assigned': db.session.query(func.count(func.distinct(AssetDriverMapping.asset_id)))
+                           .filter(AssetDriverMapping.is_current == True).scalar() or 0,
+        'total_drivers': Driver.query.count(),
+        'active_drivers': Driver.query.filter_by(active=True).count(),
+    }
+    
+    # Calculate percentages
+    stats['asset_assignment_percentage'] = round((stats['assets_assigned'] / stats['total_assets']) * 100 
+                                              if stats['total_assets'] > 0 else 0)
+    stats['driver_active_percentage'] = round((stats['active_drivers'] / stats['total_drivers']) * 100 
+                                          if stats['total_drivers'] > 0 else 0)
+    
+    return render_template('asset_drivers/list.html', 
+                          assignments=assignments,
+                          assets=assets,
+                          drivers=drivers,
+                          stats=stats)
 
-@asset_drivers_bp.route('/asset-drivers/import', methods=['GET', 'POST'])
+@asset_drivers_bp.route('/import', methods=['GET', 'POST'])
 @login_required
 def import_asset_drivers():
-    """Import asset-driver relationships from Excel file"""
-    
+    """
+    Import asset-driver assignments from a file
+    """
     if request.method == 'POST':
         if 'file' not in request.files:
-            flash('No file selected', 'warning')
+            flash('No file selected', 'danger')
             return redirect(request.url)
         
         file = request.files['file']
-        
-        if file.filename == '':
-            flash('No file selected', 'warning')
+        if file.filename == '' or not file.filename:
+            flash('No file selected', 'danger')
             return redirect(request.url)
         
-        if file and file.filename.endswith(('.xlsx', '.xlsm', '.xls')):
-            # Save the uploaded file
-            uploads_dir = os.path.join(current_app.root_path, 'uploads')
-            os.makedirs(uploads_dir, exist_ok=True)
-            
-            timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-            filename = f"drivers_{timestamp}_{secure_filename(file.filename)}"
-            filepath = os.path.join(uploads_dir, filename)
-            
-            file.save(filepath)
-            
-            # Process the file
-            mapping_result = extract_asset_driver_mappings(filepath)
-            
-            if 'error' in mapping_result:
-                flash(f"Error processing file: {mapping_result['error']}", 'danger')
-                return redirect(url_for('asset_drivers.asset_driver_list'))
-            
-            # Update database with mappings
-            update_result = update_drivers_in_database(mapping_result.get('mappings', {}), db.session)
-            
-            if 'error' in update_result:
-                flash(f"Error updating database: {update_result['error']}", 'danger')
-            else:
-                flash(f"Successfully updated {update_result.get('updated_assets', 0)} assets and created {update_result.get('new_drivers', 0)} new drivers", 'success')
-            
-            return redirect(url_for('asset_drivers.asset_driver_list'))
-        else:
-            flash('Invalid file format. Please upload an Excel file (.xlsx, .xlsm, .xls)', 'warning')
+        if not file.filename.lower().endswith(('.xlsx', '.xls', '.csv')):
+            flash('Invalid file format. Please upload .xlsx, .xls, or .csv files.', 'danger')
             return redirect(request.url)
+        
+        # Save file temporarily
+        filename = secure_filename(file.filename)
+        temp_dir = os.path.join('uploads', 'temp')
+        os.makedirs(temp_dir, exist_ok=True)
+        file_path = os.path.join(temp_dir, filename)
+        file.save(file_path)
+        
+        # Get column configuration
+        asset_column = request.form.get('asset_column', 'Asset ID')
+        driver_column = request.form.get('driver_column', 'Driver ID')
+        start_date_column = request.form.get('start_date_column', 'Start Date')
+        has_header = 'has_header' in request.form
+        end_previous = 'end_previous' in request.form
+        
+        # Process file
+        session_id = str(uuid.uuid4())
+        preview_data, valid_count = process_assignment_file(
+            file_path, 
+            asset_column=asset_column,
+            driver_column=driver_column,
+            start_date_column=start_date_column,
+            has_header=has_header,
+            end_previous=end_previous,
+            session_id=session_id
+        )
+        
+        return render_template('asset_drivers/import.html',
+                              preview_data=preview_data,
+                              valid_count=valid_count,
+                              session_id=session_id,
+                              has_valid_rows=valid_count > 0)
     
-    return render_template('asset_drivers/import.html', title='Import Asset-Driver Relationships')
+    return render_template('asset_drivers/import.html')
 
-@asset_drivers_bp.route('/asset-drivers/assign/<int:asset_id>', methods=['GET', 'POST'])
+@asset_drivers_bp.route('/import/confirm', methods=['POST'])
 @login_required
-def assign_driver(asset_id):
-    """Assign a driver to an asset"""
+def confirm_import():
+    """
+    Confirm and finalize the import of asset-driver assignments
+    """
+    session_id = request.form.get('session_id')
+    if not session_id:
+        flash('Invalid session', 'danger')
+        return redirect(url_for('asset_drivers.import_asset_drivers'))
     
-    asset = Asset.query.get_or_404(asset_id)
+    assignments = session.get(f'asset_driver_import_{session_id}', [])
+    if not assignments:
+        flash('No valid assignments found to import', 'danger')
+        return redirect(url_for('asset_drivers.import_asset_drivers'))
+    
+    success_count = 0
+    for data in assignments:
+        if data.get('status') == 'valid':
+            # End previous assignments if needed
+            if data.get('end_previous', True):
+                previous_assignments = AssetDriverMapping.query.filter_by(
+                    asset_id=data['asset_id'],
+                    is_current=True
+                ).all()
+                
+                for prev in previous_assignments:
+                    prev.is_current = False
+                    prev.end_date = data['start_date'] or date.today()
+            
+            # Create new assignment
+            assignment = AssetDriverMapping(
+                asset_id=data['asset_id'],
+                driver_id=data['driver_id'],
+                start_date=data['start_date'] or date.today(),
+                is_current=True
+            )
+            
+            db.session.add(assignment)
+            success_count += 1
+    
+    try:
+        db.session.commit()
+        flash(f'Successfully imported {success_count} asset-driver assignments', 'success')
+        # Clean up session data
+        session.pop(f'asset_driver_import_{session_id}', None)
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error importing assignments: {str(e)}', 'danger')
+    
+    return redirect(url_for('asset_drivers.asset_driver_list'))
+
+@asset_drivers_bp.route('/assign', methods=['GET', 'POST'])
+@login_required
+def assign_asset_driver():
+    """
+    Assign a driver to an asset
+    """
+    assets = Asset.query.filter_by(active=True).order_by(Asset.asset_identifier).all()
+    drivers = Driver.query.filter_by(active=True).order_by(Driver.name).all()
     
     if request.method == 'POST':
-        driver_id = request.form.get('driver_id')
+        asset_id = request.form.get('asset_id', type=int)
+        driver_id = request.form.get('driver_id', type=int)
+        start_date_str = request.form.get('start_date')
+        notes = request.form.get('notes', '')
         
-        if driver_id:
-            driver = Driver.query.get(driver_id)
+        if not asset_id or not driver_id or not start_date_str:
+            flash('Please fill in all required fields', 'danger')
+            return render_template('asset_drivers/assign.html', 
+                                  assets=assets, 
+                                  drivers=drivers,
+                                  title="Assign Driver to Asset",
+                                  form_action=url_for('asset_drivers.assign_asset_driver'))
+        
+        try:
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
             
-            if driver:
-                # Update asset with driver
-                asset.driver_id = driver.id
-                
-                # Update driver with asset
-                driver.asset_id = asset.id
-                
-                db.session.commit()
-                
-                flash(f"Successfully assigned {driver.name} to {asset.asset_identifier}", 'success')
-                return redirect(url_for('asset_drivers.asset_driver_list'))
-            else:
-                flash('Invalid driver selected', 'danger')
-        else:
-            # Unassign driver
-            if asset.driver_id:
-                driver = Driver.query.get(asset.driver_id)
-                if driver:
-                    driver.asset_id = None
-                
-                asset.driver_id = None
-                db.session.commit()
-                
-                flash(f"Driver unassigned from {asset.asset_identifier}", 'success')
-                return redirect(url_for('asset_drivers.asset_driver_list'))
-    
-    # Get all drivers for selection
-    drivers = Driver.query.order_by(Driver.name).all()
-    
-    return render_template(
-        'asset_drivers/assign.html',
-        title=f'Assign Driver to {asset.asset_identifier}',
-        asset=asset,
-        drivers=drivers
-    )
-
-@asset_drivers_bp.route('/asset-drivers/generate-report')
-@login_required
-def generate_report():
-    """Generate asset-driver relationship report"""
-    
-    try:
-        # Get all asset-driver relationships
-        assets = Asset.query.filter(Asset.driver_id.isnot(None)).all()
-        
-        # Prepare data for report
-        mappings = {}
-        for asset in assets:
-            if asset.driver_id:
-                driver = Driver.query.get(asset.driver_id)
-                if driver:
-                    mappings[asset.asset_identifier] = {
-                        'employee_name': driver.name,
-                        'employee_id': driver.employee_id
-                    }
-        
-        # Generate report
-        reports_dir = os.path.join(current_app.root_path, 'reports')
-        os.makedirs(reports_dir, exist_ok=True)
-        
-        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-        report_path = os.path.join(reports_dir, f"asset_driver_mapping_{timestamp}.xlsx")
-        
-        result = generate_driver_asset_report(mappings, report_path)
-        
-        if 'error' in result:
-            flash(f"Error generating report: {result['error']}", 'danger')
+            # Check if asset already has a current assignment
+            existing = AssetDriverMapping.query.filter_by(
+                asset_id=asset_id,
+                is_current=True
+            ).first()
+            
+            if existing:
+                # End previous assignment
+                existing.is_current = False
+                existing.end_date = start_date
+            
+            # Create new assignment
+            assignment = AssetDriverMapping(
+                asset_id=asset_id,
+                driver_id=driver_id,
+                start_date=start_date,
+                is_current=True,
+                notes=notes
+            )
+            
+            db.session.add(assignment)
+            db.session.commit()
+            
+            flash('Driver successfully assigned to asset', 'success')
             return redirect(url_for('asset_drivers.asset_driver_list'))
         
-        flash(f"Report generated successfully with {result.get('count', 0)} entries", 'success')
-        
-        # Return the report for download
-        return redirect(url_for('download_report', report_path=os.path.basename(report_path)))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error assigning driver: {str(e)}', 'danger')
     
-    except Exception as e:
-        logger.error(f"Error generating asset-driver report: {e}")
-        flash(f"Error generating report: {str(e)}", 'danger')
-        return redirect(url_for('asset_drivers.asset_driver_list'))
+    return render_template('asset_drivers/assign.html', 
+                          assets=assets, 
+                          drivers=drivers,
+                          title="Assign Driver to Asset",
+                          form_action=url_for('asset_drivers.assign_asset_driver'))
 
-@asset_drivers_bp.route('/api/asset-drivers')
+@asset_drivers_bp.route('/edit/<int:assignment_id>', methods=['GET', 'POST'])
 @login_required
-def api_asset_drivers():
-    """API endpoint to get asset-driver relationships in JSON format"""
+def edit_assignment(assignment_id):
+    """
+    Edit an existing asset-driver assignment
+    """
+    assignment = AssetDriverMapping.query.get_or_404(assignment_id)
+    assets = Asset.query.filter_by(active=True).order_by(Asset.asset_identifier).all()
+    drivers = Driver.query.filter_by(active=True).order_by(Driver.name).all()
     
-    try:
-        # Get all assets with drivers
-        assets = Asset.query.filter(Asset.driver_id.isnot(None)).all()
+    if request.method == 'POST':
+        asset_id = request.form.get('asset_id', type=int)
+        driver_id = request.form.get('driver_id', type=int)
+        start_date_str = request.form.get('start_date')
+        end_date_str = request.form.get('end_date')
+        is_current = 'is_current' in request.form
+        notes = request.form.get('notes', '')
         
-        result = []
-        for asset in assets:
-            if asset.driver_id:
-                driver = Driver.query.get(asset.driver_id)
-                if driver:
-                    result.append({
-                        'asset_id': asset.id,
-                        'asset_identifier': asset.asset_identifier,
-                        'asset_description': asset.label or asset.description,
-                        'driver_id': driver.id,
-                        'driver_name': driver.name,
-                        'driver_employee_id': driver.employee_id
-                    })
+        if not asset_id or not driver_id or not start_date_str:
+            flash('Please fill in all required fields', 'danger')
+            return render_template('asset_drivers/assign.html', 
+                                  assets=assets, 
+                                  drivers=drivers,
+                                  assignment=assignment,
+                                  editing=True,
+                                  title="Edit Asset-Driver Assignment",
+                                  form_action=url_for('asset_drivers.edit_assignment', assignment_id=assignment_id))
         
-        return jsonify({
-            'status': 'success',
-            'count': len(result),
-            'data': result
-        })
+        try:
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else None
+            
+            # Update assignment
+            assignment.asset_id = asset_id
+            assignment.driver_id = driver_id
+            assignment.start_date = start_date
+            assignment.end_date = end_date
+            assignment.is_current = is_current
+            assignment.notes = notes
+            
+            # If not current and no end date, set end date to today
+            if not is_current and not end_date:
+                assignment.end_date = date.today()
+            
+            db.session.commit()
+            
+            flash('Assignment updated successfully', 'success')
+            return redirect(url_for('asset_drivers.asset_driver_list'))
+        
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error updating assignment: {str(e)}', 'danger')
     
-    except Exception as e:
-        logger.error(f"Error in API endpoint: {e}")
-        return jsonify({
-            'status': 'error',
-            'message': str(e)
-        }), 500
+    return render_template('asset_drivers/assign.html', 
+                          assets=assets, 
+                          drivers=drivers,
+                          assignment=assignment,
+                          editing=True,
+                          title="Edit Asset-Driver Assignment",
+                          form_action=url_for('asset_drivers.edit_assignment', assignment_id=assignment_id))
+
+@asset_drivers_bp.route('/end/<int:assignment_id>', methods=['GET', 'POST'])
+@login_required
+def end_assignment(assignment_id):
+    """
+    End an active asset-driver assignment
+    """
+    assignment = AssetDriverMapping.query.get_or_404(assignment_id)
+    
+    if not assignment.is_current:
+        flash('This assignment has already ended', 'warning')
+        return redirect(url_for('asset_drivers.asset_driver_list'))
+    
+    if request.method == 'POST':
+        end_date_str = request.form.get('end_date')
+        
+        try:
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else date.today()
+            
+            assignment.is_current = False
+            assignment.end_date = end_date
+            
+            db.session.commit()
+            
+            flash('Assignment ended successfully', 'success')
+            return redirect(url_for('asset_drivers.asset_driver_list'))
+        
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error ending assignment: {str(e)}', 'danger')
+    
+    return render_template('asset_drivers/end_assignment.html', 
+                          assignment=assignment,
+                          today=date.today().strftime('%Y-%m-%d'))

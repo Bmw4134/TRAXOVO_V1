@@ -1,70 +1,193 @@
 {% extends 'base.html' %}
 
-{% block title %}Import Asset-Driver Relationships{% endblock %}
+{% block title %}Import Asset-Driver Assignments{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Import Asset-Driver Assignments</h1>
+        <div>
+            <a href="{{ url_for('asset_drivers.asset_driver_list') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
     <div class="row">
-        <div class="col-md-12">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
-                    <li class="breadcrumb-item"><a href="{{ url_for('asset_drivers.asset_driver_list') }}">Asset-Driver Relationships</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Import</li>
-                </ol>
-            </nav>
-            
-            <div class="card">
-                <div class="card-header bg-dark text-white">
-                    <h4 class="mb-0">Import Asset-Driver Relationships</h4>
+        <div class="col-md-8 mx-auto">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Upload Assignment Data</h5>
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <form method="POST" enctype="multipart/form-data">
-                                <div class="mb-3">
-                                    <label for="file" class="form-label">Select Excel File</label>
-                                    <input type="file" class="form-control" id="file" name="file" accept=".xlsx,.xlsm,.xls" required>
-                                    <div class="form-text text-muted">
-                                        Select an Excel file containing asset-driver mappings. The system will look for a sheet named "DRIVERS".
-                                    </div>
-                                </div>
-                                
-                                <div class="d-grid gap-2">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-upload"></i> Upload and Process
-                                    </button>
-                                    <a href="{{ url_for('asset_drivers.asset_driver_list') }}" class="btn btn-secondary">
-                                        <i class="fas fa-arrow-left"></i> Back to List
-                                    </a>
-                                </div>
-                            </form>
-                        </div>
+                    <form method="post" enctype="multipart/form-data" action="{{ url_for('asset_drivers.import_asset_drivers') }}">
+                        {{ form.csrf_token }}
                         
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header bg-dark text-white">
-                                    <h5 class="mb-0">File Format Information</h5>
-                                </div>
-                                <div class="card-body">
-                                    <p>The system expects an Excel file with the following format:</p>
-                                    <ul class="list-group list-group-flush">
-                                        <li class="list-group-item">A sheet named "DRIVERS" containing asset-driver assignments</li>
-                                        <li class="list-group-item">Columns for Asset ID, Driver Name/Employee Name, and Employee ID</li>
-                                        <li class="list-group-item">The monthly equipment billings spreadsheet typically has this format</li>
-                                    </ul>
-                                    
-                                    <div class="alert alert-info mt-3">
-                                        <h6 class="alert-heading"><i class="fas fa-info-circle"></i> Note:</h6>
-                                        <p class="mb-0">
-                                            This import will update existing driver-asset relationships and create new ones
-                                            as needed. Existing drivers will be matched by name or ID.
-                                        </p>
-                                    </div>
-                                </div>
+                        <div class="mb-3">
+                            <label for="file" class="form-label">Assignment File (Excel/CSV)</label>
+                            <input type="file" class="form-control" id="file" name="file" accept=".xlsx,.xls,.csv" required>
+                            <div class="form-text text-muted">
+                                Upload an Excel or CSV file containing asset-driver assignments. 
+                                The file should contain columns for asset identifier, driver identifier, and optionally start date.
                             </div>
                         </div>
+                        
+                        <div class="mb-3">
+                            <label for="asset_column" class="form-label">Asset Identifier Column</label>
+                            <input type="text" class="form-control" id="asset_column" name="asset_column" 
+                                   value="{{ request.form.get('asset_column', 'Asset ID') }}" required>
+                            <div class="form-text text-muted">
+                                Column name containing asset identifiers
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="driver_column" class="form-label">Driver Identifier Column</label>
+                            <input type="text" class="form-control" id="driver_column" name="driver_column" 
+                                   value="{{ request.form.get('driver_column', 'Driver ID') }}" required>
+                            <div class="form-text text-muted">
+                                Column name containing driver identifiers (name or employee ID)
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="start_date_column" class="form-label">Start Date Column (Optional)</label>
+                            <input type="text" class="form-control" id="start_date_column" name="start_date_column" 
+                                   value="{{ request.form.get('start_date_column', 'Start Date') }}">
+                            <div class="form-text text-muted">
+                                Column name containing assignment start dates. If left blank, today's date will be used.
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="has_header" name="has_header" checked>
+                            <label class="form-check-label" for="has_header">File has header row</label>
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="end_previous" name="end_previous" checked>
+                            <label class="form-check-label" for="end_previous">End previous assignments for assets</label>
+                            <div class="form-text text-muted">
+                                If checked, any existing current assignments for the assets will be ended automatically.
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-upload"></i> Upload and Process
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            {% if preview_data %}
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Import Preview</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover mb-0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Asset</th>
+                                    <th>Driver</th>
+                                    <th>Start Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in preview_data %}
+                                <tr>
+                                    <td>
+                                        {% if row.status == 'error' %}
+                                            <span class="text-danger">{{ row.asset_id }}</span>
+                                        {% else %}
+                                            {{ row.asset.asset_identifier }} - {{ row.asset.label }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if row.status == 'error' %}
+                                            <span class="text-danger">{{ row.driver_id }}</span>
+                                        {% else %}
+                                            {{ row.driver.name }} ({{ row.driver.employee_id }})
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ row.start_date }}</td>
+                                    <td>
+                                        {% if row.status == 'error' %}
+                                            <span class="badge bg-danger">Error: {{ row.message }}</span>
+                                        {% elif row.status == 'warning' %}
+                                            <span class="badge bg-warning text-dark">Warning: {{ row.message }}</span>
+                                        {% else %}
+                                            <span class="badge bg-success">Ready to Import</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
+                </div>
+                <div class="card-footer">
+                    <form method="post" action="{{ url_for('asset_drivers.confirm_import') }}">
+                        {{ form.csrf_token }}
+                        <input type="hidden" name="session_id" value="{{ session_id }}">
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success" {% if not has_valid_rows %}disabled{% endif %}>
+                                <i class="fas fa-check"></i> Confirm Import ({{ valid_count }} valid records)
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="card mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">Import Instructions</h5>
+                </div>
+                <div class="card-body">
+                    <h6>File Format Requirements:</h6>
+                    <ul>
+                        <li>Accepted formats: Excel (.xlsx, .xls) or CSV (.csv)</li>
+                        <li>Required columns: Asset ID (asset identifier) and Driver ID (driver name or employee ID)</li>
+                        <li>Optional columns: Start Date</li>
+                    </ul>
+                    
+                    <h6>Example Data:</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Asset ID</th>
+                                    <th>Driver ID</th>
+                                    <th>Start Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>EQ-1234</td>
+                                    <td>John Smith</td>
+                                    <td>2025-05-01</td>
+                                </tr>
+                                <tr>
+                                    <td>VEH-5678</td>
+                                    <td>123456</td>
+                                    <td>2025-05-15</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <h6>Notes:</h6>
+                    <ul>
+                        <li>Asset ID must match an existing asset identifier in the system</li>
+                        <li>Driver ID can be either the driver's name or employee ID</li>
+                        <li>If Start Date is not provided, today's date will be used</li>
+                        <li>Date format should be YYYY-MM-DD</li>
+                    </ul>
                 </div>
             </div>
         </div>

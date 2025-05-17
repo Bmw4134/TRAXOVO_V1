@@ -159,6 +159,68 @@
         </div>
     </div>
     
+    <!-- Status & Features -->
+    {% if processor_status.initialized %}
+    <div class="row mt-2">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-clipboard-check me-2"></i>Processing Progress</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Current Processing Status</h5>
+                            <div class="progress mb-3" style="height: 25px;">
+                                <div class="progress-bar bg-success" role="progressbar" 
+                                    style="width: {% if processor_status.files_processed > 1 %}100{% else %}50{% endif %}%;" 
+                                    aria-valuenow="{% if processor_status.files_processed > 1 %}100{% else %}50{% endif %}" 
+                                    aria-valuemin="0" aria-valuemax="100">
+                                    {{ processor_status.files_processed }} file(s) processed
+                                </div>
+                            </div>
+                            <div class="alert alert-info">
+                                <strong>Next Steps:</strong> 
+                                {% if processor_status.files_processed > 1 %}
+                                You can either add more PM files or generate the master output.
+                                {% else %}
+                                Add a revised PM file to see changes and track updates.
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Special Handling Features</h5>
+                            <div class="list-group">
+                                <div class="list-group-item list-group-item-success">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1"><i class="bi bi-check-circle"></i> Matagorda Cost Code Splitting</h6>
+                                        <small>Active</small>
+                                    </div>
+                                    <p class="mb-1">Special handling for Matagorda jobs with complex cost code patterns.</p>
+                                </div>
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1"><i class="bi bi-check-circle"></i> EX-65 Triple Split</h6>
+                                        <small>Active</small>
+                                    </div>
+                                    <p class="mb-1">Special 50/30/20 split for EX-65 at Matagorda across foundation, pipeline and general.</p>
+                                </div>
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1"><i class="bi bi-check-circle"></i> Excavator Double Split</h6>
+                                        <small>Active</small>
+                                    </div>
+                                    <p class="mb-1">60/40 split for excavators at Matagorda between general and pipeline.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- How to Use Section -->
     <div class="row mt-2">
         <div class="col-12">
@@ -192,7 +254,7 @@
                     </div>
                     <div class="mt-2">
                         <div class="alert alert-secondary">
-                            <strong>Tip:</strong> The master output will include detailed tracking of all changes including additions, modifications, and deletions across all PM sheets.
+                            <strong>Tip:</strong> The master output includes detailed tracking of all changes including additions, modifications, and deletions across all PM sheets. Smart cost code handling is applied automatically.
                         </div>
                     </div>
                 </div>

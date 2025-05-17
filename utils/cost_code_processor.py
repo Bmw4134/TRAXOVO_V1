@@ -51,7 +51,7 @@ def process_cost_code_splits(df):
     # Find column with notes 
     note_col = None
     for col in df.columns:
-        if 'note' in str(col).lower() or 'detail' in str(col).lower():
+        if 'note' in str(col).lower() or 'detail' in str(col).lower() or 'comment' in str(col).lower():
             note_col = col
             break
             
@@ -106,14 +106,38 @@ def process_cost_code_splits(df):
             
             # Check for split instructions
             if not pd.isna(note) and 'split' in str(note).lower():
-                # Look for patterns like "Split 0.25 EA"
-                values = re.findall(r'(\d+\.\d+|\d+)', str(note))
-                if values and 'ea' in str(note).lower():
+                # Look for patterns like "Split 0.25 EA" or "Split 25% EA"
+                values = re.findall(r'(\d+\.\d+|\d+)(%)?', str(note))
+                if values:
                     try:
-                        value = float(values[0])
+                        # Get the first numeric value
+                        value_str, is_percent = values[0]
+                        value = float(value_str)
+                        
+                        # Convert percentage to decimal if needed
+                        if is_percent:
+                            value = value / 100.0
+                            
                         if value > 0:
-                            # Each split gets this ratio
-                            split_ratios = [value] * len(split_codes)
+                            # Handle special case for Matagorda job - multiple different cost codes
+                            job_number = row.get('job_number', '')
+                            asset_id = row.get('equipment_id', '')
+                            
+                            # Match patterns for Matagorda or similar complex splits
+                            is_complex_split = (
+                                'matagorda' in str(job_number).lower() or 
+                                '496' in str(cost_code) or
+                                'ex-65' in str(asset_id).lower() or
+                                (len(split_codes) > 3 and any('eq' in code.lower() for code in split_codes))
+                            )
+                            
+                            if is_complex_split:
+                                # Special processing for complex Matagorda split
+                                # Keep the cost codes but distribute them evenly
+                                split_ratios = [1.0 / len(split_codes)] * len(split_codes)
+                            else:
+                                # Standard case - each split gets this ratio
+                                split_ratios = [value] * len(split_codes)
                             
                             # Normalize if needed
                             total = sum(split_ratios)
@@ -121,7 +145,7 @@ def process_cost_code_splits(df):
                                 split_ratios = [r / total for r in split_ratios]
                     except ValueError:
                         # Fall back to equal distribution
-                        pass
+                        logger.warning(f"Failed to parse split ratio from note: {note}")
             
             # Get allocation amount
             allocation = row.get('unit_allocation', 1.0)
@@ -137,9 +161,28 @@ def process_cost_code_splits(df):
                     
             # Create a row for each split code
             for i, code in enumerate(split_codes):
-                if not code or code.upper() == 'EQ':
+                # Handle empty codes or EQ shorthand
+                if not code or code.strip() == '' or code.upper() == 'EQ':
                     code = '9000 100M'  # Default equipment code
-                    
+                
+                # Special handling for Matagorda jobs - preserve original cost code format
+                if '496' in str(code):
+                    # Ensure proper cost code format for Matagorda
+                    if ' ' not in code and len(code) >= 4:
+                        # Format as "0496 6012X" pattern if needed
+                        prefix = code[:4]
+                        suffix = code[4:]
+                        
+                        # Add leading zero if needed (049 -> 0496)
+                        if len(prefix) == 3 and prefix.isdigit():
+                            prefix = "0" + prefix
+                            
+                        code = f"{prefix} {suffix}"
+                        
+                    # Add project identifier if missing
+                    if not code.upper().endswith(('A', 'B', 'C', 'D', 'E', 'F')) and len(code) > 6:
+                        code = code + "B"  # Default to B if not specified
+                
                 split_row = row.copy()
                 split_row[cost_code_col] = code
                 

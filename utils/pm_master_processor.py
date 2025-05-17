@@ -218,9 +218,9 @@ class PMMasterProcessor:
             
             # Generate row IDs using standard function
             if 'row_id' not in new_data.columns:
-                # Generate row IDs based on key fields
+                # Generate row IDs based on key fields with improved handling for different formats
                 new_data['row_id'] = new_data.apply(
-                    lambda row: f"{row.get('job_number', 'unknown')}_{row.get('equipment_id', 'unknown')}_{row.name}", 
+                    lambda row: self._generate_reliable_row_id(row), 
                     axis=1
                 )
             
@@ -319,6 +319,46 @@ class PMMasterProcessor:
             'job_count': len(job_distribution),
             'job_distribution': job_distribution
         }
+        
+    def _generate_reliable_row_id(self, row):
+        """
+        Generate a reliable row ID that works across different file formats
+        including 2022-008 project files
+        
+        Args:
+            row (Series): The DataFrame row
+            
+        Returns:
+            str: Unique identifier for the row
+        """
+        # Get key fields with fallbacks
+        job_number = row.get('job_number', '')
+        equipment_id = row.get('equipment_id', '')
+        cost_code = row.get('cost_code', '')
+        amount = row.get('amount', 0)
+        rate = row.get('rate', 0)
+        days = row.get('days', 0)
+        
+        # Handle missing values
+        if pd.isna(job_number): job_number = ''
+        if pd.isna(equipment_id): equipment_id = ''
+        if pd.isna(cost_code): cost_code = ''
+        if pd.isna(amount): amount = 0
+        if pd.isna(rate): rate = 0
+        if pd.isna(days): days = 0
+        
+        # For 2022-008 format, create a more specific ID using additional fields
+        if '2022-008' in str(job_number):
+            # Include rate and days in the ID to better distinguish entries
+            return f"{job_number}_{equipment_id}_{cost_code}_{rate}_{days}"
+        
+        # For Matagorda project files
+        elif '0496' in str(cost_code) or 'Matagorda' in str(job_number):
+            # Special handling for Matagorda cost codes
+            return f"{job_number}_{equipment_id}_{cost_code}_{amount}"
+        
+        # Default ID generation
+        return f"{job_number}_{equipment_id}_{row.name}"
         
     def _process_cost_code_splits(self, row):
         """

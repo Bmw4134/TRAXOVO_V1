@@ -15,7 +15,7 @@ from datetime import datetime
 import logging
 from pathlib import Path
 import json
-from utils.cost_code_processor import process_cost_code_splits
+from utils.cost_code_processor import apply_cost_code_splitting, summarize_splits
 
 logger = logging.getLogger(__name__)
 
@@ -233,10 +233,30 @@ class PMMasterProcessor:
             # Process cost code splits in the data
             logger.info(f"Processing cost code splits in file: {file_path}")
             try:
-                # Process cost code splits while preserving all columns
-                processed_data = process_cost_code_splits(new_data)
+                # Apply cost code splitting rules, especially for Matagorda jobs
+                processed_data = apply_cost_code_splitting(
+                    new_data,
+                    equipment_id_col="equipment_id",
+                    job_number_col="job_number",
+                    cost_code_col="cost_code",
+                    amount_col="amount",
+                    rate_col="rate",
+                    days_col="days"
+                )
+                
                 if not processed_data.empty:
                     new_data = processed_data
+                    # Log summary of splits that were applied
+                    split_summary = summarize_splits(
+                        processed_data,
+                        job_number_col="job_number",
+                        equipment_id_col="equipment_id",
+                        amount_col="amount"
+                    )
+                    if split_summary.get("has_splits"):
+                        logger.info(f"Applied cost code splits: {split_summary['total_split_rows']} rows affected")
+                        for split in split_summary.get("equipment_splits", []):
+                            logger.info(f"  {split['equipment_id']}: {split['split_type']} split ({'/'.join([str(int(p*100)) for p in split['percentages']])})")
                 else:
                     logger.warning("Cost code processor returned empty DataFrame, using original data")
             except Exception as e:
@@ -389,15 +409,39 @@ class PMMasterProcessor:
         """
         Process complex cost code splits like those for Asset EX-65 at Matagorda
         
+        This function delegates to the specialized cost code processor which handles:
+        - Matagorda job patterns (job numbers starting with 0496)
+        - EX-65 special triple cost code split (50/30/20)
+        - Other excavators double split (60/40)
+        
         Args:
             row (Series): The row data containing cost code information
             
         Returns:
             list: List of split rows with proper cost code allocations
         """
-        split_rows = []
+        # Create a single-row DataFrame from the Series
+        temp_df = pd.DataFrame([row])
         
-        # Check if cost code column contains slashes indicating splits
+        # Use our cost code splitting utility
+        result_df = apply_cost_code_splitting(
+            temp_df,
+            equipment_id_col="equipment_id",
+            job_number_col="job_number",
+            cost_code_col="cost_code",
+            amount_col="amount",
+            rate_col="rate",
+            days_col="days"
+        )
+        
+        # Convert back to a list of rows
+        split_rows = result_df.to_dict('records')
+        
+        # If no splits were made, just return the original row as a single-item list
+        if not split_rows:
+            return [row.to_dict()]
+            
+        return split_rows
         cost_code = row.get('cost_code', '')
         notes = row.get('note', '')
         if pd.isna(cost_code):

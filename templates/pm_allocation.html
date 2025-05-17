@@ -1,373 +1,250 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+
+{% block title %}PM Allocation Processing | SYSTEMSMITH{% endblock %}
 
 {% block content %}
-<div class="container my-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="display-5">PM Billing Allocation Processor</h1>
-        <div class="btn-group">
-            <a href="{{ url_for('reports_dashboard') }}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left me-1"></i> Back to Reports
-            </a>
-        </div>
-    </div>
-
+<div class="container-fluid py-4">
     <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-12">
             <div class="card mb-4">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0"><i class="bi bi-upload me-2"></i>Upload Allocation Files</h5>
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">PM Allocation Processor</h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{ url_for('pm_allocation_processor') }}" method="post" enctype="multipart/form-data">
-                        <div class="mb-3">
-                            <label for="originalFile" class="form-label">Original PM Allocation File</label>
-                            <input class="form-control" type="file" id="originalFile" name="original_file" accept=".xlsx,.xlsm,.xls">
-                            <div class="form-text">Usually named "EQ BILLING ALLOCATIONS - MONTH YEAR"</div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="updatedFile" class="form-label">Updated PM Allocation File</label>
-                            <input class="form-control" type="file" id="updatedFile" name="updated_file" accept=".xlsx,.xlsm,.xls">
-                            <div class="form-text">Usually named with "FINAL REVISIONS" suffix</div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="region" class="form-label">Region</label>
-                            <select class="form-select" id="region" name="region">
-                                <option value="ALL">All Regions</option>
-                                <option value="DFW">Dallas-Fort Worth</option>
-                                <option value="HOU">Houston</option>
-                                <option value="WT">West Texas</option>
-                            </select>
-                        </div>
-
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-arrow-repeat me-1"></i> Process Files
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <div class="card mb-4">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0"><i class="bi bi-files me-2"></i>Auto-Detect Files</h5>
-                </div>
-                <div class="card-body">
-                    <p>Let the system automatically find and process the latest allocation files from the uploads directory.</p>
-                    <div class="d-grid">
-                        <a href="{{ url_for('auto_process_pm_allocation') }}" class="btn btn-outline-primary">
-                            <i class="bi bi-magic me-1"></i> Auto-Process Files
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0"><i class="bi bi-question-circle me-2"></i>Instructions</h5>
-                </div>
-                <div class="card-body">
-                    <ol class="mb-0">
-                        <li class="mb-2">Upload the original PM allocation spreadsheet</li>
-                        <li class="mb-2">Upload the updated/revised PM allocation spreadsheet</li>
-                        <li class="mb-2">Select the region to analyze (or All Regions)</li>
-                        <li class="mb-2">The processor will compare the files and generate a detailed report</li>
-                        <li>Download the reconciliation report for accounting</li>
-                    </ol>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-8">
-            {% if results %}
-            <div class="card mb-4">
-                <div class="card-header bg-light">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><i class="bi bi-file-earmark-ruled me-2"></i>Reconciliation Report</h5>
-                        <div class="btn-group">
-                            <a href="{{ url_for('download_pm_report', filename=results.excel_export) }}" class="btn btn-sm btn-outline-success">
-                                <i class="bi bi-file-earmark-excel me-1"></i> Download Excel
-                            </a>
-                            <a href="{{ url_for('download_pm_report', filename=results.csv_export) }}" class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-file-earmark-text me-1"></i> Download CSV
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="alert alert-info mb-4">
-                        <div class="d-flex align-items-center">
-                            <i class="bi bi-info-circle-fill me-2 fs-4"></i>
-                            <div>
-                                <h5 class="alert-heading mb-1">PM Allocation Reconciliation Complete</h5>
-                                <p class="mb-0">Processed {{ results.record_count }} records with {{ results.change_count }} changes detected.</p>
-                            </div>
+                    <div class="row">
+                        <div class="col-md-12 mb-4">
+                            <p class="text-secondary">
+                                This tool helps process PM allocation files. Upload an original workbook and a revised version
+                                to generate a comparison report. The system will preserve formulas and maintain column alignments.
+                            </p>
                         </div>
                     </div>
 
-                    <div class="mb-4">
-                        <h5 class="mb-3">Processing Details</h5>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="card h-100">
-                                    <div class="card-body">
-                                        <h6 class="card-title">Original File</h6>
-                                        <p class="card-text">{{ results.original_file }}</p>
-                                        <div class="d-flex justify-content-between">
-                                            <span class="text-muted">Record Count:</span>
-                                            <span class="fw-bold">{{ results.original_count }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="card h-100">
-                                    <div class="card-body">
-                                        <h6 class="card-title">Updated File</h6>
-                                        <p class="card-text">{{ results.updated_file }}</p>
-                                        <div class="d-flex justify-content-between">
-                                            <span class="text-muted">Record Count:</span>
-                                            <span class="fw-bold">{{ results.updated_count }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
-
-                    <div class="mb-4">
-                        <h5 class="mb-3">Change Summary by Region</h5>
-                        <div class="table-responsive">
-                            <table class="table table-bordered">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Region</th>
-                                        <th class="text-end">Original Total</th>
-                                        <th class="text-end">Updated Total</th>
-                                        <th class="text-end">Net Change</th>
-                                        <th class="text-end">% Change</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for region in results.region_summary %}
-                                    <tr>
-                                        <td>{{ region.name }}</td>
-                                        <td class="text-end">${{ region.original_total|format_currency }}</td>
-                                        <td class="text-end">${{ region.updated_total|format_currency }}</td>
-                                        <td class="text-end {% if region.net_change > 0 %}text-success{% elif region.net_change < 0 %}text-danger{% endif %}">
-                                            ${{ region.net_change|format_currency }}
-                                        </td>
-                                        <td class="text-end {% if region.percent_change > 0 %}text-success{% elif region.percent_change < 0 %}text-danger{% endif %}">
-                                            {{ region.percent_change|format_percent }}%
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                    <tr class="table-light fw-bold">
-                                        <td>Total</td>
-                                        <td class="text-end">${{ results.summary.original_total|format_currency }}</td>
-                                        <td class="text-end">${{ results.summary.updated_total|format_currency }}</td>
-                                        <td class="text-end {% if results.summary.net_change > 0 %}text-success{% elif results.summary.net_change < 0 %}text-danger{% endif %}">
-                                            ${{ results.summary.net_change|format_currency }}
-                                        </td>
-                                        <td class="text-end {% if results.summary.percent_change > 0 %}text-success{% elif results.summary.percent_change < 0 %}text-danger{% endif %}">
-                                            {{ results.summary.percent_change|format_percent }}%
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    {% if results.significant_changes %}
-                    <div class="mb-4">
-                        <h5 class="mb-3">Significant Changes</h5>
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Job #</th>
-                                        <th>Asset ID</th>
-                                        <th>Original Value</th>
-                                        <th>Updated Value</th>
-                                        <th>Change</th>
-                                        <th>% Change</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for change in results.significant_changes %}
-                                    <tr>
-                                        <td>{{ change.job_number }}</td>
-                                        <td>{{ change.asset_id }}</td>
-                                        <td>${{ change.original_value|format_currency }}</td>
-                                        <td>${{ change.updated_value|format_currency }}</td>
-                                        <td class="{% if change.change > 0 %}text-success{% else %}text-danger{% endif %}">
-                                            ${{ change.change|format_currency }}
-                                        </td>
-                                        <td class="{% if change.percent_change > 0 %}text-success{% else %}text-danger{% endif %}">
-                                            {{ change.percent_change|format_percent }}%
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                    {% endfor %}
                     {% endif %}
+                    {% endwith %}
 
-                    <div>
-                        <h5 class="mb-3">Job Number Distribution</h5>
-                        <canvas id="jobDistributionChart" width="400" height="200"></canvas>
-                    </div>
-                </div>
-            </div>
-            {% else %}
-            <div class="card mb-4">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>About PM Billing Allocation</h5>
-                </div>
-                <div class="card-body">
-                    <div class="alert alert-info">
-                        <h5><i class="bi bi-file-earmark-spreadsheet me-2"></i>Automatic PM Allocation Reconciliation</h5>
-                        <p>This tool compares original and revised equipment PM billing allocation spreadsheets to identify and document changes between versions.</p>
-                    </div>
-
-                    <div class="row g-4 mt-2">
+                    <div class="row">
                         <div class="col-md-6">
-                            <div class="p-3 border rounded bg-light h-100">
-                                <i class="bi bi-check2-circle text-success fs-1 mb-3"></i>
-                                <h5>Preserves Formulas & Formatting</h5>
-                                <p class="text-muted">The reconciliation process preserves all Excel formulas and formatting from the original workbook.</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="p-3 border rounded bg-light h-100">
-                                <i class="bi bi-bar-chart text-primary fs-1 mb-3"></i>
-                                <h5>Detailed Analysis</h5>
-                                <p class="text-muted">Get comprehensive reports with change tracking, variance analysis, and trend monitoring.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-4">
-                        <h5 class="mb-3">Sample Reconciliation Report</h5>
-                        <img src="{{ url_for('static', filename='img/sample_reconciliation.png') }}" alt="Sample Reconciliation Report" class="img-fluid border rounded">
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0"><i class="bi bi-calendar3 me-2"></i>Recent Processing Jobs</h5>
-                </div>
-                <div class="card-body p-0">
-                    {% if recent_jobs %}
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Original File</th>
-                                    <th>Region</th>
-                                    <th>Changes</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for job in recent_jobs %}
-                                <tr>
-                                    <td>{{ job.date }}</td>
-                                    <td>{{ job.file }}</td>
-                                    <td>{{ job.region }}</td>
-                                    <td>
-                                        <span class="badge bg-primary">{{ job.changes }} changes</span>
-                                    </td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm">
-                                            <a href="{{ job.view_url }}" class="btn btn-outline-primary">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
-                                            <a href="{{ job.download_url }}" class="btn btn-outline-success">
-                                                <i class="bi bi-download"></i>
-                                            </a>
+                            <div class="card mb-3">
+                                <div class="card-header bg-dark text-white">
+                                    <h6 class="mb-0">Upload PM Allocation Files</h6>
+                                </div>
+                                <div class="card-body">
+                                    <form method="POST" enctype="multipart/form-data" id="pm-allocation-form">
+                                        <div class="mb-3">
+                                            <label for="original_file" class="form-label">Original PM Allocation File</label>
+                                            <input type="file" class="form-control" id="original_file" name="original_file" 
+                                                   accept=".xlsx,.xlsm,.xls" required>
+                                            <div class="form-text">Upload the original EQMO billing allocation workbook.</div>
                                         </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                                        
+                                        <div class="mb-3">
+                                            <label for="updated_file" class="form-label">Updated PM Allocation File</label>
+                                            <input type="file" class="form-control" id="updated_file" name="updated_file" 
+                                                   accept=".xlsx,.xlsm,.xls" required>
+                                            <div class="form-text">Upload the revised billing allocation workbook with your changes.</div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="region" class="form-label">Region (Optional)</label>
+                                            <select class="form-select" id="region" name="region">
+                                                <option value="ALL" selected>All Regions</option>
+                                                <option value="DFW">DFW</option>
+                                                <option value="HOU">HOU</option>
+                                                <option value="WT">WT</option>
+                                            </select>
+                                            <div class="form-text">Select a specific region or process all regions.</div>
+                                        </div>
+                                        
+                                        <button type="submit" class="btn btn-primary" id="process-btn">
+                                            Process Files
+                                        </button>
+                                        
+                                        <div class="mt-3 d-none" id="processing-indicator">
+                                            <div class="d-flex align-items-center">
+                                                <div class="spinner-border text-primary me-2" role="status">
+                                                    <span class="visually-hidden">Processing...</span>
+                                                </div>
+                                                <span>Processing files, please wait...</span>
+                                            </div>
+                                            <div class="progress mt-2">
+                                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%"></div>
+                                            </div>
+                                            <div class="text-muted small mt-1">This may take a few minutes. Please do not refresh the page.</div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            
+                            <div class="card">
+                                <div class="card-header bg-dark text-white">
+                                    <h6 class="mb-0">Auto-Process Files</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p>The system can automatically find and process PM allocation files from the attached_assets folder.</p>
+                                    <form method="POST" action="{{ url_for('auto_process_pm_allocation') }}">
+                                        <button type="submit" class="btn btn-secondary">
+                                            <i class="bi bi-lightning-fill me-1"></i> Auto-Detect Files
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-dark text-white">
+                                    <h6 class="mb-0">Recent PM Allocation Reports</h6>
+                                </div>
+                                <div class="card-body">
+                                    {% if recent_reports %}
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Report Name</th>
+                                                    <th>Generated</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for report in recent_reports %}
+                                                <tr>
+                                                    <td>{{ report.name }}</td>
+                                                    <td>{{ report.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                                    <td>
+                                                        <div class="btn-group" role="group">
+                                                            <a href="{{ url_for('view_pm_report', filename=report.filename) }}" 
+                                                               class="btn btn-sm btn-outline-primary">
+                                                                <i class="bi bi-eye"></i> View
+                                                            </a>
+                                                            <a href="{{ url_for('download_pm_report', filename=report.filename) }}" 
+                                                               class="btn btn-sm btn-outline-success">
+                                                                <i class="bi bi-download"></i> Download
+                                                            </a>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    {% else %}
+                                    <div class="alert alert-info">
+                                        <i class="bi bi-info-circle me-2"></i> No recent PM allocation reports found. Process files to generate reports.
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    {% else %}
-                    <div class="text-center py-4">
-                        <i class="bi bi-clock-history text-muted fs-1"></i>
-                        <p class="mt-2">No recent processing jobs found.</p>
+                    
+                    {% if report_data %}
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header bg-success text-white">
+                                    <h5 class="mb-0">Processing Results</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <strong>Original File:</strong> {{ report_data.original_filename }}
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong>Updated File:</strong> {{ report_data.updated_filename }}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="alert alert-info">
+                                        <h6 class="alert-heading">Comparison Summary</h6>
+                                        <ul>
+                                            <li><strong>Total Lines:</strong> {{ report_data.total_lines }}</li>
+                                            <li><strong>Changed Lines:</strong> {{ report_data.changed_lines }}</li>
+                                            <li><strong>New Lines:</strong> {{ report_data.new_lines }}</li>
+                                            <li><strong>Unchanged Lines:</strong> {{ report_data.unchanged_lines }}</li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <div class="d-flex justify-content-end">
+                                        <a href="{{ url_for('download_pm_report', filename=report_data.report_filename) }}" 
+                                           class="btn btn-primary me-2">
+                                            <i class="bi bi-download"></i> Download Report
+                                        </a>
+                                        <a href="{{ url_for('download_export', export_path=report_data.csv_export_path) }}" 
+                                           class="btn btn-success">
+                                            <i class="bi bi-file-earmark-spreadsheet"></i> Download CSV Export
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header bg-dark text-white">
+                                    <h5 class="mb-0">Comparison Details</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Row</th>
+                                                    <th>Asset ID</th>
+                                                    <th>Description</th>
+                                                    <th>Original Value</th>
+                                                    <th>Updated Value</th>
+                                                    <th>Difference</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for change in report_data.changes %}
+                                                <tr class="{{ 'table-warning' if change.difference != 0 else '' }}">
+                                                    <td>{{ change.row }}</td>
+                                                    <td>{{ change.asset_id }}</td>
+                                                    <td>{{ change.description }}</td>
+                                                    <td>{{ change.original_value|default('N/A', true) }}</td>
+                                                    <td>{{ change.updated_value|default('N/A', true) }}</td>
+                                                    <td class="{{ 'text-danger' if change.difference < 0 else 'text-success' if change.difference > 0 else '' }}">
+                                                        {{ change.difference|default('0.00', true) }}
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     {% endif %}
                 </div>
             </div>
-            {% endif %}
         </div>
     </div>
 </div>
 
-{% if results %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Job Distribution Chart
-        var ctx = document.getElementById('jobDistributionChart').getContext('2d');
-        var jobChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: {{ results.job_distribution.labels|safe }},
-                datasets: [{
-                    label: 'Original Values',
-                    data: {{ results.job_distribution.original_values|safe }},
-                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                },
-                {
-                    label: 'Updated Values',
-                    data: {{ results.job_distribution.updated_values|safe }},
-                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return '$' + value.toLocaleString();
-                            }
-                        }
-                    }
-                },
-                plugins: {
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                var label = context.dataset.label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
-                                if (context.parsed.y !== null) {
-                                    label += '$' + context.parsed.y.toLocaleString();
-                                }
-                                return label;
-                            }
-                        }
-                    }
-                }
-            }
-        });
+        // Show processing indicator and disable button when form is submitted
+        const form = document.getElementById('pm-allocation-form');
+        if (form) {
+            form.addEventListener('submit', function() {
+                document.getElementById('processing-indicator').classList.remove('d-none');
+                document.getElementById('process-btn').disabled = true;
+            });
+        }
     });
 </script>
-{% endif %}
 {% endblock %}

@@ -223,8 +223,40 @@ def logout():
 @login_required
 def assets():
     """Render the assets page"""
-    all_assets = Asset.query.all()
-    return render_template('assets.html', title='Assets', assets=all_assets)
+    try:
+        # Try to get assets from database first
+        all_assets = Asset.query.all()
+        
+        # If no assets in database, fall back to file-based data
+        if not all_assets:
+            from gauge_api import get_asset_data
+            
+            # Get assets from the Gauge API data file
+            file_assets = get_asset_data(use_db=False)
+            
+            # Transform file data into Asset objects for consistent usage in template
+            all_assets = []
+            for asset_data in file_assets:
+                asset = Asset(
+                    asset_identifier=asset_data.get('id', ''),
+                    label=asset_data.get('name', ''),
+                    description=asset_data.get('description', ''),
+                    asset_category=asset_data.get('category', ''),
+                    location=asset_data.get('location', ''),
+                    status=asset_data.get('status', 'Unknown'),
+                    latitude=asset_data.get('latitude'),
+                    longitude=asset_data.get('longitude'),
+                    last_location_update=datetime.now(),
+                    make=asset_data.get('make', ''),
+                    model=asset_data.get('model', ''),
+                    year=asset_data.get('year')
+                )
+                all_assets.append(asset)
+                
+        return render_template('assets.html', title='Assets', assets=all_assets)
+    except Exception as e:
+        flash(f"Error loading assets: {str(e)}", "danger")
+        return render_template('assets.html', title='Assets', assets=[])
 
 @app.route('/export/assets/<format>')
 @login_required

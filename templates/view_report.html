@@ -1,80 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }} - SYSTEMSMITH</title>
-    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
-</head>
-<body data-bs-theme="dark">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="/">SYSTEMSMITH</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('index') }}">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('assets') }}">Assets</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('maintenance') }}">Maintenance</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="{{ url_for('reports') }}">Reports</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('upload_files') }}">Upload Files</a>
-                    </li>
-                </ul>
-                <ul class="navbar-nav ms-auto">
-                    {% if current_user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
-                    </li>
-                    {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('login') }}">Login</a>
-                    </li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
-    </nav>
+{% extends 'base.html' %}
 
-    <div class="container-fluid py-4">
-        <div class="row mb-4">
-            <div class="col-md-8">
-                <h1>{{ title }}</h1>
-            </div>
-            <div class="col-md-4 text-end">
-                <a href="{{ url_for('reports.driver_reports') }}" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left me-2"></i> Back to Driver Reports
-                </a>
-                <a href="{{ url_for('reports.download_report', report_path=request.view_args.get('report_path')) }}" class="btn btn-primary ms-2">
-                    <i class="bi bi-download me-2"></i> Download
-                </a>
-            </div>
-        </div>
+{% block title %}{{ title }}{% endblock %}
 
-        <div class="card">
-            <div class="card-header bg-dark">
-                <h5 class="mb-0">Report Content</h5>
-            </div>
-            <div class="card-body">
-                <div class="report-view-content">
-                    {{ html_content|safe }}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-md-12 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">{{ title }}</h5>
+                    <div>
+                        <a href="{{ url_for('download_pm_report', filename=filename) }}" class="btn btn-sm btn-light">
+                            <i class="bi bi-download me-1"></i> Download
+                        </a>
+                        <a href="{{ url_for('pm_allocation_processor') }}" class="btn btn-sm btn-secondary ms-2">
+                            <i class="bi bi-arrow-left me-1"></i> Back to PM Allocation
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        {{ table_html|safe }}
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+</div>
+{% endblock %}

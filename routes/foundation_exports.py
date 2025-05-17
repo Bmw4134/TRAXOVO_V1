@@ -51,15 +51,30 @@ def index():
             recent_exports.append({
                 'name': export_file.name,
                 'date': datetime.fromtimestamp(os.path.getmtime(export_file)).strftime('%Y-%m-%d %H:%M:%S'),
-                'size': os.path.getsize(export_file) / 1024,  # Size in KB
+                'size': os.path.getsize(export_file),  # Size in bytes
                 'path': str(export_file.relative_to(EXPORTS_DIR))
             })
     except Exception as e:
         logger.error(f"Error getting recent exports: {e}")
     
+    # Check for recently processed PM Master file
+    has_pm_master = False
+    pm_master_file = None
+    try:
+        pm_master_files = sorted(EXPORTS_DIR.glob('pm_master_*.xlsx'), 
+                              key=lambda x: os.path.getmtime(x), 
+                              reverse=True)
+        if pm_master_files:
+            has_pm_master = True
+            pm_master_file = pm_master_files[0]
+    except Exception as e:
+        logger.error(f"Error checking for PM Master files: {e}")
+    
     return render_template(
         'foundation_exports.html',
-        recent_exports=recent_exports
+        recent_exports=recent_exports,
+        has_pm_master=has_pm_master,
+        pm_master_file=pm_master_file.name if pm_master_file else None
     )
 
 
@@ -160,3 +175,66 @@ def download_file(filename):
         logger.error(f"Error downloading file: {str(e)}")
         flash(f"Error downloading file: {str(e)}", "danger")
         return redirect(url_for('foundation.index'))
+
+
+@foundation_bp.route('/generate-from-master', methods=['POST'])
+@login_required
+def generate_from_master():
+    """Generate foundation exports from the latest PM Master file"""
+    try:
+        # Get the latest PM Master file
+        pm_master_files = sorted(EXPORTS_DIR.glob('pm_master_*.xlsx'), 
+                             key=lambda x: os.path.getmtime(x), 
+                             reverse=True)
+        
+        if not pm_master_files:
+            flash("No PM Master files found. Process your April allocation files first.", "danger")
+            return redirect(url_for('foundation.index'))
+        
+        latest_master = pm_master_files[0]
+        
+        # Get month/year
+        month_year = request.form.get('month_year', datetime.now().strftime("%B %Y"))
+        
+        # Get export format
+        export_format = request.form.get('export_format', 'both')
+        
+        # Generate exports from the latest master file
+        try:
+            result = generate_foundation_imports(latest_master, month_year=month_year)
+            
+            # Store result in session
+            session['foundation_result'] = {
+                'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'zip_file': result.get('zip_file'),
+                'zip_filename': os.path.basename(result.get('zip_file', '')),
+                'month_year': result.get('month_year'),
+                'export_files': result.get('export_files', []),
+                'source_file': latest_master.name,
+                'format': export_format
+            }
+            
+            flash(f"Successfully generated Foundation exports for {month_year} from {latest_master.name}", "success")
+            return redirect(url_for('foundation.export_result'))
+            
+        except FoundationExportException as e:
+            flash(f"Error generating Foundation exports: {str(e)}", "danger")
+            return redirect(url_for('foundation.index'))
+        
+    except Exception as e:
+        logger.error(f"Error processing Foundation exports from PM Master: {str(e)}")
+        flash(f"Error processing Foundation exports: {str(e)}", "danger")
+        return redirect(url_for('foundation.index'))
+
+
+@foundation_bp.route('/export-result', methods=['GET'])
+@login_required
+def export_result():
+    """Show the results of foundation exports generation"""
+    if 'foundation_result' not in session:
+        flash("No recent export results found", "warning")
+        return redirect(url_for('foundation.index'))
+    
+    result = session['foundation_result']
+    
+    return render_template('foundation_exports_result.html', result=result)

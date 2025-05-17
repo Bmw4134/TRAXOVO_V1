@@ -7,7 +7,7 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="section-header">
-                <h2><i class="bi bi-file-earmark-spreadsheet me-2"></i>Foundation Exports Generator</h2>
+                <h2><i class="bi bi-box-arrow-right me-2"></i>Foundation Exports</h2>
                 <div class="section-actions">
                     <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
                         <i class="bi bi-house me-1"></i> Dashboard
@@ -22,31 +22,53 @@
         <div class="col-md-6 mb-4">
             <div class="card shadow h-100">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-upload me-2"></i>Upload EQ Billing Master</h5>
+                    <h5 class="mb-0"><i class="bi bi-cloud-upload me-2"></i>Generate Foundation Exports</h5>
                 </div>
                 <div class="card-body">
                     <div class="alert alert-info mb-3">
                         <i class="bi bi-info-circle-fill me-2"></i>
-                        <span>Upload your completed EQ billing master file to generate regional foundation imports.</span>
+                        <span>Upload your master EQ billing file to generate regional Foundation import files.</span>
                     </div>
                     
                     <form action="{{ url_for('foundation.generate_exports') }}" method="post" enctype="multipart/form-data">
                         <div class="mb-3">
-                            <label for="eq_billing_file" class="form-label">EQ Billing Master File</label>
+                            <label for="eq_billing_file" class="form-label">Master PM Sheet</label>
                             <input class="form-control" type="file" id="eq_billing_file" name="eq_billing_file" required>
-                            <div class="form-text">Upload the completed EQ billing master file (Excel format)</div>
+                            <div class="form-text">Upload your master PM or EQ billing file (Excel format)</div>
                         </div>
                         
                         <div class="mb-3">
-                            <label for="month_year" class="form-label">Month and Year</label>
+                            <label for="month_year" class="form-label">Month & Year</label>
                             <input type="text" class="form-control" id="month_year" name="month_year" 
-                                   placeholder="April 2025" value="{{ current_month_year }}">
-                            <div class="form-text">Month and year for the foundation exports</div>
+                                   placeholder="April 2025" value="April 2025" required>
+                            <div class="form-text">Enter the month and year for the exports</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label">Export Options</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="dfw" id="export_dfw" name="regions[]" checked>
+                                <label class="form-check-label" for="export_dfw">
+                                    DFW Region
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="hou" id="export_hou" name="regions[]" checked>
+                                <label class="form-check-label" for="export_hou">
+                                    Houston Region
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="wt" id="export_wt" name="regions[]" checked>
+                                <label class="form-check-label" for="export_wt">
+                                    West Texas Region
+                                </label>
+                            </div>
                         </div>
                         
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-lightning me-2"></i> Generate Foundation Exports
+                                <i class="bi bi-cloud-upload me-2"></i> Generate Exports
                             </button>
                         </div>
                     </form>
@@ -54,10 +76,60 @@
             </div>
         </div>
         
-        <!-- Recent Exports -->
+        <!-- New Batch Processing from PM Master -->
         <div class="col-md-6 mb-4">
             <div class="card shadow h-100">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-lightning-charge me-2"></i>Quick Foundation Export</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success mb-3">
+                        <i class="bi bi-lightbulb-fill me-2"></i>
+                        <span>Generate Foundation imports directly from your latest processed PM Master data.</span>
+                    </div>
+                    
+                    <form action="{{ url_for('foundation.generate_from_master') }}" method="post">
+                        <div class="mb-3">
+                            <label for="master_month_year" class="form-label">Month & Year</label>
+                            <input type="text" class="form-control" id="master_month_year" name="month_year" 
+                                   placeholder="April 2025" value="April 2025" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Export Format</label>
+                            <select class="form-select" name="export_format" id="export_format">
+                                <option value="foundation">Foundation Import Format</option>
+                                <option value="standard">Standard Excel Format</option>
+                                <option value="both" selected>Both Formats</option>
+                            </select>
+                            <div class="form-text">Select the export format(s) you need</div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-magic me-2"></i> Export from Latest PM Master
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="mt-3">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="card-title">Export Process</h6>
+                                <p class="card-text small">This option uses your latest processed PM Master data to generate Foundation imports. It creates both the regional import files and the master EQ billings file in one step.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Exports -->
+    <div class="row mt-2">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
                     <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Recent Exports</h5>
                 </div>
                 <div class="card-body">
@@ -77,9 +149,9 @@
                                 <tr>
                                     <td>{{ export.name }}</td>
                                     <td>{{ export.date }}</td>
-                                    <td>{{ "%.2f"|format(export.size) }} KB</td>
+                                    <td>{{ "%.2f"|format(export.size / 1024) }} MB</td>
                                     <td>
-                                        <a href="{{ url_for('foundation.download_file', filename=export.name) }}" class="btn btn-sm btn-primary">
+                                        <a href="{{ url_for('foundation.download_file', filename=export.path) }}" class="btn btn-sm btn-primary">
                                             <i class="bi bi-download"></i>
                                         </a>
                                     </td>
@@ -91,7 +163,7 @@
                     {% else %}
                     <div class="alert alert-info">
                         <i class="bi bi-info-circle-fill me-2"></i>
-                        <span>No exports found. Generate foundation exports to see them here.</span>
+                        <span>No exports found. Generate exports to see them here.</span>
                     </div>
                     {% endif %}
                 </div>
@@ -99,32 +171,35 @@
         </div>
     </div>
     
-    <!-- Information Section -->
-    <div class="row mt-2">
+    <!-- How to Use Section -->
+    <div class="row mt-4">
         <div class="col-12">
             <div class="card shadow">
                 <div class="card-header bg-info text-white">
-                    <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>About Foundation Exports</h5>
+                    <h5 class="mb-0"><i class="bi bi-question-circle me-2"></i>How to Use Foundation Exports</h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6">
-                            <h5>What's Included</h5>
-                            <ul>
-                                <li><strong>EQ Billings Master:</strong> A consolidated view of all billing data</li>
-                                <li><strong>DFW Foundation Import:</strong> Formatted export for DFW region</li>
-                                <li><strong>HOU Foundation Import:</strong> Formatted export for Houston region</li>
-                                <li><strong>WT Foundation Import:</strong> Formatted export for West Texas region</li>
-                            </ul>
+                        <div class="col-md-4">
+                            <div class="text-center mb-3">
+                                <i class="bi bi-1-circle-fill text-primary" style="font-size: 2rem;"></i>
+                                <h5 class="mt-2">Generate Exports</h5>
+                                <p class="text-muted">Upload your master EQ billing file or use your processed PM master data to generate exports.</p>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <h5>How It Works</h5>
-                            <ol>
-                                <li>Upload your completed EQ billing master file</li>
-                                <li>Specify the month and year for the exports</li>
-                                <li>Generate a ZIP file containing all regional imports</li>
-                                <li>Download and extract the ZIP file</li>
-                            </ol>
+                        <div class="col-md-4">
+                            <div class="text-center mb-3">
+                                <i class="bi bi-2-circle-fill text-primary" style="font-size: 2rem;"></i>
+                                <h5 class="mt-2">Download Files</h5>
+                                <p class="text-muted">Download the ZIP file containing all regional Foundation imports and the master billings file.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center mb-3">
+                                <i class="bi bi-3-circle-fill text-primary" style="font-size: 2rem;"></i>
+                                <h5 class="mt-2">Import to Foundation</h5>
+                                <p class="text-muted">Use the regional files to import equipment billing data directly into Foundation.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -137,13 +212,10 @@
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Set default month/year if empty
-        const monthYearInput = document.getElementById('month_year');
-        if (!monthYearInput.value) {
-            const now = new Date();
-            const monthNames = ["January", "February", "March", "April", "May", "June",
-                              "July", "August", "September", "October", "November", "December"];
-            monthYearInput.value = monthNames[now.getMonth()] + " " + now.getFullYear();
+        // Highlight the current navigation item
+        const foundationLink = document.querySelector('a[href*="foundation"]');
+        if (foundationLink) {
+            foundationLink.classList.add('active');
         }
     });
 </script>

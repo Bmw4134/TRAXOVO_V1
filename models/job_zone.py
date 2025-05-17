@@ -8,6 +8,7 @@ define when work should be performed at each zone.
 from datetime import datetime, time
 from app import db
 from sqlalchemy import ForeignKey, UniqueConstraint
+from models.job_site import JobSite
 
 class JobZone(db.Model):
     """

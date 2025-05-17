@@ -22,71 +22,117 @@ def generate_sample_data():
     Generate sample historical data based on PM allocation files
     """
     try:
-        tracker = HistoricalDataTracker()
+        tracker = HistoricalDataTracker(use_db=False)  # Use file-based storage
         
-        # Get a list of PM allocation Excel files from attached_assets directory
-        asset_dir = Path('attached_assets')
-        pm_files = list(asset_dir.glob('*EQMO*APRIL*.xlsx'))
+        # Generate data based on actual job numbers found in attached assets
+        job_list = [
+            {"job_number": "2023-032", "name": "Highway 83 Expansion"},
+            {"job_number": "2023-034", "name": "River Crossing Bridge"},
+            {"job_number": "2024-016", "name": "Commercial Plaza Foundation"},
+            {"job_number": "2024-019", "name": "Matagorda County Drainage"},
+            {"job_number": "2024-025", "name": "Municipal Water Treatment Plant"},
+            {"job_number": "2024-030", "name": "Warehouse Development Site"}
+        ]
         
-        if not pm_files:
-            logger.warning("No PM allocation files found in attached_assets directory")
-            return False
+        # Create realistic equipment data matching construction fleet
+        equipment_list = [
+            # Excavators
+            {"equipment_id": "EX-65", "type": "Excavator", "rate": 1250.0},
+            {"equipment_id": "EX-74", "type": "Excavator", "rate": 1300.0},
+            {"equipment_id": "EX-88", "type": "Excavator", "rate": 1450.0},
+            # Loaders
+            {"equipment_id": "LD-45", "type": "Loader", "rate": 950.0},
+            {"equipment_id": "LD-52", "type": "Loader", "rate": 975.0},
+            # Dozers
+            {"equipment_id": "DZ-31", "type": "Dozer", "rate": 1100.0},
+            {"equipment_id": "DZ-36", "type": "Dozer", "rate": 1150.0},
+            # Backhoes
+            {"equipment_id": "BH-12", "type": "Backhoe", "rate": 850.0},
+            {"equipment_id": "BH-18", "type": "Backhoe", "rate": 875.0},
+            # Trucks
+            {"equipment_id": "TK-103", "type": "Truck", "rate": 750.0},
+            {"equipment_id": "TK-115", "type": "Truck", "rate": 775.0},
+            {"equipment_id": "TK-122", "type": "Truck", "rate": 800.0}
+        ]
         
-        # Use the primary April 2025 file as the basis for our April dataset
-        april_file = None
-        for file in pm_files:
-            if "TR-FINAL REVISIONS" in file.name:
-                april_file = file
-                break
+        # Create cost codes that match construction industry
+        cost_codes = [
+            "1000-GENERAL", "2000-SITE PREPARATION", "3000-FOUNDATIONS", 
+            "4000-EARTHWORK", "5000-UTILITIES", "6000-STRUCTURES",
+            "7000-PAVING", "8000-LANDSCAPING"
+        ]
         
-        if not april_file:
-            april_file = pm_files[0]  # Fallback to first file if no "FINAL" found
-            
-        logger.info(f"Using {april_file.name} as base for April 2025 data")
-        
-        # Create sample data for the current month (April 2025)
-        april_data = extract_allocation_data(april_file)
+        # Define current month and previous 5 months for historical data
         current_month = "April 2025"
+        months = [
+            "April 2025", "March 2025", "February 2025", 
+            "January 2025", "December 2024", "November 2024"
+        ]
         
-        # Add the data to the historical tracker
-        tracker.add_allocation_data(current_month, april_data, {"source_file": april_file.name})
-        
-        # Create data for previous months based on April data but with variations
-        for month_offset in range(1, 6):
-            # Calculate the previous month's date
-            current_date = datetime.strptime(f"April 2025", "%B %Y")
-            prev_date = current_date - timedelta(days=30 * month_offset)
-            prev_month = prev_date.strftime("%B %Y")
+        # Generate data for each month with realistic patterns
+        for month_idx, month in enumerate(months):
+            # Create allocation records for this month
+            monthly_data = []
             
-            # Generate variation of the April data for the previous month
-            prev_data = []
-            for item in april_data:
-                # Create a copy with some random variations
-                variation = random.uniform(0.85, 1.15)  # 15% variation up or down
+            # For each piece of equipment, assign to some jobs
+            for equipment in equipment_list:
+                # Some months have fewer equipment assigned (simulating equipment additions over time)
+                if month_idx > 2 and random.random() < 0.2:
+                    continue  # Skip this equipment for older months
                 
-                # Some equipment might not be present in earlier months
-                if random.random() > 0.9:
-                    continue
+                # Randomly choose 1-3 jobs for this equipment
+                num_jobs = random.randint(1, min(3, len(job_list)))
+                assigned_jobs = random.sample(job_list, num_jobs)
+                
+                # For each assigned job, create allocation record
+                for job in assigned_jobs:
+                    # Randomize days assigned (5-22 days)
+                    days = random.randint(5, 22)
                     
-                # Copy the item with variations
-                new_item = item.copy()
-                new_item['amount'] = item['amount'] * variation
-                new_item['days'] = max(1, round(item['days'] * variation))
-                
-                # Occasionally change job assignments for more realistic data
-                if random.random() > 0.7:
-                    # Choose another job from the dataset if possible
-                    job_numbers = set(i['job_number'] for i in april_data if 'job_number' in i)
-                    if len(job_numbers) > 1 and 'job_number' in new_item:
-                        current_job = new_item['job_number']
-                        alternate_jobs = list(job_numbers - {current_job})
-                        new_item['job_number'] = random.choice(alternate_jobs)
-                
-                prev_data.append(new_item)
-                
-            # Add the historical data
-            tracker.add_allocation_data(prev_month, prev_data, {"generated": True})
-            logger.info(f"Generated historical data for {prev_month}")
+                    # Apply seasonal patterns
+                    if "December" in month:
+                        days = max(5, days - 5)  # Reduced activity in December
+                    elif "January" in month:
+                        days = max(5, days - 3)  # Slightly reduced in January
+                    
+                    # Calculate amount based on rate and days
+                    daily_rate = equipment["rate"]
+                    
+                    # Apply inflation over time (rates were lower in earlier months)
+                    if month_idx > 2:
+                        daily_rate = daily_rate * 0.95  # 5% lower rate in older months
+                    
+                    amount = daily_rate * days
+                    
+                    # Randomly choose cost code with job-specific weighting
+                    if "Bridge" in job["name"]:
+                        weighted_codes = cost_codes[2:5]  # Favor foundations, earthwork, utilities
+                    elif "Foundation" in job["name"]:
+                        weighted_codes = cost_codes[1:3]  # Favor site prep and foundations
+                    elif "Drainage" in job["name"]:
+                        weighted_codes = cost_codes[3:5]  # Favor earthwork and utilities
+                    else:
+                        weighted_codes = cost_codes  # Equal weighting
+                    
+                    cost_code = random.choice(weighted_codes)
+                    
+                    # Create the record
+                    record = {
+                        "equipment_id": equipment["equipment_id"],
+                        "job_number": job["job_number"],
+                        "job_name": job["name"],
+                        "days": days,
+                        "amount": amount,
+                        "cost_code": cost_code,
+                        "equipment_type": equipment["type"],
+                        "daily_rate": daily_rate
+                    }
+                    
+                    monthly_data.append(record)
+            
+            # Add the monthly data to the tracker
+            tracker.add_allocation_data(month, monthly_data, {"source": "generated", "date": datetime.now().isoformat()})
+            logger.info(f"Generated {len(monthly_data)} allocation records for {month}")
         
         return True
         

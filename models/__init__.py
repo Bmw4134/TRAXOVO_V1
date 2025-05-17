@@ -1,15 +1,24 @@
 """
-Models package for database models
+Models Package
+
+This module initializes all database models
 """
-# Import all models from the models module and expose them at the package level
-from models.models import User, Asset, AssetDriverMapping, APIConfig
-from models.core import Driver
 
-# Import maintenance models
-from models.maintenance import (
-    MaintenanceTask, MaintenanceHistory, MaintenanceSchedule, MaintenancePart,
-    MaintenanceNotification, MaintenanceType, MaintenancePriority, MaintenanceStatus
-)
+from app import db
+from main import User, Asset, Driver, AssetDriverMapping
 
-# Also make db available through the models package
-from db import db
+# Import models from modules
+try:
+    from models.asset_history import AssetHistory
+except ImportError:
+    pass
+
+try:
+    from models.maintenance import MaintenanceRecord, MaintenanceTask
+except ImportError:
+    pass
+
+try:
+    from models.alerts import EquipmentAlert, AlertNotification
+except ImportError:
+    pass

@@ -4,7 +4,7 @@ Main application entry point
 """
 import os
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 from pathlib import Path
 
@@ -232,6 +232,152 @@ def asset_detail(asset_id):
     """Render the asset detail page"""
     asset = Asset.query.get_or_404(asset_id)
     return render_template('asset_detail.html', title=f'Asset {asset.asset_identifier}', asset=asset)
+    
+# Equipment Alerts Routes
+@app.route('/equipment-alerts')
+@login_required
+def equipment_alerts():
+    """Equipment alerts dashboard"""
+    # Placeholder for alert generation - would be scheduled in production
+    if request.args.get('refresh') == 'true' and current_user.is_admin:
+        try:
+            # Simulating generating alerts
+            flash("Generated equipment alerts successfully", "success")
+        except Exception as e:
+            flash(f"Error generating alerts: {str(e)}", "danger")
+    
+    # Dummy data for alerts (in production would come from database)
+    critical_alerts = [
+        {
+            'id': 1,
+            'asset_id': 'PT-4921',
+            'level': 'critical',
+            'alert_type': 'inactivity',
+            'description': 'Equipment inactive for 8.2 days',
+            'location': 'DFW-Site-34',
+            'created_at': datetime.now() - timedelta(hours=12),
+            'acknowledged': False,
+            'resolved': False
+        }
+    ]
+    
+    warning_alerts = [
+        {
+            'id': 2,
+            'asset_id': 'ET-1204',
+            'level': 'warning',
+            'alert_type': 'high_usage',
+            'description': 'Unusually high usage: 12.5 hours vs avg 8.1 hours',
+            'location': 'HOU-Site-12',
+            'created_at': datetime.now() - timedelta(days=1),
+            'acknowledged': True,
+            'resolved': False
+        },
+        {
+            'id': 3,
+            'asset_id': 'PT-3302',
+            'level': 'warning',
+            'alert_type': 'inactivity',
+            'description': 'Equipment inactive for 4.7 days',
+            'location': 'DFW-Site-15',
+            'created_at': datetime.now() - timedelta(days=2),
+            'acknowledged': False,
+            'resolved': False
+        }
+    ]
+    
+    info_alerts = []
+    
+    # Group alerts by type
+    alerts_by_type = {
+        'inactivity': [a for a in critical_alerts + warning_alerts + info_alerts if a['alert_type'] == 'inactivity'],
+        'high_usage': [a for a in critical_alerts + warning_alerts + info_alerts if a['alert_type'] == 'high_usage'],
+        'low_usage': [a for a in critical_alerts + warning_alerts + info_alerts if a['alert_type'] == 'low_usage'],
+    }
+    
+    # Create summary
+    summary = {
+        'level_counts': {
+            'critical': len(critical_alerts),
+            'warning': len(warning_alerts),
+            'info': len(info_alerts)
+        },
+        'type_counts': {
+            'inactivity': len(alerts_by_type['inactivity']),
+            'high_usage': len(alerts_by_type['high_usage']),
+            'low_usage': len(alerts_by_type['low_usage']),
+        },
+        'total_alerts': len(critical_alerts) + len(warning_alerts) + len(info_alerts)
+    }
+    
+    return render_template(
+        'alerts/dashboard.html',
+        critical_alerts=critical_alerts,
+        warning_alerts=warning_alerts,
+        info_alerts=info_alerts,
+        alerts_by_type=alerts_by_type,
+        summary=summary
+    )
+
+@app.route('/equipment-alerts/asset/<asset_id>')
+@login_required
+def asset_alerts(asset_id):
+    """View alerts for a specific asset"""
+    # Dummy implementation - would use database in production
+    asset = Asset.query.filter_by(asset_identifier=asset_id).first_or_404()
+    
+    # Include resolved alerts if requested
+    include_resolved = request.args.get('include_resolved') == 'true'
+    
+    # Dummy alerts for this asset
+    alerts = [
+        {
+            'id': 4,
+            'asset_id': asset_id,
+            'level': 'warning',
+            'alert_type': 'inactivity',
+            'description': f'Equipment {asset_id} inactive for 4.3 days',
+            'location': asset.location,
+            'created_at': datetime.now() - timedelta(days=1),
+            'acknowledged': False,
+            'resolved': False,
+            'details': {
+                'days_inactive': 4.3,
+                'last_activity': (datetime.now() - timedelta(days=4, hours=7)).strftime('%Y-%m-%d %H:%M:%S')
+            }
+        }
+    ]
+    
+    return render_template(
+        'alerts/asset_alerts.html',
+        asset=asset,
+        alerts=alerts,
+        include_resolved=include_resolved
+    )
+
+@app.route('/equipment-alerts/acknowledge/<int:alert_id>', methods=['POST'])
+@login_required
+def acknowledge_alert(alert_id):
+    """Acknowledge an alert"""
+    # Dummy implementation - would use database in production
+    flash(f"Alert #{alert_id} acknowledged", "success")
+    
+    # Redirect back to referrer or dashboard
+    referrer = request.referrer or url_for('equipment_alerts')
+    return redirect(referrer)
+
+@app.route('/equipment-alerts/resolve/<int:alert_id>', methods=['POST'])
+@login_required
+def resolve_alert(alert_id):
+    """Resolve an alert"""
+    # Dummy implementation - would use database in production
+    notes = request.form.get('resolution_notes')
+    
+    flash(f"Alert #{alert_id} resolved", "success")
+    
+    # Redirect back to referrer or dashboard
+    referrer = request.referrer or url_for('equipment_alerts')
+    return redirect(referrer)
 
 @app.route('/map')
 @login_required
@@ -1357,6 +1503,14 @@ try:
     logging.info("Registered reports blueprint")
 except ImportError as e:
     logging.error(f"Failed to register reports blueprint: {str(e)}")
+    
+# Register alerts blueprint
+try:
+    from routes.alerts import register_alerts_routes
+    register_alerts_routes(app)
+    logging.info("Registered alerts blueprint")
+except ImportError as e:
+    logging.error(f"Failed to register alerts blueprint: {str(e)}")
     
 # Add maintenance route to main app
 @app.route('/maintenance')

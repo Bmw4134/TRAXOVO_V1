@@ -6,6 +6,7 @@ This module defines the database models for equipment alerts.
 
 from datetime import datetime
 from app import db
+from main import Asset, User
 
 class EquipmentAlert(db.Model):
     """

@@ -15,6 +15,7 @@ from flask import (
 )
 from flask_login import login_required, current_user
 
+from main import User, Asset
 from models.alerts import EquipmentAlert, AlertNotification
 from utils.alerts_processor import (
     generate_equipment_alerts, get_alerts_summary,

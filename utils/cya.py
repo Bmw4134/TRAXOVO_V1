@@ -1,437 +1,309 @@
 """
-SYSTEMSMITH CYA (Cover Your Assets) Module
+CYA Module - Cover Your Assets
 
-This module handles backup, auditing, and data integrity functions:
-1. Backing up data files and API responses
-2. Maintaining an audit trail
-3. Storing generated reports with timestamps
-4. Reconciling uploaded vs. generated files
+This module provides silent backup and audit logging functionality
+for all file uploads, report generations, and system actions.
 """
 
 import os
 import json
-import time
-import shutil
-import sqlite3
-import logging
 import hashlib
-from datetime import datetime, timedelta
+import sqlite3
+import shutil
+from datetime import datetime
 from pathlib import Path
-import difflib
+from flask import request, session, current_app
 
-# Configure logging
-logger = logging.getLogger(__name__)
-
-# Constants
-BACKUP_DIR = "backups"
-RECONCILE_DIR = "reconcile"
-AUDIT_DB_PATH = "data/audit.db"
-
+# Ensure CYA directories exist
 def ensure_directories():
-    """Ensure all required directories exist"""
-    today = datetime.now().strftime("%Y-%m-%d")
-    directories = [
-        BACKUP_DIR,
-        f"{BACKUP_DIR}/{today}",
-        f"{BACKUP_DIR}/{today}/api",
-        f"{BACKUP_DIR}/{today}/uploads",
-        f"{BACKUP_DIR}/{today}/reports",
-        RECONCILE_DIR
-    ]
+    """Create necessary directories for CYA module"""
+    base_dir = Path('./backups')
+    file_backups = base_dir / 'files'
+    report_backups = base_dir / 'reports'
+    audit_logs = base_dir / 'logs'
     
-    for directory in directories:
-        os.makedirs(directory, exist_ok=True)
-        
-    logger.info(f"CYA directories initialized for {today}")
-    return directories
+    for directory in [base_dir, file_backups, report_backups, audit_logs]:
+        directory.mkdir(exist_ok=True)
+    
+    return {
+        'base': base_dir,
+        'files': file_backups,
+        'reports': report_backups,
+        'logs': audit_logs
+    }
 
-def initialize_audit_db():
-    """Initialize the audit database if it doesn't exist"""
-    os.makedirs(os.path.dirname(AUDIT_DB_PATH), exist_ok=True)
-    
-    conn = sqlite3.connect(AUDIT_DB_PATH)
+# Initialize SQLite audit database
+def init_audit_db():
+    """Initialize the SQLite audit database"""
+    db_path = Path('./backups/audit.db')
+    conn = sqlite3.connect(str(db_path))
     cursor = conn.cursor()
     
-    # Create tables if they don't exist
+    # Create audit trail table if it doesn't exist
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS audit_trail (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            timestamp TEXT NOT NULL,
-            event_type TEXT NOT NULL,
-            user_id INTEGER,
-            description TEXT,
-            data_path TEXT,
-            metadata TEXT
-        )
+    CREATE TABLE IF NOT EXISTS audit_trail (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        action_type TEXT NOT NULL,
+        user_id INTEGER,
+        username TEXT,
+        file_name TEXT,
+        file_path TEXT,
+        file_hash TEXT,
+        organization_id INTEGER,
+        ip_address TEXT,
+        user_agent TEXT,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+        details TEXT
+    )
     ''')
     
+    # Create file backups table
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS file_versions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            file_path TEXT NOT NULL,
-            timestamp TEXT NOT NULL,
-            hash TEXT NOT NULL,
-            user_id INTEGER,
-            operation TEXT NOT NULL,
-            backup_path TEXT
-        )
+    CREATE TABLE IF NOT EXISTS file_backups (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        original_path TEXT NOT NULL,
+        backup_path TEXT NOT NULL,
+        file_hash TEXT NOT NULL,
+        file_size INTEGER,
+        mime_type TEXT,
+        created_by INTEGER,
+        organization_id INTEGER,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
     ''')
     
     conn.commit()
     conn.close()
-    
-    logger.info("Audit database initialized")
 
-def log_event(event_type, description, user_id=None, data_path=None, metadata=None):
-    """
-    Log an event to the audit trail
-    
-    Args:
-        event_type (str): Type of event (API_PULL, FILE_UPLOAD, REPORT_GENERATED, etc.)
-        description (str): Description of the event
-        user_id (int, optional): ID of the user who triggered the event
-        data_path (str, optional): Path to related data file
-        metadata (dict, optional): Additional metadata as a dictionary
-    """
+# Create file hash
+def get_file_hash(file_path):
+    """Calculate SHA-256 hash of a file"""
+    hash_sha256 = hashlib.sha256()
+    with open(file_path, 'rb') as f:
+        for chunk in iter(lambda: f.read(4096), b''):
+            hash_sha256.update(chunk)
+    return hash_sha256.hexdigest()
+
+# Log audit event
+def log_audit_event(action_type, file_name=None, file_path=None, file_hash=None, details=None):
+    """Log an audit event to the SQLite database"""
     try:
-        timestamp = datetime.now().isoformat()
-        metadata_json = json.dumps(metadata) if metadata else None
-        
-        conn = sqlite3.connect(AUDIT_DB_PATH)
+        db_path = Path('./backups/audit.db')
+        conn = sqlite3.connect(str(db_path))
         cursor = conn.cursor()
         
-        cursor.execute(
-            "INSERT INTO audit_trail (timestamp, event_type, user_id, description, data_path, metadata) "
-            "VALUES (?, ?, ?, ?, ?, ?)",
-            (timestamp, event_type, user_id, description, data_path, metadata_json)
-        )
+        # Get user information
+        user_id = session.get('user_id') if session else None
+        username = session.get('username') if session else None
+        organization_id = session.get('organization_id') if session else None
+        
+        # Get request information
+        ip_address = request.remote_addr if request else None
+        user_agent = request.user_agent.string if request and request.user_agent else None
+        
+        # Prepare JSON details if provided
+        if details and isinstance(details, dict):
+            details_json = json.dumps(details)
+        else:
+            details_json = details
+        
+        # Insert audit record
+        cursor.execute('''
+        INSERT INTO audit_trail 
+        (action_type, user_id, username, file_name, file_path, file_hash, 
+         organization_id, ip_address, user_agent, timestamp, details)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (
+            action_type, user_id, username, file_name, file_path, file_hash,
+            organization_id, ip_address, user_agent, datetime.now().isoformat(), details_json
+        ))
         
         conn.commit()
         conn.close()
-        
-        logger.debug(f"Logged event: {event_type} - {description}")
         return True
     except Exception as e:
-        logger.error(f"Error logging event: {e}")
+        # Silent failure - don't disrupt regular operations
+        current_app.logger.error(f"Failed to log audit event: {str(e)}")
         return False
 
-def backup_file(file_path, category="uploads", user_id=None, operation="UPLOAD"):
-    """
-    Create a backup of a file
-    
-    Args:
-        file_path (str): Path to the file to backup
-        category (str): Category of the file (uploads, api, reports)
-        user_id (int, optional): ID of the user who triggered the backup
-        operation (str): Operation that triggered the backup (UPLOAD, DOWNLOAD, GENERATE)
-        
-    Returns:
-        str: Path to the backup file or None if backup failed
-    """
+# Backup a file
+def backup_file(file_path, user_id=None, organization_id=None):
+    """Create a backup of a file"""
     try:
-        # Ensure file exists
-        if not os.path.exists(file_path):
-            logger.error(f"Cannot backup nonexistent file: {file_path}")
-            return None
+        # Ensure we have a Path object
+        if isinstance(file_path, str):
+            file_path = Path(file_path)
         
-        # Create destination directory
-        today = datetime.now().strftime("%Y-%m-%d")
-        backup_dir = f"{BACKUP_DIR}/{today}/{category}"
-        os.makedirs(backup_dir, exist_ok=True)
+        # Skip if file doesn't exist
+        if not file_path.exists():
+            return False
         
-        # Create a unique filename with timestamp
-        filename = os.path.basename(file_path)
+        # Create backup directories
+        dirs = ensure_directories()
+        
+        # Generate backup path with timestamp
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        name, ext = os.path.splitext(filename)
-        backup_filename = f"{name}_{timestamp}{ext}"
-        backup_path = os.path.join(backup_dir, backup_filename)
+        filename = file_path.name
+        backup_dir = dirs['files'] / timestamp
+        backup_dir.mkdir(exist_ok=True)
+        backup_path = backup_dir / filename
         
         # Copy the file
         shutil.copy2(file_path, backup_path)
         
         # Calculate file hash
-        file_hash = calculate_file_hash(file_path)
+        file_hash = get_file_hash(file_path)
         
-        # Log to database
-        conn = sqlite3.connect(AUDIT_DB_PATH)
+        # Record the backup in database
+        db_path = Path('./backups/audit.db')
+        conn = sqlite3.connect(str(db_path))
         cursor = conn.cursor()
         
-        cursor.execute(
-            "INSERT INTO file_versions (file_path, timestamp, hash, user_id, operation, backup_path) "
-            "VALUES (?, ?, ?, ?, ?, ?)",
-            (file_path, datetime.now().isoformat(), file_hash, user_id, operation, backup_path)
-        )
+        cursor.execute('''
+        INSERT INTO file_backups 
+        (original_path, backup_path, file_hash, file_size, created_by, organization_id)
+        VALUES (?, ?, ?, ?, ?, ?)
+        ''', (
+            str(file_path), str(backup_path), file_hash, 
+            file_path.stat().st_size, user_id, organization_id
+        ))
         
         conn.commit()
         conn.close()
         
-        logger.info(f"Backed up {file_path} to {backup_path}")
-        return backup_path
+        # Log the backup action
+        log_audit_event(
+            'file_backup', 
+            file_name=filename,
+            file_path=str(file_path),
+            file_hash=file_hash,
+            details={'backup_path': str(backup_path)}
+        )
+        
+        return True
     except Exception as e:
-        logger.error(f"Error backing up file {file_path}: {e}")
-        return None
+        # Silent failure - don't disrupt regular operations
+        current_app.logger.error(f"Failed to backup file: {str(e)}")
+        return False
 
-def backup_api_response(api_data, endpoint, params=None):
-    """
-    Backup API response data
-    
-    Args:
-        api_data (dict): API response data
-        endpoint (str): API endpoint
-        params (dict, optional): Request parameters
-        
-    Returns:
-        str: Path to the backup file
-    """
+# Backup a report or generated file
+def backup_report(report_path, report_type=None, user_id=None, organization_id=None):
+    """Create a backup of a generated report"""
     try:
-        today = datetime.now().strftime("%Y-%m-%d")
-        backup_dir = f"{BACKUP_DIR}/{today}/api"
-        os.makedirs(backup_dir, exist_ok=True)
+        # Ensure we have a Path object
+        if isinstance(report_path, str):
+            report_path = Path(report_path)
         
+        # Skip if file doesn't exist
+        if not report_path.exists():
+            return False
+        
+        # Create backup directories
+        dirs = ensure_directories()
+        
+        # Generate backup path with timestamp
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        endpoint_safe = endpoint.replace("/", "_").replace(":", "_")
-        backup_filename = f"{endpoint_safe}_{timestamp}.json"
-        backup_path = os.path.join(backup_dir, backup_filename)
+        filename = report_path.name
         
-        # Add metadata
-        backup_data = {
-            "timestamp": datetime.now().isoformat(),
-            "endpoint": endpoint,
-            "params": params,
-            "response": api_data
-        }
+        # Organize by report type if provided
+        if report_type:
+            backup_dir = dirs['reports'] / report_type / timestamp
+        else:
+            backup_dir = dirs['reports'] / timestamp
+            
+        backup_dir.mkdir(exist_ok=True, parents=True)
+        backup_path = backup_dir / filename
         
-        with open(backup_path, 'w') as f:
-            json.dump(backup_data, f, indent=2)
+        # Copy the file
+        shutil.copy2(report_path, backup_path)
         
-        # Log event
-        log_event(
-            "API_RESPONSE",
-            f"Backed up API response from {endpoint}",
-            data_path=backup_path,
-            metadata={"endpoint": endpoint, "params": params}
-        )
+        # Calculate file hash
+        file_hash = get_file_hash(report_path)
         
-        logger.info(f"Backed up API response to {backup_path}")
-        return backup_path
-    except Exception as e:
-        logger.error(f"Error backing up API response: {e}")
-        return None
-
-def backup_report(report_data, report_type, format="json"):
-    """
-    Backup a generated report
-    
-    Args:
-        report_data: Report data (dict or other format)
-        report_type (str): Type of report
-        format (str): Format of the report (json, csv, xlsx)
-        
-    Returns:
-        str: Path to the backup file
-    """
-    try:
-        today = datetime.now().strftime("%Y-%m-%d")
-        backup_dir = f"{BACKUP_DIR}/{today}/reports"
-        os.makedirs(backup_dir, exist_ok=True)
-        
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        backup_filename = f"{report_type}_{timestamp}.{format}"
-        backup_path = os.path.join(backup_dir, backup_filename)
-        
-        if format == "json":
-            with open(backup_path, 'w') as f:
-                json.dump(report_data, f, indent=2)
-        elif format in ["csv", "txt"]:
-            with open(backup_path, 'w') as f:
-                f.write(report_data)
-        elif format in ["xlsx", "xls", "pdf"]:
-            # Binary files should be passed as file objects or file paths
-            if isinstance(report_data, str) and os.path.exists(report_data):
-                shutil.copy2(report_data, backup_path)
-            else:
-                with open(backup_path, 'wb') as f:
-                    f.write(report_data)
-        
-        # Log event
-        log_event(
-            "REPORT_GENERATED",
-            f"Generated and backed up {report_type} report",
-            data_path=backup_path,
-            metadata={"report_type": report_type, "format": format}
-        )
-        
-        logger.info(f"Backed up {report_type} report to {backup_path}")
-        return backup_path
-    except Exception as e:
-        logger.error(f"Error backing up report: {e}")
-        return None
-
-def reconcile_files(generated_file, uploaded_file, output_name=None):
-    """
-    Compare generated and uploaded files and store differences
-    
-    Args:
-        generated_file (str): Path to the generated file
-        uploaded_file (str): Path to the uploaded file
-        output_name (str, optional): Name for the diff file
-        
-    Returns:
-        str: Path to the diff file
-    """
-    try:
-        if not os.path.exists(generated_file) or not os.path.exists(uploaded_file):
-            logger.error(f"Cannot reconcile - files don't exist: {generated_file}, {uploaded_file}")
-            return None
-        
-        # Create output name if not provided
-        if not output_name:
-            gen_name = os.path.basename(generated_file)
-            upl_name = os.path.basename(uploaded_file)
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            output_name = f"diff_{gen_name}_vs_{upl_name}_{timestamp}.txt"
-        
-        diff_path = os.path.join(RECONCILE_DIR, output_name)
-        
-        # Read files
-        with open(generated_file, 'r') as f1:
-            gen_lines = f1.readlines()
-        
-        with open(uploaded_file, 'r') as f2:
-            upl_lines = f2.readlines()
-        
-        # Generate diff
-        diff = difflib.unified_diff(
-            gen_lines, 
-            upl_lines,
-            fromfile=f"Generated: {os.path.basename(generated_file)}",
-            tofile=f"Uploaded: {os.path.basename(uploaded_file)}",
-            n=3
-        )
-        
-        # Write diff
-        with open(diff_path, 'w') as f:
-            f.write("".join(diff))
-        
-        # Log event
-        log_event(
-            "FILE_RECONCILIATION",
-            f"Reconciled generated and uploaded files",
-            data_path=diff_path,
-            metadata={
-                "generated_file": generated_file,
-                "uploaded_file": uploaded_file,
-                "diff_file": diff_path
+        # Log the backup action
+        log_audit_event(
+            'report_backup', 
+            file_name=filename,
+            file_path=str(report_path),
+            file_hash=file_hash,
+            details={
+                'backup_path': str(backup_path),
+                'report_type': report_type
             }
         )
         
-        logger.info(f"Reconciled files and saved diff to {diff_path}")
-        return diff_path
+        return True
     except Exception as e:
-        logger.error(f"Error reconciling files: {e}")
-        return None
+        # Silent failure - don't disrupt regular operations
+        current_app.logger.error(f"Failed to backup report: {str(e)}")
+        return False
 
-def calculate_file_hash(file_path):
-    """Calculate SHA-256 hash of a file"""
-    hash_sha256 = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            hash_sha256.update(chunk)
-    return hash_sha256.hexdigest()
-
-def get_audit_trail(event_type=None, from_date=None, to_date=None, limit=100):
-    """
-    Get audit trail entries
-    
-    Args:
-        event_type (str, optional): Filter by event type
-        from_date (datetime, optional): Start date for filtering
-        to_date (datetime, optional): End date for filtering
-        limit (int): Maximum number of entries to return
-        
-    Returns:
-        list: List of audit trail entries as dictionaries
-    """
+# Export audit logs to JSON
+def export_audit_logs(start_date=None, end_date=None, action_type=None, user_id=None):
+    """Export audit logs to a JSON file"""
     try:
-        conn = sqlite3.connect(AUDIT_DB_PATH)
+        # Create query conditions
+        conditions = []
+        params = []
+        
+        if start_date:
+            conditions.append("timestamp >= ?")
+            params.append(start_date)
+        
+        if end_date:
+            conditions.append("timestamp <= ?")
+            params.append(end_date)
+        
+        if action_type:
+            conditions.append("action_type = ?")
+            params.append(action_type)
+        
+        if user_id:
+            conditions.append("user_id = ?")
+            params.append(user_id)
+        
+        # Build query
+        query = "SELECT * FROM audit_trail"
+        if conditions:
+            query += " WHERE " + " AND ".join(conditions)
+        query += " ORDER BY timestamp DESC"
+        
+        # Execute query
+        db_path = Path('./backups/audit.db')
+        conn = sqlite3.connect(str(db_path))
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         
-        query = "SELECT * FROM audit_trail"
-        params = []
-        
-        # Build WHERE clause
-        where_clauses = []
-        if event_type:
-            where_clauses.append("event_type = ?")
-            params.append(event_type)
-        
-        if from_date:
-            where_clauses.append("timestamp >= ?")
-            params.append(from_date.isoformat())
-        
-        if to_date:
-            where_clauses.append("timestamp <= ?")
-            params.append(to_date.isoformat())
-        
-        if where_clauses:
-            query += " WHERE " + " AND ".join(where_clauses)
-        
-        # Add order and limit
-        query += " ORDER BY timestamp DESC LIMIT ?"
-        params.append(limit)
-        
-        # Execute query
         cursor.execute(query, params)
         rows = cursor.fetchall()
         
-        # Convert to dictionaries
-        results = []
+        # Convert to dictionary list
+        audit_logs = []
         for row in rows:
-            event = dict(row)
-            # Parse JSON metadata
-            if event['metadata']:
-                event['metadata'] = json.loads(event['metadata'])
-            results.append(event)
+            audit_logs.append({key: row[key] for key in row.keys()})
         
         conn.close()
-        return results
+        
+        # Generate output file
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        dirs = ensure_directories()
+        output_file = dirs['logs'] / f"audit_export_{timestamp}.json"
+        
+        with open(output_file, 'w') as f:
+            json.dump(audit_logs, f, indent=2)
+        
+        return str(output_file)
     except Exception as e:
-        logger.error(f"Error getting audit trail: {e}")
-        return []
+        current_app.logger.error(f"Failed to export audit logs: {str(e)}")
+        return None
 
-def get_file_versions(file_path, limit=10):
-    """
-    Get version history for a file
-    
-    Args:
-        file_path (str): Path to the file
-        limit (int): Maximum number of versions to return
-        
-    Returns:
-        list: List of file versions as dictionaries
-    """
-    try:
-        conn = sqlite3.connect(AUDIT_DB_PATH)
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
-        
-        cursor.execute(
-            "SELECT * FROM file_versions WHERE file_path = ? ORDER BY timestamp DESC LIMIT ?",
-            (file_path, limit)
-        )
-        
-        rows = cursor.fetchall()
-        versions = [dict(row) for row in rows]
-        
-        conn.close()
-        return versions
-    except Exception as e:
-        logger.error(f"Error getting file versions: {e}")
-        return []
-
-def init():
+# Initialize the CYA module
+def init_cya_module():
     """Initialize the CYA module"""
     ensure_directories()
-    initialize_audit_db()
-    logger.info("CYA module initialized")
+    init_audit_db()
+    
+    # Log initialization event
+    log_audit_event('system', details="CYA module initialized")
+    
+    return True

@@ -7,6 +7,99 @@ This module defines database models for equipment maintenance tracking
 from datetime import datetime
 from app import db
 
+class MaintenancePriority(db.Model):
+    """
+    Model for defining maintenance priority levels
+    """
+    __tablename__ = 'maintenance_priorities'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(32), nullable=False, unique=True)  # e.g., Critical, High, Medium, Low
+    description = db.Column(db.Text, nullable=True)
+    color_code = db.Column(db.String(16), nullable=True)  # For UI display
+    sla_hours = db.Column(db.Integer, nullable=True)      # Service Level Agreement in hours
+    
+    # Meta
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def __repr__(self):
+        return f"<MaintenancePriority {self.id}: {self.name}>"
+
+class MaintenanceType(db.Model):
+    """
+    Model for categorizing different types of maintenance
+    """
+    __tablename__ = 'maintenance_types'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), nullable=False, unique=True)
+    description = db.Column(db.Text, nullable=True)
+    interval_days = db.Column(db.Integer, nullable=True)  # Default interval in days
+    interval_hours = db.Column(db.Float, nullable=True)   # Default interval in engine hours
+    estimated_cost = db.Column(db.Float, nullable=True)   # Estimated cost
+    active = db.Column(db.Boolean, default=True)
+    
+    # Meta
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def __repr__(self):
+        return f"<MaintenanceType {self.id}: {self.name}>"
+
+class MaintenanceNotification(db.Model):
+    """
+    Model for tracking maintenance notifications and alerts
+    """
+    __tablename__ = 'maintenance_notifications'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    asset_id = db.Column(db.Integer, db.ForeignKey('assets.id'), nullable=False)
+    
+    # Notification details
+    notification_type = db.Column(db.String(64), nullable=False)  # scheduled, alert, overdue
+    title = db.Column(db.String(128), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    priority = db.Column(db.String(32), default='normal')  # low, normal, high, critical
+    
+    # Status
+    status = db.Column(db.String(32), default='pending')  # pending, acknowledged, resolved
+    acknowledged_at = db.Column(db.DateTime, nullable=True)
+    resolved_at = db.Column(db.DateTime, nullable=True)
+    
+    # Meta
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    asset = db.relationship('Asset', backref=db.backref('maintenance_notifications', lazy=True))
+    
+    def __repr__(self):
+        return f"<MaintenanceNotification {self.id}: {self.title}>"
+
+class MaintenancePart(db.Model):
+    """
+    Model for tracking maintenance parts inventory
+    """
+    __tablename__ = 'maintenance_parts'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    part_number = db.Column(db.String(64), nullable=False, index=True)
+    name = db.Column(db.String(128), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    cost = db.Column(db.Float, nullable=True)
+    quantity_on_hand = db.Column(db.Integer, default=0)
+    minimum_stock = db.Column(db.Integer, default=0)
+    last_ordered = db.Column(db.Date, nullable=True)
+    supplier = db.Column(db.String(128), nullable=True)
+    
+    # Meta
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def __repr__(self):
+        return f"<MaintenancePart {self.id}: {self.name}>"
+
 class MaintenanceSchedule(db.Model):
     """
     Model for tracking scheduled maintenance

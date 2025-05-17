@@ -226,6 +226,37 @@ def assets():
     all_assets = Asset.query.all()
     return render_template('assets.html', title='Assets', assets=all_assets)
 
+@app.route('/export/assets/<format>')
+@login_required
+def export_assets(format):
+    """Export assets to the specified format"""
+    from utils.export_utils import export_assets_to_excel, export_assets_to_csv, export_assets_to_json
+    
+    try:
+        # Get all assets
+        all_assets = Asset.query.all()
+        
+        # Generate filename with timestamp
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f"assets_export_{timestamp}"
+        
+        # Export to the requested format
+        if format == 'excel':
+            filepath = export_assets_to_excel(all_assets, filename + '.xlsx')
+            return send_from_directory(os.path.dirname(filepath), os.path.basename(filepath), as_attachment=True)
+        elif format == 'csv':
+            filepath = export_assets_to_csv(all_assets, filename + '.csv')
+            return send_from_directory(os.path.dirname(filepath), os.path.basename(filepath), as_attachment=True)
+        elif format == 'json':
+            filepath = export_assets_to_json(all_assets, filename + '.json')
+            return send_from_directory(os.path.dirname(filepath), os.path.basename(filepath), as_attachment=True)
+        else:
+            flash(f"Unsupported export format: {format}", "danger")
+            return redirect(url_for('assets'))
+    except Exception as e:
+        flash(f"Error exporting assets: {str(e)}", "danger")
+        return redirect(url_for('assets'))
+
 @app.route('/asset/<int:asset_id>')
 @login_required
 def asset_detail(asset_id):
@@ -245,6 +276,154 @@ def equipment_alerts():
             flash("Generated equipment alerts successfully", "success")
         except Exception as e:
             flash(f"Error generating alerts: {str(e)}", "danger")
+            
+    # Dummy data for alerts (in production would come from database)
+    critical_alerts = [
+        {
+            'id': 1,
+            'asset_id': 'PT-4921',
+            'level': 'critical',
+            'alert_type': 'inactivity',
+            'description': 'Equipment inactive for 8.2 days',
+            'location': 'DFW-Site-34',
+            'created_at': datetime.now() - timedelta(hours=12),
+            'acknowledged': False,
+            'resolved': False
+        },
+        {
+            'id': 5,
+            'asset_id': 'ET-1187',
+            'level': 'critical',
+            'alert_type': 'maintenance_hours',
+            'description': 'Maintenance overdue by 75 engine hours',
+            'location': 'DFW-Site-22',
+            'created_at': datetime.now() - timedelta(days=5),
+            'acknowledged': True,
+            'resolved': False,
+            'details': {
+                'hours_remaining': -75,
+                'last_service_date': (datetime.now() - timedelta(days=120)).strftime('%Y-%m-%d')
+            }
+        }
+    ]
+    
+    warning_alerts = [
+        {
+            'id': 2,
+            'asset_id': 'ET-1204',
+            'level': 'warning',
+            'alert_type': 'high_usage',
+            'description': 'Unusually high usage: 12.5 hours vs avg 8.1 hours',
+            'location': 'HOU-Site-12',
+            'created_at': datetime.now() - timedelta(days=1),
+            'acknowledged': True,
+            'resolved': False
+        },
+        {
+            'id': 3,
+            'asset_id': 'PT-3302',
+            'level': 'warning',
+            'alert_type': 'inactivity',
+            'description': 'Equipment inactive for 4.7 days',
+            'location': 'DFW-Site-15',
+            'created_at': datetime.now() - timedelta(days=2),
+            'acknowledged': False,
+            'resolved': False
+        },
+        {
+            'id': 6,
+            'asset_id': 'ET-1455',
+            'level': 'warning',
+            'alert_type': 'maintenance_days',
+            'description': 'Maintenance due soon: 14 days remaining',
+            'location': 'HOU-Site-08',
+            'created_at': datetime.now() - timedelta(days=1),
+            'acknowledged': False,
+            'resolved': False,
+            'details': {
+                'days_remaining': 14,
+                'last_service_date': (datetime.now() - timedelta(days=76)).strftime('%Y-%m-%d')
+            }
+        }
+    ]
+    
+    info_alerts = [
+        {
+            'id': 7,
+            'asset_id': 'PT-2299',
+            'level': 'info',
+            'alert_type': 'low_usage',
+            'description': 'Equipment usage below average: 2.1 hours vs avg 5.8 hours',
+            'location': 'WT-Site-06',
+            'created_at': datetime.now() - timedelta(days=3),
+            'acknowledged': False,
+            'resolved': False
+        }
+    ]
+    
+    # Group alerts by type
+    alerts_by_type = {
+        'inactivity': [a for a in critical_alerts + warning_alerts + info_alerts if a['alert_type'] == 'inactivity'],
+        'high_usage': [a for a in critical_alerts + warning_alerts + info_alerts if a['alert_type'] == 'high_usage'],
+        'low_usage': [a for a in critical_alerts + warning_alerts + info_alerts if a['alert_type'] == 'low_usage'],
+        'maintenance_hours': [a for a in critical_alerts + warning_alerts + info_alerts if a['alert_type'] == 'maintenance_hours'],
+        'maintenance_days': [a for a in critical_alerts + warning_alerts + info_alerts if a['alert_type'] == 'maintenance_days'],
+    }
+    
+    # Create summary
+    summary = {
+        'level_counts': {
+            'critical': len(critical_alerts),
+            'warning': len(warning_alerts),
+            'info': len(info_alerts)
+        },
+        'type_counts': {
+            'inactivity': len(alerts_by_type['inactivity']),
+            'high_usage': len(alerts_by_type['high_usage']),
+            'low_usage': len(alerts_by_type['low_usage']),
+            'maintenance_hours': len(alerts_by_type['maintenance_hours']),
+            'maintenance_days': len(alerts_by_type['maintenance_days']),
+        },
+        'total_alerts': len(critical_alerts) + len(warning_alerts) + len(info_alerts)
+    }
+    
+    return render_template(
+        'alerts/dashboard.html',
+        critical_alerts=critical_alerts,
+        warning_alerts=warning_alerts,
+        info_alerts=info_alerts,
+        alerts_by_type=alerts_by_type,
+        summary=summary,
+        title='Equipment Alerts Dashboard'
+    )
+            
+@app.route('/export/alerts/<format>')
+@login_required
+def export_alerts(format):
+    """Export equipment alerts to the specified format"""
+    from utils.export_utils import export_alerts_to_excel, export_alerts_to_csv
+    
+    try:
+        # Gather all alerts
+        all_alerts = critical_alerts + warning_alerts + info_alerts
+        
+        # Generate filename with timestamp
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f"equipment_alerts_{timestamp}"
+        
+        # Export to the requested format
+        if format == 'excel':
+            filepath = export_alerts_to_excel(all_alerts, filename + '.xlsx')
+            return send_from_directory(os.path.dirname(filepath), os.path.basename(filepath), as_attachment=True)
+        elif format == 'csv':
+            filepath = export_alerts_to_csv(all_alerts, filename + '.csv')
+            return send_from_directory(os.path.dirname(filepath), os.path.basename(filepath), as_attachment=True)
+        else:
+            flash(f"Unsupported export format: {format}", "danger")
+            return redirect(url_for('equipment_alerts'))
+    except Exception as e:
+        flash(f"Error exporting alerts: {str(e)}", "danger")
+        return redirect(url_for('equipment_alerts'))
     
     # Dummy data for alerts (in production would come from database)
     critical_alerts = [

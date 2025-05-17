@@ -1,703 +1,411 @@
-{% extends 'base.html' %}
-
-{% block title %}Equipment Alerts Dashboard{% endblock %}
+{% extends "base.html" %}
 
 {% block content %}
-<div class="container-fluid py-4">
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-5">Equipment Alerts</h1>
+        <div class="btn-group">
+            <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-download me-1"></i> Export
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="{{ url_for('export_alerts', format='excel') }}">Export to Excel</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('export_alerts', format='csv') }}">Export to CSV</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Alert Summary Cards -->
     <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <h1 class="mb-0"><i class="bi bi-exclamation-diamond me-2"></i>Equipment Alerts Dashboard</h1>
-                <div>
-                    <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-left me-2"></i> Dashboard
-                    </a>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title mb-0">Critical Alerts</h5>
+                            <p class="card-text display-4 mb-0">{{ summary.level_counts.critical }}</p>
+                        </div>
+                        <i class="bi bi-exclamation-triangle-fill fs-1"></i>
+                    </div>
+                </div>
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <span>Requires Immediate Action</span>
+                    <a href="#criticalAlerts" class="text-white text-decoration-none">View <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title mb-0">Warning Alerts</h5>
+                            <p class="card-text display-4 mb-0">{{ summary.level_counts.warning }}</p>
+                        </div>
+                        <i class="bi bi-exclamation-circle-fill fs-1"></i>
+                    </div>
+                </div>
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <span>Needs Attention Soon</span>
+                    <a href="#warningAlerts" class="text-dark text-decoration-none">View <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title mb-0">Info Alerts</h5>
+                            <p class="card-text display-4 mb-0">{{ summary.level_counts.info }}</p>
+                        </div>
+                        <i class="bi bi-info-circle-fill fs-1"></i>
+                    </div>
+                </div>
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <span>Informational Only</span>
+                    <a href="#infoAlerts" class="text-white text-decoration-none">View <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title mb-0">Total Alerts</h5>
+                            <p class="card-text display-4 mb-0">{{ summary.total_alerts }}</p>
+                        </div>
+                        <i class="bi bi-bell-fill fs-1"></i>
+                    </div>
+                </div>
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <span>All System Alerts</span>
                     {% if current_user.is_admin %}
-                    <form action="{{ url_for('alerts.refresh_alerts') }}" method="post" class="d-inline">
-                        <button type="submit" class="btn btn-primary ms-2">
-                            <i class="bi bi-arrow-repeat me-2"></i> Generate Alerts
-                        </button>
-                    </form>
+                    <a href="{{ url_for('equipment_alerts', refresh='true') }}" class="text-white text-decoration-none">
+                        Refresh <i class="bi bi-arrow-clockwise"></i>
+                    </a>
+                    {% else %}
+                    <span class="text-white-50">Updated {{ now().strftime('%m/%d/%Y %H:%M') }}</span>
                     {% endif %}
                 </div>
             </div>
-            <p class="text-muted">Monitor equipment inactivity, unusual patterns, and upcoming maintenance needs.</p>
         </div>
     </div>
 
-    <!-- Alert Statistics Cards -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card border-danger h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="text-danger mb-1">Critical Alerts</h5>
-                            <h2 class="mb-0">{{ summary.level_counts.get('critical', 0) }}</h2>
-                        </div>
-                        <div class="rounded-circle bg-danger bg-opacity-10 p-3">
-                            <i class="bi bi-exclamation-triangle text-danger fs-4"></i>
-                        </div>
-                    </div>
-                    <p class="text-muted small mt-2 mb-0">Require immediate attention</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-warning h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="text-warning mb-1">Warning Alerts</h5>
-                            <h2 class="mb-0">{{ summary.level_counts.get('warning', 0) }}</h2>
-                        </div>
-                        <div class="rounded-circle bg-warning bg-opacity-10 p-3">
-                            <i class="bi bi-exclamation-circle text-warning fs-4"></i>
-                        </div>
-                    </div>
-                    <p class="text-muted small mt-2 mb-0">Need monitoring and attention</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-info h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="text-info mb-1">Inactive Equipment</h5>
-                            <h2 class="mb-0">{{ summary.type_counts.get('inactivity', 0) }}</h2>
-                        </div>
-                        <div class="rounded-circle bg-info bg-opacity-10 p-3">
-                            <i class="bi bi-clock-history text-info fs-4"></i>
-                        </div>
-                    </div>
-                    <p class="text-muted small mt-2 mb-0">Equipment with low or no activity</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-success h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="text-success mb-1">Unusual Patterns</h5>
-                            <h2 class="mb-0">{{ summary.type_counts.get('high_usage', 0) + summary.type_counts.get('low_usage', 0) }}</h2>
-                        </div>
-                        <div class="rounded-circle bg-success bg-opacity-10 p-3">
-                            <i class="bi bi-activity text-success fs-4"></i>
-                        </div>
-                    </div>
-                    <p class="text-muted small mt-2 mb-0">Abnormal usage patterns detected</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tabs for different alert categories -->
+    <!-- Alert Type Summary -->
     <div class="card mb-4">
-        <div class="card-header bg-white">
-            <ul class="nav nav-tabs card-header-tabs" id="alerts-tabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="all-alerts-tab" data-bs-toggle="tab" data-bs-target="#all-alerts" type="button" role="tab" aria-controls="all-alerts" aria-selected="true">
-                        <i class="bi bi-eye me-1"></i> All Alerts
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="critical-alerts-tab" data-bs-toggle="tab" data-bs-target="#critical-alerts" type="button" role="tab" aria-controls="critical-alerts" aria-selected="false">
-                        <i class="bi bi-exclamation-triangle me-1"></i> Critical
-                        <span class="badge rounded-pill bg-danger ms-1">{{ summary.level_counts.get('critical', 0) }}</span>
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="inactivity-alerts-tab" data-bs-toggle="tab" data-bs-target="#inactivity-alerts" type="button" role="tab" aria-controls="inactivity-alerts" aria-selected="false">
-                        <i class="bi bi-clock-history me-1"></i> Inactivity
-                        <span class="badge rounded-pill bg-secondary ms-1">{{ summary.type_counts.get('inactivity', 0) }}</span>
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="patterns-alerts-tab" data-bs-toggle="tab" data-bs-target="#patterns-alerts" type="button" role="tab" aria-controls="patterns-alerts" aria-selected="false">
-                        <i class="bi bi-activity me-1"></i> Usage Patterns
-                        <span class="badge rounded-pill bg-success ms-1">{{ summary.type_counts.get('high_usage', 0) + summary.type_counts.get('low_usage', 0) }}</span>
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="maintenance-alerts-tab" data-bs-toggle="tab" data-bs-target="#maintenance-alerts" type="button" role="tab" aria-controls="maintenance-alerts" aria-selected="false">
-                        <i class="bi bi-tools me-1"></i> Maintenance
-                        <span class="badge rounded-pill bg-primary ms-1">{{ summary.type_counts.get('maintenance_hours', 0) + summary.type_counts.get('maintenance_days', 0) }}</span>
-                    </button>
-                </li>
-            </ul>
+        <div class="card-header">
+            <h5 class="mb-0">Alert Types</h5>
         </div>
         <div class="card-body">
-            <div class="tab-content" id="alerts-tabContent">
-                <!-- All Alerts Tab -->
-                <div class="tab-pane fade show active" id="all-alerts" role="tabpanel" aria-labelledby="all-alerts-tab">
-                    <div class="table-responsive">
-                        <table class="table table-hover table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Severity</th>
-                                    <th>Asset ID</th>
-                                    <th>Alert Type</th>
-                                    <th>Description</th>
-                                    <th>Location</th>
-                                    <th>Created</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% set all_alerts = critical_alerts + warning_alerts + info_alerts %}
-                                {% if all_alerts %}
-                                    {% for alert in all_alerts %}
-                                        <tr>
-                                            <td>
-                                                {% if alert.level == 'critical' %}
-                                                    <span class="badge bg-danger">Critical</span>
-                                                {% elif alert.level == 'warning' %}
-                                                    <span class="badge bg-warning text-dark">Warning</span>
-                                                {% else %}
-                                                    <span class="badge bg-info">Info</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                <a href="{{ url_for('asset_detail', asset_id=alert.asset_id) }}">
-                                                    {{ alert.asset_id }}
-                                                </a>
-                                            </td>
-                                            <td>
-                                                {% if alert.alert_type == 'inactivity' %}
-                                                    <span class="badge bg-secondary">Inactivity</span>
-                                                {% elif alert.alert_type == 'high_usage' %}
-                                                    <span class="badge bg-success">High Usage</span>
-                                                {% elif alert.alert_type == 'low_usage' %}
-                                                    <span class="badge bg-primary">Low Usage</span>
-                                                {% elif alert.alert_type == 'maintenance_hours' %}
-                                                    <span class="badge bg-info">Maintenance (Hours)</span>
-                                                {% elif alert.alert_type == 'maintenance_days' %}
-                                                    <span class="badge bg-info">Maintenance (Days)</span>
-                                                {% else %}
-                                                    <span class="badge bg-secondary">{{ alert.alert_type }}</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>{{ alert.description }}</td>
-                                            <td>{{ alert.location or 'Unknown' }}</td>
-                                            <td>{{ alert.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-                                            <td>
-                                                <div class="btn-group btn-group-sm">
-                                                    <a href="{{ url_for('alerts.asset_alerts', asset_id=alert.asset_id) }}" class="btn btn-outline-primary">
-                                                        <i class="bi bi-search"></i>
-                                                    </a>
-                                                    {% if not alert.acknowledged %}
-                                                    <form action="{{ url_for('alerts.acknowledge_alert', alert_id=alert.id) }}" method="post" class="d-inline">
-                                                        <button type="submit" class="btn btn-outline-secondary">
-                                                            <i class="bi bi-check-lg"></i>
-                                                        </button>
-                                                    </form>
-                                                    {% endif %}
-                                                    {% if not alert.resolved %}
-                                                    <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#resolveModal{{ alert.id }}">
-                                                        <i class="bi bi-check-circle"></i>
-                                                    </button>
-                                                    {% endif %}
-                                                </div>
-                                                
-                                                <!-- Resolve Modal -->
-                                                <div class="modal fade" id="resolveModal{{ alert.id }}" tabindex="-1" aria-labelledby="resolveModalLabel{{ alert.id }}" aria-hidden="true">
-                                                    <div class="modal-dialog">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title" id="resolveModalLabel{{ alert.id }}">Resolve Alert</h5>
-                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                            </div>
-                                                            <form action="{{ url_for('alerts.resolve_alert', alert_id=alert.id) }}" method="post">
-                                                                <div class="modal-body">
-                                                                    <p><strong>Alert:</strong> {{ alert.description }}</p>
-                                                                    <p><strong>Asset:</strong> {{ alert.asset_id }}</p>
-                                                                    <div class="mb-3">
-                                                                        <label for="resolution_notes" class="form-label">Resolution Notes</label>
-                                                                        <textarea class="form-control" id="resolution_notes" name="resolution_notes" rows="3"></textarea>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="modal-footer">
-                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                                    <button type="submit" class="btn btn-success">Resolve Alert</button>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                {% else %}
-                                    <tr>
-                                        <td colspan="7" class="text-center py-4">
-                                            <div class="text-muted">
-                                                <i class="bi bi-check-circle fs-4 d-block mb-2"></i>
-                                                No alerts found
-                                            </div>
-                                        </td>
-                                    </tr>
-                                {% endif %}
-                            </tbody>
-                        </table>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-3">
+                            <span class="badge bg-secondary p-2">
+                                <i class="bi bi-hourglass-split fs-5"></i>
+                            </span>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">Inactivity</h6>
+                            <div class="progress mt-1" style="height: 5px; width: 100%;">
+                                <div class="progress-bar bg-secondary" role="progressbar" style="width: {{ (summary.type_counts.inactivity / summary.total_alerts * 100) if summary.total_alerts else 0 }}%"></div>
+                            </div>
+                            <small class="text-muted">{{ summary.type_counts.inactivity }} alerts</small>
+                        </div>
                     </div>
                 </div>
-                
-                <!-- Critical Alerts Tab -->
-                <div class="tab-pane fade" id="critical-alerts" role="tabpanel" aria-labelledby="critical-alerts-tab">
-                    <div class="table-responsive">
-                        <table class="table table-hover table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Asset ID</th>
-                                    <th>Alert Type</th>
-                                    <th>Description</th>
-                                    <th>Location</th>
-                                    <th>Created</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% if critical_alerts %}
-                                    {% for alert in critical_alerts %}
-                                        <tr>
-                                            <td>
-                                                <a href="{{ url_for('asset_detail', asset_id=alert.asset_id) }}">
-                                                    {{ alert.asset_id }}
-                                                </a>
-                                            </td>
-                                            <td>
-                                                {% if alert.alert_type == 'inactivity' %}
-                                                    <span class="badge bg-secondary">Inactivity</span>
-                                                {% elif alert.alert_type == 'high_usage' %}
-                                                    <span class="badge bg-success">High Usage</span>
-                                                {% elif alert.alert_type == 'low_usage' %}
-                                                    <span class="badge bg-primary">Low Usage</span>
-                                                {% elif alert.alert_type == 'maintenance_hours' %}
-                                                    <span class="badge bg-info">Maintenance (Hours)</span>
-                                                {% elif alert.alert_type == 'maintenance_days' %}
-                                                    <span class="badge bg-info">Maintenance (Days)</span>
-                                                {% else %}
-                                                    <span class="badge bg-secondary">{{ alert.alert_type }}</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>{{ alert.description }}</td>
-                                            <td>{{ alert.location or 'Unknown' }}</td>
-                                            <td>{{ alert.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-                                            <td>
-                                                <div class="btn-group btn-group-sm">
-                                                    <a href="{{ url_for('alerts.asset_alerts', asset_id=alert.asset_id) }}" class="btn btn-outline-primary">
-                                                        <i class="bi bi-search"></i>
-                                                    </a>
-                                                    {% if not alert.acknowledged %}
-                                                    <form action="{{ url_for('alerts.acknowledge_alert', alert_id=alert.id) }}" method="post" class="d-inline">
-                                                        <button type="submit" class="btn btn-outline-secondary">
-                                                            <i class="bi bi-check-lg"></i>
-                                                        </button>
-                                                    </form>
-                                                    {% endif %}
-                                                    {% if not alert.resolved %}
-                                                    <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#resolveModal{{ alert.id }}C">
-                                                        <i class="bi bi-check-circle"></i>
-                                                    </button>
-                                                    {% endif %}
-                                                </div>
-                                                
-                                                <!-- Resolve Modal -->
-                                                <div class="modal fade" id="resolveModal{{ alert.id }}C" tabindex="-1" aria-labelledby="resolveModalLabel{{ alert.id }}C" aria-hidden="true">
-                                                    <div class="modal-dialog">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title" id="resolveModalLabel{{ alert.id }}C">Resolve Alert</h5>
-                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                            </div>
-                                                            <form action="{{ url_for('alerts.resolve_alert', alert_id=alert.id) }}" method="post">
-                                                                <div class="modal-body">
-                                                                    <p><strong>Alert:</strong> {{ alert.description }}</p>
-                                                                    <p><strong>Asset:</strong> {{ alert.asset_id }}</p>
-                                                                    <div class="mb-3">
-                                                                        <label for="resolution_notes" class="form-label">Resolution Notes</label>
-                                                                        <textarea class="form-control" id="resolution_notes" name="resolution_notes" rows="3"></textarea>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="modal-footer">
-                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                                    <button type="submit" class="btn btn-success">Resolve Alert</button>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                {% else %}
-                                    <tr>
-                                        <td colspan="6" class="text-center py-4">
-                                            <div class="text-muted">
-                                                <i class="bi bi-check-circle fs-4 d-block mb-2"></i>
-                                                No critical alerts found
-                                            </div>
-                                        </td>
-                                    </tr>
-                                {% endif %}
-                            </tbody>
-                        </table>
+                <div class="col-md-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-3">
+                            <span class="badge bg-danger p-2">
+                                <i class="bi bi-lightning-charge-fill fs-5"></i>
+                            </span>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">High Usage</h6>
+                            <div class="progress mt-1" style="height: 5px; width: 100%;">
+                                <div class="progress-bar bg-danger" role="progressbar" style="width: {{ (summary.type_counts.high_usage / summary.total_alerts * 100) if summary.total_alerts else 0 }}%"></div>
+                            </div>
+                            <small class="text-muted">{{ summary.type_counts.high_usage }} alerts</small>
+                        </div>
                     </div>
                 </div>
-                
-                <!-- Inactivity Alerts Tab -->
-                <div class="tab-pane fade" id="inactivity-alerts" role="tabpanel" aria-labelledby="inactivity-alerts-tab">
-                    <div class="table-responsive">
-                        <table class="table table-hover table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Severity</th>
-                                    <th>Asset ID</th>
-                                    <th>Days Inactive</th>
-                                    <th>Last Activity</th>
-                                    <th>Location</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% set inactivity_alerts = alerts_by_type.get('inactivity', []) %}
-                                {% if inactivity_alerts %}
-                                    {% for alert in inactivity_alerts %}
-                                        <tr>
-                                            <td>
-                                                {% if alert.level == 'critical' %}
-                                                    <span class="badge bg-danger">Critical</span>
-                                                {% elif alert.level == 'warning' %}
-                                                    <span class="badge bg-warning text-dark">Warning</span>
-                                                {% else %}
-                                                    <span class="badge bg-info">Info</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                <a href="{{ url_for('asset_detail', asset_id=alert.asset_id) }}">
-                                                    {{ alert.asset_id }}
-                                                </a>
-                                            </td>
-                                            <td>
-                                                {% if alert.details and alert.details.days_inactive %}
-                                                    {{ alert.details.days_inactive }} days
-                                                {% else %}
-                                                    Unknown
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                {% if alert.details and alert.details.last_activity %}
-                                                    {{ alert.details.last_activity }}
-                                                {% else %}
-                                                    Unknown
-                                                {% endif %}
-                                            </td>
-                                            <td>{{ alert.location or 'Unknown' }}</td>
-                                            <td>
-                                                <div class="btn-group btn-group-sm">
-                                                    <a href="{{ url_for('alerts.asset_alerts', asset_id=alert.asset_id) }}" class="btn btn-outline-primary">
-                                                        <i class="bi bi-search"></i>
-                                                    </a>
-                                                    {% if not alert.acknowledged %}
-                                                    <form action="{{ url_for('alerts.acknowledge_alert', alert_id=alert.id) }}" method="post" class="d-inline">
-                                                        <button type="submit" class="btn btn-outline-secondary">
-                                                            <i class="bi bi-check-lg"></i>
-                                                        </button>
-                                                    </form>
-                                                    {% endif %}
-                                                    {% if not alert.resolved %}
-                                                    <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#resolveModal{{ alert.id }}I">
-                                                        <i class="bi bi-check-circle"></i>
-                                                    </button>
-                                                    {% endif %}
-                                                </div>
-                                                
-                                                <!-- Resolve Modal -->
-                                                <div class="modal fade" id="resolveModal{{ alert.id }}I" tabindex="-1" aria-labelledby="resolveModalLabel{{ alert.id }}I" aria-hidden="true">
-                                                    <div class="modal-dialog">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title" id="resolveModalLabel{{ alert.id }}I">Resolve Inactivity Alert</h5>
-                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                            </div>
-                                                            <form action="{{ url_for('alerts.resolve_alert', alert_id=alert.id) }}" method="post">
-                                                                <div class="modal-body">
-                                                                    <p><strong>Alert:</strong> {{ alert.description }}</p>
-                                                                    <p><strong>Asset:</strong> {{ alert.asset_id }}</p>
-                                                                    <div class="mb-3">
-                                                                        <label for="resolution_notes" class="form-label">Resolution Notes</label>
-                                                                        <textarea class="form-control" id="resolution_notes" name="resolution_notes" rows="3" placeholder="Explain why this equipment is inactive or what actions were taken..."></textarea>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="modal-footer">
-                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                                    <button type="submit" class="btn btn-success">Resolve Alert</button>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                {% else %}
-                                    <tr>
-                                        <td colspan="6" class="text-center py-4">
-                                            <div class="text-muted">
-                                                <i class="bi bi-check-circle fs-4 d-block mb-2"></i>
-                                                No inactivity alerts found
-                                            </div>
-                                        </td>
-                                    </tr>
-                                {% endif %}
-                            </tbody>
-                        </table>
+                <div class="col-md-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-3">
+                            <span class="badge bg-info p-2">
+                                <i class="bi bi-battery-half fs-5"></i>
+                            </span>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">Low Usage</h6>
+                            <div class="progress mt-1" style="height: 5px; width: 100%;">
+                                <div class="progress-bar bg-info" role="progressbar" style="width: {{ (summary.type_counts.low_usage / summary.total_alerts * 100) if summary.total_alerts else 0 }}%"></div>
+                            </div>
+                            <small class="text-muted">{{ summary.type_counts.low_usage }} alerts</small>
+                        </div>
                     </div>
                 </div>
-                
-                <!-- Usage Patterns Tab -->
-                <div class="tab-pane fade" id="patterns-alerts" role="tabpanel" aria-labelledby="patterns-alerts-tab">
-                    <div class="table-responsive">
-                        <table class="table table-hover table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Severity</th>
-                                    <th>Asset ID</th>
-                                    <th>Pattern Type</th>
-                                    <th>Description</th>
-                                    <th>Location</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% set high_usage_alerts = alerts_by_type.get('high_usage', []) %}
-                                {% set low_usage_alerts = alerts_by_type.get('low_usage', []) %}
-                                {% set pattern_alerts = high_usage_alerts + low_usage_alerts %}
-                                {% if pattern_alerts %}
-                                    {% for alert in pattern_alerts %}
-                                        <tr>
-                                            <td>
-                                                {% if alert.level == 'critical' %}
-                                                    <span class="badge bg-danger">Critical</span>
-                                                {% elif alert.level == 'warning' %}
-                                                    <span class="badge bg-warning text-dark">Warning</span>
-                                                {% else %}
-                                                    <span class="badge bg-info">Info</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                <a href="{{ url_for('asset_detail', asset_id=alert.asset_id) }}">
-                                                    {{ alert.asset_id }}
-                                                </a>
-                                            </td>
-                                            <td>
-                                                {% if alert.alert_type == 'high_usage' %}
-                                                    <span class="badge bg-success">High Usage</span>
-                                                {% elif alert.alert_type == 'low_usage' %}
-                                                    <span class="badge bg-primary">Low Usage</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>{{ alert.description }}</td>
-                                            <td>{{ alert.location or 'Unknown' }}</td>
-                                            <td>
-                                                <div class="btn-group btn-group-sm">
-                                                    <a href="{{ url_for('alerts.asset_alerts', asset_id=alert.asset_id) }}" class="btn btn-outline-primary">
-                                                        <i class="bi bi-search"></i>
-                                                    </a>
-                                                    {% if not alert.acknowledged %}
-                                                    <form action="{{ url_for('alerts.acknowledge_alert', alert_id=alert.id) }}" method="post" class="d-inline">
-                                                        <button type="submit" class="btn btn-outline-secondary">
-                                                            <i class="bi bi-check-lg"></i>
-                                                        </button>
-                                                    </form>
-                                                    {% endif %}
-                                                    {% if not alert.resolved %}
-                                                    <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#resolveModal{{ alert.id }}P">
-                                                        <i class="bi bi-check-circle"></i>
-                                                    </button>
-                                                    {% endif %}
-                                                </div>
-                                                
-                                                <!-- Resolve Modal -->
-                                                <div class="modal fade" id="resolveModal{{ alert.id }}P" tabindex="-1" aria-labelledby="resolveModalLabel{{ alert.id }}P" aria-hidden="true">
-                                                    <div class="modal-dialog">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title" id="resolveModalLabel{{ alert.id }}P">Resolve Pattern Alert</h5>
-                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                            </div>
-                                                            <form action="{{ url_for('alerts.resolve_alert', alert_id=alert.id) }}" method="post">
-                                                                <div class="modal-body">
-                                                                    <p><strong>Alert:</strong> {{ alert.description }}</p>
-                                                                    <p><strong>Asset:</strong> {{ alert.asset_id }}</p>
-                                                                    <div class="mb-3">
-                                                                        <label for="resolution_notes" class="form-label">Resolution Notes</label>
-                                                                        <textarea class="form-control" id="resolution_notes" name="resolution_notes" rows="3" placeholder="Explain why this usage pattern is occurring or what actions were taken..."></textarea>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="modal-footer">
-                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                                    <button type="submit" class="btn btn-success">Resolve Alert</button>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                {% else %}
-                                    <tr>
-                                        <td colspan="6" class="text-center py-4">
-                                            <div class="text-muted">
-                                                <i class="bi bi-check-circle fs-4 d-block mb-2"></i>
-                                                No usage pattern alerts found
-                                            </div>
-                                        </td>
-                                    </tr>
-                                {% endif %}
-                            </tbody>
-                        </table>
+                <div class="col-md-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-3">
+                            <span class="badge bg-warning p-2">
+                                <i class="bi bi-speedometer fs-5"></i>
+                            </span>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">Maintenance (Hours)</h6>
+                            <div class="progress mt-1" style="height: 5px; width: 100%;">
+                                <div class="progress-bar bg-warning" role="progressbar" style="width: {{ (summary.type_counts.maintenance_hours / summary.total_alerts * 100) if summary.total_alerts else 0 }}%"></div>
+                            </div>
+                            <small class="text-muted">{{ summary.type_counts.maintenance_hours }} alerts</small>
+                        </div>
                     </div>
                 </div>
-                
-                <!-- Maintenance Alerts Tab -->
-                <div class="tab-pane fade" id="maintenance-alerts" role="tabpanel" aria-labelledby="maintenance-alerts-tab">
-                    <div class="table-responsive">
-                        <table class="table table-hover table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Severity</th>
-                                    <th>Asset ID</th>
-                                    <th>Maintenance Type</th>
-                                    <th>Description</th>
-                                    <th>Last Service</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% set maintenance_hours_alerts = alerts_by_type.get('maintenance_hours', []) %}
-                                {% set maintenance_days_alerts = alerts_by_type.get('maintenance_days', []) %}
-                                {% set maintenance_alerts = maintenance_hours_alerts + maintenance_days_alerts %}
-                                {% if maintenance_alerts %}
-                                    {% for alert in maintenance_alerts %}
-                                        <tr>
-                                            <td>
-                                                {% if alert.level == 'critical' %}
-                                                    <span class="badge bg-danger">Critical</span>
-                                                {% elif alert.level == 'warning' %}
-                                                    <span class="badge bg-warning text-dark">Warning</span>
-                                                {% else %}
-                                                    <span class="badge bg-info">Info</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                <a href="{{ url_for('asset_detail', asset_id=alert.asset_id) }}">
-                                                    {{ alert.asset_id }}
-                                                </a>
-                                            </td>
-                                            <td>
-                                                {% if alert.alert_type == 'maintenance_hours' %}
-                                                    <span class="badge bg-info">Hours-based</span>
-                                                {% elif alert.alert_type == 'maintenance_days' %}
-                                                    <span class="badge bg-primary">Time-based</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>{{ alert.description }}</td>
-                                            <td>
-                                                {% if alert.details and alert.details.last_service_date %}
-                                                    {{ alert.details.last_service_date }}
-                                                {% else %}
-                                                    Unknown
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                <div class="btn-group btn-group-sm">
-                                                    <a href="{{ url_for('alerts.asset_alerts', asset_id=alert.asset_id) }}" class="btn btn-outline-primary">
-                                                        <i class="bi bi-search"></i>
-                                                    </a>
-                                                    {% if not alert.acknowledged %}
-                                                    <form action="{{ url_for('alerts.acknowledge_alert', alert_id=alert.id) }}" method="post" class="d-inline">
-                                                        <button type="submit" class="btn btn-outline-secondary">
-                                                            <i class="bi bi-check-lg"></i>
-                                                        </button>
-                                                    </form>
-                                                    {% endif %}
-                                                    {% if not alert.resolved %}
-                                                    <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#resolveModal{{ alert.id }}M">
-                                                        <i class="bi bi-check-circle"></i>
-                                                    </button>
-                                                    {% endif %}
-                                                </div>
-                                                
-                                                <!-- Resolve Modal -->
-                                                <div class="modal fade" id="resolveModal{{ alert.id }}M" tabindex="-1" aria-labelledby="resolveModalLabel{{ alert.id }}M" aria-hidden="true">
-                                                    <div class="modal-dialog">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title" id="resolveModalLabel{{ alert.id }}M">Resolve Maintenance Alert</h5>
-                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                            </div>
-                                                            <form action="{{ url_for('alerts.resolve_alert', alert_id=alert.id) }}" method="post">
-                                                                <div class="modal-body">
-                                                                    <p><strong>Alert:</strong> {{ alert.description }}</p>
-                                                                    <p><strong>Asset:</strong> {{ alert.asset_id }}</p>
-                                                                    <div class="mb-3">
-                                                                        <label for="resolution_notes" class="form-label">Resolution Notes</label>
-                                                                        <textarea class="form-control" id="resolution_notes" name="resolution_notes" rows="3" placeholder="Describe maintenance performed or scheduled..."></textarea>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="modal-footer">
-                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                                    <button type="submit" class="btn btn-success">Resolve Alert</button>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                {% else %}
-                                    <tr>
-                                        <td colspan="6" class="text-center py-4">
-                                            <div class="text-muted">
-                                                <i class="bi bi-check-circle fs-4 d-block mb-2"></i>
-                                                No maintenance alerts found
-                                            </div>
-                                        </td>
-                                    </tr>
-                                {% endif %}
-                            </tbody>
-                        </table>
+                <div class="col-md-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-3">
+                            <span class="badge bg-primary p-2">
+                                <i class="bi bi-calendar-check fs-5"></i>
+                            </span>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">Maintenance (Days)</h6>
+                            <div class="progress mt-1" style="height: 5px; width: 100%;">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: {{ (summary.type_counts.maintenance_days / summary.total_alerts * 100) if summary.total_alerts else 0 }}%"></div>
+                            </div>
+                            <small class="text-muted">{{ summary.type_counts.maintenance_days }} alerts</small>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Critical Alerts -->
+    <div class="card mb-4" id="criticalAlerts">
+        <div class="card-header bg-danger text-white">
+            <h5 class="mb-0"><i class="bi bi-exclamation-triangle-fill me-2"></i>Critical Alerts ({{ critical_alerts|length }})</h5>
+        </div>
+        <div class="card-body p-0">
+            {% if critical_alerts %}
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th>Asset ID</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                            <th>Location</th>
+                            <th>Created</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for alert in critical_alerts %}
+                        <tr>
+                            <td><strong>{{ alert.asset_id }}</strong></td>
+                            <td>
+                                {% if alert.alert_type == 'inactivity' %}
+                                <span class="badge bg-secondary">Inactivity</span>
+                                {% elif alert.alert_type == 'maintenance_hours' %}
+                                <span class="badge bg-warning">Maintenance (Hours)</span>
+                                {% elif alert.alert_type == 'maintenance_days' %}
+                                <span class="badge bg-primary">Maintenance (Days)</span>
+                                {% else %}
+                                <span class="badge bg-secondary">{{ alert.alert_type }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ alert.description }}</td>
+                            <td>{{ alert.location }}</td>
+                            <td>{{ alert.created_at.strftime('%m/%d/%Y %H:%M') }}</td>
+                            <td>
+                                {% if alert.resolved %}
+                                <span class="badge bg-success">Resolved</span>
+                                {% elif alert.acknowledged %}
+                                <span class="badge bg-warning">Acknowledged</span>
+                                {% else %}
+                                <span class="badge bg-danger">New</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="#" class="btn btn-outline-secondary">
+                                        <i class="bi bi-check-circle"></i> Acknowledge
+                                    </a>
+                                    <a href="#" class="btn btn-outline-success">
+                                        <i class="bi bi-check-square"></i> Resolve
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <i class="bi bi-check-circle-fill text-success fs-1"></i>
+                <p class="mt-2">No critical alerts at this time.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Warning Alerts -->
+    <div class="card mb-4" id="warningAlerts">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0"><i class="bi bi-exclamation-circle-fill me-2"></i>Warning Alerts ({{ warning_alerts|length }})</h5>
+        </div>
+        <div class="card-body p-0">
+            {% if warning_alerts %}
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th>Asset ID</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                            <th>Location</th>
+                            <th>Created</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for alert in warning_alerts %}
+                        <tr>
+                            <td><strong>{{ alert.asset_id }}</strong></td>
+                            <td>
+                                {% if alert.alert_type == 'inactivity' %}
+                                <span class="badge bg-secondary">Inactivity</span>
+                                {% elif alert.alert_type == 'high_usage' %}
+                                <span class="badge bg-danger">High Usage</span>
+                                {% elif alert.alert_type == 'maintenance_hours' %}
+                                <span class="badge bg-warning">Maintenance (Hours)</span>
+                                {% elif alert.alert_type == 'maintenance_days' %}
+                                <span class="badge bg-primary">Maintenance (Days)</span>
+                                {% else %}
+                                <span class="badge bg-secondary">{{ alert.alert_type }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ alert.description }}</td>
+                            <td>{{ alert.location }}</td>
+                            <td>{{ alert.created_at.strftime('%m/%d/%Y %H:%M') }}</td>
+                            <td>
+                                {% if alert.resolved %}
+                                <span class="badge bg-success">Resolved</span>
+                                {% elif alert.acknowledged %}
+                                <span class="badge bg-warning">Acknowledged</span>
+                                {% else %}
+                                <span class="badge bg-danger">New</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="#" class="btn btn-outline-secondary">
+                                        <i class="bi bi-check-circle"></i> Acknowledge
+                                    </a>
+                                    <a href="#" class="btn btn-outline-success">
+                                        <i class="bi bi-check-square"></i> Resolve
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <i class="bi bi-check-circle-fill text-success fs-1"></i>
+                <p class="mt-2">No warning alerts at this time.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Info Alerts -->
+    <div class="card mb-4" id="infoAlerts">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0"><i class="bi bi-info-circle-fill me-2"></i>Info Alerts ({{ info_alerts|length }})</h5>
+        </div>
+        <div class="card-body p-0">
+            {% if info_alerts %}
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th>Asset ID</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                            <th>Location</th>
+                            <th>Created</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for alert in info_alerts %}
+                        <tr>
+                            <td><strong>{{ alert.asset_id }}</strong></td>
+                            <td>
+                                {% if alert.alert_type == 'low_usage' %}
+                                <span class="badge bg-info">Low Usage</span>
+                                {% else %}
+                                <span class="badge bg-secondary">{{ alert.alert_type }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ alert.description }}</td>
+                            <td>{{ alert.location }}</td>
+                            <td>{{ alert.created_at.strftime('%m/%d/%Y %H:%M') }}</td>
+                            <td>
+                                {% if alert.resolved %}
+                                <span class="badge bg-success">Resolved</span>
+                                {% elif alert.acknowledged %}
+                                <span class="badge bg-warning">Acknowledged</span>
+                                {% else %}
+                                <span class="badge bg-danger">New</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="#" class="btn btn-outline-secondary">
+                                        <i class="bi bi-check-circle"></i> Acknowledge
+                                    </a>
+                                    <a href="#" class="btn btn-outline-success">
+                                        <i class="bi bi-check-square"></i> Resolve
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <i class="bi bi-check-circle-fill text-success fs-1"></i>
+                <p class="mt-2">No info alerts at this time.</p>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
 
-<!-- JavaScript for Alerts Dashboard -->
 <script>
+    // Automatically scroll to alert sections based on URL hash
     document.addEventListener('DOMContentLoaded', function() {
-        // Keep the selected tab active after page refresh
-        let url = location.href.replace(/\/$/, "");
-        if (location.hash) {
-            const hash = url.split("#");
-            const tabId = hash[1] + "-tab";
-            
-            document.getElementById(tabId).click();
+        const hash = window.location.hash;
+        if (hash) {
+            const element = document.querySelector(hash);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
         }
-        
-        // Enable tab navigation with links
-        document.querySelectorAll('.nav-tabs a').forEach(tab => {
-            tab.addEventListener('click', function(e) {
-                e.preventDefault();
-                this.tab('show');
-            });
-        });
     });
 </script>
 {% endblock %}

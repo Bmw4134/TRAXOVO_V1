@@ -83,6 +83,13 @@ try:
     logging.info("Registered alerts blueprint")
 except ImportError:
     logging.error("Failed to register alerts blueprint")
+    
+try:
+    from routes.pm_master import pm_master_bp
+    app.register_blueprint(pm_master_bp)
+    logging.info("Registered PM Master blueprint")
+except ImportError as e:
+    logging.error(f"Failed to register PM Master blueprint: {e}")
 
 @login_manager.user_loader
 def load_user(user_id):

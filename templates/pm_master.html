@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block title %}PM Master Billing - TRAXORA{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="section-header">
+                <h2><i class="bi bi-calculator me-2"></i>PM Master Billing Processor</h2>
+                <div class="section-actions">
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-house me-1"></i> Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Current Processing Status -->
+        <div class="col-md-6 mb-4">
+            {% if processor_status.initialized %}
+            <div class="card shadow h-100">
+                <div class="card-header bg-success text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-check-circle me-2"></i>Processing Status</h5>
+                        <span class="badge bg-light text-success">Active</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h5 class="text-success">Session Initialized</h5>
+                        <p class="text-muted">You can add additional PM sheets or generate the master output.</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <strong>Files Processed:</strong>
+                            <span>{{ processor_status.files_processed }}</span>
+                        </div>
+                        {% if processor_status.latest_file %}
+                        <div class="d-flex justify-content-between">
+                            <strong>Latest File:</strong>
+                            <span>{{ processor_status.latest_file }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mt-4">
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <form action="{{ url_for('pm_master.add_file') }}" method="post" enctype="multipart/form-data">
+                                    <div class="mb-3">
+                                        <label for="pm_file" class="form-label">Add PM Sheet</label>
+                                        <input class="form-control" type="file" id="pm_file" name="pm_file" required>
+                                    </div>
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bi bi-plus-circle me-2"></i> Add File
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Generate Master</label>
+                                    <div class="d-grid">
+                                        <form action="{{ url_for('pm_master.generate') }}" method="post">
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="bi bi-file-earmark-spreadsheet me-2"></i> Generate
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="mt-1">
+                                    <form action="{{ url_for('pm_master.reset') }}" method="post">
+                                        <button type="submit" class="btn btn-outline-danger w-100" onclick="return confirm('Are you sure you want to reset? This will clear all your current progress.')">
+                                            <i class="bi bi-x-circle me-2"></i> Reset
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="card shadow h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-upload me-2"></i>Upload Original PM Sheet</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info mb-3">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        <span>Start by uploading your original PM allocation file. This will be the base for all subsequent changes.</span>
+                    </div>
+                    
+                    <form action="{{ url_for('pm_master.init_processor') }}" method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="original_file" class="form-label">Original PM Allocation File</label>
+                            <input class="form-control" type="file" id="original_file" name="original_file" required>
+                            <div class="form-text">Upload the original PM allocation file (Excel or CSV format)</div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-cloud-upload me-2"></i> Upload & Initialize
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Recent Exports -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Recent Exports</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_exports %}
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped">
+                            <thead>
+                                <tr>
+                                    <th>File Name</th>
+                                    <th>Date</th>
+                                    <th>Size</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for export in recent_exports %}
+                                <tr>
+                                    <td>{{ export.name }}</td>
+                                    <td>{{ export.date }}</td>
+                                    <td>{{ "%.2f"|format(export.size) }} KB</td>
+                                    <td>
+                                        <a href="{{ url_for('pm_master.download_file', filename=export.name) }}" class="btn btn-sm btn-primary">
+                                            <i class="bi bi-download"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        <span>No exports found. Process PM files to generate exports.</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- How to Use Section -->
+    <div class="row mt-2">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-question-circle me-2"></i>How to Use PM Master Billing</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="text-center mb-3">
+                                <i class="bi bi-1-circle-fill text-primary" style="font-size: 2rem;"></i>
+                                <h5 class="mt-2">Upload Original</h5>
+                                <p class="text-muted">Begin by uploading your original PM allocation file as the base for changes.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center mb-3">
+                                <i class="bi bi-2-circle-fill text-primary" style="font-size: 2rem;"></i>
+                                <h5 class="mt-2">Add PM Sheets</h5>
+                                <p class="text-muted">Add subsequent PM allocation sheets one at a time to track changes.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center mb-3">
+                                <i class="bi bi-3-circle-fill text-primary" style="font-size: 2rem;"></i>
+                                <h5 class="mt-2">Generate Master</h5>
+                                <p class="text-muted">Generate a master completed output with comprehensive tracking and reconciliation.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <div class="alert alert-secondary">
+                            <strong>Tip:</strong> The master output will include detailed tracking of all changes including additions, modifications, and deletions across all PM sheets.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Highlight the current navigation item
+        const pmLinks = document.querySelectorAll('#pmDropdown + .dropdown-menu .dropdown-item');
+        pmLinks.forEach(link => {
+            if (link.getAttribute('href') && link.getAttribute('href').includes('pm-master')) {
+                link.classList.add('active');
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}Foundation Exports - TRAXORA{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="section-header">
+                <h2><i class="bi bi-file-earmark-spreadsheet me-2"></i>Foundation Exports Generator</h2>
+                <div class="section-actions">
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-house me-1"></i> Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Upload Form -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-upload me-2"></i>Upload EQ Billing Master</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info mb-3">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        <span>Upload your completed EQ billing master file to generate regional foundation imports.</span>
+                    </div>
+                    
+                    <form action="{{ url_for('foundation.generate_exports') }}" method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="eq_billing_file" class="form-label">EQ Billing Master File</label>
+                            <input class="form-control" type="file" id="eq_billing_file" name="eq_billing_file" required>
+                            <div class="form-text">Upload the completed EQ billing master file (Excel format)</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="month_year" class="form-label">Month and Year</label>
+                            <input type="text" class="form-control" id="month_year" name="month_year" 
+                                   placeholder="April 2025" value="{{ current_month_year }}">
+                            <div class="form-text">Month and year for the foundation exports</div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-lightning me-2"></i> Generate Foundation Exports
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Exports -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Recent Exports</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_exports %}
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped">
+                            <thead>
+                                <tr>
+                                    <th>File Name</th>
+                                    <th>Date</th>
+                                    <th>Size</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for export in recent_exports %}
+                                <tr>
+                                    <td>{{ export.name }}</td>
+                                    <td>{{ export.date }}</td>
+                                    <td>{{ "%.2f"|format(export.size) }} KB</td>
+                                    <td>
+                                        <a href="{{ url_for('foundation.download_file', filename=export.name) }}" class="btn btn-sm btn-primary">
+                                            <i class="bi bi-download"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        <span>No exports found. Generate foundation exports to see them here.</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Information Section -->
+    <div class="row mt-2">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>About Foundation Exports</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>What's Included</h5>
+                            <ul>
+                                <li><strong>EQ Billings Master:</strong> A consolidated view of all billing data</li>
+                                <li><strong>DFW Foundation Import:</strong> Formatted export for DFW region</li>
+                                <li><strong>HOU Foundation Import:</strong> Formatted export for Houston region</li>
+                                <li><strong>WT Foundation Import:</strong> Formatted export for West Texas region</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>How It Works</h5>
+                            <ol>
+                                <li>Upload your completed EQ billing master file</li>
+                                <li>Specify the month and year for the exports</li>
+                                <li>Generate a ZIP file containing all regional imports</li>
+                                <li>Download and extract the ZIP file</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set default month/year if empty
+        const monthYearInput = document.getElementById('month_year');
+        if (!monthYearInput.value) {
+            const now = new Date();
+            const monthNames = ["January", "February", "March", "April", "May", "June",
+                              "July", "August", "September", "October", "November", "December"];
+            monthYearInput.value = monthNames[now.getMonth()] + " " + now.getFullYear();
+        }
+    });
+</script>
+{% endblock %}

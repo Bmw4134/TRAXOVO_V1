@@ -90,6 +90,13 @@ try:
     logging.info("Registered PM Master blueprint")
 except ImportError as e:
     logging.error(f"Failed to register PM Master blueprint: {e}")
+    
+try:
+    from routes.foundation_exports import foundation_bp
+    app.register_blueprint(foundation_bp)
+    logging.info("Registered Foundation Exports blueprint")
+except ImportError as e:
+    logging.error(f"Failed to register Foundation Exports blueprint: {e}")
 
 @login_manager.user_loader
 def load_user(user_id):

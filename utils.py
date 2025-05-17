@@ -16,14 +16,28 @@ def get_user_organizations():
     if not current_user or not current_user.is_authenticated:
         return []
     
-    # Get all organizations the user belongs to
-    from models.user_organization import UserOrganization
-    user_orgs = UserOrganization.query.filter_by(
-        user_id=current_user.id, 
-        is_active=True
-    ).all()
-    
-    return [uo.organization_id for uo in user_orgs]
+    try:
+        # Try using the UserOrganization model to get organizations
+        from models.user_organization import UserOrganization
+        user_orgs = UserOrganization.query.filter_by(
+            user_id=current_user.id, 
+            is_active=True
+        ).all()
+        
+        org_ids = [uo.organization_id for uo in user_orgs]
+        
+        # If no organizations but user is admin, give access to all
+        if not org_ids and getattr(current_user, 'is_admin', False):
+            # Get all organizations
+            from models.organization import Organization
+            all_orgs = Organization.query.all()
+            return [org.id for org in all_orgs]
+            
+        return org_ids
+    except Exception as e:
+        logger.error(f"Error getting user organizations: {e}")
+        # Default to a single organization with ID 1 if something goes wrong
+        return [1]  # Default to organization ID 1 as fallback
 
 def apply_organization_filter(query, model):
     """

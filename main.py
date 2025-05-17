@@ -157,13 +157,25 @@ def dashboard():
         if asset.get('active', False):
             active_assets += 1
     
-    # Get alerts
+    # Get alerts with organization filtering
     try:
         from models import Alert
-        critical_alerts = Alert.query.filter_by(severity='critical', resolved=False).count()
-        warning_alerts = Alert.query.filter_by(severity='warning', resolved=False).count()
-        info_alerts = Alert.query.filter_by(severity='info', resolved=False).count()
-    except:
+        from utils import apply_organization_filter
+        
+        # Apply organization filtering to alerts
+        critical_query = Alert.query.filter_by(severity='critical', resolved=False)
+        critical_query = apply_organization_filter(critical_query, Alert)
+        critical_alerts = critical_query.count()
+        
+        warning_query = Alert.query.filter_by(severity='warning', resolved=False)
+        warning_query = apply_organization_filter(warning_query, Alert)
+        warning_alerts = warning_query.count()
+        
+        info_query = Alert.query.filter_by(severity='info', resolved=False)
+        info_query = apply_organization_filter(info_query, Alert)
+        info_alerts = info_query.count()
+    except Exception as e:
+        print(f"Error getting alerts: {e}")
         critical_alerts = 0
         warning_alerts = 0
         info_alerts = 0
@@ -180,16 +192,65 @@ def dashboard():
 @login_required
 def assets():
     """Assets list"""
-    from gauge_api import get_asset_data
+    from models import Asset  # Using the existing Asset model from models.py
+    from utils import apply_organization_filter, get_user_organizations
+    from flask_login import current_user
     
-    assets_data = get_asset_data(use_db=True)
+    # Get user's organizations
+    user_orgs = get_user_organizations()
+    
+    # First try to use is_admin attribute if it exists
+    is_admin = getattr(current_user, 'is_admin', False)
+    
+    # Query assets with organization filtering
+    if is_admin:
+        # Admin sees all assets
+        assets_query = Asset.query
+    else:
+        # Regular users only see assets from their organizations
+        if user_orgs:
+            assets_query = Asset.query.filter(Asset.organization_id.in_(user_orgs))
+        else:
+            # If user has no organizations, show empty results
+            assets_query = Asset.query.filter(False)
+    
+    # Get filtered assets
+    db_assets = assets_query.all()
+    
+    # Convert to dictionary format for template compatibility
+    assets_data = []
+    for asset in db_assets:
+        asset_dict = {
+            'id': asset.id,
+            'asset_identifier': asset.asset_identifier,
+            'label': asset.label,
+            'type': asset.type,
+            'make': asset.make,
+            'model': asset.model,
+            'year': asset.year,
+            'department': asset.department,
+            'division': asset.division,
+            'location': asset.location,
+            'status': asset.status,
+            'latitude': asset.latitude,
+            'longitude': asset.longitude,
+            'job_site': asset.job_site,
+            'engine_hours': asset.engine_hours,
+            'fuel_level': asset.fuel_level,
+            'category': asset.type or 'Uncategorized',  # Use type as category
+            'organization_id': asset.organization_id
+        }
+        assets_data.append(asset_dict)
     
     # Get categories for filtering
     categories = set()
     for asset in assets_data:
         categories.add(asset.get('category', 'Uncategorized'))
     
-    return render_template('assets.html', assets=assets_data, categories=sorted(categories))
+    return render_template('assets.html', 
+                          assets=assets_data, 
+                          categories=sorted(categories),
+                          organizations=user_orgs)
 
 @app.route('/asset/<asset_id>')
 @login_required

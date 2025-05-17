@@ -38,6 +38,10 @@ class Asset(db.Model):
     asset_category = db.Column(db.String(64), index=True)
     location = db.Column(db.String(256), index=True)
     active = db.Column(db.Boolean, default=True)
+    
+    # Add organization relationship
+    organization_id = db.Column(db.Integer, db.ForeignKey('organizations.id'))
+    organization = db.relationship('Organization', backref=db.backref('asset_list', lazy=True))
     status = db.Column(db.String(64), default='Available')
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)

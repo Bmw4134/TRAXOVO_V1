@@ -7,6 +7,37 @@ This module defines database models for equipment maintenance tracking
 from datetime import datetime
 from app import db
 
+class MaintenanceSchedule(db.Model):
+    """
+    Model for tracking scheduled maintenance
+    """
+    __tablename__ = 'maintenance_schedule'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    asset_id = db.Column(db.Integer, db.ForeignKey('assets.id'), nullable=False)
+    
+    # Schedule details
+    maintenance_type = db.Column(db.String(64), nullable=False)  # oil_change, inspection, etc
+    scheduled_date = db.Column(db.Date, nullable=False)
+    due_hours = db.Column(db.Float, nullable=True)  # Due at X engine hours
+    interval_hours = db.Column(db.Float, nullable=True)  # Repeat every X engine hours
+    interval_days = db.Column(db.Integer, nullable=True)  # Repeat every X days
+    
+    # Status
+    status = db.Column(db.String(32), default='scheduled')  # scheduled, completed, overdue
+    completed_date = db.Column(db.Date, nullable=True)
+    completed_hours = db.Column(db.Float, nullable=True)
+    
+    # Meta
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    asset = db.relationship('Asset', backref=db.backref('maintenance_schedules', lazy=True))
+    
+    def __repr__(self):
+        return f"<MaintenanceSchedule {self.id}: {self.maintenance_type} for asset {self.asset_id}>"
+
 class MaintenanceHistory(db.Model):
     """
     Model for tracking equipment maintenance history

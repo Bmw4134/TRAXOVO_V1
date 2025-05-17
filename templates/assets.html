@@ -102,7 +102,7 @@
                                 <span class="badge bg-secondary">{{ asset.status }}</span>
                                 {% endif %}
                             </td>
-                            <td>{{ asset.updated_at.strftime('%m/%d/%Y') }}</td>
+                            <td>{{ asset.updated_at.strftime('%m/%d/%Y') if asset.updated_at else 'N/A' }}</td>
                             <td>
                                 <a href="{{ url_for('asset_detail', asset_id=asset.id) }}" class="btn btn-sm btn-outline-primary">
                                     <i class="bi bi-info-circle"></i> Details

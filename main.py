@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-SYSTEMSMITH: Fleet Management System
+TRAXORA: Fleet Management System
 """
 
 import logging
@@ -31,17 +31,22 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_pre_ping": True,
 }
 
+# Import db and models - order matters!
+from db import db
+from models import Asset, Driver, User, AssetDriverMapping
+
+# Initialize db with the app
+db.init_app(app)
+
+# Create tables
+with app.app_context():
+    db.create_all()
+    logging.info("Database tables created")
+
 # Set up Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
-
-# Database initialization
-from db import init_app
-init_app(app)
-
-# Import models after db initialization
-from models import Asset, Driver, User, AssetDriverMapping, db
 
 # Import blueprints
 try:

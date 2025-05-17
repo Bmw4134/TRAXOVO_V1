@@ -48,14 +48,52 @@ def index():
         for export_file in sorted(EXPORTS_DIR.glob('pm_master_*.xlsx'), 
                                 key=lambda x: os.path.getmtime(x), 
                                 reverse=True)[:10]:
+            file_size = os.path.getsize(export_file)
+            if file_size > 1024 * 1024:
+                size_str = f"{file_size / (1024 * 1024):.2f} MB"
+            else:
+                size_str = f"{file_size / 1024:.2f} KB"
+                
             recent_exports.append({
                 'name': export_file.name,
                 'date': datetime.fromtimestamp(os.path.getmtime(export_file)).strftime('%Y-%m-%d %H:%M:%S'),
-                'size': os.path.getsize(export_file) / 1024,  # Size in KB
+                'size': size_str,
                 'path': str(export_file.relative_to(EXPORTS_DIR))
             })
     except Exception as e:
         logger.error(f"Error getting recent exports: {e}")
+    
+    # Get April 2025 allocation files
+    april_files = []
+    try:
+        attached_dir = Path('./attached_assets')
+        for file in attached_dir.glob('*.xlsx'):
+            if 'EQMO' in file.name and 'BILLING ALLOCATIONS' in file.name and 'APRIL 2025' in file.name:
+                file_size = os.path.getsize(file)
+                if file_size > 1024 * 1024:
+                    size_str = f"{file_size / (1024 * 1024):.2f} MB"
+                else:
+                    size_str = f"{file_size / 1024:.2f} KB"
+                
+                # Extract job code if available
+                job_code = "Unknown"
+                for part in file.name.split():
+                    if part.startswith('202') and '-' in part:
+                        job_code = part
+                        break
+                
+                april_files.append({
+                    'name': file.name,
+                    'job_code': job_code,
+                    'date': datetime.fromtimestamp(os.path.getmtime(file)).strftime('%Y-%m-%d %H:%M'),
+                    'size': size_str,
+                    'path': str(file.name)
+                })
+        
+        # Sort files by job code
+        april_files.sort(key=lambda x: x['job_code'])
+    except Exception as e:
+        logger.error(f"Error getting April files: {e}")
     
     # Check if there's a session state
     session_processor = session.get('pm_master_processor', {})
@@ -75,6 +113,8 @@ def index():
     return render_template(
         'pm_master.html',
         recent_exports=recent_exports,
+        april_files=april_files,
+        april_file_count=len(april_files),
         processor_status=processor_status
     )
 

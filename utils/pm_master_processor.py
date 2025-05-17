@@ -338,6 +338,10 @@ class PMMasterProcessor:
         amount = row.get('amount', 0)
         rate = row.get('rate', 0)
         days = row.get('days', 0)
+        description = row.get('description', '')
+        category = row.get('category', '')
+        start_date = row.get('start_date', '')
+        end_date = row.get('end_date', '')
         
         # Handle missing values
         if pd.isna(job_number): job_number = ''
@@ -346,19 +350,40 @@ class PMMasterProcessor:
         if pd.isna(amount): amount = 0
         if pd.isna(rate): rate = 0
         if pd.isna(days): days = 0
+        if pd.isna(description): description = ''
+        if pd.isna(category): category = ''
+        if pd.isna(start_date): start_date = ''
+        if pd.isna(end_date): end_date = ''
         
         # For 2022-008 format, create a more specific ID using additional fields
         if '2022-008' in str(job_number):
-            # Include rate and days in the ID to better distinguish entries
-            return f"{job_number}_{equipment_id}_{cost_code}_{rate}_{days}"
+            # More comprehensive ID for 2022-008 files
+            # Include most uniquely identifying fields
+            description_part = str(description)[:10] if description else ''
+            # Format numbers to avoid floating-point precision issues
+            rate_formatted = f"{float(rate):.2f}"
+            days_formatted = f"{float(days):.1f}"
+            amount_formatted = f"{float(amount):.2f}"
+            
+            return f"{job_number}_{equipment_id}_{cost_code}_{description_part}_{rate_formatted}_{days_formatted}_{amount_formatted}"
         
         # For Matagorda project files
         elif '0496' in str(cost_code) or 'Matagorda' in str(job_number):
-            # Special handling for Matagorda cost codes
-            return f"{job_number}_{equipment_id}_{cost_code}_{amount}"
+            # Special handling for Matagorda cost codes with more detail
+            description_part = str(description)[:10] if description else ''
+            amount_formatted = f"{float(amount):.2f}"
+            
+            return f"{job_number}_{equipment_id}_{cost_code}_{description_part}_{amount_formatted}"
         
-        # Default ID generation
-        return f"{job_number}_{equipment_id}_{row.name}"
+        # Default ID generation with improved reliability
+        # Include more fields that might help identify the same row across different files
+        if rate and days:
+            rate_formatted = f"{float(rate):.2f}"
+            days_formatted = f"{float(days):.1f}"
+            return f"{job_number}_{equipment_id}_{cost_code}_{rate_formatted}_{days_formatted}"
+        else:
+            # Fallback to simpler ID if rate and days aren't available
+            return f"{job_number}_{equipment_id}_{row.name}"
         
     def _process_cost_code_splits(self, row):
         """

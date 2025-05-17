@@ -7,6 +7,24 @@ This module defines database models for equipment maintenance tracking
 from datetime import datetime
 from app import db
 
+class MaintenanceStatus(db.Model):
+    """
+    Model for tracking maintenance status options
+    """
+    __tablename__ = 'maintenance_statuses'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(32), nullable=False, unique=True)  # e.g., Scheduled, In Progress, Completed
+    description = db.Column(db.Text, nullable=True)
+    color_code = db.Column(db.String(16), nullable=True)  # For UI display
+    
+    # Meta
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def __repr__(self):
+        return f"<MaintenanceStatus {self.id}: {self.name}>"
+
 class MaintenancePriority(db.Model):
     """
     Model for defining maintenance priority levels

@@ -33,10 +33,10 @@
                             <i class="bi bi-truck me-1"></i> Assets
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="assetsDropdown">
-                            <li><a class="dropdown-item" href="/assets"><i class="bi bi-list-ul me-1"></i> View All Assets</a></li>
-                            <li><a class="dropdown-item" href="/assets"><i class="bi bi-geo-alt me-1"></i> Asset Map</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('main.assets') }}"><i class="bi bi-list-ul me-1"></i> View All Assets</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('main.assets') }}"><i class="bi bi-geo-alt me-1"></i> Asset Map</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="/asset_drivers/list"><i class="bi bi-person-badge me-1"></i> Driver Assignments</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-person-badge me-1"></i> Driver Assignments</a></li>
                         </ul>
                     </li>
                     
@@ -46,8 +46,8 @@
                             <i class="bi bi-geo-fill me-1"></i> Job Zones
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="jobZoneDropdown">
-                            <li><a class="dropdown-item" href="/job_zone"><i class="bi bi-grid-3x3-gap me-1"></i> Manage Job Zones</a></li>
-                            <li><a class="dropdown-item" href="/job_zone/report"><i class="bi bi-bar-chart me-1"></i> Zone Reports</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-grid-3x3-gap me-1"></i> Manage Job Zones</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-bar-chart me-1"></i> Zone Reports</a></li>
                         </ul>
                     </li>
                     
@@ -57,10 +57,10 @@
                             <i class="bi bi-file-earmark-spreadsheet me-1"></i> PM Allocation
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="pmDropdown">
-                            <li><a class="dropdown-item" href="/pm_allocation"><i class="bi bi-upload me-1"></i> Upload Files</a></li>
-                            <li><a class="dropdown-item" href="/auto_process_pm_allocation"><i class="bi bi-magic me-1"></i> Auto-Detect Files</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('pm_allocation_processor') }}"><i class="bi bi-upload me-1"></i> Upload Files</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('auto_process_pm_allocation') }}"><i class="bi bi-magic me-1"></i> Auto-Detect Files</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="/reports"><i class="bi bi-file-text me-1"></i> View Reports</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-file-text me-1"></i> View Reports</a></li>
                         </ul>
                     </li>
                     
@@ -70,9 +70,9 @@
                             <i class="bi bi-calendar-check me-1"></i> Attendance
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="attendanceDropdown">
-                            <li><a class="dropdown-item" href="/attendance"><i class="bi bi-calendar-day me-1"></i> Daily View</a></li>
-                            <li><a class="dropdown-item" href="/attendance/dashboard"><i class="bi bi-graph-up me-1"></i> Dashboard</a></li>
-                            <li><a class="dropdown-item" href="/attendance_reports"><i class="bi bi-file-earmark-text me-1"></i> Reports</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-calendar-day me-1"></i> Daily View</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-graph-up me-1"></i> Dashboard</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-file-earmark-text me-1"></i> Reports</a></li>
                         </ul>
                     </li>
                     

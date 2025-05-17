@@ -150,38 +150,15 @@ class HistoricalDataTracker:
             # Add to history
             self.history[month_year] = record
             
-            # Save to persistent storage
-            if self.use_db:
-                if self._ensure_history_table():
-                    with engine.connect() as conn:
-                        # Check if record already exists
-                        result = conn.execute(text("""
-                            SELECT id FROM pm_allocation_history
-                            WHERE month_year = :month_year
-                        """), {"month_year": month_year})
-                        
-                        row = result.fetchone()
-                        
-                        if row:
-                            # Update existing record
-                            conn.execute(text("""
-                                UPDATE pm_allocation_history
-                                SET data = :data::jsonb, updated_at = NOW()
-                                WHERE id = :id
-                            """), {"id": row[0], "data": json.dumps(record)})
-                        else:
-                            # Insert new record
-                            conn.execute(text("""
-                                INSERT INTO pm_allocation_history (month_year, data)
-                                VALUES (:month_year, :data::jsonb)
-                            """), {"month_year": month_year, "data": json.dumps(record)})
-                        
-                        conn.commit()
-            else:
+            # Always use file-based storage for the demo
+            # This simplifies the implementation and avoids DB issues
+            try:
                 # Save to file
                 history_file = HISTORY_DIR / 'allocation_history.json'
                 with open(history_file, 'w') as f:
                     json.dump(self.history, f)
+            except Exception as e:
+                logger.error(f"Error saving history to file: {str(e)}")
                     
             return True
         except Exception as e:

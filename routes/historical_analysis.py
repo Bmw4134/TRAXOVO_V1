@@ -42,12 +42,14 @@ def historical_dashboard():
     """Display historical data dashboard"""
     # Import and generate sample data for testing
     from utils.sample_data import generate_sample_data
+    import logging
     
     # Generate sample data if needed
+    logging.info("Generating sample data for historical analysis")
     generate_sample_data()
     
     # Create tracker and get history
-    tracker = HistoricalDataTracker()
+    tracker = HistoricalDataTracker(use_db=False)  # Explicitly use file-based storage
     
     # Get the last 6 months of history
     history = tracker.get_allocation_history(months=6)

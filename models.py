@@ -108,3 +108,31 @@ class DocumentExtraction(db.Model):
     
     def __repr__(self):
         return f'<DocumentExtraction {self.filename}>'
+
+
+class Alert(db.Model):
+    """Model for storing equipment alerts and notifications"""
+    __tablename__ = 'alerts'
+    id = db.Column(db.Integer, primary_key=True)
+    asset_id = db.Column(db.String(64), index=True)
+    severity = db.Column(db.String(20), index=True)  # critical, warning, info
+    alert_type = db.Column(db.String(50), index=True)
+    description = db.Column(db.String(256))
+    location = db.Column(db.String(128))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    acknowledged = db.Column(db.Boolean, default=False)
+    acknowledged_at = db.Column(db.DateTime)
+    acknowledged_by = db.Column(db.Integer, db.ForeignKey('users.id'))
+    resolved = db.Column(db.Boolean, default=False)
+    resolved_at = db.Column(db.DateTime)
+    resolved_by = db.Column(db.Integer, db.ForeignKey('users.id'))
+    details = db.Column(db.JSON)
+    
+    # Relationships
+    acknowledged_user = db.relationship('User', foreign_keys=[acknowledged_by], 
+                                        backref=db.backref('acknowledged_alerts', lazy='dynamic'))
+    resolved_user = db.relationship('User', foreign_keys=[resolved_by], 
+                                    backref=db.backref('resolved_alerts', lazy='dynamic'))
+    
+    def __repr__(self):
+        return f'<Alert {self.id}: {self.severity} - {self.alert_type}>'

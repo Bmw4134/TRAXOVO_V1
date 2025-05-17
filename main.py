@@ -404,7 +404,15 @@ def export_alerts(format):
     from utils.export_utils import export_alerts_to_excel, export_alerts_to_csv
     
     try:
-        # Gather all alerts
+        # Get all alerts from the database
+        from models import Alert
+        
+        # Query alerts by severity type
+        critical_alerts = Alert.query.filter_by(severity='critical').all()
+        warning_alerts = Alert.query.filter_by(severity='warning').all()
+        info_alerts = Alert.query.filter_by(severity='info').all()
+        
+        # Combine all alerts
         all_alerts = critical_alerts + warning_alerts + info_alerts
         
         # Generate filename with timestamp

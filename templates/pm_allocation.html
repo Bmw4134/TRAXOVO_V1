@@ -127,7 +127,7 @@
                         <a href="{{ url_for('view_pm_report', filename=report.name) }}" class="list-group-item list-group-item-action">
                             <div class="d-flex w-100 justify-content-between">
                                 <h5 class="mb-1">{{ report.name }}</h5>
-                                <small>{{ report.size | round(1) }} KB</small>
+                                <small>{% if report.size %}{{ report.size | round(1) }} KB{% else %}Unknown size{% endif %}</small>
                             </div>
                             <p class="mb-1">Generated: {{ report.date }}</p>
                             <div class="mt-2">

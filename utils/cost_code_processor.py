@@ -23,6 +23,9 @@ def process_cost_code_splits(df):
     if not isinstance(df, pd.DataFrame) or df.empty:
         return df
         
+    # Preserve original columns to ensure we don't lose any
+    original_columns = df.columns.tolist()
+        
     # Check if we have necessary columns
     necessary_cols = ['cost_code', 'job_number', 'asset_id', 'unit_allocation']
     

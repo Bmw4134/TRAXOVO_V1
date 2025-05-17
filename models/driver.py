@@ -22,6 +22,11 @@ class Driver(db.Model):
     license_expiration = db.Column(db.Date)
     status = db.Column(db.String(32), default='Active')
     notes = db.Column(db.Text)
+    
+    # Organization relationship
+    organization_id = db.Column(db.Integer, db.ForeignKey('organizations.id'))
+    organization = db.relationship('Organization', backref=db.backref('drivers', lazy=True))
+    
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     

@@ -2,8 +2,50 @@ import json
 import logging
 import os
 from datetime import datetime
+from flask_login import current_user
 
 logger = logging.getLogger(__name__)
+
+def get_user_organizations():
+    """
+    Get list of organization IDs the current user has access to
+    
+    Returns:
+        list: List of organization IDs
+    """
+    if not current_user or not current_user.is_authenticated:
+        return []
+    
+    # Get all organizations the user belongs to
+    from models.user_organization import UserOrganization
+    user_orgs = UserOrganization.query.filter_by(
+        user_id=current_user.id, 
+        is_active=True
+    ).all()
+    
+    return [uo.organization_id for uo in user_orgs]
+
+def apply_organization_filter(query, model):
+    """
+    Apply organization filter to a query based on current user's organizations
+    
+    Args:
+        query: SQLAlchemy query object
+        model: SQLAlchemy model class that has organization_id column
+        
+    Returns:
+        query: Filtered query
+    """
+    # Admin users can see all organizations
+    if current_user and current_user.is_authenticated and current_user.is_admin:
+        return query
+        
+    org_ids = get_user_organizations()
+    if org_ids:
+        return query.filter(model.organization_id.in_(org_ids))
+    
+    # If no organizations found, return empty result
+    return query.filter(False)
 
 def load_data(file_path):
     """

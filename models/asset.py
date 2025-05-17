@@ -28,6 +28,11 @@ class Asset(db.Model):
     fuel_level = db.Column(db.Float)
     last_maintenance = db.Column(db.DateTime)
     next_maintenance_due = db.Column(db.DateTime)
+    
+    # Organization relationship
+    organization_id = db.Column(db.Integer, db.ForeignKey('organizations.id'))
+    organization = db.relationship('Organization', backref=db.backref('assets', lazy=True))
+    
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     

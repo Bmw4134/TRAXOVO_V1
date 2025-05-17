@@ -105,6 +105,13 @@ try:
 except ImportError as e:
     logging.error(f"Failed to register Equipment Reports Export blueprint: {e}")
 
+try:
+    from routes.historical_analysis import historical_bp
+    app.register_blueprint(historical_bp)
+    logging.info("Registered Historical Analysis blueprint")
+except ImportError as e:
+    logging.error(f"Failed to register Historical Analysis blueprint: {e}")
+
 @login_manager.user_loader
 def load_user(user_id):
     """Load user from database"""

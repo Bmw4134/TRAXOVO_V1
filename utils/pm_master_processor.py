@@ -216,6 +216,16 @@ class PMMasterProcessor:
             # Load the new file
             new_data = load_pm_file(file_path)
             
+            # Generate row IDs first, then apply cost code splitting
+            # This ensures unique IDs for all rows including split ones
+            new_data = self._generate_row_ids(new_data)
+            
+            # Add tracking columns before processing splits
+            # This ensures these fields are available for the cost code processor
+            new_data['status'] = 'new'  # Default status for change tracking
+            new_data['version'] = len(self.processed_files) + 1
+            new_data['change_type'] = None
+            
             # Process cost code splits in the data
             logger.info(f"Processing cost code splits in file: {file_path}")
             new_data = process_cost_code_splits(new_data)
@@ -410,6 +420,14 @@ class PMMasterProcessor:
             'details': []
         }
         
+        # Remove duplicate tracking columns to avoid conflict
+        if 'status' in new_data.columns:
+            del new_data['status']
+        if 'version' in new_data.columns:
+            del new_data['version']
+        if 'change_type' in new_data.columns:
+            del new_data['change_type']
+            
         # Add tracking columns to new data
         new_data['status'] = 'new'  # Default status for change tracking
         new_data['version'] = len(self.processed_files) + 1

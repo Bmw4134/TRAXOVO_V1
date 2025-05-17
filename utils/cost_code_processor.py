@@ -166,5 +166,16 @@ def process_cost_code_splits(df):
         # No split needed
         processed_rows.append(row)
         
+    # Create result DataFrame with proper column structure
+    result_df = pd.DataFrame(processed_rows)
+    
+    # Ensure all original columns are preserved (especially status field)
+    for col in original_columns:
+        if col not in result_df.columns:
+            result_df[col] = None
+    
+    # Reorder columns to match original
+    result_df = result_df[original_columns]
+    
     logger.info(f"Processed {cost_code_splits} cost code splits")
-    return pd.DataFrame(processed_rows)
+    return result_df

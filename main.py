@@ -134,6 +134,37 @@ def logout():
     logout_user()
     flash('You have been logged out', 'success')
     return redirect(url_for('login'))
+    
+@app.route('/switch_organization/<int:org_id>')
+@login_required
+def switch_organization(org_id):
+    """Switch the current user's active organization"""
+    try:
+        from models.organization import Organization
+        from utils import get_user_organizations
+        
+        # Verify user has access to this organization
+        user_org_ids = get_user_organizations()
+        
+        # Allow access if user has explicit access or is admin
+        has_access = org_id in user_org_ids
+        is_admin = getattr(current_user, 'is_admin', False)
+        
+        if has_access or is_admin:
+            # Set the organization in session
+            org = Organization.query.get(org_id)
+            if org:
+                session['current_organization_id'] = org_id
+                flash(f"Switched to organization: {org.name}", "success")
+            else:
+                flash("Organization not found", "danger")
+        else:
+            flash("You don't have access to that organization", "danger")
+    except Exception as e:
+        flash(f"Error switching organization: {str(e)}", "danger")
+    
+    # Redirect back to referring page or default to dashboard
+    return redirect(request.referrer or url_for('dashboard'))
 
 @app.route('/dashboard')
 @login_required

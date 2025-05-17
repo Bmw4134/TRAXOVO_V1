@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}PM Allocation Processor - TRAXORA{% endblock %}
+{% block title %}Auto-Detect PM Allocation Files - TRAXORA{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -21,12 +21,18 @@
         max-height: 400px;
         overflow-y: auto;
     }
+    .detected-file {
+        background-color: rgba(25, 135, 84, 0.1);
+        border-left: 4px solid #198754;
+        padding: 10px 15px;
+        margin-bottom: 10px;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <h1 class="mb-4">PM Allocation Processor</h1>
+    <h1 class="mb-4">Auto-Detect PM Allocation Files</h1>
     
     <!-- Flash messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -40,6 +46,16 @@
         {% endif %}
     {% endwith %}
     
+    <!-- Error message (if any) -->
+    {% if error %}
+    <div class="alert alert-danger" role="alert">
+        <h4 class="alert-heading">Error!</h4>
+        <p>{{ error }}</p>
+        <hr>
+        <p class="mb-0">Please try manual upload instead.</p>
+    </div>
+    {% endif %}
+    
     <!-- Process Summary (if available) -->
     {% if summary %}
     <div class="card summary-card">
@@ -47,6 +63,17 @@
             <h4 class="mb-0">Processing Summary</h4>
         </div>
         <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <h5>Original File</h5>
+                    <div class="detected-file">{{ summary.original_file }}</div>
+                </div>
+                <div class="col-md-6">
+                    <h5>Updated File</h5>
+                    <div class="detected-file">{{ summary.updated_file }}</div>
+                </div>
+            </div>
+            
             <div class="row">
                 <div class="col-md-4">
                     <h5>Original Total</h5>
@@ -86,30 +113,31 @@
     {% endif %}
     
     <div class="row">
-        <!-- File Upload Form -->
+        <!-- Auto-Detection Status -->
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Upload Files</h4>
+                    <h4 class="mb-0">Auto-Detection</h4>
                 </div>
                 <div class="card-body">
-                    <form method="POST" enctype="multipart/form-data">
-                        <div class="mb-3">
-                            <label for="original_file" class="form-label">Original Billing File</label>
-                            <input type="file" class="form-control" id="original_file" name="original_file" accept=".xlsx,.xlsm,.csv" required>
-                            <div class="form-text">Upload the original billing allocation file</div>
+                    {% if not summary and not error %}
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary mb-3" role="status">
+                            <span class="visually-hidden">Loading...</span>
                         </div>
-                        <div class="mb-3">
-                            <label for="updated_file" class="form-label">Updated Billing File</label>
-                            <input type="file" class="form-control" id="updated_file" name="updated_file" accept=".xlsx,.xlsm,.csv" required>
-                            <div class="form-text">Upload the updated/revised billing allocation file</div>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Process Files</button>
-                    </form>
-                    <div class="mt-3">
-                        <a href="/auto_process_pm_allocation" class="btn btn-success">Auto-Detect Files</a>
-                        <div class="form-text">Automatically detect and process files from the attached_assets directory</div>
+                        <h5>Searching for allocation files...</h5>
+                        <p>This may take a moment as we scan the attached_assets directory.</p>
                     </div>
+                    {% else %}
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('auto_process_pm_allocation') }}" class="btn btn-primary">
+                            <i class="bi bi-arrow-repeat me-2"></i>Run Again
+                        </a>
+                        <a href="{{ url_for('pm_allocation_processor') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-upload me-2"></i>Manual Upload
+                        </a>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -159,6 +187,14 @@
                 bsAlert.close();
             });
         }, 5000);
+        
+        // Auto-refresh if spinner is showing (indicating first load)
+        var spinner = document.querySelector('.spinner-border');
+        if (spinner) {
+            setTimeout(function() {
+                window.location.reload();
+            }, 2000);
+        }
     });
 </script>
 {% endblock %}

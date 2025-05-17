@@ -7,6 +7,33 @@ This module defines database models for equipment maintenance tracking
 from datetime import datetime
 from app import db
 
+class MaintenanceHistory(db.Model):
+    """
+    Model for tracking equipment maintenance history
+    """
+    __tablename__ = 'maintenance_history'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    asset_id = db.Column(db.Integer, db.ForeignKey('assets.id'), nullable=False)
+    
+    # History details
+    event_type = db.Column(db.String(64), nullable=False)  # maintenance, repair, inspection
+    event_date = db.Column(db.Date, nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    hours_at_event = db.Column(db.Float, nullable=True)
+    cost = db.Column(db.Float, nullable=True)
+    performed_by = db.Column(db.String(128), nullable=True)
+    
+    # Meta
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    asset = db.relationship('Asset', backref=db.backref('maintenance_history', lazy=True))
+    
+    def __repr__(self):
+        return f"<MaintenanceHistory {self.id}: {self.event_type} for asset {self.asset_id}>"
+
 class MaintenanceRecord(db.Model):
     """
     Model for tracking equipment maintenance records

@@ -10,6 +10,162 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+def _process_special_asset_splits(df):
+    """
+    Process special asset splits for Matagorda jobs and other complex patterns
+    
+    Args:
+        df (pandas.DataFrame): DataFrame with potential special splits
+        
+    Returns:
+        pandas.DataFrame: Processed DataFrame with splits handled
+    """
+    if not isinstance(df, pd.DataFrame) or df.empty:
+        return df
+        
+    # Find our equipment and job columns
+    equipment_col = 'equipment_id'
+    job_col = 'job_number'
+    cost_code_col = 'cost_code'
+    note_col = 'notes'
+    
+    # Look for alternative column names if standards not found
+    for col in df.columns:
+        if 'equip' in str(col).lower() and 'id' in str(col).lower():
+            equipment_col = col
+        elif 'job' in str(col).lower() and ('id' in str(col).lower() or 'number' in str(col).lower()):
+            job_col = col
+        elif 'cost' in str(col).lower() and 'code' in str(col).lower():
+            cost_code_col = col
+        elif 'note' in str(col).lower() or 'comment' in str(col).lower():
+            note_col = col
+            
+    # Create the notes column if it doesn't exist
+    if note_col not in df.columns:
+        df[note_col] = None
+            
+    # Process the data row by row to identify special cases
+    processed_rows = []
+    
+    for _, row in df.iterrows():
+        # Get key fields
+        asset_id = str(row.get(equipment_col, '')).upper()
+        job_number = str(row.get(job_col, ''))
+        cost_code = str(row.get(cost_code_col, ''))
+        
+        # Check for Matagorda patterns
+        is_matagorda = ('MATAGORDA' in job_number.upper() or 
+                       '0496' in cost_code or
+                       '496' in cost_code)
+                       
+        # Special handling for EX-65 at Matagorda (triple split)
+        if asset_id == 'EX-65' and is_matagorda:
+            # Special triple split for EX-65 at Matagorda
+            processed_rows.extend(_create_triple_split(row, cost_code_col, note_col))
+            
+        # Special handling for excavators at Matagorda (double split)
+        elif asset_id.startswith('EX-') and is_matagorda:
+            # Double split for other excavators at Matagorda
+            processed_rows.extend(_create_double_split(row, cost_code_col, note_col))
+            
+        else:
+            # Keep original row for non-special cases
+            processed_rows.append(row)
+            
+    # Create new DataFrame with all processed rows
+    result_df = pd.DataFrame(processed_rows)
+    
+    # Preserve original column order
+    result_df = result_df[df.columns]
+    
+    return result_df
+    
+def _create_triple_split(row, cost_code_col, note_col):
+    """Create a triple split for special assets like EX-65 at Matagorda"""
+    splits = []
+    
+    # Find amount column if it exists
+    amount_col = None
+    for col in row.index:
+        if 'amount' in str(col).lower() or 'rate' in str(col).lower():
+            amount_col = col
+            break
+    
+    # Create split 1: Default split for general equipment (50%)
+    row1 = row.copy()
+    row1[cost_code_col] = '0496 6012B'  # Standard cost code
+    row1['unit_allocation'] = 0.5  # 50% allocation
+    if amount_col and amount_col in row1 and not pd.isna(row1[amount_col]):
+        row1[amount_col] = row1[amount_col] * 0.5
+    if note_col in row1 and not pd.isna(row1[note_col]):
+        row1[note_col] += " | Split 1/3: General equipment"
+    else:
+        row1[note_col] = "Split 1/3: General equipment"
+    splits.append(row1)
+    
+    # Create split 2: Pipeline-specific cost (30%)
+    row2 = row.copy()
+    row2[cost_code_col] = '0496 6012C'  # Pipeline cost code 
+    row2['unit_allocation'] = 0.3  # 30% allocation
+    if amount_col and amount_col in row2 and not pd.isna(row2[amount_col]):
+        row2[amount_col] = row2[amount_col] * 0.3
+    if note_col in row2 and not pd.isna(row2[note_col]):
+        row2[note_col] += " | Split 2/3: Pipeline-specific"
+    else:
+        row2[note_col] = "Split 2/3: Pipeline-specific"
+    splits.append(row2)
+    
+    # Create split 3: Foundation-specific cost (20%)
+    row3 = row.copy()
+    row3[cost_code_col] = '0496 6012F'  # Foundation cost code
+    row3['unit_allocation'] = 0.2  # 20% allocation
+    if amount_col and amount_col in row3 and not pd.isna(row3[amount_col]):
+        row3[amount_col] = row3[amount_col] * 0.2
+    if note_col in row3 and not pd.isna(row3[note_col]):
+        row3[note_col] += " | Split 3/3: Foundation-specific"
+    else:
+        row3[note_col] = "Split 3/3: Foundation-specific"
+    splits.append(row3)
+    
+    return splits
+    
+def _create_double_split(row, cost_code_col, note_col):
+    """Create a double split for excavators at Matagorda"""
+    splits = []
+    
+    # Find amount column if it exists
+    amount_col = None
+    for col in row.index:
+        if 'amount' in str(col).lower() or 'rate' in str(col).lower():
+            amount_col = col
+            break
+    
+    # Create split 1: General equipment (60%)
+    row1 = row.copy()
+    row1[cost_code_col] = '0496 6012B'  # Standard cost code
+    row1['unit_allocation'] = 0.6  # 60% allocation
+    if amount_col and amount_col in row1 and not pd.isna(row1[amount_col]):
+        row1[amount_col] = row1[amount_col] * 0.6
+    if note_col in row1 and not pd.isna(row1[note_col]):
+        row1[note_col] += " | Split 1/2: General equipment"
+    else:
+        row1[note_col] = "Split 1/2: General equipment"
+    splits.append(row1)
+    
+    # Create split 2: Pipeline-specific cost (40%)
+    row2 = row.copy()
+    row2[cost_code_col] = '0496 6012C'  # Pipeline cost code 
+    row2['unit_allocation'] = 0.4  # 40% allocation
+    if amount_col and amount_col in row2 and not pd.isna(row2[amount_col]):
+        row2[amount_col] = row2[amount_col] * 0.4
+    if note_col in row2 and not pd.isna(row2[note_col]):
+        row2[note_col] += " | Split 2/2: Pipeline-specific"
+    else:
+        row2[note_col] = "Split 2/2: Pipeline-specific"
+    splits.append(row2)
+    
+    return splits
+
 def process_cost_code_splits(df):
     """
     Process cost code splits for a DataFrame
@@ -22,6 +178,13 @@ def process_cost_code_splits(df):
     """
     if not isinstance(df, pd.DataFrame) or df.empty:
         return df
+        
+    # Process special asset split cases first (before general cost code splitting)
+    try:
+        df = _process_special_asset_splits(df.copy())
+    except Exception as e:
+        logger.error(f"Error in special asset splits: {str(e)}")
+        # Continue with original data if there's an error
         
     # Preserve original columns to ensure we don't lose any
     original_columns = df.columns.tolist()

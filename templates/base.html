@@ -156,6 +156,11 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link {% if request.endpoint == 'pm_allocation_processor' %}active{% endif %}" href="{{ url_for('pm_allocation_processor') }}">
+                                <i class="bi bi-file-earmark-spreadsheet me-1"></i> PM Allocation
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('maintenance') }}">
                                 <i class="bi bi-tools me-1"></i> Maintenance
                             </a>

@@ -5,9 +5,14 @@ This module initializes all database models
 """
 
 from app import db
-from main import User, Asset, Driver, AssetDriverMapping
 
-# Import models from modules
+# Import models for use throughout the application
+from models.user import User
+from models.asset import Asset
+from models.driver import Driver
+from models.asset_driver_mapping import AssetDriverMapping
+
+# Import optional models that may not be available in all deployments
 try:
     from models.asset_history import AssetHistory
 except ImportError:
@@ -19,6 +24,6 @@ except ImportError:
     pass
 
 try:
-    from models.alerts import EquipmentAlert, AlertNotification
+    from models.alerts import EquipmentAlert, AlertNotification, Alert
 except ImportError:
     pass

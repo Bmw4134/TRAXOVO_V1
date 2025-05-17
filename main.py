@@ -293,7 +293,6 @@ def download_extracted_text(filename):
     return send_from_directory(extracted_dir, filename, as_attachment=True)
 
 @app.route('/pm_allocation', methods=['GET', 'POST'])
-@login_required
 def pm_allocation_processor():
     """Handle PM allocation file upload and processing"""
     import os
@@ -498,8 +497,7 @@ def download_export(export_path):
     
     return send_from_directory(directory, filename, as_attachment=True)
 
-@app.route('/auto_process_pm_allocation', methods=['POST'])
-@login_required
+@app.route('/auto_process_pm_allocation', methods=['POST', 'GET'])
 def auto_process_pm_allocation():
     """Automatically find and process PM allocation files"""
     import os

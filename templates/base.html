@@ -142,7 +142,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if request.endpoint == 'equipment_alerts' %}active{% endif %}" href="{{ url_for('equipment_alerts') }}">
+                            <a class="nav-link {% if 'alerts' in request.endpoint %}active{% endif %}" href="/alerts">
                                 <i class="bi bi-exclamation-triangle me-1"></i>
                                 Alerts
                                 {% if summary and summary.total_alerts > 0 %}
@@ -151,18 +151,18 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if 'reports' in request.endpoint %}active{% endif %}" href="{{ url_for('reports_dashboard') }}">
+                            <a class="nav-link {% if 'reports' in request.endpoint %}active{% endif %}" href="/reports">
                                 <i class="bi bi-file-earmark-text me-1"></i> Reports
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if request.endpoint == 'pm_allocation_processor' %}active{% endif %}" href="{{ url_for('pm_allocation_processor') }}">
+                            <a class="nav-link {% if request.endpoint == 'pm_allocation_processor' %}active{% endif %}" href="/pm_allocation">
                                 <i class="bi bi-file-earmark-spreadsheet me-1"></i> PM Allocation
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('maintenance') }}">
-                                <i class="bi bi-tools me-1"></i> Maintenance
+                            <a class="nav-link" href="/ocr_tool">
+                                <i class="bi bi-file-text me-1"></i> OCR Tool
                             </a>
                         </li>
                     </ul>

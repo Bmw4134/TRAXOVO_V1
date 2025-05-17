@@ -159,6 +159,63 @@
         </div>
     </div>
     
+    <!-- April 2025 Batch Processing -->
+    {% if not processor_status.initialized and april_files %}
+    <div class="row mt-4 mb-4">
+        <div class="col-12">
+            <div class="card shadow border-primary">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-file-earmark-spreadsheet me-2"></i>April 2025 Batch Processing</h5>
+                        <span class="badge bg-light text-primary">{{ april_file_count }} Files Available</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        <span>We've detected {{ april_file_count }} April 2025 billing allocation files that can be processed together. Use the batch processing feature to generate a master output in one step.</span>
+                    </div>
+                    
+                    <div class="table-responsive mb-3">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Job Code</th>
+                                    <th>File Name</th>
+                                    <th>Date Modified</th>
+                                    <th>Size</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for file in april_files %}
+                                <tr>
+                                    <td><span class="badge {% if file.job_code == 'Unknown' %}bg-secondary{% else %}bg-info{% endif %}">{{ file.job_code }}</span></td>
+                                    <td>{{ file.name }}</td>
+                                    <td>{{ file.date }}</td>
+                                    <td>{{ file.size }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <form action="{{ url_for('pm_master.batch_process_april') }}" method="post">
+                            <button type="submit" class="btn btn-primary btn-lg" onclick="return confirm('This will process all April 2025 billing allocation files at once. Continue?')">
+                                <i class="bi bi-magic me-2"></i> Process All April 2025 Files
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <div class="form-text text-center mt-2">
+                        This will automatically select the "TR-FINAL REVISIONS" file as the base file if available, otherwise it will use the first file found.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Status & Features -->
     {% if processor_status.initialized %}
     <div class="row mt-2">

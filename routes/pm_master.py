@@ -372,3 +372,101 @@ def reset():
     
     flash("PM Master processor reset", "success")
     return redirect(url_for('pm_master.index'))
+
+
+@pm_master_bp.route('/batch-process-april', methods=['POST'])
+@login_required
+def batch_process_april():
+    """Process all April 2025 billing allocation files at once"""
+    try:
+        # Get all April 2025 billing files
+        april_files = []
+        attached_dir = Path('./attached_assets')
+        for file in attached_dir.glob('*.xlsx'):
+            if 'EQMO' in file.name and 'BILLING ALLOCATIONS' in file.name and 'APRIL 2025' in file.name:
+                april_files.append(file)
+        
+        if not april_files:
+            flash("No April 2025 billing allocation files found", "warning")
+            return redirect(url_for('pm_master.index'))
+        
+        # Initialize processor with the first file (original)
+        # Use the TR-FINAL REVISIONS file as the original if available
+        original_file = None
+        for file in april_files:
+            if 'TR-FINAL REVISIONS' in file.name:
+                original_file = file
+                break
+        
+        if not original_file:
+            # Fall back to using the first file
+            original_file = april_files[0]
+            april_files.remove(original_file)
+        else:
+            april_files.remove(original_file)
+        
+        logger.info(f"Using {original_file.name} as the base file for April 2025 batch processing")
+        
+        # Initialize processor with the original file
+        processor = PMMasterProcessor(original_file)
+        
+        # Track changes
+        changes_summary = {
+            'files_processed': 1,
+            'original_file': original_file.name,
+            'processing_results': [],
+            'processed_files': [str(original_file)]
+        }
+        
+        # Process all other files
+        for file in april_files:
+            try:
+                logger.info(f"Processing {file.name} in batch mode")
+                result = processor.add_pm_file(file)
+                changes_summary['files_processed'] += 1
+                changes_summary['processed_files'].append(str(file))
+                changes_summary['processing_results'].append({
+                    'file': file.name,
+                    'summary': result
+                })
+                logger.info(f"Successfully processed {file.name}")
+            except PMProcessingException as e:
+                flash(f"Error processing {file.name}: {e}", "warning")
+                logger.error(f"Error processing {file.name}: {e}")
+        
+        # Generate master output
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        output_file = EXPORTS_DIR / f"pm_master_april_2025_{timestamp}.xlsx"
+        
+        logger.info(f"Generating master output to {output_file}")
+        output_report = processor.generate_master_output(output_file)
+        
+        # Save session state
+        session['pm_master_processor'] = {
+            'original_file': str(original_file),
+            'files_processed': changes_summary['files_processed'],
+            'latest_file': april_files[-1].name if april_files else original_file.name,
+            'processed_files': changes_summary['processed_files'],
+            'has_changes': True
+        }
+        
+        # Save result for display
+        session['pm_master_result'] = {
+            'filename': output_file.name,
+            'file_size': os.path.getsize(output_file) / 1024,  # KB
+            'summary': output_report,
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'files_processed': changes_summary['files_processed'],
+            'april_batch': True
+        }
+        
+        # Set success message
+        flash(f"Successfully processed {changes_summary['files_processed']} April 2025 billing files and generated master output.", "success")
+        
+        # Redirect to result page
+        return redirect(url_for('pm_master.result'))
+    
+    except Exception as e:
+        logger.error(f"Error during batch processing: {e}", exc_info=True)
+        flash(f"Error during batch processing: {e}", "danger")
+        return redirect(url_for('pm_master.index'))

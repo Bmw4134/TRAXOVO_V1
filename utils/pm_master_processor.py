@@ -15,6 +15,7 @@ from datetime import datetime
 import logging
 from pathlib import Path
 import json
+from utils.cost_code_processor import process_cost_code_splits
 
 logger = logging.getLogger(__name__)
 
@@ -214,6 +215,10 @@ class PMMasterProcessor:
         try:
             # Load the new file
             new_data = load_pm_file(file_path)
+            
+            # Process cost code splits in the data
+            logger.info(f"Processing cost code splits in file: {file_path}")
+            new_data = process_cost_code_splits(new_data)
             
             # Skip if empty
             if new_data.empty:

@@ -3,16 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - SYSTEMSMITH</title>
+    <title>Login - TRAXORA</title>
     <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 </head>
-<body>
+<body data-bs-theme="dark">
     <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <div class="card">
-                    <div class="card-header">
-                        <h4 class="mb-0">SYSTEMSMITH Login</h4>
+                    <div class="card-header bg-primary text-white">
+                        <div class="d-flex align-items-center">
+                            <img src="{{ url_for('static', filename='images/traxora-logo.png') }}" alt="TRAXORA" height="30" class="me-2">
+                            <h4 class="mb-0">TRAXORA Login</h4>
+                        </div>
                     </div>
                     <div class="card-body">
                         {% with messages = get_flashed_messages(with_categories=true) %}

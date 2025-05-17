@@ -292,6 +292,100 @@ class PMMasterProcessor:
             'job_distribution': job_distribution
         }
         
+    def _process_cost_code_splits(self, row):
+        """
+        Process complex cost code splits like those for Asset EX-65 at Matagorda
+        
+        Args:
+            row (Series): The row data containing cost code information
+            
+        Returns:
+            list: List of split rows with proper cost code allocations
+        """
+        split_rows = []
+        
+        # Check if cost code column contains slashes indicating splits
+        cost_code = row.get('cost_code', '')
+        notes = row.get('note', '')
+        if pd.isna(cost_code):
+            return [row]
+            
+        cost_code_str = str(cost_code)
+        
+        # Skip if no splits indicated
+        if '/' not in cost_code_str:
+            return [row]
+            
+        # Check if this is just a CC NEEDED indicator
+        if 'CC NEEDED' in cost_code_str:
+            return [row]
+            
+        # Parse complex cost code splits like "0496 6012B/049 66012C/0496 6012C/0496 6012F/EQ"
+        split_codes = [code.strip() for code in cost_code_str.split('/')]
+        
+        # Default split behavior: equal distribution
+        split_ratio = 1.0 / len(split_codes)
+        split_ratios = [split_ratio] * len(split_codes)
+        
+        # Check notes for split instructions
+        notes_str = '' if pd.isna(notes) else str(notes)
+        if 'split' in notes_str.lower():
+            # Look for patterns like "Split 0.25 EA"
+            import re
+            split_values = re.findall(r'(\d+\.\d+|\d+)', notes_str)
+            if split_values and 'ea' in notes_str.lower():
+                try:
+                    split_value = float(split_values[0])
+                    if split_value > 0:
+                        # This means each code gets this percentage
+                        split_ratios = [split_value] * len(split_codes)
+                        # Normalize if needed
+                        if len(split_codes) * split_value != 1.0:
+                            split_ratios = [r / (len(split_codes) * split_value) for r in split_ratios]
+                except ValueError:
+                    # Fall back to equal distribution
+                    pass
+        
+        # Create a row for each split
+        allocation = row.get('unit_allocation', 1.0) 
+        if pd.isna(allocation):
+            allocation = 1.0
+            
+        for i, code in enumerate(split_codes):
+            if not code:  # Skip empty codes
+                continue
+                
+            # Create a copy of the row for this cost code
+            split_row = row.copy()
+            
+            # For "EQ" codes, use a standard equipment cost code
+            if code.upper() == 'EQ':
+                code = '9000 100M'
+                
+            split_row['cost_code'] = code
+            
+            # Calculate the allocation for this split
+            this_allocation = allocation * split_ratios[i]
+            split_row['unit_allocation'] = this_allocation
+            
+            # Adjust amount proportionally if it exists
+            if 'amount' in row and not pd.isna(row['amount']):
+                split_row['amount'] = row['amount'] * split_ratios[i]
+                
+            # Add a note about the split
+            if pd.isna(notes):
+                split_row['note'] = f"Cost code split {i+1}/{len(split_codes)}"
+            else:
+                split_row['note'] = f"{notes} (Cost code split {i+1}/{len(split_codes)})"
+                
+            split_rows.append(split_row)
+            
+        # If we didn't create any splits (shouldn't happen), return the original
+        if not split_rows:
+            return [row]
+            
+        return split_rows
+
     def _integrate_new_data(self, new_data, file_path):
         """
         Integrate a new data file into the master data

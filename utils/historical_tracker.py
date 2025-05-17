@@ -253,7 +253,11 @@ class HistoricalDataTracker:
                 'months': [],
                 'days_allocated': [],
                 'total_amount': [],
-                'utilization_rate': []
+                'utilization_rate': [],
+                'jobs': [],
+                'cost_codes': {},
+                'billing_by_job': {},
+                'attendance_correlation': []
             }
             
             # Process history data
@@ -291,11 +295,59 @@ class HistoricalDataTracker:
                     
                     utilization_rate = (total_days / days_in_month) * 100 if days_in_month > 0 else 0
                     
+                    # Track jobs this equipment worked on
+                    unique_jobs = set(item.get('job_number') for item in filtered_data 
+                                     if item.get('job_number'))
+                    
+                    # Collect billing by job
+                    billing_by_job = {}
+                    for item in filtered_data:
+                        job = item.get('job_number')
+                        if job:
+                            if job not in billing_by_job:
+                                billing_by_job[job] = {
+                                    'amount': 0,
+                                    'days': 0,
+                                    'cost_codes': {}
+                                }
+                            
+                            amount = item.get('amount', 0)
+                            days = item.get('days', 0)
+                            cost_code = item.get('cost_code', 'Unknown')
+                            
+                            billing_by_job[job]['amount'] += amount
+                            billing_by_job[job]['days'] += days
+                            
+                            # Track cost codes
+                            if cost_code:
+                                billing_by_job[job]['cost_codes'][cost_code] = \
+                                    billing_by_job[job]['cost_codes'].get(cost_code, 0) + amount
+                    
+                    # Aggregate cost codes across all jobs for this month
+                    month_cost_codes = {}
+                    for job_data in billing_by_job.values():
+                        for code, amount in job_data['cost_codes'].items():
+                            month_cost_codes[code] = month_cost_codes.get(code, 0) + amount
+                    
+                    # Fetch attendance data if available
+                    attendance_correlation = 0
+                    try:
+                        # This would connect to the attendance database
+                        # For now, we'll use a placeholder value
+                        # In a real implementation, this would query the attendance_records table
+                        attendance_correlation = 0.85  # Placeholder
+                    except Exception as e:
+                        logger.warning(f"Could not fetch attendance data: {str(e)}")
+                    
                     # Add to trend data
                     trend_data['months'].append(month_year)
                     trend_data['days_allocated'].append(total_days)
                     trend_data['total_amount'].append(total_amount)
                     trend_data['utilization_rate'].append(utilization_rate)
+                    trend_data['jobs'].append(len(unique_jobs))
+                    trend_data['cost_codes'][month_year] = month_cost_codes
+                    trend_data['billing_by_job'][month_year] = billing_by_job
+                    trend_data['attendance_correlation'].append(attendance_correlation)
             
             # Calculate trend indicators
             if len(trend_data['months']) > 1:
@@ -308,22 +360,64 @@ class HistoricalDataTracker:
                 # Utilization trend
                 utilization_trend = calculate_trend(trend_data['utilization_rate'])
                 
+                # Jobs count trend
+                jobs_trend = calculate_trend(trend_data['jobs'])
+                
+                # Cost code distribution trend
+                cost_code_trends = {}
+                all_cost_codes = set()
+                for month_codes in trend_data['cost_codes'].values():
+                    all_cost_codes.update(month_codes.keys())
+                
+                for code in all_cost_codes:
+                    code_values = []
+                    for month in trend_data['months']:
+                        month_codes = trend_data['cost_codes'].get(month, {})
+                        code_values.append(month_codes.get(code, 0))
+                    
+                    if any(code_values) and len(code_values) > 1:
+                        cost_code_trends[code] = calculate_trend(code_values)
+                
                 # Forecast next month (simple linear regression)
                 next_days = forecast_next_value(trend_data['days_allocated'])
                 next_amount = forecast_next_value(trend_data['total_amount'])
                 next_utilization = forecast_next_value(trend_data['utilization_rate'])
+                next_jobs = forecast_next_value(trend_data['jobs'])
+                
+                # Calculate per-job forecasts
+                job_forecasts = {}
+                all_jobs = set()
+                for month_jobs in trend_data['billing_by_job'].values():
+                    all_jobs.update(month_jobs.keys())
+                
+                for job in all_jobs:
+                    job_amounts = []
+                    for month in trend_data['months']:
+                        month_jobs = trend_data['billing_by_job'].get(month, {})
+                        job_data = month_jobs.get(job, {})
+                        job_amounts.append(job_data.get('amount', 0))
+                    
+                    if any(job_amounts) and len(job_amounts) > 1:
+                        job_forecasts[job] = {
+                            'trend': calculate_trend(job_amounts),
+                            'forecast': forecast_next_value(job_amounts)
+                        }
                 
                 trend_result = {
                     'data': trend_data,
                     'trends': {
                         'days_trend': days_trend,
                         'amount_trend': amount_trend,
-                        'utilization_trend': utilization_trend
+                        'utilization_trend': utilization_trend,
+                        'jobs_trend': jobs_trend,
+                        'cost_code_trends': cost_code_trends
                     },
                     'forecast': {
                         'next_days': next_days,
                         'next_amount': next_amount,
-                        'next_utilization': next_utilization
+                        'next_utilization': next_utilization,
+                        'next_jobs': next_jobs,
+                        'job_forecasts': job_forecasts
                     }
                 }
                 
@@ -336,6 +430,26 @@ class HistoricalDataTracker:
                     )
                     if chart_path:
                         trend_result['chart_path'] = chart_path
+                    
+                    # Generate additional job-specific chart for equipment
+                    if equipment_id and trend_data['billing_by_job']:
+                        job_chart_path = self.generate_job_billing_chart(
+                            trend_data,
+                            title=f"Job Billing for Equipment: {equipment_id}",
+                            filename=f"job_billing_{equipment_id}_{datetime.now().strftime('%Y%m%d')}.png"
+                        )
+                        if job_chart_path:
+                            trend_result['job_chart_path'] = job_chart_path
+                    
+                    # Generate cost code distribution chart
+                    if trend_data['cost_codes']:
+                        cost_code_chart_path = self.generate_cost_code_chart(
+                            trend_data,
+                            title=f"Cost Code Distribution: {equipment_id or job_number}",
+                            filename=f"cost_code_{equipment_id or job_number}_{datetime.now().strftime('%Y%m%d')}.png"
+                        )
+                        if cost_code_chart_path:
+                            trend_result['cost_code_chart_path'] = cost_code_chart_path
                 
                 return trend_result
             else:
@@ -362,7 +476,7 @@ class HistoricalDataTracker:
         """
         try:
             # Create figure with dual Y-axis
-            fig, ax1 = plt.subplots(figsize=(10, 6))
+            fig, ax1 = plt.subplots(figsize=(12, 7))
             
             # Plot days allocated (primary Y-axis)
             color = 'tab:blue'
@@ -388,6 +502,24 @@ class HistoricalDataTracker:
             ax3.tick_params(axis='y', labelcolor=color)
             ax3.set_ylim([0, 100])
             
+            # Job count line if available
+            if 'jobs' in trend_data and trend_data['jobs']:
+                color = 'tab:orange'
+                ax4 = ax1.twinx()
+                ax4.spines['right'].set_position(('outward', 120))
+                ax4.set_ylabel('Jobs Count', color=color)
+                ax4.plot(trend_data['months'], trend_data['jobs'], marker='d', color=color, 
+                        linestyle=':', label='Jobs')
+                ax4.tick_params(axis='y', labelcolor=color)
+                # Set appropriate y limit for job count
+                if max(trend_data['jobs']) > 0:
+                    ax4.set_ylim([0, max(trend_data['jobs']) * 1.2])
+                
+                # Update legend to include job count
+                lines4, labels4 = ax4.get_legend_handles_labels()
+            else:
+                lines4, labels4 = [], []
+            
             # Add grid and title
             ax1.grid(True, alpha=0.3)
             plt.title(title)
@@ -399,8 +531,11 @@ class HistoricalDataTracker:
             lines1, labels1 = ax1.get_legend_handles_labels()
             lines2, labels2 = ax2.get_legend_handles_labels()
             lines3, labels3 = ax3.get_legend_handles_labels()
-            ax1.legend(lines1 + lines2 + lines3, labels1 + labels2 + labels3, loc='upper center', 
-                      bbox_to_anchor=(0.5, -0.15), ncol=3)
+            ax1.legend(lines1 + lines2 + lines3 + lines4, 
+                      labels1 + labels2 + labels3 + labels4, 
+                      loc='upper center', 
+                      bbox_to_anchor=(0.5, -0.15), 
+                      ncol=4)
             
             # Adjust layout
             plt.tight_layout()
@@ -417,6 +552,201 @@ class HistoricalDataTracker:
             
         except Exception as e:
             logger.error(f"Error generating trend chart: {str(e)}")
+            return None
+            
+    def generate_job_billing_chart(self, trend_data, title="Job Billing Analysis", filename=None):
+        """
+        Generate a chart showing billing breakdown by job
+        
+        Args:
+            trend_data (dict): Trend data structure
+            title (str): Chart title
+            filename (str, optional): Filename for saving chart
+            
+        Returns:
+            str: Path to the generated chart file, or None if failed
+        """
+        try:
+            # Extract job billing data across months
+            months = trend_data['months']
+            billing_by_job = trend_data['billing_by_job']
+            
+            # Get all unique jobs across all months
+            all_jobs = set()
+            for month_data in billing_by_job.values():
+                all_jobs.update(month_data.keys())
+                
+            if not all_jobs:
+                logger.warning("No job billing data available for chart")
+                return None
+                
+            # Prepare data for stacked bar chart
+            job_data = {}
+            for job in all_jobs:
+                job_data[job] = []
+                for month in months:
+                    month_jobs = billing_by_job.get(month, {})
+                    job_amount = month_jobs.get(job, {}).get('amount', 0) if job in month_jobs else 0
+                    job_data[job].append(job_amount)
+            
+            # Create the stacked bar chart
+            fig, ax = plt.subplots(figsize=(12, 8))
+            
+            # Sort jobs by total amount (descending)
+            sorted_jobs = sorted(
+                job_data.keys(),
+                key=lambda j: sum(job_data[j]),
+                reverse=True
+            )
+            
+            # Generate distinct colors for each job
+            colors = plt.cm.tab20(np.linspace(0, 1, len(sorted_jobs)))
+            
+            # Plot stacked bars
+            bottom = np.zeros(len(months))
+            for i, job in enumerate(sorted_jobs):
+                ax.bar(months, job_data[job], bottom=bottom, label=f"Job {job}", color=colors[i % len(colors)])
+                bottom += np.array(job_data[job])
+            
+            # Add chart elements
+            ax.set_title(title)
+            ax.set_xlabel('Month')
+            ax.set_ylabel('Amount ($)')
+            ax.legend(loc='upper left', bbox_to_anchor=(1, 1))
+            
+            # Rotate x-axis labels for better readability
+            plt.xticks(rotation=45)
+            
+            # Adjust layout
+            plt.tight_layout()
+            
+            # Save chart
+            if not filename:
+                filename = f"job_billing_chart_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
+                
+            chart_path = CHARTS_DIR / filename
+            plt.savefig(chart_path)
+            plt.close()
+            
+            return str(chart_path.relative_to(BASE_DIR))
+            
+        except Exception as e:
+            logger.error(f"Error generating job billing chart: {str(e)}")
+            return None
+            
+    def generate_cost_code_chart(self, trend_data, title="Cost Code Distribution", filename=None):
+        """
+        Generate a chart showing cost code distribution over time
+        
+        Args:
+            trend_data (dict): Trend data structure
+            title (str): Chart title
+            filename (str, optional): Filename for saving chart
+            
+        Returns:
+            str: Path to the generated chart file, or None if failed
+        """
+        try:
+            # Extract cost code data across months
+            months = trend_data['months']
+            cost_codes = trend_data['cost_codes']
+            
+            if not cost_codes:
+                logger.warning("No cost code data available for chart")
+                return None
+                
+            # Get all unique cost codes across all months
+            all_codes = set()
+            for month_data in cost_codes.values():
+                all_codes.update(month_data.keys())
+                
+            # Prepare data for area chart
+            code_data = {}
+            for code in all_codes:
+                code_data[code] = []
+                for month in months:
+                    month_codes = cost_codes.get(month, {})
+                    code_amount = month_codes.get(code, 0)
+                    code_data[code].append(code_amount)
+            
+            # Create multiple subplots for different views
+            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 8))
+            
+            # Sort codes by total amount (descending)
+            sorted_codes = sorted(
+                code_data.keys(),
+                key=lambda c: sum(code_data[c]),
+                reverse=True
+            )
+            
+            # Generate distinct colors for each cost code
+            colors = plt.cm.tab20(np.linspace(0, 1, len(sorted_codes)))
+            
+            # 1. Stacked area chart (left)
+            y_stack = np.zeros(len(months))
+            for i, code in enumerate(sorted_codes):
+                ax1.fill_between(months, y_stack, y_stack + np.array(code_data[code]), 
+                                label=code, alpha=0.7, color=colors[i % len(colors)])
+                y_stack += np.array(code_data[code])
+                
+            ax1.set_title("Cost Code Distribution Over Time")
+            ax1.set_xlabel('Month')
+            ax1.set_ylabel('Amount ($)')
+            
+            # 2. Pie chart of average distribution (right)
+            code_totals = {code: sum(values) for code, values in code_data.items()}
+            total_amount = sum(code_totals.values())
+            
+            # Filter out small segments (less than 3% of total) for readability
+            threshold = total_amount * 0.03
+            other_total = 0
+            filtered_codes = {}
+            
+            for code, amount in code_totals.items():
+                if amount >= threshold:
+                    filtered_codes[code] = amount
+                else:
+                    other_total += amount
+                    
+            if other_total > 0:
+                filtered_codes['Other Cost Codes'] = other_total
+                
+            # Plot pie chart
+            wedges, texts, autotexts = ax2.pie(
+                filtered_codes.values(), 
+                labels=filtered_codes.keys(),
+                autopct='%1.1f%%',
+                startangle=90,
+                colors=plt.cm.tab20(np.linspace(0, 1, len(filtered_codes)))
+            )
+            
+            # Make text white for better visibility on dark segments
+            for text in autotexts:
+                text.set_color('white')
+                
+            ax2.set_title("Average Cost Code Distribution")
+            
+            # Adjust legend and layout
+            ax1.legend(loc='upper left', bbox_to_anchor=(1, 1))
+            
+            # Rotate x-axis labels for better readability
+            ax1.tick_params(axis='x', rotation=45)
+            
+            # Adjust layout
+            plt.tight_layout()
+            
+            # Save chart
+            if not filename:
+                filename = f"cost_code_chart_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
+                
+            chart_path = CHARTS_DIR / filename
+            plt.savefig(chart_path)
+            plt.close()
+            
+            return str(chart_path.relative_to(BASE_DIR))
+            
+        except Exception as e:
+            logger.error(f"Error generating cost code chart: {str(e)}")
             return None
 
     def generate_summary_report(self, months=6):

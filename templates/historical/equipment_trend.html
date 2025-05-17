@@ -49,10 +49,40 @@
         <div class="col-md-12">
             <div class="card shadow-sm">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Utilization Trend</h5>
+                    <h5 class="mb-0">Utilization & Billing Trend</h5>
                 </div>
                 <div class="card-body text-center">
                     <img src="{{ url_for('static', filename=trend_data.chart_path) }}" alt="Equipment Trend Chart" class="img-fluid rounded">
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if trend_data.job_chart_path is defined %}
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Job Billing Distribution</h5>
+                </div>
+                <div class="card-body text-center">
+                    <img src="{{ url_for('static', filename=trend_data.job_chart_path) }}" alt="Job Billing Chart" class="img-fluid rounded">
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if trend_data.cost_code_chart_path is defined %}
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Cost Code Analysis</h5>
+                </div>
+                <div class="card-body text-center">
+                    <img src="{{ url_for('static', filename=trend_data.cost_code_chart_path) }}" alt="Cost Code Chart" class="img-fluid rounded">
                 </div>
             </div>
         </div>

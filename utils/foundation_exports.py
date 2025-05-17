@@ -17,6 +17,8 @@ from pathlib import Path
 import zipfile
 import shutil
 
+from utils.cost_code_processor import apply_cost_code_splitting, summarize_splits, is_matagorda_job
+
 logger = logging.getLogger(__name__)
 
 # Define paths
@@ -214,7 +216,7 @@ def load_eq_billing_master(file_path):
         raise FoundationExportException(f"Error loading EQ billing file: {str(e)}")
 
 
-def generate_foundation_imports(eq_billing_file, output_dir=None, month_year=None):
+def generate_foundation_imports(eq_billing_file, output_dir=None, month_year=None, process_matagorda_splits=True):
     """
     Generate DFW, HOU, and WT foundation imports based on the EQ billing master
     
@@ -222,6 +224,8 @@ def generate_foundation_imports(eq_billing_file, output_dir=None, month_year=Non
         eq_billing_file (str or Path): Path to the EQ billing master file
         output_dir (str or Path, optional): Directory to save the exports
         month_year (str, optional): Month and year for file naming (e.g., 'April 2025')
+        process_matagorda_splits (bool): Whether to process Matagorda job patterns with
+                                         special cost code splitting rules
         
     Returns:
         dict: Information about generated files
@@ -229,6 +233,51 @@ def generate_foundation_imports(eq_billing_file, output_dir=None, month_year=Non
     try:
         # Load the EQ billing master data
         billing_data = load_eq_billing_master(eq_billing_file)
+        
+        # Apply Matagorda job cost code splitting if requested
+        if process_matagorda_splits:
+            try:
+                # Check if we have any Matagorda jobs to process
+                has_matagorda_jobs = False
+                if 'job_number' in billing_data.columns:
+                    # Convert job_number to string for checking
+                    job_numbers = billing_data['job_number'].astype(str)
+                    has_matagorda_jobs = job_numbers.apply(is_matagorda_job).any()
+                
+                if has_matagorda_jobs:
+                    logger.info(f"Processing Matagorda job cost code splits in Foundation exports")
+                    
+                    # Apply cost code splitting rules
+                    processed_data = apply_cost_code_splitting(
+                        billing_data,
+                        equipment_id_col="equipment_id",
+                        job_number_col="job_number",
+                        cost_code_col="cost_code",
+                        amount_col="amount",
+                        rate_col="rate",
+                        days_col="days"
+                    )
+                    
+                    if not processed_data.empty:
+                        # Get summary of applied splits
+                        split_summary = summarize_splits(
+                            processed_data,
+                            job_number_col="job_number",
+                            equipment_id_col="equipment_id",
+                            amount_col="amount"
+                        )
+                        
+                        if split_summary.get("has_splits"):
+                            logger.info(f"Applied Matagorda cost code splits: {split_summary['total_split_rows']} rows affected")
+                            for split in split_summary.get("equipment_splits", []):
+                                logger.info(f"  {split['equipment_id']}: {split['split_type']} split ({'/'.join([str(int(p*100)) for p in split['percentages']])})")
+                                
+                            # Use the processed data with splits applied
+                            billing_data = processed_data
+                
+            except Exception as e:
+                logger.error(f"Error processing Matagorda job splits: {str(e)}")
+                # Continue with original data if there's an error
         
         # Set default output directory
         if output_dir is None:

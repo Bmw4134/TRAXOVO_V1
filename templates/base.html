@@ -231,7 +231,69 @@
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
             var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl)
-            })
+            });
+            
+            // Prevent multiple form submissions
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function() {
+                    // Skip for forms with data-no-processing attribute
+                    if (form.hasAttribute('data-no-processing')) return;
+                    
+                    // Find submit button
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        // Disable button and show processing state
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('btn-processing');
+                        
+                        // Store original text and update with processing message
+                        const originalText = submitBtn.innerHTML;
+                        submitBtn.innerHTML = 'Processing...';
+                        
+                        // Create processing feedback message
+                        const feedbackDiv = document.createElement('div');
+                        feedbackDiv.className = 'processing-feedback mt-2 text-center';
+                        feedbackDiv.innerHTML = '<div class="spinner-border spinner-border-sm me-2"></div> Processing your request. Please wait...';
+                        
+                        // Insert after the button
+                        submitBtn.parentNode.insertBefore(feedbackDiv, submitBtn.nextSibling);
+                        feedbackDiv.style.display = 'block';
+                        
+                        // Failsafe - reset button after 60 seconds if something goes wrong
+                        setTimeout(() => {
+                            if (submitBtn.disabled) {
+                                submitBtn.disabled = false;
+                                submitBtn.classList.remove('btn-processing');
+                                submitBtn.innerHTML = originalText;
+                                if (feedbackDiv.parentNode) {
+                                    feedbackDiv.parentNode.removeChild(feedbackDiv);
+                                }
+                            }
+                        }, 60000);
+                    }
+                });
+            });
+            
+            // Prevent multiple action button clicks
+            document.querySelectorAll('.btn:not([type="submit"]):not([data-bs-toggle]):not([data-bs-dismiss])').forEach(button => {
+                button.addEventListener('click', function() {
+                    // Skip for buttons with data-no-processing attribute
+                    if (button.hasAttribute('data-no-processing')) return;
+                    
+                    // Disable button and show processing state
+                    button.disabled = true;
+                    const originalText = button.innerHTML;
+                    button.innerHTML = 'Processing...';
+                    
+                    // Failsafe - reset button after 30 seconds if something goes wrong
+                    setTimeout(() => {
+                        if (button.disabled) {
+                            button.disabled = false;
+                            button.innerHTML = originalText;
+                        }
+                    }, 30000);
+                });
+            });
         });
     </script>
 </body>

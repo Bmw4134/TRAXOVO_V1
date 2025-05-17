@@ -250,6 +250,48 @@ class PMMasterProcessor:
             logger.error(f"Error adding PM file {file_path}: {str(e)}")
             raise PMProcessingException(f"Error adding PM file: {str(e)}")
     
+    def get_original_data_metrics(self):
+        """
+        Get metrics from the original data file for dashboard display
+        
+        Returns:
+            dict: Metrics about the original data
+        """
+        if self.master_data.empty:
+            return {}
+            
+        # Filter to only get original data (version 1 or no version info)
+        original_data = self.master_data[
+            (self.master_data['version'] == 1) | 
+            (~self.master_data['version'].isin(self.master_data['version'].unique()))
+        ]
+        
+        if original_data.empty:
+            original_data = self.master_data
+            
+        # Calculate metrics
+        total_amount = original_data['amount'].sum() if 'amount' in original_data.columns else 0
+        job_distribution = {}
+        
+        if 'job_number' in original_data.columns:
+            job_counts = original_data.groupby('job_number').size().reset_index(name='count')
+            job_amounts = original_data.groupby('job_number')['amount'].sum().reset_index()
+            
+            job_summary = pd.merge(job_counts, job_amounts, on='job_number')
+            
+            for _, row in job_summary.iterrows():
+                job_distribution[row['job_number']] = {
+                    'count': int(row['count']),
+                    'amount': float(row['amount'])
+                }
+        
+        return {
+            'total_amount': float(total_amount),
+            'record_count': len(original_data),
+            'job_count': len(job_distribution),
+            'job_distribution': job_distribution
+        }
+        
     def _integrate_new_data(self, new_data, file_path):
         """
         Integrate a new data file into the master data

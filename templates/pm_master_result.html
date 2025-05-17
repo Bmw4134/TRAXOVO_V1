@@ -20,6 +20,124 @@
         </div>
     </div>
     
+    <!-- Original vs Revision Metrics Dashboard -->
+    {% if result.original %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-graph-up me-2"></i>Original vs. Revised Metrics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">Original Totals</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="text-center mb-3">
+                                                <h3>${{ "{:,.2f}".format(result.original.total_amount) }}</h3>
+                                                <div class="text-muted">Total Amount</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="text-center mb-3">
+                                                <h3>{{ result.original.record_count }}</h3>
+                                                <div class="text-muted">Total Records</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-center mb-2">
+                                        <h5>Job Distribution: {{ result.original.job_count }} Jobs</h5>
+                                    </div>
+                                    {% if result.original.job_distribution %}
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Job #</th>
+                                                    <th>Records</th>
+                                                    <th>Amount</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for job_num, data in result.original.job_distribution.items() %}
+                                                <tr>
+                                                    <td>{{ job_num }}</td>
+                                                    <td>{{ data.count }}</td>
+                                                    <td>${{ "{:,.2f}".format(data.amount) }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">Revised Totals</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="text-center mb-3">
+                                                <h3>${{ "{:,.2f}".format(result.summary.total_amount) }}</h3>
+                                                <div class="text-muted">Final Amount</div>
+                                                {% set amount_diff = result.summary.total_amount - result.original.total_amount %}
+                                                <div class="{% if amount_diff >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                                    {{ "+" if amount_diff >= 0 else "" }}${{ "{:,.2f}".format(amount_diff) }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="text-center mb-3">
+                                                <h3>{{ result.summary.total_rows }}</h3>
+                                                <div class="text-muted">Final Records</div>
+                                                {% set record_diff = result.summary.total_rows - result.original.record_count %}
+                                                <div class="{% if record_diff >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                                    {{ "+" if record_diff >= 0 else "" }}{{ record_diff }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="alert alert-info">
+                                        <div class="row text-center">
+                                            <div class="col-4">
+                                                <div class="text-success">
+                                                    <strong>+{{ result.summary.added_rows }}</strong>
+                                                    <div>Added</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="text-warning">
+                                                    <strong>{{ result.summary.modified_rows }}</strong>
+                                                    <div>Modified</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="text-danger">
+                                                    <strong>{{ result.summary.deleted_rows }}</strong>
+                                                    <div>Removed</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
     <div class="row">
         <!-- Results Card -->
         <div class="col-md-6 mb-4">

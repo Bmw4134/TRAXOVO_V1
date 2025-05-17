@@ -252,12 +252,16 @@ def generate_master():
             result = processor.generate_master_output(output_path)
             
             if result.get('success'):
+                # Get original data metrics
+                original_data = processor.get_original_data_metrics()
+                
                 # Store the result in session
                 session['pm_master_result'] = {
                     'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                     'output_path': result.get('output_path'),
                     'file_name': output_path.name,
-                    'summary': result.get('summary', {})
+                    'summary': result.get('summary', {}),
+                    'original': original_data
                 }
                 
                 # Clear the processor state

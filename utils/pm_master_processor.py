@@ -216,9 +216,13 @@ class PMMasterProcessor:
             # Load the new file
             new_data = load_pm_file(file_path)
             
-            # Generate row IDs first, then apply cost code splitting
-            # This ensures unique IDs for all rows including split ones
-            new_data = self._generate_row_ids(new_data)
+            # Generate row IDs using standard function
+            if 'row_id' not in new_data.columns:
+                # Generate row IDs based on key fields
+                new_data['row_id'] = new_data.apply(
+                    lambda row: f"{row.get('job_number', 'unknown')}_{row.get('equipment_id', 'unknown')}_{row.name}", 
+                    axis=1
+                )
             
             # Add tracking columns before processing splits
             # This ensures these fields are available for the cost code processor
@@ -228,7 +232,16 @@ class PMMasterProcessor:
             
             # Process cost code splits in the data
             logger.info(f"Processing cost code splits in file: {file_path}")
-            new_data = process_cost_code_splits(new_data)
+            try:
+                # Process cost code splits while preserving all columns
+                processed_data = process_cost_code_splits(new_data)
+                if not processed_data.empty:
+                    new_data = processed_data
+                else:
+                    logger.warning("Cost code processor returned empty DataFrame, using original data")
+            except Exception as e:
+                logger.error(f"Error processing cost code splits: {str(e)}")
+                # Continue with original data if there's an error
             
             # Skip if empty
             if new_data.empty:
@@ -420,13 +433,11 @@ class PMMasterProcessor:
             'details': []
         }
         
-        # Remove duplicate tracking columns to avoid conflict
-        if 'status' in new_data.columns:
-            del new_data['status']
-        if 'version' in new_data.columns:
-            del new_data['version']
-        if 'change_type' in new_data.columns:
-            del new_data['change_type']
+        # We've added tracking columns earlier, so now we need to check
+        # if they exist and clear them to avoid conflict
+        for col in ['status', 'version', 'change_type']:
+            if col in new_data.columns:
+                del new_data[col]
             
         # Add tracking columns to new data
         new_data['status'] = 'new'  # Default status for change tracking

@@ -118,7 +118,7 @@ def login():
             
             next_page = request.args.get('next')
             if not next_page or not next_page.startswith('/'):
-                next_page = url_for('dashboard')
+                next_page = url_for('index')
                 
             return redirect(next_page)
         else:
@@ -163,8 +163,8 @@ def switch_organization(org_id):
     except Exception as e:
         flash(f"Error switching organization: {str(e)}", "danger")
     
-    # Redirect back to referring page or default to dashboard
-    return redirect(request.referrer or url_for('dashboard'))
+    # Redirect back to referring page or default to index
+    return redirect(request.referrer or url_for('index'))
 
 @app.route('/dashboard')
 @login_required

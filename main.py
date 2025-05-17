@@ -97,6 +97,13 @@ try:
     logging.info("Registered Foundation Exports blueprint")
 except ImportError as e:
     logging.error(f"Failed to register Foundation Exports blueprint: {e}")
+    
+try:
+    from routes.export_reports import export_reports_bp
+    app.register_blueprint(export_reports_bp)
+    logging.info("Registered Equipment Reports Export blueprint")
+except ImportError as e:
+    logging.error(f"Failed to register Equipment Reports Export blueprint: {e}")
 
 @login_manager.user_loader
 def load_user(user_id):

@@ -258,6 +258,21 @@ def equipment_alerts():
             'created_at': datetime.now() - timedelta(hours=12),
             'acknowledged': False,
             'resolved': False
+        },
+        {
+            'id': 5,
+            'asset_id': 'ET-1187',
+            'level': 'critical',
+            'alert_type': 'maintenance_hours',
+            'description': 'Maintenance overdue by 75 engine hours',
+            'location': 'DFW-Site-22',
+            'created_at': datetime.now() - timedelta(days=5),
+            'acknowledged': True,
+            'resolved': False,
+            'details': {
+                'hours_remaining': -75,
+                'last_service_date': (datetime.now() - timedelta(days=120)).strftime('%Y-%m-%d')
+            }
         }
     ]
     
@@ -283,16 +298,45 @@ def equipment_alerts():
             'created_at': datetime.now() - timedelta(days=2),
             'acknowledged': False,
             'resolved': False
+        },
+        {
+            'id': 6,
+            'asset_id': 'ET-1455',
+            'level': 'warning',
+            'alert_type': 'maintenance_days',
+            'description': 'Maintenance due soon: 14 days remaining',
+            'location': 'HOU-Site-08',
+            'created_at': datetime.now() - timedelta(days=1),
+            'acknowledged': False,
+            'resolved': False,
+            'details': {
+                'days_remaining': 14,
+                'last_service_date': (datetime.now() - timedelta(days=76)).strftime('%Y-%m-%d')
+            }
         }
     ]
     
-    info_alerts = []
+    info_alerts = [
+        {
+            'id': 7,
+            'asset_id': 'PT-2299',
+            'level': 'info',
+            'alert_type': 'low_usage',
+            'description': 'Equipment usage below average: 2.1 hours vs avg 5.8 hours',
+            'location': 'WT-Site-06',
+            'created_at': datetime.now() - timedelta(days=3),
+            'acknowledged': False,
+            'resolved': False
+        }
+    ]
     
     # Group alerts by type
     alerts_by_type = {
         'inactivity': [a for a in critical_alerts + warning_alerts + info_alerts if a['alert_type'] == 'inactivity'],
         'high_usage': [a for a in critical_alerts + warning_alerts + info_alerts if a['alert_type'] == 'high_usage'],
         'low_usage': [a for a in critical_alerts + warning_alerts + info_alerts if a['alert_type'] == 'low_usage'],
+        'maintenance_hours': [a for a in critical_alerts + warning_alerts + info_alerts if a['alert_type'] == 'maintenance_hours'],
+        'maintenance_days': [a for a in critical_alerts + warning_alerts + info_alerts if a['alert_type'] == 'maintenance_days'],
     }
     
     # Create summary
@@ -306,6 +350,8 @@ def equipment_alerts():
             'inactivity': len(alerts_by_type['inactivity']),
             'high_usage': len(alerts_by_type['high_usage']),
             'low_usage': len(alerts_by_type['low_usage']),
+            'maintenance_hours': len(alerts_by_type['maintenance_hours']),
+            'maintenance_days': len(alerts_by_type['maintenance_days']),
         },
         'total_alerts': len(critical_alerts) + len(warning_alerts) + len(info_alerts)
     }

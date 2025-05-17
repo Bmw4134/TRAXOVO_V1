@@ -62,6 +62,13 @@ try:
     logging.info("Registered maintenance blueprint") 
 except ImportError as e:
     logging.error(f"Failed to register maintenance blueprint: {e}")
+    
+try:
+    from routes.job_zone import job_zone_bp
+    app.register_blueprint(job_zone_bp)
+    logging.info("Registered job zone blueprint") 
+except ImportError as e:
+    logging.error(f"Failed to register job zone blueprint: {e}")
 
 try:
     from routes.reports import reports_bp

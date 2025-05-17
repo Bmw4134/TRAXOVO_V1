@@ -1,382 +1,69 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+
+{% block title %}OCR Tool{% endblock %}
 
 {% block content %}
-<div class="container my-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="display-5">Document Scanner & OCR</h1>
-        <div class="btn-group">
-            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
-            </a>
-        </div>
-    </div>
-
+<div class="container mt-5">
+    <h1 class="mb-4">Document OCR Processing Tool</h1>
+    
     <div class="row">
-        <div class="col-md-4">
-            <div class="card mb-4">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0"><i class="bi bi-upload me-2"></i>Upload Document</h5>
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Upload Document</h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{ url_for('ocr_upload') }}" method="post" enctype="multipart/form-data">
+                    <form method="POST" enctype="multipart/form-data">
                         <div class="mb-3">
-                            <label for="documentFile" class="form-label">Select File</label>
-                            <input class="form-control" type="file" id="documentFile" name="file" accept=".pdf,.png,.jpg,.jpeg,.bmp,.tiff,.tif">
-                            <div class="form-text">Supported formats: PDF, PNG, JPG, TIFF</div>
+                            <label for="document" class="form-label">Select a document (PDF, JPG, PNG)</label>
+                            <input type="file" class="form-control" id="document" name="document" accept=".pdf,.jpg,.jpeg,.png">
                         </div>
-
-                        <div class="mb-3">
-                            <label for="documentType" class="form-label">Document Type</label>
-                            <select class="form-select" id="documentType" name="document_type">
-                                <option value="auto">Auto-detect</option>
-                                <option value="timecard">Driver Timecard</option>
-                                <option value="invoice">Invoice/Receipt</option>
-                                <option value="equipment_report">Equipment Report</option>
-                                <option value="allocation_report">Allocation Report</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="outputFormat" class="form-label">Output Format</label>
-                            <select class="form-select" id="outputFormat" name="output_format">
-                                <option value="text">Text</option>
-                                <option value="csv">CSV</option>
-                                <option value="excel">Excel</option>
-                                <option value="json">JSON</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="language" class="form-label">Language</label>
-                            <select class="form-select" id="language" name="language">
-                                <option value="eng">English</option>
-                                <option value="spa">Spanish</option>
-                                <option value="fra">French</option>
-                            </select>
-                        </div>
-
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-search me-1"></i> Scan Document
-                            </button>
-                        </div>
+                        <button type="submit" class="btn btn-primary">Process Document</button>
                     </form>
                 </div>
             </div>
-
-            <div class="card mb-4">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0"><i class="bi bi-gear me-2"></i>OCR Settings</h5>
+        </div>
+        
+        {% if extracted_text %}
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Extracted Text</h5>
                 </div>
                 <div class="card-body">
-                    <div class="mb-3">
-                        <label class="form-label">Image Preprocessing</label>
-                        <div class="form-check form-switch mb-2">
-                            <input class="form-check-input" type="checkbox" id="enhanceResolution" checked>
-                            <label class="form-check-label" for="enhanceResolution">Enhance Resolution</label>
-                        </div>
-                        <div class="form-check form-switch mb-2">
-                            <input class="form-check-input" type="checkbox" id="applySharpening" checked>
-                            <label class="form-check-label" for="applySharpening">Apply Sharpening</label>
-                        </div>
-                        <div class="form-check form-switch mb-2">
-                            <input class="form-check-input" type="checkbox" id="removeNoise" checked>
-                            <label class="form-check-label" for="removeNoise">Remove Noise</label>
-                        </div>
+                    <p class="text-muted mb-3">Original file: {{ original_filename }}</p>
+                    <div class="bg-light p-3 mb-3" style="max-height: 400px; overflow-y: auto;">
+                        <pre>{{ extracted_text }}</pre>
                     </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Advanced Options</label>
-                        <div class="form-check form-switch mb-2">
-                            <input class="form-check-input" type="checkbox" id="detectTables">
-                            <label class="form-check-label" for="detectTables">Detect Tables</label>
-                        </div>
-                        <div class="form-check form-switch mb-2">
-                            <input class="form-check-input" type="checkbox" id="extractFields">
-                            <label class="form-check-label" for="extractFields">Extract Form Fields</label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0"><i class="bi bi-folder me-2"></i>Batch Processing</h5>
-                </div>
-                <div class="card-body">
-                    <p>Process multiple documents at once from a folder.</p>
-                    <div class="d-grid">
-                        <a href="{{ url_for('ocr_batch') }}" class="btn btn-outline-primary">
-                            <i class="bi bi-collection me-1"></i> Batch Process
-                        </a>
-                    </div>
+                    <a href="{{ url_for('download_extracted_text', filename=text_filename) }}" class="btn btn-outline-primary">
+                        <i class="fas fa-download me-2"></i> Download Text
+                    </a>
                 </div>
             </div>
         </div>
-
-        <div class="col-md-8">
-            {% if result %}
-            <div class="card mb-4">
-                <div class="card-header bg-light">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><i class="bi bi-file-text me-2"></i>OCR Results</h5>
-                        <div>
-                            {% if result.output_paths %}
-                            <div class="btn-group btn-group-sm">
-                                {% if result.output_paths.text %}
-                                <a href="{{ url_for('download_file', path=result.output_paths.text) }}" class="btn btn-outline-primary">
-                                    <i class="bi bi-file-text me-1"></i> Download Text
-                                </a>
-                                {% endif %}
-                                {% if result.output_paths.csv %}
-                                <a href="{{ url_for('download_file', path=result.output_paths.csv) }}" class="btn btn-outline-primary">
-                                    <i class="bi bi-filetype-csv me-1"></i> Download CSV
-                                </a>
-                                {% endif %}
-                                {% if result.output_paths.excel %}
-                                <a href="{{ url_for('download_file', path=result.output_paths.excel) }}" class="btn btn-outline-primary">
-                                    <i class="bi bi-file-excel me-1"></i> Download Excel
-                                </a>
-                                {% endif %}
-                                {% if result.output_paths.json %}
-                                <a href="{{ url_for('download_file', path=result.output_paths.json) }}" class="btn btn-outline-primary">
-                                    <i class="bi bi-filetype-json me-1"></i> Download JSON
-                                </a>
-                                {% endif %}
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                <div class="card-body">
-                    {% if result.success %}
-                    <div class="alert alert-success mb-3">
-                        <i class="bi bi-check-circle-fill me-2"></i>
-                        Document processed successfully.
-                    </div>
-
-                    <div class="mb-3">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Document Type:</label>
-                                <p>{{ result.document_type|capitalize if result.document_type else 'Unknown' }}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Word Count:</label>
-                                <p>{{ result.word_count }}</p>
-                            </div>
-                            {% if result.page_count %}
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Page Count:</label>
-                                <p>{{ result.page_count }}</p>
-                            </div>
-                            {% endif %}
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Processing Time:</label>
-                                <p>{{ result.processing_time|round(2) }} seconds</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {% if result.document_type == 'timecard' and result.extracted_data %}
-                    <div class="mb-4">
-                        <h5 class="mb-3">Driver Report Data</h5>
-                        <div class="table-responsive">
-                            <table class="table table-bordered">
-                                <tbody>
-                                    <tr>
-                                        <th width="30%">Driver Name</th>
-                                        <td>{{ result.extracted_data.driver_name }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Driver ID</th>
-                                        <td>{{ result.extracted_data.driver_id }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Date</th>
-                                        <td>{{ result.extracted_data.date }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Start Time</th>
-                                        <td>{{ result.extracted_data.start_time }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>End Time</th>
-                                        <td>{{ result.extracted_data.end_time }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Total Hours</th>
-                                        <td>{{ result.extracted_data.total_hours }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Location</th>
-                                        <td>{{ result.extracted_data.location }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Equipment Used</th>
-                                        <td>{{ ', '.join(result.extracted_data.equipment_used) if result.extracted_data.equipment_used else 'None' }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Notes</th>
-                                        <td class="position-relative">
-                                            <div class="mb-2">
-                                                {{ result.extracted_data.notes }}
-                                            </div>
-                                            <button type="button" class="btn btn-sm btn-outline-secondary position-absolute top-0 end-0 m-1" data-bs-toggle="modal" data-bs-target="#editNotesModal">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    {% endif %}
-
-                    <div class="mb-3">
-                        <h5 class="mb-3">Extracted Text</h5>
-                        <div class="border rounded p-3 bg-light">
-                            <pre class="mb-0" style="white-space: pre-wrap;">{{ result.text }}</pre>
-                        </div>
-                    </div>
-                    {% else %}
-                    <div class="alert alert-danger">
-                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                        Error processing document: {{ result.error }}
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            {% endif %}
-
-            {% if not result %}
-            <div class="card mb-4">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>How to Use</h5>
-                </div>
-                <div class="card-body">
-                    <div class="alert alert-info">
-                        <h5><i class="bi bi-search me-2"></i>OCR Document Scanner</h5>
-                        <p>Upload PDF documents or images to extract text using Optical Character Recognition (OCR). This tool can automatically recognize document types and extract structured data.</p>
-                    </div>
-
-                    <div class="row g-4 mt-2 text-center">
-                        <div class="col-md-4">
-                            <div class="p-3 border rounded bg-light h-100">
-                                <i class="bi bi-file-earmark-text text-primary fs-1 mb-3"></i>
-                                <h5>Driver Timecards</h5>
-                                <p class="text-muted">Extract and parse driver timecards with customizable notes and fields.</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="p-3 border rounded bg-light h-100">
-                                <i class="bi bi-receipt text-success fs-1 mb-3"></i>
-                                <h5>Invoices & Receipts</h5>
-                                <p class="text-muted">Process invoices and receipts to extract line items, totals, and vendor information.</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="p-3 border rounded bg-light h-100">
-                                <i class="bi bi-truck text-warning fs-1 mb-3"></i>
-                                <h5>Equipment Reports</h5>
-                                <p class="text-muted">Scan equipment reports to extract usage data, maintenance records, and allocation details.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Recent Documents</h5>
-                </div>
-                <div class="card-body p-0">
-                    {% if recent_documents %}
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Document</th>
-                                    <th>Type</th>
-                                    <th>Processed On</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for doc in recent_documents %}
-                                <tr>
-                                    <td>
-                                        <i class="bi {{ doc.icon }} me-2"></i>
-                                        {{ doc.name }}
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-{{ doc.badge }}">{{ doc.type }}</span>
-                                    </td>
-                                    <td>{{ doc.date }}</td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm">
-                                            <a href="{{ doc.view_url }}" class="btn btn-outline-primary">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
-                                            <a href="{{ doc.download_url }}" class="btn btn-outline-success">
-                                                <i class="bi bi-download"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    {% else %}
-                    <div class="text-center py-4">
-                        <i class="bi bi-file-earmark-x text-muted fs-1"></i>
-                        <p class="mt-2">No documents processed yet.</p>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            {% endif %}
-        </div>
+        {% endif %}
     </div>
-</div>
-
-<!-- Edit Notes Modal -->
-<div class="modal fade" id="editNotesModal" tabindex="-1" aria-labelledby="editNotesModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editNotesModalLabel">Edit Driver Notes</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="editNotesForm" action="{{ url_for('update_driver_notes') }}" method="post">
-                    <input type="hidden" name="document_id" value="{{ result.document_id if result and result.document_id else '' }}">
-                    <div class="mb-3">
-                        <label for="driverNotes" class="form-label">Notes</label>
-                        <textarea class="form-control" id="driverNotes" name="notes" rows="5">{{ result.extracted_data.notes if result and result.extracted_data and result.extracted_data.notes else '' }}</textarea>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">About OCR Tool</h5>
+                </div>
+                <div class="card-body">
+                    <p>
+                        This tool uses Optical Character Recognition (OCR) to extract text from documents.
+                        It works with various file formats including PDFs, scanned documents, and images.
+                    </p>
+                    <div class="alert alert-info">
+                        <h6 class="alert-heading fw-bold">Tips for best results:</h6>
+                        <ul class="mb-0">
+                            <li>Use high-resolution scans for better accuracy</li>
+                            <li>Ensure documents are properly aligned</li>
+                            <li>For multi-page PDFs, all pages will be processed</li>
+                        </ul>
                     </div>
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="notifyManager" name="notify_manager">
-                        <label class="form-check-label" for="notifyManager">
-                            Notify department manager
-                        </label>
-                    </div>
-                    <div class="mb-3">
-                        <label for="notesCategory" class="form-label">Category</label>
-                        <select class="form-select" id="notesCategory" name="notes_category">
-                            <option value="general">General</option>
-                            <option value="performance">Performance</option>
-                            <option value="safety">Safety</option>
-                            <option value="maintenance">Equipment Maintenance</option>
-                            <option value="site">Site Conditions</option>
-                        </select>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" form="editNotesForm" class="btn btn-primary">Save Notes</button>
+                </div>
             </div>
         </div>
     </div>

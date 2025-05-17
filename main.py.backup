@@ -1974,26 +1974,26 @@ def ocr_tool():
     
     # GET request - show upload form
     return render_template('ocr_tool.html')
-
-@app.route('/download_extracted_text/<filename>')
-@login_required
-def download_extracted_text(filename):
-    """Download extracted text from OCR processing"""
-    extracted_dir = Path('extracted_data')
+        else:
+            flash('Only Excel files (.xlsx) are allowed', 'danger')
     
-    # Ensure directory exists
-    extracted_dir.mkdir(exist_ok=True)
-    
-    return send_from_directory(extracted_dir, filename, as_attachment=True)
-
-def auto_process_pm_allocation():
-    """Automatically find and process PM allocation files"""
-    assets_dir = Path('attached_assets')
-    original_filename = None
-    updated_filename = None
-    
-    # Check for allocation files in the attached_assets directory
-    for filename in os.listdir(assets_dir):
+    # Handle auto-processing
+    elif auto_process:
+        # Find the latest original and updated files in attached_assets
+        original_filename = None
+        updated_filename = None
+        
+        for filename in os.listdir(assets_dir):
+            if filename.lower().endswith('.xlsx') and 'EQMO. BILLING ALLOCATIONS' in filename:
+                # Look for the revision or updated file
+                if 'FINAL REVISIONS' in filename or 'REVISIONS' in filename:
+                    # Updated/revised file
+                    if updated_filename is None or filename > updated_filename:
+                        updated_filename = filename
+                # Original files typically don't have "revision" in the name
+                elif original_filename is None or filename > original_filename:
+                    original_filename = filename
+        
         if original_filename and updated_filename:
             original_path = os.path.join(assets_dir, original_filename)
             updated_path = os.path.join(assets_dir, updated_filename)

@@ -1,371 +1,373 @@
-{% extends 'base.html' %}
-
-{% block title %}PM Billing Allocation Processor{% endblock %}
+{% extends "base.html" %}
 
 {% block content %}
-<div class="container-fluid py-4">
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <h1 class="mb-0">PM Billing Allocation Processor</h1>
-                <div>
-                    <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-left me-2"></i> Dashboard
-                    </a>
-                    <a href="{{ url_for('reports') }}" class="btn btn-outline-primary ms-2">
-                        <i class="bi bi-file-earmark-text me-2"></i> Reports
-                    </a>
-                </div>
-            </div>
-            <p class="text-muted">Process and reconcile monthly equipment PM allocation files with billing data.</p>
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-5">PM Billing Allocation Processor</h1>
+        <div class="btn-group">
+            <a href="{{ url_for('reports_dashboard') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Back to Reports
+            </a>
         </div>
     </div>
 
     <div class="row">
-        <!-- Left Column - File Upload and Controls -->
-        <div class="col-lg-4">
+        <div class="col-md-4">
             <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-upload me-2"></i> Upload Files</h5>
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-upload me-2"></i>Upload Allocation Files</h5>
                 </div>
                 <div class="card-body">
                     <form action="{{ url_for('pm_allocation_processor') }}" method="post" enctype="multipart/form-data">
                         <div class="mb-3">
-                            <label class="form-label">Original PM Allocation File</label>
-                            <input type="file" class="form-control" name="original_file" accept=".xlsx,.xlsm" required>
-                            <small class="text-muted">Select the original PM allocation file.</small>
+                            <label for="originalFile" class="form-label">Original PM Allocation File</label>
+                            <input class="form-control" type="file" id="originalFile" name="original_file" accept=".xlsx,.xlsm,.xls">
+                            <div class="form-text">Usually named "EQ BILLING ALLOCATIONS - MONTH YEAR"</div>
                         </div>
+
                         <div class="mb-3">
-                            <label class="form-label">Revised PM Allocation File</label>
-                            <input type="file" class="form-control" name="updated_file" accept=".xlsx,.xlsm" required>
-                            <small class="text-muted">Select the revised/updated PM allocation file.</small>
+                            <label for="updatedFile" class="form-label">Updated PM Allocation File</label>
+                            <input class="form-control" type="file" id="updatedFile" name="updated_file" accept=".xlsx,.xlsm,.xls">
+                            <div class="form-text">Usually named with "FINAL REVISIONS" suffix</div>
                         </div>
+
                         <div class="mb-3">
-                            <label class="form-label">Region</label>
-                            <select class="form-select" name="region">
-                                <option value="DFW">DFW</option>
-                                <option value="HOU">HOU</option>
-                                <option value="WT">WT</option>
+                            <label for="region" class="form-label">Region</label>
+                            <select class="form-select" id="region" name="region">
                                 <option value="ALL">All Regions</option>
+                                <option value="DFW">Dallas-Fort Worth</option>
+                                <option value="HOU">Houston</option>
+                                <option value="WT">West Texas</option>
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100" id="processBtn">
-                            <i class="bi bi-gear me-2"></i> Process Files
-                        </button>
-                        
-                        <div id="uploadProgress" class="mt-3 d-none">
-                            <p class="text-center mb-2"><i class="bi bi-hourglass-split me-2"></i> Processing files...</p>
-                            <div class="progress">
-                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
-                            </div>
-                            <p class="text-center text-muted mt-2" id="progressStatus">Preparing files...</p>
-                        </div>
-                        
-                        <div class="text-center mt-3">
-                            <p class="small text-muted">- or -</p>
-                            <a href="{{ url_for('pm_allocation_processor', auto_process='true') }}" class="btn btn-outline-secondary w-100" id="autoProcessBtn">
-                                <i class="bi bi-magic me-2"></i> Auto-Process Existing Files
-                            </a>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-arrow-repeat me-1"></i> Process Files
+                            </button>
                         </div>
                     </form>
                 </div>
             </div>
 
             <div class="card mb-4">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="bi bi-file-earmark-spreadsheet me-2"></i> Recent Exports</h5>
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-files me-2"></i>Auto-Detect Files</h5>
                 </div>
                 <div class="card-body">
-                    <div class="list-group">
-                        {% if recent_exports %}
-                            {% for export in recent_exports %}
-                                <a href="{{ url_for('download_export', export_path=export.path) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <i class="bi bi-file-earmark-excel me-2"></i> {{ export.name }}
-                                        <br>
-                                        <small class="text-muted">{{ export.time }}</small>
-                                    </div>
-                                    <span class="badge bg-primary rounded-pill">
-                                        <i class="bi bi-download"></i>
-                                    </span>
-                                </a>
-                            {% endfor %}
-                        {% else %}
-                            <div class="text-center py-3">
-                                <i class="bi bi-info-circle text-muted fs-3"></i>
-                                <p class="mt-2 mb-0 text-muted">No recent exports available</p>
-                            </div>
-                        {% endif %}
+                    <p>Let the system automatically find and process the latest allocation files from the uploads directory.</p>
+                    <div class="d-grid">
+                        <a href="{{ url_for('auto_process_pm_allocation') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-magic me-1"></i> Auto-Process Files
+                        </a>
                     </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-question-circle me-2"></i>Instructions</h5>
+                </div>
+                <div class="card-body">
+                    <ol class="mb-0">
+                        <li class="mb-2">Upload the original PM allocation spreadsheet</li>
+                        <li class="mb-2">Upload the updated/revised PM allocation spreadsheet</li>
+                        <li class="mb-2">Select the region to analyze (or All Regions)</li>
+                        <li class="mb-2">The processor will compare the files and generate a detailed report</li>
+                        <li>Download the reconciliation report for accounting</li>
+                    </ol>
                 </div>
             </div>
         </div>
 
-        <!-- Right Column - Results and Data Tables -->
-        <div class="col-lg-8">
-            {% if result %}
-                <div class="card mb-4">
-                    <div class="card-header {% if result.success %}bg-success{% else %}bg-danger{% endif %} text-white">
-                        <h5 class="mb-0">
-                            {% if result.success %}
-                                <i class="bi bi-check-circle me-2"></i> Processing Successful
-                            {% else %}
-                                <i class="bi bi-exclamation-triangle me-2"></i> Processing Error
-                            {% endif %}
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <p>{{ result.message }}</p>
-                        
-                        {% if result.success and result.export_files %}
-                            <h6 class="mb-3">Generated Files:</h6>
-                            <div class="list-group mb-4">
-                                {% for file in result.export_files %}
-                                    <a href="{{ url_for('download_export', export_path=file.path) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <i class="bi {{ file.icon }} me-2"></i> {{ file.name }}
-                                            <br>
-                                            <small class="text-muted">{{ file.description }}</small>
-                                        </div>
-                                        <span class="badge bg-primary rounded-pill">
-                                            <i class="bi bi-download"></i>
-                                        </span>
-                                    </a>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
+        <div class="col-md-8">
+            {% if results %}
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-file-earmark-ruled me-2"></i>Reconciliation Report</h5>
+                        <div class="btn-group">
+                            <a href="{{ url_for('download_pm_report', filename=results.excel_export) }}" class="btn btn-sm btn-outline-success">
+                                <i class="bi bi-file-earmark-excel me-1"></i> Download Excel
+                            </a>
+                            <a href="{{ url_for('download_pm_report', filename=results.csv_export) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-file-earmark-text me-1"></i> Download CSV
+                            </a>
+                        </div>
                     </div>
                 </div>
-
-                {% if processed_data %}
-                    <div class="card mb-4">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="mb-0"><i class="bi bi-table me-2"></i> Changes Summary</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row mb-3">
-                                <div class="col-md-4">
-                                    <div class="card border-primary">
-                                        <div class="card-body text-center">
-                                            <h3 class="mb-1">{{ processed_data.total_files }}</h3>
-                                            <p class="text-muted mb-0">Total Files Processed</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="card border-success">
-                                        <div class="card-body text-center">
-                                            <h3 class="mb-1">{{ processed_data.total_records }}</h3>
-                                            <p class="text-muted mb-0">Total Equipment Records</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="card border-warning">
-                                        <div class="card-body text-center">
-                                            <h3 class="mb-1">{{ processed_data.change_count }}</h3>
-                                            <p class="text-muted mb-0">Changed Records</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="table-responsive">
-                                <table class="table table-striped table-bordered">
-                                    <thead class="table-dark">
-                                        <tr>
-                                            <th>Job Number</th>
-                                            <th>Equipment ID</th>
-                                            <th>Description</th>
-                                            <th>Original Value</th>
-                                            <th>New Value</th>
-                                            <th>Change</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% if processed_data.changes %}
-                                            {% for change in processed_data.changes %}
-                                                <tr>
-                                                    <td>{{ change.JobNumber }}</td>
-                                                    <td>{{ change.EquipmentID }}</td>
-                                                    <td>{{ change.Description }}</td>
-                                                    <td>{{ change.OriginalValue }}</td>
-                                                    <td>{{ change.NewValue }}</td>
-                                                    <td>
-                                                        {% if change.ChangeType == 'Increase' %}
-                                                            <span class="badge bg-success">+{{ change.Difference }}</span>
-                                                        {% elif change.ChangeType == 'Decrease' %}
-                                                            <span class="badge bg-danger">{{ change.Difference }}</span>
-                                                        {% else %}
-                                                            <span class="badge bg-warning">Changed</span>
-                                                        {% endif %}
-                                                    </td>
-                                                </tr>
-                                            {% endfor %}
-                                        {% else %}
-                                            <tr>
-                                                <td colspan="6" class="text-center">No changes detected between files.</td>
-                                            </tr>
-                                        {% endif %}
-                                    </tbody>
-                                </table>
+                <div class="card-body">
+                    <div class="alert alert-info mb-4">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-info-circle-fill me-2 fs-4"></i>
+                            <div>
+                                <h5 class="alert-heading mb-1">PM Allocation Reconciliation Complete</h5>
+                                <p class="mb-0">Processed {{ results.record_count }} records with {{ results.change_count }} changes detected.</p>
                             </div>
                         </div>
                     </div>
 
-                    {% if processed_data.formula_stats %}
-                        <div class="card mb-4">
-                            <div class="card-header bg-info text-white">
-                                <h5 class="mb-0"><i class="bi bi-calculator me-2"></i> Formula Preservation</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <div class="card border-info">
-                                            <div class="card-body text-center">
-                                                <h3 class="mb-1">{{ processed_data.formula_stats.total_formulas }}</h3>
-                                                <p class="text-muted mb-0">Total Formulas</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="card border-success">
-                                            <div class="card-body text-center">
-                                                <h3 class="mb-1">{{ (processed_data.formula_stats.preservation_rate * 100)|round|int }}%</h3>
-                                                <p class="text-muted mb-0">Preservation Rate</p>
-                                            </div>
+                    <div class="mb-4">
+                        <h5 class="mb-3">Processing Details</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Original File</h6>
+                                        <p class="card-text">{{ results.original_file }}</p>
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-muted">Record Count:</span>
+                                            <span class="fw-bold">{{ results.original_count }}</span>
                                         </div>
                                     </div>
                                 </div>
-
-                                <h6>Formula Sheets:</h6>
-                                <div class="table-responsive">
-                                    <table class="table table-sm">
-                                        <thead>
-                                            <tr>
-                                                <th>Sheet</th>
-                                                <th>Formula Count</th>
-                                                <th>Status</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for sheet in processed_data.formula_stats.sheets %}
-                                                <tr>
-                                                    <td>{{ sheet.name }}</td>
-                                                    <td>{{ sheet.formulas }}</td>
-                                                    <td>
-                                                        {% if sheet.status == 'Complete' %}
-                                                            <span class="badge bg-success">Preserved</span>
-                                                        {% else %}
-                                                            <span class="badge bg-warning">{{ sheet.status }}</span>
-                                                        {% endif %}
-                                                    </td>
-                                                </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Updated File</h6>
+                                        <p class="card-text">{{ results.updated_file }}</p>
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-muted">Record Count:</span>
+                                            <span class="fw-bold">{{ results.updated_count }}</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5 class="mb-3">Change Summary by Region</h5>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Region</th>
+                                        <th class="text-end">Original Total</th>
+                                        <th class="text-end">Updated Total</th>
+                                        <th class="text-end">Net Change</th>
+                                        <th class="text-end">% Change</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for region in results.region_summary %}
+                                    <tr>
+                                        <td>{{ region.name }}</td>
+                                        <td class="text-end">${{ region.original_total|format_currency }}</td>
+                                        <td class="text-end">${{ region.updated_total|format_currency }}</td>
+                                        <td class="text-end {% if region.net_change > 0 %}text-success{% elif region.net_change < 0 %}text-danger{% endif %}">
+                                            ${{ region.net_change|format_currency }}
+                                        </td>
+                                        <td class="text-end {% if region.percent_change > 0 %}text-success{% elif region.percent_change < 0 %}text-danger{% endif %}">
+                                            {{ region.percent_change|format_percent }}%
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                    <tr class="table-light fw-bold">
+                                        <td>Total</td>
+                                        <td class="text-end">${{ results.summary.original_total|format_currency }}</td>
+                                        <td class="text-end">${{ results.summary.updated_total|format_currency }}</td>
+                                        <td class="text-end {% if results.summary.net_change > 0 %}text-success{% elif results.summary.net_change < 0 %}text-danger{% endif %}">
+                                            ${{ results.summary.net_change|format_currency }}
+                                        </td>
+                                        <td class="text-end {% if results.summary.percent_change > 0 %}text-success{% elif results.summary.percent_change < 0 %}text-danger{% endif %}">
+                                            {{ results.summary.percent_change|format_percent }}%
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    {% if results.significant_changes %}
+                    <div class="mb-4">
+                        <h5 class="mb-3">Significant Changes</h5>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Job #</th>
+                                        <th>Asset ID</th>
+                                        <th>Original Value</th>
+                                        <th>Updated Value</th>
+                                        <th>Change</th>
+                                        <th>% Change</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for change in results.significant_changes %}
+                                    <tr>
+                                        <td>{{ change.job_number }}</td>
+                                        <td>{{ change.asset_id }}</td>
+                                        <td>${{ change.original_value|format_currency }}</td>
+                                        <td>${{ change.updated_value|format_currency }}</td>
+                                        <td class="{% if change.change > 0 %}text-success{% else %}text-danger{% endif %}">
+                                            ${{ change.change|format_currency }}
+                                        </td>
+                                        <td class="{% if change.percent_change > 0 %}text-success{% else %}text-danger{% endif %}">
+                                            {{ change.percent_change|format_percent }}%
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                     {% endif %}
-                {% endif %}
-            {% else %}
-                <div class="card">
-                    <div class="card-body text-center py-5">
-                        <div class="display-1 text-muted mb-4">
-                            <i class="bi bi-file-earmark-spreadsheet"></i>
-                        </div>
-                        <h2 class="h4 mb-3">PM Allocation Processor</h2>
-                        <p class="text-muted mb-4">
-                            Upload your monthly PM allocation files to reconcile billing data and generate consolidated exports with formula preservation.
-                        </p>
-                        <ul class="list-unstyled text-start mx-auto" style="max-width: 600px;">
-                            <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i> Compare original and revised PM allocation files</li>
-                            <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i> Preserve formulas from the monthly billing workbook</li>
-                            <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i> Generate consolidated export files</li>
-                            <li class="mb-2"><i class="bi bi-check2 text-success me-2"></i> Create import-ready CSVs for accounting systems</li>
-                        </ul>
+
+                    <div>
+                        <h5 class="mb-3">Job Number Distribution</h5>
+                        <canvas id="jobDistributionChart" width="400" height="200"></canvas>
                     </div>
                 </div>
+            </div>
+            {% else %}
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>About PM Billing Allocation</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h5><i class="bi bi-file-earmark-spreadsheet me-2"></i>Automatic PM Allocation Reconciliation</h5>
+                        <p>This tool compares original and revised equipment PM billing allocation spreadsheets to identify and document changes between versions.</p>
+                    </div>
+
+                    <div class="row g-4 mt-2">
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded bg-light h-100">
+                                <i class="bi bi-check2-circle text-success fs-1 mb-3"></i>
+                                <h5>Preserves Formulas & Formatting</h5>
+                                <p class="text-muted">The reconciliation process preserves all Excel formulas and formatting from the original workbook.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded bg-light h-100">
+                                <i class="bi bi-bar-chart text-primary fs-1 mb-3"></i>
+                                <h5>Detailed Analysis</h5>
+                                <p class="text-muted">Get comprehensive reports with change tracking, variance analysis, and trend monitoring.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <h5 class="mb-3">Sample Reconciliation Report</h5>
+                        <img src="{{ url_for('static', filename='img/sample_reconciliation.png') }}" alt="Sample Reconciliation Report" class="img-fluid border rounded">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-calendar3 me-2"></i>Recent Processing Jobs</h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_jobs %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Original File</th>
+                                    <th>Region</th>
+                                    <th>Changes</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for job in recent_jobs %}
+                                <tr>
+                                    <td>{{ job.date }}</td>
+                                    <td>{{ job.file }}</td>
+                                    <td>{{ job.region }}</td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ job.changes }} changes</span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{{ job.view_url }}" class="btn btn-outline-primary">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a href="{{ job.download_url }}" class="btn btn-outline-success">
+                                                <i class="bi bi-download"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-clock-history text-muted fs-1"></i>
+                        <p class="mt-2">No recent processing jobs found.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
             {% endif %}
         </div>
     </div>
 </div>
 
-{% block scripts %}
+{% if results %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Get form and progress elements
-        const form = document.querySelector('form');
-        const processBtn = document.getElementById('processBtn');
-        const autoProcessBtn = document.getElementById('autoProcessBtn');
-        const uploadProgress = document.getElementById('uploadProgress');
-        const progressBar = uploadProgress.querySelector('.progress-bar');
-        const progressStatus = document.getElementById('progressStatus');
-        
-        // Handle form submission
-        if (form) {
-            form.addEventListener('submit', function(e) {
-                // Show progress indicators
-                processBtn.disabled = true;
-                uploadProgress.classList.remove('d-none');
-                
-                // Simulate progress (in a real app, this would use AJAX to get actual progress)
-                simulateProgress();
-            });
-        }
-        
-        // Handle auto-process button
-        if (autoProcessBtn) {
-            autoProcessBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                // Disable both buttons
-                processBtn.disabled = true;
-                autoProcessBtn.disabled = true;
-                
-                // Show progress indicators
-                uploadProgress.classList.remove('d-none');
-                progressStatus.textContent = 'Looking for recent allocation files...';
-                
-                // Simulate progress
-                simulateProgress();
-                
-                // Navigate to auto-process URL after short delay
-                setTimeout(function() {
-                    window.location.href = autoProcessBtn.getAttribute('href');
-                }, 1000);
-            });
-        }
-        
-        // Function to simulate progress (replace with actual AJAX if backend supports it)
-        function simulateProgress() {
-            let progress = 0;
-            const interval = setInterval(function() {
-                // Progress steps
-                if (progress < 20) {
-                    progressStatus.textContent = 'Validating files...';
-                } else if (progress < 40) {
-                    progressStatus.textContent = 'Reading allocation data...';
-                } else if (progress < 60) {
-                    progressStatus.textContent = 'Comparing changes...';
-                } else if (progress < 80) {
-                    progressStatus.textContent = 'Preserving formulas...';
-                } else {
-                    progressStatus.textContent = 'Generating exports...';
+        // Job Distribution Chart
+        var ctx = document.getElementById('jobDistributionChart').getContext('2d');
+        var jobChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ results.job_distribution.labels|safe }},
+                datasets: [{
+                    label: 'Original Values',
+                    data: {{ results.job_distribution.original_values|safe }},
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Updated Values',
+                    data: {{ results.job_distribution.updated_values|safe }},
+                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                var label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += '$' + context.parsed.y.toLocaleString();
+                                }
+                                return label;
+                            }
+                        }
+                    }
                 }
-                
-                // Update progress bar
-                progress += 5;
-                progressBar.style.width = progress + '%';
-                
-                // Clear interval if done
-                if (progress >= 95) {
-                    clearInterval(interval);
-                }
-            }, 250);
-        }
+            }
+        });
     });
 </script>
-{% endblock %}
+{% endif %}
 {% endblock %}

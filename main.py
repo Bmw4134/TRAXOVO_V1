@@ -31,12 +31,12 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_pre_ping": True,
 }
 
-# Import db and models - order matters!
-from db import db
+# Import app factory and db to ensure consistent database connection
+from app import create_app, db
 from models import Asset, Driver, User, AssetDriverMapping
 
-# Initialize db with the app
-db.init_app(app)
+# Create and configure app
+app = create_app()
 
 # Create tables
 with app.app_context():

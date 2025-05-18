@@ -102,6 +102,13 @@ try:
     logging.info("Registered Geolocation Tracking blueprint") 
 except ImportError as e:
     logging.error(f"Failed to register Geolocation Tracking blueprint: {e}")
+    
+try:
+    from routes.geo_tracking_basic import geo_tracking_basic_bp
+    app.register_blueprint(geo_tracking_basic_bp)
+    logging.info("Registered Basic Map View blueprint") 
+except ImportError as e:
+    logging.error(f"Failed to register Basic Map View blueprint: {e}")
 
 try:
     from routes.reports import reports_bp

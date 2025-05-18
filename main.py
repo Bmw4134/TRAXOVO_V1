@@ -133,6 +133,11 @@ def load_user(user_id):
 def index():
     """Home page"""
     return render_template('index.html')
+    
+@app.route('/enhanced-dashboard')
+def enhanced_dashboard():
+    """Enhanced Dashboard View"""
+    return redirect(url_for('dashboard.dashboard_v2'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

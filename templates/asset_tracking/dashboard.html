@@ -5,15 +5,9 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
 <style>
   .status-card {
-    transition: all 0.3s ease;
     border-radius: 0.5rem;
     border: none;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-  
-  .status-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
   }
   
   .asset-map {
@@ -63,7 +57,7 @@
 
   <div class="row mb-4">
     <div class="col-md-3">
-      <div class="status-card card bg-dark text-white mb-3">
+      <div class="status-card card bg-dark text-white mb-3 hover-card">
         <div class="card-body text-center">
           <div class="asset-icon text-info">
             <i class="bi bi-truck"></i>
@@ -74,7 +68,7 @@
       </div>
     </div>
     <div class="col-md-3">
-      <div class="status-card card bg-dark text-white mb-3">
+      <div class="status-card card bg-dark text-white mb-3 hover-card">
         <div class="card-body text-center">
           <div class="asset-icon text-success">
             <i class="bi bi-lightning-charge"></i>
@@ -85,7 +79,7 @@
       </div>
     </div>
     <div class="col-md-3">
-      <div class="status-card card bg-dark text-white mb-3">
+      <div class="status-card card bg-dark text-white mb-3 hover-card">
         <div class="card-body text-center">
           <div class="asset-icon text-warning">
             <i class="bi bi-tools"></i>
@@ -96,7 +90,7 @@
       </div>
     </div>
     <div class="col-md-3">
-      <div class="status-card card bg-dark text-white mb-3">
+      <div class="status-card card bg-dark text-white mb-3 hover-card">
         <div class="card-body text-center">
           <div class="asset-icon text-danger">
             <i class="bi bi-exclamation-triangle"></i>

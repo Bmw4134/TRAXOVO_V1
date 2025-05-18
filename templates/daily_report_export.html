@@ -1,411 +1,212 @@
 {% extends 'layout.html' %}
 
-{% block title %}Daily Driver Report - TRAXORA{% endblock %}
+{% block title %}Export Daily Driver Report{% endblock %}
 
 {% block styles %}
 <style>
-  .report-card {
+  .export-card {
     border-radius: 0.5rem;
+    transition: all 0.3s ease;
+    border: none;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
   }
   
-  .report-card:hover {
+  .export-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
   }
   
-  .thumbnail-container {
-    position: relative;
-    overflow: hidden;
-    border-radius: 0.5rem;
-    height: 250px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(0, 0, 0, 0.1);
-  }
-  
-  .thumbnail-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.7);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-  
-  .thumbnail-container:hover .thumbnail-overlay {
-    opacity: 1;
-  }
-  
-  .export-options {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-bottom: 2rem;
-  }
-  
-  .export-option {
-    flex: 1;
-    min-width: 200px;
-    padding: 1.5rem;
-    border-radius: 0.5rem;
-    text-align: center;
-    transition: all 0.3s ease;
-  }
-  
-  .export-option:hover {
-    transform: translateY(-5px);
-  }
-  
-  .export-option-icon {
+  .file-icon {
     font-size: 2.5rem;
     margin-bottom: 1rem;
   }
   
-  .option-pdf {
-    background-color: rgba(220, 53, 69, 0.1);
-    border: 1px solid rgba(220, 53, 69, 0.2);
+  .pdf-icon {
+    color: var(--bs-danger);
   }
   
-  .option-pdf:hover {
-    background-color: rgba(220, 53, 69, 0.2);
+  .csv-icon {
+    color: var(--bs-success);
   }
   
-  .option-csv {
-    background-color: rgba(25, 135, 84, 0.1);
-    border: 1px solid rgba(25, 135, 84, 0.2);
+  .file-details {
+    font-size: 0.9rem;
+    color: var(--bs-gray-600);
   }
   
-  .option-csv:hover {
-    background-color: rgba(25, 135, 84, 0.2);
-  }
-  
-  .option-print {
-    background-color: rgba(13, 110, 253, 0.1);
-    border: 1px solid rgba(13, 110, 253, 0.2);
-  }
-  
-  .option-print:hover {
-    background-color: rgba(13, 110, 253, 0.2);
-  }
-  
-  .report-meta {
-    font-size: 0.875rem;
-    color: var(--bs-secondary);
-  }
-  
-  .preview-card {
-    height: 100%;
+  .preview-container {
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
   }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-4">
-  <!-- Page Header -->
+<div class="container mt-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h1 class="display-5 fw-bold"><i class="bi bi-file-earmark-text me-2"></i>Daily Driver Report</h1>
-      <p class="text-muted lead">Generate and export attendance report in various formats</p>
-    </div>
-    <a href="/daily_report" class="btn btn-outline-secondary">
-      <i class="bi bi-arrow-left me-2"></i> Back to Report
+    <h1>Export Daily Driver Report</h1>
+    <a href="{{ url_for('daily_report') }}" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left"></i> Back to Report
     </a>
   </div>
   
-  <!-- Export Options -->
-  <div class="card report-card mb-4">
-    <div class="card-header bg-dark">
-      <h5 class="mb-0"><i class="bi bi-download me-2"></i>Export Options</h5>
-    </div>
-    <div class="card-body">
-      <div class="export-options">
-        <!-- PDF Export -->
-        <div class="export-option option-pdf">
-          <div class="export-option-icon text-danger">
-            <i class="bi bi-file-earmark-pdf"></i>
-          </div>
-          <h4>PDF Report</h4>
-          <p class="text-muted">Complete report with formatted tables and summary statistics</p>
-          <a href="/export_daily_report/pdf" class="btn btn-danger">
-            <i class="bi bi-download me-2"></i> Download PDF
-          </a>
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card bg-dark mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">Export Options</h5>
         </div>
-        
-        <!-- CSV Export -->
-        <div class="export-option option-csv">
-          <div class="export-option-icon text-success">
-            <i class="bi bi-file-earmark-spreadsheet"></i>
-          </div>
-          <h4>CSV Export</h4>
-          <p class="text-muted">Raw data in spreadsheet format for further analysis</p>
-          <a href="/export_daily_report/csv" class="btn btn-success">
-            <i class="bi bi-download me-2"></i> Download CSV
-          </a>
-        </div>
-        
-        <!-- Print Option -->
-        <div class="export-option option-print">
-          <div class="export-option-icon text-primary">
-            <i class="bi bi-printer"></i>
-          </div>
-          <h4>Print Report</h4>
-          <p class="text-muted">Print-friendly version of the daily report</p>
-          <button id="print-report" class="btn btn-primary">
-            <i class="bi bi-printer me-2"></i> Print Report
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Report Preview -->
-  <div class="card report-card">
-    <div class="card-header bg-dark">
-      <h5 class="mb-0"><i class="bi bi-eye me-2"></i>Report Preview</h5>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <!-- PDF Preview -->
-        <div class="col-md-6 mb-4">
-          <div class="card preview-card">
-            <div class="card-header">
-              <h6 class="mb-0">PDF Preview</h6>
-            </div>
-            <div class="card-body p-0">
-              <div class="thumbnail-container">
-                {% if pdf_thumbnail %}
-                <img src="data:image/png;base64,{{ pdf_thumbnail }}" alt="PDF Preview" class="img-fluid">
-                {% else %}
-                <div class="text-center p-5">
-                  <i class="bi bi-file-earmark-pdf display-1 text-muted"></i>
-                  <p class="mt-3">PDF preview will appear here after generation</p>
-                </div>
-                {% endif %}
-                <div class="thumbnail-overlay">
-                  <a href="/export_daily_report/pdf" class="btn btn-danger mb-2">
-                    <i class="bi bi-download me-2"></i> Download
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="card export-card bg-dark h-100">
+                <div class="card-body text-center">
+                  <i class="bi bi-file-pdf file-icon pdf-icon"></i>
+                  <h4>PDF Report</h4>
+                  <p>Complete report with formatting and details</p>
+                  <div class="file-details mb-3">
+                    <div><i class="bi bi-hdd"></i> Size: {{ pdf_size|default(230) }} KB</div>
+                    <div><i class="bi bi-calendar"></i> Date: {{ report_date.strftime('%Y-%m-%d') }}</div>
+                  </div>
+                  <a href="/export_report/daily/pdf" class="btn btn-danger">
+                    <i class="bi bi-download me-2"></i> Download PDF
                   </a>
-                  <button class="btn btn-outline-light" onclick="previewPDF()">
-                    <i class="bi bi-eye me-2"></i> Preview
-                  </button>
                 </div>
               </div>
-              <div class="p-3">
-                <h6>Daily Driver Report (PDF)</h6>
-                <p class="report-meta">
-                  <i class="bi bi-calendar me-1"></i> {{ report_date.strftime('%A, %B %d, %Y') }}
-                  <span class="ms-2"><i class="bi bi-file-earmark me-1"></i> ~{{ pdf_size|default('250') }} KB</span>
-                </p>
-              </div>
             </div>
-          </div>
-        </div>
-        
-        <!-- CSV Preview -->
-        <div class="col-md-6 mb-4">
-          <div class="card preview-card">
-            <div class="card-header">
-              <h6 class="mb-0">CSV Preview</h6>
-            </div>
-            <div class="card-body p-0">
-              <div class="thumbnail-container">
-                <div class="text-center p-5">
-                  <i class="bi bi-file-earmark-spreadsheet display-1 text-muted"></i>
-                  <p class="mt-3">Raw data in spreadsheet format</p>
-                </div>
-                <div class="thumbnail-overlay">
-                  <a href="/export_daily_report/csv" class="btn btn-success mb-2">
-                    <i class="bi bi-download me-2"></i> Download
+            
+            <div class="col-md-6">
+              <div class="card export-card bg-dark h-100">
+                <div class="card-body text-center">
+                  <i class="bi bi-file-spreadsheet file-icon csv-icon"></i>
+                  <h4>CSV Export</h4>
+                  <p>Raw data for spreadsheet analysis</p>
+                  <div class="file-details mb-3">
+                    <div><i class="bi bi-hdd"></i> Size: {{ csv_size|default(120) }} KB</div>
+                    <div><i class="bi bi-calendar"></i> Date: {{ report_date.strftime('%Y-%m-%d') }}</div>
+                  </div>
+                  <a href="/export_report/daily/csv" class="btn btn-success">
+                    <i class="bi bi-download me-2"></i> Download CSV
                   </a>
-                  <button class="btn btn-outline-light" onclick="previewCSV()">
-                    <i class="bi bi-eye me-2"></i> Preview
-                  </button>
                 </div>
-              </div>
-              <div class="p-3">
-                <h6>Daily Driver Data (CSV)</h6>
-                <p class="report-meta">
-                  <i class="bi bi-calendar me-1"></i> {{ report_date.strftime('%A, %B %d, %Y') }}
-                  <span class="ms-2"><i class="bi bi-file-earmark me-1"></i> ~{{ csv_size|default('120') }} KB</span>
-                </p>
               </div>
             </div>
           </div>
         </div>
       </div>
       
-      <!-- Generated Reports -->
-      <div class="card mt-3">
+      <div class="card bg-dark">
         <div class="card-header">
-          <h6 class="mb-0">Recently Generated Reports</h6>
+          <h5 class="mb-0">Recent Reports</h5>
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="table table-dark table-hover mb-0">
               <thead>
                 <tr>
-                  <th>Report Name</th>
+                  <th>File Name</th>
                   <th>Type</th>
-                  <th>Date Generated</th>
+                  <th>Date</th>
                   <th>Size</th>
-                  <th>Actions</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
-                {% for report in recent_reports %}
-                <tr>
-                  <td>{{ report.name }}</td>
-                  <td>
-                    {% if report.type == 'pdf' %}
-                    <span class="badge bg-danger">PDF</span>
-                    {% elif report.type == 'csv' %}
-                    <span class="badge bg-success">CSV</span>
-                    {% else %}
-                    <span class="badge bg-secondary">{{ report.type|upper }}</span>
-                    {% endif %}
-                  </td>
-                  <td>{{ report.date }}</td>
-                  <td>{{ report.size }} KB</td>
-                  <td>
-                    <a href="{{ report.url }}" class="btn btn-sm btn-primary">
-                      <i class="bi bi-download"></i>
-                    </a>
-                  </td>
-                </tr>
+                {% if recent_reports %}
+                  {% for report in recent_reports %}
+                    <tr>
+                      <td>{{ report.name }}</td>
+                      <td>
+                        {% if report.type == 'pdf' %}
+                        <span class="badge bg-danger">PDF</span>
+                        {% elif report.type == 'csv' %}
+                        <span class="badge bg-success">CSV</span>
+                        {% else %}
+                        <span class="badge bg-secondary">{{ report.type }}</span>
+                        {% endif %}
+                      </td>
+                      <td>{{ report.date }}</td>
+                      <td>{{ report.size }} KB</td>
+                      <td>
+                        <a href="{{ report.url }}" class="btn btn-sm btn-outline-light">
+                          <i class="bi bi-download"></i>
+                        </a>
+                      </td>
+                    </tr>
+                  {% endfor %}
                 {% else %}
-                <tr>
-                  <td colspan="5" class="text-center py-3">No reports generated yet</td>
-                </tr>
-                {% endfor %}
+                  <tr>
+                    <td colspan="5" class="text-center">No recent reports available</td>
+                  </tr>
+                {% endif %}
               </tbody>
             </table>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</div>
-
-<!-- PDF Preview Modal -->
-<div class="modal fade" id="pdfPreviewModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">PDF Preview</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body text-center">
-        <div class="embed-responsive">
-          <iframe id="pdfPreviewFrame" class="embed-responsive-item" style="width:100%; height:600px;" src="" allow="fullscreen"></iframe>
+    
+    <div class="col-lg-4">
+      <div class="card bg-dark mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">Report Preview</h5>
+        </div>
+        <div class="card-body">
+          <div class="preview-container">
+            <div class="text-center">
+              <h6 class="mb-3">Daily Driver Report - {{ report_date.strftime('%Y-%m-%d') }}</h6>
+              <div class="table-responsive">
+                <table class="table table-sm">
+                  <thead>
+                    <tr>
+                      <th>Status</th>
+                      <th>Count</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Late Starts</td>
+                      <td>{{ late_start_records|length }}</td>
+                    </tr>
+                    <tr>
+                      <td>Early Ends</td>
+                      <td>{{ early_end_records|length }}</td>
+                    </tr>
+                    <tr>
+                      <td>Not On Job</td>
+                      <td>{{ not_on_job_records|length }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="mt-3 text-muted small">Preview only shows summary data. Download the full report for all details.</div>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <a href="/export_daily_report/pdf" class="btn btn-primary">
-          <i class="bi bi-download me-2"></i> Download
-        </a>
+      
+      <div class="card bg-dark">
+        <div class="card-header">
+          <h5 class="mb-0">Data Usage</h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <h6>PDF Report</h6>
+            <p class="small text-muted">The PDF format provides a complete, presentation-ready report with all data and formatting preserved. Suitable for printing and sharing.</p>
+          </div>
+          
+          <div class="mb-3">
+            <h6>CSV Export</h6>
+            <p class="small text-muted">The CSV format provides raw data that can be imported into Excel or other spreadsheet applications for further analysis and manipulation.</p>
+          </div>
+          
+          <div class="alert alert-secondary">
+            <i class="bi bi-info-circle me-2"></i> Reports are generated based on the most recent available data.
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
-
-<!-- CSV Preview Modal -->
-<div class="modal fade" id="csvPreviewModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">CSV Preview</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="table-responsive">
-          <table class="table table-sm table-hover" id="csvPreviewTable">
-            <thead>
-              <tr>
-                <th>Driver</th>
-                <th>Status</th>
-                <th>Job Site</th>
-                <th>Expected Time</th>
-                <th>Actual Time</th>
-                <th>Minutes</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for record in late_start_records %}
-              <tr>
-                <td>{{ record.driver_name }}</td>
-                <td><span class="badge bg-danger">Late Start</span></td>
-                <td>{{ record.job_site }}</td>
-                <td>{{ record.expected_start.strftime('%H:%M') }}</td>
-                <td>{{ record.actual_start.strftime('%H:%M') }}</td>
-                <td>{{ record.minutes_late }}</td>
-              </tr>
-              {% endfor %}
-              {% for record in early_end_records %}
-              <tr>
-                <td>{{ record.driver_name }}</td>
-                <td><span class="badge bg-warning text-dark">Early End</span></td>
-                <td>{{ record.job_site }}</td>
-                <td>{{ record.expected_end.strftime('%H:%M') }}</td>
-                <td>{{ record.actual_end.strftime('%H:%M') }}</td>
-                <td>{{ record.minutes_early }}</td>
-              </tr>
-              {% endfor %}
-              {% for record in not_on_job_records %}
-              <tr>
-                <td>{{ record.driver_name }}</td>
-                <td><span class="badge bg-info">Not On Job</span></td>
-                <td>{{ record.expected_job }}</td>
-                <td>-</td>
-                <td>{{ record.time.strftime('%H:%M') }}</td>
-                <td>-</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <a href="/export_daily_report/csv" class="btn btn-primary">
-          <i class="bi bi-download me-2"></i> Download
-        </a>
-      </div>
-    </div>
-  </div>
-</div>
-{% endblock %}
-
-{% block scripts %}
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Handle print button click
-    document.getElementById('print-report').addEventListener('click', function() {
-      window.open('/daily_report?print=true', '_blank');
-    });
-  });
-  
-  // PDF Preview
-  function previewPDF() {
-    const modal = new bootstrap.Modal(document.getElementById('pdfPreviewModal'));
-    const frame = document.getElementById('pdfPreviewFrame');
-    frame.src = '/export_daily_report/pdf?preview=true';
-    modal.show();
-  }
-  
-  // CSV Preview
-  function previewCSV() {
-    const modal = new bootstrap.Modal(document.getElementById('csvPreviewModal'));
-    modal.show();
-  }
-</script>
 {% endblock %}

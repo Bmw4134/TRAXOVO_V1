@@ -62,7 +62,14 @@ def format_export_files():
             units = row['Units']
             rate = row['Rate']
             amount = row['Amount']
-            cost_code = row['Cost Code'] if 'Cost Code' in row and pd.notna(row['Cost Code']) else '9000 100M'
+            # Get the cost code with proper handling for missing codes
+            # This prioritizes PM sheet cost codes if available
+            if 'Cost Code' in row and pd.notna(row['Cost Code']) and str(row['Cost Code']).strip() != "":
+                cost_code = str(row['Cost Code']).strip()
+                if "CC NEEDED" in cost_code.upper():
+                    cost_code = '9000 100M'  # Default when cost code contains "CC NEEDED"
+            else:
+                cost_code = '9000 100M'  # Default when cost code is missing
             
             # Get equipment description
             equipment_desc = get_equipment_description(equipment_id, sample_data) if sample_data is not None else ""

@@ -644,27 +644,35 @@ def export_master_billing(master_billing, output_path, create_division_sheets=Fa
             # Auto-size columns
             worksheet.column_dimensions[get_column_letter(col_num)].width = max(12, len(str(col_name)) + 2)
         
-        # Add title
-        title_row = worksheet.insert_rows(1)
+        # Remove the title row insertion which is causing problems
         title_cell = worksheet.cell(row=1, column=1)
-        title_cell.value = f"EQUIPMENT BILLING EXPORT - {MONTH_NAME} {YEAR}"
+        # Don't insert rows, just use existing header row
         title_cell.font = Font(bold=True, size=14)
         title_cell.alignment = Alignment(horizontal='center')
         
         # Merge cells for title
         worksheet.merge_cells(start_row=1, start_column=1, end_row=1, end_column=len(master_billing.columns))
         
-        # Format numeric columns
-        money_format = workbook.add_format({'num_format': '$#,##0.00'})
-        for row_idx in range(3, len(master_billing) + 3):  # +3 because of title row and header row
-            rate_cell = worksheet.cell(row=row_idx, column=master_billing.columns.get_loc('Rate') + 1)
-            amount_cell = worksheet.cell(row=row_idx, column=master_billing.columns.get_loc('Amount') + 1)
+        # Format numeric columns - openpyxl doesn't use add_format like xlsxwriter
+        for row_idx in range(2, len(master_billing) + 2):  # +2 for header row
+            # Get the column index for Rate and Amount
+            rate_idx = 0
+            amount_idx = 0
+            for i, col_name in enumerate(master_billing.columns, 1):
+                if col_name == 'Rate':
+                    rate_idx = i
+                if col_name == 'Amount':
+                    amount_idx = i
+                    
+            if rate_idx > 0:
+                rate_cell = worksheet.cell(row=row_idx, column=rate_idx)
+                if rate_cell.value and isinstance(rate_cell.value, (int, float)):
+                    rate_cell.number_format = '#,##0.00'
             
-            if rate_cell.value and isinstance(rate_cell.value, (int, float)):
-                rate_cell.number_format = '$#,##0.00'
-            
-            if amount_cell.value and isinstance(amount_cell.value, (int, float)):
-                amount_cell.number_format = '$#,##0.00'
+            if amount_idx > 0:
+                amount_cell = worksheet.cell(row=row_idx, column=amount_idx)
+                if amount_cell.value and isinstance(amount_cell.value, (int, float)):
+                    amount_cell.number_format = '#,##0.00'
         
         # Apply alternating row colors
         for row_idx in range(3, len(master_billing) + 3):  # +3 because of title row and header row

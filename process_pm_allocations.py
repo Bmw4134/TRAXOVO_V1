@@ -37,6 +37,8 @@ def find_pm_allocation_files():
         "*FINAL*REVISION*APRIL*2025*.xlsx",  # FINAL REVISIONS have highest priority
         "*ALLOCATIONS*APRIL*2025*CODED*.xlsx",  # CODED files have second priority
         "*ALLOCATIONS*APRIL*2025*.xlsx",  # Regular allocation files have third priority
+        "*BILLINGS*APRIL*2025*.xlsm",  # Also look for billing workbooks
+        "*EQ*BILLINGS*APRIL*2025*.xlsx",  # Also look for equipment billing workbooks
     ]
     
     file_candidates = []

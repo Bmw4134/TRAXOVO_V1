@@ -6,14 +6,32 @@ with live data from the Gauge API.
 """
 import os
 import json
+import logging
 from datetime import datetime
 from flask import Blueprint, render_template, jsonify, request, flash, redirect, url_for
 from flask_login import login_required, current_user
 
 from gauge_api import update_asset_data, get_asset_data
+from utils.ml_predictor import predict_asset_health, train_prediction_models, get_model_info
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 # Create blueprint
 asset_tracking = Blueprint('asset_tracking', __name__, url_prefix='/asset-tracking')
+
+@asset_tracking.route('/health-prediction')
+@login_required
+def health_prediction():
+    """Display equipment health prediction and analytics"""
+    # Get model info
+    model_info = get_model_info()
+    
+    return render_template(
+        'asset_tracking/health_prediction.html',
+        title='Equipment Health Prediction',
+        model_info=model_info
+    )
 
 @asset_tracking.route('/')
 @login_required
@@ -160,6 +178,13 @@ def api_assets():
                 if 'status' not in asset or not asset['status']:
                     asset['status'] = 'Offline'
     
+    # Add health predictions using machine learning
+    try:
+        assets = predict_asset_health(assets)
+    except Exception as e:
+        # Log error but continue - predictions are an enhancement
+        logger.error(f"Error generating asset health predictions: {e}")
+    
     # Additional filters can be applied here based on request parameters
     
     return jsonify(assets)
@@ -181,3 +206,37 @@ def refresh_data():
     
     # Redirect back to the page they came from
     return redirect(request.referrer or url_for('asset_tracking.index'))
+
+@asset_tracking.route('/train-model', methods=['POST'])
+@login_required
+def train_model():
+    """Train the equipment health prediction model"""
+    try:
+        # Get assets for training
+        assets = get_asset_data()
+        
+        if not assets:
+            return jsonify({
+                'success': False,
+                'message': 'No asset data available for training'
+            })
+        
+        # Train the model
+        success = train_prediction_models(assets)
+        
+        if success:
+            return jsonify({
+                'success': True,
+                'message': f'Successfully trained model with {len(assets)} assets'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Failed to train model'
+            })
+    except Exception as e:
+        logger.error(f"Error training model: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'Error: {str(e)}'
+        })

@@ -205,3 +205,60 @@ class Alert(db.Model):
     
     def __repr__(self):
         return f'<Alert {self.id}: {self.severity} - {self.alert_type}>'
+
+
+class ActivityLog(db.Model):
+    """Model for tracking user activity and system interactions"""
+    __tablename__ = 'activity_logs'
+    id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True, index=True)
+    event_type = db.Column(db.String(50), nullable=False, index=True)
+    resource_type = db.Column(db.String(50), index=True)
+    resource_id = db.Column(db.String(64), index=True)
+    action = db.Column(db.String(50))
+    description = db.Column(db.String(256))
+    details = db.Column(db.JSON)
+    ip_address = db.Column(db.String(50))
+    success = db.Column(db.Boolean, default=True)
+    
+    # Relationship with the user who performed the action
+    user = db.relationship('User', backref=db.backref('activity_logs', lazy='dynamic'))
+    
+    @staticmethod
+    def log_activity(user_id, event_type, resource_type=None, resource_id=None, 
+                     action=None, description=None, details=None, ip_address=None, success=True):
+        """
+        Helper method to create an activity log entry
+        
+        Args:
+            user_id (int): ID of the user performing the action
+            event_type (str): Type of event (api_pull, document_upload, report_view, report_export, asset_update, etc.)
+            resource_type (str, optional): Type of resource being accessed (asset, report, document, etc.)
+            resource_id (str, optional): Identifier for the specific resource
+            action (str, optional): Action performed (view, create, update, delete, export)
+            description (str, optional): Human-readable description of the activity
+            details (dict, optional): Additional JSON details about the activity
+            ip_address (str, optional): IP address of the user
+            success (bool, optional): Whether the action was successful
+            
+        Returns:
+            ActivityLog: The created log entry
+        """
+        log_entry = ActivityLog(
+            user_id=user_id,
+            event_type=event_type,
+            resource_type=resource_type,
+            resource_id=resource_id,
+            action=action,
+            description=description,
+            details=details,
+            ip_address=ip_address,
+            success=success
+        )
+        db.session.add(log_entry)
+        db.session.commit()
+        return log_entry
+    
+    def __repr__(self):
+        return f'<ActivityLog {self.id}: {self.event_type} - {self.resource_type}>'

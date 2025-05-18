@@ -674,38 +674,23 @@ def export_master_billing(master_billing, output_path, create_division_sheets=Fa
                 if amount_cell.value and isinstance(amount_cell.value, (int, float)):
                     amount_cell.number_format = '#,##0.00'
         
-        # Apply alternating row colors
-        for row_idx in range(3, len(master_billing) + 3):  # +3 because of title row and header row
-            if row_idx % 2 == 0:
-                for col_idx in range(1, len(master_billing.columns) + 1):
-                    cell = worksheet.cell(row=row_idx, column=col_idx)
-                    cell.fill = PatternFill(start_color="F5F5F5", end_color="F5F5F5", fill_type="solid")
+        # Skip complex formatting that might cause errors
         
-        # Apply borders to all cells
-        thin_border = Border(left=Side(style='thin'), 
-                            right=Side(style='thin'),
-                            top=Side(style='thin'),
-                            bottom=Side(style='thin'))
+        # Just add a simple summary row at the end
+        summary_row = len(master_billing) + 3
+        worksheet.cell(row=summary_row, column=1).value = "Total Records:"
+        worksheet.cell(row=summary_row, column=2).value = len(master_billing)
         
-        for row_idx in range(1, len(master_billing) + 3):  # +3 because of title row and header row
-            for col_idx in range(1, len(master_billing.columns) + 1):
-                cell = worksheet.cell(row=row_idx, column=col_idx)
-                cell.border = thin_border
-        
-        # Add summary information
-        summary_row = len(master_billing) + 4
-        worksheet.cell(row=summary_row, column=1).value = "SUMMARY"
-        worksheet.cell(row=summary_row, column=1).font = Font(bold=True)
-        
-        worksheet.cell(row=summary_row+1, column=1).value = "Total Records:"
-        worksheet.cell(row=summary_row+1, column=2).value = len(master_billing)
-        
-        worksheet.cell(row=summary_row+2, column=1).value = "Total Amount:"
-        worksheet.cell(row=summary_row+2, column=2).value = master_billing['Amount'].sum()
-        worksheet.cell(row=summary_row+2, column=2).number_format = '$#,##0.00'
-        
-        worksheet.cell(row=summary_row+3, column=1).value = "Missing Rates:"
-        worksheet.cell(row=summary_row+3, column=2).value = len(master_billing[master_billing['Rate'] == 0])
+        # Add the same for division sheets
+        if create_division_sheets:
+            for division in DIVISIONS:
+                if division in writer.sheets:
+                    div_sheet = writer.sheets[division]
+                    division_data = filter_by_division(master_billing, division)
+                    if not division_data.empty:
+                        summary_row = len(division_data) + 3
+                        div_sheet.cell(row=summary_row, column=1).value = "Total Records:"
+                        div_sheet.cell(row=summary_row, column=2).value = len(division_data)
         
         worksheet.cell(row=summary_row+4, column=1).value = "Export Date:"
         worksheet.cell(row=summary_row+4, column=2).value = datetime.now().strftime('%Y-%m-%d %H:%M:%S')

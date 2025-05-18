@@ -16,6 +16,8 @@
     <link href="{{ url_for('static', filename='css/transitions.css') }}" rel="stylesheet">
     <!-- Responsive CSS -->
     <link href="{{ url_for('static', filename='css/responsive.css') }}" rel="stylesheet">
+    <!-- Construction Loading Animations CSS -->
+    <link href="{{ url_for('static', filename='css/loading-animations.css') }}" rel="stylesheet">
     {% block styles %}{% endblock %}
 </head>
 <body>
@@ -294,6 +296,12 @@
         });
     });
     </script>
+    
+    <!-- Construction Loading Animations -->
+    <script src="{{ url_for('static', filename='js/loading-animations.js') }}"></script>
     {% block scripts %}{% endblock %}
+    
+    <!-- Global Loader Container -->
+    <div id="global-loader" class="position-fixed top-50 start-50 translate-middle" style="z-index: 9999; display: none;"></div>
 </body>
 </html>

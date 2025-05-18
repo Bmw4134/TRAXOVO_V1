@@ -158,9 +158,19 @@
                             
                             <!-- Submit Button -->
                             <div class="col-12 text-center">
-                                <button type="submit" class="btn btn-success btn-lg px-5">
+                                <button type="submit" class="btn btn-success btn-lg px-5 loading-button" 
+                                        data-loading-text="Processing Files..." 
+                                        data-target-form="upload-form">
                                     <i class="bi bi-arrow-right-circle me-2"></i> Process and Compare Files
                                 </button>
+                            </div>
+                            
+                            <!-- Processing Animation Container -->
+                            <div class="col-12">
+                                <div id="processing-animation" class="loading-placeholder d-none" 
+                                     data-loader-type="bulldozer" 
+                                     data-loader-message="Processing allocation files...">
+                                </div>
                             </div>
                         </div>
                     </form>

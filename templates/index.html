@@ -139,49 +139,53 @@
                         <table class="table table-hover table-striped mb-0">
                             <thead>
                                 <tr>
-                                    <th>Date</th>
+                                    <th>Timestamp</th>
+                                    <th>User</th>
                                     <th>Activity</th>
-                                    <th>Asset</th>
-                                    <th>Driver</th>
-                                    <th>Status</th>
+                                    <th>Description</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>2025-05-17</td>
-                                    <td><i class="bi bi-person-check-fill text-success me-1"></i> Driver Assignment</td>
-                                    <td><a href="#" class="text-decoration-none">ASSET-1000</a></td>
-                                    <td><a href="#" class="text-decoration-none">EMP-5000</a></td>
-                                    <td><span class="badge bg-success">Completed</span></td>
-                                </tr>
-                                <tr>
-                                    <td>2025-05-16</td>
-                                    <td><i class="bi bi-geo-alt-fill text-info me-1"></i> Location Update</td>
-                                    <td><a href="#" class="text-decoration-none">ASSET-1001</a></td>
-                                    <td><a href="#" class="text-decoration-none">EMP-5001</a></td>
-                                    <td><span class="badge bg-warning">Pending</span></td>
-                                </tr>
-                                <tr>
-                                    <td>2025-05-15</td>
-                                    <td><i class="bi bi-arrow-repeat text-primary me-1"></i> Status Change</td>
-                                    <td><a href="#" class="text-decoration-none">ASSET-1002</a></td>
-                                    <td><a href="#" class="text-decoration-none">EMP-5002</a></td>
-                                    <td><span class="badge bg-info">Updated</span></td>
-                                </tr>
-                                <tr>
-                                    <td>2025-05-14</td>
-                                    <td><i class="bi bi-tools text-warning me-1"></i> Maintenance Completed</td>
-                                    <td><a href="#" class="text-decoration-none">ASSET-1003</a></td>
-                                    <td><a href="#" class="text-decoration-none">EMP-5003</a></td>
-                                    <td><span class="badge bg-success">Completed</span></td>
-                                </tr>
-                                <tr>
-                                    <td>2025-05-13</td>
-                                    <td><i class="bi bi-wrench text-danger me-1"></i> Parts Replaced</td>
-                                    <td><a href="#" class="text-decoration-none">ASSET-1004</a></td>
-                                    <td><a href="#" class="text-decoration-none">EMP-5004</a></td>
-                                    <td><span class="badge bg-info">Updated</span></td>
-                                </tr>
+                                {% if activities %}
+                                    {% for activity in activities[:5] %}
+                                        <tr>
+                                            <td>{{ activity.timestamp|format_datetime }}</td>
+                                            <td>
+                                                {% if activity.username %}
+                                                    {{ activity.username }}
+                                                {% elif activity.user_id %}
+                                                    User #{{ activity.user_id }}
+                                                {% else %}
+                                                    System
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if activity.activity_type == 'login' %}
+                                                    <i class="bi bi-box-arrow-in-right text-success me-1"></i> Login
+                                                {% elif activity.activity_type == 'logout' %}
+                                                    <i class="bi bi-box-arrow-left text-danger me-1"></i> Logout
+                                                {% elif activity.activity_type == 'asset_update' %}
+                                                    <i class="bi bi-truck text-info me-1"></i> Asset
+                                                {% elif activity.activity_type == 'report_export' %}
+                                                    <i class="bi bi-file-earmark-text text-primary me-1"></i> Report
+                                                {% elif activity.activity_type == 'pm_allocation_process' %}
+                                                    <i class="bi bi-calculator text-warning me-1"></i> PM Allocation
+                                                {% elif activity.activity_type == 'navigation' %}
+                                                    <i class="bi bi-signpost text-secondary me-1"></i> Navigation
+                                                {% elif activity.activity_type == 'document_upload' %}
+                                                    <i class="bi bi-upload text-info me-1"></i> Upload
+                                                {% else %}
+                                                    <i class="bi bi-activity text-dark me-1"></i> {{ activity.activity_type }}
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ activity.description }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="4" class="text-center py-3">No recent activities found</td>
+                                    </tr>
+                                {% endif %}
                             </tbody>
                         </table>
                     </div>

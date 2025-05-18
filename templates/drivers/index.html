@@ -770,6 +770,15 @@
             generateReport();
         });
         
+        // Event listeners for attendance data export
+        document.getElementById('exportAttendanceCSV').addEventListener('click', function() {
+            exportAttendanceData('csv');
+        });
+        
+        document.getElementById('exportAttendanceExcel').addEventListener('click', function() {
+            exportAttendanceData('excel');
+        });
+        
         // Event listeners for standard report buttons
         document.querySelectorAll('[data-report-type]').forEach(function(button) {
             button.addEventListener('click', function() {
@@ -2058,6 +2067,42 @@
             console.error('Error generating report:', error);
             alert('Failed to generate report. Please try again.');
         });
+    }
+    
+    // Function to export attendance data as CSV or Excel
+    function exportAttendanceData(format) {
+        // Get all filter values from the Reports tab
+        const dateRange = document.getElementById('reportDateRange').value.toLowerCase().replace(/\s+/g, '_');
+        const division = document.getElementById('reportDivision').value.toLowerCase().replace(/\s+/g, '_');
+        
+        // Show a loading notification
+        const loadingToast = document.createElement('div');
+        loadingToast.className = 'position-fixed bottom-0 end-0 p-3';
+        loadingToast.style.zIndex = '5';
+        loadingToast.innerHTML = `
+            <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header">
+                    <strong class="me-auto">Export</strong>
+                    <small>Just now</small>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                    Preparing ${format.toUpperCase()} export... Please wait.
+                </div>
+            </div>
+        `;
+        document.body.appendChild(loadingToast);
+        
+        // Construct the export URL with query parameters
+        const exportUrl = `/drivers/export-attendance?date_range=${dateRange}&division=${division}&format=${format}`;
+        
+        // Navigate to the URL which will trigger the file download
+        window.location.href = exportUrl;
+        
+        // Remove the toast after 3 seconds
+        setTimeout(() => {
+            document.body.removeChild(loadingToast);
+        }, 3000);
     }
 </script>
 {% endblock %}

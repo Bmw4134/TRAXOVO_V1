@@ -314,18 +314,58 @@ def update_base_with_pm_data(base_df, pm_df):
                 
                 logger.info(f"Updated {equip_id} for {job}: Units {old_units} → {new_units} (from {unit_source}), Amount: ${new_amount:,.2f}")
             
-            # Update Cost Code if available
-            if pd.notna(row['Cost Code']) and row['Cost Code'] != "":
-                new_cc = str(row['Cost Code']).strip()
-                # Add Cost Code column if it doesn't exist
-                if 'Cost Code' not in updated_df.columns:
-                    updated_df['Cost Code'] = ""
+            # Update Cost Code based on specified hierarchy
+            # Add Cost Code column if it doesn't exist
+            if 'Cost Code' not in updated_df.columns:
+                updated_df['Cost Code'] = ""
                 
-                # Update the cost code
-                old_cc = str(updated_df.at[base_idx, 'Cost Code']).strip() if 'Cost Code' in updated_df.columns and pd.notna(updated_df.at[base_idx, 'Cost Code']) else ""
-                updated_df.at[base_idx, 'Cost Code'] = new_cc
+            # Get current cost code
+            old_cc = str(updated_df.at[base_idx, 'Cost Code']).strip() if 'Cost Code' in updated_df.columns and pd.notna(updated_df.at[base_idx, 'Cost Code']) else ""
+            
+            # Check if it's a legacy job (job number < 2023-014)
+            job_num = str(job).strip()
+            is_legacy_job = False
+            
+            try:
+                # Extract the numeric part of the job number for comparison
+                if '-' in job_num:
+                    job_year, job_seq = job_num.split('-', 1)
+                    if job_year.isdigit() and job_seq.isdigit():
+                        if int(job_year) < 2023 or (int(job_year) == 2023 and int(job_seq) < 14):
+                            is_legacy_job = True
+                elif job_num.isdigit() and int(job_num) < 2023014:
+                    is_legacy_job = True
+            except:
+                # If we can't parse the job number, don't assume it's legacy
+                pass
+            
+            if is_legacy_job:
+                # Legacy jobs always get 9000 100M regardless of revision
+                new_cc = "9000 100M"
+            else:
+                # For non-legacy jobs, follow the hierarchy
+                # 1. Use PM-provided cost code revision if available
+                if 'Cost Code Revision' in row and pd.notna(row['Cost Code Revision']) and str(row['Cost Code Revision']).strip() != "":
+                    new_cc = str(row['Cost Code Revision']).strip()
+                # 2. Else use base cost code from PM sheet
+                elif pd.notna(row['Cost Code']) and str(row['Cost Code']).strip() != "":
+                    new_cc = str(row['Cost Code']).strip()
+                # 3. Keep existing cost code if it's valid
+                elif old_cc != "" and "CC NEEDED" not in old_cc.upper():
+                    new_cc = old_cc
+                # 4. Fallback to 9000 100F
+                else:
+                    new_cc = "9000 100F"
                 
-                logger.info(f"Updated {equip_id} for {job}: Cost Code {old_cc} → {new_cc}")
+                # Final check: if cost code contains "CC NEEDED", replace with 9000 100F
+                if "CC NEEDED" in new_cc.upper() and not is_legacy_job:
+                    new_cc = "9000 100F"
+            
+            # Update the cost code
+            updated_df.at[base_idx, 'Cost Code'] = new_cc
+            
+            if old_cc != new_cc:
+                logger.info(f"Updated {equip_id} for {job}: Cost Code {old_cc} → {new_cc} (Legacy Job: {is_legacy_job})")
     
     return updated_df, revisions
 

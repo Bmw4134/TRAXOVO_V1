@@ -865,8 +865,14 @@ def daily_report():
 
 # Export report routes
 @app.route('/export_report/<report_type>/<format>')
+@login_required
 def export_report(report_type, format):
     """Generate and export reports in various formats"""
+    # Check if the user has permission to export reports
+    if hasattr(current_user, 'can_export_reports') and callable(current_user.can_export_reports):
+        if not current_user.can_export_reports():
+            flash('You do not have permission to export reports.', 'warning')
+            return redirect(url_for('index'))
     from datetime import datetime, timedelta
     import os
     from flask import send_file, send_from_directory

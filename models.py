@@ -6,6 +6,26 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
 
+class Role(db.Model):
+    """User roles for permission management"""
+    __tablename__ = 'roles'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), unique=True, nullable=False)
+    description = db.Column(db.String(256))
+    # Permissions as boolean flags
+    can_view_reports = db.Column(db.Boolean, default=True)
+    can_export_reports = db.Column(db.Boolean, default=False)
+    can_manage_assets = db.Column(db.Boolean, default=False)
+    can_manage_drivers = db.Column(db.Boolean, default=False)
+    can_process_pm = db.Column(db.Boolean, default=False)
+    can_manage_users = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def __repr__(self):
+        return f'<Role {self.name}>'
+
+
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
@@ -13,6 +33,12 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), index=True, unique=True, nullable=False)
     password_hash = db.Column(db.String(256))
     is_admin = db.Column(db.Boolean, default=False)
+    # Add role relationship
+    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
+    role = db.relationship('Role', backref=db.backref('users', lazy='dynamic'))
+    # Department/organization relationship
+    organization_id = db.Column(db.Integer, db.ForeignKey('organizations.id'))
+    organization = db.relationship('Organization', backref=db.backref('users', lazy='dynamic'))
     first_name = db.Column(db.String(64))
     last_name = db.Column(db.String(64))
     last_login = db.Column(db.DateTime)
@@ -24,6 +50,45 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+    
+    # Permission check methods
+    def can_view_reports(self):
+        # Admins always have full access
+        if self.is_admin:
+            return True
+        # Check role permission if role exists
+        return self.role.can_view_reports if self.role else False
+        
+    def can_export_reports(self):
+        if self.is_admin:
+            return True
+        return self.role.can_export_reports if self.role else False
+    
+    def can_manage_assets(self):
+        if self.is_admin:
+            return True
+        return self.role.can_manage_assets if self.role else False
+    
+    def can_manage_drivers(self):
+        if self.is_admin:
+            return True
+        return self.role.can_manage_drivers if self.role else False
+        
+    def can_process_pm(self):
+        if self.is_admin:
+            return True
+        return self.role.can_process_pm if self.role else False
+    
+    def can_manage_users(self):
+        if self.is_admin:
+            return True
+        return self.role.can_manage_users if self.role else False
+    
+    def get_display_name(self):
+        """Return user's full name or username if no name is set"""
+        if self.first_name and self.last_name:
+            return f"{self.first_name} {self.last_name}"
+        return self.username
 
     def __repr__(self):
         return f'<User {self.username}>'

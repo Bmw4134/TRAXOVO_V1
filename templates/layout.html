@@ -20,7 +20,7 @@
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow sticky-top">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow sticky-top navbar-scroll-hide">
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center" href="/">
                 <img src="{{ url_for('static', filename='images/traxora-logo.png') }}" alt="TRAXORA" height="30" class="me-2">
@@ -142,6 +142,56 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Transitions JS -->
     <script src="{{ url_for('static', filename='js/transitions.js') }}"></script>
+    <!-- Auto-hide navbar on mobile -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-hide navbar on scroll on mobile devices
+        const navbar = document.querySelector('.navbar-scroll-hide');
+        let lastScrollTop = 0;
+        let scrollTimer;
+        
+        function handleNavbarScroll() {
+            if (window.innerWidth <= 768) {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                
+                // Determine scroll direction
+                if (scrollTop > lastScrollTop && scrollTop > 50) {
+                    // Scrolling down
+                    navbar.classList.add('scroll-down');
+                    navbar.classList.remove('scroll-up');
+                } else {
+                    // Scrolling up
+                    navbar.classList.remove('scroll-down');
+                    navbar.classList.add('scroll-up');
+                }
+                
+                lastScrollTop = scrollTop;
+            } else {
+                // Reset on desktop
+                navbar.classList.remove('scroll-down');
+                navbar.classList.remove('scroll-up');
+            }
+        }
+        
+        // Throttle scroll events for better performance
+        window.addEventListener('scroll', function() {
+            if (!scrollTimer) {
+                scrollTimer = setTimeout(function() {
+                    handleNavbarScroll();
+                    scrollTimer = null;
+                }, 100);
+            }
+        });
+        
+        // Handle resize events
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                navbar.classList.remove('scroll-down');
+                navbar.classList.remove('scroll-up');
+            }
+        });
+    });
+    </script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

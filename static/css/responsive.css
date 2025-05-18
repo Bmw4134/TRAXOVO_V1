@@ -22,9 +22,13 @@
     font-size: 1.5rem !important;
   }
   
-  /* Adjust card spacing */
+  /* Consistent card spacing for better visual rhythm */
   .card {
-    margin-bottom: 15px;
+    margin-bottom: 15px !important;
+  }
+  
+  .report-card {
+    margin-bottom: 15px !important;
   }
   
   /* Force tables to scroll horizontally on small screens */
@@ -65,10 +69,45 @@
     font-size: 0.9rem;
   }
   
+  /* Condense mobile navbar dropdowns */
+  .navbar-nav .dropdown-menu {
+    padding: 0.5rem 0;
+  }
+  
+  .navbar-nav .dropdown-item {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+  
   /* PDF preview container */
   .pdf-preview-placeholder {
     max-width: 100%;
     overflow: hidden;
+  }
+  
+  /* Adjust nav spacing */
+  .navbar-nav .nav-link {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  /* Row gutters for more compact layout */
+  .row {
+    --bs-gutter-x: 0.75rem;
+  }
+}
+
+/* Auto-hide header on scroll for mobile */
+@media (max-width: 768px) {
+  .navbar-scroll-hide {
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .navbar-scroll-hide.scroll-up {
+    transform: translateY(0);
+  }
+  
+  .navbar-scroll-hide.scroll-down {
+    transform: translateY(-100%);
   }
 }
 
@@ -124,6 +163,46 @@
   .table td, .table th {
     padding-top: 0.75rem;
     padding-bottom: 0.75rem;
+  }
+  
+  /* Mobile Card View for tables */
+  .mobile-cards {
+    width: 100%;
+  }
+  
+  .mobile-card {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .mobile-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .mobile-card-item {
+    padding-bottom: 0.5rem;
+  }
+  
+  .mobile-card-item:not(:last-child) {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  
+  .mobile-card-header {
+    width: 40%;
+    font-weight: 500;
+  }
+  
+  .mobile-card-content {
+    width: 60%;
+    word-break: break-word;
+  }
+  
+  .mobile-card .badge {
+    white-space: normal;
+    text-align: center;
+    display: inline-block;
   }
 }
 

@@ -419,6 +419,27 @@ def ocr_tool():
             with open(text_path, 'w') as f:
                 f.write(result.get('text', 'No text extracted'))
             
+            # Log document upload in activity logs
+            try:
+                from utils.activity_logger import log_document_upload
+                # Get file size
+                file_size = os.path.getsize(file_path) if os.path.exists(file_path) else None
+                # Get file type
+                file_type = os.path.splitext(filename)[1].lower().replace('.', '')
+                
+                log_document_upload(
+                    filename=filename,
+                    file_type=file_type,
+                    file_size=file_size,
+                    success=True
+                )
+            except ImportError:
+                # Activity logger not available
+                pass
+            except Exception as e:
+                # Log error but continue with processing
+                app.logger.error(f"Failed to log document upload: {e}")
+            
             # Return success with extracted text
             return render_template('ocr_tool.html', 
                                   extracted_text=result.get('text', 'No text extracted'),

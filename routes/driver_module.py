@@ -546,6 +546,7 @@ def export_report():
     """Export report in specified format"""
     report_type = request.args.get('type', 'daily')
     export_format = request.args.get('format', 'pdf')
+    direct_download = request.args.get('direct', 'false') == 'true'
     
     # Generate a filename
     date_str = datetime.now().strftime('%Y%m%d')
@@ -566,8 +567,28 @@ def export_report():
         export_format=export_format
     )
     
-    # Send the file
-    return send_file(file_path, as_attachment=True)
+    # If direct download requested, send the file directly
+    if direct_download:
+        return send_file(file_path, as_attachment=True)
+    
+    # Otherwise, show a confirmation page with navigation options
+    return render_template(
+        'drivers/export_success.html',
+        filename=filename,
+        report_type=report_type,
+        export_format=export_format,
+        download_url=url_for('driver_module.download_export', filename=filename)
+    )
+
+@driver_module_bp.route('/download_export/<filename>')
+@login_required
+def download_export(filename):
+    """Download a previously exported file"""
+    file_path = os.path.join(EXPORTS_FOLDER, filename)
+    if os.path.exists(file_path):
+        return send_file(file_path, as_attachment=True)
+    flash('Export file not found.', 'danger')
+    return redirect(url_for('driver_module.daily_report'))
 
 # API endpoints for AJAX requests
 @driver_module_bp.route('/api/attendance_chart_data')

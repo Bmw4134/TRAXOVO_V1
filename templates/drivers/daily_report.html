@@ -33,6 +33,8 @@
                         <li><a class="dropdown-item" href="{{ url_for('driver_module.export_report') }}?type=daily&format=pdf">PDF Report</a></li>
                         <li><a class="dropdown-item" href="{{ url_for('driver_module.export_report') }}?type=daily&format=csv">CSV Data</a></li>
                         <li><a class="dropdown-item" href="{{ url_for('driver_module.export_report') }}?type=daily&format=xlsx">Excel Spreadsheet</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_report') }}?type=daily&format=pdf&direct=true"><i class="bi bi-download"></i> Direct PDF Download</a></li>
                     </ul>
                 </div>
             </div>

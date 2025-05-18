@@ -42,6 +42,14 @@ app = create_app()
 with app.app_context():
     db.create_all()
     logging.info("Database tables created")
+    
+    # Register new dashboard blueprint
+    try:
+        from routes import dashboard
+        dashboard.register_blueprint(app)
+        logging.info("Registered Dashboard blueprint")
+    except Exception as e:
+        logging.error(f"Failed to register Dashboard blueprint: {str(e)}")
 
 # Set up Flask-Login
 login_manager = LoginManager()

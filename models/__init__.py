@@ -6,3 +6,4 @@ from models.asset_driver_mapping import AssetDriverMapping
 from models.job_site import JobSite
 from models.job_zone import JobZone, JobZoneWorkingHours, JobZoneActivity
 from models.organization import Organization
+from models.activity_log import ActivityLog

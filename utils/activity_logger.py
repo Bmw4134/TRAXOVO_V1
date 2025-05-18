@@ -23,6 +23,22 @@ ACTIVITY_LOG_FILE = os.path.join(LOG_FOLDER, 'activity.log')
 if not os.path.exists(LOG_FOLDER):
     os.makedirs(LOG_FOLDER)
 
+def log_navigation(from_page, to_page, user_id=None, metadata=None):
+    """
+    Log a page navigation event
+    
+    Args:
+        from_page (str): Page user navigated from
+        to_page (str): Page user navigated to
+        user_id (str, optional): ID of the user performing the action
+        metadata (dict, optional): Additional metadata
+        
+    Returns:
+        bool: Success status
+    """
+    description = f"Navigation from {from_page} to {to_page}"
+    return log_activity('navigation', description, user_id, metadata)
+
 def log_activity(activity_type, description=None, user_id=None, metadata=None):
     """
     Log a user activity or system event

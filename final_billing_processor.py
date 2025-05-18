@@ -246,10 +246,26 @@ def update_base_with_pm_data(base_df, pm_df):
         if key in equipment_dict:
             base_idx = equipment_dict[key]
             
-            # Update units - PM allocations are the source of truth
-            if pd.notna(row['Units']) and row['Units'] > 0:
-                old_units = updated_df.at[base_idx, 'Units']
+            # Check for revision first, then fall back to unit allocation
+            new_units = None
+            
+            # If Revision column exists and has a value, use it
+            if 'Revision' in row and pd.notna(row['Revision']) and row['Revision'] != "" and str(row['Revision']).strip() != "0":
+                try:
+                    new_units = float(row['Revision'])
+                    unit_source = "Revision"
+                except (ValueError, TypeError):
+                    # If revision can't be converted to float, use unit allocation
+                    unit_source = "Units (Revision not numeric)"
+            
+            # If no valid revision, use unit allocation
+            if new_units is None and pd.notna(row['Units']) and row['Units'] > 0:
                 new_units = float(row['Units'])
+                unit_source = "Units"
+            
+            # Update units if we have a valid value
+            if new_units is not None and new_units > 0:
+                old_units = updated_df.at[base_idx, 'Units']
                 
                 # Record all PM allocations as revisions, even if unchanged
                 revisions.append({
@@ -258,7 +274,8 @@ def update_base_with_pm_data(base_df, pm_df):
                     'Source': row['Source'],
                     'Old Units': old_units,
                     'New Units': new_units,
-                    'Change': new_units - old_units
+                    'Change': new_units - old_units,
+                    'Source Column': unit_source
                 })
                 
                 # Always update with PM allocation value
@@ -269,7 +286,7 @@ def update_base_with_pm_data(base_df, pm_df):
                 new_amount = new_units * rate
                 updated_df.at[base_idx, 'Amount'] = new_amount
                 
-                logger.info(f"Updated {equip_id} for {job}: Units {old_units} → {new_units}, Amount: ${new_amount:,.2f}")
+                logger.info(f"Updated {equip_id} for {job}: Units {old_units} → {new_units} (from {unit_source}), Amount: ${new_amount:,.2f}")
             
             # Update Cost Code if available
             if pd.notna(row['Cost Code']) and row['Cost Code'] != "":

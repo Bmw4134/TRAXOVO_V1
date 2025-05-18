@@ -761,6 +761,8 @@ def auto_process_pm_allocation():
 @login_required
 def daily_report():
     """Generate daily driver report"""
+    from datetime import datetime, timedelta
+    
     yesterday = datetime.now() - timedelta(days=1)
     yesterday_day_name = yesterday.strftime('%A')
     yesterday_month = yesterday.strftime('%B')

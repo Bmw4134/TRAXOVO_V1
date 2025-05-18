@@ -174,10 +174,10 @@ class QuickActionsManager {
             if (!action) return;
             
             // Check if user has permission for this action
-            if (!this.hasPermission(action.roles)) continue;
-            
-            const actionItem = this.createActionItem(actionId, action);
-            this.menu.appendChild(actionItem);
+            if (this.hasPermission(action.roles)) {
+                const actionItem = this.createActionItem(actionId, action);
+                this.menu.appendChild(actionItem);
+            }
         });
     }
     

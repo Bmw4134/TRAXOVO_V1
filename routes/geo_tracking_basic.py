@@ -22,11 +22,64 @@ def map_view():
 
 @geo_tracking_basic_bp.route('/api/sample-assets')
 def get_sample_assets():
-    """Provide sample asset data for development and testing."""
-    # Generate sample data
-    sample_assets = generate_sample_asset_data()
+    """Provide real asset data from the Gauge API."""
+    try:
+        # Try to import the gauge_api module
+        from gauge_api import update_asset_data, get_asset_data
+        
+        # Try to get real data from Gauge API with force_update=True to get fresh data
+        real_assets = get_asset_data(force_update=True)
+        
+        # If we got real data, format it for the map view
+        if real_assets and len(real_assets) > 0:
+            logger.info(f"Returning {len(real_assets)} real assets from Gauge API")
+            
+            # Format assets for map display
+            formatted_assets = []
+            for asset in real_assets:
+                # Extract asset info
+                asset_id = asset.get('id') or asset.get('assetID') or asset.get('AssetID') or 'Unknown'
+                asset_name = asset.get('name') or asset.get('assetName') or asset.get('AssetName') or f'Asset {asset_id}'
+                
+                # Extract location info
+                lat = asset.get('latitude') or asset.get('lat') or asset.get('Latitude') or None
+                lng = asset.get('longitude') or asset.get('lng') or asset.get('Longitude') or None
+                
+                # Only include assets with valid location
+                if lat and lng and float(lat) != 0 and float(lng) != 0:
+                    # Create formatted asset
+                    formatted_asset = {
+                        'id': asset_id,
+                        'name': asset_name,
+                        'assetType': asset.get('assetType') or asset.get('type') or 'Equipment',
+                        'status': asset.get('status') or 'active',
+                        'division': asset.get('division') or asset.get('region') or 'DFW',
+                        'jobSite': asset.get('jobSite') or asset.get('site') or asset.get('location') or 'Unknown',
+                        'driver': asset.get('driver') or asset.get('operator') or 'Unassigned',
+                        'latitude': float(lat),
+                        'longitude': float(lng),
+                        'speed': asset.get('speed') or 0,
+                        'heading': asset.get('heading') or asset.get('direction') or 0,
+                        'lastUpdated': asset.get('lastUpdated') or asset.get('timestamp') or datetime.now().isoformat()
+                    }
+                    formatted_assets.append(formatted_asset)
+            
+            # Return formatted assets
+            if formatted_assets:
+                return jsonify({
+                    'status': 'success',
+                    'assets': formatted_assets,
+                    'timestamp': datetime.now().isoformat(),
+                    'source': 'gauge_api'
+                })
+    except Exception as e:
+        logger.error(f"Error getting real asset data: {e}")
     
-    # Return as JSON
+    # Only generate sample data as a last resort
+    sample_assets = generate_sample_asset_data()
+    logger.info(f"Returning {len(sample_assets)} sample assets (fallback)")
+    
+    # Return sample data
     return jsonify({
         'status': 'success',
         'assets': sample_assets,

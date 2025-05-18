@@ -391,17 +391,18 @@
                 clearTimeout(refreshTimer);
             }
             
-            console.log('Fetching sample asset data...');
+            // Show loading indicator
+            document.getElementById('refreshButton').innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> Loading...';
+            document.getElementById('refreshButton').disabled = true;
             
             fetch('/map-view/api/sample-assets')
                 .then(response => {
-                    console.log('Response received:', response.status);
                     return response.json();
                 })
                 .then(data => {
-                    console.log('Data received:', data);
                     if (data.status === 'success' && data.assets && data.assets.length > 0) {
-                        console.log(`Loaded ${data.assets.length} assets`);
+                        console.log(`Loaded ${data.assets.length} assets from ${data.source}`);
+                        
                         // Store the assets
                         assets = data.assets;
                         
@@ -409,15 +410,33 @@
                         updateMarkers();
                         updateCounts();
                         
-                        // Set up next refresh if enabled
+                        // Update refresh button with data source indicator
+                        if (data.source === 'gauge_api') {
+                            document.getElementById('refreshButton').innerHTML = 
+                                '<i class="bi bi-check-circle-fill me-1 text-success"></i> Live Data';
+                        } else {
+                            document.getElementById('refreshButton').innerHTML = 
+                                '<i class="bi bi-exclamation-triangle-fill me-1 text-warning"></i> Sample Data';
+                        }
+                        
+                        // Re-enable refresh button
+                        document.getElementById('refreshButton').disabled = false;
+                        
+                        // Set up next refresh if auto-refresh is enabled
                         setupAutoRefresh();
                     } else {
                         console.error('No assets found in response data');
+                        document.getElementById('refreshButton').innerHTML = 
+                            '<i class="bi bi-x-circle-fill me-1 text-danger"></i> No Data';
+                        document.getElementById('refreshButton').disabled = false;
+                        setupAutoRefresh();
                     }
                 })
                 .catch(error => {
                     console.error('Error loading assets:', error);
-                    // Set up next refresh if enabled (even if this one failed)
+                    document.getElementById('refreshButton').innerHTML = 
+                        '<i class="bi bi-x-circle-fill me-1 text-danger"></i> Error';
+                    document.getElementById('refreshButton').disabled = false;
                     setupAutoRefresh();
                 });
         }

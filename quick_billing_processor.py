@@ -59,7 +59,11 @@ def quick_process():
         
         # 3. Generate FINAL REGION IMPORT FILES
         for division in ['DFW', 'WTX', 'HOU']:
-            division_data = billing_data[billing_data['Division'] == division].copy()
+            # For WTX division, look for both 'WTX' and 'WT' in the Division column
+            if division == 'WTX':
+                division_data = billing_data[billing_data['Division'].isin(['WTX', 'WT'])].copy()
+            else:
+                division_data = billing_data[billing_data['Division'] == division].copy()
             
             if not division_data.empty:
                 # Create standardized export columns

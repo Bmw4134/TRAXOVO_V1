@@ -1,22 +1,23 @@
 """
-Driver Module Blueprint
+Driver Module Controller
 
-This module handles all driver-related functionality including:
-- Daily attendance reports
-- Driver assignments
-- Driver performance metrics
-- Attendance tracking
+This module provides routes and functionality for the Driver module,
+including daily reports, attendance tracking, and driver management.
 """
 
+import os
 import json
 import logging
-import os
 from datetime import datetime, timedelta
-from pathlib import Path
+from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash, session, current_app, send_file
+from flask_login import login_required, current_user
+from werkzeug.utils import secure_filename
 
-from flask import (Blueprint, current_app, flash, jsonify, redirect,
-                  render_template, request, send_from_directory, url_for, session)
-from flask_login import current_user, login_required
+# Import activity logger
+from utils.activity_logger import (
+    log_navigation, log_document_upload, log_report_export,
+    log_feature_usage, log_search
+)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -25,235 +26,232 @@ logger = logging.getLogger(__name__)
 # Initialize blueprint
 driver_module_bp = Blueprint('driver_module', __name__, url_prefix='/drivers')
 
-# Ensure data directories exist
-DATA_DIR = Path("data")
-DATA_DIR.mkdir(exist_ok=True)
-DRIVER_DATA_DIR = DATA_DIR / "drivers"
-DRIVER_DATA_DIR.mkdir(exist_ok=True)
+# Constants
+UPLOAD_FOLDER = os.path.join('uploads', 'driver_files')
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# Sample data for demonstration
-def get_sample_driver_data():
-    """Get sample driver data for demonstration"""
+EXPORTS_FOLDER = os.path.join('exports', 'driver_reports')
+os.makedirs(EXPORTS_FOLDER, exist_ok=True)
+
+ALLOWED_EXTENSIONS = {'csv', 'xlsx', 'pdf'}
+
+# Helper functions
+def allowed_file(filename):
+    """Check if file has an allowed extension"""
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def get_sample_drivers():
+    """
+    Get sample driver data for demonstration
+    In a real application, this would fetch from the database
+    """
     return [
         {
-            "id": 1,
-            "name": "John Smith",
-            "employee_id": "EMP-1001",
-            "department": "Construction",
-            "region": "North",
-            "assigned_asset": "Truck 101",
-            "phone": "555-1234",
-            "email": "john.smith@example.com",
-            "hire_date": "2023-05-10",
-            "license_number": "DL1234567",
-            "license_expiration": "2026-05-10"
+            'id': '1001',
+            'name': 'John Smith',
+            'employee_id': 'E10023',
+            'status': 'Active',
+            'region': 'DFW',
+            'vehicle': 'T-123',
+            'job_site': 'NTTA Eastern Extension',
+            'attendance_score': 95,
+            'late_count': 2,
+            'early_end_count': 1,
+            'not_on_job_count': 0,
+            'last_active': '2025-05-17'
         },
         {
-            "id": 2,
-            "name": "Sarah Wilson",
-            "employee_id": "EMP-1002",
-            "department": "Construction",
-            "region": "South",
-            "assigned_asset": "Excavator 203",
-            "phone": "555-2345",
-            "email": "sarah.wilson@example.com",
-            "hire_date": "2022-08-15",
-            "license_number": "DL7654321",
-            "license_expiration": "2025-08-15"
+            'id': '1002',
+            'name': 'Sarah Johnson',
+            'employee_id': 'E10045',
+            'status': 'Active',
+            'region': 'DFW',
+            'vehicle': 'T-156',
+            'job_site': 'DFW Connector',
+            'attendance_score': 98,
+            'late_count': 1,
+            'early_end_count': 0,
+            'not_on_job_count': 1,
+            'last_active': '2025-05-17'
         },
         {
-            "id": 3,
-            "name": "Mike Johnson",
-            "employee_id": "EMP-1003",
-            "department": "Transportation",
-            "region": "East",
-            "assigned_asset": "Truck 102",
-            "phone": "555-3456",
-            "email": "mike.johnson@example.com",
-            "hire_date": "2024-01-20",
-            "license_number": "DL9876543",
-            "license_expiration": "2027-01-20"
+            'id': '1003',
+            'name': 'Michael Brown',
+            'employee_id': 'E10078',
+            'status': 'Inactive',
+            'region': 'HOU',
+            'vehicle': 'T-204',
+            'job_site': 'Harbor Bridge',
+            'attendance_score': 82,
+            'late_count': 5,
+            'early_end_count': 3,
+            'not_on_job_count': 2,
+            'last_active': '2025-05-15'
         },
         {
-            "id": 4,
-            "name": "Lisa Brown",
-            "employee_id": "EMP-1004",
-            "department": "Construction",
-            "region": "West",
-            "assigned_asset": "Loader 410",
-            "phone": "555-4567",
-            "email": "lisa.brown@example.com",
-            "hire_date": "2023-11-05",
-            "license_number": "DL1357924",
-            "license_expiration": "2026-11-05"
+            'id': '1004',
+            'name': 'Lisa Williams',
+            'employee_id': 'E10089',
+            'status': 'Active',
+            'region': 'WTX',
+            'vehicle': 'T-187',
+            'job_site': 'Loop 88',
+            'attendance_score': 100,
+            'late_count': 0,
+            'early_end_count': 0,
+            'not_on_job_count': 0,
+            'last_active': '2025-05-17'
         },
         {
-            "id": 5,
-            "name": "David Martinez",
-            "employee_id": "EMP-1005",
-            "department": "Transportation",
-            "region": "North",
-            "assigned_asset": "Truck 103",
-            "phone": "555-5678",
-            "email": "david.martinez@example.com",
-            "hire_date": "2022-03-15",
-            "license_number": "DL2468135",
-            "license_expiration": "2025-03-15"
+            'id': '1005',
+            'name': 'David Martinez',
+            'employee_id': 'E10103',
+            'status': 'Active',
+            'region': 'HOU',
+            'vehicle': 'T-239',
+            'job_site': 'I-45 Expansion',
+            'attendance_score': 91,
+            'late_count': 3,
+            'early_end_count': 2,
+            'not_on_job_count': 0,
+            'last_active': '2025-05-16'
         }
     ]
 
-def get_sample_attendance_data():
-    """Get sample attendance data for demonstration"""
-    today = datetime.now().strftime("%Y-%m-%d")
-    yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
-    two_days_ago = (datetime.now() - timedelta(days=2)).strftime("%Y-%m-%d")
+def get_sample_daily_report():
+    """
+    Get sample daily report data for demonstration
+    In a real application, this would be generated from database records
+    """
+    today = datetime.now().strftime('%Y-%m-%d')
     
     return {
-        "late_starts": [
+        'date': today,
+        'total_drivers': 42,
+        'on_time': 35,
+        'late_start': 4,
+        'early_end': 2,
+        'not_on_job': 1,
+        'regions': ['DFW', 'HOU', 'WTX'],
+        'active_job_sites': 12,
+        'late_drivers': [
             {
-                "date": today,
-                "driver_id": 1,
-                "driver_name": "John Smith",
-                "job_site": "Project Alpha",
-                "expected_time": "07:00",
-                "actual_time": "07:45",
-                "minutes_late": 45,
-                "notes": "Traffic delay reported"
+                'id': '1001',
+                'name': 'John Smith',
+                'employee_id': 'E10023',
+                'region': 'DFW',
+                'job_site': 'NTTA Eastern Extension',
+                'scheduled_start': '07:00 AM',
+                'actual_start': '07:28 AM',
+                'minutes_late': 28,
+                'vehicle': 'T-123',
+                'supervisor': 'James Wilson'
             },
             {
-                "date": today,
-                "driver_id": 2,
-                "driver_name": "Sarah Wilson",
-                "job_site": "Project Echo",
-                "expected_time": "07:00",
-                "actual_time": "07:30",
-                "minutes_late": 30,
-                "notes": ""
+                'id': '1002',
+                'name': 'Sarah Johnson',
+                'employee_id': 'E10045',
+                'region': 'DFW',
+                'job_site': 'DFW Connector',
+                'scheduled_start': '06:30 AM',
+                'actual_start': '06:47 AM',
+                'minutes_late': 17,
+                'vehicle': 'T-156',
+                'supervisor': 'Michael Roberts'
             },
             {
-                "date": yesterday,
-                "driver_id": 3,
-                "driver_name": "Mike Johnson",
-                "job_site": "Project Bravo",
-                "expected_time": "06:30",
-                "actual_time": "06:45",
-                "minutes_late": 15,
-                "notes": "Vehicle issue"
+                'id': '1005',
+                'name': 'David Martinez',
+                'employee_id': 'E10103',
+                'region': 'HOU',
+                'job_site': 'I-45 Expansion',
+                'scheduled_start': '07:00 AM',
+                'actual_start': '07:15 AM',
+                'minutes_late': 15,
+                'vehicle': 'T-239',
+                'supervisor': 'Jennifer Lopez'
             },
             {
-                "date": yesterday,
-                "driver_id": 5,
-                "driver_name": "David Martinez",
-                "job_site": "Project Delta",
-                "expected_time": "07:30",
-                "actual_time": "08:15",
-                "minutes_late": 45,
-                "notes": "Weather delay"
+                'id': '1006',
+                'name': 'Robert Taylor',
+                'employee_id': 'E10112',
+                'region': 'DFW',
+                'job_site': 'NTTA Eastern Extension',
+                'scheduled_start': '07:00 AM',
+                'actual_start': '07:09 AM',
+                'minutes_late': 9,
+                'vehicle': 'T-174',
+                'supervisor': 'James Wilson'
             }
         ],
-        "early_ends": [
+        'early_end_drivers': [
             {
-                "date": today,
-                "driver_id": 3,
-                "driver_name": "Mike Johnson",
-                "job_site": "Project Bravo",
-                "expected_time": "17:00",
-                "actual_time": "16:30",
-                "minutes_early": 30,
-                "notes": "Work completed early"
+                'id': '1001',
+                'name': 'John Smith',
+                'employee_id': 'E10023',
+                'region': 'DFW',
+                'job_site': 'NTTA Eastern Extension',
+                'scheduled_end': '05:30 PM',
+                'actual_end': '05:12 PM',
+                'minutes_early': 18,
+                'vehicle': 'T-123',
+                'supervisor': 'James Wilson'
             },
             {
-                "date": today,
-                "driver_id": 4,
-                "driver_name": "Lisa Brown",
-                "job_site": "Project Charlie",
-                "expected_time": "17:30",
-                "actual_time": "16:45",
-                "minutes_early": 45,
-                "notes": "Equipment maintenance needed"
-            },
-            {
-                "date": yesterday,
-                "driver_id": 2,
-                "driver_name": "Sarah Wilson",
-                "job_site": "Project Echo",
-                "expected_time": "16:00",
-                "actual_time": "15:15",
-                "minutes_early": 45,
-                "notes": ""
-            },
-            {
-                "date": two_days_ago,
-                "driver_id": 1,
-                "driver_name": "John Smith",
-                "job_site": "Project Alpha",
-                "expected_time": "17:00",
-                "actual_time": "16:00",
-                "minutes_early": 60,
-                "notes": "Site closed early due to safety concern"
+                'id': '1005',
+                'name': 'David Martinez',
+                'employee_id': 'E10103',
+                'region': 'HOU',
+                'job_site': 'I-45 Expansion',
+                'scheduled_end': '06:00 PM',
+                'actual_end': '05:42 PM',
+                'minutes_early': 18,
+                'vehicle': 'T-239',
+                'supervisor': 'Jennifer Lopez'
             }
         ],
-        "not_on_job": [
+        'not_on_job_drivers': [
             {
-                "date": today,
-                "driver_id": 5,
-                "driver_name": "David Martinez",
-                "expected_job_site": "Project Delta",
-                "actual_job_site": "Project Echo",
-                "notes": "Reassigned by supervisor"
-            },
-            {
-                "date": yesterday,
-                "driver_id": 4,
-                "driver_name": "Lisa Brown",
-                "expected_job_site": "Project Charlie",
-                "actual_job_site": "Shop",
-                "notes": "Equipment breakdown"
+                'id': '1003',
+                'name': 'Michael Brown',
+                'employee_id': 'E10078',
+                'region': 'HOU',
+                'job_site': 'Harbor Bridge',
+                'scheduled_start': '07:00 AM',
+                'vehicle': 'T-204',
+                'supervisor': 'Jennifer Lopez',
+                'reason': 'Vehicle located at maintenance facility',
+                'notes': 'Driver reported maintenance issues with vehicle T-204'
             }
         ]
     }
 
-def get_attendance_summary(date=None):
+def get_sample_attendance_stats():
     """
-    Get attendance summary for a specific date
-    
-    Args:
-        date (str): Date string in YYYY-MM-DD format
-        
-    Returns:
-        dict: Attendance summary
+    Get sample attendance statistics for dashboard
+    In a real application, this would be calculated from database records
     """
-    # Get sample data
-    attendance_data = get_sample_attendance_data()
-    
-    # Use today if no date specified
-    if not date:
-        date = datetime.now().strftime("%Y-%m-%d")
-    
-    # Filter data for the specified date
-    late_starts = [item for item in attendance_data["late_starts"] if item["date"] == date]
-    early_ends = [item for item in attendance_data["early_ends"] if item["date"] == date]
-    not_on_job = [item for item in attendance_data["not_on_job"] if item["date"] == date]
-    
-    # Calculate on-time drivers (total - incidents)
-    all_drivers = get_sample_driver_data()
-    total_drivers = len(all_drivers)
-    
-    # Count unique drivers with incidents
-    incident_driver_ids = set()
-    for item in late_starts + early_ends + not_on_job:
-        incident_driver_ids.add(item["driver_id"])
-    
-    on_time = total_drivers - len(incident_driver_ids)
+    today = datetime.now()
+    dates = [(today - timedelta(days=i)).strftime('%Y-%m-%d') for i in range(30, 0, -1)]
     
     return {
-        "date": date,
-        "total_drivers": total_drivers,
-        "late_starts": len(late_starts),
-        "early_ends": len(early_ends),
-        "not_on_job": len(not_on_job),
-        "on_time": on_time,
-        "incident_rate": round((len(incident_driver_ids) / total_drivers) * 100, 1) if total_drivers > 0 else 0
+        'dates': dates,
+        'on_time_percentages': [82, 85, 88, 91, 87, 89, 90, 88, 86, 89, 90, 92, 91, 93, 92, 90, 88, 91, 92, 93, 95, 94, 93, 91, 90, 92, 91, 89, 90, 92],
+        'late_start_counts': [7, 6, 5, 3, 5, 4, 4, 5, 6, 4, 4, 3, 4, 3, 3, 4, 5, 4, 3, 3, 2, 2, 3, 4, 4, 3, 4, 4, 4, 3],
+        'early_end_counts': [5, 4, 3, 2, 3, 3, 2, 3, 3, 3, 2, 2, 2, 1, 2, 2, 3, 1, 2, 1, 1, 2, 1, 2, 2, 2, 1, 3, 2, 2],
+        'not_on_job_counts': [2, 2, 1, 1, 2, 1, 1, 1, 2, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0],
+        'job_sites': [
+            {'id': '101', 'name': 'NTTA Eastern Extension', 'on_time_percentage': 89, 'driver_count': 12},
+            {'id': '102', 'name': 'DFW Connector', 'on_time_percentage': 92, 'driver_count': 8},
+            {'id': '103', 'name': 'Harbor Bridge', 'on_time_percentage': 86, 'driver_count': 6},
+            {'id': '104', 'name': 'Loop 88', 'on_time_percentage': 95, 'driver_count': 5},
+            {'id': '105', 'name': 'I-45 Expansion', 'on_time_percentage': 91, 'driver_count': 11}
+        ],
+        'regions': [
+            {'id': 'DFW', 'name': 'Dallas-Fort Worth', 'on_time_percentage': 91, 'driver_count': 20},
+            {'id': 'HOU', 'name': 'Houston', 'on_time_percentage': 88, 'driver_count': 15},
+            {'id': 'WTX', 'name': 'West Texas', 'on_time_percentage': 94, 'driver_count': 7}
+        ]
     }
 
 # Routes
@@ -261,296 +259,354 @@ def get_attendance_summary(date=None):
 @login_required
 def index():
     """Driver module home page"""
-    drivers = get_sample_driver_data()
-    return render_template('drivers/index.html', drivers=drivers)
-
-@driver_module_bp.route('/list')
-@login_required
-def driver_list():
-    """List all drivers"""
-    drivers = get_sample_driver_data()
-    return render_template('drivers/list.html', drivers=drivers)
-
-@driver_module_bp.route('/<int:driver_id>')
-@login_required
-def driver_detail(driver_id):
-    """Driver detail page"""
-    # Find driver by ID
-    drivers = get_sample_driver_data()
-    driver = next((d for d in drivers if d["id"] == driver_id), None)
+    log_navigation('driver_module.index')
     
-    if not driver:
-        flash("Driver not found", "danger")
-        return redirect(url_for('driver_module.driver_list'))
+    # Get summary statistics
+    driver_count = len(get_sample_drivers())
+    active_drivers = len([d for d in get_sample_drivers() if d['status'] == 'Active'])
     
-    # Get attendance history
-    attendance_data = get_sample_attendance_data()
+    daily_report = get_sample_daily_report()
+    late_count = len(daily_report['late_drivers'])
+    early_end_count = len(daily_report['early_end_drivers'])
+    not_on_job_count = len(daily_report['not_on_job_drivers'])
     
-    # Filter for this driver
-    late_starts = [item for item in attendance_data["late_starts"] if item["driver_id"] == driver_id]
-    early_ends = [item for item in attendance_data["early_ends"] if item["driver_id"] == driver_id]
-    not_on_job = [item for item in attendance_data["not_on_job"] if item["driver_id"] == driver_id]
+    # Calculate attendance score
+    total_drivers = daily_report['total_drivers']
+    on_time_drivers = daily_report['on_time']
+    attendance_score = round((on_time_drivers / total_drivers) * 100) if total_drivers > 0 else 0
     
-    return render_template('drivers/detail.html', 
-                          driver=driver, 
-                          late_starts=late_starts,
-                          early_ends=early_ends,
-                          not_on_job=not_on_job)
+    return render_template('drivers/index.html',
+                           driver_count=driver_count,
+                           active_drivers=active_drivers,
+                           late_count=late_count,
+                           early_end_count=early_end_count,
+                           not_on_job_count=not_on_job_count,
+                           attendance_score=attendance_score)
 
 @driver_module_bp.route('/daily_report')
 @login_required
 def daily_report():
-    """Daily driver attendance report page"""
-    # Get date parameter or use today
-    report_date = request.args.get('date')
-    if not report_date:
-        report_date = datetime.now().strftime("%Y-%m-%d")
+    """Daily driver attendance report"""
+    log_navigation('driver_module.daily_report')
     
-    # Get attendance data
-    attendance_data = get_sample_attendance_data()
+    report_date = request.args.get('date', datetime.now().strftime('%Y-%m-%d'))
+    report_data = get_sample_daily_report()
     
-    # Filter data for the selected date
-    late_starts = [item for item in attendance_data["late_starts"] if item["date"] == report_date]
-    early_ends = [item for item in attendance_data["early_ends"] if item["date"] == report_date]
-    not_on_job = [item for item in attendance_data["not_on_job"] if item["date"] == report_date]
-    
-    # Get summary metrics
-    summary = get_attendance_summary(report_date)
-    
-    return render_template('drivers/daily_report.html',
-                          report_date=report_date,
-                          summary=summary,
-                          late_starts=late_starts,
-                          early_ends=early_ends,
-                          not_on_job=not_on_job)
+    return render_template('drivers/daily_report.html', 
+                          report=report_data, 
+                          selected_date=report_date)
 
 @driver_module_bp.route('/attendance_dashboard')
 @login_required
 def attendance_dashboard():
-    """Driver attendance dashboard page"""
-    # Get date range parameters
-    start_date = request.args.get('start_date')
-    end_date = request.args.get('end_date')
+    """Attendance dashboard with trends and metrics"""
+    log_navigation('driver_module.attendance_dashboard')
     
-    # Default to last 7 days if not specified
-    if not start_date:
-        start_date = (datetime.now() - timedelta(days=6)).strftime("%Y-%m-%d")
-    if not end_date:
-        end_date = datetime.now().strftime("%Y-%m-%d")
+    stats = get_sample_attendance_stats()
     
-    # Generate date range
-    date_range = []
-    current_date = datetime.strptime(start_date, "%Y-%m-%d")
-    end = datetime.strptime(end_date, "%Y-%m-%d")
-    
-    while current_date <= end:
-        date_range.append(current_date.strftime("%Y-%m-%d"))
-        current_date += timedelta(days=1)
-    
-    # Get summary data for each date
-    daily_summaries = []
-    for date in date_range:
-        daily_summaries.append(get_attendance_summary(date))
-    
-    # Get all drivers
-    drivers = get_sample_driver_data()
-    
-    return render_template('drivers/attendance_dashboard.html',
-                          start_date=start_date,
-                          end_date=end_date,
-                          daily_summaries=daily_summaries,
-                          drivers=drivers)
+    return render_template('drivers/attendance_dashboard.html', stats=stats)
 
-@driver_module_bp.route('/export_report', methods=['POST'])
+@driver_module_bp.route('/driver_list')
+@login_required
+def driver_list():
+    """List all drivers with filtering options"""
+    log_navigation('driver_module.driver_list')
+    
+    drivers = get_sample_drivers()
+    
+    # Handle filtering
+    region = request.args.get('region')
+    status = request.args.get('status')
+    search = request.args.get('search', '').lower()
+    
+    if region:
+        drivers = [d for d in drivers if d['region'] == region]
+    
+    if status:
+        drivers = [d for d in drivers if d['status'] == status]
+    
+    if search:
+        drivers = [d for d in drivers if search in d['name'].lower() or 
+                   search in d['employee_id'].lower() or
+                   search in d['job_site'].lower()]
+        
+        # Log search activity
+        log_search(search, results_count=len(drivers), 
+                  filters={'region': region, 'status': status})
+    
+    return render_template('drivers/driver_list.html', 
+                          drivers=drivers,
+                          filter_region=region,
+                          filter_status=status,
+                          search_query=search)
+
+@driver_module_bp.route('/driver_detail/<driver_id>')
+@login_required
+def driver_detail(driver_id):
+    """Driver detail page with attendance history"""
+    log_navigation(f'driver_module.driver_detail.{driver_id}')
+    
+    # Find the driver in our sample data
+    drivers = get_sample_drivers()
+    driver = next((d for d in drivers if d['id'] == driver_id), None)
+    
+    if not driver:
+        flash('Driver not found', 'danger')
+        return redirect(url_for('driver_module.driver_list'))
+    
+    # Generate sample attendance history
+    today = datetime.now()
+    history = []
+    
+    for i in range(30):
+        date = today - timedelta(days=i)
+        date_str = date.strftime('%Y-%m-%d')
+        
+        # Randomize status but weight toward on-time
+        import random
+        status_weights = {'on_time': 0.85, 'late': 0.10, 'early_end': 0.03, 'not_on_job': 0.02}
+        status = random.choices(
+            list(status_weights.keys()), 
+            weights=list(status_weights.values()), 
+            k=1
+        )[0]
+        
+        entry = {
+            'date': date_str,
+            'status': status,
+            'scheduled_start': '07:00 AM',
+            'actual_start': '07:00 AM',
+            'scheduled_end': '05:30 PM',
+            'actual_end': '05:30 PM',
+            'job_site': driver['job_site'],
+            'vehicle': driver['vehicle']
+        }
+        
+        # Adjust times based on status
+        if status == 'late':
+            minutes_late = random.randint(5, 45)
+            actual_time = (date.replace(hour=7, minute=0) + 
+                          timedelta(minutes=minutes_late))
+            entry['actual_start'] = actual_time.strftime('%I:%M %p')
+            entry['minutes_late'] = minutes_late
+            
+        elif status == 'early_end':
+            minutes_early = random.randint(5, 30)
+            actual_time = (date.replace(hour=17, minute=30) - 
+                          timedelta(minutes=minutes_early))
+            entry['actual_end'] = actual_time.strftime('%I:%M %p')
+            entry['minutes_early'] = minutes_early
+            
+        elif status == 'not_on_job':
+            entry['reason'] = random.choice([
+                'Vehicle maintenance',
+                'Weather conditions',
+                'Job site closure',
+                'Equipment failure'
+            ])
+            
+        history.append(entry)
+    
+    return render_template('drivers/driver_detail.html', 
+                          driver=driver,
+                          attendance_history=history)
+
+@driver_module_bp.route('/job_site_detail/<site_id>')
+@login_required
+def job_site_detail(site_id):
+    """Job site detail page with attendance metrics"""
+    log_navigation(f'driver_module.job_site_detail.{site_id}')
+    
+    # Look up job site from our sample data
+    stats = get_sample_attendance_stats()
+    site = next((s for s in stats['job_sites'] if s['id'] == site_id), None)
+    
+    if not site:
+        flash('Job site not found', 'danger')
+        return redirect(url_for('driver_module.attendance_dashboard'))
+    
+    # Generate sample drivers for this job site
+    drivers = [d for d in get_sample_drivers() if site_id in d['job_site']]
+    
+    # Generate sample daily metrics for the last 14 days
+    today = datetime.now()
+    daily_metrics = []
+    
+    for i in range(14):
+        date = today - timedelta(days=i)
+        date_str = date.strftime('%Y-%m-%d')
+        
+        import random
+        on_time_pct = random.randint(80, 98)
+        driver_count = random.randint(5, 15)
+        on_time_count = int((on_time_pct / 100) * driver_count)
+        
+        daily_metrics.append({
+            'date': date_str,
+            'driver_count': driver_count,
+            'on_time_count': on_time_count,
+            'late_count': driver_count - on_time_count,
+            'on_time_percentage': on_time_pct
+        })
+    
+    return render_template('drivers/job_site_detail.html',
+                          site=site,
+                          drivers=drivers,
+                          daily_metrics=daily_metrics)
+
+@driver_module_bp.route('/region_detail/<region_id>')
+@login_required
+def region_detail(region_id):
+    """Region detail page with attendance metrics"""
+    log_navigation(f'driver_module.region_detail.{region_id}')
+    
+    # Look up region from our sample data
+    stats = get_sample_attendance_stats()
+    region = next((r for r in stats['regions'] if r['id'] == region_id), None)
+    
+    if not region:
+        flash('Region not found', 'danger')
+        return redirect(url_for('driver_module.attendance_dashboard'))
+    
+    # Get drivers for this region
+    drivers = [d for d in get_sample_drivers() if d['region'] == region_id]
+    
+    # Get job sites in this region
+    job_sites = [s for s in stats['job_sites'] if any(d['job_site'] == s['name'] for d in drivers)]
+    
+    # Generate sample monthly metrics for the last 6 months
+    today = datetime.now()
+    monthly_metrics = []
+    
+    for i in range(6):
+        month_date = today.replace(day=1) - timedelta(days=i*30)
+        month_str = month_date.strftime('%B %Y')
+        
+        import random
+        on_time_pct = random.randint(80, 95)
+        driver_count = random.randint(15, 25)
+        on_time_count = int((on_time_pct / 100) * driver_count)
+        
+        monthly_metrics.append({
+            'month': month_str,
+            'driver_count': driver_count,
+            'on_time_count': on_time_count,
+            'late_count': driver_count - on_time_count,
+            'on_time_percentage': on_time_pct
+        })
+    
+    return render_template('drivers/region_detail.html',
+                          region=region,
+                          drivers=drivers,
+                          job_sites=job_sites,
+                          monthly_metrics=monthly_metrics)
+
+@driver_module_bp.route('/upload_attendance', methods=['GET', 'POST'])
+@login_required
+def upload_attendance():
+    """Upload attendance file for processing"""
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('No file part', 'danger')
+            return redirect(request.url)
+        
+        file = request.files['file']
+        
+        if file.filename == '':
+            flash('No selected file', 'danger')
+            return redirect(request.url)
+        
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(UPLOAD_FOLDER, filename)
+            file.save(file_path)
+            
+            # Get file size
+            file_size = os.path.getsize(file_path)
+            
+            # Log the upload
+            log_document_upload(
+                filename=filename,
+                file_type=filename.rsplit('.', 1)[1].lower(),
+                file_size=file_size
+            )
+            
+            # In a real application, this would trigger processing
+            # For demonstration, we'll just show success
+            flash(f'File {filename} uploaded successfully and queued for processing', 'success')
+            return redirect(url_for('driver_module.daily_report'))
+        else:
+            flash(f'File type not allowed. Please upload {", ".join(ALLOWED_EXTENSIONS)} files.', 'danger')
+            
+    return render_template('drivers/upload_attendance.html')
+
+@driver_module_bp.route('/export_report', methods=['GET'])
 @login_required
 def export_report():
-    """Export driver report as PDF or CSV"""
-    report_type = request.form.get('report_type', 'daily')
-    report_date = request.form.get('report_date')
-    export_format = request.form.get('format', 'pdf')
+    """Export report in specified format"""
+    report_type = request.args.get('type', 'daily')
+    export_format = request.args.get('format', 'pdf')
     
-    if not report_date:
-        report_date = datetime.now().strftime("%Y-%m-%d")
+    # Generate a filename
+    date_str = datetime.now().strftime('%Y%m%d')
+    filename = f"{report_type}_report_{date_str}.{export_format}"
     
-    # Generate report filename
-    filename = f"{report_type}_report_{report_date}.{export_format}"
+    # In a real application, this would generate the actual report file
+    # For demonstration, we'll create a simple text file
+    file_path = os.path.join(EXPORTS_FOLDER, filename)
+    
+    with open(file_path, 'w') as f:
+        f.write(f"Example {report_type} report exported on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        f.write(f"Format: {export_format}\n")
+        f.write("This is a placeholder for the actual report content.")
     
     # Log the export
-    try:
-        from utils.activity_logger import log_report_export
-        log_report_export(report_type=report_type, format=export_format)
-    except ImportError:
-        # Activity logger not available
-        pass
+    log_report_export(
+        report_type=report_type,
+        export_format=export_format
+    )
     
-    # Generate and return the report
-    if export_format == 'pdf':
-        # In a real implementation, this would generate a PDF file
-        # For demonstration, we'll simulate this
-        return jsonify({
-            "success": True,
-            "message": f"Report exported as {filename}",
-            "download_url": url_for('driver_module.download_report', filename=filename)
-        })
-    elif export_format == 'csv':
-        # In a real implementation, this would generate a CSV file
-        # For demonstration, we'll simulate this
-        return jsonify({
-            "success": True,
-            "message": f"Report exported as {filename}",
-            "download_url": url_for('driver_module.download_report', filename=filename)
-        })
-    else:
-        return jsonify({
-            "success": False,
-            "message": f"Unsupported format: {export_format}"
-        }), 400
+    # Send the file
+    return send_file(file_path, as_attachment=True)
 
-@driver_module_bp.route('/download_report/<filename>')
+# API endpoints for AJAX requests
+@driver_module_bp.route('/api/attendance_chart_data')
 @login_required
-def download_report(filename):
-    """Download a generated report"""
-    # In a real implementation, this would retrieve the actual report file
-    # For demonstration, we'll generate a sample report on-the-fly
+def attendance_chart_data():
+    """Get attendance data for charts"""
+    stats = get_sample_attendance_stats()
     
-    # Determine format from filename
-    if filename.endswith('.pdf'):
-        # Generate PDF
-        from utils.report_generator import generate_pdf_report
-        
-        # Get date from filename
-        import re
-        date_match = re.search(r'\d{4}-\d{2}-\d{2}', filename)
-        report_date = date_match.group(0) if date_match else datetime.now().strftime("%Y-%m-%d")
-        
-        # Get attendance data for the date
-        attendance_data = get_sample_attendance_data()
-        late_starts = [item for item in attendance_data["late_starts"] if item["date"] == report_date]
-        early_ends = [item for item in attendance_data["early_ends"] if item["date"] == report_date]
-        not_on_job = [item for item in attendance_data["not_on_job"] if item["date"] == report_date]
-        
-        # Format data for report
-        data = {
-            "summary": get_attendance_summary(report_date),
-            "late_starts": late_starts,
-            "early_ends": early_ends,
-            "not_on_job": not_on_job
-        }
-        
-        # Generate report
-        report_path, _ = generate_pdf_report(
-            report_type="daily_driver",
-            data=data,
-            title=f"Daily Driver Report - {report_date}"
-        )
-        
-        # Send file
-        return send_from_directory(os.path.dirname(report_path), os.path.basename(report_path))
-    elif filename.endswith('.csv'):
-        # Generate CSV
-        from utils.report_generator import generate_csv_report
-        
-        # Get date from filename
-        import re
-        date_match = re.search(r'\d{4}-\d{2}-\d{2}', filename)
-        report_date = date_match.group(0) if date_match else datetime.now().strftime("%Y-%m-%d")
-        
-        # Get attendance data for the date
-        attendance_data = get_sample_attendance_data()
-        late_starts = [item for item in attendance_data["late_starts"] if item["date"] == report_date]
-        early_ends = [item for item in attendance_data["early_ends"] if item["date"] == report_date]
-        not_on_job = [item for item in attendance_data["not_on_job"] if item["date"] == report_date]
-        
-        # Format data for report
-        data = {
-            "summary": get_attendance_summary(report_date),
-            "late_starts": late_starts,
-            "early_ends": early_ends,
-            "not_on_job": not_on_job
-        }
-        
-        # Generate report
-        report_path, _ = generate_csv_report(
-            report_type="daily_driver",
-            data=data
-        )
-        
-        # Send file
-        return send_from_directory(os.path.dirname(report_path), os.path.basename(report_path))
-    else:
-        flash('Unsupported file format', 'danger')
-        return redirect(url_for('driver_module.daily_report'))
+    # Log feature usage
+    log_feature_usage('attendance_chart_data')
+    
+    return jsonify(stats)
 
-@driver_module_bp.route('/api/drivers')
+@driver_module_bp.route('/api/driver_search')
 @login_required
-def api_drivers():
-    """API endpoint to get driver data"""
-    drivers = get_sample_driver_data()
+def driver_search():
+    """Search for drivers"""
+    query = request.args.get('q', '').lower()
+    drivers = get_sample_drivers()
     
-    # Filter by parameters
-    department = request.args.get('department')
-    region = request.args.get('region')
+    if query:
+        drivers = [d for d in drivers if 
+                   query in d['name'].lower() or 
+                   query in d['employee_id'].lower() or
+                   query in d['job_site'].lower()]
+        
+        # Log search
+        log_search(query, results_count=len(drivers))
     
-    if department:
-        drivers = [d for d in drivers if d["department"] == department]
-    if region:
-        drivers = [d for d in drivers if d["region"] == region]
-    
-    return jsonify(drivers)
+    return jsonify({'results': drivers})
 
-@driver_module_bp.route('/api/attendance')
+@driver_module_bp.route('/api/get_driver/<driver_id>')
 @login_required
-def api_attendance():
-    """API endpoint to get attendance data"""
-    # Get date parameter
-    date = request.args.get('date')
-    start_date = request.args.get('start_date')
-    end_date = request.args.get('end_date')
-    driver_id = request.args.get('driver_id')
+def get_driver(driver_id):
+    """Get driver by ID"""
+    drivers = get_sample_drivers()
+    driver = next((d for d in drivers if d['id'] == driver_id), None)
     
-    # Get attendance data
-    attendance_data = get_sample_attendance_data()
+    if not driver:
+        return jsonify({'error': 'Driver not found'}), 404
     
-    # Filter data based on parameters
-    if date:
-        attendance_data = {
-            "late_starts": [item for item in attendance_data["late_starts"] if item["date"] == date],
-            "early_ends": [item for item in attendance_data["early_ends"] if item["date"] == date],
-            "not_on_job": [item for item in attendance_data["not_on_job"] if item["date"] == date]
-        }
-    elif start_date and end_date:
-        attendance_data = {
-            "late_starts": [item for item in attendance_data["late_starts"] if start_date <= item["date"] <= end_date],
-            "early_ends": [item for item in attendance_data["early_ends"] if start_date <= item["date"] <= end_date],
-            "not_on_job": [item for item in attendance_data["not_on_job"] if start_date <= item["date"] <= end_date]
-        }
-    
-    if driver_id:
-        try:
-            driver_id = int(driver_id)
-            attendance_data = {
-                "late_starts": [item for item in attendance_data["late_starts"] if item["driver_id"] == driver_id],
-                "early_ends": [item for item in attendance_data["early_ends"] if item["driver_id"] == driver_id],
-                "not_on_job": [item for item in attendance_data["not_on_job"] if item["driver_id"] == driver_id]
-            }
-        except ValueError:
-            pass
-    
-    return jsonify(attendance_data)
-
-@driver_module_bp.route('/api/attendance/summary')
-@login_required
-def api_attendance_summary():
-    """API endpoint to get attendance summary"""
-    # Get date parameter
-    date = request.args.get('date')
-    
-    # Get summary
-    summary = get_attendance_summary(date)
-    
-    return jsonify(summary)
-
-# Register blueprint function
-def register_blueprint(app):
-    app.register_blueprint(driver_module_bp)
-    return app
+    return jsonify(driver)

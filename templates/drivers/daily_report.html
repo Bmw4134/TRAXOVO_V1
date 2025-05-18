@@ -4,231 +4,295 @@
 
 {% block content %}
 <div class="container-fluid my-4">
-    <!-- Header with date selection -->
+    <!-- Header -->
     <div class="row mb-4">
         <div class="col-md-6">
             <h1 class="display-5 mb-2">
                 <i class="bi bi-calendar-day me-2"></i>Daily Driver Report
             </h1>
             <p class="lead text-muted">
-                Track driver attendance and job site presence
+                Attendance for {{ selected_date }}
             </p>
         </div>
         <div class="col-md-6 text-md-end">
-            <form class="d-inline-flex align-items-center" id="date-select-form">
-                <label for="report-date" class="form-label me-2 mb-0">Report Date:</label>
-                <input type="date" id="report-date" name="date" class="form-control" value="{{ report_date }}" 
-                      onchange="document.getElementById('date-select-form').submit()">
-            </form>
-        </div>
-    </div>
-
-    <!-- Summary Cards -->
-    <div class="row mb-4">
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card bg-danger text-white h-100">
-                <div class="card-body text-center">
-                    <h1 class="display-3 mb-0">{{ summary.late_starts }}</h1>
-                    <h5 class="card-title">Late Starts</h5>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card bg-warning text-dark h-100">
-                <div class="card-body text-center">
-                    <h1 class="display-3 mb-0">{{ summary.early_ends }}</h1>
-                    <h5 class="card-title">Early Ends</h5>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card bg-info text-white h-100">
-                <div class="card-body text-center">
-                    <h1 class="display-3 mb-0">{{ summary.not_on_job }}</h1>
-                    <h5 class="card-title">Not On Job</h5>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card bg-success text-white h-100">
-                <div class="card-body text-center">
-                    <h1 class="display-3 mb-0">{{ summary.on_time }}</h1>
-                    <h5 class="card-title">On Time</h5>
-                    <small>of {{ summary.total_drivers }} total drivers</small>
+            <div class="btn-group">
+                <a href="{{ url_for('driver_module.driver_list') }}" class="btn btn-info text-white">
+                    <i class="bi bi-people me-1"></i> Driver List
+                </a>
+                <a href="{{ url_for('driver_module.attendance_dashboard') }}" class="btn btn-primary">
+                    <i class="bi bi-graph-up me-1"></i> Attendance Dashboard
+                </a>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-file-earmark-arrow-down me-1"></i> Export
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_report') }}?type=daily&format=pdf">PDF Report</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_report') }}?type=daily&format=csv">CSV Data</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_report') }}?type=daily&format=xlsx">Excel Spreadsheet</a></li>
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Export Controls -->
+    <!-- Date Selection Form -->
     <div class="row mb-4">
-        <div class="col-12">
+        <div class="col-md-6 offset-md-3">
             <div class="card shadow-sm">
-                <div class="card-header bg-light">
-                    <h5 class="card-title mb-0">Export Options</h5>
-                </div>
                 <div class="card-body">
-                    <form id="export-form" class="row g-3 align-items-end">
-                        <input type="hidden" name="report_date" value="{{ report_date }}">
-                        <input type="hidden" name="report_type" value="daily">
-                        
-                        <div class="col-md-6">
-                            <label class="form-label">Format</label>
-                            <div class="btn-group" role="group">
-                                <input type="radio" class="btn-check" name="format" id="format-pdf" value="pdf" autocomplete="off" checked>
-                                <label class="btn btn-outline-primary" for="format-pdf">
-                                    <i class="bi bi-file-earmark-pdf me-1"></i> PDF
-                                </label>
-                                
-                                <input type="radio" class="btn-check" name="format" id="format-csv" value="csv" autocomplete="off">
-                                <label class="btn btn-outline-primary" for="format-csv">
-                                    <i class="bi bi-file-earmark-spreadsheet me-1"></i> CSV
-                                </label>
-                            </div>
+                    <form class="row g-3" action="{{ url_for('driver_module.daily_report') }}" method="get">
+                        <div class="col-md-8">
+                            <label for="date" class="form-label">Select Date</label>
+                            <input type="date" class="form-control" id="date" name="date" value="{{ selected_date }}">
                         </div>
-                        
-                        <div class="col-md-6 text-end">
-                            <button type="button" id="export-report-btn" class="btn btn-primary">
-                                <i class="bi bi-download me-1"></i> Export Report
-                            </button>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">View Report</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Late Start Details -->
+    
+    <!-- Summary Cards -->
     <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-danger text-white">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-exclamation-circle me-1"></i> Late Start Details ({{ late_starts|length }})
-                    </h5>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body text-center">
+                    <h1 class="display-4 mb-0">{{ report.total_drivers }}</h1>
+                    <h5 class="card-title">Total Drivers</h5>
+                    <p class="mb-0">{{ report.active_job_sites }} Job Sites</p>
                 </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Driver</th>
-                                    <th>Job Site</th>
-                                    <th>Expected</th>
-                                    <th>Actual</th>
-                                    <th>Minutes Late</th>
-                                    <th>Notes</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% if late_starts %}
-                                    {% for item in late_starts %}
-                                    <tr>
-                                        <td>{{ item.driver_name }}</td>
-                                        <td>{{ item.job_site }}</td>
-                                        <td>{{ item.expected_time }}</td>
-                                        <td>{{ item.actual_time }}</td>
-                                        <td>{{ item.minutes_late }}</td>
-                                        <td>{{ item.notes }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                {% else %}
-                                    <tr>
-                                        <td colspan="6" class="text-center py-3">No late starts recorded for this date</td>
-                                    </tr>
-                                {% endif %}
-                            </tbody>
-                        </table>
-                    </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body text-center">
+                    <h1 class="display-4 mb-0">{{ report.on_time }}</h1>
+                    <h5 class="card-title">On Time</h5>
+                    <p class="mb-0">{{ (report.on_time / report.total_drivers * 100)|round|int }}% of drivers</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card bg-warning text-dark h-100">
+                <div class="card-body text-center">
+                    <h1 class="display-4 mb-0">{{ report.late_start + report.early_end }}</h1>
+                    <h5 class="card-title">Attendance Issues</h5>
+                    <p class="mb-0">{{ report.late_start }} Late, {{ report.early_end }} Early</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card bg-danger text-white h-100">
+                <div class="card-body text-center">
+                    <h1 class="display-4 mb-0">{{ report.not_on_job }}</h1>
+                    <h5 class="card-title">Not on Job</h5>
+                    <p class="mb-0">Requires follow-up</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Early End Details -->
-    <div class="row mb-4">
+    <!-- Tabs for Different Issues -->
+    <div class="row">
         <div class="col-12">
             <div class="card shadow-sm">
-                <div class="card-header bg-warning text-dark">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-exclamation-triangle me-1"></i> Early End Details ({{ early_ends|length }})
-                    </h5>
+                <div class="card-header bg-light">
+                    <ul class="nav nav-tabs card-header-tabs" id="myTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="late-tab" data-bs-toggle="tab" data-bs-target="#late" type="button" role="tab" aria-controls="late" aria-selected="true">
+                                <i class="bi bi-clock-history me-1"></i> Late Start <span class="badge bg-danger ms-1">{{ report.late_drivers|length }}</span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="early-tab" data-bs-toggle="tab" data-bs-target="#early" type="button" role="tab" aria-controls="early" aria-selected="false">
+                                <i class="bi bi-clock me-1"></i> Early End <span class="badge bg-danger ms-1">{{ report.early_end_drivers|length }}</span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="absent-tab" data-bs-toggle="tab" data-bs-target="#absent" type="button" role="tab" aria-controls="absent" aria-selected="false">
+                                <i class="bi bi-exclamation-triangle me-1"></i> Not on Job <span class="badge bg-danger ms-1">{{ report.not_on_job_drivers|length }}</span>
+                            </button>
+                        </li>
+                    </ul>
                 </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Driver</th>
-                                    <th>Job Site</th>
-                                    <th>Expected</th>
-                                    <th>Actual</th>
-                                    <th>Minutes Early</th>
-                                    <th>Notes</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% if early_ends %}
-                                    {% for item in early_ends %}
-                                    <tr>
-                                        <td>{{ item.driver_name }}</td>
-                                        <td>{{ item.job_site }}</td>
-                                        <td>{{ item.expected_time }}</td>
-                                        <td>{{ item.actual_time }}</td>
-                                        <td>{{ item.minutes_early }}</td>
-                                        <td>{{ item.notes }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                {% else %}
-                                    <tr>
-                                        <td colspan="6" class="text-center py-3">No early ends recorded for this date</td>
-                                    </tr>
-                                {% endif %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Not On Job Details -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-info text-white">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-geo-alt-fill me-1"></i> Not On Job Details ({{ not_on_job|length }})
-                    </h5>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Driver</th>
-                                    <th>Expected Job Site</th>
-                                    <th>Actual Job Site</th>
-                                    <th>Notes</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% if not_on_job %}
-                                    {% for item in not_on_job %}
-                                    <tr>
-                                        <td>{{ item.driver_name }}</td>
-                                        <td>{{ item.expected_job_site }}</td>
-                                        <td>{{ item.actual_job_site }}</td>
-                                        <td>{{ item.notes }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                {% else %}
-                                    <tr>
-                                        <td colspan="4" class="text-center py-3">No job site discrepancies recorded for this date</td>
-                                    </tr>
-                                {% endif %}
-                            </tbody>
-                        </table>
+                <div class="card-body">
+                    <div class="tab-content" id="myTabContent">
+                        <!-- Late Start Tab -->
+                        <div class="tab-pane fade show active" id="late" role="tabpanel" aria-labelledby="late-tab">
+                            {% if report.late_drivers %}
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Employee ID</th>
+                                                <th>Driver Name</th>
+                                                <th>Region</th>
+                                                <th>Job Site</th>
+                                                <th>Scheduled Start</th>
+                                                <th>Actual Start</th>
+                                                <th>Minutes Late</th>
+                                                <th>Vehicle</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for driver in report.late_drivers|sort(attribute='minutes_late', reverse=true) %}
+                                                <tr>
+                                                    <td>{{ driver.employee_id }}</td>
+                                                    <td>
+                                                        <a href="{{ url_for('driver_module.driver_detail', driver_id=driver.id) }}">
+                                                            {{ driver.name }}
+                                                        </a>
+                                                    </td>
+                                                    <td>{{ driver.region }}</td>
+                                                    <td>{{ driver.job_site }}</td>
+                                                    <td>{{ driver.scheduled_start }}</td>
+                                                    <td class="text-danger">{{ driver.actual_start }}</td>
+                                                    <td class="text-danger fw-bold">{{ driver.minutes_late }}</td>
+                                                    <td>{{ driver.vehicle }}</td>
+                                                    <td>
+                                                        <div class="btn-group btn-group-sm">
+                                                            <button type="button" class="btn btn-outline-primary notify-btn" data-driver-id="{{ driver.id }}">
+                                                                <i class="bi bi-bell"></i>
+                                                            </button>
+                                                            <button type="button" class="btn btn-outline-success excuse-btn" data-driver-id="{{ driver.id }}">
+                                                                <i class="bi bi-check2-circle"></i>
+                                                            </button>
+                                                            <button type="button" class="btn btn-outline-danger flag-btn" data-driver-id="{{ driver.id }}">
+                                                                <i class="bi bi-flag"></i>
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-success">
+                                    <i class="bi bi-check-circle-fill me-2"></i> No late drivers today!
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Early End Tab -->
+                        <div class="tab-pane fade" id="early" role="tabpanel" aria-labelledby="early-tab">
+                            {% if report.early_end_drivers %}
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Employee ID</th>
+                                                <th>Driver Name</th>
+                                                <th>Region</th>
+                                                <th>Job Site</th>
+                                                <th>Scheduled End</th>
+                                                <th>Actual End</th>
+                                                <th>Minutes Early</th>
+                                                <th>Vehicle</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for driver in report.early_end_drivers|sort(attribute='minutes_early', reverse=true) %}
+                                                <tr>
+                                                    <td>{{ driver.employee_id }}</td>
+                                                    <td>
+                                                        <a href="{{ url_for('driver_module.driver_detail', driver_id=driver.id) }}">
+                                                            {{ driver.name }}
+                                                        </a>
+                                                    </td>
+                                                    <td>{{ driver.region }}</td>
+                                                    <td>{{ driver.job_site }}</td>
+                                                    <td>{{ driver.scheduled_end }}</td>
+                                                    <td class="text-danger">{{ driver.actual_end }}</td>
+                                                    <td class="text-danger fw-bold">{{ driver.minutes_early }}</td>
+                                                    <td>{{ driver.vehicle }}</td>
+                                                    <td>
+                                                        <div class="btn-group btn-group-sm">
+                                                            <button type="button" class="btn btn-outline-primary notify-btn" data-driver-id="{{ driver.id }}">
+                                                                <i class="bi bi-bell"></i>
+                                                            </button>
+                                                            <button type="button" class="btn btn-outline-success excuse-btn" data-driver-id="{{ driver.id }}">
+                                                                <i class="bi bi-check2-circle"></i>
+                                                            </button>
+                                                            <button type="button" class="btn btn-outline-danger flag-btn" data-driver-id="{{ driver.id }}">
+                                                                <i class="bi bi-flag"></i>
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-success">
+                                    <i class="bi bi-check-circle-fill me-2"></i> No early end drivers today!
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Not on Job Tab -->
+                        <div class="tab-pane fade" id="absent" role="tabpanel" aria-labelledby="absent-tab">
+                            {% if report.not_on_job_drivers %}
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Employee ID</th>
+                                                <th>Driver Name</th>
+                                                <th>Region</th>
+                                                <th>Job Site</th>
+                                                <th>Scheduled Start</th>
+                                                <th>Vehicle</th>
+                                                <th>Reason</th>
+                                                <th>Notes</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for driver in report.not_on_job_drivers %}
+                                                <tr>
+                                                    <td>{{ driver.employee_id }}</td>
+                                                    <td>
+                                                        <a href="{{ url_for('driver_module.driver_detail', driver_id=driver.id) }}">
+                                                            {{ driver.name }}
+                                                        </a>
+                                                    </td>
+                                                    <td>{{ driver.region }}</td>
+                                                    <td>{{ driver.job_site }}</td>
+                                                    <td>{{ driver.scheduled_start }}</td>
+                                                    <td>{{ driver.vehicle }}</td>
+                                                    <td class="text-danger">{{ driver.reason }}</td>
+                                                    <td>{{ driver.notes }}</td>
+                                                    <td>
+                                                        <div class="btn-group btn-group-sm">
+                                                            <button type="button" class="btn btn-outline-primary contact-btn" data-driver-id="{{ driver.id }}">
+                                                                <i class="bi bi-telephone"></i>
+                                                            </button>
+                                                            <button type="button" class="btn btn-outline-warning reassign-btn" data-driver-id="{{ driver.id }}">
+                                                                <i class="bi bi-arrow-left-right"></i>
+                                                            </button>
+                                                            <button type="button" class="btn btn-outline-danger escalate-btn" data-driver-id="{{ driver.id }}">
+                                                                <i class="bi bi-exclamation-circle"></i>
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-success">
+                                    <i class="bi bi-check-circle-fill me-2"></i> No absent drivers today!
+                                </div>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -236,25 +300,108 @@
     </div>
 </div>
 
-<!-- Export Success Modal -->
-<div class="modal fade" id="export-success-modal" tabindex="-1" aria-labelledby="export-modal-label" aria-hidden="true">
+<!-- Action Modals -->
+<!-- Excuse Modal -->
+<div class="modal fade" id="excuseModal" tabindex="-1" aria-labelledby="excuseModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-success text-white">
-                <h5 class="modal-title" id="export-modal-label">
-                    <i class="bi bi-check-circle me-1"></i> Export Successful
-                </h5>
+                <h5 class="modal-title" id="excuseModalLabel">Record Excused Absence</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p class="mb-3">Your report has been generated successfully.</p>
-                <p id="export-message"></p>
+                <form id="excuse-form">
+                    <input type="hidden" id="excuse-driver-id" name="driver_id">
+                    
+                    <div class="mb-3">
+                        <label for="excuse-reason" class="form-label">Reason</label>
+                        <select class="form-select" id="excuse-reason" name="reason" required>
+                            <option value="" selected disabled>Select a reason</option>
+                            <option value="Traffic">Traffic Conditions</option>
+                            <option value="Weather">Weather Conditions</option>
+                            <option value="Vehicle">Vehicle Issues</option>
+                            <option value="Medical">Medical Appointment</option>
+                            <option value="Family">Family Emergency</option>
+                            <option value="Other">Other (specify in notes)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="excuse-notes" class="form-label">Notes</label>
+                        <textarea class="form-control" id="excuse-notes" name="notes" rows="3" placeholder="Enter any additional details..."></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="excuse-supervisor" name="supervisor_approved">
+                            <label class="form-check-label" for="excuse-supervisor">
+                                Supervisor Approved
+                            </label>
+                        </div>
+                    </div>
+                </form>
             </div>
             <div class="modal-footer">
-                <a href="#" id="download-link" class="btn btn-primary" target="_blank">
-                    <i class="bi bi-download me-1"></i> Download Report
-                </a>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="save-excuse-btn">Save Excuse</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Flag Modal -->
+<div class="modal fade" id="flagModal" tabindex="-1" aria-labelledby="flagModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="flagModalLabel">Flag Attendance Issue</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="flag-form">
+                    <input type="hidden" id="flag-driver-id" name="driver_id">
+                    
+                    <div class="mb-3">
+                        <label for="flag-severity" class="form-label">Severity</label>
+                        <select class="form-select" id="flag-severity" name="severity" required>
+                            <option value="" selected disabled>Select severity</option>
+                            <option value="Low">Low - First Occurrence</option>
+                            <option value="Medium">Medium - Repeat Occurrence</option>
+                            <option value="High">High - Multiple Occurrences</option>
+                            <option value="Critical">Critical - Requires Immediate Action</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="flag-action" class="form-label">Recommended Action</label>
+                        <select class="form-select" id="flag-action" name="action" required>
+                            <option value="" selected disabled>Select action</option>
+                            <option value="Monitor">Monitor</option>
+                            <option value="Verbal Warning">Verbal Warning</option>
+                            <option value="Written Warning">Written Warning</option>
+                            <option value="Performance Review">Performance Review</option>
+                            <option value="Disciplinary Action">Disciplinary Action</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="flag-notes" class="form-label">Notes</label>
+                        <textarea class="form-control" id="flag-notes" name="notes" rows="3" placeholder="Enter any additional details..."></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="flag-notify-supervisor" name="notify_supervisor" checked>
+                            <label class="form-check-label" for="flag-notify-supervisor">
+                                Notify Supervisor
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="save-flag-btn">Save Flag</button>
             </div>
         </div>
     </div>
@@ -264,60 +411,99 @@
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Export report button
-        const exportBtn = document.getElementById('export-report-btn');
-        const exportForm = document.getElementById('export-form');
-        const exportModal = new bootstrap.Modal(document.getElementById('export-success-modal'));
-        const downloadLink = document.getElementById('download-link');
-        const exportMessage = document.getElementById('export-message');
+        // Handle excuse button clicks
+        const excuseButtons = document.querySelectorAll('.excuse-btn');
+        const excuseModal = new bootstrap.Modal(document.getElementById('excuseModal'));
+        const excuseDriverIdInput = document.getElementById('excuse-driver-id');
+        const saveExcuseBtn = document.getElementById('save-excuse-btn');
         
-        exportBtn.addEventListener('click', function() {
-            // Show loading state
-            exportBtn.disabled = true;
-            exportBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Exporting...';
-            
-            // Get form data
-            const formData = new FormData(exportForm);
-            
-            // Convert to JSON
-            const data = {};
-            formData.forEach((value, key) => {
-                data[key] = value;
+        excuseButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const driverId = this.dataset.driverId;
+                excuseDriverIdInput.value = driverId;
+                excuseModal.show();
             });
+        });
+        
+        saveExcuseBtn.addEventListener('click', function() {
+            const excuseForm = document.getElementById('excuse-form');
             
-            // Send request
-            fetch('{{ url_for("driver_module.export_report") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Reset button
-                exportBtn.disabled = false;
-                exportBtn.innerHTML = '<i class="bi bi-download me-1"></i> Export Report';
-                
-                if (data.success) {
-                    // Update modal
-                    exportMessage.textContent = data.message;
-                    downloadLink.href = data.download_url;
-                    
-                    // Show modal
-                    exportModal.show();
-                } else {
-                    // Show error
-                    alert('Error: ' + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                // Reset button
-                exportBtn.disabled = false;
-                exportBtn.innerHTML = '<i class="bi bi-download me-1"></i> Export Report';
-                // Show error
-                alert('An error occurred while exporting the report.');
+            if (!excuseForm.checkValidity()) {
+                excuseForm.reportValidity();
+                return;
+            }
+            
+            // In a real application, this would save the excuse to the server
+            // For demo purposes, we'll just show a success message
+            excuseModal.hide();
+            alert('Excuse recorded successfully');
+        });
+        
+        // Handle flag button clicks
+        const flagButtons = document.querySelectorAll('.flag-btn');
+        const flagModal = new bootstrap.Modal(document.getElementById('flagModal'));
+        const flagDriverIdInput = document.getElementById('flag-driver-id');
+        const saveFlagBtn = document.getElementById('save-flag-btn');
+        
+        flagButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const driverId = this.dataset.driverId;
+                flagDriverIdInput.value = driverId;
+                flagModal.show();
+            });
+        });
+        
+        saveFlagBtn.addEventListener('click', function() {
+            const flagForm = document.getElementById('flag-form');
+            
+            if (!flagForm.checkValidity()) {
+                flagForm.reportValidity();
+                return;
+            }
+            
+            // In a real application, this would save the flag to the server
+            // For demo purposes, we'll just show a success message
+            flagModal.hide();
+            alert('Flag recorded successfully');
+        });
+        
+        // Handle notify button clicks
+        const notifyButtons = document.querySelectorAll('.notify-btn');
+        notifyButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const driverId = this.dataset.driverId;
+                // In a real application, this would send a notification to the driver
+                alert(`Notification sent to driver ${driverId}`);
+            });
+        });
+        
+        // Handle contact button clicks
+        const contactButtons = document.querySelectorAll('.contact-btn');
+        contactButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const driverId = this.dataset.driverId;
+                // In a real application, this would open contact options
+                alert(`Contact options for driver ${driverId}`);
+            });
+        });
+        
+        // Handle reassign button clicks
+        const reassignButtons = document.querySelectorAll('.reassign-btn');
+        reassignButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const driverId = this.dataset.driverId;
+                // In a real application, this would open reassignment options
+                alert(`Reassignment options for driver ${driverId}`);
+            });
+        });
+        
+        // Handle escalate button clicks
+        const escalateButtons = document.querySelectorAll('.escalate-btn');
+        escalateButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const driverId = this.dataset.driverId;
+                // In a real application, this would escalate the issue
+                alert(`Issue escalated for driver ${driverId}`);
             });
         });
     });

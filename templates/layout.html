@@ -94,9 +94,9 @@
                             <i class="bi bi-person-vcard me-1"></i> Attendance
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="attendanceDropdown">
-                            <li><a class="dropdown-item" href="{{ url_for('daily_report') }}"><i class="bi bi-calendar-day me-1"></i> Daily Report</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-graph-up me-1"></i> Attendance Dashboard</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-file-earmark-text me-1"></i> Historical Reports</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('driver_module.daily_report') }}"><i class="bi bi-calendar-day me-1"></i> Daily Report</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('driver_module.attendance_dashboard') }}"><i class="bi bi-graph-up me-1"></i> Attendance Dashboard</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('driver_module.driver_list') }}"><i class="bi bi-people me-1"></i> Driver Management</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="#"><i class="bi bi-exclamation-triangle me-1"></i> Attendance Flags</a></li>
                             <li><a class="dropdown-item" data-role-access="admin,manager"><i class="bi bi-sliders me-1"></i> Alert Thresholds</a></li>
@@ -125,12 +125,13 @@
                             <i class="bi bi-cash-coin me-1"></i> Billing
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="billingDropdown">
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-receipt me-1"></i> Timecards</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-file-earmark-text me-1"></i> Receipts</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-credit-card me-1"></i> Credit Cards</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-graph-up-arrow me-1"></i> Revenue Report</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('billing_module.index') }}"><i class="bi bi-speedometer2 me-1"></i> Billing Dashboard</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('billing_module.invoices') }}"><i class="bi bi-receipt me-1"></i> Invoice Management</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('billing_module.pm_allocation') }}"><i class="bi bi-file-earmark-spreadsheet me-1"></i> PM Allocations</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('billing_module.monthly_report') }}"><i class="bi bi-graph-up-arrow me-1"></i> Monthly Reports</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-file-earmark-pdf me-1"></i> Export Invoices</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('billing_module.pm_allocation_upload') }}"><i class="bi bi-upload me-1"></i> Upload PM Files</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('billing_module.generate_invoice') }}"><i class="bi bi-plus-circle me-1"></i> Create Invoice</a></li>
                         </ul>
                     </li>
                     

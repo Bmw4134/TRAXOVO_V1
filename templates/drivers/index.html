@@ -1,0 +1,242 @@
+{% extends "layout.html" %}
+
+{% block title %}Driver Management{% endblock %}
+
+{% block content %}
+<div class="container-fluid my-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h1 class="display-5 mb-2">
+                <i class="bi bi-person-vcard me-2"></i>Driver Management
+            </h1>
+            <p class="lead text-muted">
+                Monitor driver attendance and performance
+            </p>
+        </div>
+        <div class="col-md-6 text-md-end">
+            <div class="btn-group">
+                <a href="{{ url_for('driver_module.daily_report') }}" class="btn btn-primary">
+                    <i class="bi bi-calendar-day me-1"></i> Daily Report
+                </a>
+                <a href="{{ url_for('driver_module.attendance_dashboard') }}" class="btn btn-info text-white">
+                    <i class="bi bi-graph-up me-1"></i> Attendance Dashboard
+                </a>
+                <a href="{{ url_for('driver_module.upload_attendance') }}" class="btn btn-success">
+                    <i class="bi bi-upload me-1"></i> Upload Attendance
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body text-center">
+                    <h1 class="display-4 mb-0">{{ driver_count }}</h1>
+                    <h5 class="card-title">Total Drivers</h5>
+                    <p class="mb-0">{{ active_drivers }} Active</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body text-center">
+                    <h1 class="display-4 mb-0">{{ attendance_score }}%</h1>
+                    <h5 class="card-title">Attendance Score</h5>
+                    <p class="mb-0">Last 30 days</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card bg-warning text-dark h-100">
+                <div class="card-body text-center">
+                    <h1 class="display-4 mb-0">{{ late_count + early_end_count }}</h1>
+                    <h5 class="card-title">Lateness Flags</h5>
+                    <p class="mb-0">{{ late_count }} Late, {{ early_end_count }} Early</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card bg-danger text-white h-100">
+                <div class="card-body text-center">
+                    <h1 class="display-4 mb-0">{{ not_on_job_count }}</h1>
+                    <h5 class="card-title">Not on Job</h5>
+                    <p class="mb-0">Need follow-up</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Navigation Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-calendar-day text-primary" style="font-size: 2rem;"></i>
+                                    <h5 class="card-title mt-3">Daily Reports</h5>
+                                    <p class="card-text">View and manage today's driver attendance status</p>
+                                    <a href="{{ url_for('driver_module.daily_report') }}" class="btn btn-outline-primary">Open Daily Report</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-people text-success" style="font-size: 2rem;"></i>
+                                    <h5 class="card-title mt-3">Driver Management</h5>
+                                    <p class="card-text">View and manage driver records and details</p>
+                                    <a href="{{ url_for('driver_module.driver_list') }}" class="btn btn-outline-success">Manage Drivers</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-graph-up text-info" style="font-size: 2rem;"></i>
+                                    <h5 class="card-title mt-3">Attendance Trends</h5>
+                                    <p class="card-text">Analyze attendance patterns and performance</p>
+                                    <a href="{{ url_for('driver_module.attendance_dashboard') }}" class="btn btn-outline-info">View Dashboard</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity and Attendance Issues -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Recent Activity</h5>
+                    <span class="badge bg-primary rounded-pill">Today</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Daily report generated</h6>
+                                <small class="text-muted">5 mins ago</small>
+                            </div>
+                            <p class="mb-1">Automatic daily attendance report was generated</p>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Late start alert</h6>
+                                <small class="text-muted">32 mins ago</small>
+                            </div>
+                            <p class="mb-1">4 drivers marked as late start in DFW region</p>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Early end alert</h6>
+                                <small class="text-muted">1 hour ago</small>
+                            </div>
+                            <p class="mb-1">2 drivers marked as early end in DFW region</p>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Not on job alert</h6>
+                                <small class="text-muted">2 hours ago</small>
+                            </div>
+                            <p class="mb-1">1 driver marked as not on job in HOU region</p>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Data import completed</h6>
+                                <small class="text-muted">5 hours ago</small>
+                            </div>
+                            <p class="mb-1">Automatic data import from GaugeSmart API completed</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="#" class="btn btn-sm btn-outline-secondary">View All Activity</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Attendance Issues</h5>
+                    <span class="badge bg-danger rounded-pill">{{ late_count + early_end_count + not_on_job_count }} Issues</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Driver</th>
+                                    <th>Issue</th>
+                                    <th>Job Site</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>John Smith</td>
+                                    <td>Late Start (28 min)</td>
+                                    <td>NTTA Eastern Extension</td>
+                                    <td><span class="badge bg-warning text-dark">Pending</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Sarah Johnson</td>
+                                    <td>Late Start (17 min)</td>
+                                    <td>DFW Connector</td>
+                                    <td><span class="badge bg-warning text-dark">Pending</span></td>
+                                </tr>
+                                <tr>
+                                    <td>David Martinez</td>
+                                    <td>Late Start (15 min)</td>
+                                    <td>I-45 Expansion</td>
+                                    <td><span class="badge bg-warning text-dark">Pending</span></td>
+                                </tr>
+                                <tr>
+                                    <td>John Smith</td>
+                                    <td>Early End (18 min)</td>
+                                    <td>NTTA Eastern Extension</td>
+                                    <td><span class="badge bg-warning text-dark">Pending</span></td>
+                                </tr>
+                                <tr>
+                                    <td>David Martinez</td>
+                                    <td>Early End (18 min)</td>
+                                    <td>I-45 Expansion</td>
+                                    <td><span class="badge bg-warning text-dark">Pending</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Michael Brown</td>
+                                    <td>Not on Job</td>
+                                    <td>Harbor Bridge</td>
+                                    <td><span class="badge bg-danger">Urgent</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="{{ url_for('driver_module.daily_report') }}" class="btn btn-sm btn-outline-danger">View All Issues</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add code for any dynamic functionality here
+    });
+</script>
+{% endblock %}

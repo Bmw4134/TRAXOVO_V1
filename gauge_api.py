@@ -534,7 +534,7 @@ def update_asset_data(force=False, max_age_hours=1):
     return load_cached_data()
 
 
-def get_asset_data(use_db=True, force_update=False):
+def get_asset_data(use_db=False, force_update=False):
     """
     Main function to get asset data, using the most reliable source.
     

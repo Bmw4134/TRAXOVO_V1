@@ -57,7 +57,7 @@
                                         <tr>
                                             <td>{{ file.filename }}</td>
                                             <td><span class="badge bg-secondary">{{ file.division }}</span></td>
-                                            <td>{{ (file['size'] / 1024)|round(1) if file.size is defined else 'N/A' }} KB</td>
+                                            <td>{{ (file.size / 1024)|round(1) if file.size is defined else 'N/A' }} KB</td>
                                         </tr>
                                     {% endfor %}
                                 {% else %}

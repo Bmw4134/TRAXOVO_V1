@@ -76,6 +76,9 @@ def find_all_allocation_files():
     """Find all PM allocation files (XLSX and CSV) in the attached_assets directory"""
     all_files = []
     
+    # Base path for attached assets
+    base_path = 'attached_assets'
+    
     # Use different patterns for each division
     for division in DIVISIONS:
         # Try different naming patterns for CSV files - focus on April 2025

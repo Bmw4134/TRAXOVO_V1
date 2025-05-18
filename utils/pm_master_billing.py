@@ -105,21 +105,41 @@ def find_all_allocation_files():
     # Look for division-specific CSV files
     for division in DIVISIONS:
         # Try different naming patterns for CSV files - focus on April 2025
+        patterns = []
+        
+        # Special case for WTX - also look for WT prefix
+        if division == 'WTX':
+            if PROCESS_ONLY_APRIL:
+                patterns.extend([
+                    os.path.join(ATTACHED_ASSETS_DIR, f'*WT*APR*2025*.csv'),
+                    os.path.join(ATTACHED_ASSETS_DIR, f'*03*APR*2025*.csv'),
+                    os.path.join(ATTACHED_ASSETS_DIR, f'*03*APRIL*2025*.csv'),
+                ])
+            else:
+                patterns.extend([
+                    os.path.join(ATTACHED_ASSETS_DIR, f'*WT*APR*.csv'),
+                    os.path.join(ATTACHED_ASSETS_DIR, f'*03*APR*.csv'),
+                    os.path.join(ATTACHED_ASSETS_DIR, f'*03*APRIL*.csv'),
+                    os.path.join(ATTACHED_ASSETS_DIR, f'*WT*.csv'),
+                ])
+                
+        # Standard patterns for all divisions
         if PROCESS_ONLY_APRIL:
-            csv_patterns = [
+            patterns.extend([
                 os.path.join(ATTACHED_ASSETS_DIR, f'*{division}*APR*2025*.csv'),
                 os.path.join(ATTACHED_ASSETS_DIR, f'*{division}*APRIL*2025*.csv'),
                 os.path.join(ATTACHED_ASSETS_DIR, f'SM*{division}*APR*2025*.csv'),
-            ]
+            ])
         else:
-            csv_patterns = [
+            patterns.extend([
                 os.path.join(ATTACHED_ASSETS_DIR, f'*{division}*APR*2025*.csv'),
                 os.path.join(ATTACHED_ASSETS_DIR, f'*{division}*APRIL*2025*.csv'),
                 os.path.join(ATTACHED_ASSETS_DIR, f'SM*{division}*APR*.csv'),
                 os.path.join(ATTACHED_ASSETS_DIR, f'*{division}*.csv'),
-            ]
-        
-        for pattern in csv_patterns:
+            ])
+            
+        # Process all the patterns for this division
+        for pattern in patterns:
             csv_files = glob.glob(pattern)
             allocation_files.extend(csv_files)
     

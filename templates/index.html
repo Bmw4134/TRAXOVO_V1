@@ -195,15 +195,45 @@
                     <h5 class="mb-0"><i class="bi bi-lightning me-2"></i>Quick Actions</h5>
                 </div>
                 <div class="card-body">
+                    <!-- Dashboard Quick Navigation -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold"><i class="bi bi-speedometer2 me-1"></i> Jump to Dashboard:</label>
+                        <div class="d-flex gap-2 mb-3">
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-sm btn-outline-primary flex-grow-1">
+                                <i class="bi bi-house-door me-1"></i> Main
+                            </a>
+                            <a href="{{ url_for('attendance_dashboard') }}" class="btn btn-sm btn-outline-success flex-grow-1">
+                                <i class="bi bi-person-badge me-1"></i> Driver
+                            </a>
+                            <a href="#" class="btn btn-sm btn-outline-info flex-grow-1">
+                                <i class="bi bi-tools me-1"></i> Maintenance
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Organization Selection -->
+                    <div class="mb-3">
+                        <label for="organization-select" class="form-label fw-bold"><i class="bi bi-building me-1"></i> Organization:</label>
+                        <select id="organization-select" class="form-select form-select-sm">
+                            <option value="all">All Organizations</option>
+                            <option value="1">Texas District</option>
+                            <option value="2">Ragle Construction</option>
+                            <option value="3">West TX</option>
+                            <option value="4">ESCO</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <label class="form-label fw-bold"><i class="bi bi-list-task me-1"></i> Actions:</label>
                     <div class="d-grid gap-2">
                         <a href="{{ url_for('daily_report') }}" class="btn btn-outline-primary">
                             <i class="bi bi-calendar-date me-2"></i> Daily Driver Report
                         </a>
-                        <a href="{{ url_for('ocr_tool') }}" class="btn btn-outline-info">
-                            <i class="bi bi-file-text me-2"></i> OCR Processing
-                        </a>
                         <a href="{{ url_for('pm_allocation_processor') }}" class="btn btn-outline-success">
                             <i class="bi bi-calculator me-2"></i> PM Allocation
+                        </a>
+                        <a href="{{ url_for('ocr_tool') }}" class="btn btn-outline-info">
+                            <i class="bi bi-file-text me-2"></i> OCR Processing
                         </a>
                         <a href="{{ url_for('assets') }}" class="btn btn-outline-secondary">
                             <i class="bi bi-truck me-2"></i> Asset Management
@@ -226,6 +256,75 @@
                 link.classList.add('active');
             }
         });
+        
+        // Organization selector consistent across the application
+        const organizationSelect = document.getElementById('organization-select');
+        if (organizationSelect) {
+            // Load organization selection from localStorage if available
+            const savedOrg = localStorage.getItem('selectedOrganization');
+            if (savedOrg) {
+                organizationSelect.value = savedOrg;
+            }
+            
+            // Save organization selection to localStorage when changed
+            organizationSelect.addEventListener('change', function() {
+                const selectedOrg = this.value;
+                localStorage.setItem('selectedOrganization', selectedOrg);
+                
+                // Update any other organization selectors on the page
+                document.querySelectorAll('select[data-org-selector]').forEach(selector => {
+                    if (selector !== organizationSelect) {
+                        selector.value = selectedOrg;
+                    }
+                });
+                
+                // Optional: Refresh data based on new organization
+                // This can be extended to make an AJAX call to refresh data
+                const orgName = this.options[this.selectedIndex].text;
+                const dashboardTitle = document.querySelector('.dashboard-title');
+                if (dashboardTitle && selectedOrg !== 'all') {
+                    dashboardTitle.innerHTML = `Fleet Dashboard <span class="text-muted">- ${orgName}</span>`;
+                } else if (dashboardTitle) {
+                    dashboardTitle.textContent = 'Fleet Dashboard';
+                }
+                
+                // Inform user of the change
+                const toast = document.createElement('div');
+                toast.className = 'toast align-items-center position-fixed bottom-0 end-0 m-3 bg-primary text-white';
+                toast.setAttribute('role', 'alert');
+                toast.setAttribute('aria-live', 'assertive');
+                toast.setAttribute('aria-atomic', 'true');
+                toast.innerHTML = `
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <i class="bi bi-building"></i> Organization changed to ${orgName}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                `;
+                document.body.appendChild(toast);
+                
+                // Use Bootstrap's toast JavaScript API to show the toast
+                const bsToast = new bootstrap.Toast(toast, {
+                    delay: 3000
+                });
+                bsToast.show();
+                
+                // Optional: Add URL parameter for server-side filtering
+                // window.location.href = updateUrlParameter(window.location.href, 'org', selectedOrg);
+            });
+        }
     });
+    
+    // Helper function to update URL parameters
+    function updateUrlParameter(url, key, value) {
+        const re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+        const separator = url.indexOf('?') !== -1 ? "&" : "?";
+        if (url.match(re)) {
+            return url.replace(re, '$1' + key + "=" + value + '$2');
+        } else {
+            return url + separator + key + "=" + value;
+        }
+    }
 </script>
 {% endblock %}

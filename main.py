@@ -548,12 +548,32 @@ def pm_allocation_processor():
             # Import the processing function
             from utils.pm_processor import process_pm_allocation
             
+            # Try to import activity logger
+            try:
+                from utils.activity_logger import log_pm_process
+            except ImportError:
+                # Create a dummy function if activity logger is not available
+                def log_pm_process(*args, **kwargs):
+                    pass
+                    
             # Process the files
             result = process_pm_allocation(
                 original_path=original_path,
                 updated_path=updated_path,
                 region=region
             )
+            
+            # Log the PM allocation processing
+            try:
+                log_pm_process(
+                    original_file=os.path.basename(original_path),
+                    updated_file=os.path.basename(updated_path),
+                    region=region,
+                    changes_count=len(result.get('changes', [])) if result and result.get('success') else 0,
+                    success=result.get('success', False) if result else False
+                )
+            except Exception as e:
+                app.logger.error(f"Failed to log PM processing: {e}")
             
             if result and 'success' in result and result['success']:
                 # Format for display
@@ -976,6 +996,16 @@ def export_report(report_type, format):
     
     # Handle daily report exports
     if report_type == 'daily':
+        # Log report export activity
+        try:
+            log_report_export(
+                report_type='daily_driver',
+                export_format=format,
+                filters={'date': date_str}
+            )
+        except Exception as e:
+            app.logger.error(f"Failed to log report export: {e}")
+            
         # Sample data for the report (for demonstration)
         late_starts = late_start_records if 'late_start_records' in locals() else [
             {'driver_name': 'John Smith', 'job_site': 'Project Alpha', 

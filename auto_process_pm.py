@@ -1,252 +1,276 @@
-#!/usr/bin/env python3
 """
-Auto-detect and process PM allocation files
+Auto Process PM Allocations
 
-This standalone script will automatically find the original and updated 
-PM allocation files in the attached_assets directory and process them.
+This script focuses on specific PM allocation files to update the base amounts
+and generate the required deliverables.
 """
-
 import os
-import re
 import pandas as pd
-from datetime import datetime
-from pathlib import Path
+import logging
 
-# Import PM processor utilities
-from utils.pm_processor import find_allocation_files
+# Setup logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-# Configure paths
-ATTACHED_ASSETS_DIR = Path('./attached_assets')
-REPORTS_DIR = Path('./reports')
+# Constants
+ATTACHED_ASSETS_DIR = 'attached_assets'
+EXPORTS_DIR = 'exports'
+MONTH_NAME = 'APRIL'
+YEAR = '2025'
 
-# Ensure reports directory exists
-REPORTS_DIR.mkdir(exist_ok=True)
+# Output file names
+FINALIZED_MASTER_ALLOCATION = f"FINALIZED_MASTER_ALLOCATION_SHEET_{MONTH_NAME}_{YEAR}.xlsx"
+MASTER_BILLINGS = f"MASTER_EQUIP_BILLINGS_{MONTH_NAME}_{YEAR}.xlsx"
+REGION_IMPORT_PREFIX = "FINAL_REGION_IMPORT_"
 
-def compare_allocation_files(original_file, updated_file, output_path):
-    """
-    Compare the original and updated allocation files and output a reconciliation report
+# Source files - specifically target the main PM allocation files
+PM_FILES = [
+    "A.HARDIMO EQMO. BILLING ALLOCATIONS - APRIL 2025 (TR-FINAL REVISIONS BY 05.15.2025).xlsx",
+    "C.KOCMICK EQMO. BILLING ALLOCATIONS - APRIL 2025.xlsx",
+    "L. MORALES EQMO. BILLING ALLOCATIONS - APRIL 2025.xlsx",
+    "S. ALVAREZ EQMO. BILLING ALLOCATIONS - APRIL 2025.xlsx"
+]
+
+def process_pm_allocations():
+    """Process PM allocations and generate deliverables"""
+    # Load all PM-specific data
+    pm_records = []
     
-    Args:
-        original_file (Path): Path to original allocation file
-        updated_file (Path): Path to updated allocation file
-        output_path (Path): Path to save the output report
-        
-    Returns:
-        tuple: (output_file_path, summary_dict)
-    """
-    print(f"Processing files:\nOriginal: {original_file}\nUpdated: {updated_file}")
+    # Dictionary to store equipment data by ID
+    equipment_dict = {}
     
-    # Load the Excel files
-    original_df = pd.read_excel(original_file)
-    updated_df = pd.read_excel(updated_file)
-    
-    # Clean column names (remove extra spaces, convert to uppercase)
-    original_df.columns = [str(col).strip().upper() for col in original_df.columns]
-    updated_df.columns = [str(col).strip().upper() for col in updated_df.columns]
-    
-    # Find ID and amount columns using regex patterns
-    id_patterns = [r'EQ#', r'EQ #', r'EQUIPMENT #', r'EQUIP #', r'EQUIP. #', r'UNIT']
-    amount_patterns = [r'COST', r'AMOUNT', r'TOTAL', r'BILLING']
-    
-    # Identify the ID column
-    id_col_orig = None
-    for col in original_df.columns:
-        if any(re.search(pattern, col, re.IGNORECASE) for pattern in id_patterns):
-            id_col_orig = col
-            break
-    
-    id_col_updated = None
-    for col in updated_df.columns:
-        if any(re.search(pattern, col, re.IGNORECASE) for pattern in id_patterns):
-            id_col_updated = col
-            break
-    
-    # Identify the amount column
-    amount_col_orig = None
-    for col in original_df.columns:
-        if any(re.search(pattern, col, re.IGNORECASE) for pattern in amount_patterns):
-            amount_col_orig = col
-            break
-    
-    amount_col_updated = None
-    for col in updated_df.columns:
-        if any(re.search(pattern, col, re.IGNORECASE) for pattern in amount_patterns):
-            amount_col_updated = col
-            break
-    
-    # Find description column
-    desc_patterns = [r'DESCRIPTION', r'DESC', r'EQUIPMENT DESC']
-    desc_col_orig = None
-    for col in original_df.columns:
-        if any(re.search(pattern, col, re.IGNORECASE) for pattern in desc_patterns):
-            desc_col_orig = col
-            break
-    
-    desc_col_updated = None
-    for col in updated_df.columns:
-        if any(re.search(pattern, col, re.IGNORECASE) for pattern in desc_patterns):
-            desc_col_updated = col
-            break
-    
-    # Check if we found all needed columns
-    if not all([id_col_orig, id_col_updated, amount_col_orig, amount_col_updated]):
-        print("Error: Could not identify ID or amount columns in the files")
-        return None, {"error": "Column identification failed"}
-    
-    # Prepare to track changes
-    changes = []
-    
-    # Convert to sets for easy comparison
-    original_ids = set(original_df[id_col_orig].astype(str))
-    updated_ids = set(updated_df[id_col_updated].astype(str))
-    
-    # Find additions (in updated but not in original)
-    additions = updated_ids - original_ids
-    for asset_id in additions:
-        row = updated_df[updated_df[id_col_updated].astype(str) == asset_id].iloc[0]
-        description = row[desc_col_updated] if desc_col_updated else "N/A"
-        amount = row[amount_col_updated]
-        
-        changes.append({
-            "asset_id": asset_id,
-            "description": description,
-            "updated_value": amount,
-            "original_value": None,
-            "difference": amount,
-            "status": "Added"
-        })
-    
-    # Find deletions (in original but not in updated)
-    deletions = original_ids - updated_ids
-    for asset_id in deletions:
-        row = original_df[original_df[id_col_orig].astype(str) == asset_id].iloc[0]
-        description = row[desc_col_orig] if desc_col_orig else "N/A"
-        amount = row[amount_col_orig]
-        
-        changes.append({
-            "asset_id": asset_id,
-            "description": description,
-            "updated_value": None,
-            "original_value": amount,
-            "difference": -amount,
-            "status": "Deleted"
-        })
-    
-    # Find modifications (same ID but different amount)
-    common_ids = original_ids.intersection(updated_ids)
-    for asset_id in common_ids:
-        orig_row = original_df[original_df[id_col_orig].astype(str) == asset_id].iloc[0]
-        update_row = updated_df[updated_df[id_col_updated].astype(str) == asset_id].iloc[0]
-        
-        orig_amount = orig_row[amount_col_orig]
-        update_amount = update_row[amount_col_updated]
-        
-        # Skip if amounts are the same (no change)
-        if pd.isna(orig_amount) and pd.isna(update_amount):
+    # Process each PM file
+    for pm_file in PM_FILES:
+        file_path = os.path.join(ATTACHED_ASSETS_DIR, pm_file)
+        if not os.path.exists(file_path):
+            logger.warning(f"PM file not found: {pm_file}")
             continue
-        
-        # Handle NaN values
-        if pd.isna(orig_amount):
-            orig_amount = 0
-        if pd.isna(update_amount):
-            update_amount = 0
             
-        # Convert to numeric values if they're strings
-        if isinstance(orig_amount, str):
-            try:
-                orig_amount = float(orig_amount.replace('$', '').replace(',', ''))
-            except ValueError:
-                orig_amount = 0
-        
-        if isinstance(update_amount, str):
-            try:
-                update_amount = float(update_amount.replace('$', '').replace(',', ''))
-            except ValueError:
-                update_amount = 0
+        try:
+            logger.info(f"Processing PM file: {pm_file}")
             
-        # Check if amount changed
-        if abs(orig_amount - update_amount) > 0.01:  # Allow small floating point differences
-            description = update_row[desc_col_updated] if desc_col_updated else "N/A"
+            # Try to find "EQ ALLOCATIONS - ALL DIV" sheet
+            sheets_to_try = ["EQ ALLOCATIONS - ALL DIV", "ALLOCATIONS", "Sheet1", "Allocations"]
+            df = None
             
-            changes.append({
-                "asset_id": asset_id,
-                "description": description,
-                "updated_value": update_amount,
-                "original_value": orig_amount,
-                "difference": update_amount - orig_amount,
-                "status": "Modified"
-            })
-    
-    # Calculate summary
-    total_original = sum(change['original_value'] for change in changes if change['original_value'] is not None)
-    total_updated = sum(change['updated_value'] for change in changes if change['updated_value'] is not None)
-    total_difference = sum(change['difference'] for change in changes)
-    
-    summary = {
-        "total_original": total_original,
-        "total_updated": total_updated,
-        "total_difference": total_difference,
-        "total_changed_records": len(changes),
-        "additions": len([c for c in changes if c['status'] == 'Added']),
-        "deletions": len([c for c in changes if c['status'] == 'Deleted']),
-        "modifications": len([c for c in changes if c['status'] == 'Modified'])
-    }
-    
-    # Create output file with changes
-    output_data = []
-    for change in changes:
-        output_data.append({
-            "Asset_ID": change['asset_id'],
-            "Description": change['description'],
-            "Amount": change['updated_value'] if change['updated_value'] is not None else 0,
-            "Change_Type": change['status'],
-            "Original_Amount": change['original_value'] if change['original_value'] is not None else 0,
-            "Difference": change['difference']
-        })
-    
-    # Create output dataframe and save to CSV
-    output_df = pd.DataFrame(output_data)
-    output_df.to_csv(output_path, index=False)
-    
-    return output_path, summary
-
-def main():
-    """Main function to auto-detect and process PM allocation files"""
-    print("Looking for PM allocation files in attached_assets directory...")
-    
-    # Find the allocation files
-    original_file, updated_file = find_allocation_files()
-    
-    if not original_file or not updated_file:
-        print("Could not find suitable allocation files. Please make sure the files exist in the attached_assets directory.")
-        return
-    
-    print(f"Found files:\nOriginal: {original_file}\nUpdated: {updated_file}")
-    
-    # Generate output filename with timestamp
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_path = REPORTS_DIR / f"pm_reconciliation_{timestamp}.csv"
-    
-    # Process the files
-    try:
-        result_path, summary = compare_allocation_files(original_file, updated_file, output_path)
+            for sheet in sheets_to_try:
+                try:
+                    df = pd.read_excel(file_path, sheet_name=sheet)
+                    if not df.empty:
+                        logger.info(f"Found data in sheet {sheet}")
+                        break
+                except:
+                    continue
+                    
+            if df is None or df.empty:
+                logger.warning(f"No data found in {pm_file}")
+                continue
+                
+            # Look for columns with EQUIP #, JOB #, COST CODE, UNITS, RATE, AMOUNT
+            # The exact column names vary by PM sheet, so we need to search
+            equip_col = next((col for col in df.columns if 'EQUIP #' in str(col).upper() or 'EQUIP ID' in str(col).upper()), None)
+            job_col = next((col for col in df.columns if 'JOB' in str(col).upper() or 'JOB #' in str(col).upper()), None)
+            cost_code_col = next((col for col in df.columns if 'COST CODE' in str(col).upper() or 'CC' in str(col).upper()), None)
+            units_col = next((col for col in df.columns if 'UNITS' in str(col).upper() or 'QTY' in str(col).upper() 
+                              or 'ALLOCATION' in str(col).upper() or 'REVISION' in str(col).upper()), None)
+            rate_col = next((col for col in df.columns if 'RATE' in str(col).upper() or 'UNIT RATE' in str(col).upper()), None)
+            amount_col = next((col for col in df.columns if 'AMOUNT' in str(col).upper() or 'TOTAL' in str(col).upper()), None)
+            
+            if not equip_col or not job_col or (not units_col and not amount_col):
+                logger.warning(f"Missing required columns in {pm_file}")
+                continue
+                
+            # Extract rows with equipment IDs
+            if equip_col:
+                df = df[df[equip_col].notna()]
+                
+                # Specific column with revisions/allocations used
+                rev_col = None
+                for col in df.columns:
+                    col_str = str(col).upper()
+                    if ('REVISION' in col_str or 'ALLOCAT' in col_str) and 'UNIT' in col_str:
+                        rev_col = col
+                        break
+                        
+                # If found a specific revision column, use it
+                if rev_col and rev_col != units_col:
+                    logger.info(f"Using revision column: {rev_col}")
+                    units_col = rev_col
+                    
+                # Process each row
+                for idx, row in df.iterrows():
+                    if pd.isna(row[equip_col]) or str(row[equip_col]).strip() == "":
+                        continue
+                        
+                    equip_id = str(row[equip_col]).strip()
+                    
+                    # Skip if no job specified
+                    if job_col is None or pd.isna(row[job_col]) or str(row[job_col]).strip() == "":
+                        continue
+                        
+                    job = str(row[job_col]).strip()
+                    
+                    # Get cost code if available
+                    cost_code = ""
+                    if cost_code_col and not pd.isna(row[cost_code_col]):
+                        cost_code = str(row[cost_code_col]).strip()
+                        
+                    # Get units and rate
+                    units = 0
+                    if units_col and not pd.isna(row[units_col]):
+                        try:
+                            units = float(row[units_col])
+                        except:
+                            units = 0
+                            
+                    rate = 0
+                    if rate_col and not pd.isna(row[rate_col]):
+                        try:
+                            rate = float(row[rate_col])
+                        except:
+                            rate = 0
+                            
+                    # Calculate amount if not provided
+                    amount = 0
+                    if amount_col and not pd.isna(row[amount_col]):
+                        try:
+                            amount = float(row[amount_col])
+                        except:
+                            amount = 0
+                    elif units > 0 and rate > 0:
+                        amount = units * rate
+                        
+                    # Skip if no amount
+                    if amount <= 0:
+                        continue
+                        
+                    # Store equipment data
+                    key = f"{equip_id}_{job}_{cost_code}"
+                    equipment_dict[key] = {
+                        'equip_id': equip_id,
+                        'job': job,
+                        'cost_code': cost_code,
+                        'units': units,
+                        'rate': rate,
+                        'amount': amount,
+                        'pm': os.path.splitext(pm_file)[0]  # PM name without extension
+                    }
+                    
+            logger.info(f"Extracted {len(equipment_dict)} unique records from all PM files")
+                
+        except Exception as e:
+            logger.error(f"Error processing {pm_file}: {str(e)}")
+            
+    # Convert equipment dictionary to dataframe
+    if equipment_dict:
+        pm_data = pd.DataFrame(list(equipment_dict.values()))
+        logger.info(f"Final PM allocation dataframe has {len(pm_data)} records")
         
-        if result_path:
-            print("\nProcessing completed successfully!")
-            print(f"Output saved to: {result_path}")
-            print("\nSummary:")
-            print(f"Original Total: ${summary['total_original']:,.2f}")
-            print(f"Updated Total: ${summary['total_updated']:,.2f}")
-            print(f"Difference: ${summary['total_difference']:,.2f}")
-            print(f"Changed Records: {summary['total_changed_records']}")
-            print(f"  - Additions: {summary['additions']}")
-            print(f"  - Deletions: {summary['deletions']}")
-            print(f"  - Modifications: {summary['modifications']}")
-        else:
-            print("Processing failed. Check the error messages above.")
-    
-    except Exception as e:
-        print(f"Error processing files: {str(e)}")
-
+        # Calculate total
+        if 'amount' in pm_data.columns:
+            pm_total = pm_data['amount'].sum()
+            logger.info(f"Total PM amount: ${pm_total:,.2f}")
+            
+        # Generate CSV with PM-specific allocations
+        pm_data['pm'] = pm_data['pm'].fillna('Unknown')
+        
+        # Generate division data based on job number patterns
+        def assign_division(job):
+            job_str = str(job).upper()
+            if job_str.startswith('D') or '2023' in job_str or '2024-' in job_str:
+                return 'DFW'
+            elif job_str.startswith('H') or '-H' in job_str:
+                return 'HOU'
+            elif job_str.startswith('W') or 'WTX' in job_str or 'WT-' in job_str:
+                return 'WTX'
+            else:
+                return 'DFW'  # Default to DFW
+                
+        pm_data['division'] = pm_data['job'].apply(assign_division)
+        
+        # 1. Generate FINALIZED MASTER ALLOCATION SHEET
+        # Enhance with more columns from base data if needed
+        export_df = pm_data.copy()
+        
+        # Add any missing columns expected in the output
+        for col in ['date', 'description', 'phase', 'frequency']:
+            if col not in export_df.columns:
+                export_df[col] = ''
+                
+        # Rename columns for the export
+        column_mapping = {
+            'equip_id': 'Equip #',
+            'description': 'Equipment Description',
+            'date': 'Date',
+            'job': 'Job',
+            'phase': 'Phase',
+            'cost_code': 'Cost Code',
+            'units': 'Units',
+            'frequency': 'Frequency',
+            'rate': 'Rate',
+            'amount': 'Amount',
+            'division': 'Division',
+            'pm': 'PM Allocation'
+        }
+        
+        export_df.rename(columns=column_mapping, inplace=True)
+        
+        # Ensure exports directory exists
+        os.makedirs(EXPORTS_DIR, exist_ok=True)
+        
+        # Write to Excel
+        master_allocation_path = os.path.join(EXPORTS_DIR, FINALIZED_MASTER_ALLOCATION)
+        export_df.to_excel(master_allocation_path, index=False, sheet_name='Master Allocation')
+        logger.info(f"Generated Finalized Master Allocation Sheet: {master_allocation_path}")
+        
+        # 2. Generate MASTER BILLINGS SHEET (same data, different name)
+        master_billing_path = os.path.join(EXPORTS_DIR, MASTER_BILLINGS)
+        export_df.to_excel(master_billing_path, index=False, sheet_name='Equip Billings')
+        logger.info(f"Generated Master Billings Sheet: {master_billing_path}")
+        
+        # 3. Generate FINAL REGION IMPORT FILES
+        for division in ['DFW', 'WTX', 'HOU']:
+            division_data = export_df[export_df['Division'] == division].copy()
+            
+            if not division_data.empty:
+                # Create export dataframe
+                import_df = pd.DataFrame()
+                
+                # Map columns for export
+                import_mapping = {
+                    'Equip #': 'Equipment_Number',
+                    'Date': 'Date',
+                    'Job': 'Job',
+                    'Cost Code': 'Cost_Code',
+                    'Units': 'Hours',
+                    'Rate': 'Rate',
+                    'Amount': 'Amount'
+                }
+                
+                for source, target in import_mapping.items():
+                    if source in division_data.columns:
+                        import_df[target] = division_data[source]
+                    else:
+                        import_df[target] = ""
+                
+                # Format date column - use today's date if missing
+                if 'Date' in import_df.columns:
+                    if import_df['Date'].isna().all() or (import_df['Date'] == '').all():
+                        import_df['Date'] = pd.Timestamp.now().strftime('%Y-%m-%d')
+                    else:
+                        import_df['Date'] = pd.to_datetime(import_df['Date'], errors='coerce').dt.strftime('%Y-%m-%d')
+                
+                # Write CSV
+                output_path = os.path.join(EXPORTS_DIR, f"{REGION_IMPORT_PREFIX}{division}_{MONTH_NAME}_{YEAR}.csv")
+                import_df.to_csv(output_path, index=False)
+                
+                division_total = import_df['Amount'].sum()
+                logger.info(f"Generated {division} Import File: {output_path} with {len(import_df)} records - Total: ${division_total:,.2f}")
+        
+        return True
+    else:
+        logger.error("No equipment data found in PM files")
+        return False
+            
 if __name__ == "__main__":
-    main()
+    process_pm_allocations()

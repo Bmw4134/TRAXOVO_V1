@@ -112,12 +112,14 @@ def find_all_allocation_files():
             if PROCESS_ONLY_APRIL:
                 patterns.extend([
                     os.path.join(ATTACHED_ASSETS_DIR, f'*WT*APR*2025*.csv'),
+                    os.path.join(ATTACHED_ASSETS_DIR, f'03 - WT APR 2025.csv'),  # Exact filename match
                     os.path.join(ATTACHED_ASSETS_DIR, f'*03*APR*2025*.csv'),
                     os.path.join(ATTACHED_ASSETS_DIR, f'*03*APRIL*2025*.csv'),
                 ])
             else:
                 patterns.extend([
                     os.path.join(ATTACHED_ASSETS_DIR, f'*WT*APR*.csv'),
+                    os.path.join(ATTACHED_ASSETS_DIR, f'03 - WT*.csv'),  # Exact filename pattern
                     os.path.join(ATTACHED_ASSETS_DIR, f'*03*APR*.csv'),
                     os.path.join(ATTACHED_ASSETS_DIR, f'*03*APRIL*.csv'),
                     os.path.join(ATTACHED_ASSETS_DIR, f'*WT*.csv'),

@@ -1,291 +1,164 @@
 {% extends "layout.html" %}
 
-{% block title %}PM Master Help{% endblock %}
+{% block title %}PM Master Billing Help{% endblock %}
 
 {% block content %}
-<div class="container my-5">
+<div class="container-fluid my-4">
+    <!-- Header -->
     <div class="row mb-4">
-        <div class="col-md-8">
-            <h1 class="display-5 mb-3">
-                <i class="bi bi-question-circle me-2"></i>How to Use PM Master Billing
+        <div class="col-md-6">
+            <h1 class="display-5 mb-2">
+                <i class="bi bi-question-circle me-2"></i>PM Master Billing Help
             </h1>
-            <p class="lead">
-                This guide walks you through the process of batch-processing and consolidating PM allocation files.
+            <p class="lead text-muted">
+                Learn how to use the PM Master Billing system
             </p>
         </div>
-        <div class="col-md-4 text-md-end">
-            <a href="{{ url_for('pm_master.index') }}" class="btn btn-primary">
-                <i class="bi bi-arrow-left me-1"></i> Back to PM Master
-            </a>
+        <div class="col-md-6 text-md-end">
+            <div class="btn-group">
+                <a href="{{ url_for('pm_master.index') }}" class="btn btn-primary">
+                    <i class="bi bi-arrow-left me-1"></i> Back to PM Master
+                </a>
+            </div>
         </div>
     </div>
 
+    <!-- Help Content -->
     <div class="row">
-        <div class="col-md-3 mb-4">
-            <div class="list-group" id="help-tabs" role="tablist">
-                <a class="list-group-item list-group-item-action active" id="overview-tab" data-bs-toggle="list" href="#overview" role="tab" aria-controls="overview">Overview</a>
-                <a class="list-group-item list-group-item-action" id="getting-started-tab" data-bs-toggle="list" href="#getting-started" role="tab" aria-controls="getting-started">Getting Started</a>
-                <a class="list-group-item list-group-item-action" id="batch-processing-tab" data-bs-toggle="list" href="#batch-processing" role="tab" aria-controls="batch-processing">Batch Processing</a>
-                <a class="list-group-item list-group-item-action" id="interpreting-results-tab" data-bs-toggle="list" href="#interpreting-results" role="tab" aria-controls="interpreting-results">Interpreting Results</a>
-                <a class="list-group-item list-group-item-action" id="exporting-tab" data-bs-toggle="list" href="#exporting" role="tab" aria-controls="exporting">Exporting</a>
-                <a class="list-group-item list-group-item-action" id="faq-tab" data-bs-toggle="list" href="#faq" role="tab" aria-controls="faq">FAQ</a>
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">PM Master Billing System Instructions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        The PM Master Billing system is designed to process multiple PM allocation spreadsheets at once and generate consolidated exports for each division.
+                    </div>
+
+                    <h5 class="mt-4 mb-3">Step 1: Preparing Your Files</h5>
+                    <p>Before processing, ensure all your allocation files are in the attached_assets folder. The system will look for files with names containing:</p>
+                    <ul>
+                        <li><strong>EQMO</strong> and <strong>BILLING ALLOCATIONS</strong> in the filename</li>
+                        <li>Files should contain information about equipment numbers, job assignments, usage units, and billing information</li>
+                        <li>The system will automatically look for the "FINAL REVISIONS" file as the base file</li>
+                    </ul>
+
+                    <h5 class="mt-4 mb-3">Step 2: Equipment Rates</h5>
+                    <p>The system needs equipment rates information to generate complete billing:</p>
+                    <ul>
+                        <li>The system will automatically look for a file containing <strong>EQ MONTHLY BILLINGS WORKING</strong> in the name</li>
+                        <li>It will try to find a sheet named "Equip Rates" or containing "RATES" in the name</li>
+                        <li>Rates should be organized by equipment number with columns for MONTHLY, HOURLY, DAILY, and WEEKLY rates</li>
+                    </ul>
+
+                    <h5 class="mt-4 mb-3">Step 3: Processing Files</h5>
+                    <p>To process the allocation files:</p>
+                    <ol>
+                        <li>Click the <strong>"Process All April 2025 Files"</strong> button at the top of the page</li>
+                        <li>The system will search for and process all allocation files in the attached_assets folder</li>
+                        <li>It will extract equipment numbers, descriptions, job assignments, usage units, and other billing information</li>
+                        <li>Equipment rates will be applied from the rates file based on the usage frequency (Monthly, Hourly, etc.)</li>
+                        <li>A consolidated master billing sheet will be generated</li>
+                    </ol>
+
+                    <h5 class="mt-4 mb-3">Step 4: Download Generated Exports</h5>
+                    <p>After processing, several export files will be generated:</p>
+                    <ul>
+                        <li><strong>MASTER_EQUIP_BILLINGS_APRIL_*.xlsx</strong> - Contains all billing data from all divisions</li>
+                        <li><strong>DFW_EQUIP_BILLINGS_APRIL_*.xlsx</strong> - Filtered billing data for DFW division only</li>
+                        <li><strong>HOU_EQUIP_BILLINGS_APRIL_*.xlsx</strong> - Filtered billing data for HOU division only</li>
+                        <li><strong>WTX_EQUIP_BILLINGS_APRIL_*.xlsx</strong> - Filtered billing data for WTX division only</li>
+                        <li><strong>SELECT_EQUIP_BILLINGS_APRIL_*.xlsx</strong> - Filtered billing data for SELECT division only</li>
+                    </ul>
+                    <p>Click the <strong>Download</strong> button next to each file to save it to your computer.</p>
+
+                    <h5 class="mt-4 mb-3">Output Format</h5>
+                    <p>Each export file will contain the following columns:</p>
+                    <ul>
+                        <li><strong>DIVISION</strong> - Division code (DFW, HOU, WTX, SELECT)</li>
+                        <li><strong>EQUIPMENT_ID</strong> - Equipment number identifier</li>
+                        <li><strong>DESCRIPTION</strong> - Equipment description</li>
+                        <li><strong>DATE</strong> - Date of allocation</li>
+                        <li><strong>JOB</strong> - Job or project identifier</li>
+                        <li><strong>PHASE</strong> - Phase code (if available)</li>
+                        <li><strong>COST_CODE</strong> - Cost code (if available)</li>
+                        <li><strong>UNITS</strong> - Number of units (days, hours, etc.)</li>
+                        <li><strong>FREQUENCY</strong> - Billing frequency (MONTHLY, HOURLY, DAILY, WEEKLY)</li>
+                        <li><strong>RATE</strong> - Rate amount based on frequency</li>
+                        <li><strong>AMOUNT</strong> - Total billing amount (UNITS × RATE)</li>
+                        <li><strong>SOURCE_FILE</strong> - Source allocation file</li>
+                    </ul>
+
+                    <div class="alert alert-warning mt-4">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Note:</strong> The system will log missing rates and unmapped assets but will not block export generation. Check the log for any warnings or errors if totals don't match expectations.
+                    </div>
+                </div>
             </div>
         </div>
+    </div>
 
-        <div class="col-md-9 mb-4">
+    <!-- Common Issues -->
+    <div class="row mt-4">
+        <div class="col-12">
             <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="card-title mb-0">Common Issues & Troubleshooting</h5>
+                </div>
                 <div class="card-body">
-                    <div class="tab-content" id="help-tabContent">
-                        <!-- Overview Tab -->
-                        <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
-                            <h3 class="mb-3">PM Master Billing Overview</h3>
-                            <p>The PM Master Billing module is designed to streamline the process of reconciling and consolidating monthly equipment (PM) billing allocations across multiple regions, departments, or job sites.</p>
-                            
-                            <div class="card mb-4 bg-light">
-                                <div class="card-body">
-                                    <h5 class="card-title">Key Features</h5>
+                    <div class="accordion" id="troubleshootingAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="heading1">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1" aria-expanded="false" aria-controls="collapse1">
+                                    Missing or incorrect rates
+                                </button>
+                            </h2>
+                            <div id="collapse1" class="accordion-collapse collapse" aria-labelledby="heading1" data-bs-parent="#troubleshootingAccordion">
+                                <div class="accordion-body">
+                                    <p>If equipment rates are missing or incorrect:</p>
                                     <ul>
-                                        <li><strong>Batch Processing:</strong> Process multiple allocation files at once</li>
-                                        <li><strong>Automated Comparison:</strong> Compare allocation files against a base file</li>
-                                        <li><strong>Change Detection:</strong> Automatically detect and highlight changes</li>
-                                        <li><strong>Consolidated Reporting:</strong> Generate a single comprehensive report</li>
-                                        <li><strong>Excel Export:</strong> Export results in Excel format for further analysis</li>
+                                        <li>Check that the equipment rates file is present in the attached_assets folder</li>
+                                        <li>Verify the rate sheet contains columns with names like "MONTHLY", "HOURLY", "DAILY", or "WEEKLY" with the word "RATE"</li>
+                                        <li>Ensure equipment IDs in the allocation files match exactly with those in the rates file</li>
+                                        <li>The system will still generate exports even with missing rates - check the log for warnings</li>
                                     </ul>
                                 </div>
                             </div>
-                            
-                            <h5>Common Use Cases</h5>
-                            <ol>
-                                <li>End-of-month reconciliation for equipment billing across multiple regions</li>
-                                <li>Comparing updated allocation files against original versions</li>
-                                <li>Consolidating multiple department allocations into a single master report</li>
-                                <li>Tracking changes in equipment allocations over time</li>
-                            </ol>
                         </div>
-                        
-                        <!-- Getting Started Tab -->
-                        <div class="tab-pane fade" id="getting-started" role="tabpanel" aria-labelledby="getting-started-tab">
-                            <h3 class="mb-3">Getting Started</h3>
-                            <p>Before you can start using the PM Master Billing module, you'll need to understand the basics of allocation files and how they're processed.</p>
-                            
-                            <div class="card mb-4 bg-light">
-                                <div class="card-body">
-                                    <h5 class="card-title">File Requirements</h5>
-                                    <p>The system works with Excel (.xlsx) files that contain equipment billing allocations. These files typically include:</p>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="heading2">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
+                                    Division not detected correctly
+                                </button>
+                            </h2>
+                            <div id="collapse2" class="accordion-collapse collapse" aria-labelledby="heading2" data-bs-parent="#troubleshootingAccordion">
+                                <div class="accordion-body">
+                                    <p>If divisions are not correctly assigned:</p>
                                     <ul>
-                                        <li>Equipment IDs and descriptions</li>
-                                        <li>Billing amounts and rates</li>
-                                        <li>Job site or project allocations</li>
-                                        <li>Cost codes or accounting references</li>
+                                        <li>The system tries to detect divisions from the allocation file names (looking for DFW, HOU, WTX, SELECT)</li>
+                                        <li>If not found in the filename, it looks for a column named "DIVISION", "DIV", "REGION", etc.</li>
+                                        <li>If still not found, equipment may be assigned to no division or the default division</li>
+                                        <li>You may need to add division information to the filenames or add a division column</li>
                                     </ul>
                                 </div>
                             </div>
-                            
-                            <h5>Base File vs. Comparison Files</h5>
-                            <p>The system uses a <strong>base file</strong> as the reference point for comparisons. This is typically the original or "final revisions" version of the allocation file. All other files are compared against this base file to identify changes.</p>
-                            
-                            <div class="alert alert-info">
-                                <i class="bi bi-info-circle me-2"></i>
-                                <strong>Tip:</strong> Files with "FINAL REVISIONS" in the filename are automatically identified as base files.
-                            </div>
-                            
-                            <h5>Accessing the Module</h5>
-                            <ol>
-                                <li>Navigate to the main dashboard</li>
-                                <li>Click on "PM Allocation" in the navigation menu</li>
-                                <li>Select "PM Master Billing" from the dropdown</li>
-                            </ol>
                         </div>
-                        
-                        <!-- Batch Processing Tab -->
-                        <div class="tab-pane fade" id="batch-processing" role="tabpanel" aria-labelledby="batch-processing-tab">
-                            <h3 class="mb-3">Batch Processing</h3>
-                            <p>Batch processing allows you to process multiple allocation files simultaneously, comparing them against a base file and generating a consolidated report.</p>
-                            
-                            <h5>Two Ways to Process Files:</h5>
-                            
-                            <div class="card mb-4">
-                                <div class="card-header">Method 1: Process All Files</div>
-                                <div class="card-body">
-                                    <ol>
-                                        <li>Navigate to the PM Master Billing page</li>
-                                        <li>Click the "Process All April 2025 Files" button</li>
-                                        <li>The system will automatically find and process all allocation files</li>
-                                    </ol>
-                                </div>
-                            </div>
-                            
-                            <div class="card mb-4">
-                                <div class="card-header">Method 2: Select Specific Files</div>
-                                <div class="card-body">
-                                    <ol>
-                                        <li>Navigate to the PM Master Billing page</li>
-                                        <li>Check the boxes next to the files you want to process</li>
-                                        <li>Click the "Process Selected Files" button</li>
-                                    </ol>
-                                </div>
-                            </div>
-                            
-                            <h5>How Files Are Processed</h5>
-                            <ol>
-                                <li>The system identifies the base file (typically the one with "FINAL REVISIONS" in the name)</li>
-                                <li>Each comparison file is analyzed and compared against the base file</li>
-                                <li>Changes and discrepancies are detected and tracked</li>
-                                <li>A consolidated report is generated showing all files and their differences</li>
-                            </ol>
-                            
-                            <div class="alert alert-warning">
-                                <i class="bi bi-exclamation-triangle me-2"></i>
-                                <strong>Note:</strong> Processing large files may take several moments. Please be patient.
-                            </div>
-                        </div>
-                        
-                        <!-- Interpreting Results Tab -->
-                        <div class="tab-pane fade" id="interpreting-results" role="tabpanel" aria-labelledby="interpreting-results-tab">
-                            <h3 class="mb-3">Interpreting Results</h3>
-                            <p>After processing, you'll be presented with a results page that shows a summary of the processing and any changes that were detected.</p>
-                            
-                            <div class="card mb-4 bg-light">
-                                <div class="card-body">
-                                    <h5 class="card-title">Key Elements of the Results Page</h5>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="heading3">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
+                                    Column data not extracted correctly
+                                </button>
+                            </h2>
+                            <div id="collapse3" class="accordion-collapse collapse" aria-labelledby="heading3" data-bs-parent="#troubleshootingAccordion">
+                                <div class="accordion-body">
+                                    <p>If data from allocation files is not extracted correctly:</p>
                                     <ul>
-                                        <li><strong>Summary Cards:</strong> Quick overview of processed files, changes, and total amounts</li>
-                                        <li><strong>Processed Files Table:</strong> Detailed list of each file with status, amounts, and change indicators</li>
-                                        <li><strong>Consolidated Report Preview:</strong> Information about the generated Excel report</li>
+                                        <li>The system tries to match columns using various common naming patterns</li>
+                                        <li>Check that your allocation files use standard column names like "EQ#", "EQUIPMENT #", "JOB", "UNITS", etc.</li>
+                                        <li>Unusual column names may not be detected - consider standardizing column names in source files</li>
+                                        <li>The system requires at minimum: Equipment ID, Units, and either Rate or Amount to process records</li>
                                     </ul>
-                                </div>
-                            </div>
-                            
-                            <h5>Understanding Change Indicators</h5>
-                            <p>The system uses several indicators to show when changes have been detected:</p>
-                            <ul>
-                                <li><span class="badge bg-success">No</span> - No significant changes detected</li>
-                                <li><span class="badge bg-warning text-dark">Yes</span> - Changes detected that may need review</li>
-                                <li><span class="text-success">Positive numbers</span> - Increases in amounts</li>
-                                <li><span class="text-danger">Negative numbers</span> - Decreases in amounts</li>
-                            </ul>
-                            
-                            <h5>Threshold for "Significant" Changes</h5>
-                            <p>By default, the system considers any change greater than 0.01% to be significant. This threshold is designed to filter out minor rounding differences while catching actual allocation changes.</p>
-                        </div>
-                        
-                        <!-- Exporting Tab -->
-                        <div class="tab-pane fade" id="exporting" role="tabpanel" aria-labelledby="exporting-tab">
-                            <h3 class="mb-3">Exporting Results</h3>
-                            <p>After processing, a consolidated Excel report is automatically generated. This report contains comprehensive information about all processed files and their comparisons.</p>
-                            
-                            <h5>Report Contents</h5>
-                            <div class="table-responsive mb-4">
-                                <table class="table table-bordered">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>Sheet Name</th>
-                                            <th>Description</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>Summary</td>
-                                            <td>Overall processing stats and totals</td>
-                                        </tr>
-                                        <tr>
-                                            <td>File Details</td>
-                                            <td>Individual file information and status</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Base File</td>
-                                            <td>Copy of the base file data</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Changes Summary</td>
-                                            <td>Detailed breakdown of detected changes</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            
-                            <h5>Downloading the Report</h5>
-                            <p>There are several ways to download the consolidated report:</p>
-                            <ol>
-                                <li>Click the "Download Consolidated Report" button at the top of the results page</li>
-                                <li>Click the "Download" button in the Consolidated Report Preview section</li>
-                                <li>Click the large download button at the bottom of the results page</li>
-                            </ol>
-                            
-                            <div class="alert alert-info">
-                                <i class="bi bi-info-circle me-2"></i>
-                                <strong>Tip:</strong> The Excel report contains formulas and formatting that make it easier to identify and analyze changes. It's recommended to use Excel to open the report rather than other spreadsheet programs.
-                            </div>
-                        </div>
-                        
-                        <!-- FAQ Tab -->
-                        <div class="tab-pane fade" id="faq" role="tabpanel" aria-labelledby="faq-tab">
-                            <h3 class="mb-3">Frequently Asked Questions</h3>
-                            
-                            <div class="accordion" id="faqAccordion">
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header" id="faqOne">
-                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                            What if I don't have a "FINAL REVISIONS" file?
-                                        </button>
-                                    </h2>
-                                    <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="faqOne" data-bs-parent="#faqAccordion">
-                                        <div class="accordion-body">
-                                            If there's no file with "FINAL REVISIONS" in the name, the system will use the first selected file (or the first file in the list for "Process All") as the base file. You can see which file is being used as the base in the results page, where it will be marked with a "Base File" badge.
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header" id="faqTwo">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                            Can I process files from different months together?
-                                        </button>
-                                    </h2>
-                                    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="faqTwo" data-bs-parent="#faqAccordion">
-                                        <div class="accordion-body">
-                                            It's not recommended to process files from different months together, as the comparisons may not be meaningful. The system is designed to compare versions of the same monthly allocation, not to compare different months against each other.
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header" id="faqThree">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                                            What formats are supported for allocation files?
-                                        </button>
-                                    </h2>
-                                    <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="faqThree" data-bs-parent="#faqAccordion">
-                                        <div class="accordion-body">
-                                            The system supports Excel (.xlsx, .xls) and CSV files. However, for best results, it's recommended to use Excel files with consistent formatting across all files being compared.
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header" id="faqFour">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-                                            How are changes detected in the files?
-                                        </button>
-                                    </h2>
-                                    <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="faqFour" data-bs-parent="#faqAccordion">
-                                        <div class="accordion-body">
-                                            The system compares the numerical values in each file, looking for differences in totals and individual allocations. Changes greater than 0.01% are flagged as significant. The comparison logic is sophisticated enough to handle different file structures and find corresponding values for comparison.
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header" id="faqFive">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
-                                            Can I re-process files if I made a mistake?
-                                        </button>
-                                    </h2>
-                                    <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="faqFive" data-bs-parent="#faqAccordion">
-                                        <div class="accordion-body">
-                                            Yes, you can return to the PM Master Billing page at any time and re-process files. Each processing run generates a new consolidated report, so you can process the same files multiple times with different selections if needed.
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>

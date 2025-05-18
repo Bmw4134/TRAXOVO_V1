@@ -82,7 +82,7 @@
                         <ul class="dropdown-menu" aria-labelledby="pmDropdown">
                             <li><a class="dropdown-item" href="{{ url_for('pm_allocation_processor') }}"><i class="bi bi-upload me-1"></i> Upload Files</a></li>
                             <li><a class="dropdown-item" href="{{ url_for('auto_process_pm_allocation') }}"><i class="bi bi-magic me-1"></i> Auto-Detect Files</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-bank me-1"></i> PM Master Billing</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('pm_master.index') }}"><i class="bi bi-bank me-1"></i> PM Master Billing</a></li>
                             <li><a class="dropdown-item" href="#"><i class="bi bi-file-earmark-spreadsheet me-1"></i> Equipment Reports Export</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="#"><i class="bi bi-file-text me-1"></i> View Reports</a></li>

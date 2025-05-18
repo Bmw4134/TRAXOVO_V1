@@ -31,6 +31,58 @@
         </div>
     </div>
 
+    <!-- Export Files -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0 text-white">Generated Exports</h5>
+                    <span class="badge bg-light text-dark rounded-pill">{{ export_files|length }} Files</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover mb-0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th scope="col" width="40%">Filename</th>
+                                    <th scope="col" width="15%">Division</th>
+                                    <th scope="col" width="15%">Size</th>
+                                    <th scope="col" width="15%">Modified</th>
+                                    <th scope="col" width="15%">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if export_files %}
+                                    {% for file in export_files %}
+                                        <tr>
+                                            <td>{{ file.name }}</td>
+                                            <td>
+                                                <span class="badge bg-{{ 'primary' if file.division == 'DFW' else 'success' if file.division == 'HOU' else 'warning' if file.division == 'WTX' else 'info' if file.division == 'SELECT' else 'secondary' }}">
+                                                    {{ file.division }}
+                                                </span>
+                                            </td>
+                                            <td>{{ file.size }}</td>
+                                            <td>{{ file.modified }}</td>
+                                            <td>
+                                                <a href="{{ url_for('pm_master.download_export', filename=file.path) }}" class="btn btn-sm btn-primary">
+                                                    <i class="bi bi-download me-1"></i> Download
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="5" class="text-center">No export files generated yet</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- File List -->
     <div class="row">
         <div class="col-12">
@@ -104,7 +156,7 @@
                     <h5 class="card-title mb-0"><i class="bi bi-info-circle me-1"></i> About PM Master Billing</h5>
                 </div>
                 <div class="card-body">
-                    <p>The PM Master Billing module allows you to batch process multiple PM allocation files at once, comparing them against a base file and generating a consolidated report.</p>
+                    <p>The PM Master Billing module allows you to batch process multiple PM allocation files at once, generating a consolidated master billing sheet with divisional exports.</p>
                     <p>This is ideal for handling month-end billing reconciliation across multiple regions or departments.</p>
                 </div>
             </div>
@@ -116,10 +168,10 @@
                 </div>
                 <div class="card-body">
                     <ol class="mb-0">
-                        <li>Select one or more allocation files (or use "Process All")</li>
-                        <li>The system will automatically identify the base file (labeled "FINAL REVISIONS")</li>
-                        <li>Each file is compared against the base file</li>
-                        <li>A consolidated report is generated with all discrepancies highlighted</li>
+                        <li>Select "Process All April 2025 Files" to batch process all files</li>
+                        <li>The system extracts equipment numbers, jobs, units, and other billing info</li>
+                        <li>Rate data is applied from the equipment rates source</li>
+                        <li>A master billing file and divisional exports are generated</li>
                     </ol>
                 </div>
             </div>
@@ -127,14 +179,14 @@
         <div class="col-md-4 mb-3">
             <div class="card h-100">
                 <div class="card-header bg-info text-white">
-                    <h5 class="card-title mb-0"><i class="bi bi-lightbulb me-1"></i> Tips</h5>
+                    <h5 class="card-title mb-0"><i class="bi bi-lightbulb me-1"></i> Export Features</h5>
                 </div>
                 <div class="card-body">
                     <ul class="mb-0">
-                        <li>The file with "FINAL REVISIONS" in the name is automatically used as the base file</li>
-                        <li>If no base file is found, the first file is used as the base</li>
-                        <li>The consolidated report contains summary and detailed data</li>
-                        <li>Changes are highlighted for easy identification</li>
+                        <li>Master Export: All billing data consolidated in one file</li>
+                        <li>Division Exports: Separate files for DFW, HOU, WTX, and SELECT</li>
+                        <li>Standard Format: Division, Equip #, Description, Date, Job, etc.</li>
+                        <li>Automatic Rate Lookup: Applies correct rate based on frequency</li>
                     </ul>
                 </div>
             </div>

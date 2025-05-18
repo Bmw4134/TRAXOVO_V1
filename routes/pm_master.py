@@ -1,163 +1,149 @@
 """
-PM Master Module for batch processing of allocation files
+PM Master Billing Module Routes
 
-This module handles the batch processing of multiple PM allocation files
-and generates consolidated reports and exports.
+This module provides routes for the PM Master Billing functionality, which
+processes multiple PM allocation files to generate a consolidated master
+billing report and division-specific exports.
 """
 
 import os
+from flask import Blueprint, render_template, request, redirect, url_for, flash, send_file, jsonify
+from flask_login import login_required, current_user
+from pathlib import Path
 import logging
-import pandas as pd
 from datetime import datetime
-from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for, send_file
-from flask_login import login_required
-from werkzeug.utils import secure_filename
 
+# Import utilities
+from utils.pm_master_billing import process_master_billing
 from utils.activity_logger import log_activity
-from utils.file_processor import get_file_list_by_pattern, batch_process_allocation_files
-from utils.excel_utils import create_consolidated_excel
 
-# Define constants
-UPLOADS_FOLDER = os.path.join(os.getcwd(), 'uploads')
-EXPORTS_FOLDER = os.path.join(os.getcwd(), 'exports')
-ATTACHED_ASSETS_FOLDER = os.path.join(os.getcwd(), 'attached_assets')
+# Set up logger
+logger = logging.getLogger(__name__)
 
 # Create blueprint
 pm_master_bp = Blueprint('pm_master', __name__, url_prefix='/pm-master')
+
+# Create export directory
+EXPORTS_DIR = Path('exports/pm_master')
+EXPORTS_DIR.mkdir(exist_ok=True, parents=True)
 
 @pm_master_bp.route('/')
 @login_required
 def index():
     """PM Master Dashboard Page"""
-    # Get all allocation files from the attached_assets folder with EQMO in the name
-    allocation_files = get_file_list_by_pattern(
-        ATTACHED_ASSETS_FOLDER, 
-        pattern="EQMO.*BILLING.*ALLOCATIONS.*\\.xlsx$"
-    )
+    # Check for existing export files
+    export_files = []
+    if EXPORTS_DIR.exists():
+        for file in EXPORTS_DIR.glob('*.xlsx'):
+            export_files.append({
+                'name': file.name,
+                'path': file.name,
+                'size': f"{file.stat().st_size // 1024}K",
+                'modified': datetime.fromtimestamp(file.stat().st_mtime).strftime('%Y-%m-%d %H:%M'),
+                'division': file.name.split('_')[0] if '_' in file.name else 'MASTER'
+            })
     
     # Sort files by date modified (newest first)
-    allocation_files.sort(key=lambda x: os.path.getmtime(os.path.join(ATTACHED_ASSETS_FOLDER, x)), reverse=True)
+    export_files.sort(key=lambda x: x['modified'], reverse=True)
     
-    # Get file details for display
-    file_details = []
-    for file in allocation_files:
-        file_path = os.path.join(ATTACHED_ASSETS_FOLDER, file)
-        file_details.append({
-            'name': file,
-            'size': f"{os.path.getsize(file_path) // 1024}K",
-            'modified': datetime.fromtimestamp(os.path.getmtime(file_path)).strftime('%Y-%m-%d %H:%M')
+    # Get available allocation files from the attached_assets folder
+    from utils.pm_master_billing import find_all_allocation_files
+    allocation_files = find_all_allocation_files()
+    
+    # Format for display
+    allocation_file_details = []
+    for file_path in allocation_files:
+        file_name = os.path.basename(file_path)
+        file_stat = os.stat(file_path)
+        allocation_file_details.append({
+            'name': file_name,
+            'size': f"{file_stat.st_size // 1024}K",
+            'modified': datetime.fromtimestamp(file_stat.st_mtime).strftime('%Y-%m-%d %H:%M')
         })
     
     return render_template(
         'pm_master/index.html',
         title='PM Master Billing',
-        files=file_details
+        files=allocation_file_details,
+        export_files=export_files
     )
 
-@pm_master_bp.route('/process', methods=['POST'])
+@pm_master_bp.route('/process-batch', methods=['POST'])
 @login_required
 def process_batch():
-    """Process all selected files in batch"""
-    selected_files = request.form.getlist('selected_files')
-    
-    if not selected_files:
-        # Find all FINAL REVISIONS files
-        final_revision_files = get_file_list_by_pattern(
-            ATTACHED_ASSETS_FOLDER, 
-            pattern=".*FINAL REVISIONS.*\\.xlsx$"
-        )
-        
-        if final_revision_files:
-            # Use the newest FINAL REVISIONS file as the base
-            final_revision_files.sort(key=lambda x: os.path.getmtime(os.path.join(ATTACHED_ASSETS_FOLDER, x)), reverse=True)
-            base_file = final_revision_files[0]
-            
-            # Get all other EQMO files that don't contain FINAL REVISIONS
-            other_files = get_file_list_by_pattern(
-                ATTACHED_ASSETS_FOLDER, 
-                pattern="EQMO.*BILLING.*ALLOCATIONS.*\\.xlsx$"
-            )
-            
-            # Filter out any files that contain "FINAL REVISIONS"
-            other_files = [f for f in other_files if "FINAL REVISIONS" not in f]
-            
-            # Process the files
-            selected_files = [base_file] + other_files
-        else:
-            # Just get all allocation files
-            selected_files = get_file_list_by_pattern(
-                ATTACHED_ASSETS_FOLDER, 
-                pattern="EQMO.*BILLING.*ALLOCATIONS.*\\.xlsx$"
-            )
-    
-    if not selected_files:
-        flash('No files found to process', 'warning')
-        return redirect(url_for('pm_master.index'))
-    
-    # Log the start of batch processing
-    log_activity('batch_process_start', f"Processing {len(selected_files)} allocation files")
-    
+    """Process all allocation files and generate exports"""
     try:
-        # Process the files and generate consolidated report
-        results = batch_process_allocation_files(
-            [os.path.join(ATTACHED_ASSETS_FOLDER, f) for f in selected_files]
+        # Log the action
+        log_activity(
+            activity_type='batch_process_start',
+            description='Started PM Master batch processing',
+            user_id=current_user.id
         )
         
-        # Generate a consolidated Excel file
-        month_year = datetime.now().strftime('%B_%Y').upper()
-        output_filename = f"CONSOLIDATED_PM_ALLOCATIONS_{month_year}.xlsx"
-        output_path = os.path.join(EXPORTS_FOLDER, output_filename)
+        # Process all allocation files
+        result = process_master_billing()
         
-        create_consolidated_excel(results, output_path)
+        if result['success']:
+            # Log success
+            log_activity(
+                activity_type='batch_process_complete',
+                description=f"Processed {result['file_count']} allocation files and generated {len(result['exports'])} exports",
+                user_id=current_user.id,
+                metadata={
+                    'file_count': result['file_count'],
+                    'record_count': result['record_count'],
+                    'missing_rates': result['missing_rates'],
+                    'exports': list(result['exports'].keys())
+                }
+            )
+            
+            # Flash success message
+            flash(f"Successfully processed {result['file_count']} allocation files. Generated {len(result['exports'])} export files.", 'success')
+        else:
+            # Log failure
+            log_activity(
+                activity_type='batch_process_error',
+                description=f"Error processing PM allocation files: {result['message']}",
+                user_id=current_user.id
+            )
+            
+            # Flash error message
+            flash(f"Error processing PM allocation files: {result['message']}", 'danger')
         
-        # Log success
-        log_activity('batch_process_complete', f"Successfully processed {len(selected_files)} files")
-        
-        # Return the batch results
-        return render_template(
-            'pm_master/batch_results.html',
-            title='Batch Processing Results',
-            results=results,
-            files=selected_files,
-            output_filename=output_filename
-        )
-        
+        return redirect(url_for('pm_master.index'))
+    
     except Exception as e:
-        logging.error(f"Error in batch processing: {str(e)}")
-        log_activity('batch_process_error', f"Error: {str(e)}")
-        flash(f'Error processing files: {str(e)}', 'danger')
+        logger.error(f"Error in process_batch: {str(e)}")
+        flash(f"An unexpected error occurred: {str(e)}", 'danger')
         return redirect(url_for('pm_master.index'))
 
-@pm_master_bp.route('/download/<filename>')
+@pm_master_bp.route('/download/<path:filename>')
 @login_required
-def download_report(filename):
-    """Download a generated report file"""
-    file_path = os.path.join(EXPORTS_FOLDER, secure_filename(filename))
-    if os.path.exists(file_path):
-        log_activity('report_download', f"Downloaded {filename}")
+def download_export(filename):
+    """Download an exported file"""
+    try:
+        file_path = EXPORTS_DIR / filename
+        
+        if not file_path.exists():
+            flash(f"File not found: {filename}", 'danger')
+            return redirect(url_for('pm_master.index'))
+        
+        # Log download activity
+        log_activity(
+            activity_type='report_download',
+            description=f"Downloaded PM Master export: {filename}",
+            user_id=current_user.id
+        )
+        
         return send_file(file_path, as_attachment=True)
-    else:
-        flash('Report file not found', 'danger')
-        return redirect(url_for('pm_master.index'))
-
-@pm_master_bp.route('/view_report/<filename>')
-@login_required
-def view_report(filename):
-    """View a generated report"""
-    file_path = os.path.join(EXPORTS_FOLDER, secure_filename(filename))
-    if os.path.exists(file_path):
-        # For simplicity, we'll redirect to download in this implementation
-        # In a real-world scenario, this would render a template with the report contents
-        return redirect(url_for('pm_master.download_report', filename=filename))
-    else:
-        flash('Report file not found', 'danger')
+    
+    except Exception as e:
+        logger.error(f"Error in download_export: {str(e)}")
+        flash(f"An unexpected error occurred: {str(e)}", 'danger')
         return redirect(url_for('pm_master.index'))
 
 @pm_master_bp.route('/help')
 @login_required
 def help_page():
-    """Help page for PM Master module"""
-    return render_template(
-        'pm_master/help.html',
-        title='PM Master Help'
-    )
+    """Display help information for PM Master Billing"""
+    return render_template('pm_master/help.html', title='PM Master Help')

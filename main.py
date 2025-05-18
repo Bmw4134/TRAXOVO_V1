@@ -164,7 +164,29 @@ def load_user(user_id):
 @app.route('/')
 def index():
     """Home page"""
-    return render_template('index.html')
+    # Count active assets
+    try:
+        asset_count = Asset.query.filter_by(active=True).count()
+    except:
+        asset_count = 0
+        
+    # Get recent activities
+    from utils.activity_logger import get_recent_activities
+    recent_activities = get_recent_activities(limit=20)
+    
+    # Format datetime for display
+    @app.template_filter('format_datetime')
+    def format_datetime(value):
+        if isinstance(value, str):
+            try:
+                value = datetime.fromisoformat(value)
+            except:
+                return value
+        return value.strftime('%m/%d/%Y %I:%M %p') if value else ''
+    
+    return render_template('index.html', 
+                          asset_count=asset_count,
+                          activities=recent_activities)
     
 @app.route('/enhanced-dashboard')
 def enhanced_dashboard():

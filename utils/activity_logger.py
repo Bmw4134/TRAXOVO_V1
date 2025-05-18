@@ -39,6 +39,130 @@ def log_navigation(from_page, to_page, user_id=None, metadata=None):
     description = f"Navigation from {from_page} to {to_page}"
     return log_activity('navigation', description, user_id, metadata)
 
+def log_document_upload(document_type, filename, user_id=None, metadata=None):
+    """
+    Log a document upload event
+    
+    Args:
+        document_type (str): Type of document being uploaded
+        filename (str): Name of the uploaded file
+        user_id (str, optional): ID of the user performing the action
+        metadata (dict, optional): Additional metadata
+        
+    Returns:
+        bool: Success status
+    """
+    description = f"Uploaded {document_type} document: {filename}"
+    return log_activity('document_upload', description, user_id, metadata)
+
+def log_report_export(report_type=None, export_format=None, user_id=None, metadata=None):
+    """
+    Log a report export event
+    
+    Args:
+        report_type (str, optional): Type of report being exported
+        export_format (str, optional): Format of the export (PDF, CSV, etc.)
+        user_id (str, optional): ID of the user performing the action
+        metadata (dict, optional): Additional metadata
+        
+    Returns:
+        bool: Success status
+    """
+    report_info = f"{report_type} report" if report_type else "report" 
+    format_info = f"in {export_format.upper()} format" if export_format else ""
+    description = f"Exported {report_info} {format_info}".strip()
+    return log_activity('report_export', description, user_id, metadata)
+
+def log_pm_process(original_file, updated_file, user_id=None, metadata=None):
+    """
+    Log a PM allocation processing event
+    
+    Args:
+        original_file (str): Name of the original PM allocation file
+        updated_file (str): Name of the updated PM allocation file
+        user_id (str, optional): ID of the user performing the action
+        metadata (dict, optional): Additional metadata
+        
+    Returns:
+        bool: Success status
+    """
+    description = f"Processed PM allocation files: {original_file} and {updated_file}"
+    return log_activity('pm_allocation_process', description, user_id, metadata)
+
+def log_feature_usage(feature_name, action=None, user_id=None, metadata=None):
+    """
+    Log usage of a specific feature
+    
+    Args:
+        feature_name (str): Name of the feature being used
+        action (str, optional): Specific action being performed
+        user_id (str, optional): ID of the user performing the action
+        metadata (dict, optional): Additional metadata
+        
+    Returns:
+        bool: Success status
+    """
+    action_info = f" - {action}" if action else ""
+    description = f"Used feature: {feature_name}{action_info}"
+    return log_activity('feature_usage', description, user_id, metadata)
+
+def log_invoice_generation(invoice_id, amount, client=None, user_id=None, metadata=None):
+    """
+    Log generation of an invoice
+    
+    Args:
+        invoice_id (str): ID of the generated invoice
+        amount (float): Total amount of the invoice
+        client (str, optional): Client name or ID
+        user_id (str, optional): ID of the user performing the action
+        metadata (dict, optional): Additional metadata
+        
+    Returns:
+        bool: Success status
+    """
+    client_info = f" for {client}" if client else ""
+    amount_formatted = f"${amount:,.2f}" if amount else ""
+    description = f"Generated invoice #{invoice_id}{client_info} - {amount_formatted}"
+    return log_activity('invoice_generation', description, user_id, metadata)
+
+def log_payment_record(invoice_id, amount, payment_method=None, user_id=None, metadata=None):
+    """
+    Log recording of a payment
+    
+    Args:
+        invoice_id (str): ID of the invoice being paid
+        amount (float): Amount of the payment
+        payment_method (str, optional): Method of payment
+        user_id (str, optional): ID of the user performing the action
+        metadata (dict, optional): Additional metadata
+        
+    Returns:
+        bool: Success status
+    """
+    method_info = f" via {payment_method}" if payment_method else ""
+    amount_formatted = f"${amount:,.2f}" if amount else ""
+    description = f"Recorded payment of {amount_formatted}{method_info} for invoice #{invoice_id}"
+    return log_activity('payment_record', description, user_id, metadata)
+
+def log_search(query, results_count=None, module=None, user_id=None, metadata=None):
+    """
+    Log a search operation
+    
+    Args:
+        query (str): Search query
+        results_count (int, optional): Number of results found
+        module (str, optional): Module where search was performed
+        user_id (str, optional): ID of the user performing the action
+        metadata (dict, optional): Additional metadata
+        
+    Returns:
+        bool: Success status
+    """
+    count_info = f" - {results_count} results" if results_count is not None else ""
+    module_info = f" in {module}" if module else ""
+    description = f"Searched{module_info}: '{query}'{count_info}"
+    return log_activity('search', description, user_id, metadata)
+
 def log_activity(activity_type, description=None, user_id=None, metadata=None):
     """
     Log a user activity or system event

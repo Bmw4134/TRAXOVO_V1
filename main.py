@@ -69,6 +69,13 @@ login_manager.login_view = "login"
 
 # Import blueprints
 try:
+    from routes.downloads import downloads_bp
+    app.register_blueprint(downloads_bp)
+    logging.info("Registered downloads blueprint")
+except ImportError:
+    logging.error("Failed to register downloads blueprint")
+
+try:
     from routes.drivers import asset_drivers_bp
     app.register_blueprint(asset_drivers_bp)
     logging.info("Registered asset_drivers blueprint")

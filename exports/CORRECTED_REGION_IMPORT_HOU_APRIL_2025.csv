@@ -1,4 +1,3 @@
-Equipment_Number,Equipment_Description,Date,Job_Number,Period,Cost_Code,Month_Code,Units,Period_Type,Unit_Rate,Amount
 PT-160,Equipment PT-160,4/30/2025,2022-040,1,9000 100M,4,0.06,MONTHLY,1500.0,90.0
 PT-227,2022 F-250 G40597,4/30/2025,2022-040,1,9000 100M,4,0.25,MONTHLY,1500.0,375.0
 SFB-04,Equipment SFB-04,4/30/2025,2022-040,1,9000 100M,4,0.25,MONTHLY,3650.0,912.5

@@ -92,12 +92,12 @@ def format_export_files():
         # Create export dataframe
         export_df = pd.DataFrame(export_data)
         
-        # Export to CSV
+        # Export to CSV WITHOUT HEADERS (as required for Foundation accounting software)
         export_path = os.path.join(EXPORTS_DIR, f"CORRECTED_REGION_IMPORT_{division}_{MONTH_NAME}_{YEAR}.csv")
-        export_df.to_csv(export_path, index=False)
+        export_df.to_csv(export_path, index=False, header=False)
         
         div_total = division_data['Amount'].sum()
-        logger.info(f"Generated corrected {division} import file: {export_path} - {len(division_data)} records, Total: ${div_total:,.2f}")
+        logger.info(f"Generated corrected {division} import file: {export_path} - {len(division_data)} records, Total: ${div_total:,.2f} (No headers for Foundation import)")
     
     logger.info("Export files generated successfully!")
 

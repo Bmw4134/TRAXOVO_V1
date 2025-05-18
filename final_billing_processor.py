@@ -100,6 +100,11 @@ def extract_data_from_pm_file(file_path):
             'DRIVER': 'Driver',
             'UNIT ALLOCATION': 'Units',
             'COST CODE': 'Cost Code',
+            'COST CODE REVISION': 'Cost Code Revision',
+            'REVISED COST CODE': 'Cost Code Revision',
+            'NEW COST CODE': 'Cost Code Revision',
+            'CC REVISION': 'Cost Code Revision',
+            'UPDATED COST CODE': 'Cost Code Revision',
             'REVISION': 'Revision',
             'NOTE / DETAIL': 'Notes'
         }
@@ -176,11 +181,24 @@ def extract_data_from_pm_file(file_path):
         # Add source file info
         result_df['Source'] = file_name
         
+        # Scan for additional cost code related columns
+        for col in df.columns:
+            col_upper = str(col).upper().strip()
+            if ('COST' in col_upper and 'CODE' in col_upper and 'REVISION' in col_upper) or 'CC REVISION' in col_upper:
+                if col not in mapped_cols and col not in result_df.columns:
+                    logger.info(f"Found additional cost code revision column: {col}")
+                    result_df['Cost Code Revision'] = df[col]
+        
         # Clean up columns - keep only what we need
         needed_columns = ['Division', 'Job', 'Equip #', 'Equipment', 'Driver', 'Units', 'Cost Code']
         for col in needed_columns:
             if col not in result_df.columns:
                 result_df[col] = None
+        
+        # Add Cost Code Revision to needed columns if it exists
+        if 'Cost Code Revision' in result_df.columns:
+            needed_columns.append('Cost Code Revision')
+            logger.info(f"Including Cost Code Revision column with {result_df['Cost Code Revision'].count()} values")
         
         # Keep only the columns we need
         final_df = result_df[needed_columns + ['Source']].copy()

@@ -74,9 +74,17 @@
       <button id="refresh-btn" class="btn btn-outline-primary">
         <i class="bi bi-arrow-clockwise"></i> Refresh Data
       </button>
-      <button id="export-btn" class="btn btn-outline-secondary ms-2">
-        <i class="bi bi-download"></i> Export Report
-      </button>
+      <div class="btn-group ms-2">
+        <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="bi bi-download"></i> Export Report
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" href="/export_report/daily/pdf"><i class="bi bi-file-pdf text-danger me-2"></i> Download PDF</a></li>
+          <li><a class="dropdown-item" href="/export_report/daily/csv"><i class="bi bi-file-spreadsheet text-success me-2"></i> Download CSV</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" href="#previewModal" data-bs-toggle="modal"><i class="bi bi-eye me-2"></i> Preview Reports</a></li>
+        </ul>
+      </div>
     </div>
   </div>
 
@@ -257,6 +265,98 @@
 </div>
 {% endblock %}
 
+<!-- Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="previewModalLabel">Report Previews</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs" id="previewTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="pdf-tab" data-bs-toggle="tab" data-bs-target="#pdf-preview" type="button" role="tab" aria-controls="pdf-preview" aria-selected="true">PDF Preview</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="csv-tab" data-bs-toggle="tab" data-bs-target="#csv-preview" type="button" role="tab" aria-controls="csv-preview" aria-selected="false">CSV Preview</button>
+          </li>
+        </ul>
+        <div class="tab-content p-3" id="previewTabContent">
+          <div class="tab-pane fade show active" id="pdf-preview" role="tabpanel" aria-labelledby="pdf-tab">
+            <div class="text-center pdf-preview-placeholder">
+              <div class="my-3 bg-dark p-4 rounded">
+                <i class="bi bi-file-pdf text-danger display-1"></i>
+                <h4 class="mt-3">PDF Report Preview</h4>
+                <p class="text-muted">Comprehensive report with summary and detailed attendance data</p>
+              </div>
+              <img src="/static/images/pdf_preview.png" alt="PDF Preview" class="img-fluid mt-3 d-none" id="pdfPreviewImage">
+              <div class="mt-3">
+                <a href="/export_report/daily/pdf" class="btn btn-danger">
+                  <i class="bi bi-download me-2"></i> Download PDF
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="csv-preview" role="tabpanel" aria-labelledby="csv-tab">
+            <div class="text-center">
+              <div class="my-3 bg-dark p-4 rounded">
+                <i class="bi bi-file-spreadsheet text-success display-1"></i>
+                <h4 class="mt-3">CSV Data Preview</h4>
+                <p class="text-muted">Raw data export for spreadsheet analysis</p>
+              </div>
+              <div class="table-responsive mt-3">
+                <table class="table table-sm table-striped">
+                  <thead>
+                    <tr>
+                      <th>Driver</th>
+                      <th>Status</th>
+                      <th>Job Site</th>
+                      <th>Expected</th>
+                      <th>Actual</th>
+                      <th>Minutes</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for record in late_start_records %}
+                    <tr>
+                      <td>{{ record.driver_name }}</td>
+                      <td><span class="badge bg-danger">Late Start</span></td>
+                      <td>{{ record.job_site }}</td>
+                      <td>{{ record.expected_start.strftime('%H:%M') if record.expected_start else "" }}</td>
+                      <td>{{ record.actual_start.strftime('%H:%M') if record.actual_start else "" }}</td>
+                      <td>{{ record.minutes_late }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% for record in early_end_records %}
+                    <tr>
+                      <td>{{ record.driver_name }}</td>
+                      <td><span class="badge bg-warning text-dark">Early End</span></td>
+                      <td>{{ record.job_site }}</td>
+                      <td>{{ record.expected_end.strftime('%H:%M') if record.expected_end else "" }}</td>
+                      <td>{{ record.actual_end.strftime('%H:%M') if record.actual_end else "" }}</td>
+                      <td>{{ record.minutes_early }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <div class="mt-3">
+                <a href="/export_report/daily/csv" class="btn btn-success">
+                  <i class="bi bi-download me-2"></i> Download CSV
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% block scripts %}
 <script>
   document.addEventListener('DOMContentLoaded', function() {
@@ -265,9 +365,12 @@
       window.location.reload();
     });
     
-    // Export button
-    document.getElementById('export-btn').addEventListener('click', function() {
-      alert('Report exported successfully!');
+    // Generate PDF preview on tab click
+    document.getElementById('pdf-tab').addEventListener('click', function() {
+      // Simulate loading a PDF preview (would normally be generated on the server)
+      setTimeout(function() {
+        document.getElementById('pdfPreviewImage').classList.remove('d-none');
+      }, 500);
     });
   });
 </script>

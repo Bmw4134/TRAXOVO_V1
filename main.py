@@ -50,6 +50,14 @@ with app.app_context():
         logging.info("Registered Dashboard blueprint")
     except Exception as e:
         logging.error(f"Failed to register Dashboard blueprint: {str(e)}")
+        
+    # Register enhanced driver reports blueprint
+    try:
+        from routes import driver_reports
+        driver_reports.register_blueprint(app)
+        logging.info("Registered Driver Reports blueprint")
+    except Exception as e:
+        logging.error(f"Failed to register Driver Reports blueprint: {str(e)}")
 
 # Set up Flask-Login
 login_manager = LoginManager()

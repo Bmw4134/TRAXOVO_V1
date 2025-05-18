@@ -2196,76 +2196,18 @@ def process_master_billing():
         
         logger.info("PM Master Billing processing completed successfully")
         return {
-                'success': False,
-                'message': "No allocation files found",
-                'exports': {}
+                'status': 'success',
+                'message': f"Successfully processed {len(allocation_files)} allocation files and generated exports",
+                'record_count': len(master_billing),
+                'file_count': len(allocation_files),
+                'exports': exports,
+                'missing_rates': len(master_billing[(master_billing['Rate'] == 0) | (master_billing['Amount'] == 0)])
             }
-        
-        # Find equipment rates file
-        rates_file = find_equipment_rates_file()
-        
-        # Process each allocation file
-        all_allocation_data = []
-        for file_path in allocation_files:
-            # Skip rates file if it's in the allocation files list
-            if rates_file and os.path.samefile(file_path, rates_file):
-                continue
-                
-            allocation_data = process_allocation_file(file_path)
-            if not allocation_data.empty:
-                all_allocation_data.append(allocation_data)
-        
-        if not all_allocation_data:
-            logger.error("Failed to extract data from allocation files")
-            return {
-                'success': False,
-                'message': "Failed to extract data from allocation files",
-                'exports': {}
-            }
-        
-        # Combine all allocation data
-        combined_data = pd.concat(all_allocation_data, ignore_index=True)
-        logger.info(f"Extracted {len(combined_data)} billing records from {len(allocation_files)} files")
-        
-        # Extract equipment rates
-        rates_data = extract_equipment_rates(rates_file)
-        
-        # Generate master billing
-        master_billing = generate_master_billing(combined_data, rates_data)
-        
-        # Export master billing file with division-specific sheets as requested
-        # This will create a single Excel file with sheets named DFW, WTX, HOU, SELECT
-        master_output_path = os.path.join(EXPORTS_DIR, f"MASTER_EQUIP_BILLINGS_{MONTH_NAME}_{YEAR}.xlsx")
-        master_export_success = export_master_billing(master_billing, master_output_path, create_division_sheets=True)
-        
-        # Create exports dictionary with master billing file
-        exports = {
-            'MASTER': master_output_path if master_export_success else None
-        }
-        
-        # Also create individual division export files for users who need them
-        for division in DIVISIONS:
-            division_data = filter_by_division(master_billing, division)
-            if not division_data.empty:
-                division_output_path = os.path.join(EXPORTS_DIR, f"{division}_EQUIP_BILLINGS_{MONTH_NAME}_{YEAR}.xlsx")
-                if export_master_billing(division_data, division_output_path):
-                    exports[division] = division_output_path
-                    logger.info(f"Created {division} export with {len(division_data)} records")
-        
-        logger.info("PM Master Billing processing completed successfully")
-        return {
-            'success': True,
-            'message': f"Successfully processed {len(allocation_files)} allocation files and generated {len(exports)} exports",
-            'record_count': len(master_billing),
-            'file_count': len(allocation_files),
-            'exports': exports,
-            'missing_rates': len(master_billing[(master_billing['Rate'] == 0) | (master_billing['Amount'] == 0)])
-        }
     
     except Exception as e:
-        logger.error(f"Error processing master billing: {str(e)}")
+        logger.exception(f"Error processing master billing: {str(e)}")
         return {
-            'success': False,
+            'status': 'error',
             'message': f"Error processing master billing: {str(e)}",
             'exports': {}
         }

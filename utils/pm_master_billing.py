@@ -535,8 +535,18 @@ def filter_by_division(master_billing, division):
     
     return master_billing[division_filter].copy()
 
-def export_master_billing(master_billing, output_path):
-    """Export the master billing data to Excel"""
+def export_master_billing(master_billing, output_path, create_division_sheets=False):
+    """
+    Export the master billing data to Excel
+    
+    Args:
+        master_billing (DataFrame): The billing data to export
+        output_path (str): Path to save the Excel file
+        create_division_sheets (bool): Whether to create separate sheets for each division
+        
+    Returns:
+        bool: True if export was successful, False otherwise
+    """
     if master_billing.empty:
         logger.error("No data to export")
         return False
@@ -547,9 +557,20 @@ def export_master_billing(master_billing, output_path):
         
         # Save to Excel
         writer = pd.ExcelWriter(output_path, engine='openpyxl')
+        
+        # Create the main sheet with all data
         master_billing.to_excel(writer, sheet_name='Equip Billings', index=False)
         
-        # Access the workbook and the worksheet
+        # Add division-specific sheets if requested (for master export)
+        if create_division_sheets:
+            for division in DIVISIONS:
+                division_data = filter_by_division(master_billing, division)
+                if not division_data.empty:
+                    # Create a sheet for this division
+                    division_data.to_excel(writer, sheet_name=division, index=False)
+                    logger.info(f"Added {division} sheet with {len(division_data)} records")
+        
+        # Access the workbook and the main worksheet
         workbook = writer.book
         worksheet = writer.sheets['Equip Billings']
         
@@ -702,21 +723,24 @@ def process_master_billing():
         # Generate master billing
         master_billing = generate_master_billing(combined_data, rates_data)
         
-        # Export master billing file
+        # Export master billing file with division-specific sheets as requested
+        # This will create a single Excel file with sheets named DFW, WTX, HOU, SELECT
         master_output_path = os.path.join(EXPORTS_DIR, f"MASTER_EQUIP_BILLINGS_{MONTH_NAME}_{YEAR}.xlsx")
-        master_export_success = export_master_billing(master_billing, master_output_path)
+        master_export_success = export_master_billing(master_billing, master_output_path, create_division_sheets=True)
         
-        # Generate division exports
-        division_exports = generate_division_exports(master_billing)
-        
-        # Create combined exports dictionary
+        # Create exports dictionary with master billing file
         exports = {
             'MASTER': master_output_path if master_export_success else None
         }
         
-        # Add division exports
-        for division, path in division_exports.items():
-            exports[division] = path
+        # Also create individual division export files for users who need them
+        for division in DIVISIONS:
+            division_data = filter_by_division(master_billing, division)
+            if not division_data.empty:
+                division_output_path = os.path.join(EXPORTS_DIR, f"{division}_EQUIP_BILLINGS_{MONTH_NAME}_{YEAR}.xlsx")
+                if export_master_billing(division_data, division_output_path):
+                    exports[division] = division_output_path
+                    logger.info(f"Created {division} export with {len(division_data)} records")
         
         logger.info("PM Master Billing processing completed successfully")
         return {

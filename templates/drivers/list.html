@@ -8,130 +8,167 @@
     <div class="row mb-4">
         <div class="col-md-6">
             <h1 class="display-5 mb-2">
-                <i class="bi bi-person-vcard me-2"></i>Driver Management
+                <i class="bi bi-people me-2"></i>Driver Management
             </h1>
             <p class="lead text-muted">
-                View and manage driver information and assignments
+                Manage and monitor driver records
             </p>
         </div>
         <div class="col-md-6 text-md-end">
-            <div class="btn-group" role="group">
-                <a href="{{ url_for('driver_module.driver_list') }}" class="btn btn-primary active">
-                    <i class="bi bi-list-ul me-1"></i> Driver List
-                </a>
-                <a href="{{ url_for('driver_module.daily_report') }}" class="btn btn-outline-primary">
+            <div class="btn-group">
+                <a href="{{ url_for('driver_module.daily_report') }}" class="btn btn-primary">
                     <i class="bi bi-calendar-day me-1"></i> Daily Report
                 </a>
-                <a href="{{ url_for('driver_module.attendance_dashboard') }}" class="btn btn-outline-primary">
+                <a href="{{ url_for('driver_module.attendance_dashboard') }}" class="btn btn-info text-white">
                     <i class="bi bi-graph-up me-1"></i> Attendance Dashboard
                 </a>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-file-earmark-arrow-down me-1"></i> Export
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_report') }}?type=drivers&format=pdf">PDF Report</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_report') }}?type=drivers&format=csv">CSV Data</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_report') }}?type=drivers&format=xlsx">Excel Spreadsheet</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Controls and Filters -->
+    <!-- Loading Animation Container -->
+    <div class="row mb-4" id="drivers-loading-container">
+        <div class="col-12 text-center">
+            <div id="drivers-loading" class="loading-placeholder" 
+                 data-loader-type="bulldozer" 
+                 data-loader-message="Loading driver records...">
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Controls -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <div class="row g-3">
+                    <form class="row g-3" id="filter-form">
+                        <div class="col-md-3">
+                            <label for="region-filter" class="form-label">Region</label>
+                            <select id="region-filter" name="region" class="form-select">
+                                <option value="">All Regions</option>
+                                <option value="DFW" {% if filter_region == 'DFW' %}selected{% endif %}>Dallas-Fort Worth</option>
+                                <option value="HOU" {% if filter_region == 'HOU' %}selected{% endif %}>Houston</option>
+                                <option value="WTX" {% if filter_region == 'WTX' %}selected{% endif %}>West Texas</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="status-filter" class="form-label">Status</label>
+                            <select id="status-filter" name="status" class="form-select">
+                                <option value="">All Statuses</option>
+                                <option value="Active" {% if filter_status == 'Active' %}selected{% endif %}>Active</option>
+                                <option value="Inactive" {% if filter_status == 'Inactive' %}selected{% endif %}>Inactive</option>
+                            </select>
+                        </div>
                         <div class="col-md-4">
+                            <label for="search-filter" class="form-label">Search</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-search"></i></span>
-                                <input type="text" id="driver-search" class="form-control" placeholder="Search drivers...">
+                                <input type="text" id="search-filter" name="search" class="form-control" 
+                                       placeholder="Name, ID, or Job Site..." value="{{ search_query or '' }}">
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <select id="department-filter" class="form-select">
-                                <option value="">All Departments</option>
-                                <option value="Construction">Construction</option>
-                                <option value="Transportation">Transportation</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <select id="region-filter" class="form-select">
-                                <option value="">All Regions</option>
-                                <option value="North">North</option>
-                                <option value="South">South</option>
-                                <option value="East">East</option>
-                                <option value="West">West</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2 text-end">
-                            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#add-driver-modal">
-                                <i class="bi bi-person-plus me-1"></i> Add Driver
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100 loading-button" data-loading-text="Searching...">
+                                <i class="bi bi-filter me-1"></i> Apply Filters
                             </button>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Driver List Table -->
-    <div class="row">
+    <!-- Drivers Table -->
+    <div class="row" id="drivers-table-container" style="display: none;">
         <div class="col-12">
             <div class="card shadow-sm">
-                <div class="card-header bg-light">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">Driver List</h5>
-                        <span class="badge bg-primary rounded-pill">{{ drivers|length }} Drivers</span>
-                    </div>
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Driver Records</h5>
+                    <span class="badge bg-primary rounded-pill">{{ drivers|length }} Drivers</span>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-striped table-hover table-borderless mb-0" id="driver-table">
+                        <table class="table table-striped table-hover" id="drivers-table">
                             <thead class="table-dark">
                                 <tr>
-                                    <th>Driver ID</th>
-                                    <th>Name</th>
-                                    <th>Department</th>
-                                    <th>Region</th>
-                                    <th>Assigned Asset</th>
-                                    <th>License Expiry</th>
-                                    <th>Status</th>
-                                    <th class="text-center">Actions</th>
+                                    <th scope="col">Employee ID</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Region</th>
+                                    <th scope="col">Vehicle</th>
+                                    <th scope="col">Job Site</th>
+                                    <th scope="col">Attendance</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col" class="text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for driver in drivers %}
-                                <tr>
-                                    <td>{{ driver.employee_id }}</td>
-                                    <td>{{ driver.name }}</td>
-                                    <td>{{ driver.department }}</td>
-                                    <td>{{ driver.region }}</td>
-                                    <td>{{ driver.assigned_asset }}</td>
-                                    <td>{{ driver.license_expiration }}</td>
-                                    <td>
-                                        {% if driver.license_expiration > "2025-06-01" %}
-                                            <span class="badge bg-success">Active</span>
-                                        {% elif driver.license_expiration > "2025-05-01" %}
-                                            <span class="badge bg-warning">Expiring Soon</span>
-                                        {% else %}
-                                            <span class="badge bg-danger">License Expired</span>
-                                        {% endif %}
-                                    </td>
-                                    <td class="text-center">
-                                        <div class="btn-group btn-group-sm" role="group">
-                                            <a href="{{ url_for('driver_module.driver_detail', driver_id=driver.id) }}" class="btn btn-primary">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
-                                            <button type="button" class="btn btn-warning edit-driver-btn" data-driver-id="{{ driver.id }}">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-danger delete-driver-btn" data-driver-id="{{ driver.id }}">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
+                                {% if drivers %}
+                                    {% for driver in drivers %}
+                                        <tr>
+                                            <td>{{ driver.employee_id }}</td>
+                                            <td>
+                                                <a href="{{ url_for('driver_module.driver_detail', driver_id=driver.id) }}">
+                                                    {{ driver.name }}
+                                                </a>
+                                            </td>
+                                            <td>{{ driver.region }}</td>
+                                            <td>{{ driver.vehicle }}</td>
+                                            <td>{{ driver.job_site }}</td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="progress flex-grow-1 me-2" style="height: 10px;">
+                                                        <div class="progress-bar {{ 'bg-success' if driver.attendance_score >= 90 else 'bg-warning' if driver.attendance_score >= 75 else 'bg-danger' }}" 
+                                                             role="progressbar" 
+                                                             style="width: {{ driver.attendance_score }}%;" 
+                                                             aria-valuenow="{{ driver.attendance_score }}" 
+                                                             aria-valuemin="0" 
+                                                             aria-valuemax="100">
+                                                        </div>
+                                                    </div>
+                                                    <span>{{ driver.attendance_score }}%</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge {{ 'bg-success' if driver.status == 'Active' else 'bg-secondary' }}">
+                                                    {{ driver.status }}
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="btn-group btn-group-sm" role="group">
+                                                    <a href="{{ url_for('driver_module.driver_detail', driver_id=driver.id) }}" class="btn btn-outline-primary">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                    <button type="button" class="btn btn-outline-success contact-driver-btn" data-driver-id="{{ driver.id }}">
+                                                        <i class="bi bi-telephone"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-outline-info reassign-driver-btn" data-driver-id="{{ driver.id }}">
+                                                        <i class="bi bi-arrow-left-right"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="8" class="text-center">No drivers found matching the criteria.</td>
+                                    </tr>
+                                {% endif %}
                             </tbody>
                         </table>
                     </div>
                 </div>
                 <div class="card-footer">
-                    <nav aria-label="Driver list pagination">
+                    <nav aria-label="Pagination">
                         <ul class="pagination justify-content-center mb-0">
                             <li class="page-item disabled">
                                 <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
@@ -150,109 +187,141 @@
     </div>
 </div>
 
-<!-- Add Driver Modal -->
-<div class="modal fade" id="add-driver-modal" tabindex="-1" aria-labelledby="add-driver-modal-label" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+<!-- Contact Driver Modal -->
+<div class="modal fade" id="contactDriverModal" tabindex="-1" aria-labelledby="contactDriverModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-success text-white">
-                <h5 class="modal-title" id="add-driver-modal-label">
-                    <i class="bi bi-person-plus me-1"></i> Add New Driver
+                <h5 class="modal-title" id="contactDriverModalLabel">
+                    <i class="bi bi-telephone me-1"></i> Contact Driver
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="add-driver-form" class="row g-3">
-                    <!-- Personal Information -->
-                    <div class="col-md-6">
-                        <label for="driver-name" class="form-label">Full Name</label>
-                        <input type="text" class="form-control" id="driver-name" required>
+                <div id="driver-contact-info">
+                    <div class="mb-3">
+                        <label class="form-label">Driver Name:</label>
+                        <div class="form-control" id="contact-driver-name"></div>
                     </div>
-                    <div class="col-md-6">
-                        <label for="driver-employee-id" class="form-label">Employee ID</label>
-                        <input type="text" class="form-control" id="driver-employee-id" required>
+                    <div class="mb-3">
+                        <label class="form-label">Phone Number:</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                            <div class="form-control" id="contact-driver-phone">(555) 123-4567</div>
+                            <button class="btn btn-outline-primary" type="button" id="copy-phone-btn">
+                                <i class="bi bi-clipboard"></i>
+                            </button>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <label for="driver-email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="driver-email" required>
+                    <div class="mb-3">
+                        <label class="form-label">Email:</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                            <div class="form-control" id="contact-driver-email">driver@example.com</div>
+                            <button class="btn btn-outline-primary" type="button" id="copy-email-btn">
+                                <i class="bi bi-clipboard"></i>
+                            </button>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <label for="driver-phone" class="form-label">Phone</label>
-                        <input type="tel" class="form-control" id="driver-phone" required>
+                    <div class="mb-3">
+                        <label class="form-label">Supervisor:</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            <div class="form-control" id="contact-driver-supervisor">John Supervisor</div>
+                        </div>
                     </div>
-                    
-                    <!-- Job Information -->
-                    <div class="col-md-6">
-                        <label for="driver-department" class="form-label">Department</label>
-                        <select class="form-select" id="driver-department" required>
-                            <option value="" selected disabled>Select Department</option>
-                            <option value="Construction">Construction</option>
-                            <option value="Transportation">Transportation</option>
-                        </select>
+                    <div class="mb-3">
+                        <label class="form-label">Current Location:</label>
+                        <div class="alert alert-info">
+                            <i class="bi bi-geo-alt me-1"></i>
+                            <span id="contact-driver-location">NTTA Eastern Extension Site 3</span>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <label for="driver-region" class="form-label">Region</label>
-                        <select class="form-select" id="driver-region" required>
-                            <option value="" selected disabled>Select Region</option>
-                            <option value="North">North</option>
-                            <option value="South">South</option>
-                            <option value="East">East</option>
-                            <option value="West">West</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="driver-hire-date" class="form-label">Hire Date</label>
-                        <input type="date" class="form-control" id="driver-hire-date" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="driver-asset" class="form-label">Assigned Asset</label>
-                        <select class="form-select" id="driver-asset">
-                            <option value="" selected>None</option>
-                            <option value="Truck 101">Truck 101</option>
-                            <option value="Truck 102">Truck 102</option>
-                            <option value="Excavator 203">Excavator 203</option>
-                            <option value="Loader 410">Loader 410</option>
-                        </select>
-                    </div>
-                    
-                    <!-- License Information -->
-                    <div class="col-md-6">
-                        <label for="driver-license" class="form-label">License Number</label>
-                        <input type="text" class="form-control" id="driver-license" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="driver-license-expiry" class="form-label">License Expiration</label>
-                        <input type="date" class="form-control" id="driver-license-expiry" required>
-                    </div>
-                </form>
+                </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-success" id="save-driver-btn">
-                    <i class="bi bi-save me-1"></i> Save Driver
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" id="send-message-btn">
+                    <i class="bi bi-chat-text me-1"></i> Send Message
+                </button>
+                <button type="button" class="btn btn-primary" id="call-driver-btn">
+                    <i class="bi bi-telephone me-1"></i> Call Driver
                 </button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="delete-driver-modal" tabindex="-1" aria-labelledby="delete-driver-modal-label" aria-hidden="true">
+<!-- Reassign Driver Modal -->
+<div class="modal fade" id="reassignDriverModal" tabindex="-1" aria-labelledby="reassignDriverModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title" id="delete-driver-modal-label">
-                    <i class="bi bi-exclamation-triangle me-1"></i> Delete Driver
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="reassignDriverModalLabel">
+                    <i class="bi bi-arrow-left-right me-1"></i> Reassign Driver
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p>Are you sure you want to delete this driver? This action cannot be undone.</p>
-                <p><strong>Driver: </strong><span id="delete-driver-name"></span></p>
+                <form id="reassign-form">
+                    <input type="hidden" id="reassign-driver-id" name="driver_id">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Driver Name:</label>
+                        <div class="form-control" id="reassign-driver-name"></div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Current Job Site:</label>
+                        <div class="form-control" id="reassign-current-job-site"></div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Current Vehicle:</label>
+                        <div class="form-control" id="reassign-current-vehicle"></div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="mb-3">
+                        <label for="reassign-new-job-site" class="form-label">New Job Site:</label>
+                        <select class="form-select" id="reassign-new-job-site" name="new_job_site" required>
+                            <option value="" selected disabled>Select Job Site</option>
+                            <option value="NTTA Eastern Extension">NTTA Eastern Extension</option>
+                            <option value="DFW Connector">DFW Connector</option>
+                            <option value="Harbor Bridge">Harbor Bridge</option>
+                            <option value="Loop 88">Loop 88</option>
+                            <option value="I-45 Expansion">I-45 Expansion</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="reassign-new-vehicle" class="form-label">New Vehicle (Optional):</label>
+                        <select class="form-select" id="reassign-new-vehicle" name="new_vehicle">
+                            <option value="" selected>Keep Current Vehicle</option>
+                            <option value="T-101">T-101</option>
+                            <option value="T-102">T-102</option>
+                            <option value="T-103">T-103</option>
+                            <option value="T-104">T-104</option>
+                            <option value="T-105">T-105</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="reassign-effective-date" class="form-label">Effective Date:</label>
+                        <input type="date" class="form-control" id="reassign-effective-date" name="effective_date" value="{{ now.strftime('%Y-%m-%d') }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="reassign-notes" class="form-label">Notes:</label>
+                        <textarea class="form-control" id="reassign-notes" name="notes" rows="3" placeholder="Enter any notes about this reassignment..."></textarea>
+                    </div>
+                </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger" id="confirm-delete-btn">
-                    <i class="bi bi-trash me-1"></i> Delete
+                <button type="button" class="btn btn-info text-white" id="save-reassign-btn">
+                    <i class="bi bi-save me-1"></i> Save Reassignment
                 </button>
             </div>
         </div>
@@ -263,102 +332,119 @@
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Search functionality
-        const driverSearch = document.getElementById('driver-search');
-        driverSearch.addEventListener('input', filterDrivers);
+        // Show loading animation and hide content initially
+        const driversLoadingContainer = document.getElementById('drivers-loading-container');
+        const driversTableContainer = document.getElementById('drivers-table-container');
         
-        // Department filter
-        const departmentFilter = document.getElementById('department-filter');
-        departmentFilter.addEventListener('change', filterDrivers);
+        // Simulate loading delay (remove in production and use real data loading event)
+        setTimeout(function() {
+            // Hide loader
+            driversLoadingContainer.style.display = 'none';
+            
+            // Show content with fade-in effect
+            driversTableContainer.style.display = 'block';
+            driversTableContainer.classList.add('fade-in');
+        }, 1500);
         
-        // Region filter
-        const regionFilter = document.getElementById('region-filter');
-        regionFilter.addEventListener('change', filterDrivers);
+        // Contact Driver Modal
+        const contactDriverBtns = document.querySelectorAll('.contact-driver-btn');
+        const contactDriverModal = new bootstrap.Modal(document.getElementById('contactDriverModal'));
+        const contactDriverName = document.getElementById('contact-driver-name');
         
-        // Delete driver functionality
-        const deleteButtons = document.querySelectorAll('.delete-driver-btn');
-        const deleteModal = new bootstrap.Modal(document.getElementById('delete-driver-modal'));
-        const deleteDriverName = document.getElementById('delete-driver-name');
-        let driverToDelete = null;
-        
-        deleteButtons.forEach(button => {
-            button.addEventListener('click', function() {
+        contactDriverBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
                 const driverId = this.dataset.driverId;
                 const driverRow = this.closest('tr');
-                const name = driverRow.cells[1].textContent;
+                const driverName = driverRow.querySelector('td:nth-child(2) a').textContent.trim();
                 
-                deleteDriverName.textContent = name;
-                driverToDelete = driverId;
-                deleteModal.show();
+                contactDriverName.textContent = driverName;
+                
+                // In a real implementation, this would fetch contact details from the server
+                // For demo, we'll use placeholder data
+                document.getElementById('contact-driver-phone').textContent = '(555) ' + (100 + Math.floor(Math.random() * 900)) + '-' + (1000 + Math.floor(Math.random() * 9000));
+                document.getElementById('contact-driver-email').textContent = driverName.toLowerCase().replace(/\s+/g, '.') + '@traxora.com';
+                document.getElementById('contact-driver-supervisor').textContent = ['James Wilson', 'Michael Roberts', 'Jennifer Lopez'][Math.floor(Math.random() * 3)];
+                document.getElementById('contact-driver-location').textContent = driverRow.querySelector('td:nth-child(5)').textContent.trim();
+                
+                contactDriverModal.show();
             });
         });
         
-        // Confirm delete
-        const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
-        confirmDeleteBtn.addEventListener('click', function() {
-            // In a real implementation, this would send a request to delete the driver
-            // For demonstration, we'll just hide the row
-            const driverRows = document.querySelectorAll('#driver-table tbody tr');
-            driverRows.forEach(row => {
-                const id = row.querySelector('.delete-driver-btn').dataset.driverId;
-                if (id === driverToDelete) {
-                    row.style.display = 'none';
-                }
+        // Copy buttons
+        document.getElementById('copy-phone-btn').addEventListener('click', function() {
+            const phoneNumber = document.getElementById('contact-driver-phone').textContent;
+            navigator.clipboard.writeText(phoneNumber).then(() => {
+                this.innerHTML = '<i class="bi bi-check"></i>';
+                setTimeout(() => { this.innerHTML = '<i class="bi bi-clipboard"></i>'; }, 2000);
             });
-            
-            // Close modal
-            deleteModal.hide();
-            
-            // Show success message
-            alert('Driver deleted successfully');
         });
         
-        // Save new driver
-        const saveDriverBtn = document.getElementById('save-driver-btn');
-        const addDriverForm = document.getElementById('add-driver-form');
-        const addDriverModal = new bootstrap.Modal(document.getElementById('add-driver-modal'));
+        document.getElementById('copy-email-btn').addEventListener('click', function() {
+            const email = document.getElementById('contact-driver-email').textContent;
+            navigator.clipboard.writeText(email).then(() => {
+                this.innerHTML = '<i class="bi bi-check"></i>';
+                setTimeout(() => { this.innerHTML = '<i class="bi bi-clipboard"></i>'; }, 2000);
+            });
+        });
         
-        saveDriverBtn.addEventListener('click', function() {
-            // Check form validity
-            if (!addDriverForm.checkValidity()) {
-                addDriverForm.reportValidity();
+        // Call or Message Driver buttons
+        document.getElementById('call-driver-btn').addEventListener('click', function() {
+            const phoneNumber = document.getElementById('contact-driver-phone').textContent;
+            alert(`Initiating call to ${phoneNumber}`);
+            // In a real application, this would open a call interface or redirect to a phone app
+        });
+        
+        document.getElementById('send-message-btn').addEventListener('click', function() {
+            const driverName = document.getElementById('contact-driver-name').textContent;
+            alert(`Opening message interface for ${driverName}`);
+            // In a real application, this would open a messaging interface
+        });
+        
+        // Reassign Driver Modal
+        const reassignDriverBtns = document.querySelectorAll('.reassign-driver-btn');
+        const reassignDriverModal = new bootstrap.Modal(document.getElementById('reassignDriverModal'));
+        const reassignDriverName = document.getElementById('reassign-driver-name');
+        const reassignDriverId = document.getElementById('reassign-driver-id');
+        const reassignCurrentJobSite = document.getElementById('reassign-current-job-site');
+        const reassignCurrentVehicle = document.getElementById('reassign-current-vehicle');
+        const saveReassignBtn = document.getElementById('save-reassign-btn');
+        
+        reassignDriverBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const driverId = this.dataset.driverId;
+                const driverRow = this.closest('tr');
+                const driverName = driverRow.querySelector('td:nth-child(2) a').textContent.trim();
+                const jobSite = driverRow.querySelector('td:nth-child(5)').textContent.trim();
+                const vehicle = driverRow.querySelector('td:nth-child(4)').textContent.trim();
+                
+                reassignDriverId.value = driverId;
+                reassignDriverName.textContent = driverName;
+                reassignCurrentJobSite.textContent = jobSite;
+                reassignCurrentVehicle.textContent = vehicle;
+                
+                reassignDriverModal.show();
+            });
+        });
+        
+        saveReassignBtn.addEventListener('click', function() {
+            const reassignForm = document.getElementById('reassign-form');
+            
+            if (!reassignForm.checkValidity()) {
+                reassignForm.reportValidity();
                 return;
             }
             
-            // In a real implementation, this would send a request to create the driver
-            // For demonstration, we'll just show a success message
-            addDriverModal.hide();
+            const driverId = reassignDriverId.value;
+            const driverName = reassignDriverName.textContent;
+            const newJobSite = document.getElementById('reassign-new-job-site').value;
+            const newVehicle = document.getElementById('reassign-new-vehicle').value;
+            const effectiveDate = document.getElementById('reassign-effective-date').value;
             
-            // Show success message
-            alert('Driver added successfully');
+            // In a real implementation, this would send data to the server
+            // For demo, we'll just show a success message
+            alert(`Driver ${driverName} reassigned to ${newJobSite}${newVehicle ? ' with vehicle ' + newVehicle : ''} effective ${effectiveDate}`);
+            reassignDriverModal.hide();
         });
-        
-        // Filter drivers based on search and filters
-        function filterDrivers() {
-            const searchText = driverSearch.value.toLowerCase();
-            const department = departmentFilter.value;
-            const region = regionFilter.value;
-            
-            const rows = document.querySelectorAll('#driver-table tbody tr');
-            
-            rows.forEach(row => {
-                const name = row.cells[1].textContent.toLowerCase();
-                const deptText = row.cells[2].textContent;
-                const regionText = row.cells[3].textContent;
-                
-                // Check if row matches all filters
-                const matchesSearch = name.includes(searchText);
-                const matchesDepartment = department === '' || deptText === department;
-                const matchesRegion = region === '' || regionText === region;
-                
-                // Show/hide row based on filters
-                if (matchesSearch && matchesDepartment && matchesRegion) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        }
     });
 </script>
 {% endblock %}

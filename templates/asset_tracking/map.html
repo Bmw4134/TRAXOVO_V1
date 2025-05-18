@@ -1,0 +1,431 @@
+{% extends 'layout.html' %}
+
+{% block styles %}
+<link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+<style>
+  .map-container {
+    height: calc(100vh - 150px);
+    min-height: 500px;
+    width: 100%;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .map-controls {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    background-color: rgba(33, 37, 41, 0.8);
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    max-width: 300px;
+  }
+  
+  .last-update {
+    color: var(--bs-info);
+    font-size: 0.8rem;
+  }
+  
+  .type-filter {
+    margin-bottom: 1rem;
+  }
+  
+  .filter-section {
+    margin-bottom: 1rem;
+  }
+  
+  .status-checkbox {
+    margin-right: 0.5rem;
+  }
+  
+  .status-label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.25rem;
+  }
+  
+  .status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 0.5rem;
+  }
+  
+  .info-panel {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    z-index: 1000;
+    background-color: rgba(33, 37, 41, 0.8);
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    max-width: 300px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .asset-counter {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .asset-counter-number {
+    font-weight: bold;
+    color: var(--bs-info);
+  }
+  
+  .status-summary {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .status-item {
+    text-align: center;
+    padding: 0.5rem;
+  }
+  
+  .status-count {
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+  
+  .status-text {
+    font-size: 0.75rem;
+    color: var(--bs-light);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Asset Map</h1>
+    <div>
+      <a href="{{ url_for('asset_tracking.refresh_data') }}" class="btn btn-outline-primary">
+        <i class="bi bi-arrow-clockwise"></i> Refresh Data
+      </a>
+      <a href="{{ url_for('asset_tracking.index') }}" class="btn btn-outline-secondary ms-2">
+        <i class="bi bi-speedometer2"></i> Dashboard
+      </a>
+    </div>
+  </div>
+
+  <div class="position-relative">
+    <div id="asset-map" class="map-container"></div>
+    
+    <!-- Map Controls -->
+    <div class="map-controls shadow-sm">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">Filters</h5>
+        <span class="text-muted last-update" id="map-last-update">Loading...</span>
+      </div>
+      
+      <div class="filter-section">
+        <label class="form-label">Asset Types</label>
+        <select id="type-filter" class="form-select form-select-sm">
+          <option value="">All Types</option>
+          <!-- Will be populated dynamically -->
+        </select>
+      </div>
+      
+      <div class="filter-section">
+        <label class="form-label">Status</label>
+        <div class="status-filters">
+          <div class="status-label">
+            <input type="checkbox" class="status-checkbox" id="active-filter" checked>
+            <span class="status-dot" style="background-color: #28a745;"></span>
+            <label for="active-filter">Active</label>
+          </div>
+          <div class="status-label">
+            <input type="checkbox" class="status-checkbox" id="maintenance-filter" checked>
+            <span class="status-dot" style="background-color: #fd7e14;"></span>
+            <label for="maintenance-filter">Maintenance</label>
+          </div>
+          <div class="status-label">
+            <input type="checkbox" class="status-checkbox" id="offline-filter" checked>
+            <span class="status-dot" style="background-color: #dc3545;"></span>
+            <label for="offline-filter">Offline</label>
+          </div>
+          <div class="status-label">
+            <input type="checkbox" class="status-checkbox" id="idle-filter" checked>
+            <span class="status-dot" style="background-color: #6c757d;"></span>
+            <label for="idle-filter">Idle</label>
+          </div>
+        </div>
+      </div>
+      
+      <div class="filter-section">
+        <label class="form-label">Search</label>
+        <input type="text" id="search-filter" class="form-control form-control-sm" placeholder="Asset name or ID...">
+      </div>
+      
+      <button id="reset-filters" class="btn btn-sm btn-outline-secondary w-100 mt-2">
+        Reset Filters
+      </button>
+    </div>
+    
+    <!-- Info Panel -->
+    <div class="info-panel shadow-sm" id="info-panel">
+      <div class="asset-counter">
+        Showing <span class="asset-counter-number" id="visible-assets">0</span> of 
+        <span class="asset-counter-number" id="total-assets">0</span> assets
+      </div>
+      
+      <div class="status-summary">
+        <div class="status-item">
+          <div class="status-count" id="active-count">0</div>
+          <div class="status-text">Active</div>
+        </div>
+        <div class="status-item">
+          <div class="status-count" id="maintenance-count">0</div>
+          <div class="status-text">Maintenance</div>
+        </div>
+        <div class="status-item">
+          <div class="status-count" id="offline-count">0</div>
+          <div class="status-text">Offline</div>
+        </div>
+        <div class="status-item">
+          <div class="status-count" id="idle-count">0</div>
+          <div class="status-text">Idle</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize the map
+    const map = L.map('asset-map').setView([32.7767, -96.7970], 8); // Default to Dallas
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+    
+    // Use marker clustering for better performance with lots of markers
+    const markers = L.markerClusterGroup({
+      disableClusteringAtZoom: 14,
+      spiderfyOnMaxZoom: true,
+      showCoverageOnHover: false
+    });
+    
+    map.addLayer(markers);
+    
+    // Store all asset data and markers
+    let allAssets = [];
+    const assetMarkers = {};
+    const assetTypes = new Set();
+    
+    // Counters
+    let activeCount = 0;
+    let maintenanceCount = 0;
+    let offlineCount = 0;
+    let idleCount = 0;
+    
+    // Function to load asset data
+    function loadAssetData() {
+      fetch('{{ url_for("asset_tracking.api_assets") }}')
+        .then(response => response.json())
+        .then(assets => {
+          // Store complete dataset
+          allAssets = assets;
+          
+          // Clear markers and counters
+          markers.clearLayers();
+          activeCount = 0;
+          maintenanceCount = 0;
+          offlineCount = 0;
+          idleCount = 0;
+          assetTypes.clear();
+          
+          // Rebuild type filter
+          const typeFilter = document.getElementById('type-filter');
+          const currentType = typeFilter.value;
+          typeFilter.innerHTML = '<option value="">All Types</option>';
+          
+          // Process assets
+          assets.forEach(asset => {
+            // Extract asset type
+            const assetType = asset.assetType || asset.type || asset.category || 'Unknown';
+            if (assetType) assetTypes.add(assetType);
+            
+            // Count by status
+            if (asset.ignition || asset.engTime > 0) {
+              activeCount++;
+            } else if (asset.status && asset.status.toLowerCase().includes('maintenance')) {
+              maintenanceCount++;
+            } else if (!asset.lastReport || new Date(asset.lastReport) < new Date(Date.now() - 86400000)) {
+              offlineCount++;
+            } else {
+              idleCount++;
+            }
+            
+            // Create map marker if we have coordinates
+            const lat = asset.latitude || asset.lat;
+            const lng = asset.longitude || asset.lng;
+            
+            if (lat && lng) {
+              const assetId = asset.id || asset.assetId || asset.serialNumber;
+              
+              // Create marker icon
+              const markerIcon = L.divIcon({
+                html: `<div style="background-color: ${asset.status_color}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white;"></div>`,
+                className: 'asset-marker',
+                iconSize: [16, 16]
+              });
+              
+              // Create marker
+              const marker = L.marker([lat, lng], { 
+                icon: markerIcon,
+                assetId: assetId,
+                assetType: assetType,
+                status: getAssetStatus(asset)
+              });
+              
+              // Create popup content
+              marker.bindPopup(`
+                <div>
+                  <strong>${asset.name || 'Unnamed Asset'}</strong><br>
+                  Type: ${assetType}<br>
+                  Status: ${getAssetStatus(asset)}<br>
+                  Last Report: ${asset.lastReport ? new Date(asset.lastReport).toLocaleString() : 'Unknown'}<br>
+                  <a href="{{ url_for('asset_tracking.asset_detail', asset_id='') }}/${assetId}" class="btn btn-sm btn-info mt-2">View Details</a>
+                </div>
+              `);
+              
+              // Store marker reference
+              assetMarkers[assetId] = marker;
+              
+              // Add to cluster
+              markers.addLayer(marker);
+            }
+          });
+          
+          // Populate asset type filter
+          assetTypes.forEach(type => {
+            const option = document.createElement('option');
+            option.value = type;
+            option.textContent = type;
+            if (type === currentType) option.selected = true;
+            typeFilter.appendChild(option);
+          });
+          
+          // Update counters
+          document.getElementById('active-count').textContent = activeCount;
+          document.getElementById('maintenance-count').textContent = maintenanceCount;
+          document.getElementById('offline-count').textContent = offlineCount;
+          document.getElementById('idle-count').textContent = idleCount;
+          
+          document.getElementById('total-assets').textContent = assets.length;
+          document.getElementById('visible-assets').textContent = Object.keys(assetMarkers).length;
+          
+          // Update last update time
+          document.getElementById('map-last-update').textContent = `Updated: ${new Date().toLocaleTimeString()}`;
+          
+          // Fit map to markers if we have any
+          if (markers.getLayers().length > 0) {
+            map.fitBounds(markers.getBounds());
+          }
+          
+          // Apply any existing filters
+          applyFilters();
+        })
+        .catch(error => {
+          console.error('Error loading asset data:', error);
+          document.getElementById('map-last-update').textContent = `Error loading data: ${error.message}`;
+        });
+    }
+    
+    // Helper function to determine asset status
+    function getAssetStatus(asset) {
+      if (asset.ignition || asset.engTime > 0) {
+        return 'active';
+      } else if (asset.status && asset.status.toLowerCase().includes('maintenance')) {
+        return 'maintenance';
+      } else if (!asset.lastReport || new Date(asset.lastReport) < new Date(Date.now() - 86400000)) {
+        return 'offline';
+      } else {
+        return 'idle';
+      }
+    }
+    
+    // Filter functionality
+    function applyFilters() {
+      // Get filter values
+      const typeFilter = document.getElementById('type-filter').value;
+      const activeFilter = document.getElementById('active-filter').checked;
+      const maintenanceFilter = document.getElementById('maintenance-filter').checked;
+      const offlineFilter = document.getElementById('offline-filter').checked;
+      const idleFilter = document.getElementById('idle-filter').checked;
+      const searchFilter = document.getElementById('search-filter').value.toLowerCase();
+      
+      // Clear and rebuild marker cluster
+      markers.clearLayers();
+      let visibleCount = 0;
+      
+      // Loop through all markers and apply filters
+      for (const [assetId, marker] of Object.entries(assetMarkers)) {
+        const asset = allAssets.find(a => (a.id || a.assetId || a.serialNumber) == assetId);
+        
+        if (!asset) continue;
+        
+        const assetType = marker.options.assetType;
+        const status = marker.options.status;
+        const name = asset.name || 'Unnamed Asset';
+        
+        // Check if marker passes all filters
+        const passesTypeFilter = !typeFilter || assetType === typeFilter;
+        const passesStatusFilter = 
+          (status === 'active' && activeFilter) ||
+          (status === 'maintenance' && maintenanceFilter) ||
+          (status === 'offline' && offlineFilter) ||
+          (status === 'idle' && idleFilter);
+        const passesSearchFilter = !searchFilter || 
+          name.toLowerCase().includes(searchFilter) || 
+          assetId.toString().includes(searchFilter);
+        
+        if (passesTypeFilter && passesStatusFilter && passesSearchFilter) {
+          markers.addLayer(marker);
+          visibleCount++;
+        }
+      }
+      
+      // Update visible count
+      document.getElementById('visible-assets').textContent = visibleCount;
+    }
+    
+    // Set up event listeners for filters
+    document.getElementById('type-filter').addEventListener('change', applyFilters);
+    document.getElementById('active-filter').addEventListener('change', applyFilters);
+    document.getElementById('maintenance-filter').addEventListener('change', applyFilters);
+    document.getElementById('offline-filter').addEventListener('change', applyFilters);
+    document.getElementById('idle-filter').addEventListener('change', applyFilters);
+    document.getElementById('search-filter').addEventListener('input', applyFilters);
+    
+    document.getElementById('reset-filters').addEventListener('click', function() {
+      document.getElementById('type-filter').value = '';
+      document.getElementById('active-filter').checked = true;
+      document.getElementById('maintenance-filter').checked = true;
+      document.getElementById('offline-filter').checked = true;
+      document.getElementById('idle-filter').checked = true;
+      document.getElementById('search-filter').value = '';
+      applyFilters();
+    });
+    
+    // Initial load
+    loadAssetData();
+    
+    // Refresh every 60 seconds
+    setInterval(loadAssetData, 60000);
+  });
+</script>
+{% endblock %}

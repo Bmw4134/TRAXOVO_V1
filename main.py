@@ -48,6 +48,11 @@ with app.app_context():
         from routes import dashboard
         dashboard.register_blueprint(app)
         logging.info("Registered Dashboard blueprint")
+        
+        # Register asset tracking blueprint
+        from routes import asset_tracking
+        app.register_blueprint(asset_tracking.asset_tracking)
+        logging.info("Registered Asset Tracking blueprint")
     except Exception as e:
         logging.error(f"Failed to register Dashboard blueprint: {str(e)}")
         

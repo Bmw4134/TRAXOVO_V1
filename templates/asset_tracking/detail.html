@@ -1,0 +1,468 @@
+{% extends 'layout.html' %}
+
+{% block styles %}
+<link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<style>
+  .detail-card {
+    border-radius: 0.5rem;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .asset-map {
+    height: 300px;
+    width: 100%;
+    border-radius: 0.5rem;
+  }
+  
+  .status-badge {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    margin-right: 1rem;
+  }
+  
+  .spec-label {
+    font-weight: bold;
+    color: var(--bs-light);
+  }
+  
+  .event-timeline {
+    position: relative;
+    padding-left: 2rem;
+  }
+  
+  .event-timeline::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 8px;
+    width: 2px;
+    background-color: var(--bs-secondary);
+  }
+  
+  .timeline-item {
+    position: relative;
+    padding-bottom: 1.5rem;
+  }
+  
+  .timeline-dot {
+    position: absolute;
+    left: -2rem;
+    top: 0;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: var(--bs-info);
+    border: 2px solid var(--bs-dark);
+  }
+  
+  .timeline-content {
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 1rem;
+    border-radius: 0.5rem;
+  }
+  
+  .gauge-container {
+    position: relative;
+    height: 150px;
+  }
+  
+  .gauge-value {
+    position: absolute;
+    top: 60%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  .gauge-label {
+    position: absolute;
+    top: 85%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.9rem;
+    color: var(--bs-light);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1>{{ asset.name or 'Asset Details' }}</h1>
+      <p class="text-muted">ID: {{ asset.id or asset.assetId or asset.serialNumber or 'Unknown' }}</p>
+    </div>
+    <div>
+      <a href="{{ url_for('asset_tracking.list_assets') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to List
+      </a>
+      <a href="{{ url_for('asset_tracking.refresh_data') }}" class="btn btn-outline-primary ms-2">
+        <i class="bi bi-arrow-clockwise"></i> Refresh Data
+      </a>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Main asset info column -->
+    <div class="col-lg-8">
+      <!-- Status and location card -->
+      <div class="card bg-dark detail-card">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-md-6">
+              <div class="d-flex align-items-center mb-3">
+                <div id="status-badge" class="status-badge">
+                  {{ asset.status or 'Unknown Status' }}
+                </div>
+                <div>
+                  Last Update: <span id="last-report">
+                    {{ asset.lastReport|default('No data', true) }}
+                  </span>
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <div class="spec-label">Type:</div>
+                <div>{{ asset.assetType or asset.type or asset.category or 'Unknown' }}</div>
+              </div>
+              
+              <div class="mb-3">
+                <div class="spec-label">Location:</div>
+                <div>{{ asset.location or asset.region or 'Unknown' }}</div>
+              </div>
+              
+              <div>
+                <div class="spec-label">VIN/Serial:</div>
+                <div>{{ asset.vin or asset.serialNumber or 'Not available' }}</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div id="asset-map" class="asset-map"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Technical specifications card -->
+      <div class="card bg-dark detail-card">
+        <div class="card-header">
+          <h5 class="mb-0">Technical Specifications</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <div class="spec-label">Make:</div>
+                <div>{{ asset.make or 'Not available' }}</div>
+              </div>
+              
+              <div class="mb-3">
+                <div class="spec-label">Model:</div>
+                <div>{{ asset.model or 'Not available' }}</div>
+              </div>
+              
+              <div class="mb-3">
+                <div class="spec-label">Year:</div>
+                <div>{{ asset.year or 'Not available' }}</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <div class="spec-label">Engine Hours:</div>
+                <div>{{ asset.engTime or asset.engineHours or 'Not available' }}</div>
+              </div>
+              
+              <div class="mb-3">
+                <div class="spec-label">Odometer:</div>
+                <div>{{ asset.odometer or 'Not available' }} {{ asset.odometerUnit or 'mi' }}</div>
+              </div>
+              
+              <div class="mb-3">
+                <div class="spec-label">Fuel Level:</div>
+                <div>{{ asset.fuelLevel or 'Not available' }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Recent activity card -->
+      <div class="card bg-dark detail-card">
+        <div class="card-header">
+          <h5 class="mb-0">Recent Activity</h5>
+        </div>
+        <div class="card-body">
+          <div class="event-timeline">
+            {% if asset.events %}
+              {% for event in asset.events[:5] %}
+                <div class="timeline-item">
+                  <div class="timeline-dot"></div>
+                  <div class="timeline-content">
+                    <div class="d-flex justify-content-between">
+                      <strong>{{ event.type }}</strong>
+                      <small class="text-muted">{{ event.timestamp }}</small>
+                    </div>
+                    <div>{{ event.description }}</div>
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                  <div class="text-muted">No recent activity data available</div>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Sidebar column -->
+    <div class="col-lg-4">
+      <!-- Maintenance status card -->
+      <div class="card bg-dark detail-card">
+        <div class="card-header">
+          <h5 class="mb-0">Maintenance Status</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-6 text-center">
+              <div class="gauge-container">
+                <canvas id="oil-gauge" width="120" height="120"></canvas>
+                <div class="gauge-value" id="oil-value">--</div>
+                <div class="gauge-label">Engine Oil</div>
+              </div>
+            </div>
+            <div class="col-6 text-center">
+              <div class="gauge-container">
+                <canvas id="health-gauge" width="120" height="120"></canvas>
+                <div class="gauge-value" id="health-value">--</div>
+                <div class="gauge-label">Health Score</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mt-3">
+            <div class="mb-2">
+              <div class="d-flex justify-content-between align-items-center">
+                <span>Next Service:</span>
+                <span id="next-service">{{ asset.nextService or 'Not scheduled' }}</span>
+              </div>
+            </div>
+            
+            <div class="mb-2">
+              <div class="d-flex justify-content-between align-items-center">
+                <span>Last Service:</span>
+                <span id="last-service">{{ asset.lastService or 'No data' }}</span>
+              </div>
+            </div>
+            
+            <div class="mb-2">
+              <div class="d-flex justify-content-between align-items-center">
+                <span>Service Interval:</span>
+                <span id="service-interval">{{ asset.serviceInterval or '250 hours' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Utilization card -->
+      <div class="card bg-dark detail-card">
+        <div class="card-header">
+          <h5 class="mb-0">Utilization</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="utilization-chart" height="200"></canvas>
+          
+          <div class="mt-3">
+            <div class="mb-2">
+              <div class="d-flex justify-content-between align-items-center">
+                <span>Total Hours (MTD):</span>
+                <span id="total-hours">{{ asset.monthToDateHours or '0' }}</span>
+              </div>
+            </div>
+            
+            <div class="mb-2">
+              <div class="d-flex justify-content-between align-items-center">
+                <span>Efficiency:</span>
+                <span id="efficiency">{{ asset.efficiency or '0' }}%</span>
+              </div>
+            </div>
+            
+            <div class="mb-2">
+              <div class="d-flex justify-content-between align-items-center">
+                <span>Fuel Usage (gal/hr):</span>
+                <span id="fuel-usage">{{ asset.fuelUsage or 'N/A' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Assignment card -->
+      <div class="card bg-dark detail-card">
+        <div class="card-header">
+          <h5 class="mb-0">Current Assignment</h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <div class="spec-label">Job Site:</div>
+            <div id="job-site">{{ asset.jobSite or 'Not assigned' }}</div>
+          </div>
+          
+          <div class="mb-3">
+            <div class="spec-label">Operator:</div>
+            <div id="operator">{{ asset.operator or 'Not assigned' }}</div>
+          </div>
+          
+          <div>
+            <div class="spec-label">Assigned Since:</div>
+            <div id="assigned-since">{{ asset.assignedSince or 'N/A' }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Set status badge color
+    const statusBadge = document.getElementById('status-badge');
+    const status = statusBadge.textContent.trim().toLowerCase();
+    
+    if (status.includes('active') || status.includes('on')) {
+      statusBadge.style.backgroundColor = '#28a745'; // Green
+    } else if (status.includes('maintenance') || status.includes('repair')) {
+      statusBadge.style.backgroundColor = '#fd7e14'; // Orange
+    } else if (status.includes('offline') || status.includes('down')) {
+      statusBadge.style.backgroundColor = '#dc3545'; // Red
+    } else {
+      statusBadge.style.backgroundColor = '#6c757d'; // Gray
+    }
+    
+    // Format last report date if available
+    const lastReportElement = document.getElementById('last-report');
+    const lastReport = lastReportElement.textContent.trim();
+    
+    if (lastReport && lastReport !== 'No data') {
+      try {
+        const date = new Date(lastReport);
+        if (!isNaN(date)) {
+          lastReportElement.textContent = date.toLocaleString();
+        }
+      } catch (e) {
+        console.error('Error parsing date:', e);
+      }
+    }
+    
+    // Initialize the map if we have coordinates
+    const asset = {{ asset|tojson }};
+    const lat = asset.latitude || asset.lat;
+    const lng = asset.longitude || asset.lng;
+    
+    if (lat && lng) {
+      const map = L.map('asset-map').setView([lat, lng], 13);
+      
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+      
+      const marker = L.marker([lat, lng]).addTo(map);
+      marker.bindPopup(`<b>${asset.name || 'Asset'}</b><br>${asset.location || ''}`).openPopup();
+    } else {
+      document.getElementById('asset-map').innerHTML = '<div class="d-flex justify-content-center align-items-center h-100 text-muted">No location data available</div>';
+    }
+    
+    // Create gauges
+    function createGauge(canvasId, value, maxValue, color) {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext('2d');
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const radius = canvas.width / 2 - 10;
+      
+      // Background arc
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, Math.PI, 0, false);
+      ctx.lineWidth = 15;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+      ctx.stroke();
+      
+      // Value arc
+      const percentage = Math.min(1, Math.max(0, value / maxValue));
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, Math.PI, Math.PI + percentage * Math.PI, false);
+      ctx.lineWidth = 15;
+      ctx.strokeStyle = color;
+      ctx.stroke();
+    }
+    
+    // Oil gauge (random value for demo)
+    const oilLevel = Math.random() * 100;
+    createGauge('oil-gauge', oilLevel, 100, getColorForValue(oilLevel, true));
+    document.getElementById('oil-value').textContent = `${Math.round(oilLevel)}%`;
+    
+    // Health gauge (random value for demo)
+    const healthScore = Math.random() * 100;
+    createGauge('health-gauge', healthScore, 100, getColorForValue(healthScore, true));
+    document.getElementById('health-value').textContent = `${Math.round(healthScore)}%`;
+    
+    // Function to get color based on value
+    function getColorForValue(value, higherBetter = true) {
+      if (higherBetter) {
+        if (value >= 75) return '#28a745'; // Green
+        if (value >= 50) return '#fd7e14'; // Orange
+        return '#dc3545'; // Red
+      } else {
+        if (value <= 25) return '#28a745'; // Green
+        if (value <= 50) return '#fd7e14'; // Orange
+        return '#dc3545'; // Red
+      }
+    }
+    
+    // Utilization chart (random data for demo)
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const utilizationData = days.map(() => Math.random() * 10); // Random hours between 0-10
+    
+    const utilizationChart = new Chart(document.getElementById('utilization-chart'), {
+      type: 'bar',
+      data: {
+        labels: days,
+        datasets: [{
+          label: 'Daily Hours',
+          data: utilizationData,
+          backgroundColor: '#3498db'
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Hours'
+            }
+          }
+        }
+      }
+    });
+  });
+</script>
+{% endblock %}

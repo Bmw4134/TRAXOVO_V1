@@ -71,7 +71,7 @@ def format_export_files():
             export_data.append({
                 'Equipment_Number': equipment_id,
                 'Equipment_Description': equipment_desc,
-                'Date': '3/31/2025',  # Fixed date for April billing
+                'Date': '4/30/2025',  # Last day of April for April billing
                 'Job_Number': job,
                 'Period': 1,  # Fixed value
                 'Cost_Code': cost_code,

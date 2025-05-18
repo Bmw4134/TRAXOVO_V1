@@ -724,25 +724,21 @@
       const statusFilter = document.getElementById('quick-filter-status').value;
       const searchFilter = document.getElementById('quick-filter-search').value.toLowerCase();
       
-      // Clear all markers
-      Object.values(markers).forEach(marker => {
-        map.removeLayer(marker);
-      });
-      
-      // Apply filters to all assets and re-add passing markers
+      // Don't completely remove markers, just update their appearance
       allAssets.forEach(asset => {
         const assetId = asset.id || asset.assetId;
         if (!markers[assetId]) return; // Skip if no marker exists
         
         const marker = markers[assetId];
+        let isFiltered = false;
         
         // Check asset type
         const assetType = asset.assetType || asset.type || asset.category || 'Unknown';
-        if (typeFilter && assetType !== typeFilter) return;
+        if (typeFilter && assetType !== typeFilter) isFiltered = true;
         
         // Check location
         const location = asset.location || asset.region || asset.area || 'Unknown';
-        if (locationFilter && location !== locationFilter) return;
+        if (locationFilter && location !== locationFilter) isFiltered = true;
         
         // Check status
         let status = 'idle';
@@ -750,24 +746,57 @@
         else if (asset.status && asset.status.toLowerCase().includes('maintenance')) status = 'maintenance';
         else if (!asset.lastReport || new Date(asset.lastReport) < new Date(Date.now() - 86400000)) status = 'offline';
         
-        if (statusFilter && status !== statusFilter) return;
+        if (statusFilter && status !== statusFilter) isFiltered = true;
         
         // Check search text
         const assetName = (asset.name || 'Unnamed Asset').toLowerCase();
         const assetIdLower = assetId.toString().toLowerCase();
         
-        if (searchFilter && !assetName.includes(searchFilter) && !assetIdLower.includes(searchFilter)) return;
+        if (searchFilter && !assetName.includes(searchFilter) && !assetIdLower.includes(searchFilter)) isFiltered = true;
         
-        // Asset passed all filters, add to map
-        marker.addTo(map);
+        // Always add to map, but make inactive ones semi-transparent
+        if (!map.hasLayer(marker)) {
+          marker.addTo(map);
+        }
+        
+        // If it's inactive (offline or not in use) make it less prominent
+        if (status === 'offline' || status === 'idle') {
+          // Make the marker semi-transparent
+          const markerIcon = marker.getIcon();
+          const iconDiv = marker._icon;
+          if (iconDiv) {
+            iconDiv.style.opacity = "0.5";
+          }
+        } else {
+          // Make active and maintenance markers fully visible
+          const iconDiv = marker._icon;
+          if (iconDiv) {
+            iconDiv.style.opacity = "1";
+          }
+        }
+        
+        // Apply filters - show/hide based on filter criteria
+        if (isFiltered) {
+          // Make filtered markers nearly invisible 
+          const iconDiv = marker._icon;
+          if (iconDiv) {
+            iconDiv.style.opacity = "0.2";
+          }
+        }
       });
       
-      // Update map view to show filtered markers
-      const visibleMarkers = Object.values(markers).filter(marker => map.hasLayer(marker));
+      // Update map view to show all markers but focus on active ones
+      const activeMarkers = Object.values(markers).filter(marker => {
+        return marker.options.status === 'active' || marker.options.status === 'maintenance';
+      });
       
-      if (visibleMarkers.length > 0) {
-        const markerBounds = L.featureGroup(visibleMarkers).getBounds();
-        map.fitBounds(markerBounds);
+      if (activeMarkers.length > 0) {
+        const markerBounds = L.featureGroup(activeMarkers).getBounds();
+        map.fitBounds(markerBounds, { padding: [50, 50] });
+      } else {
+        // If no active markers, show all markers
+        const allMarkerBounds = L.featureGroup(Object.values(markers)).getBounds();
+        map.fitBounds(allMarkerBounds, { padding: [50, 50] });
       }
     }
     

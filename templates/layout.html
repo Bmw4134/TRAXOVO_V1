@@ -26,6 +26,9 @@
                 <img src="{{ url_for('static', filename='images/traxora-logo.png') }}" alt="TRAXORA" height="30" class="me-2">
                 <span class="fw-bold">TRAXORA</span>
             </a>
+            <div class="organization-context badge bg-dark text-white mx-2 d-none">
+                <i class="bi bi-building me-1"></i> <span>Organization</span>
+            </div>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -39,7 +42,7 @@
                     </li>
                     
                     <!-- Assets Dropdown -->
-                    <li class="nav-item dropdown">
+                    <li class="nav-item dropdown" data-role-access="all">
                         <a class="nav-link dropdown-toggle" href="#" id="assetsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-truck me-1"></i> Assets
                         </a>
@@ -49,11 +52,28 @@
                             <li><a class="dropdown-item" href="/assets/map"><i class="bi bi-geo-alt me-1"></i> Asset Map</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="#"><i class="bi bi-person-badge me-1"></i> Driver Assignments</a></li>
+                            <li><a class="dropdown-item" data-role-access="admin,manager"><i class="bi bi-plus-circle me-1"></i> Add New Asset</a></li>
+                            <li><a class="dropdown-item" data-role-access="admin,manager"><i class="bi bi-upload me-1"></i> Import Assets</a></li>
+                        </ul>
+                    </li>
+                    
+                    <!-- Job Zones Dropdown -->
+                    <li class="nav-item dropdown" data-role-access="all">
+                        <a class="nav-link dropdown-toggle" href="#" id="jobZonesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-geo-alt-fill me-1"></i> Job Zones
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="jobZonesDropdown">
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-map me-1"></i> Zone Map</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-list-ul me-1"></i> All Job Sites</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-geo-fill me-1"></i> Active Zones</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" data-role-access="admin,manager"><i class="bi bi-plus-circle me-1"></i> Create Zone</a></li>
+                            <li><a class="dropdown-item" data-role-access="admin,manager"><i class="bi bi-pencil-square me-1"></i> Edit Zones</a></li>
                         </ul>
                     </li>
                     
                     <!-- PM Allocation Dropdown -->
-                    <li class="nav-item dropdown">
+                    <li class="nav-item dropdown" data-role-access="all">
                         <a class="nav-link dropdown-toggle" href="#" id="pmDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-file-earmark-spreadsheet me-1"></i> PM Allocation
                         </a>
@@ -64,11 +84,27 @@
                             <li><a class="dropdown-item" href="#"><i class="bi bi-file-earmark-spreadsheet me-1"></i> Equipment Reports Export</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="#"><i class="bi bi-file-text me-1"></i> View Reports</a></li>
+                            <li><a class="dropdown-item" data-role-access="admin,manager"><i class="bi bi-gear me-1"></i> Reconciliation Settings</a></li>
+                        </ul>
+                    </li>
+                    
+                    <!-- Attendance Dropdown -->
+                    <li class="nav-item dropdown" data-role-access="all">
+                        <a class="nav-link dropdown-toggle" href="#" id="attendanceDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-vcard me-1"></i> Attendance
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="attendanceDropdown">
+                            <li><a class="dropdown-item" href="{{ url_for('daily_report') }}"><i class="bi bi-calendar-day me-1"></i> Daily Report</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-graph-up me-1"></i> Attendance Dashboard</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-file-earmark-text me-1"></i> Historical Reports</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-exclamation-triangle me-1"></i> Attendance Flags</a></li>
+                            <li><a class="dropdown-item" data-role-access="admin,manager"><i class="bi bi-sliders me-1"></i> Alert Thresholds</a></li>
                         </ul>
                     </li>
                     
                     <!-- Maintenance Module Dropdown -->
-                    <li class="nav-item dropdown">
+                    <li class="nav-item dropdown" data-role-access="all">
                         <a class="nav-link dropdown-toggle" href="#" id="maintenanceDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-tools me-1"></i> Maintenance
                         </a>
@@ -77,18 +113,57 @@
                             <li><a class="dropdown-item" href="#"><i class="bi bi-check-circle me-1"></i> Complete Task</a></li>
                             <li><a class="dropdown-item" href="#"><i class="bi bi-boxes me-1"></i> Parts Inventory</a></li>
                             <li><a class="dropdown-item" href="#"><i class="bi bi-clock-history me-1"></i> Maintenance History</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" data-role-access="admin,manager"><i class="bi bi-wrench-adjustable me-1"></i> Service Templates</a></li>
+                            <li><a class="dropdown-item" data-role-access="admin,manager"><i class="bi bi-calendar-range me-1"></i> Maintenance Schedules</a></li>
                         </ul>
                     </li>
                     
-                    <!-- Driver Reports Dropdown -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="driverDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-person-vcard me-1"></i> Driver Reports
+                    <!-- Billing Dropdown -->
+                    <li class="nav-item dropdown" data-role-access="admin,manager">
+                        <a class="nav-link dropdown-toggle" href="#" id="billingDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-cash-coin me-1"></i> Billing
                         </a>
-                        <ul class="dropdown-menu" aria-labelledby="driverDropdown">
-                            <li><a class="dropdown-item" href="{{ url_for('daily_report') }}"><i class="bi bi-calendar-day me-1"></i> Daily Report</a></li>
-                            <li><a class="dropdown-item" href="/attendance_dashboard"><i class="bi bi-graph-up me-1"></i> Attendance Dashboard</a></li>
-                            <li><a class="dropdown-item" href="/historical_reports"><i class="bi bi-file-earmark-text me-1"></i> Historical Reports</a></li>
+                        <ul class="dropdown-menu" aria-labelledby="billingDropdown">
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-receipt me-1"></i> Timecards</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-file-earmark-text me-1"></i> Receipts</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-credit-card me-1"></i> Credit Cards</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-graph-up-arrow me-1"></i> Revenue Report</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-file-earmark-pdf me-1"></i> Export Invoices</a></li>
+                        </ul>
+                    </li>
+                    
+                    <!-- Reports Dropdown -->
+                    <li class="nav-item dropdown" data-role-access="all">
+                        <a class="nav-link dropdown-toggle" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-file-earmark-bar-graph me-1"></i> Reports
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-clock-history me-1"></i> Recent Reports</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-star me-1"></i> Saved Reports</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-truck me-1"></i> Asset Reports</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-person-vcard me-1"></i> Driver Reports</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-geo-alt me-1"></i> Job Site Reports</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-tools me-1"></i> Maintenance Reports</a></li>
+                            <li><a class="dropdown-item" data-role-access="admin,manager"><i class="bi bi-gear me-1"></i> Custom Reports</a></li>
+                        </ul>
+                    </li>
+                    
+                    <!-- Admin Dropdown -->
+                    <li class="nav-item dropdown" data-role-access="admin">
+                        <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-shield-lock me-1"></i> Admin
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-people me-1"></i> Users</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-person-lock me-1"></i> Roles</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-building me-1"></i> Company</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-activity me-1"></i> Activity Logs</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-gear-fill me-1"></i> System Settings</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-cloud-arrow-down me-1"></i> API Connections</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -164,6 +239,9 @@
     <script src="{{ url_for('static', filename='js/user-preferences.js') }}"></script>
     <script src="{{ url_for('static', filename='js/intent-mapper.js') }}"></script>
     <script src="{{ url_for('static', filename='js/zero-state-handler.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/quick-actions.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/rbac.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme-switcher.js') }}"></script>
     <!-- Auto-hide navbar on mobile -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {

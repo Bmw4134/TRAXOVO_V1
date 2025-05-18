@@ -1,0 +1,2 @@
+{"timestamp": "2025-05-18T12:34:30.292229", "activity_type": "report_export", "user_id": 1, "username": "admin", "success": true, "organization_id": null, "report_type": "daily_driver", "export_time": "2025-05-18T12:34:30.292221", "export_format": "pdf", "filters": {"date": "2025-05-17"}}
+{"timestamp": "2025-05-18T12:38:09.956708", "activity_type": "report_export", "user_id": 1, "username": "admin", "success": true, "organization_id": null, "report_type": "daily_driver", "export_time": "2025-05-18T12:38:09.956697", "export_format": "pdf", "filters": {"date": "2025-05-17"}}

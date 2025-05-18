@@ -35,6 +35,7 @@ EXPORTS_DIR = Path('exports/pm_master')
 DIVISIONS = ['DFW', 'WTX', 'HOU', 'SELECT']
 MONTH_NAME = 'APRIL'  # Default month for current processing
 YEAR = '2025'  # Default year for current processing
+PROCESS_ONLY_APRIL = True  # Set to True to filter only April 2025 files
 
 # Ensure exports directory exists
 EXPORTS_DIR.mkdir(exist_ok=True, parents=True)
@@ -83,24 +84,40 @@ def find_all_allocation_files():
     allocation_files = []
     
     # Look for Excel files containing EQMO and BILLING ALLOCATIONS in the filename
-    excel_pattern = os.path.join(ATTACHED_ASSETS_DIR, '*EQMO*BILLING*ALLOCATIONS*.xlsx')
+    if PROCESS_ONLY_APRIL:
+        # Restrict to only April 2025 files
+        excel_pattern = os.path.join(ATTACHED_ASSETS_DIR, '*EQMO*BILLING*ALLOCATIONS*APRIL*2025*.xlsx')
+    else:
+        excel_pattern = os.path.join(ATTACHED_ASSETS_DIR, '*EQMO*BILLING*ALLOCATIONS*.xlsx')
+    
     excel_files = glob.glob(excel_pattern)
     allocation_files.extend(excel_files)
     
     # Look for RAGLE EQ BILLINGS file which contains the rate information
-    ragle_pattern = os.path.join(ATTACHED_ASSETS_DIR, 'RAGLE*EQ*BILLINGS*.xls*')
+    if PROCESS_ONLY_APRIL:
+        ragle_pattern = os.path.join(ATTACHED_ASSETS_DIR, 'RAGLE*EQ*BILLINGS*APRIL*2025*.xls*')
+    else:
+        ragle_pattern = os.path.join(ATTACHED_ASSETS_DIR, 'RAGLE*EQ*BILLINGS*.xls*')
+    
     ragle_files = glob.glob(ragle_pattern)
     allocation_files.extend(ragle_files)
     
     # Look for division-specific CSV files
     for division in DIVISIONS:
-        # Try different naming patterns for CSV files
-        csv_patterns = [
-            os.path.join(ATTACHED_ASSETS_DIR, f'*{division}*APR*2025*.csv'),
-            os.path.join(ATTACHED_ASSETS_DIR, f'*{division}*APRIL*2025*.csv'),
-            os.path.join(ATTACHED_ASSETS_DIR, f'SM*{division}*APR*.csv'),
-            os.path.join(ATTACHED_ASSETS_DIR, f'*{division}*.csv'),
-        ]
+        # Try different naming patterns for CSV files - focus on April 2025
+        if PROCESS_ONLY_APRIL:
+            csv_patterns = [
+                os.path.join(ATTACHED_ASSETS_DIR, f'*{division}*APR*2025*.csv'),
+                os.path.join(ATTACHED_ASSETS_DIR, f'*{division}*APRIL*2025*.csv'),
+                os.path.join(ATTACHED_ASSETS_DIR, f'SM*{division}*APR*2025*.csv'),
+            ]
+        else:
+            csv_patterns = [
+                os.path.join(ATTACHED_ASSETS_DIR, f'*{division}*APR*2025*.csv'),
+                os.path.join(ATTACHED_ASSETS_DIR, f'*{division}*APRIL*2025*.csv'),
+                os.path.join(ATTACHED_ASSETS_DIR, f'SM*{division}*APR*.csv'),
+                os.path.join(ATTACHED_ASSETS_DIR, f'*{division}*.csv'),
+            ]
         
         for pattern in csv_patterns:
             csv_files = glob.glob(pattern)

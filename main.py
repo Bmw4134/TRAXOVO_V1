@@ -130,6 +130,13 @@ try:
     logging.info("Registered Historical Analysis blueprint")
 except ImportError as e:
     logging.error(f"Failed to register Historical Analysis blueprint: {e}")
+    
+try:
+    from routes.report_generator import report_generator_bp
+    app.register_blueprint(report_generator_bp)
+    logging.info("Registered Report Generator blueprint")
+except ImportError as e:
+    logging.error(f"Failed to register Report Generator blueprint: {e}")
 
 @login_manager.user_loader
 def load_user(user_id):

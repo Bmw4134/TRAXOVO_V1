@@ -1,0 +1,183 @@
+{% extends "layout.html" %}
+
+{% block title %}Report Generator{% endblock %}
+
+{% block content %}
+<div class="container-fluid my-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="display-5 mb-4"><i class="bi bi-file-earmark-text me-2"></i>Report Generator</h1>
+            <p class="lead">Generate PDF and CSV reports with a single click</p>
+        </div>
+    </div>
+
+    <!-- Report Type Selection -->
+    <div class="row mb-4">
+        <div class="col-12 col-lg-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-card-list me-2"></i>Step 1: Choose Report Type</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group mb-3">
+                        <label for="report-type" class="form-label">Report Type</label>
+                        <select id="report-type" class="form-select">
+                            <option value="" selected disabled>Select a report type</option>
+                            <option value="daily_driver">Daily Driver Report</option>
+                            <option value="pm_allocation">PM Allocation</option>
+                            <option value="asset_status">Asset Status</option>
+                            <option value="maintenance">Maintenance</option>
+                            <option value="job_zone_efficiency">Job Zone Efficiency</option>
+                            <option value="attendance_metrics">Attendance Metrics</option>
+                        </select>
+                    </div>
+                    <div id="report-description" class="alert alert-secondary d-none">
+                        <span class="description-text">Select a report type to see description</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Report Options -->
+        <div class="col-12 col-lg-4 mt-3 mt-lg-0">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-sliders me-2"></i>Step 2: Configure Options</h5>
+                </div>
+                <div class="card-body">
+                    <div id="report-options-container">
+                        <!-- Date Range -->
+                        <div class="mb-3">
+                            <label class="form-label">Date Range</label>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
+                                <input type="date" id="date-start" class="form-control" placeholder="Start Date">
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
+                                <input type="date" id="date-end" class="form-control" placeholder="End Date">
+                            </div>
+                        </div>
+                        
+                        <!-- Filters -->
+                        <div id="filter-options" class="mb-3">
+                            <label class="form-label">Filters</label>
+                            <!-- Dynamically populated based on report type -->
+                            <div class="filter-placeholder alert alert-info">
+                                <small>Select a report type to see available filters</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Group By -->
+                        <div class="mb-3">
+                            <label class="form-label">Group By</label>
+                            <select id="group-by" class="form-select" disabled>
+                                <option value="" selected>None</option>
+                                <!-- Dynamically populated based on report type -->
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Format Options -->
+        <div class="col-12 col-lg-4 mt-3 mt-lg-0">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-file-earmark-arrow-down me-2"></i>Step 3: Export</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-column h-100">
+                        <div class="mb-3 flex-grow-1">
+                            <label class="form-label d-block mb-3">Export Format</label>
+                            <div class="d-flex justify-content-center gap-3">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="export-format" id="format-pdf" value="pdf" checked>
+                                    <label class="form-check-label" for="format-pdf">
+                                        <i class="bi bi-file-earmark-pdf text-danger me-1"></i> PDF
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="export-format" id="format-csv" value="csv">
+                                    <label class="form-check-label" for="format-csv">
+                                        <i class="bi bi-file-earmark-spreadsheet text-success me-1"></i> CSV
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 mt-auto">
+                            <button id="preview-report-btn" class="btn btn-outline-primary" disabled>
+                                <i class="bi bi-eye me-1"></i> Preview Report
+                            </button>
+                            <button id="generate-report-btn" class="btn btn-primary" disabled>
+                                <i class="bi bi-file-earmark-arrow-down me-1"></i> Generate Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Report Previews -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0"><i class="bi bi-images me-2"></i>Recent Reports</h5>
+                    <button id="refresh-reports-btn" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="row" id="report-previews-container">
+                        <!-- Report preview cards will be loaded here -->
+                        <div class="col-12 text-center py-5" id="no-reports-message">
+                            <i class="bi bi-file-earmark-x text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted mt-3">No reports generated yet. Use the form above to create your first report.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Report Preview Modal -->
+<div class="modal fade" id="report-preview-modal" tabindex="-1" aria-labelledby="preview-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="preview-modal-label"><i class="bi bi-eye me-2"></i>Report Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center" id="preview-loading">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Generating preview...</p>
+                </div>
+                <div id="preview-content" class="d-none">
+                    <img src="" id="preview-image" class="img-fluid mx-auto d-block" alt="Report Preview">
+                </div>
+                <div id="preview-error" class="alert alert-danger d-none">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <span id="preview-error-message">Error generating preview</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#" id="download-report-link" class="btn btn-primary" download target="_blank">
+                    <i class="bi bi-download me-1"></i> Download Report
+                </a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include report scripts -->
+<script src="{{ url_for('static', filename='js/report-generator.js') }}"></script>
+{% endblock %}

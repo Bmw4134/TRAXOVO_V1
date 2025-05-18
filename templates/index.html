@@ -149,7 +149,7 @@
                                 {% if activities %}
                                     {% for activity in activities[:5] %}
                                         <tr>
-                                            <td>{{ activity.timestamp|format_datetime }}</td>
+                                            <td>{{ activity.timestamp|string }}</td>
                                             <td>
                                                 {% if activity.username %}
                                                     {{ activity.username }}

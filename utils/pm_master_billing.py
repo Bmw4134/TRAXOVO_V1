@@ -1988,16 +1988,214 @@ def generate_division_exports(master_billing):
     
     return export_paths
 
+# Constants for file names
+FINALIZED_MASTER_ALLOCATION = "FINALIZED_MASTER_ALLOCATION_SHEET_APRIL_2025.xlsx"
+MASTER_BILLINGS = "MASTER_EQUIP_BILLINGS_APRIL_2025.xlsx"
+REGION_IMPORT_PREFIX = "FINAL_REGION_IMPORT_"
+
+def generate_finalized_master_allocation(combined_data):
+    """
+    Generate the FINALIZED MASTER ALLOCATION SHEET
+    
+    Args:
+        combined_data (DataFrame): Combined allocation data
+    
+    Returns:
+        tuple: (output_path, success)
+    """
+    try:
+        # Create output path
+        output_path = os.path.join(EXPORTS_DIR, FINALIZED_MASTER_ALLOCATION)
+        
+        # Apply default cost codes where missing
+        combined_data['cost_code'] = combined_data['cost_code'].fillna(DEFAULT_COST_CODE)
+        combined_data.loc[combined_data['cost_code'].str.contains('NEEDED', na=False, case=False), 'cost_code'] = DEFAULT_COST_CODE
+        combined_data.loc[combined_data['cost_code'] == '', 'cost_code'] = DEFAULT_COST_CODE
+        
+        # Create a new column to flag issues
+        combined_data['HAS_ISSUES'] = False
+        
+        # Flag rows with missing critical data
+        combined_data.loc[combined_data['equip_id'].isna() | (combined_data['equip_id'] == ''), 'HAS_ISSUES'] = True
+        combined_data.loc[combined_data['job'].isna() | (combined_data['job'] == ''), 'HAS_ISSUES'] = True
+        combined_data.loc[combined_data['units'].isna() | (combined_data['units'] <= 0), 'HAS_ISSUES'] = True
+        
+        # Create a writer
+        with pd.ExcelWriter(output_path, engine='openpyxl') as writer:
+            # Write main allocation sheet
+            combined_data.to_excel(writer, sheet_name='Master Allocation', index=False)
+            
+            # Get the workbook and worksheet
+            workbook = writer.book
+            worksheet = writer.sheets['Master Allocation']
+            
+            # Add formatting
+            header_font = Font(bold=True, color="FFFFFF")
+            header_fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
+            
+            # Format headers
+            for cell in worksheet[1]:
+                cell.font = header_font
+                cell.fill = header_fill
+                
+            # Format issue rows
+            issue_fill = PatternFill(start_color="FFC7CE", end_color="FFC7CE", fill_type="solid")
+            for row_idx, row in enumerate(worksheet.iter_rows(min_row=2), start=2):
+                if combined_data.iloc[row_idx-2].get('HAS_ISSUES', False):
+                    for cell in row:
+                        cell.fill = issue_fill
+            
+            # Create Issues sheet with problematic rows
+            issues = combined_data[combined_data['HAS_ISSUES']]
+            if not issues.empty:
+                issues.to_excel(writer, sheet_name='Issues', index=False)
+                issues_sheet = writer.sheets['Issues']
+                
+                # Format headers
+                for cell in issues_sheet[1]:
+                    cell.font = header_font
+                    cell.fill = header_fill
+            
+            # Auto-adjust column widths
+            for column in worksheet.columns:
+                max_length = 0
+                column_letter = get_column_letter(column[0].column)
+                
+                for cell in column:
+                    try:
+                        if len(str(cell.value)) > max_length:
+                            max_length = len(str(cell.value))
+                    except:
+                        pass
+                
+                adjusted_width = (max_length + 2)
+                worksheet.column_dimensions[column_letter].width = adjusted_width
+        
+        logger.info(f"Generated Finalized Master Allocation Sheet: {output_path}")
+        return output_path, True
+    
+    except Exception as e:
+        logger.exception(f"Error generating finalized master allocation: {str(e)}")
+        return None, False
+
+def generate_region_import_files(master_billing):
+    """
+    Generate division-specific import files in CSV format for DFW, WTX, HOU
+    
+    Args:
+        master_billing (DataFrame): Master billing data
+    
+    Returns:
+        dict: Dictionary of division -> file path mappings
+    """
+    import_files = {}
+    divisions_to_export = ['DFW', 'WTX', 'HOU']  # As requested, focus on these three
+    
+    try:
+        for division in divisions_to_export:
+            division_data = filter_by_division(master_billing, division)
+            
+            if not division_data.empty:
+                # Prepare data for CSV export
+                export_data = division_data[['equip_id', 'date', 'job', 'cost_code', 'units', 'rate', 'amount']]
+                export_data.columns = ['Equipment_Number', 'Date', 'Job', 'Cost_Code', 'Hours', 'Rate', 'Amount']
+                
+                # Create output path
+                output_path = os.path.join(EXPORTS_DIR, f"{REGION_IMPORT_PREFIX}{division}_{MONTH_NAME}_{YEAR}.csv")
+                
+                # Export to CSV
+                export_data.to_csv(output_path, index=False)
+                
+                import_files[division] = {
+                    'path': output_path,
+                    'division': division,
+                    'record_count': len(export_data)
+                }
+                logger.info(f"Created {division} import file with {len(export_data)} records")
+        
+        return import_files
+    
+    except Exception as e:
+        logger.exception(f"Error generating region import files: {str(e)}")
+        return {}
+
 def process_master_billing():
-    """Main function to process all allocation files and generate master billing with division exports"""
+    """Main function to process all allocation files and generate the three critical deliverables:
+    1. FINALIZED MASTER ALLOCATION SHEET
+    2. MASTER BILLINGS SHEET
+    3. FINAL REGION IMPORT FILES for DFW, WTX, HOU
+    """
     try:
         logger.info("Starting PM Master Billing processing")
         
+        # Ensure exports directory exists
+        os.makedirs(EXPORTS_DIR, exist_ok=True)
+        
         # Find all allocation files
-        allocation_files = find_all_allocation_files()
+        allocation_files = [f['path'] for f in find_all_allocation_files()]
         if not allocation_files:
             logger.error("No allocation files found")
             return {
+                'status': 'error',
+                'message': "No allocation files found",
+                'exports': {}
+            }
+        
+        # Find equipment rates file
+        rates_file = find_equipment_rates_file()
+        
+        # Process each allocation file
+        all_allocation_data = []
+        for file_path in allocation_files:
+            # Skip rates file if it's in the allocation files list
+            if rates_file and os.path.samefile(file_path, rates_file):
+                continue
+                
+            allocation_data = process_allocation_file(file_path)
+            if not allocation_data.empty:
+                all_allocation_data.append(allocation_data)
+        
+        if not all_allocation_data:
+            logger.error("Failed to extract data from allocation files")
+            return {
+                'status': 'error',
+                'message': "Failed to extract data from allocation files",
+                'exports': {}
+            }
+        
+        # Combine all allocation data
+        combined_data = pd.concat(all_allocation_data, ignore_index=True)
+        logger.info(f"Extracted {len(combined_data)} billing records from {len(allocation_files)} files")
+        
+        # 1. Generate FINALIZED MASTER ALLOCATION SHEET
+        master_allocation_path, allocation_success = generate_finalized_master_allocation(combined_data)
+        
+        # Extract equipment rates
+        rates_data = extract_equipment_rates(rates_file)
+        
+        # 2. Generate MASTER BILLINGS SHEET  
+        master_billing = generate_master_billing(combined_data, rates_data)
+        master_output_path = os.path.join(EXPORTS_DIR, MASTER_BILLINGS)
+        master_export_success = export_master_billing(master_billing, master_output_path, create_division_sheets=True)
+        
+        # 3. Generate FINAL REGION IMPORT FILES for DFW, WTX, HOU
+        import_files = generate_region_import_files(master_billing)
+        
+        # Create exports dictionary with all generated files
+        exports = {
+            'master_allocation': {
+                'path': master_allocation_path,
+                'success': allocation_success
+            },
+            'master_billing': {
+                'path': master_output_path,
+                'success': master_export_success
+            },
+            'import_files': import_files
+        }
+        
+        logger.info("PM Master Billing processing completed successfully")
+        return {
                 'success': False,
                 'message': "No allocation files found",
                 'exports': {}

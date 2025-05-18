@@ -307,7 +307,7 @@ def generate_deliverables(updated_df):
             elif job_str.startswith('H') or '-H' in job_str:
                 return 'HOU'
             elif job_str.startswith('W') or 'WTX' in job_str or 'WT-' in job_str:
-                return 'WTX'
+                return 'WT'  # Changed from 'WTX' to 'WT' to match the actual division code
             else:
                 # Extract region code if in job code format "NNN-RDDNNN"
                 parts = job_str.split('-')
@@ -326,12 +326,12 @@ def generate_deliverables(updated_df):
     # Generate division totals
     dfw_total = updated_df[updated_df['Division'] == 'DFW']['Amount'].sum()
     hou_total = updated_df[updated_df['Division'] == 'HOU']['Amount'].sum()
-    wtx_total = updated_df[updated_df['Division'] == 'WTX']['Amount'].sum()
+    wtx_total = updated_df[updated_df['Division'] == 'WT']['Amount'].sum()  # Changed from 'WTX' to 'WT'
     
     logger.info(f"Division totals after revisions:")
     logger.info(f"DFW: ${dfw_total:,.2f}")
     logger.info(f"HOU: ${hou_total:,.2f}")
-    logger.info(f"WTX: ${wtx_total:,.2f}")
+    logger.info(f"WT: ${wtx_total:,.2f}")  # Changed display name to 'WT'
     logger.info(f"Combined: ${dfw_total + hou_total + wtx_total:,.2f}")
     
     # 1. Generate FINALIZED MASTER ALLOCATION SHEET

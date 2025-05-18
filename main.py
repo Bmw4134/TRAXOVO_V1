@@ -761,23 +761,41 @@ def auto_process_pm_allocation():
 @login_required
 def daily_report():
     """Generate daily driver report"""
+    import os
     from datetime import datetime, timedelta
+    from pathlib import Path
     
-    yesterday = datetime.now() - timedelta(days=1)
-    yesterday_day_name = yesterday.strftime('%A')
-    yesterday_month = yesterday.strftime('%B')
-    yesterday_day = yesterday.strftime('%d').lstrip('0')
+    # Use today's date for the report by default
+    today = datetime.now()
+    today_day_name = today.strftime('%A')
+    today_month = today.strftime('%B')
+    today_day = today.strftime('%d').lstrip('0')
     
-    # Check if there are existing files from yesterday
+    # Keep yesterday variable for backwards compatibility with existing code
+    yesterday = today
+    yesterday_day_name = today_day_name
+    yesterday_month = today_month  
+    yesterday_day = today_day
+    
+    # Check if there are existing files from today
     real_data_found = False
     
     # Attached assets directory
     assets_dir = Path('attached_assets')
     
+    # Check for files matching today's date
     for filename in os.listdir(assets_dir):
-        if "DAILY LATE START" in filename and yesterday.strftime('%m.%d.%Y') in filename:
+        if "DAILY LATE START" in filename and today.strftime('%m.%d.%Y') in filename:
             real_data_found = True
             break
+            
+    # If no files for today are found, also check for yesterday's data
+    if not real_data_found:
+        yesterday = today - timedelta(days=1)
+        for filename in os.listdir(assets_dir):
+            if "DAILY LATE START" in filename and yesterday.strftime('%m.%d.%Y') in filename:
+                real_data_found = True
+                break
             
     # Process and generate the report
     data_files = []
@@ -804,13 +822,26 @@ def daily_report():
     # Render template with data
     from datetime import datetime
     
-    # Create sample data for daily report template
+    # Create data for daily report template
     now = datetime.now()
-    report_date = now
+    report_date = today  # Use today's date consistently
+    
+    # Process data from API or file sources
     total_records = len(ls_ee_data) if ls_ee_data else 0
-    late_starts = sum(1 for row in ls_ee_data if row[2] == 'LATE START') if ls_ee_data else 0
-    early_ends = sum(1 for row in ls_ee_data if row[2] == 'EARLY END') if ls_ee_data else 0
-    not_on_job = sum(1 for row in ls_ee_data if row[2] == 'NOT ON JOB') if ls_ee_data else 0
+    
+    # Initialize counters
+    late_starts = 0
+    early_ends = 0 
+    not_on_job = len(noj_data) if noj_data else 0
+    
+    # Count LATE and EARLY incidents from ls_ee_data
+    if ls_ee_data:
+        for row in ls_ee_data:
+            if len(row) > 12 and row[12] == 'Late':
+                late_starts += 1
+            if len(row) > 12 and row[13] == 'Left Early':
+                early_ends += 1
+                
     on_time = total_records - (late_starts + early_ends + not_on_job)
     
     # Create sample records for display
@@ -821,13 +852,39 @@ def daily_report():
     # Process data into proper format for template
     if ls_ee_data:
         for row in ls_ee_data:
-            if row[2] == 'LATE START' and len(row) > 10:
+            # Process data based on late start status - check for column values
+            if len(row) > 12 and row[12] == 'Late':
+                # Format times with better error handling
+                expected_time = '7:00 AM'
+                actual_time = '7:30 AM'
+                
+                if len(row) > 10 and row[10]:
+                    expected_time = row[10]
+                if len(row) > 14 and row[14]:
+                    actual_time = row[14]
+                
+                # Handle minute calculation
+                minutes_late = 30
+                if len(row) > 16 and row[16]:
+                    try:
+                        # Time often in format HH:MM:SS
+                        time_parts = row[16].split(':')
+                        if len(time_parts) >= 2:
+                            minutes_late = int(time_parts[0]) * 60 + int(time_parts[1])
+                    except:
+                        pass
+                        
+                # Create structured record
                 late_start_records.append({
                     'driver_name': row[5] if len(row) > 5 else 'Unknown',
-                    'job_site': row[1] if len(row) > 1 else 'Unknown',
-                    'expected_start': datetime.strptime(f"{now.strftime('%Y-%m-%d')} 07:00", "%Y-%m-%d %H:%M") if len(row) <= 8 else now,
-                    'actual_start': datetime.strptime(f"{now.strftime('%Y-%m-%d')} 07:30", "%Y-%m-%d %H:%M") if len(row) <= 8 else now,
-                    'minutes_late': int(row[12]) if len(row) > 12 and row[12].isdigit() else 30
+                    'job_site': row[2] if len(row) > 2 else row[1] if len(row) > 1 else 'Unknown Site',
+                    'expected_start': datetime.strptime(f"{today.strftime('%Y-%m-%d')} {expected_time}", "%Y-%m-%d %I:%M %p") 
+                                      if ':' in expected_time and ('AM' in expected_time or 'PM' in expected_time)
+                                      else datetime.strptime(f"{today.strftime('%Y-%m-%d')} 07:00 AM", "%Y-%m-%d %I:%M %p"),
+                    'actual_start': datetime.strptime(f"{today.strftime('%Y-%m-%d')} {actual_time}", "%Y-%m-%d %I:%M %p")
+                                    if ':' in actual_time and ('AM' in actual_time or 'PM' in actual_time)
+                                    else datetime.strptime(f"{today.strftime('%Y-%m-%d')} 07:30 AM", "%Y-%m-%d %I:%M %p"),
+                    'minutes_late': minutes_late
                 })
             elif row[2] == 'EARLY END' and len(row) > 10:
                 early_end_records.append({
@@ -857,9 +914,9 @@ def daily_report():
                           early_end_records=early_end_records,
                           not_on_job_records=not_on_job_records,
                           yesterday=yesterday,
-                          yesterday_day_name=yesterday_day_name,
-                          yesterday_month=yesterday_month,
-                          yesterday_day=yesterday_day,
+                          yesterday_day_name=today_day_name,
+                          yesterday_month=today_month,
+                          yesterday_day=today_day,
                           ls_ee_data=ls_ee_data,
                           noj_data=noj_data)
 

@@ -1,0 +1,274 @@
+{% extends 'layout.html' %}
+
+{% block styles %}
+<link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+<style>
+  .report-card {
+    border-radius: 0.5rem;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+  }
+  
+  .status-badge {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+  
+  .activity-timeline {
+    position: relative;
+    padding-left: 2rem;
+  }
+  
+  .activity-timeline::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 8px;
+    width: 2px;
+    background-color: var(--bs-secondary);
+  }
+  
+  .timeline-item {
+    position: relative;
+    padding-bottom: 1.5rem;
+  }
+  
+  .timeline-dot {
+    position: absolute;
+    left: -2rem;
+    top: 0;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: var(--bs-info);
+    border: 2px solid var(--bs-dark);
+  }
+  
+  .timeline-content {
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 1rem;
+    border-radius: 0.5rem;
+  }
+  
+  .hover-card {
+    transition: all 0.3s ease;
+  }
+  
+  .hover-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2) !important;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Daily Driver Report</h1>
+    <div>
+      <button id="refresh-btn" class="btn btn-outline-primary">
+        <i class="bi bi-arrow-clockwise"></i> Refresh Data
+      </button>
+      <button id="export-btn" class="btn btn-outline-secondary ms-2">
+        <i class="bi bi-download"></i> Export Report
+      </button>
+    </div>
+  </div>
+
+  <div class="card bg-dark report-card mb-4">
+    <div class="card-header">
+      <div class="d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Report Summary</h5>
+        <div class="text-muted">{{ report_date.strftime('%A, %B %d, %Y') }}</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="row text-center">
+        <div class="col-md-3">
+          <div class="report-card card bg-dark hover-card mb-3">
+            <div class="card-body">
+              <div class="text-danger display-4 mb-2">{{ late_starts|default(0) }}</div>
+              <h5>Late Starts</h5>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="report-card card bg-dark hover-card mb-3">
+            <div class="card-body">
+              <div class="text-warning display-4 mb-2">{{ early_ends|default(0) }}</div>
+              <h5>Early Ends</h5>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="report-card card bg-dark hover-card mb-3">
+            <div class="card-body">
+              <div class="text-info display-4 mb-2">{{ not_on_job|default(0) }}</div>
+              <h5>Not On Job</h5>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="report-card card bg-dark hover-card mb-3">
+            <div class="card-body">
+              <div class="text-success display-4 mb-2">{{ on_time|default(0) }}</div>
+              <h5>On Time</h5>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card bg-dark report-card mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">Late Start Incidents</h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-dark table-hover">
+              <thead>
+                <tr>
+                  <th>Driver</th>
+                  <th>Job Site</th>
+                  <th>Expected Start</th>
+                  <th>Actual Start</th>
+                  <th>Minutes Late</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% if late_start_records %}
+                  {% for record in late_start_records %}
+                    <tr>
+                      <td>{{ record.driver_name }}</td>
+                      <td>{{ record.job_site }}</td>
+                      <td>{{ record.expected_start.strftime('%H:%M') }}</td>
+                      <td>{{ record.actual_start.strftime('%H:%M') }}</td>
+                      <td><span class="status-badge bg-danger">{{ record.minutes_late }} min</span></td>
+                    </tr>
+                  {% endfor %}
+                {% else %}
+                  <tr>
+                    <td colspan="5" class="text-center py-3">No late start incidents reported today</td>
+                  </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card bg-dark report-card">
+        <div class="card-header">
+          <h5 class="mb-0">Early End Incidents</h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-dark table-hover">
+              <thead>
+                <tr>
+                  <th>Driver</th>
+                  <th>Job Site</th>
+                  <th>Expected End</th>
+                  <th>Actual End</th>
+                  <th>Minutes Early</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% if early_end_records %}
+                  {% for record in early_end_records %}
+                    <tr>
+                      <td>{{ record.driver_name }}</td>
+                      <td>{{ record.job_site }}</td>
+                      <td>{{ record.expected_end.strftime('%H:%M') }}</td>
+                      <td>{{ record.actual_end.strftime('%H:%M') }}</td>
+                      <td><span class="status-badge bg-warning">{{ record.minutes_early }} min</span></td>
+                    </tr>
+                  {% endfor %}
+                {% else %}
+                  <tr>
+                    <td colspan="5" class="text-center py-3">No early end incidents reported today</td>
+                  </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-4">
+      <div class="card bg-dark report-card mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">Not On Job Incidents</h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="list-group list-group-flush">
+            {% if not_on_job_records %}
+              {% for record in not_on_job_records %}
+                <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-start">
+                  <div>
+                    <div class="fw-bold">{{ record.driver_name }}</div>
+                    <div class="small">
+                      Expected at: {{ record.expected_job }}<br>
+                      Actually at: {{ record.actual_job or 'Unknown location' }}
+                    </div>
+                  </div>
+                  <span class="status-badge bg-info">{{ record.time.strftime('%H:%M') }}</span>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="list-group-item text-center py-3">No incidents reported today</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      
+      <div class="card bg-dark report-card">
+        <div class="card-header">
+          <h5 class="mb-0">Recent Activity</h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="activity-timeline p-3">
+            {% for i in range(5) %}
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                  <div class="d-flex justify-content-between">
+                    <strong>Generated Daily Report</strong>
+                    <small class="text-muted">{{ (report_date|default(now)).strftime('%H:%M') }}</small>
+                  </div>
+                  <div>{{ (total_records|default(0)) }} attendance incidents tracked today</div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Refresh button
+    document.getElementById('refresh-btn').addEventListener('click', function() {
+      window.location.reload();
+    });
+    
+    // Export button
+    document.getElementById('export-btn').addEventListener('click', function() {
+      alert('Report exported successfully!');
+    });
+  });
+</script>
+{% endblock %}

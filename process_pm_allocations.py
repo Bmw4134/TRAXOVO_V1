@@ -1,14 +1,13 @@
 """
 Process PM Allocations
 
-This script integrates the PM allocation revisions into the base file to generate
-the final required deliverables with the correct updated total.
+This script correctly extracts and processes the PM allocation data from the 'ALL' sheet
+in each PM allocation file, then merges it with the base RAGLE file.
 """
 import os
 import pandas as pd
-import glob
 import logging
-import re
+from datetime import datetime
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -20,314 +19,343 @@ EXPORTS_DIR = 'exports'
 MONTH_NAME = 'APRIL'
 YEAR = '2025'
 
+# Source files
+BASE_FILE = 'RAGLE EQ BILLINGS - APRIL 2025 (JG REVIEWED 5.12).xlsm'
+
+# PM allocation files - prioritize the specific PM allocations to avoid duplicates
+PM_FILES = [
+    "WTX EQMO. BILLING ALLOCATIONS - APRIL 2025.xlsx",  # Add this first - it's the one we successfully analyzed
+    "A.HARDIMO EQMO. BILLING ALLOCATIONS - APRIL 2025 (TR-FINAL REVISIONS BY 05.15.2025).xlsx",
+    "C.KOCMICK EQMO. BILLING ALLOCATIONS - APRIL 2025.xlsx",
+    "L. MORALES EQMO. BILLING ALLOCATIONS - APRIL 2025.xlsx",
+    "S. ALVAREZ EQMO. BILLING ALLOCATIONS - APRIL 2025.xlsx"
+]
+
 # Output file names
 FINALIZED_MASTER_ALLOCATION = f"FINALIZED_MASTER_ALLOCATION_SHEET_{MONTH_NAME}_{YEAR}.xlsx"
-MASTER_BILLINGS = f"MASTER_EQUIP_BILLINGS_{MONTH_NAME}_{YEAR}.xlsx"
-REGION_IMPORT_PREFIX = "FINAL_REGION_IMPORT_"
+MASTER_BILLINGS = f"MASTER_BILLINGS_SHEET_{MONTH_NAME}_{YEAR}.xlsx"
+REGION_IMPORT_PREFIX = f"FINAL_REGION_IMPORT_"
 
-def find_base_file():
-    """Find the base allocation file (should be the working sheet)"""
-    patterns = [
-        "EQ MONTHLY BILLINGS WORKING SPREADSHEET*APRIL*2025*.xlsx",
-        "EQMO.*BILLING*ALLOCATIONS*APRIL*2025*.xlsx"
-    ]
+def load_base_file():
+    """Load and process the base RAGLE file"""
+    base_path = os.path.join(ATTACHED_ASSETS_DIR, BASE_FILE)
+    if not os.path.exists(base_path):
+        logger.error(f"Base file not found: {base_path}")
+        return None
     
-    for pattern in patterns:
-        files = glob.glob(os.path.join(ATTACHED_ASSETS_DIR, pattern))
-        if files:
-            # Sort by file timestamp (most recent last)
-            files.sort(key=lambda x: os.path.getmtime(x))
-            # Get the oldest file as the base
-            return files[0]
-    
-    return None
-
-def find_pm_revision_files():
-    """Find all PM allocation revision files"""
-    pattern = "*EQMO.*BILLING*ALLOCATIONS*APRIL*2025*.xlsx"
-    revision_files = []
-    
-    # Get all potential files
-    all_files = glob.glob(os.path.join(ATTACHED_ASSETS_DIR, pattern))
-    logger.info(f"Found {len(all_files)} potential PM allocation files")
-    
-    # Identify specific PM revision files (files with PM names in them)
-    pm_keywords = [
-        "HARDIMO", "KOCMICK", "MORALES", "ALVAREZ", "allocated", "TR-FINAL", "REVISIONS"
-    ]
-    
-    for file_path in all_files:
-        filename = os.path.basename(file_path)
-        if any(keyword in filename.upper() for keyword in pm_keywords):
-            revision_files.append(file_path)
-            logger.info(f"Identified PM revision file: {filename}")
-    
-    logger.info(f"Found {len(revision_files)} PM revision files")
-    return revision_files
-
-def load_workbook_sheet(file_path, try_sheets=None):
-    """Load a specific sheet from an Excel file, trying multiple sheet names"""
-    if not try_sheets:
-        try_sheets = ["Sheet1", "Sheet 1", "Data", "Allocations", "Billing"]
-    
-    # First, get all sheet names
     try:
-        xlsx = pd.ExcelFile(file_path)
-        sheet_names = xlsx.sheet_names
-        
-        # Try to find the data sheet
-        # First try to find sheets with 'allocation' in the name
-        allocation_sheets = [sheet for sheet in sheet_names if 'allocation' in sheet.lower()]
-        if allocation_sheets:
-            try_sheets = allocation_sheets + try_sheets
-        
-        # Or sheets that might contain 'PM', 'EQMO', or 'billing'
-        billing_sheets = [sheet for sheet in sheet_names if any(keyword in sheet.lower() for keyword in ['pm', 'eqmo', 'billing'])]
-        if billing_sheets:
-            try_sheets = billing_sheets + try_sheets
-        
-        # Try each sheet until we find one with data
-        for sheet_name in try_sheets:
-            if sheet_name in sheet_names:
-                df = pd.read_excel(file_path, sheet_name=sheet_name)
-                if not df.empty:
-                    logger.info(f"Loaded sheet '{sheet_name}' from {os.path.basename(file_path)}")
-                    return df
-        
-        # If none of the specific sheets work, try all sheets
-        for sheet_name in sheet_names:
-            df = pd.read_excel(file_path, sheet_name=sheet_name)
-            if not df.empty:
-                logger.info(f"Loaded sheet '{sheet_name}' from {os.path.basename(file_path)}")
-                return df
-        
-        logger.warning(f"No data found in any sheet for {os.path.basename(file_path)}")
-        return pd.DataFrame()
-    
+        logger.info(f"Loading base RAGLE file: {base_path}")
+        base_df = pd.read_excel(base_path, sheet_name='Equip Billings')
+        original_total = base_df['Amount'].sum()
+        logger.info(f"Loaded {len(base_df)} records from base file")
+        logger.info(f"Original total: ${original_total:,.2f}")
+        return base_df
     except Exception as e:
-        logger.error(f"Error loading {os.path.basename(file_path)}: {str(e)}")
-        return pd.DataFrame()
+        logger.error(f"Error loading base file: {str(e)}")
+        return None
 
-def identify_key_columns(df):
-    """Identify the key columns in a dataframe"""
-    # Map of column types to potential column names
-    column_types = {
-        'equip_id': ['equip #', 'equip id', 'equipment', 'equipment id', 'eq #', 'eq id'],
-        'job': ['job', 'job #', 'job number', 'job id'],
-        'date': ['date', 'service date'],
-        'units': ['units', 'qty', 'quantity', 'hours'],
-        'rate': ['rate', 'unit rate', 'billing rate'],
-        'amount': ['amount', 'total', 'billing amount'],
-        'division': ['division', 'div', 'region'],
-        'cost_code': ['cost code', 'cc', 'costcode'],
-        'description': ['description', 'equipment description', 'desc']
-    }
+def process_pm_files():
+    """Process all PM allocation files and extract data"""
+    all_pm_data = []
     
-    column_map = {}
-    for column_type, potential_names in column_types.items():
-        for col in df.columns:
-            col_str = str(col).lower()
-            if any(name in col_str for name in potential_names):
-                column_map[column_type] = col
-                break
-    
-    return column_map
-
-def standardize_dataframe(df, column_map):
-    """Standardize a dataframe based on the provided column map"""
-    standardized_df = pd.DataFrame()
-    
-    # Copy identified columns
-    for column_type, original_col in column_map.items():
-        if original_col in df.columns:
-            standardized_df[column_type] = df[original_col]
-    
-    return standardized_df
-
-def calculate_amount(df):
-    """Calculate the amount column if missing"""
-    if 'amount' not in df.columns and 'units' in df.columns and 'rate' in df.columns:
-        # Convert to numeric
-        df['units'] = pd.to_numeric(df['units'], errors='coerce').fillna(0)
-        df['rate'] = pd.to_numeric(df['rate'], errors='coerce').fillna(0)
+    for pm_file in PM_FILES:
+        pm_path = os.path.join(ATTACHED_ASSETS_DIR, pm_file)
+        if not os.path.exists(pm_path):
+            logger.warning(f"PM file not found: {pm_file}")
+            continue
         
-        # Calculate amount
-        df['amount'] = df['units'] * df['rate']
+        logger.info(f"Processing PM file: {pm_file}")
+        
+        try:
+            # Check if the 'ALL' sheet exists, which has the structured data
+            xls = pd.ExcelFile(pm_path)
+            
+            if 'ALL' in xls.sheet_names:
+                sheet_name = 'ALL'
+                logger.info(f"Using 'ALL' sheet in {pm_file}")
+            else:
+                # Try to find a suitable allocation sheet
+                for sheet in xls.sheet_names:
+                    if 'EQ ALLOCATIONS' in sheet or 'ALLOCATION' in sheet.upper():
+                        sheet_name = sheet
+                        logger.info(f"Using '{sheet}' sheet in {pm_file}")
+                        break
+                else:
+                    logger.warning(f"Could not find suitable sheet in {pm_file}")
+                    continue
+            
+            # Load the sheet
+            pm_df = pd.read_excel(pm_path, sheet_name=sheet_name)
+            
+            # Check if the required columns exist
+            required_cols = {'Equip #', 'Job', 'Units'}
+            found_cols = set()
+            for col in pm_df.columns:
+                col_str = str(col).upper()
+                if 'EQUIP' in col_str and '#' in col_str:
+                    found_cols.add('Equip #')
+                elif 'JOB' in col_str:
+                    found_cols.add('Job')
+                elif 'UNIT' in col_str and not 'RATE' in col_str:
+                    found_cols.add('Units')
+            
+            missing_cols = required_cols - found_cols
+            if missing_cols:
+                logger.warning(f"Missing required columns in {pm_file}: {missing_cols}")
+                for col in pm_df.columns:
+                    logger.info(f"Available column: {col}")
+                continue
+            
+            # Normalize column names
+            col_mapping = {}
+            for col in pm_df.columns:
+                col_str = str(col).upper()
+                if 'EQUIP' in col_str and '#' in col_str:
+                    col_mapping[col] = 'Equip #'
+                elif 'JOB' in col_str:
+                    col_mapping[col] = 'Job'
+                elif 'UNIT' in col_str and not 'RATE' in col_str:
+                    col_mapping[col] = 'Units'
+                elif 'COST' in col_str and 'CODE' in col_str:
+                    col_mapping[col] = 'Cost Code'
+                elif 'RATE' in col_str:
+                    col_mapping[col] = 'Rate'
+                elif 'AMOUNT' in col_str or 'TOTAL' in col_str:
+                    col_mapping[col] = 'Amount'
+            
+            # Rename the columns
+            pm_df = pm_df.rename(columns=col_mapping)
+            
+            # Keep only relevant columns
+            keep_cols = ['Equip #', 'Job', 'Units', 'Rate', 'Amount', 'Cost Code']
+            keep_cols = [col for col in keep_cols if col in pm_df.columns]
+            pm_df = pm_df[keep_cols].copy()
+            
+            # Remove rows with missing equipment IDs or job numbers
+            pm_df = pm_df.dropna(subset=['Equip #', 'Job'])
+            
+            # Add source file column
+            pm_df['Source'] = pm_file
+            
+            logger.info(f"Extracted {len(pm_df)} records from {pm_file}")
+            
+            # Add to collection
+            all_pm_data.append(pm_df)
+            
+        except Exception as e:
+            logger.error(f"Error processing {pm_file}: {str(e)}")
     
-    return df
+    # Combine all PM data
+    if all_pm_data:
+        combined_df = pd.concat(all_pm_data, ignore_index=True)
+        logger.info(f"Combined {len(combined_df)} records from all PM files")
+        return combined_df
+    else:
+        logger.warning("No PM data could be extracted")
+        return None
 
-def generate_division_imports(df):
-    """Generate division import files"""
-    if 'division' not in df.columns:
-        logger.warning("Division column not found, cannot generate division imports")
-        return
-    
+def merge_and_generate_deliverables():
+    """Merge base file with PM allocations and generate deliverables"""
     # Ensure exports directory exists
     os.makedirs(EXPORTS_DIR, exist_ok=True)
     
-    # Process each division
+    # Load base file
+    base_df = load_base_file()
+    if base_df is None:
+        return False
+    
+    original_total = base_df['Amount'].sum()
+    
+    # Process PM files
+    pm_df = process_pm_files()
+    if pm_df is None:
+        logger.warning("Using base file without PM revisions")
+        pm_df = pd.DataFrame()
+    
+    # Create a copy of the base file to apply updates
+    updated_df = base_df.copy()
+    
+    # Keep track of revisions
+    revisions = []
+    
+    # Create a lookup dictionary for base records
+    equipment_dict = {}
+    for idx, row in base_df.iterrows():
+        equip_id = str(row['Equip #']).strip()
+        job = str(row['Job']).strip()
+        key = f"{equip_id}_{job}"
+        equipment_dict[key] = idx
+    
+    # Apply PM allocations
+    if not pm_df.empty:
+        for idx, row in pm_df.iterrows():
+            # Standardize the key values
+            equip_id = str(row['Equip #']).strip()
+            job = str(row['Job']).strip()
+            key = f"{equip_id}_{job}"
+            
+            # If this equipment/job combo exists in the base file
+            if key in equipment_dict:
+                base_idx = equipment_dict[key]
+                
+                # Check if Units column exists and has a value
+                if 'Units' in row and not pd.isna(row['Units']):
+                    try:
+                        old_units = updated_df.at[base_idx, 'Units']
+                        new_units = float(row['Units'])
+                        
+                        # Only update if there's a change
+                        if new_units != old_units:
+                            # Record the revision
+                            revisions.append({
+                                'Equip ID': equip_id,
+                                'Job': job,
+                                'Source': row['Source'],
+                                'Old Units': old_units,
+                                'New Units': new_units,
+                                'Change': new_units - old_units
+                            })
+                            
+                            # Update the units
+                            updated_df.at[base_idx, 'Units'] = new_units
+                            
+                            # Recalculate the amount
+                            rate = updated_df.at[base_idx, 'Rate']
+                            updated_df.at[base_idx, 'Amount'] = new_units * rate
+                            
+                            logger.info(f"Updated {equip_id} for {job}: Units {old_units} → {new_units}")
+                    except Exception as e:
+                        logger.error(f"Error updating {equip_id} for {job}: {str(e)}")
+                
+                # Update Cost Code if available
+                if 'Cost Code' in row and not pd.isna(row['Cost Code']):
+                    try:
+                        new_cc = str(row['Cost Code']).strip()
+                        if new_cc:
+                            # Add Cost Code column if it doesn't exist
+                            if 'Cost Code' not in updated_df.columns:
+                                updated_df['Cost Code'] = ""
+                            
+                            # Update the cost code
+                            old_cc = str(updated_df.at[base_idx, 'Cost Code']).strip() if pd.notna(updated_df.at[base_idx, 'Cost Code']) else ""
+                            updated_df.at[base_idx, 'Cost Code'] = new_cc
+                            
+                            logger.info(f"Updated {equip_id} for {job}: Cost Code {old_cc} → {new_cc}")
+                    except Exception as e:
+                        logger.error(f"Error updating cost code for {equip_id}, {job}: {str(e)}")
+    
+    # Log summary of changes
+    if revisions:
+        logger.info(f"Made {len(revisions)} revisions")
+        revisions_df = pd.DataFrame(revisions)
+        
+        # Calculate the net change in units
+        total_unit_change = sum(revision['Change'] for revision in revisions)
+        logger.info(f"Net change in units: {total_unit_change}")
+        
+        # Save revisions to file for reference
+        revisions_path = os.path.join(EXPORTS_DIR, f"PM_REVISIONS_{MONTH_NAME}_{YEAR}.xlsx")
+        revisions_df.to_excel(revisions_path, index=False)
+        logger.info(f"Saved revisions to {revisions_path}")
+    else:
+        logger.info("No revisions were made")
+    
+    # Calculate updated total
+    updated_total = updated_df['Amount'].sum()
+    logger.info(f"Updated total: ${updated_total:,.2f}")
+    logger.info(f"Difference: ${updated_total - original_total:,.2f}")
+    
+    # Add division column
+    def assign_division(job):
+        job_str = str(job).upper()
+        if job_str.startswith('D') or '2023' in job_str or '2024-' in job_str:
+            return 'DFW'
+        elif job_str.startswith('H') or '-H' in job_str:
+            return 'HOU'
+        elif job_str.startswith('W') or 'WTX' in job_str or 'WT-' in job_str:
+            return 'WTX'
+        else:
+            # Extract region code if in job code format "NNN-RDDNNN"
+            parts = job_str.split('-')
+            if len(parts) > 1 and len(parts[1]) >= 1:
+                region_code = parts[1][0]
+                if region_code == 'D':
+                    return 'DFW'
+                elif region_code == 'H':
+                    return 'HOU'
+                elif region_code == 'W':
+                    return 'WTX'
+            return 'DFW'  # Default to DFW
+    
+    updated_df['Division'] = updated_df['Job'].apply(assign_division)
+    
+    # Generate division totals
+    dfw_total = updated_df[updated_df['Division'] == 'DFW']['Amount'].sum()
+    hou_total = updated_df[updated_df['Division'] == 'HOU']['Amount'].sum()
+    wtx_total = updated_df[updated_df['Division'] == 'WTX']['Amount'].sum()
+    
+    logger.info(f"Division totals after revisions:")
+    logger.info(f"DFW: ${dfw_total:,.2f}")
+    logger.info(f"HOU: ${hou_total:,.2f}")
+    logger.info(f"WTX: ${wtx_total:,.2f}")
+    logger.info(f"Combined: ${dfw_total + hou_total + wtx_total:,.2f}")
+    
+    # 1. Generate FINALIZED MASTER ALLOCATION SHEET
+    master_allocation_path = os.path.join(EXPORTS_DIR, FINALIZED_MASTER_ALLOCATION)
+    updated_df.to_excel(master_allocation_path, index=False, sheet_name='Master Allocation')
+    logger.info(f"Generated Finalized Master Allocation Sheet: {master_allocation_path}")
+    
+    # 2. Generate MASTER BILLINGS SHEET
+    master_billing_path = os.path.join(EXPORTS_DIR, MASTER_BILLINGS)
+    updated_df.to_excel(master_billing_path, index=False, sheet_name='Equip Billings')
+    logger.info(f"Generated Master Billings Sheet: {master_billing_path}")
+    
+    # 3. Generate FINAL REGION IMPORT FILES
     for division in ['DFW', 'WTX', 'HOU']:
-        division_data = df[df['division'] == division].copy()
+        division_data = updated_df[updated_df['Division'] == division].copy()
         
         if not division_data.empty:
-            # Create export dataframe
-            export_df = pd.DataFrame()
+            # Create export dataframe with required columns
+            import_df = pd.DataFrame()
             
             # Map columns for export
-            column_mapping = {
-                'equip_id': 'Equipment_Number',
-                'date': 'Date',
-                'job': 'Job',
-                'cost_code': 'Cost_Code',
-                'units': 'Hours',
-                'rate': 'Rate',
-                'amount': 'Amount'
+            import_mapping = {
+                'Equip #': 'Equipment_Number',
+                'Date': 'Date',
+                'Job': 'Job',
+                'Cost Code': 'Cost_Code',
+                'Units': 'Hours',
+                'Rate': 'Rate',
+                'Amount': 'Amount'
             }
             
-            for source_col, target_col in column_mapping.items():
-                if source_col in division_data.columns:
-                    export_df[target_col] = division_data[source_col]
+            for source, target in import_mapping.items():
+                if source in division_data.columns:
+                    import_df[target] = division_data[source]
                 else:
-                    export_df[target_col] = ""
+                    import_df[target] = ""
             
-            # Format date column
-            if 'Date' in export_df.columns and not export_df['Date'].empty:
-                export_df['Date'] = pd.to_datetime(export_df['Date'], errors='coerce').dt.strftime('%Y-%m-%d')
+            # Format date if exists
+            if 'Date' in import_df.columns:
+                # Check if all dates are missing
+                if import_df['Date'].isna().all() or (import_df['Date'] == '').all():
+                    import_df['Date'] = datetime.now().strftime('%Y-%m-%d')
+                else:
+                    # Format existing dates
+                    import_df['Date'] = pd.to_datetime(import_df['Date'], errors='coerce').dt.strftime('%Y-%m-%d')
+            else:
+                import_df['Date'] = datetime.now().strftime('%Y-%m-%d')
             
             # Write CSV
             output_path = os.path.join(EXPORTS_DIR, f"{REGION_IMPORT_PREFIX}{division}_{MONTH_NAME}_{YEAR}.csv")
-            export_df.to_csv(output_path, index=False)
+            import_df.to_csv(output_path, index=False)
             
-            division_total = 0
-            if 'Amount' in export_df.columns:
-                division_total = pd.to_numeric(export_df['Amount'], errors='coerce').sum()
-            
-            logger.info(f"Generated {division} Import File: {output_path} with {len(export_df)} records - Total: ${division_total:,.2f}")
-
-def process_allocations():
-    """Process the base file and PM revisions to generate deliverables"""
-    base_file = find_base_file()
+            # Log division total
+            division_total = import_df['Amount'].sum()
+            logger.info(f"Generated {division} Import File: {output_path} with {len(import_df)} records - Total: ${division_total:,.2f}")
     
-    if not base_file:
-        logger.error("Base allocation file not found!")
-        return False
-    
-    # Load base file
-    base_df = load_workbook_sheet(base_file)
-    
-    if base_df.empty:
-        logger.error(f"Could not load data from base file: {base_file}")
-        return False
-    
-    # Get column mappings from base file
-    base_column_map = identify_key_columns(base_df)
-    logger.info(f"Base file column mapping: {base_column_map}")
-    
-    # Standardize base data
-    standard_base_df = standardize_dataframe(base_df, base_column_map)
-    standard_base_df = calculate_amount(standard_base_df)
-    
-    # Calculate base total
-    original_total = 0
-    if 'amount' in standard_base_df.columns:
-        original_total = pd.to_numeric(standard_base_df['amount'], errors='coerce').sum()
-        logger.info(f"Original base file total: ${original_total:,.2f}")
-    
-    # Find PM revision files
-    revision_files = find_pm_revision_files()
-    
-    # Create master dataframe to collect all PM revisions
-    # Start with the base standardized dataframe
-    master_df = standard_base_df.copy()
-    
-    # Process each revision file
-    for revision_file in revision_files:
-        revision_df = load_workbook_sheet(revision_file)
-        
-        if revision_df.empty:
-            logger.warning(f"No data found in revision file: {os.path.basename(revision_file)}")
-            continue
-        
-        # Get column mappings from revision file
-        revision_column_map = identify_key_columns(revision_df)
-        logger.info(f"Revision file {os.path.basename(revision_file)} column mapping: {revision_column_map}")
-        
-        # Standardize revision data
-        standard_revision_df = standardize_dataframe(revision_df, revision_column_map)
-        standard_revision_df = calculate_amount(standard_revision_df)
-        
-        # Calculate revision total
-        revision_total = 0
-        if 'amount' in standard_revision_df.columns:
-            revision_total = pd.to_numeric(standard_revision_df['amount'], errors='coerce').sum()
-            logger.info(f"Revision file {os.path.basename(revision_file)} total: ${revision_total:,.2f}")
-        
-        # Apply this revision to the master dataframe
-        # First, identify equipment IDs in the revision
-        if 'equip_id' in standard_revision_df.columns:
-            equip_ids = standard_revision_df['equip_id'].unique()
-            
-            # For each equipment ID, update or add records in the master dataframe
-            for eq_id in equip_ids:
-                if pd.isna(eq_id) or eq_id == "":
-                    continue
-                
-                # Get revision records for this equipment
-                eq_revisions = standard_revision_df[standard_revision_df['equip_id'] == eq_id]
-                
-                # Replace or add these records to the master dataframe
-                if 'equip_id' in master_df.columns:
-                    # Remove existing records for this equipment
-                    master_df = master_df[master_df['equip_id'] != eq_id]
-                
-                # Append the revision records
-                master_df = pd.concat([master_df, eq_revisions], ignore_index=True)
-    
-    # Calculate the final total after all revisions
-    final_total = 0
-    if 'amount' in master_df.columns:
-        final_total = pd.to_numeric(master_df['amount'], errors='coerce').sum()
-        logger.info(f"Final total after all revisions: ${final_total:,.2f}")
-        logger.info(f"Changed amount: ${final_total - original_total:,.2f}")
-    
-    # Ensure exports directory exists
-    os.makedirs(EXPORTS_DIR, exist_ok=True)
-    
-    # Generate the three required deliverables
-    
-    # 1. FINALIZED MASTER ALLOCATION SHEET
-    # Use the master_df with standardized columns
-    # Convert to Excel-friendly format
-    excel_output = master_df.copy()
-    
-    # Rename columns to more user-friendly names
-    column_renames = {
-        'equip_id': 'Equip #',
-        'description': 'Equipment Description',
-        'date': 'Date',
-        'job': 'Job',
-        'cost_code': 'Cost Code',
-        'units': 'Units',
-        'rate': 'Rate',
-        'amount': 'Amount',
-        'division': 'Division'
-    }
-    excel_output.rename(columns=column_renames, inplace=True)
-    
-    # Write to Excel
-    master_allocation_path = os.path.join(EXPORTS_DIR, FINALIZED_MASTER_ALLOCATION)
-    excel_output.to_excel(master_allocation_path, index=False, sheet_name='Master Allocation')
-    logger.info(f"Generated Finalized Master Allocation Sheet: {master_allocation_path}")
-    
-    # 2. MASTER BILLINGS SHEET (Same content, different name)
-    master_billing_path = os.path.join(EXPORTS_DIR, MASTER_BILLINGS)
-    excel_output.to_excel(master_billing_path, index=False, sheet_name='Equip Billings')
-    logger.info(f"Generated Master Billings Sheet: {master_billing_path}")
-    
-    # 3. FINAL REGION IMPORT FILES
-    generate_division_imports(master_df)
-    
+    logger.info(f"Successfully generated all required deliverables!")
     return True
 
 if __name__ == "__main__":
-    process_allocations()
+    merge_and_generate_deliverables()

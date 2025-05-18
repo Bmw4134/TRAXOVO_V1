@@ -163,6 +163,33 @@ def log_search(query, results_count=None, module=None, user_id=None, metadata=No
     description = f"Searched{module_info}: '{query}'{count_info}"
     return log_activity('search', description, user_id, metadata)
 
+def get_recent_activities(limit=20):
+    """
+    Get recent activities from the activity log
+    
+    Args:
+        limit (int): Maximum number of activities to return
+        
+    Returns:
+        list: List of activity dictionaries
+    """
+    try:
+        # Get database connection
+        from app import db
+        from models import ActivityLog
+        
+        # Query recent activities ordered by timestamp (newest first)
+        activities = (ActivityLog.query
+                     .order_by(ActivityLog.timestamp.desc())
+                     .limit(limit)
+                     .all())
+        
+        # Convert to dictionaries for template rendering
+        return [activity.to_dict() for activity in activities]
+    except Exception as e:
+        print(f"Error getting recent activities: {e}")
+        return []
+
 def log_activity(activity_type, description=None, user_id=None, metadata=None):
     """
     Log a user activity or system event

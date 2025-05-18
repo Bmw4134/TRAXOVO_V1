@@ -38,26 +38,20 @@ def generate_asset_export(assets, export_format, filename, organization, region,
             # Get base asset data
             asset_dict = {
                 'id': asset.id,
-                'asset_id': asset.asset_id,
-                'name': asset.name,
-                'type': asset.type,
+                'asset_identifier': asset.asset_identifier,
+                'label': asset.label,
+                'asset_category': asset.asset_category,
                 'make': asset.make,
                 'model': asset.model,
-                'serial_number': asset.serial_number,
                 'year': asset.year,
                 'status': asset.status,
-                'region': asset.region,
                 'location': asset.location,
                 'last_location_update': asset.last_location_update,
-                'last_service_date': asset.last_service_date,
-                'next_service_date': asset.next_service_date,
                 'purchase_date': asset.purchase_date,
                 'purchase_price': asset.purchase_price,
-                'current_value': asset.current_value,
-                'hours': asset.hours,
-                'last_hours_update': asset.last_hours_update,
-                'fuel_level': asset.fuel_level,
-                'last_fuel_update': asset.last_fuel_update,
+                'engine_hours': asset.engine_hours,
+                'fuel_level': getattr(asset, 'fuel_level', None),
+                'vin': getattr(asset, 'vin', None),
                 'organization': asset.organization.name if asset.organization else 'Unassigned'
             }
             
@@ -68,20 +62,21 @@ def generate_asset_export(assets, export_format, filename, organization, region,
                     'longitude': asset.longitude
                 })
                 
-            # Add custom fields for different asset types
-            if asset.type == 'Heavy Equipment':
-                asset_dict.update({
-                    'equipment_class': getattr(asset, 'equipment_class', ''),
-                    'rental_rate': getattr(asset, 'rental_rate', ''),
-                    'monthly_cost': getattr(asset, 'monthly_cost', '')
-                })
-            elif asset.type == 'Vehicle':
-                asset_dict.update({
-                    'license_plate': getattr(asset, 'license_plate', ''),
-                    'vin': getattr(asset, 'vin', ''),
-                    'mileage': getattr(asset, 'mileage', ''),
-                    'last_mileage_update': getattr(asset, 'last_mileage_update', '')
-                })
+            # Add custom fields for different asset categories
+            if hasattr(asset, 'asset_category'):
+                if asset.asset_category == 'Heavy Equipment':
+                    asset_dict.update({
+                        'equipment_class': getattr(asset, 'equipment_class', ''),
+                        'rental_rate': getattr(asset, 'rental_rate', ''),
+                        'monthly_cost': getattr(asset, 'monthly_cost', '')
+                    })
+                elif asset.asset_category == 'Vehicle':
+                    asset_dict.update({
+                        'license_plate': getattr(asset, 'license_plate', ''),
+                        'vin': getattr(asset, 'vin', ''),
+                        'mileage': getattr(asset, 'mileage', ''),
+                        'last_mileage_update': getattr(asset, 'last_mileage_update', '')
+                    })
                 
             asset_data.append(asset_dict)
             
@@ -116,10 +111,11 @@ def export_to_excel(asset_data, filename, organization, region, status):
         # Write main asset data sheet
         df.to_excel(writer, sheet_name='Assets', index=False)
         
-        # Create asset counts by type sheet
-        type_counts = df['type'].value_counts().reset_index()
-        type_counts.columns = ['Asset Type', 'Count']
-        type_counts.to_excel(writer, sheet_name='Asset Type Summary', index=False)
+        # Create asset counts by asset_category sheet
+        if 'asset_category' in df.columns:
+            category_counts = df['asset_category'].value_counts().reset_index()
+            category_counts.columns = ['Asset Category', 'Count']
+            category_counts.to_excel(writer, sheet_name='Asset Category Summary', index=False)
         
         # Create asset counts by status sheet
         status_counts = df['status'].value_counts().reset_index()

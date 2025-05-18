@@ -13,7 +13,11 @@ import logging
 import io
 from sqlalchemy import func, desc, and_, or_
 from app import db
-from models.driver_attendance import DriverAttendance, JobSiteAttendance, AttendanceRecord, AttendanceImportLog
+from models.driver_attendance import DriverAttendance as Driver, JobSiteAttendance, AttendanceRecord, AttendanceImportLog
+
+# Alias DriverAttendance as Driver to maintain compatibility with existing code
+# We've standardized on the DriverAttendance model but kept Driver as an alias
+# to minimize code changes while maintaining functionality
 
 # Set up logger
 logging.basicConfig(level=logging.INFO)
@@ -779,6 +783,165 @@ def driver_attendance_history(driver_id):
     
     except Exception as e:
         logger.error(f"Error in driver_attendance_history: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+
+@drivers_bp.route('/export-attendance', methods=['GET'])
+def export_attendance_records():
+    """Export driver attendance records to CSV or Excel format"""
+    try:
+        # Parse filter parameters
+        date_range = request.args.get('date_range', 'last_30_days')
+        division = request.args.get('division', 'all_divisions')
+        department = request.args.get('department', 'all_departments')
+        driver_id = request.args.get('driver_id')
+        issue_type = request.args.get('issue_type', 'all_issues')
+        export_format = request.args.get('format', 'csv')
+        
+        # Calculate date filter based on date_range
+        end_date = datetime.now().date()
+        start_date = None
+        
+        if date_range == 'today':
+            start_date = end_date
+        elif date_range == 'yesterday':
+            start_date = end_date - timedelta(days=1)
+            end_date = start_date
+        elif date_range == 'last_7_days':
+            start_date = end_date - timedelta(days=6)
+        elif date_range == 'last_30_days':
+            start_date = end_date - timedelta(days=29)
+        elif date_range == 'this_month':
+            start_date = end_date.replace(day=1)
+        elif date_range == 'last_month':
+            last_month = end_date.month - 1
+            year = end_date.year
+            if last_month == 0:
+                last_month = 12
+                year -= 1
+            start_date = datetime(year, last_month, 1).date()
+            if last_month == 12:
+                end_date = datetime(year + 1, 1, 1).date() - timedelta(days=1)
+            else:
+                end_date = datetime(year, last_month + 1, 1).date() - timedelta(days=1)
+        elif date_range == 'custom_range':
+            custom_start = request.args.get('start_date')
+            custom_end = request.args.get('end_date')
+            if custom_start and custom_end:
+                try:
+                    start_date = datetime.strptime(custom_start, '%Y-%m-%d').date()
+                    end_date = datetime.strptime(custom_end, '%Y-%m-%d').date()
+                except ValueError:
+                    start_date = end_date - timedelta(days=29)
+            else:
+                start_date = end_date - timedelta(days=29)
+        else:
+            start_date = end_date - timedelta(days=29)
+        
+        # Build base query with date filter
+        base_query = AttendanceRecord.query.filter(
+            AttendanceRecord.date >= start_date,
+            AttendanceRecord.date <= end_date
+        )
+        
+        # Apply division filter if specified
+        if division != 'all_divisions':
+            base_query = base_query.join(Driver, AttendanceRecord.driver_id == Driver.id).filter(Driver.division == division.upper())
+        
+        # Apply department filter if specified
+        if department != 'all_departments':
+            base_query = base_query.join(Driver, AttendanceRecord.driver_id == Driver.id).filter(Driver.department == department)
+        
+        # Apply driver filter if specified
+        if driver_id:
+            base_query = base_query.filter(AttendanceRecord.driver_id == driver_id)
+        
+        # Apply issue type filter if specified
+        if issue_type == 'late_start':
+            base_query = base_query.filter(AttendanceRecord.late_start == True)
+        elif issue_type == 'early_end':
+            base_query = base_query.filter(AttendanceRecord.early_end == True)
+        elif issue_type == 'not_on_job':
+            base_query = base_query.filter(AttendanceRecord.not_on_job == True)
+        elif issue_type != 'all_issues':
+            # If all issues, filter for any issue
+            base_query = base_query.filter(or_(
+                AttendanceRecord.late_start == True,
+                AttendanceRecord.early_end == True,
+                AttendanceRecord.not_on_job == True
+            ))
+        
+        # Join with related models for data retrieval
+        base_query = base_query.join(Driver)
+        base_query = base_query.outerjoin(JobSiteAttendance, AttendanceRecord.assigned_job_id == JobSiteAttendance.id)
+        
+        # Order by date (most recent first) then by driver name
+        base_query = base_query.order_by(AttendanceRecord.date.desc(), Driver.first_name)
+        
+        # Get all records for export
+        records = base_query.all()
+        
+        # Create dataframe for export
+        export_data = []
+        for record in records:
+            # Determine issue type
+            status = "On Time"
+            if record.not_on_job:
+                status = "Not On Job"
+            elif record.late_start:
+                status = "Late Start"
+            elif record.early_end:
+                status = "Early End"
+            
+            # Get driver and job site info
+            driver_name = f"{record.driver_attendance.first_name} {record.driver_attendance.last_name}"
+            job_site = record.assigned_job.job_number if record.assigned_job else "Unknown"
+            
+            # Format times for display
+            expected_start = record.expected_start_time.strftime("%H:%M") if record.expected_start_time else "N/A"
+            actual_start = record.actual_start_time.strftime("%H:%M") if record.actual_start_time else "N/A"
+            expected_end = record.expected_end_time.strftime("%H:%M") if record.expected_end_time else "N/A"
+            actual_end = record.actual_end_time.strftime("%H:%M") if record.actual_end_time else "N/A"
+            
+            export_data.append({
+                'Date': record.date.strftime("%m/%d/%Y"),
+                'Driver ID': record.driver_attendance.employee_id,
+                'Driver Name': driver_name,
+                'Department': record.driver_attendance.department,
+                'Division': record.driver_attendance.division,
+                'Job Site': job_site,
+                'Expected Start': expected_start,
+                'Actual Start': actual_start,
+                'Expected End': expected_end,
+                'Actual End': actual_end,
+                'Status': status,
+                'Asset ID': record.asset_id,
+                'Notes': record.notes
+            })
+        
+        # Convert to dataframe
+        df = pd.DataFrame(export_data)
+        
+        # Generate filename with timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        
+        # Create directory for exports if it doesn't exist
+        os.makedirs('exports/driver_reports', exist_ok=True)
+        
+        # Generate appropriate file based on format
+        if export_format.lower() == 'excel':
+            # Export to Excel
+            file_path = f'exports/driver_reports/driver_attendance_{timestamp}.xlsx'
+            df.to_excel(file_path, index=False, sheet_name='Driver Attendance')
+            return send_file(file_path, as_attachment=True, download_name=f'driver_attendance_{timestamp}.xlsx')
+        else:
+            # Default to CSV
+            file_path = f'exports/driver_reports/driver_attendance_{timestamp}.csv'
+            df.to_csv(file_path, index=False)
+            return send_file(file_path, as_attachment=True, download_name=f'driver_attendance_{timestamp}.csv')
+    
+    except Exception as e:
+        logger.error(f"Error in export_attendance_records: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 

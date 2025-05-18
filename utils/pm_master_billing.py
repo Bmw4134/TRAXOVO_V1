@@ -46,13 +46,18 @@ ATTACHED_ASSETS_DIR = 'attached_assets'
 EXPORTS_DIR = 'exports'
 DEFAULT_COST_CODE = '9000 100F'  # Default cost code to use when missing or 'CC NEEDED'
 PROCESS_ONLY_APRIL = True  # Set to True to focus only on April 2025 files
+MONTH_NAME = 'APRIL'
+YEAR = '2025'
 
 # Division names for file matching and organization
 DIVISIONS = ['DFW', 'HOU', 'WTX', 'SELECT']
 
-# Output file names
-MASTER_BILLING_FILENAME = 'MASTER_EQUIP_BILLINGS_EXPORT_APRIL_2025.xlsx'
-DIVISION_EXPORT_PATTERN = '{} - EQUIP BILLINGS EXPORT - APRIL 2025.xlsx'
+# Output file names for the three required deliverables
+FINALIZED_MASTER_ALLOCATION = f"FINALIZED_MASTER_ALLOCATION_SHEET_{MONTH_NAME}_{YEAR}.xlsx"
+MASTER_BILLINGS = f"MASTER_EQUIP_BILLINGS_{MONTH_NAME}_{YEAR}.xlsx"
+REGION_IMPORT_PREFIX = "FINAL_REGION_IMPORT_"
+
+# Division import file patterns
 DIVISION_IMPORT_FILENAMES = {
     'DFW': '01 - DFW APR 2025.csv',
     'HOU': '02 - HOU APR 2025.csv',

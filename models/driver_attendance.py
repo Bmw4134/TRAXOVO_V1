@@ -1,173 +1,114 @@
 """
 Driver Attendance Models
 
-This module defines the database models for tracking driver attendance, including
-late starts, early ends, and instances where drivers were not on their assigned job sites.
+This module defines the database models for tracking driver attendance and job site data.
 """
 from datetime import datetime
-from app import db
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Boolean
+from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Date, ForeignKey, Text
 from sqlalchemy.orm import relationship
+from app import db
 
 
-class Driver(db.Model):
-    """Driver model for storing driver information"""
-    __tablename__ = 'drivers'
+class DriverAttendance(db.Model):
+    """
+    Model representing a driver/equipment operator for attendance tracking
+    """
+    __tablename__ = 'driver_attendance'
     
     id = Column(Integer, primary_key=True)
-    employee_id = Column(String(20), unique=True, nullable=False)
+    employee_id = Column(String(20), nullable=False, index=True)
     first_name = Column(String(50), nullable=False)
     last_name = Column(String(50), nullable=False)
-    division = Column(String(20))
+    division = Column(String(50))
     department = Column(String(50))
     is_active = Column(Boolean, default=True)
-    
-    # Relationships
-    attendance_records = relationship("AttendanceRecord", back_populates="driver")
-    
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     
-    def __repr__(self):
-        return f"<Driver {self.first_name} {self.last_name} ({self.employee_id})>"
+    # Relationships
+    attendance_records = relationship("AttendanceRecord", back_populates="driver_attendance")
     
     @property
     def full_name(self):
+        """Get the driver's full name"""
         return f"{self.first_name} {self.last_name}"
 
 
-class JobSite(db.Model):
-    """Job site model for storing job site information"""
-    __tablename__ = 'job_sites'
+class JobSiteAttendance(db.Model):
+    """
+    Model representing a job site/location for attendance tracking
+    """
+    __tablename__ = 'job_site_attendance'
     
     id = Column(Integer, primary_key=True)
-    job_number = Column(String(20), unique=True, nullable=False)
+    job_number = Column(String(20), index=True)
     name = Column(String(100))
-    location = Column(String(100))
-    division = Column(String(20))
-    latitude = Column(Float, nullable=True)
-    longitude = Column(Float, nullable=True)
+    location = Column(String(255))
+    division = Column(String(50))
+    latitude = Column(Float)
+    longitude = Column(Float)
     is_active = Column(Boolean, default=True)
-    
-    # Relationships
-    attendance_records = relationship("AttendanceRecord", back_populates="job_site")
-    
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     
-    def __repr__(self):
-        return f"<JobSite {self.job_number} - {self.name}>"
+    # Relationships
+    assigned_records = relationship("AttendanceRecord", foreign_keys="AttendanceRecord.assigned_job_id", back_populates="assigned_job")
+    actual_records = relationship("AttendanceRecord", foreign_keys="AttendanceRecord.actual_job_id", back_populates="actual_job")
 
 
 class AttendanceRecord(db.Model):
-    """Attendance record model for tracking driver attendance"""
+    """
+    Model representing a daily attendance record for a driver
+    """
     __tablename__ = 'attendance_records'
     
     id = Column(Integer, primary_key=True)
-    date = Column(DateTime, nullable=False)
-    driver_id = Column(Integer, ForeignKey('drivers.id'), nullable=False)
-    asset_id = Column(String(20))
+    driver_id = Column(Integer, ForeignKey('driver_attendance.id'), nullable=False, index=True)
+    date = Column(Date, nullable=False, index=True)
+    assigned_job_id = Column(Integer, ForeignKey('job_site_attendance.id'), index=True)
+    actual_job_id = Column(Integer, ForeignKey('job_site_attendance.id'), index=True)
+    asset_id = Column(String(50))
     
-    # Job assignment info
-    assigned_job_id = Column(Integer, ForeignKey('job_sites.id'), nullable=False)
-    actual_job_id = Column(Integer, ForeignKey('job_sites.id'), nullable=True)
-    
-    # Time info
+    # Timestamps
     expected_start_time = Column(DateTime)
     actual_start_time = Column(DateTime)
     expected_end_time = Column(DateTime)
     actual_end_time = Column(DateTime)
     
-    # Issue flags
-    late_start = Column(Boolean, default=False)
-    early_end = Column(Boolean, default=False)
-    not_on_job = Column(Boolean, default=False)
-    
-    # Relationships
-    driver = relationship("Driver", back_populates="attendance_records")
-    job_site = relationship("JobSite", foreign_keys=[assigned_job_id], back_populates="attendance_records")
-    actual_job_site = relationship("JobSite", foreign_keys=[actual_job_id])
+    # Flags
+    late_start = Column(Boolean, default=False, index=True)
+    early_end = Column(Boolean, default=False, index=True)
+    not_on_job = Column(Boolean, default=False, index=True)
     
     # Metadata
-    notes = Column(String(255))
+    notes = Column(Text)
+    status = Column(String(50))
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
-    
-    def __repr__(self):
-        return f"<AttendanceRecord {self.driver.full_name} {self.date.strftime('%Y-%m-%d')}>"
-    
-    @property
-    def late_minutes(self):
-        """Calculate minutes late if there was a late start"""
-        if self.late_start and self.expected_start_time and self.actual_start_time:
-            delta = self.actual_start_time - self.expected_start_time
-            return int(delta.total_seconds() / 60)
-        return 0
-    
-    @property
-    def early_minutes(self):
-        """Calculate minutes early if there was an early end"""
-        if self.early_end and self.expected_end_time and self.actual_end_time:
-            delta = self.expected_end_time - self.actual_end_time
-            return int(delta.total_seconds() / 60)
-        return 0
-    
-    @property
-    def issue_type(self):
-        """Return the primary issue type for this attendance record"""
-        if self.not_on_job:
-            return "Not On Job"
-        if self.late_start:
-            return "Late Start"
-        if self.early_end:
-            return "Early End"
-        return "On Time"
-    
-    @property
-    def issue_details(self):
-        """Return detailed information about the issue"""
-        if self.not_on_job:
-            return f"Expected {self.job_site.job_number}, Found {self.actual_job_site.job_number if self.actual_job_site else 'Unknown'}"
-        if self.late_start:
-            return f"{self.late_minutes} mins late"
-        if self.early_end:
-            return f"{self.early_minutes} mins early"
-        return "No issues"
-
-
-class AttendanceStats(db.Model):
-    """Model for storing pre-calculated attendance statistics"""
-    __tablename__ = 'attendance_stats'
-    
-    id = Column(Integer, primary_key=True)
-    date = Column(DateTime, nullable=False)
-    driver_id = Column(Integer, ForeignKey('drivers.id'), nullable=True)
-    job_site_id = Column(Integer, ForeignKey('job_sites.id'), nullable=True)
-    division = Column(String(20))
-    
-    # Daily counts
-    total_records = Column(Integer, default=0)
-    late_starts = Column(Integer, default=0)
-    early_ends = Column(Integer, default=0)
-    not_on_job = Column(Integer, default=0)
-    on_time = Column(Integer, default=0)
-    
-    # Performance
-    attendance_score = Column(Float, default=0.0)  # Percentage
-    
-    # Trends (compared to previous period)
-    trend_late = Column(Float, default=0.0)  # Positive = worse, negative = better
-    trend_early = Column(Float, default=0.0)
-    trend_not_on_job = Column(Float, default=0.0)
-    trend_score = Column(Float, default=0.0)  # Positive = better
     
     # Relationships
-    driver = relationship("Driver", foreign_keys=[driver_id])
-    job_site = relationship("JobSite", foreign_keys=[job_site_id])
+    driver_attendance = relationship("DriverAttendance", back_populates="attendance_records")
+    assigned_job = relationship("JobSiteAttendance", foreign_keys=[assigned_job_id], back_populates="assigned_records")
+    actual_job = relationship("JobSiteAttendance", foreign_keys=[actual_job_id], back_populates="actual_records")
+
+
+class AttendanceImportLog(db.Model):
+    """
+    Model for tracking attendance data imports
+    """
+    __tablename__ = 'attendance_import_logs'
     
-    created_at = Column(DateTime, default=datetime.now)
-    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+    id = Column(Integer, primary_key=True)
+    file_name = Column(String(255), nullable=False)
+    file_type = Column(String(50))
+    import_date = Column(DateTime, default=datetime.now)
+    record_count = Column(Integer, default=0)
+    success = Column(Boolean, default=True)
+    error_message = Column(Text)
+    imported_by = Column(Integer, ForeignKey('users.id'))
     
-    def __repr__(self):
-        scope = f"Driver {self.driver_id}" if self.driver_id else f"Job {self.job_site_id}" if self.job_site_id else "Division"
-        return f"<AttendanceStats {scope} {self.date.strftime('%Y-%m-%d')}>"
+    @property
+    def import_summary(self):
+        """Get a summary of the import"""
+        status = "Successful" if self.success else "Failed"
+        return f"{status} import of {self.record_count} records from {self.file_name} on {self.import_date.strftime('%Y-%m-%d %H:%M')}"

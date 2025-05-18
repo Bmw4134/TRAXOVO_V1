@@ -287,7 +287,7 @@ def index():
 @login_required
 def daily_report():
     """Daily driver attendance report"""
-    log_navigation('driver_module.daily_report')
+    log_navigation(current_user.id, 'driver_module.daily_report')
     
     report_date = request.args.get('date', datetime.now().strftime('%Y-%m-%d'))
     report_data = get_sample_daily_report()

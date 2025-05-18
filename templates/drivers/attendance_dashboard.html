@@ -1,0 +1,338 @@
+{% extends "layout.html" %}
+
+{% block title %}Attendance Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid my-4">
+    <!-- Header with date range selection -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h1 class="display-5 mb-2">
+                <i class="bi bi-graph-up me-2"></i>Attendance Dashboard
+            </h1>
+            <p class="lead text-muted">
+                Analyze driver attendance trends and patterns
+            </p>
+        </div>
+        <div class="col-md-6 text-md-end">
+            <form class="d-inline-flex align-items-center flex-wrap justify-content-md-end" id="date-range-form">
+                <div class="me-2 mb-2 mb-md-0">
+                    <label for="start-date" class="form-label me-2 mb-0">From:</label>
+                    <input type="date" id="start-date" name="start_date" class="form-control" value="{{ start_date }}">
+                </div>
+                <div class="me-2 mb-2 mb-md-0">
+                    <label for="end-date" class="form-label me-2 mb-0">To:</label>
+                    <input type="date" id="end-date" name="end_date" class="form-control" value="{{ end_date }}">
+                </div>
+                <button type="submit" class="btn btn-primary mb-2 mb-md-0">
+                    <i class="bi bi-filter me-1"></i> Apply Filter
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Overall Trend Chart -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Attendance Trend Analysis</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="attendance-trend-chart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Incident Breakdown -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title mb-0">Late Start Breakdown</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="late-start-chart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="card-title mb-0">Early End Breakdown</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="early-end-chart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">Not On Job Breakdown</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="not-on-job-chart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Driver Performance Table -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="card-title mb-0">Driver Performance Summary</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Driver</th>
+                                    <th class="text-center">Late Starts</th>
+                                    <th class="text-center">Early Ends</th>
+                                    <th class="text-center">Not On Job</th>
+                                    <th class="text-center">Total Incidents</th>
+                                    <th class="text-center">Performance Rating</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for driver in drivers %}
+                                <tr>
+                                    <td>{{ driver.name }}</td>
+                                    <td class="text-center">
+                                        {% if loop.index == 1 %}3{% elif loop.index == 2 %}1{% elif loop.index == 3 %}2{% else %}0{% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if loop.index == 1 %}1{% elif loop.index == 4 %}3{% else %}0{% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if loop.index == 2 %}1{% elif loop.index == 3 %}1{% else %}0{% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if loop.index == 1 %}4{% elif loop.index == 2 %}2{% elif loop.index == 3 %}3{% elif loop.index == 4 %}3{% else %}0{% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if loop.index == 1 %}
+                                            <span class="badge bg-danger">Needs Improvement</span>
+                                        {% elif loop.index in [2, 3, 4] %}
+                                            <span class="badge bg-warning">Average</span>
+                                        {% else %}
+                                            <span class="badge bg-success">Excellent</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="{{ url_for('driver_module.driver_detail', driver_id=driver.id) }}" class="btn btn-sm btn-primary">
+                                            <i class="bi bi-eye me-1"></i> View Details
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Sample data for demonstration
+        const dates = {{ daily_summaries|map(attribute='date')|list|tojson }};
+        
+        // Attendance Trend Chart
+        const trendCtx = document.getElementById('attendance-trend-chart').getContext('2d');
+        new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [
+                    {
+                        label: 'Late Starts',
+                        data: [2, 3, 1, 2, 4, 2, 1],
+                        borderColor: '#dc3545',
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Early Ends',
+                        data: [1, 2, 3, 4, 2, 1, 2],
+                        borderColor: '#ffc107',
+                        backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Not On Job',
+                        data: [0, 1, 0, 2, 1, 0, 2],
+                        borderColor: '#17a2b8',
+                        backgroundColor: 'rgba(23, 162, 184, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.1
+                    },
+                    {
+                        label: 'On Time',
+                        data: [7, 4, 6, 2, 3, 7, 5],
+                        borderColor: '#28a745',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Daily Attendance Trends'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Incidents'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Late Start Chart
+        const lateStartCtx = document.getElementById('late-start-chart').getContext('2d');
+        new Chart(lateStartCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Traffic', 'Weather', 'Vehicle Issues', 'Personal', 'Unknown'],
+                datasets: [{
+                    data: [30, 20, 15, 25, 10],
+                    backgroundColor: [
+                        'rgba(220, 53, 69, 0.8)',
+                        'rgba(220, 53, 69, 0.6)',
+                        'rgba(220, 53, 69, 0.4)',
+                        'rgba(220, 53, 69, 0.3)',
+                        'rgba(220, 53, 69, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(220, 53, 69, 1)',
+                        'rgba(220, 53, 69, 1)',
+                        'rgba(220, 53, 69, 1)',
+                        'rgba(220, 53, 69, 1)',
+                        'rgba(220, 53, 69, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Late Start Reasons (%)'
+                    }
+                }
+            }
+        });
+
+        // Early End Chart
+        const earlyEndCtx = document.getElementById('early-end-chart').getContext('2d');
+        new Chart(earlyEndCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Work Completed', 'Equipment Issues', 'Weather', 'Site Closed', 'Other'],
+                datasets: [{
+                    data: [40, 25, 15, 10, 10],
+                    backgroundColor: [
+                        'rgba(255, 193, 7, 0.8)',
+                        'rgba(255, 193, 7, 0.6)',
+                        'rgba(255, 193, 7, 0.4)',
+                        'rgba(255, 193, 7, 0.3)',
+                        'rgba(255, 193, 7, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 193, 7, 1)',
+                        'rgba(255, 193, 7, 1)',
+                        'rgba(255, 193, 7, 1)',
+                        'rgba(255, 193, 7, 1)',
+                        'rgba(255, 193, 7, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Early End Reasons (%)'
+                    }
+                }
+            }
+        });
+
+        // Not On Job Chart
+        const notOnJobCtx = document.getElementById('not-on-job-chart').getContext('2d');
+        new Chart(notOnJobCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Reassigned', 'Equipment Breakdown', 'Wrong Assignment', 'Location Error', 'Other'],
+                datasets: [{
+                    data: [35, 25, 20, 15, 5],
+                    backgroundColor: [
+                        'rgba(23, 162, 184, 0.8)',
+                        'rgba(23, 162, 184, 0.6)',
+                        'rgba(23, 162, 184, 0.4)',
+                        'rgba(23, 162, 184, 0.3)',
+                        'rgba(23, 162, 184, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(23, 162, 184, 1)',
+                        'rgba(23, 162, 184, 1)',
+                        'rgba(23, 162, 184, 1)',
+                        'rgba(23, 162, 184, 1)',
+                        'rgba(23, 162, 184, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Not On Job Reasons (%)'
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

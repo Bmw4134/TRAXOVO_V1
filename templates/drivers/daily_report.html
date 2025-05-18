@@ -1,0 +1,325 @@
+{% extends "layout.html" %}
+
+{% block title %}Daily Driver Report{% endblock %}
+
+{% block content %}
+<div class="container-fluid my-4">
+    <!-- Header with date selection -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h1 class="display-5 mb-2">
+                <i class="bi bi-calendar-day me-2"></i>Daily Driver Report
+            </h1>
+            <p class="lead text-muted">
+                Track driver attendance and job site presence
+            </p>
+        </div>
+        <div class="col-md-6 text-md-end">
+            <form class="d-inline-flex align-items-center" id="date-select-form">
+                <label for="report-date" class="form-label me-2 mb-0">Report Date:</label>
+                <input type="date" id="report-date" name="date" class="form-control" value="{{ report_date }}" 
+                      onchange="document.getElementById('date-select-form').submit()">
+            </form>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card bg-danger text-white h-100">
+                <div class="card-body text-center">
+                    <h1 class="display-3 mb-0">{{ summary.late_starts }}</h1>
+                    <h5 class="card-title">Late Starts</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card bg-warning text-dark h-100">
+                <div class="card-body text-center">
+                    <h1 class="display-3 mb-0">{{ summary.early_ends }}</h1>
+                    <h5 class="card-title">Early Ends</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body text-center">
+                    <h1 class="display-3 mb-0">{{ summary.not_on_job }}</h1>
+                    <h5 class="card-title">Not On Job</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body text-center">
+                    <h1 class="display-3 mb-0">{{ summary.on_time }}</h1>
+                    <h5 class="card-title">On Time</h5>
+                    <small>of {{ summary.total_drivers }} total drivers</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Controls -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">Export Options</h5>
+                </div>
+                <div class="card-body">
+                    <form id="export-form" class="row g-3 align-items-end">
+                        <input type="hidden" name="report_date" value="{{ report_date }}">
+                        <input type="hidden" name="report_type" value="daily">
+                        
+                        <div class="col-md-6">
+                            <label class="form-label">Format</label>
+                            <div class="btn-group" role="group">
+                                <input type="radio" class="btn-check" name="format" id="format-pdf" value="pdf" autocomplete="off" checked>
+                                <label class="btn btn-outline-primary" for="format-pdf">
+                                    <i class="bi bi-file-earmark-pdf me-1"></i> PDF
+                                </label>
+                                
+                                <input type="radio" class="btn-check" name="format" id="format-csv" value="csv" autocomplete="off">
+                                <label class="btn btn-outline-primary" for="format-csv">
+                                    <i class="bi bi-file-earmark-spreadsheet me-1"></i> CSV
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 text-end">
+                            <button type="button" id="export-report-btn" class="btn btn-primary">
+                                <i class="bi bi-download me-1"></i> Export Report
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Late Start Details -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-exclamation-circle me-1"></i> Late Start Details ({{ late_starts|length }})
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Driver</th>
+                                    <th>Job Site</th>
+                                    <th>Expected</th>
+                                    <th>Actual</th>
+                                    <th>Minutes Late</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if late_starts %}
+                                    {% for item in late_starts %}
+                                    <tr>
+                                        <td>{{ item.driver_name }}</td>
+                                        <td>{{ item.job_site }}</td>
+                                        <td>{{ item.expected_time }}</td>
+                                        <td>{{ item.actual_time }}</td>
+                                        <td>{{ item.minutes_late }}</td>
+                                        <td>{{ item.notes }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="6" class="text-center py-3">No late starts recorded for this date</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Early End Details -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-exclamation-triangle me-1"></i> Early End Details ({{ early_ends|length }})
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Driver</th>
+                                    <th>Job Site</th>
+                                    <th>Expected</th>
+                                    <th>Actual</th>
+                                    <th>Minutes Early</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if early_ends %}
+                                    {% for item in early_ends %}
+                                    <tr>
+                                        <td>{{ item.driver_name }}</td>
+                                        <td>{{ item.job_site }}</td>
+                                        <td>{{ item.expected_time }}</td>
+                                        <td>{{ item.actual_time }}</td>
+                                        <td>{{ item.minutes_early }}</td>
+                                        <td>{{ item.notes }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="6" class="text-center py-3">No early ends recorded for this date</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Not On Job Details -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-geo-alt-fill me-1"></i> Not On Job Details ({{ not_on_job|length }})
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Driver</th>
+                                    <th>Expected Job Site</th>
+                                    <th>Actual Job Site</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if not_on_job %}
+                                    {% for item in not_on_job %}
+                                    <tr>
+                                        <td>{{ item.driver_name }}</td>
+                                        <td>{{ item.expected_job_site }}</td>
+                                        <td>{{ item.actual_job_site }}</td>
+                                        <td>{{ item.notes }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="4" class="text-center py-3">No job site discrepancies recorded for this date</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Export Success Modal -->
+<div class="modal fade" id="export-success-modal" tabindex="-1" aria-labelledby="export-modal-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="export-modal-label">
+                    <i class="bi bi-check-circle me-1"></i> Export Successful
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3">Your report has been generated successfully.</p>
+                <p id="export-message"></p>
+            </div>
+            <div class="modal-footer">
+                <a href="#" id="download-link" class="btn btn-primary" target="_blank">
+                    <i class="bi bi-download me-1"></i> Download Report
+                </a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Export report button
+        const exportBtn = document.getElementById('export-report-btn');
+        const exportForm = document.getElementById('export-form');
+        const exportModal = new bootstrap.Modal(document.getElementById('export-success-modal'));
+        const downloadLink = document.getElementById('download-link');
+        const exportMessage = document.getElementById('export-message');
+        
+        exportBtn.addEventListener('click', function() {
+            // Show loading state
+            exportBtn.disabled = true;
+            exportBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Exporting...';
+            
+            // Get form data
+            const formData = new FormData(exportForm);
+            
+            // Convert to JSON
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+            
+            // Send request
+            fetch('{{ url_for("driver_module.export_report") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Reset button
+                exportBtn.disabled = false;
+                exportBtn.innerHTML = '<i class="bi bi-download me-1"></i> Export Report';
+                
+                if (data.success) {
+                    // Update modal
+                    exportMessage.textContent = data.message;
+                    downloadLink.href = data.download_url;
+                    
+                    // Show modal
+                    exportModal.show();
+                } else {
+                    // Show error
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Reset button
+                exportBtn.disabled = false;
+                exportBtn.innerHTML = '<i class="bi bi-download me-1"></i> Export Report';
+                // Show error
+                alert('An error occurred while exporting the report.');
+            });
+        });
+    });
+</script>
+{% endblock %}

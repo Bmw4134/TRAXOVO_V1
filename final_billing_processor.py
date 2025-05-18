@@ -388,7 +388,7 @@ def generate_deliverables(updated_df):
     logger.info(f"Generated Master Billings Sheet: {master_billing_path}")
     
     # 3. Generate FINAL REGION IMPORT FILES
-    for division in ['DFW', 'WTX', 'HOU']:
+    for division in ['DFW', 'HOU', 'WT']:  # Changed from 'WTX' to 'WT' to match our division code
         division_data = updated_df[updated_df['Division'] == division].copy()
         
         if not division_data.empty:

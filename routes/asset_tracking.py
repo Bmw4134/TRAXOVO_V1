@@ -91,10 +91,33 @@ def asset_detail(asset_id):
 def api_assets():
     """API endpoint to get asset data for maps and tables"""
     # Get fresh asset data from the API or cache
-    assets = get_asset_data()
+    all_assets = get_asset_data()
     
-    # Add color coding based on status
-    for asset in assets:
+    # Filter out inactive (sold/scrapped) assets
+    assets = []
+    
+    for asset in all_assets:
+        # Check for active flag first - if it's explicitly set to false, skip it
+        if 'active' in asset and asset['active'] is False:
+            continue
+            
+        # Skip assets that have an inactive/sold/scrapped status
+        if asset.get('status') and any(term in asset['status'].lower() for term in ['inactive', 'sold', 'scrapped', 'retired', 'decommissioned']):
+            continue
+        
+        # Skip very old assets (no reports in a long time) - these may be inactive
+        if asset.get('lastReport'):
+            try:
+                last_report = datetime.fromisoformat(asset.get('lastReport'))
+                # Skip if no reports in last 30 days - likely inactive
+                if (datetime.now() - last_report).days > 30:
+                    continue
+            except (ValueError, TypeError):
+                pass
+        
+        # Asset is considered part of the active fleet if it made it here
+        assets.append(asset)
+        
         # Default status and color
         asset['status_color'] = '#6c757d'  # gray
         

@@ -138,6 +138,20 @@ try:
 except ImportError as e:
     logging.error(f"Failed to register Report Generator blueprint: {e}")
 
+try:
+    from routes.driver_module import driver_module_bp
+    app.register_blueprint(driver_module_bp)
+    logging.info("Registered Driver Module blueprint")
+except ImportError as e:
+    logging.error(f"Failed to register Driver Module blueprint: {e}")
+
+try:
+    from routes.billing_module import billing_module_bp
+    app.register_blueprint(billing_module_bp)
+    logging.info("Registered Billing Module blueprint")
+except ImportError as e:
+    logging.error(f"Failed to register Billing Module blueprint: {e}")
+
 @login_manager.user_loader
 def load_user(user_id):
     """Load user from database"""

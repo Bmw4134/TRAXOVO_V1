@@ -1,0 +1,227 @@
+{% extends "layout.html" %}
+
+{% block title %}Upload PM Allocation Files{% endblock %}
+
+{% block content %}
+<div class="container-fluid my-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-5 mb-2">
+                <i class="bi bi-upload me-2"></i>Upload PM Allocation Files
+            </h1>
+            <p class="lead text-muted">
+                Upload and compare original and updated PM allocation files
+            </p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <div class="btn-group">
+                <a href="{{ url_for('billing_module.pm_allocation') }}" class="btn btn-primary">
+                    <i class="bi bi-file-earmark-spreadsheet me-1"></i> View Allocations
+                </a>
+                <a href="{{ url_for('billing_module.index') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Billing
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Instructions Card -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-info-circle me-1"></i> Instructions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <h5><i class="bi bi-1-circle me-1"></i> Select Files</h5>
+                                <p>Upload both the original and updated PM allocation Excel files.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <h5><i class="bi bi-2-circle me-1"></i> Process & Compare</h5>
+                                <p>The system will automatically compare the files and identify differences.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <h5><i class="bi bi-3-circle me-1"></i> Review Results</h5>
+                                <p>View a detailed breakdown of changes and export the reconciliation report.</p>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="alert alert-info mb-0">
+                                <strong>Required Format:</strong> Excel files (.xlsx, .xls) with columns for Asset ID, Description, and Amount.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Form Card -->
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-file-earmark-arrow-up me-1"></i> Upload Files
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('billing_module.pm_allocation_upload') }}" method="POST" enctype="multipart/form-data" id="upload-form">
+                        <div class="mb-4">
+                            <label for="original-file" class="form-label">
+                                <strong>Original File:</strong> 
+                                <span class="text-muted">Initial PM allocation file</span>
+                            </label>
+                            <input type="file" class="form-control" name="original_file" id="original-file" accept=".xlsx,.xls" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="updated-file" class="form-label">
+                                <strong>Updated File:</strong>
+                                <span class="text-muted">Revised PM allocation file</span>
+                            </label>
+                            <input type="file" class="form-control" name="updated_file" id="updated-file" accept=".xlsx,.xls" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="job-number" class="form-label">Job Number (Optional)</label>
+                            <select class="form-select" name="job_number" id="job-number">
+                                <option value="" selected>All Jobs</option>
+                                <option value="2024-025">2024-025</option>
+                                <option value="2024-019">2024-019</option>
+                                <option value="2024-030">2024-030</option>
+                                <option value="2023-034">2023-034</option>
+                                <option value="2023-032">2023-032</option>
+                            </select>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-lg btn-success" id="process-btn">
+                                <i class="bi bi-gear me-1"></i> Process Files
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recently Processed Files (if any) -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-clock-history me-1"></i> Recently Processed Files
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover mb-0" id="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Original File</th>
+                                    <th>Updated File</th>
+                                    <th>Processed By</th>
+                                    <th>Changes</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2025-05-17 14:30</td>
+                                    <td>APR2025_original.xlsx</td>
+                                    <td>APR2025_updated.xlsx</td>
+                                    <td>John Admin</td>
+                                    <td><span class="badge bg-danger">16 changes</span></td>
+                                    <td class="text-center">
+                                        <a href="#" class="btn btn-sm btn-primary">
+                                            <i class="bi bi-eye me-1"></i> View
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025-05-15 09:45</td>
+                                    <td>APR2025_draft1.xlsx</td>
+                                    <td>APR2025_draft2.xlsx</td>
+                                    <td>John Admin</td>
+                                    <td><span class="badge bg-danger">12 changes</span></td>
+                                    <td class="text-center">
+                                        <a href="#" class="btn btn-sm btn-primary">
+                                            <i class="bi bi-eye me-1"></i> View
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2025-05-10 11:20</td>
+                                    <td>MAR2025_original.xlsx</td>
+                                    <td>MAR2025_final.xlsx</td>
+                                    <td>Sarah Manager</td>
+                                    <td><span class="badge bg-danger">8 changes</span></td>
+                                    <td class="text-center">
+                                        <a href="#" class="btn btn-sm btn-primary">
+                                            <i class="bi bi-eye me-1"></i> View
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('upload-form');
+        const processBtn = document.getElementById('process-btn');
+        const originalFileInput = document.getElementById('original-file');
+        const updatedFileInput = document.getElementById('updated-file');
+        
+        form.addEventListener('submit', function() {
+            // Show loading state
+            processBtn.disabled = true;
+            processBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+        });
+        
+        // File input validation
+        function validateFiles() {
+            const originalFile = originalFileInput.files[0];
+            const updatedFile = updatedFileInput.files[0];
+            
+            if (originalFile && updatedFile) {
+                const originalExt = originalFile.name.split('.').pop().toLowerCase();
+                const updatedExt = updatedFile.name.split('.').pop().toLowerCase();
+                
+                const validExts = ['xlsx', 'xls'];
+                
+                if (!validExts.includes(originalExt) || !validExts.includes(updatedExt)) {
+                    alert('Please select Excel files (.xlsx, .xls) only.');
+                    return false;
+                }
+                
+                processBtn.disabled = false;
+                return true;
+            } else {
+                processBtn.disabled = true;
+                return false;
+            }
+        }
+        
+        originalFileInput.addEventListener('change', validateFiles);
+        updatedFileInput.addEventListener('change', validateFiles);
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,308 @@
+{% extends "layout.html" %}
+
+{% block title %}PM Allocation{% endblock %}
+
+{% block content %}
+<div class="container-fluid my-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h1 class="display-5 mb-2">
+                <i class="bi bi-file-earmark-spreadsheet me-2"></i>PM Allocation
+            </h1>
+            <p class="lead text-muted">
+                Manage monthly preventive maintenance billing allocations
+            </p>
+        </div>
+        <div class="col-md-6 text-md-end">
+            <div class="btn-group">
+                <a href="{{ url_for('billing_module.pm_allocation_upload') }}" class="btn btn-success">
+                    <i class="bi bi-upload me-1"></i> Upload Files
+                </a>
+                <a href="{{ url_for('billing_module.invoices') }}" class="btn btn-primary">
+                    <i class="bi bi-receipt me-1"></i> View Invoices
+                </a>
+                <a href="{{ url_for('billing_module.index') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Billing
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Controls -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label for="month-filter" class="form-label">Month</label>
+                            <select id="month-filter" class="form-select">
+                                <option value="April 2025" selected>April 2025</option>
+                                <option value="March 2025">March 2025</option>
+                                <option value="February 2025">February 2025</option>
+                                <option value="January 2025">January 2025</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="job-filter" class="form-label">Job Number</label>
+                            <select id="job-filter" class="form-select">
+                                <option value="">All Jobs</option>
+                                <option value="2024-025">2024-025</option>
+                                <option value="2024-019">2024-019</option>
+                                <option value="2024-030">2024-030</option>
+                                <option value="2023-034">2023-034</option>
+                                <option value="2023-032">2023-032</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="dept-filter" class="form-label">Department</label>
+                            <select id="dept-filter" class="form-select">
+                                <option value="">All Departments</option>
+                                <option value="Construction">Construction</option>
+                                <option value="Transportation">Transportation</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="change-filter" class="form-label">Change Status</label>
+                            <select id="change-filter" class="form-select">
+                                <option value="">All</option>
+                                <option value="increased">Increased</option>
+                                <option value="decreased">Decreased</option>
+                                <option value="unchanged">Unchanged</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body text-center">
+                    <h1 class="display-4 mb-0">{{ allocations|length }}</h1>
+                    <h5 class="card-title">Total Assets</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body text-center">
+                    <h1 class="display-4 mb-0">${{ "{:,.2f}".format(allocations|sum(attribute='updated_amount')) }}</h1>
+                    <h5 class="card-title">Total Amount</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card bg-danger text-white h-100">
+                <div class="card-body text-center">
+                    <h1 class="display-4 mb-0">${{ "{:,.2f}".format(allocations|sum(attribute='difference')) }}</h1>
+                    <h5 class="card-title">Net Difference</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body text-center">
+                    <h1 class="display-4 mb-0">{{ allocations|selectattr('difference', 'ne', 0)|list|length }}</h1>
+                    <h5 class="card-title">Changed Assets</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Allocations Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">PM Allocations - April 2025</h5>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-primary export-btn" data-format="xlsx">
+                                <i class="bi bi-file-earmark-excel me-1"></i> Excel
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary export-btn" data-format="csv">
+                                <i class="bi bi-file-earmark-spreadsheet me-1"></i> CSV
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary export-btn" data-format="pdf">
+                                <i class="bi bi-file-earmark-pdf me-1"></i> PDF
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover table-sm mb-0" id="allocations-table">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Asset ID</th>
+                                    <th>Description</th>
+                                    <th>Job Number</th>
+                                    <th class="text-end">Original</th>
+                                    <th class="text-end">Updated</th>
+                                    <th class="text-end">Difference</th>
+                                    <th class="text-end">% Change</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in allocations %}
+                                <tr class="change-{{ 'increased' if item.difference > 0 else 'decreased' if item.difference < 0 else 'unchanged' }}">
+                                    <td>{{ item.asset_id }}</td>
+                                    <td>{{ item.description }}</td>
+                                    <td>{{ item.job_number }}</td>
+                                    <td class="text-end">${{ "{:,.2f}".format(item.original_amount) }}</td>
+                                    <td class="text-end">${{ "{:,.2f}".format(item.updated_amount) }}</td>
+                                    <td class="text-end {{ 'text-success' if item.difference > 0 else 'text-danger' if item.difference < 0 else '' }}">
+                                        {{ "+" if item.difference > 0 else "" }}${{ "{:,.2f}".format(item.difference) }}
+                                    </td>
+                                    <td class="text-end {{ 'text-success' if item.percentage_change > 0 else 'text-danger' if item.percentage_change < 0 else '' }}">
+                                        {{ "+" if item.percentage_change > 0 else "" }}{{ "{:.1f}%".format(item.percentage_change) }}
+                                    </td>
+                                    <td>{{ item.notes }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Export Modal -->
+<div class="modal fade" id="export-modal" tabindex="-1" aria-labelledby="export-modal-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="export-modal-label">
+                    <i class="bi bi-download me-1"></i> Export PM Allocations
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="export-form">
+                    <div class="mb-3">
+                        <label for="export-month" class="form-label">Month</label>
+                        <select id="export-month" class="form-select" required>
+                            <option value="April 2025" selected>April 2025</option>
+                            <option value="March 2025">March 2025</option>
+                            <option value="February 2025">February 2025</option>
+                            <option value="January 2025">January 2025</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="export-job" class="form-label">Job Number (Optional)</label>
+                        <select id="export-job" class="form-select">
+                            <option value="">All Jobs</option>
+                            <option value="2024-025">2024-025</option>
+                            <option value="2024-019">2024-019</option>
+                            <option value="2024-030">2024-030</option>
+                            <option value="2023-034">2023-034</option>
+                            <option value="2023-032">2023-032</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="export-format" class="form-label">Format</label>
+                        <select id="export-format" class="form-select" required>
+                            <option value="xlsx">Excel (.xlsx)</option>
+                            <option value="csv">CSV (.csv)</option>
+                            <option value="pdf">PDF (.pdf)</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirm-export-btn">
+                    <i class="bi bi-download me-1"></i> Export
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Table filters
+        const monthFilter = document.getElementById('month-filter');
+        const jobFilter = document.getElementById('job-filter');
+        const deptFilter = document.getElementById('dept-filter');
+        const changeFilter = document.getElementById('change-filter');
+        
+        // Add event listeners for filters
+        monthFilter.addEventListener('change', filterTable);
+        jobFilter.addEventListener('change', filterTable);
+        deptFilter.addEventListener('change', filterTable);
+        changeFilter.addEventListener('change', filterTable);
+        
+        // Export buttons
+        const exportButtons = document.querySelectorAll('.export-btn');
+        const exportModal = new bootstrap.Modal(document.getElementById('export-modal'));
+        const exportFormat = document.getElementById('export-format');
+        
+        exportButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const format = this.dataset.format;
+                exportFormat.value = format;
+                exportModal.show();
+            });
+        });
+        
+        // Confirm export
+        const confirmExportBtn = document.getElementById('confirm-export-btn');
+        confirmExportBtn.addEventListener('click', function() {
+            const month = document.getElementById('export-month').value;
+            const job = document.getElementById('export-job').value;
+            const format = document.getElementById('export-format').value;
+            
+            // Build export URL
+            let exportUrl = `/billing/pm_allocation/export?format=${format}&month=${encodeURIComponent(month)}`;
+            if (job) {
+                exportUrl += `&job=${encodeURIComponent(job)}`;
+            }
+            
+            // Open in new tab
+            window.open(exportUrl, '_blank');
+            
+            // Close modal
+            exportModal.hide();
+        });
+        
+        // Function to filter the table
+        function filterTable() {
+            const month = monthFilter.value.toLowerCase();
+            const job = jobFilter.value.toLowerCase();
+            const dept = deptFilter.value.toLowerCase();
+            const change = changeFilter.value.toLowerCase();
+            
+            const rows = document.querySelectorAll('#allocations-table tbody tr');
+            
+            rows.forEach(row => {
+                const rowMonth = 'april 2025'; // All rows are April 2025 in this example
+                const rowJob = row.cells[2].textContent.toLowerCase();
+                const rowDept = ''; // Department is not shown in the table, we'd need to add it
+                const rowChange = row.className.toLowerCase();
+                
+                const matchesMonth = !month || rowMonth.includes(month);
+                const matchesJob = !job || rowJob.includes(job);
+                const matchesDept = !dept || rowDept.includes(dept);
+                const matchesChange = !change || rowChange.includes(change);
+                
+                if (matchesMonth && matchesJob && matchesDept && matchesChange) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

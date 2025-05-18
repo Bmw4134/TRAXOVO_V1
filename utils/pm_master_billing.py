@@ -44,6 +44,7 @@ logger = logging.getLogger(__name__)
 # Constants
 ATTACHED_ASSETS_DIR = 'attached_assets'
 EXPORTS_DIR = 'exports'
+PM_MASTER_EXPORTS_DIR = 'exports'  # Changed from 'exports/pm_master' to make files visible in main exports folder
 DEFAULT_COST_CODE = '9000 100F'  # Default cost code to use when missing or 'CC NEEDED'
 PROCESS_ONLY_APRIL = True  # Set to True to focus only on April 2025 files
 MONTH_NAME = 'APRIL'
@@ -2009,6 +2010,9 @@ def generate_finalized_master_allocation(combined_data):
         tuple: (output_path, success)
     """
     try:
+        # Ensure exports directory exists
+        os.makedirs(EXPORTS_DIR, exist_ok=True)
+        
         # Create output path
         output_path = os.path.join(EXPORTS_DIR, FINALIZED_MASTER_ALLOCATION)
         
@@ -2097,6 +2101,9 @@ def generate_region_import_files(master_billing):
     divisions_to_export = ['DFW', 'WTX', 'HOU']  # As requested, focus on these three
     
     try:
+        # Ensure exports directory exists
+        os.makedirs(EXPORTS_DIR, exist_ok=True)
+        
         for division in divisions_to_export:
             division_data = filter_by_division(master_billing, division)
             
@@ -2104,6 +2111,14 @@ def generate_region_import_files(master_billing):
                 # Prepare data for CSV export
                 export_data = division_data[['equip_id', 'date', 'job', 'cost_code', 'units', 'rate', 'amount']]
                 export_data.columns = ['Equipment_Number', 'Date', 'Job', 'Cost_Code', 'Hours', 'Rate', 'Amount']
+                
+                # Format date as YYYY-MM-DD
+                export_data['Date'] = pd.to_datetime(export_data['Date'], errors='coerce').dt.strftime('%Y-%m-%d')
+                
+                # Apply default cost code to any missing values
+                export_data['Cost_Code'] = export_data['Cost_Code'].fillna(DEFAULT_COST_CODE)
+                export_data.loc[export_data['Cost_Code'].str.contains('NEEDED', na=False, case=False), 'Cost_Code'] = DEFAULT_COST_CODE
+                export_data.loc[export_data['Cost_Code'] == '', 'Cost_Code'] = DEFAULT_COST_CODE
                 
                 # Create output path
                 output_path = os.path.join(EXPORTS_DIR, f"{REGION_IMPORT_PREFIX}{division}_{MONTH_NAME}_{YEAR}.csv")

@@ -1,665 +1,717 @@
 """
-Maintenance scheduling controller for the fleet management system.
+Maintenance Routes Module
 
-This module handles all routes and business logic for the maintenance scheduling
-system, including task creation, updates, and completion.
+This module provides routes for maintenance scheduling, management, and reporting.
 """
-from datetime import datetime, date, timedelta
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+
+import os
+from datetime import datetime, timedelta
+from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash, current_app
 from flask_login import login_required, current_user
-from sqlalchemy import or_, and_, func
-from sqlalchemy.orm import joinedload
+from sqlalchemy import func, desc, distinct, and_, or_
+import pandas as pd
+import json
 
-from db import db
 from models.maintenance import (
-    MaintenanceTask, MaintenanceHistory, MaintenanceSchedule, MaintenancePart,
-    MaintenanceNotification, MaintenanceType, MaintenancePriority, MaintenanceStatus
+    MaintenanceSchedule, MaintenanceRecord, MaintenancePart, 
+    MaintenancePartUsage, MaintenanceStatus, MaintenanceType
 )
-from models import Asset, User
+from models.asset import Asset
+from app import db
+from utils.activity_logger import log_activity
+from utils.maintenance_integration import sync_maintenance_data
 
-# Create blueprint
+# Create the blueprint
 maintenance_bp = Blueprint('maintenance', __name__, url_prefix='/maintenance')
-
 
 @maintenance_bp.route('/')
 @login_required
 def index():
-    """Display the maintenance dashboard."""
-    # Get query parameters
-    status_filter = request.args.get('status', 'all')
-    type_filter = request.args.get('type', 'all')
-    priority_filter = request.args.get('priority', 'all')
-    asset_filter = request.args.get('asset', 'all')
-    date_range = request.args.get('date_range', '30')
+    """Maintenance dashboard page"""
+    # Get upcoming maintenance schedules
+    upcoming = MaintenanceSchedule.query.filter(
+        MaintenanceSchedule.status == MaintenanceStatus.SCHEDULED,
+        MaintenanceSchedule.scheduled_date >= datetime.utcnow()
+    ).order_by(MaintenanceSchedule.scheduled_date).limit(10).all()
     
-    # Base query with eager loading of relationships
-    query = MaintenanceTask.query.options(
-        joinedload(MaintenanceTask.asset),
-        joinedload(MaintenanceTask.technician)
-    )
+    # Get overdue maintenance
+    overdue = MaintenanceSchedule.query.filter(
+        MaintenanceSchedule.status == MaintenanceStatus.SCHEDULED,
+        MaintenanceSchedule.scheduled_date < datetime.utcnow()
+    ).order_by(MaintenanceSchedule.scheduled_date).limit(10).all()
     
-    # Apply filters
-    if status_filter != 'all':
-        query = query.filter(MaintenanceTask.status == status_filter)
-        
-    if type_filter != 'all':
-        query = query.filter(MaintenanceTask.maintenance_type == type_filter)
-        
-    if priority_filter != 'all':
-        query = query.filter(MaintenanceTask.priority == priority_filter)
-        
-    if asset_filter != 'all':
-        query = query.filter(MaintenanceTask.asset_id == int(asset_filter))
+    # Get in-progress maintenance
+    in_progress = MaintenanceSchedule.query.filter(
+        MaintenanceSchedule.status == MaintenanceStatus.IN_PROGRESS
+    ).order_by(MaintenanceSchedule.scheduled_date).all()
     
-    # Apply date range filter
-    today = date.today()
-    if date_range == '7':
-        date_limit = today - timedelta(days=7)
-        future_limit = today + timedelta(days=7)
-    elif date_range == '14':
-        date_limit = today - timedelta(days=14)
-        future_limit = today + timedelta(days=14)
-    elif date_range == '30':
-        date_limit = today - timedelta(days=30)
-        future_limit = today + timedelta(days=30)
-    elif date_range == '90':
-        date_limit = today - timedelta(days=90)
-        future_limit = today + timedelta(days=90)
-    else:
-        date_limit = today - timedelta(days=365)
-        future_limit = today + timedelta(days=365)
+    # Get recently completed maintenance
+    completed = MaintenanceRecord.query.filter(
+        MaintenanceRecord.end_time != None
+    ).order_by(desc(MaintenanceRecord.end_time)).limit(10).all()
     
-    query = query.filter(
-        or_(
-            and_(
-                MaintenanceTask.status != MaintenanceStatus.COMPLETED,
-                MaintenanceTask.scheduled_date >= date_limit
-            ),
-            and_(
-                MaintenanceTask.status == MaintenanceStatus.COMPLETED,
-                MaintenanceTask.completed_date >= date_limit
-            )
-        )
-    )
-    
-    # Get tasks in order of scheduled date
-    maintenance_tasks = query.order_by(MaintenanceTask.scheduled_date).all()
-    
-    # Check for overdue tasks and update status if needed
-    for task in maintenance_tasks:
-        if (task.status != MaintenanceStatus.COMPLETED and 
-            task.status != MaintenanceStatus.CANCELLED and
-            task.is_overdue):
-            
-            task.status = MaintenanceStatus.OVERDUE
-            db.session.add(task)
-    
-    # Commit any status changes
-    db.session.commit()
-    
-    # Get all assets for the asset selector
-    assets = Asset.query.filter_by(active=True).order_by(Asset.label).all()
-    
-    # Calculate maintenance stats
-    today = date.today()
-    thirty_days_ago = today - timedelta(days=30)
-    thirty_days_ahead = today + timedelta(days=30)
-    
-    # Get count of upcoming maintenance in next 30 days
-    upcoming_count = MaintenanceTask.query.filter(
-        MaintenanceTask.scheduled_date > today,
-        MaintenanceTask.scheduled_date <= thirty_days_ahead,
-        MaintenanceTask.status != MaintenanceStatus.COMPLETED,
-        MaintenanceTask.status != MaintenanceStatus.CANCELLED
-    ).count()
-    
-    # Get count of completed maintenance in last 30 days
-    completed_count = MaintenanceTask.query.filter(
-        MaintenanceTask.status == MaintenanceStatus.COMPLETED,
-        MaintenanceTask.completed_date >= thirty_days_ago,
-        MaintenanceTask.completed_date <= today
-    ).count()
-    
-    # Get count of overdue maintenance
-    overdue_count = MaintenanceTask.query.filter(
-        MaintenanceTask.status == MaintenanceStatus.OVERDUE
-    ).count()
-    
-    # Get average days to completion for the last 30 days
-    avg_days_result = db.session.query(
-        func.avg(
-            func.julianday(MaintenanceTask.completed_date) - 
-            func.julianday(MaintenanceTask.scheduled_date)
-        )
-    ).filter(
-        MaintenanceTask.status == MaintenanceStatus.COMPLETED,
-        MaintenanceTask.completed_date >= thirty_days_ago,
-        MaintenanceTask.completed_date <= today
-    ).scalar()
-    
-    avg_days = round(avg_days_result) if avg_days_result else 7
-    
-    # Compile stats
-    maintenance_stats = {
-        'upcoming': upcoming_count,
-        'completed': completed_count,
-        'overdue': overdue_count,
-        'avg_days': avg_days
+    # Summary statistics
+    stats = {
+        'total_scheduled': MaintenanceSchedule.query.filter(
+            MaintenanceSchedule.status == MaintenanceStatus.SCHEDULED
+        ).count(),
+        'total_overdue': MaintenanceSchedule.query.filter(
+            MaintenanceSchedule.status == MaintenanceStatus.SCHEDULED,
+            MaintenanceSchedule.scheduled_date < datetime.utcnow()
+        ).count(),
+        'total_in_progress': MaintenanceSchedule.query.filter(
+            MaintenanceSchedule.status == MaintenanceStatus.IN_PROGRESS
+        ).count(),
+        'total_completed_this_month': MaintenanceRecord.query.filter(
+            MaintenanceRecord.end_time != None,
+            MaintenanceRecord.end_time >= datetime.utcnow().replace(day=1, hour=0, minute=0, second=0)
+        ).count()
     }
     
-    return render_template(
-        'maintenance.html',
-        maintenance_tasks=maintenance_tasks,
-        assets=assets,
-        maintenance_stats=maintenance_stats,
-        status_filter=status_filter,
-        type_filter=type_filter,
-        priority_filter=priority_filter,
-        asset_filter=asset_filter,
-        date_range=date_range,
-        MaintenanceType=MaintenanceType,
-        MaintenancePriority=MaintenancePriority,
-        MaintenanceStatus=MaintenanceStatus
-    )
+    return render_template('maintenance/index.html', 
+                           upcoming=upcoming, 
+                           overdue=overdue,
+                           in_progress=in_progress,
+                           completed=completed,
+                           stats=stats)
 
-
-@maintenance_bp.route('/add', methods=['POST'])
+@maintenance_bp.route('/schedule')
 @login_required
-def add_maintenance():
-    """Add a new maintenance task."""
-    try:
-        # Get form data
-        asset_id = request.form.get('asset_id')
-        maintenance_type = request.form.get('maintenance_type')
-        title = request.form.get('title')
-        description = request.form.get('description')
-        scheduled_date = request.form.get('scheduled_date')
-        due_date = request.form.get('due_date') or None
-        assigned_to = request.form.get('assigned_to')
-        priority = request.form.get('priority', 'medium')
-        estimated_cost = request.form.get('estimated_cost') or None
-        estimated_hours = request.form.get('estimated_hours') or None
-        notes = request.form.get('notes')
-        
-        # Create maintenance task
-        task = MaintenanceTask(
-            asset_id=asset_id,
-            maintenance_type=maintenance_type,
-            title=title,
-            description=description,
-            scheduled_date=datetime.strptime(scheduled_date, '%Y-%m-%d').date(),
-            due_date=datetime.strptime(due_date, '%Y-%m-%d').date() if due_date else None,
-            assigned_to=assigned_to,
-            priority=priority,
-            estimated_cost=float(estimated_cost) if estimated_cost else None,
-            estimated_hours=float(estimated_hours) if estimated_hours else None,
-            notes=notes,
-            status=MaintenanceStatus.SCHEDULED
-        )
-        
-        # Save to database
-        db.session.add(task)
-        db.session.commit()
-        
-        flash('Maintenance task scheduled successfully.', 'success')
-        return redirect(url_for('maintenance.index'))
-        
-    except Exception as e:
-        db.session.rollback()
-        flash(f'Error scheduling maintenance: {str(e)}', 'danger')
-        return redirect(url_for('maintenance.index'))
-
-
-@maintenance_bp.route('/update', methods=['POST'])
-@login_required
-def update_maintenance():
-    """Update an existing maintenance task."""
-    try:
-        # Get form data
-        task_id = request.form.get('task_id')
-        asset_id = request.form.get('asset_id')
-        maintenance_type = request.form.get('maintenance_type')
-        title = request.form.get('title')
-        description = request.form.get('description')
-        scheduled_date = request.form.get('scheduled_date')
-        due_date = request.form.get('due_date') or None
-        assigned_to = request.form.get('assigned_to')
-        priority = request.form.get('priority')
-        estimated_cost = request.form.get('estimated_cost') or None
-        estimated_hours = request.form.get('estimated_hours') or None
-        notes = request.form.get('notes')
-        status = request.form.get('status')
-        completion_notes = request.form.get('completion_notes')
-        
-        # Find task
-        task = MaintenanceTask.query.get(task_id)
-        if not task:
-            flash('Maintenance task not found.', 'danger')
-            return redirect(url_for('maintenance.index'))
-        
-        # Check if status is changing to completed
-        is_newly_completed = status == 'completed' and task.status != MaintenanceStatus.COMPLETED
-        
-        # Update task attributes
-        task.asset_id = asset_id
-        task.maintenance_type = maintenance_type
-        task.title = title
-        task.description = description
-        task.scheduled_date = datetime.strptime(scheduled_date, '%Y-%m-%d').date()
-        task.due_date = datetime.strptime(due_date, '%Y-%m-%d').date() if due_date else None
-        task.assigned_to = assigned_to
-        task.priority = priority
-        task.estimated_cost = float(estimated_cost) if estimated_cost else None
-        task.estimated_hours = float(estimated_hours) if estimated_hours else None
-        task.notes = notes
-        task.status = status
-        task.completion_notes = completion_notes
-        
-        # If newly completed, record the completion date
-        if is_newly_completed:
-            task.completed_date = date.today()
-            
-            # Also create a maintenance history record
-            history = MaintenanceHistory(
-                asset_id=task.asset_id,
-                maintenance_task_id=task.id,
-                date=date.today(),
-                service_type=task.maintenance_type.value,
-                description=task.description,
-                performed_by=task.assigned_to,
-                cost=task.actual_cost or task.estimated_cost,
-                notes=task.completion_notes,
-                # These would come from the asset data if available
-                odometer=None,
-                engine_hours=None
-            )
-            db.session.add(history)
-        
-        # Save changes
-        db.session.add(task)
-        db.session.commit()
-        
-        flash('Maintenance task updated successfully.', 'success')
-        return redirect(url_for('maintenance.index'))
-        
-    except Exception as e:
-        db.session.rollback()
-        flash(f'Error updating maintenance task: {str(e)}', 'danger')
-        return redirect(url_for('maintenance.index'))
-
-
-@maintenance_bp.route('/complete/<int:task_id>', methods=['POST'])
-@login_required
-def complete_maintenance(task_id):
-    """Mark a maintenance task as completed."""
-    try:
-        task = MaintenanceTask.query.get(task_id)
-        if not task:
-            return jsonify({'success': False, 'message': 'Task not found'})
-        
-        if task.status == MaintenanceStatus.COMPLETED:
-            return jsonify({'success': False, 'message': 'Task is already completed'})
-        
-        # Update task
-        task.status = MaintenanceStatus.COMPLETED
-        task.completed_date = date.today()
-        
-        # Create history record
-        history = MaintenanceHistory(
-            asset_id=task.asset_id,
-            maintenance_task_id=task.id,
-            date=date.today(),
-            service_type=task.maintenance_type.value,
-            description=task.description,
-            performed_by=task.assigned_to,
-            cost=task.actual_cost or task.estimated_cost,
-            notes=task.completion_notes,
-            # These would come from the asset data if available
-            odometer=None,
-            engine_hours=None
-        )
-        
-        db.session.add(task)
-        db.session.add(history)
-        db.session.commit()
-        
-        return jsonify({'success': True, 'message': 'Task marked as completed'})
-        
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'success': False, 'message': str(e)})
-
-
-@maintenance_bp.route('/delete/<int:task_id>', methods=['POST'])
-@login_required
-def delete_maintenance(task_id):
-    """Delete a maintenance task."""
-    try:
-        task = MaintenanceTask.query.get(task_id)
-        if not task:
-            return jsonify({'success': False, 'message': 'Task not found'})
-        
-        db.session.delete(task)
-        db.session.commit()
-        
-        return jsonify({'success': True, 'message': 'Task deleted successfully'})
-        
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'success': False, 'message': str(e)})
-
-
-@maintenance_bp.route('/task/<int:task_id>')
-@login_required
-def get_task_details(task_id):
-    """Get details for a specific maintenance task."""
-    task = MaintenanceTask.query.options(
-        joinedload(MaintenanceTask.asset),
-        joinedload(MaintenanceTask.parts)
-    ).get(task_id)
+def schedule():
+    """View maintenance schedule calendar"""
+    # Get all scheduled maintenance for the next 30 days
+    start_date = datetime.utcnow()
+    end_date = start_date + timedelta(days=30)
     
-    if not task:
-        return jsonify({'success': False, 'message': 'Task not found'})
+    schedules = MaintenanceSchedule.query.filter(
+        MaintenanceSchedule.scheduled_date.between(start_date, end_date)
+    ).all()
     
-    # Get maintenance history for this asset
-    history = MaintenanceHistory.query.filter_by(
-        asset_id=task.asset_id
-    ).order_by(MaintenanceHistory.date.desc()).limit(5).all()
-    
-    # Format history records
-    history_items = [
-        {
-            'date': h.date.strftime('%m/%d/%Y'),
-            'service_type': h.service_type,
-            'description': h.description
-        }
-        for h in history
-    ]
-    
-    # Format parts
-    parts = [
-        {
-            'name': p.part_name,
-            'part_number': p.part_number,
-            'quantity': p.quantity,
-            'unit_cost': p.unit_cost,
-            'total_cost': p.total_cost
-        }
-        for p in task.parts
-    ]
-    
-    # Convert task to dictionary
-    task_data = {
-        'id': task.id,
-        'asset': {
-            'id': task.asset.id,
-            'label': task.asset.label,
-            'identifier': task.asset.asset_identifier,
-            'image_url': task.asset.image_url if hasattr(task.asset, 'image_url') else None
-        },
-        'title': task.title,
-        'description': task.description,
-        'type': task.maintenance_type.value,
-        'priority': task.priority.value,
-        'status': task.status.value,
-        'scheduled_date': task.scheduled_date.strftime('%m/%d/%Y'),
-        'due_date': task.due_date.strftime('%m/%d/%Y') if task.due_date else None,
-        'completed_date': task.completed_date.strftime('%m/%d/%Y') if task.completed_date else None,
-        'assigned_to': task.assigned_to,
-        'estimated_cost': task.estimated_cost,
-        'actual_cost': task.actual_cost,
-        'estimated_hours': task.estimated_hours,
-        'actual_hours': task.actual_hours,
-        'notes': task.notes,
-        'completion_notes': task.completion_notes,
-        'parts': parts,
-        'history': history_items
-    }
-    
-    return jsonify({'success': True, 'task': task_data})
-
-
-@maintenance_bp.route('/schedules')
-@login_required
-def maintenance_schedules():
-    """Display all maintenance schedules."""
-    schedules = MaintenanceSchedule.query.options(
-        joinedload(MaintenanceSchedule.asset)
-    ).order_by(MaintenanceSchedule.next_due).all()
-    
-    assets = Asset.query.filter_by(active=True).order_by(Asset.label).all()
-    
-    return render_template(
-        'maintenance_schedules.html',
-        schedules=schedules,
-        assets=assets,
-        MaintenanceType=MaintenanceType
-    )
-
-
-@maintenance_bp.route('/schedule/add', methods=['POST'])
-@login_required
-def add_schedule():
-    """Add a new maintenance schedule."""
-    try:
-        # Get form data
-        asset_id = request.form.get('asset_id')
-        title = request.form.get('title')
-        description = request.form.get('description')
-        maintenance_type = request.form.get('maintenance_type')
-        frequency_type = request.form.get('frequency_type')
-        frequency_value = request.form.get('frequency_value')
-        last_performed = request.form.get('last_performed') or None
-        estimated_cost = request.form.get('estimated_cost') or None
-        estimated_hours = request.form.get('estimated_hours') or None
-        notes = request.form.get('notes')
-        
-        # Create schedule
-        schedule = MaintenanceSchedule(
-            asset_id=asset_id,
-            title=title,
-            description=description,
-            maintenance_type=maintenance_type,
-            frequency_type=frequency_type,
-            frequency_value=int(frequency_value),
-            last_performed=datetime.strptime(last_performed, '%Y-%m-%d').date() if last_performed else None,
-            estimated_cost=float(estimated_cost) if estimated_cost else None,
-            estimated_hours=float(estimated_hours) if estimated_hours else None,
-            notes=notes,
-            is_active=True
-        )
-        
-        # Calculate next due date
-        if schedule.last_performed:
-            schedule.next_due = schedule.calculate_next_due()
-        
-        # Save to database
-        db.session.add(schedule)
-        db.session.commit()
-        
-        flash('Maintenance schedule created successfully.', 'success')
-        return redirect(url_for('maintenance.maintenance_schedules'))
-        
-    except Exception as e:
-        db.session.rollback()
-        flash(f'Error creating maintenance schedule: {str(e)}', 'danger')
-        return redirect(url_for('maintenance.maintenance_schedules'))
-
-
-@maintenance_bp.route('/schedule/update', methods=['POST'])
-@login_required
-def update_schedule():
-    """Update an existing maintenance schedule."""
-    try:
-        # Get form data
-        schedule_id = request.form.get('schedule_id')
-        asset_id = request.form.get('asset_id')
-        title = request.form.get('title')
-        description = request.form.get('description')
-        maintenance_type = request.form.get('maintenance_type')
-        frequency_type = request.form.get('frequency_type')
-        frequency_value = request.form.get('frequency_value')
-        last_performed = request.form.get('last_performed') or None
-        estimated_cost = request.form.get('estimated_cost') or None
-        estimated_hours = request.form.get('estimated_hours') or None
-        notes = request.form.get('notes')
-        is_active = request.form.get('is_active') == 'on'
-        
-        # Find schedule
-        schedule = MaintenanceSchedule.query.get(schedule_id)
-        if not schedule:
-            flash('Maintenance schedule not found.', 'danger')
-            return redirect(url_for('maintenance.maintenance_schedules'))
-        
-        # Check if last_performed date changed
-        last_performed_changed = False
-        if last_performed:
-            new_last_performed = datetime.strptime(last_performed, '%Y-%m-%d').date()
-            if schedule.last_performed != new_last_performed:
-                last_performed_changed = True
-                schedule.last_performed = new_last_performed
-        
-        # Update schedule attributes
-        schedule.asset_id = asset_id
-        schedule.title = title
-        schedule.description = description
-        schedule.maintenance_type = maintenance_type
-        schedule.frequency_type = frequency_type
-        schedule.frequency_value = int(frequency_value)
-        schedule.estimated_cost = float(estimated_cost) if estimated_cost else None
-        schedule.estimated_hours = float(estimated_hours) if estimated_hours else None
-        schedule.notes = notes
-        schedule.is_active = is_active
-        
-        # Recalculate next due date if needed
-        if last_performed_changed or not schedule.next_due:
-            schedule.next_due = schedule.calculate_next_due()
-        
-        # Save changes
-        db.session.add(schedule)
-        db.session.commit()
-        
-        flash('Maintenance schedule updated successfully.', 'success')
-        return redirect(url_for('maintenance.maintenance_schedules'))
-        
-    except Exception as e:
-        db.session.rollback()
-        flash(f'Error updating maintenance schedule: {str(e)}', 'danger')
-        return redirect(url_for('maintenance.maintenance_schedules'))
-
-
-@maintenance_bp.route('/schedule/generate/<int:schedule_id>', methods=['POST'])
-@login_required
-def generate_task_from_schedule(schedule_id):
-    """Generate a maintenance task from a schedule."""
-    try:
-        schedule = MaintenanceSchedule.query.get(schedule_id)
-        if not schedule:
-            return jsonify({'success': False, 'message': 'Schedule not found'})
-        
-        # Create new task
-        task = MaintenanceTask(
-            asset_id=schedule.asset_id,
-            title=schedule.title,
-            description=schedule.description,
-            maintenance_type=schedule.maintenance_type,
-            priority=MaintenancePriority.MEDIUM,
-            status=MaintenanceStatus.SCHEDULED,
-            scheduled_date=schedule.next_due or date.today(),
-            due_date=(schedule.next_due + timedelta(days=7)) if schedule.next_due else (date.today() + timedelta(days=7)),
-            estimated_cost=schedule.estimated_cost,
-            estimated_hours=schedule.estimated_hours,
-            notes=schedule.notes + "\n\nGenerated from maintenance schedule."
-        )
-        
-        db.session.add(task)
-        
-        # Update the schedule's next due date
-        if schedule.frequency_type in ['days', 'weeks', 'months']:
-            # Set last_performed to now
-            schedule.last_performed = date.today()
-            # Calculate next due date
-            schedule.next_due = schedule.calculate_next_due()
-            db.session.add(schedule)
-        
-        db.session.commit()
-        
-        return jsonify({
-            'success': True, 
-            'message': 'Task generated successfully',
-            'task_id': task.id
+    # Prepare data for the calendar
+    calendar_data = []
+    for schedule in schedules:
+        calendar_data.append({
+            'id': schedule.id,
+            'title': f"{schedule.asset.name}: {schedule.title}",
+            'start': schedule.scheduled_date.isoformat(),
+            'end': (schedule.scheduled_date + timedelta(hours=schedule.estimated_duration_hours)).isoformat(),
+            'url': url_for('maintenance.view_schedule', schedule_id=schedule.id),
+            'color': get_status_color(schedule.status)
         })
+    
+    return render_template('maintenance/schedule.html', 
+                          calendar_data=json.dumps(calendar_data))
+
+@maintenance_bp.route('/schedule/new', methods=['GET', 'POST'])
+@login_required
+def new_schedule():
+    """Create a new maintenance schedule"""
+    if request.method == 'POST':
+        try:
+            # Extract data from form
+            asset_id = int(request.form.get('asset_id'))
+            title = request.form.get('title')
+            description = request.form.get('description', '')
+            scheduled_date = datetime.strptime(request.form.get('scheduled_date'), '%Y-%m-%dT%H:%M')
+            estimated_duration = float(request.form.get('estimated_duration', 1.0))
+            recurrence_interval = int(request.form.get('recurrence_interval', 0))
+            maintenance_type = MaintenanceType(request.form.get('maintenance_type'))
+            priority = int(request.form.get('priority', 3))
+            technician_id = request.form.get('technician_id')
+            if not technician_id:
+                technician_id = None
+            else:
+                technician_id = int(technician_id)
+            job_site_id = request.form.get('job_site_id')
+            if not job_site_id:
+                job_site_id = None
+            else:
+                job_site_id = int(job_site_id)
+            estimated_cost = request.form.get('estimated_cost')
+            if estimated_cost:
+                estimated_cost = float(estimated_cost)
+            
+            # Create new maintenance schedule
+            schedule = MaintenanceSchedule(
+                asset_id=asset_id,
+                title=title,
+                description=description,
+                scheduled_date=scheduled_date,
+                estimated_duration_hours=estimated_duration,
+                recurrence_interval_days=recurrence_interval,
+                maintenance_type=maintenance_type,
+                priority=priority,
+                assigned_technician_id=technician_id,
+                job_site_id=job_site_id,
+                estimated_cost=estimated_cost,
+                created_by_id=current_user.id
+            )
+            
+            db.session.add(schedule)
+            db.session.commit()
+            
+            # Log the activity
+            log_activity(
+                'maintenance_scheduled',
+                current_user.id,
+                f"Scheduled maintenance '{title}' for asset #{asset_id}",
+                metadata={
+                    'asset_id': asset_id,
+                    'scheduled_date': scheduled_date.isoformat(),
+                    'maintenance_type': maintenance_type.value
+                }
+            )
+            
+            flash('Maintenance schedule created successfully', 'success')
+            return redirect(url_for('maintenance.view_schedule', schedule_id=schedule.id))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error creating maintenance schedule: {str(e)}", 'danger')
+    
+    # Get assets for dropdown
+    assets = Asset.query.order_by(Asset.name).all()
+    
+    return render_template('maintenance/new_schedule.html', 
+                          assets=assets,
+                          maintenance_types=[t.value for t in MaintenanceType])
+
+@maintenance_bp.route('/schedule/<int:schedule_id>')
+@login_required
+def view_schedule(schedule_id):
+    """View a maintenance schedule"""
+    schedule = MaintenanceSchedule.query.get_or_404(schedule_id)
+    
+    # Get related maintenance records
+    records = MaintenanceRecord.query.filter_by(schedule_id=schedule_id).order_by(desc(MaintenanceRecord.start_time)).all()
+    
+    return render_template('maintenance/view_schedule.html', 
+                          schedule=schedule,
+                          records=records)
+
+@maintenance_bp.route('/schedule/<int:schedule_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_schedule(schedule_id):
+    """Edit a maintenance schedule"""
+    schedule = MaintenanceSchedule.query.get_or_404(schedule_id)
+    
+    if request.method == 'POST':
+        try:
+            # Update schedule with form data
+            schedule.title = request.form.get('title')
+            schedule.description = request.form.get('description', '')
+            schedule.scheduled_date = datetime.strptime(request.form.get('scheduled_date'), '%Y-%m-%dT%H:%M')
+            schedule.estimated_duration_hours = float(request.form.get('estimated_duration', 1.0))
+            schedule.recurrence_interval_days = int(request.form.get('recurrence_interval', 0))
+            schedule.maintenance_type = MaintenanceType(request.form.get('maintenance_type'))
+            schedule.priority = int(request.form.get('priority', 3))
+            
+            technician_id = request.form.get('technician_id')
+            if not technician_id:
+                schedule.assigned_technician_id = None
+            else:
+                schedule.assigned_technician_id = int(technician_id)
+                
+            job_site_id = request.form.get('job_site_id')
+            if not job_site_id:
+                schedule.job_site_id = None
+            else:
+                schedule.job_site_id = int(job_site_id)
+                
+            estimated_cost = request.form.get('estimated_cost')
+            if estimated_cost:
+                schedule.estimated_cost = float(estimated_cost)
+            else:
+                schedule.estimated_cost = None
+                
+            status = request.form.get('status')
+            if status:
+                schedule.status = MaintenanceStatus(status)
+            
+            db.session.commit()
+            
+            # Log the activity
+            log_activity(
+                'maintenance_updated',
+                current_user.id,
+                f"Updated maintenance '{schedule.title}' for asset #{schedule.asset_id}",
+                metadata={
+                    'asset_id': schedule.asset_id,
+                    'scheduled_date': schedule.scheduled_date.isoformat(),
+                    'maintenance_type': schedule.maintenance_type.value,
+                    'status': schedule.status.value
+                }
+            )
+            
+            flash('Maintenance schedule updated successfully', 'success')
+            return redirect(url_for('maintenance.view_schedule', schedule_id=schedule.id))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error updating maintenance schedule: {str(e)}", 'danger')
+    
+    # Get assets for dropdown
+    assets = Asset.query.order_by(Asset.name).all()
+    
+    return render_template('maintenance/edit_schedule.html', 
+                          schedule=schedule,
+                          assets=assets,
+                          maintenance_types=[t.value for t in MaintenanceType],
+                          status_types=[s.value for s in MaintenanceStatus])
+
+@maintenance_bp.route('/schedule/<int:schedule_id>/delete', methods=['POST'])
+@login_required
+def delete_schedule(schedule_id):
+    """Delete a maintenance schedule"""
+    schedule = MaintenanceSchedule.query.get_or_404(schedule_id)
+    
+    try:
+        # Save info for activity log
+        asset_id = schedule.asset_id
+        title = schedule.title
+        
+        db.session.delete(schedule)
+        db.session.commit()
+        
+        # Log the activity
+        log_activity(
+            'maintenance_deleted',
+            current_user.id,
+            f"Deleted maintenance '{title}' for asset #{asset_id}",
+            metadata={
+                'asset_id': asset_id
+            }
+        )
+        
+        flash('Maintenance schedule deleted successfully', 'success')
+        return redirect(url_for('maintenance.index'))
         
     except Exception as e:
         db.session.rollback()
-        return jsonify({'success': False, 'message': str(e)})
+        flash(f"Error deleting maintenance schedule: {str(e)}", 'danger')
+        return redirect(url_for('maintenance.view_schedule', schedule_id=schedule_id))
 
+@maintenance_bp.route('/record/new', methods=['GET', 'POST'])
+@login_required
+def new_record():
+    """Create a new maintenance record"""
+    schedule_id = request.args.get('schedule_id')
+    schedule = None
+    if schedule_id:
+        schedule = MaintenanceSchedule.query.get(schedule_id)
+    
+    if request.method == 'POST':
+        try:
+            # Extract data from form
+            asset_id = int(request.form.get('asset_id'))
+            title = request.form.get('title')
+            description = request.form.get('description', '')
+            maintenance_type = MaintenanceType(request.form.get('maintenance_type'))
+            start_time = datetime.strptime(request.form.get('start_time'), '%Y-%m-%dT%H:%M')
+            
+            end_time_str = request.form.get('end_time')
+            end_time = None
+            if end_time_str:
+                end_time = datetime.strptime(end_time_str, '%Y-%m-%dT%H:%M')
+                
+            actual_duration = request.form.get('actual_duration')
+            if actual_duration:
+                actual_duration = float(actual_duration)
+            
+            actual_cost = request.form.get('actual_cost')
+            if actual_cost:
+                actual_cost = float(actual_cost)
+                
+            parts_used = request.form.get('parts_used', '')
+            
+            technician_id = request.form.get('technician_id')
+            if not technician_id:
+                technician_id = None
+            else:
+                technician_id = int(technician_id)
+                
+            job_site_id = request.form.get('job_site_id')
+            if not job_site_id:
+                job_site_id = None
+            else:
+                job_site_id = int(job_site_id)
+                
+            notes = request.form.get('notes', '')
+            findings = request.form.get('findings', '')
+            follow_up_required = 'follow_up_required' in request.form
+            
+            schedule_id = request.form.get('schedule_id')
+            if not schedule_id:
+                schedule_id = None
+            else:
+                schedule_id = int(schedule_id)
+                # Update the related schedule status if this record completes it
+                if end_time and schedule_id:
+                    schedule = MaintenanceSchedule.query.get(schedule_id)
+                    if schedule:
+                        schedule.status = MaintenanceStatus.COMPLETED
+            
+            # Create new maintenance record
+            record = MaintenanceRecord(
+                schedule_id=schedule_id,
+                asset_id=asset_id,
+                title=title,
+                description=description,
+                maintenance_type=maintenance_type,
+                start_time=start_time,
+                end_time=end_time,
+                actual_duration_hours=actual_duration,
+                actual_cost=actual_cost,
+                parts_used=parts_used,
+                technician_id=technician_id,
+                job_site_id=job_site_id,
+                notes=notes,
+                findings=findings,
+                follow_up_required=follow_up_required,
+                submitted_by_id=current_user.id
+            )
+            
+            db.session.add(record)
+            db.session.commit()
+            
+            # Log the activity
+            log_activity(
+                'maintenance_recorded',
+                current_user.id,
+                f"Recorded maintenance '{title}' for asset #{asset_id}",
+                metadata={
+                    'asset_id': asset_id,
+                    'maintenance_type': maintenance_type.value,
+                    'completed': end_time is not None
+                }
+            )
+            
+            flash('Maintenance record created successfully', 'success')
+            if schedule_id:
+                return redirect(url_for('maintenance.view_schedule', schedule_id=schedule_id))
+            else:
+                return redirect(url_for('maintenance.view_record', record_id=record.id))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error creating maintenance record: {str(e)}", 'danger')
+    
+    # Get assets for dropdown
+    assets = Asset.query.order_by(Asset.name).all()
+    
+    return render_template('maintenance/new_record.html', 
+                          assets=assets,
+                          schedule=schedule,
+                          maintenance_types=[t.value for t in MaintenanceType])
+
+@maintenance_bp.route('/record/<int:record_id>')
+@login_required
+def view_record(record_id):
+    """View a maintenance record"""
+    record = MaintenanceRecord.query.get_or_404(record_id)
+    
+    return render_template('maintenance/view_record.html', record=record)
+
+@maintenance_bp.route('/parts')
+@login_required
+def parts_inventory():
+    """View parts inventory"""
+    parts = MaintenancePart.query.order_by(MaintenancePart.name).all()
+    
+    # Calculate inventory statistics
+    stats = {
+        'total_parts': len(parts),
+        'total_value': sum(part.quantity_on_hand * part.unit_cost for part in parts if part.unit_cost),
+        'low_stock_count': sum(1 for part in parts if part.quantity_on_hand <= part.reorder_level)
+    }
+    
+    return render_template('maintenance/parts_inventory.html', 
+                          parts=parts,
+                          stats=stats)
 
 @maintenance_bp.route('/reports')
 @login_required
-def maintenance_reports():
-    """Display maintenance reports and analytics."""
-    return render_template('maintenance_reports.html')
-
-
-@maintenance_bp.route('/parts/<int:task_id>')
-@login_required
-def task_parts(task_id):
-    """Display parts for a specific maintenance task."""
-    task = MaintenanceTask.query.get(task_id)
-    if not task:
-        flash('Maintenance task not found.', 'danger')
-        return redirect(url_for('maintenance.index'))
+def reports():
+    """Maintenance reports dashboard"""
+    # Calculate report statistics
+    current_month_start = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0)
+    prev_month_start = (current_month_start - timedelta(days=1)).replace(day=1)
     
-    parts = MaintenancePart.query.filter_by(maintenance_task_id=task_id).all()
+    # Maintenance completion stats
+    current_month_completed = MaintenanceRecord.query.filter(
+        MaintenanceRecord.end_time != None,
+        MaintenanceRecord.end_time >= current_month_start
+    ).count()
     
-    return render_template(
-        'maintenance_parts.html',
-        task=task,
-        parts=parts
-    )
+    prev_month_completed = MaintenanceRecord.query.filter(
+        MaintenanceRecord.end_time != None,
+        MaintenanceRecord.end_time >= prev_month_start,
+        MaintenanceRecord.end_time < current_month_start
+    ).count()
+    
+    # Calculate maintenance costs
+    current_month_costs = db.session.query(func.sum(MaintenanceRecord.actual_cost)).filter(
+        MaintenanceRecord.end_time != None,
+        MaintenanceRecord.end_time >= current_month_start
+    ).scalar() or 0
+    
+    prev_month_costs = db.session.query(func.sum(MaintenanceRecord.actual_cost)).filter(
+        MaintenanceRecord.end_time != None,
+        MaintenanceRecord.end_time >= prev_month_start,
+        MaintenanceRecord.end_time < current_month_start
+    ).scalar() or 0
+    
+    # Get assets with most maintenance
+    top_assets = db.session.query(
+        Asset.id, Asset.name, Asset.asset_id, 
+        func.count(MaintenanceRecord.id).label('maintenance_count')
+    ).join(MaintenanceRecord).group_by(Asset.id).order_by(
+        desc('maintenance_count')
+    ).limit(10).all()
+    
+    stats = {
+        'current_month_completed': current_month_completed,
+        'prev_month_completed': prev_month_completed,
+        'percent_change_completed': calculate_percent_change(prev_month_completed, current_month_completed),
+        'current_month_costs': current_month_costs,
+        'prev_month_costs': prev_month_costs,
+        'percent_change_costs': calculate_percent_change(prev_month_costs, current_month_costs),
+        'top_assets': top_assets
+    }
+    
+    return render_template('maintenance/reports.html', stats=stats)
 
-
-@maintenance_bp.route('/part/add', methods=['POST'])
+@maintenance_bp.route('/api/sync', methods=['POST'])
 @login_required
-def add_part():
-    """Add a part to a maintenance task."""
+def sync_external_data():
+    """Sync maintenance data with external systems"""
     try:
-        # Get form data
-        task_id = request.form.get('task_id')
-        part_name = request.form.get('part_name')
-        part_number = request.form.get('part_number')
-        quantity = request.form.get('quantity')
-        unit_cost = request.form.get('unit_cost') or None
-        vendor = request.form.get('vendor')
-        notes = request.form.get('notes')
+        result = sync_maintenance_data()
         
-        # Create part
-        part = MaintenancePart(
-            maintenance_task_id=task_id,
-            part_name=part_name,
-            part_number=part_number,
-            quantity=int(quantity),
-            unit_cost=float(unit_cost) if unit_cost else None,
-            vendor=vendor,
-            notes=notes
+        log_activity(
+            'maintenance_sync',
+            current_user.id,
+            f"Synced maintenance data with external system",
+            metadata=result
         )
         
-        # Save to database
-        db.session.add(part)
-        db.session.commit()
-        
-        flash('Part added successfully.', 'success')
-        return redirect(url_for('maintenance.task_parts', task_id=task_id))
-        
+        return jsonify({
+            'success': True,
+            'message': f"Successfully synced {result['imported']} records",
+            'details': result
+        })
     except Exception as e:
-        db.session.rollback()
-        flash(f'Error adding part: {str(e)}', 'danger')
-        return redirect(url_for('maintenance.index'))
+        return jsonify({
+            'success': False,
+            'message': f"Error syncing maintenance data: {str(e)}"
+        }), 500
 
+@maintenance_bp.route('/export', methods=['POST'])
+@login_required
+def export_maintenance_data():
+    """Export maintenance data to Excel"""
+    report_type = request.form.get('report_type')
+    start_date = request.form.get('start_date')
+    end_date = request.form.get('end_date')
+    
+    if start_date:
+        start_date = datetime.strptime(start_date, '%Y-%m-%d')
+    else:
+        start_date = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0)
+        
+    if end_date:
+        end_date = datetime.strptime(end_date, '%Y-%m-%d')
+    else:
+        # End of current month
+        next_month = start_date.replace(day=28) + timedelta(days=4)
+        end_date = next_month.replace(day=1) - timedelta(days=1)
+    
+    # Create Excel export based on report type
+    if report_type == 'schedules':
+        data = export_schedules(start_date, end_date)
+        filename = f"maintenance_schedules_{start_date.strftime('%Y%m%d')}_to_{end_date.strftime('%Y%m%d')}.xlsx"
+    elif report_type == 'completed':
+        data = export_completed_maintenance(start_date, end_date)
+        filename = f"completed_maintenance_{start_date.strftime('%Y%m%d')}_to_{end_date.strftime('%Y%m%d')}.xlsx"
+    elif report_type == 'costs':
+        data = export_maintenance_costs(start_date, end_date)
+        filename = f"maintenance_costs_{start_date.strftime('%Y%m%d')}_to_{end_date.strftime('%Y%m%d')}.xlsx"
+    else:
+        return jsonify({
+            'success': False,
+            'message': f"Unknown report type: {report_type}"
+        }), 400
+    
+    # Save the Excel file
+    export_dir = os.path.join(current_app.root_path, 'exports')
+    os.makedirs(export_dir, exist_ok=True)
+    export_path = os.path.join(export_dir, filename)
+    data.to_excel(export_path, index=False)
+    
+    # Log the activity
+    log_activity(
+        'maintenance_export',
+        current_user.id,
+        f"Exported maintenance {report_type} report",
+        metadata={
+            'report_type': report_type,
+            'start_date': start_date.isoformat(),
+            'end_date': end_date.isoformat(),
+            'filename': filename
+        }
+    )
+    
+    return jsonify({
+        'success': True,
+        'message': 'Export created successfully',
+        'download_url': url_for('download_export', export_path=filename)
+    })
 
-def register_maintenance_blueprint(app):
-    """Register the maintenance blueprint with the app."""
-    app.register_blueprint(maintenance_bp)
-    print("Registered maintenance blueprint")
-    return app
+# Helper functions
+def get_status_color(status):
+    """Get a color for the calendar event based on status"""
+    color_map = {
+        MaintenanceStatus.SCHEDULED: '#3498db',  # Blue
+        MaintenanceStatus.IN_PROGRESS: '#f39c12',  # Orange
+        MaintenanceStatus.COMPLETED: '#2ecc71',  # Green
+        MaintenanceStatus.OVERDUE: '#e74c3c',  # Red
+        MaintenanceStatus.CANCELED: '#95a5a6',  # Gray
+    }
+    return color_map.get(status, '#3498db')
+
+def calculate_percent_change(old_value, new_value):
+    """Calculate percentage change between two values"""
+    if old_value == 0:
+        return 100 if new_value > 0 else 0
+    return round(((new_value - old_value) / old_value) * 100, 2)
+
+def export_schedules(start_date, end_date):
+    """Export maintenance schedules to DataFrame"""
+    schedules = MaintenanceSchedule.query.filter(
+        MaintenanceSchedule.scheduled_date.between(start_date, end_date)
+    ).all()
+    
+    data = []
+    for schedule in schedules:
+        data.append({
+            'ID': schedule.id,
+            'Asset ID': schedule.asset.asset_id if schedule.asset else '',
+            'Asset Name': schedule.asset.name if schedule.asset else '',
+            'Title': schedule.title,
+            'Description': schedule.description,
+            'Scheduled Date': schedule.scheduled_date,
+            'Duration (Hours)': schedule.estimated_duration_hours,
+            'Maintenance Type': schedule.maintenance_type.value if schedule.maintenance_type else '',
+            'Priority': schedule.priority,
+            'Status': schedule.status.value if schedule.status else '',
+            'Assigned Technician': schedule.technician.name if schedule.technician else '',
+            'Job Site': schedule.job_site.name if schedule.job_site else '',
+            'Estimated Cost': schedule.estimated_cost,
+            'Created By': schedule.created_by.name if schedule.created_by else '',
+            'Created At': schedule.created_at,
+            'Updated At': schedule.updated_at,
+        })
+    
+    return pd.DataFrame(data)
+
+def export_completed_maintenance(start_date, end_date):
+    """Export completed maintenance records to DataFrame"""
+    records = MaintenanceRecord.query.filter(
+        MaintenanceRecord.end_time != None,
+        MaintenanceRecord.end_time.between(start_date, end_date)
+    ).all()
+    
+    data = []
+    for record in records:
+        data.append({
+            'ID': record.id,
+            'Asset ID': record.asset.asset_id if record.asset else '',
+            'Asset Name': record.asset.name if record.asset else '',
+            'Title': record.title,
+            'Description': record.description,
+            'Maintenance Type': record.maintenance_type.value if record.maintenance_type else '',
+            'Start Time': record.start_time,
+            'End Time': record.end_time,
+            'Duration (Hours)': record.actual_duration_hours,
+            'Actual Cost': record.actual_cost,
+            'Parts Used': record.parts_used,
+            'Technician': record.technician.name if record.technician else '',
+            'Job Site': record.job_site.name if record.job_site else '',
+            'Notes': record.notes,
+            'Findings': record.findings,
+            'Follow-up Required': record.follow_up_required,
+            'Submitted By': record.submitted_by.name if record.submitted_by else '',
+            'Submitted At': record.created_at,
+        })
+    
+    return pd.DataFrame(data)
+
+def export_maintenance_costs(start_date, end_date):
+    """Export maintenance costs by asset to DataFrame"""
+    # Get all completed maintenance in the date range
+    records = MaintenanceRecord.query.filter(
+        MaintenanceRecord.end_time != None,
+        MaintenanceRecord.end_time.between(start_date, end_date)
+    ).all()
+    
+    # Group by asset and calculate costs
+    asset_costs = {}
+    for record in records:
+        asset_id = record.asset_id
+        asset_name = record.asset.name if record.asset else f"Asset ID: {asset_id}"
+        asset_key = f"{asset_name} ({record.asset.asset_id})" if record.asset else f"Asset ID: {asset_id}"
+        
+        if asset_key not in asset_costs:
+            asset_costs[asset_key] = {
+                'asset_id': record.asset.asset_id if record.asset else '',
+                'asset_name': asset_name,
+                'total_cost': 0,
+                'maintenance_count': 0,
+                'maintenance_hours': 0,
+                'types': {}
+            }
+        
+        # Add cost if available
+        if record.actual_cost:
+            asset_costs[asset_key]['total_cost'] += record.actual_cost
+        
+        # Increment count
+        asset_costs[asset_key]['maintenance_count'] += 1
+        
+        # Add maintenance hours if available
+        if record.actual_duration_hours:
+            asset_costs[asset_key]['maintenance_hours'] += record.actual_duration_hours
+        
+        # Track by maintenance type
+        maint_type = record.maintenance_type.value if record.maintenance_type else 'unknown'
+        if maint_type not in asset_costs[asset_key]['types']:
+            asset_costs[asset_key]['types'][maint_type] = {
+                'count': 0,
+                'cost': 0
+            }
+        
+        asset_costs[asset_key]['types'][maint_type]['count'] += 1
+        if record.actual_cost:
+            asset_costs[asset_key]['types'][maint_type]['cost'] += record.actual_cost
+    
+    # Flatten data for DataFrame
+    data = []
+    for asset_key, asset_data in asset_costs.items():
+        row = {
+            'Asset ID': asset_data['asset_id'],
+            'Asset Name': asset_data['asset_name'],
+            'Total Cost': asset_data['total_cost'],
+            'Maintenance Count': asset_data['maintenance_count'],
+            'Maintenance Hours': asset_data['maintenance_hours'],
+            'Cost Per Maintenance': asset_data['total_cost'] / asset_data['maintenance_count'] if asset_data['maintenance_count'] > 0 else 0,
+            'Cost Per Hour': asset_data['total_cost'] / asset_data['maintenance_hours'] if asset_data['maintenance_hours'] > 0 else 0,
+        }
+        
+        # Add maintenance type breakdowns
+        for maint_type, type_data in asset_data['types'].items():
+            row[f"{maint_type.capitalize()} Count"] = type_data['count']
+            row[f"{maint_type.capitalize()} Cost"] = type_data['cost']
+        
+        data.append(row)
+    
+    return pd.DataFrame(data)

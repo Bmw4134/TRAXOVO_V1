@@ -1,243 +1,166 @@
 """
-Maintenance Models
+Maintenance Module Models
 
-This module defines database models for equipment maintenance tracking
+This module defines the database models for the maintenance scheduling system.
+It tracks maintenance schedules, history, and integrates with the asset tracking system.
 """
 
+import enum
 from datetime import datetime
+from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean, ForeignKey, Enum, Text
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+
 from app import db
 
-class MaintenanceStatus(db.Model):
-    """
-    Model for tracking maintenance status options
-    """
-    __tablename__ = 'maintenance_statuses'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(32), nullable=False, unique=True)  # e.g., Scheduled, In Progress, Completed
-    description = db.Column(db.Text, nullable=True)
-    color_code = db.Column(db.String(16), nullable=True)  # For UI display
-    
-    # Meta
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    def __repr__(self):
-        return f"<MaintenanceStatus {self.id}: {self.name}>"
 
-class MaintenancePriority(db.Model):
-    """
-    Model for defining maintenance priority levels
-    """
-    __tablename__ = 'maintenance_priorities'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(32), nullable=False, unique=True)  # e.g., Critical, High, Medium, Low
-    description = db.Column(db.Text, nullable=True)
-    color_code = db.Column(db.String(16), nullable=True)  # For UI display
-    sla_hours = db.Column(db.Integer, nullable=True)      # Service Level Agreement in hours
-    
-    # Meta
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    def __repr__(self):
-        return f"<MaintenancePriority {self.id}: {self.name}>"
+class MaintenanceStatus(enum.Enum):
+    """Status enum for maintenance tasks"""
+    SCHEDULED = "scheduled"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+    OVERDUE = "overdue"
+    CANCELED = "canceled"
 
-class MaintenanceType(db.Model):
-    """
-    Model for categorizing different types of maintenance
-    """
-    __tablename__ = 'maintenance_types'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(64), nullable=False, unique=True)
-    description = db.Column(db.Text, nullable=True)
-    interval_days = db.Column(db.Integer, nullable=True)  # Default interval in days
-    interval_hours = db.Column(db.Float, nullable=True)   # Default interval in engine hours
-    estimated_cost = db.Column(db.Float, nullable=True)   # Estimated cost
-    active = db.Column(db.Boolean, default=True)
-    
-    # Meta
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    def __repr__(self):
-        return f"<MaintenanceType {self.id}: {self.name}>"
 
-class MaintenanceNotification(db.Model):
-    """
-    Model for tracking maintenance notifications and alerts
-    """
-    __tablename__ = 'maintenance_notifications'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    asset_id = db.Column(db.Integer, db.ForeignKey('assets.id'), nullable=False)
-    
-    # Notification details
-    notification_type = db.Column(db.String(64), nullable=False)  # scheduled, alert, overdue
-    title = db.Column(db.String(128), nullable=False)
-    message = db.Column(db.Text, nullable=False)
-    priority = db.Column(db.String(32), default='normal')  # low, normal, high, critical
-    
-    # Status
-    status = db.Column(db.String(32), default='pending')  # pending, acknowledged, resolved
-    acknowledged_at = db.Column(db.DateTime, nullable=True)
-    resolved_at = db.Column(db.DateTime, nullable=True)
-    
-    # Meta
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    # Relationships
-    asset = db.relationship('Asset', backref=db.backref('maintenance_notifications', lazy=True))
-    
-    def __repr__(self):
-        return f"<MaintenanceNotification {self.id}: {self.title}>"
+class MaintenanceType(enum.Enum):
+    """Types of maintenance"""
+    PREVENTIVE = "preventive"
+    CORRECTIVE = "corrective"
+    PREDICTIVE = "predictive"
+    EMERGENCY = "emergency"
+    INSPECTION = "inspection"
 
-class MaintenancePart(db.Model):
-    """
-    Model for tracking maintenance parts inventory
-    """
-    __tablename__ = 'maintenance_parts'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    part_number = db.Column(db.String(64), nullable=False, index=True)
-    name = db.Column(db.String(128), nullable=False)
-    description = db.Column(db.Text, nullable=True)
-    cost = db.Column(db.Float, nullable=True)
-    quantity_on_hand = db.Column(db.Integer, default=0)
-    minimum_stock = db.Column(db.Integer, default=0)
-    last_ordered = db.Column(db.Date, nullable=True)
-    supplier = db.Column(db.String(128), nullable=True)
-    
-    # Meta
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    def __repr__(self):
-        return f"<MaintenancePart {self.id}: {self.name}>"
 
 class MaintenanceSchedule(db.Model):
-    """
-    Model for tracking scheduled maintenance
-    """
-    __tablename__ = 'maintenance_schedule'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    asset_id = db.Column(db.Integer, db.ForeignKey('assets.id'), nullable=False)
+    """Model for scheduled maintenance tasks"""
+    __tablename__ = 'maintenance_schedules'
+
+    id = Column(Integer, primary_key=True)
+    asset_id = Column(Integer, ForeignKey('asset.id'), nullable=False, index=True)
+    title = Column(String(128), nullable=False)
+    description = Column(Text)
     
     # Schedule details
-    maintenance_type = db.Column(db.String(64), nullable=False)  # oil_change, inspection, etc
-    scheduled_date = db.Column(db.Date, nullable=False)
-    due_hours = db.Column(db.Float, nullable=True)  # Due at X engine hours
-    interval_hours = db.Column(db.Float, nullable=True)  # Repeat every X engine hours
-    interval_days = db.Column(db.Integer, nullable=True)  # Repeat every X days
+    scheduled_date = Column(DateTime, nullable=False, index=True)
+    estimated_duration_hours = Column(Float, default=1.0)
+    recurrence_interval_days = Column(Integer, default=0)  # 0 = no recurrence
     
-    # Status
-    status = db.Column(db.String(32), default='scheduled')  # scheduled, completed, overdue
-    completed_date = db.Column(db.Date, nullable=True)
-    completed_hours = db.Column(db.Float, nullable=True)
+    # Maintenance metadata
+    maintenance_type = Column(Enum(MaintenanceType), default=MaintenanceType.PREVENTIVE)
+    priority = Column(Integer, default=3)  # 1=highest, 5=lowest
     
-    # Meta
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    # Allocation and assignment
+    assigned_technician_id = Column(Integer, ForeignKey('users.id'))
+    job_site_id = Column(Integer, ForeignKey('job_sites.id'))
+    estimated_cost = Column(Float)
+    
+    # Status tracking
+    status = Column(Enum(MaintenanceStatus), default=MaintenanceStatus.SCHEDULED)
+    notification_sent = Column(Boolean, default=False)
+    
+    # System fields
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_by_id = Column(Integer, ForeignKey('users.id'))
     
     # Relationships
-    asset = db.relationship('Asset', backref=db.backref('maintenance_schedules', lazy=True))
-    
-    def __repr__(self):
-        return f"<MaintenanceSchedule {self.id}: {self.maintenance_type} for asset {self.asset_id}>"
+    asset = relationship('Asset', backref='maintenance_schedules')
+    technician = relationship('User', foreign_keys=[assigned_technician_id], 
+                             backref='assigned_maintenance_tasks')
+    created_by = relationship('User', foreign_keys=[created_by_id])
+    job_site = relationship('JobSite', backref='maintenance_tasks')
+    maintenance_records = relationship('MaintenanceRecord', backref='schedule')
 
-class MaintenanceHistory(db.Model):
-    """
-    Model for tracking equipment maintenance history
-    """
-    __tablename__ = 'maintenance_history'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    asset_id = db.Column(db.Integer, db.ForeignKey('assets.id'), nullable=False)
-    
-    # History details
-    event_type = db.Column(db.String(64), nullable=False)  # maintenance, repair, inspection
-    event_date = db.Column(db.Date, nullable=False)
-    description = db.Column(db.Text, nullable=True)
-    hours_at_event = db.Column(db.Float, nullable=True)
-    cost = db.Column(db.Float, nullable=True)
-    performed_by = db.Column(db.String(128), nullable=True)
-    
-    # Meta
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    # Relationships
-    asset = db.relationship('Asset', backref=db.backref('maintenance_history', lazy=True))
-    
-    def __repr__(self):
-        return f"<MaintenanceHistory {self.id}: {self.event_type} for asset {self.asset_id}>"
 
 class MaintenanceRecord(db.Model):
-    """
-    Model for tracking equipment maintenance records
-    """
+    """Model for completed maintenance records"""
     __tablename__ = 'maintenance_records'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    asset_id = db.Column(db.Integer, db.ForeignKey('assets.id'), nullable=False)
-    
-    # Maintenance details
-    service_type = db.Column(db.String(64), nullable=False)  # oil_change, inspection, repair
-    service_date = db.Column(db.Date, nullable=False)
-    technician = db.Column(db.String(128), nullable=True)
-    service_location = db.Column(db.String(128), nullable=True)
-    cost = db.Column(db.Float, nullable=True)
-    notes = db.Column(db.Text, nullable=True)
-    
-    # Service intervals
-    last_service_hours = db.Column(db.Float, nullable=True)  # Engine hours at last service
-    current_hours = db.Column(db.Float, nullable=True)       # Current engine hours
-    hours_interval = db.Column(db.Integer, nullable=True)    # Service interval in hours
-    days_interval = db.Column(db.Integer, nullable=True)     # Service interval in days
-    
-    # Meta
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    # Relationships
-    asset = db.relationship('Asset', backref=db.backref('maintenance_records', lazy=True))
-    
-    def __repr__(self):
-        return f"<MaintenanceRecord {self.id}: {self.service_type} for asset {self.asset_id}>"
 
-class MaintenanceTask(db.Model):
-    """
-    Model for scheduled maintenance tasks
-    """
-    __tablename__ = 'maintenance_tasks'
+    id = Column(Integer, primary_key=True)
+    schedule_id = Column(Integer, ForeignKey('maintenance_schedules.id'), nullable=True)
+    asset_id = Column(Integer, ForeignKey('asset.id'), nullable=False, index=True)
     
-    id = db.Column(db.Integer, primary_key=True)
-    asset_id = db.Column(db.Integer, db.ForeignKey('assets.id'), nullable=False)
+    # Record details
+    title = Column(String(128), nullable=False)
+    description = Column(Text)
+    maintenance_type = Column(Enum(MaintenanceType))
     
-    # Task details
-    task_name = db.Column(db.String(128), nullable=False)
-    description = db.Column(db.Text, nullable=True)
-    priority = db.Column(db.String(32), nullable=False, default='normal')  # low, normal, high, critical
+    # Timestamps and duration
+    start_time = Column(DateTime, nullable=False)
+    end_time = Column(DateTime)
+    actual_duration_hours = Column(Float)
     
-    # Scheduling
-    due_date = db.Column(db.Date, nullable=True)
-    scheduled_date = db.Column(db.Date, nullable=True)
-    completed_date = db.Column(db.Date, nullable=True)
-    assigned_to = db.Column(db.String(128), nullable=True)
+    # Cost and resources
+    actual_cost = Column(Float)
+    parts_used = Column(Text)
+    technician_id = Column(Integer, ForeignKey('users.id'))
     
-    # Status
-    status = db.Column(db.String(32), nullable=False, default='pending')  # pending, scheduled, in_progress, completed, canceled
+    # Location and notes
+    job_site_id = Column(Integer, ForeignKey('job_sites.id'))
+    notes = Column(Text)
+    findings = Column(Text)
+    follow_up_required = Column(Boolean, default=False)
     
-    # Meta
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    # System fields
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    submitted_by_id = Column(Integer, ForeignKey('users.id'))
     
     # Relationships
-    asset = db.relationship('Asset', backref=db.backref('maintenance_tasks', lazy=True))
+    asset = relationship('Asset', backref='maintenance_records')
+    technician = relationship('User', foreign_keys=[technician_id], 
+                             backref='completed_maintenance_tasks')
+    submitted_by = relationship('User', foreign_keys=[submitted_by_id])
+    job_site = relationship('JobSite', backref='maintenance_records')
+
+
+class MaintenancePart(db.Model):
+    """Model for maintenance parts inventory"""
+    __tablename__ = 'maintenance_parts'
+
+    id = Column(Integer, primary_key=True)
+    part_number = Column(String(64), nullable=False, unique=True, index=True)
+    name = Column(String(128), nullable=False)
+    description = Column(Text)
     
-    def __repr__(self):
-        return f"<MaintenanceTask {self.id}: {self.task_name} for asset {self.asset_id}>"
+    # Inventory details
+    quantity_on_hand = Column(Integer, default=0)
+    unit_cost = Column(Float, default=0.0)
+    reorder_level = Column(Integer, default=5)
+    reorder_quantity = Column(Integer, default=10)
+    
+    # Metadata
+    category = Column(String(64))
+    location = Column(String(128))
+    supplier = Column(String(128))
+    manufacturer = Column(String(128))
+    
+    # System fields
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Usage tracking
+    maintenance_part_usages = relationship('MaintenancePartUsage', backref='part')
+
+
+class MaintenancePartUsage(db.Model):
+    """Model for tracking parts used in maintenance"""
+    __tablename__ = 'maintenance_part_usages'
+
+    id = Column(Integer, primary_key=True)
+    maintenance_record_id = Column(Integer, ForeignKey('maintenance_records.id'), nullable=False)
+    part_id = Column(Integer, ForeignKey('maintenance_parts.id'), nullable=False)
+    
+    # Usage details
+    quantity = Column(Integer, default=1)
+    cost_per_unit = Column(Float)
+    total_cost = Column(Float)
+    
+    # System fields
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    maintenance_record = relationship('MaintenanceRecord', 
+                                     backref='part_usages')

@@ -327,12 +327,41 @@ def process_allocation_file(file_path):
                         # This is a headerless CSV with the format we know
                         logger.info(f"Detected headerless division-specific CSV: {filename}")
                         
-                        # Define the headers based on the sample we saw
+                        # Define the headers based on the CSV file format we're seeing
                         headers = ["equip_id", "description", "date", "job", "phase", "cost_code", 
                                 "units", "rate", "frequency", "monthly_rate", "amount"]
                         
+                        # Add specific handling for divisions
+                        if "WT" in filename or "03" in filename:
+                            logger.info(f"Processing WTX division file: {filename}")
+                            division = "WTX"
+                        elif "DFW" in filename or "01" in filename:
+                            logger.info(f"Processing DFW division file: {filename}")
+                            division = "DFW"
+                        elif "HOU" in filename or "02" in filename:
+                            logger.info(f"Processing HOU division file: {filename}")
+                            division = "HOU"
+                        elif "SELECT" in filename or "SM" in filename:
+                            logger.info(f"Processing SELECT division file: {filename}")
+                            division = "SELECT"
+                            
                         # Read the CSV file without headers
-                        df = pd.read_csv(file_path, header=None, names=headers)
+                        try:
+                            df = pd.read_csv(file_path, header=None, names=headers)
+                            # After reading, check data validity
+                            logger.info(f"Successfully loaded {len(df)} records with {len(df.columns)} columns")
+                            # Log first row for debugging
+                            if not df.empty:
+                                logger.info(f"First row sample: {df.iloc[0].to_dict()}")
+                        except Exception as e:
+                            logger.error(f"Error reading CSV: {str(e)}")
+                            # Try reading with different encoding or delimiter
+                            try:
+                                df = pd.read_csv(file_path, header=None, names=headers, encoding='latin1')
+                                logger.info(f"Successfully loaded with latin1 encoding: {len(df)} records")
+                            except Exception as e2:
+                                logger.error(f"Failed with alternative encoding: {str(e2)}")
+                                return pd.DataFrame()
                         
                         # Add division column
                         df['division'] = division

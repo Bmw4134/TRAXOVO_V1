@@ -5,7 +5,7 @@ This module processes multiple PM allocation files to create a consolidated
 master billing report and generates division-specific exports.
 
 Features:
-- Extracts data from all PM allocation files
+- Extracts data from all PM allocation files (XLSX and CSV)
 - Maps equipment numbers to metadata
 - Applies correct billing rates based on frequency
 - Generates master billing workbook and division-specific exports
@@ -22,14 +22,17 @@ import logging
 from pathlib import Path
 import glob
 import re
+import csv
 
+# Configure debug logging
+logging.basicConfig(level=logging.INFO)
 # Set up logger
 logger = logging.getLogger(__name__)
 
 # Constants
 ATTACHED_ASSETS_DIR = Path('attached_assets')
 EXPORTS_DIR = Path('exports/pm_master')
-DIVISIONS = ['DFW', 'HOU', 'WTX', 'SELECT']
+DIVISIONS = ['DFW', 'WTX', 'HOU', 'SELECT']
 MONTH_NAME = 'APRIL'  # Default month for current processing
 YEAR = '2025'  # Default year for current processing
 
@@ -38,17 +41,17 @@ EXPORTS_DIR.mkdir(exist_ok=True, parents=True)
 
 # Column mapping for standardization across different source files
 COLUMN_MAPPING = {
-    'equip_id': ['EQ#', 'EQ #', 'EQUIPMENT #', 'EQUIP #', 'EQUIP. #', 'EQUIPMENT_ID', 'EQUIPMENT NUMBER'],
-    'description': ['DESCRIPTION', 'DESC', 'EQUIPMENT DESC', 'EQUIP DESCRIPTION'],
-    'job': ['JOB', 'JOB #', 'PROJECT', 'JOB_NUMBER', 'JOB_CODE', 'JOB CODE', 'JOB NUMBER'],
-    'date': ['DATE', 'START DATE', 'START', 'BEGIN DATE', 'ALLOCATION DATE'],
-    'units': ['UNITS', 'DAYS', 'HRS', 'HOURS', 'QUANTITY'],
-    'frequency': ['FREQUENCY', 'RATE TYPE', 'BILLING TYPE', 'BILL TYPE', 'FREQUENCY TYPE'],
-    'amount': ['AMOUNT', 'TOTAL', 'EXTENDED', 'EXTENDED AMOUNT', 'EXTENDED PRICE', 'COST'],
-    'rate': ['RATE', 'UNIT PRICE', 'PRICE', 'UNIT RATE', 'RATE AMOUNT'],
-    'division': ['DIVISION', 'DIV', 'REGION', 'LOCATION', 'BRANCH'],
-    'cost_code': ['COST CODE', 'COSTCODE', 'ACCT CODE', 'ACCOUNT CODE'],
-    'phase': ['PHASE', 'PH', 'PHASE CODE']
+    'equip_id': ['EQ#', 'EQ #', 'EQUIPMENT #', 'EQUIP #', 'EQUIP. #', 'EQUIPMENT_ID', 'EQUIPMENT NUMBER', 'EQUIPMENT', 'TRUCK#'],
+    'description': ['DESCRIPTION', 'DESC', 'EQUIPMENT DESC', 'EQUIP DESCRIPTION', 'TYPE', 'EQUIPMENT TYPE'],
+    'job': ['JOB', 'JOB #', 'PROJECT', 'JOB_NUMBER', 'JOB_CODE', 'JOB CODE', 'JOB NUMBER', 'JOB NAME', 'PROJECT NAME'],
+    'date': ['DATE', 'START DATE', 'START', 'BEGIN DATE', 'ALLOCATION DATE', 'SERVICE DATE', 'BILLING DATE'],
+    'units': ['UNITS', 'DAYS', 'HRS', 'HOURS', 'QUANTITY', 'QTY', 'DAYS USED'],
+    'frequency': ['FREQUENCY', 'RATE TYPE', 'BILLING TYPE', 'BILL TYPE', 'FREQUENCY TYPE', 'TYPE'],
+    'amount': ['AMOUNT', 'TOTAL', 'EXTENDED', 'EXTENDED AMOUNT', 'EXTENDED PRICE', 'COST', 'BILLING', 'BILLINGS'],
+    'rate': ['RATE', 'UNIT PRICE', 'PRICE', 'UNIT RATE', 'RATE AMOUNT', 'DAILY RATE', 'MONTHLY RATE', 'HOURLY RATE'],
+    'division': ['DIVISION', 'DIV', 'REGION', 'LOCATION', 'BRANCH', 'AREA', 'DISTRICT'],
+    'cost_code': ['COST CODE', 'COSTCODE', 'ACCT CODE', 'ACCOUNT CODE', 'CODE'],
+    'phase': ['PHASE', 'PH', 'PHASE CODE', 'PHASE NUMBER']
 }
 
 # Rate mapping based on frequency
@@ -69,42 +72,79 @@ FREQUENCY_MAPPING = {
 def find_matching_column(df, patterns):
     """Find the first column that matches one of the patterns"""
     for col in df.columns:
-        col_str = str(col).upper()
+        col_str = str(col).strip().upper()
         for pattern in patterns:
             if re.search(pattern, col_str, re.IGNORECASE):
                 return col
     return None
 
 def find_all_allocation_files():
-    """Find all EQMO allocation files in the attached_assets directory"""
+    """Find all allocation files (XLSX and CSV) in the attached_assets directory"""
     allocation_files = []
     
     # Look for Excel files containing EQMO and BILLING ALLOCATIONS in the filename
-    pattern = os.path.join(ATTACHED_ASSETS_DIR, '*EQMO*BILLING*ALLOCATIONS*.xlsx')
-    files = glob.glob(pattern)
+    excel_pattern = os.path.join(ATTACHED_ASSETS_DIR, '*EQMO*BILLING*ALLOCATIONS*.xlsx')
+    excel_files = glob.glob(excel_pattern)
+    allocation_files.extend(excel_files)
     
-    logger.info(f"Found {len(files)} allocation files matching pattern")
-    return files
+    # Look for RAGLE EQ BILLINGS file which contains the rate information
+    ragle_pattern = os.path.join(ATTACHED_ASSETS_DIR, 'RAGLE*EQ*BILLINGS*.xls*')
+    ragle_files = glob.glob(ragle_pattern)
+    allocation_files.extend(ragle_files)
+    
+    # Look for division-specific CSV files
+    for division in DIVISIONS:
+        # Try different naming patterns for CSV files
+        csv_patterns = [
+            os.path.join(ATTACHED_ASSETS_DIR, f'*{division}*APR*2025*.csv'),
+            os.path.join(ATTACHED_ASSETS_DIR, f'*{division}*APRIL*2025*.csv'),
+            os.path.join(ATTACHED_ASSETS_DIR, f'SM*{division}*APR*.csv'),
+            os.path.join(ATTACHED_ASSETS_DIR, f'*{division}*.csv'),
+        ]
+        
+        for pattern in csv_patterns:
+            csv_files = glob.glob(pattern)
+            allocation_files.extend(csv_files)
+    
+    # Remove duplicates while preserving order
+    seen = set()
+    allocation_files = [x for x in allocation_files if not (x in seen or seen.add(x))]
+    
+    logger.info(f"Found {len(allocation_files)} allocation files matching patterns")
+    return allocation_files
 
 def find_equipment_rates_file():
     """Find the equipment rates file or master billing workbook"""
-    # Look for the monthly billing working spreadsheet first
-    pattern = os.path.join(ATTACHED_ASSETS_DIR, '*EQ*MONTHLY*BILLINGS*WORKING*.xlsx')
-    files = glob.glob(pattern)
+    # First, look for RAGLE EQ BILLINGS file which has the April 2025 rates
+    ragle_pattern = os.path.join(ATTACHED_ASSETS_DIR, 'RAGLE*EQ*BILLINGS*APRIL*2025*.xls*')
+    files = glob.glob(ragle_pattern)
+    
+    if not files:
+        # Try other patterns for the RAGLE file
+        ragle_pattern = os.path.join(ATTACHED_ASSETS_DIR, 'RAGLE*EQ*BILLINGS*.xls*')
+        files = glob.glob(ragle_pattern)
+    
+    if files:
+        logger.info(f"Found equipment rates in RAGLE file: {os.path.basename(files[0])}")
+        return files[0]
+    
+    # Look for the EQ MONTHLY BILLINGS file as fallback
+    eq_monthly_pattern = os.path.join(ATTACHED_ASSETS_DIR, 'EQ*MONTHLY*BILLINGS*.xlsx')
+    files = glob.glob(eq_monthly_pattern)
     
     if files:
         logger.info(f"Found equipment rates in monthly billing spreadsheet: {os.path.basename(files[0])}")
         return files[0]
     
-    # If not found, look for equipment rates file
-    pattern = os.path.join(ATTACHED_ASSETS_DIR, '*EQUIPMENT*RATES*.xlsx')
-    files = glob.glob(pattern)
+    # As a last resort, look for any equipment rates workbook
+    rates_pattern = os.path.join(ATTACHED_ASSETS_DIR, '*EQUIP*RATES*.xlsx')
+    files = glob.glob(rates_pattern)
     
     if files:
         logger.info(f"Found equipment rates file: {os.path.basename(files[0])}")
         return files[0]
     
-    logger.warning("Equipment rates file not found. Will proceed without rates.")
+    logger.warning("No equipment rates file found. Will proceed without rates.")
     return None
 
 def extract_equipment_rates(rates_file):
@@ -113,290 +153,483 @@ def extract_equipment_rates(rates_file):
         return pd.DataFrame()
     
     try:
+        # Check if it's a RAGLE file which has a specific format
+        is_ragle_file = 'RAGLE' in os.path.basename(rates_file).upper()
+        
         # Load the workbook
         wb = openpyxl.load_workbook(rates_file, data_only=True)
         
-        # Look for the rates sheet - it's either named "Equip Rates" or contains "RATES" in the name
-        rates_sheet = None
-        for sheet_name in wb.sheetnames:
-            if 'EQUIP RATES' in sheet_name.upper() or 'RATES' in sheet_name.upper():
-                rates_sheet = sheet_name
-                break
+        # For RAGLE files, look for the "Equip Rates" sheet specifically
+        if is_ragle_file:
+            rates_sheet = None
+            for sheet_name in wb.sheetnames:
+                if 'EQUIP RATES' in sheet_name.upper():
+                    rates_sheet = sheet_name
+                    break
+            
+            if not rates_sheet:
+                # If no "Equip Rates" sheet, look for sheets with "RATES" in the name
+                for sheet_name in wb.sheetnames:
+                    if 'RATES' in sheet_name.upper():
+                        rates_sheet = sheet_name
+                        break
+        # For non-RAGLE files, use a more general approach
+        else:
+            rates_sheet = None
+            sheet_patterns = ['EQUIP RATES', 'RATES', 'EQUIPMENT', 'BILLING RATES', 'MONTHLY RATES']
+            
+            for pattern in sheet_patterns:
+                for sheet_name in wb.sheetnames:
+                    if pattern in sheet_name.upper():
+                        rates_sheet = sheet_name
+                        break
+                if rates_sheet:
+                    break
         
         if not rates_sheet:
             rates_sheet = wb.sheetnames[0]  # Default to first sheet
             
-        logger.info(f"Using sheet '{rates_sheet}' for equipment rates")
+        logger.info(f"Using sheet '{rates_sheet}' for equipment rates from file: {os.path.basename(rates_file)}")
         
         # Load the sheet into a DataFrame
         df = pd.read_excel(rates_file, sheet_name=rates_sheet)
         
         # Find the equipment ID and rate columns
         equip_col = find_matching_column(df, COLUMN_MAPPING['equip_id'])
+        monthly_rate_col = find_matching_column(df, ['MONTHLY RATE', 'MONTHLY', 'MO RATE'])
+        daily_rate_col = find_matching_column(df, ['DAILY RATE', 'DAILY', 'DAY RATE'])
+        hourly_rate_col = find_matching_column(df, ['HOURLY RATE', 'HOURLY', 'HR RATE'])
+        desc_col = find_matching_column(df, COLUMN_MAPPING['description'])
         
-        # Look for rate columns (monthly, hourly, daily, weekly)
-        rate_columns = {}
-        for col in df.columns:
-            col_str = str(col).upper()
-            if 'MONTHLY' in col_str or 'MO RATE' in col_str or 'MONTH RATE' in col_str:
-                rate_columns['MONTHLY'] = col
-            elif 'HOURLY' in col_str or 'HR RATE' in col_str or 'HOUR RATE' in col_str:
-                rate_columns['HOURLY'] = col
-            elif 'DAILY' in col_str or 'DAY RATE' in col_str:
-                rate_columns['DAILY'] = col
-            elif 'WEEKLY' in col_str or 'WK RATE' in col_str or 'WEEK RATE' in col_str:
-                rate_columns['WEEKLY'] = col
-        
-        # Create a clean rates DataFrame
-        if equip_col and rate_columns:
-            # Get equipment IDs and rates
-            rates_data = []
-            for _, row in df.iterrows():
-                equip_id = row[equip_col]
-                if pd.notna(equip_id):
-                    equip_rates = {'EQUIPMENT_ID': str(equip_id).strip()}
-                    for rate_type, rate_col in rate_columns.items():
-                        rate = row[rate_col] if pd.notna(row[rate_col]) else 0
-                        equip_rates[rate_type + '_RATE'] = rate
-                    rates_data.append(equip_rates)
-            
-            return pd.DataFrame(rates_data)
-        else:
-            logger.warning("Could not identify equipment ID or rate columns in rates file")
+        if not equip_col:
+            logger.error("Equipment ID column not found in rates file")
             return pd.DataFrame()
-    
+        
+        # Create a standardized rates DataFrame
+        rates_df = pd.DataFrame()
+        rates_df['EQUIPMENT_ID'] = df[equip_col].astype(str).str.strip().str.upper()
+        
+        # Add description if available
+        if desc_col:
+            rates_df['DESCRIPTION'] = df[desc_col].astype(str).str.strip()
+        else:
+            rates_df['DESCRIPTION'] = ""
+        
+        # Add rates by frequency
+        if monthly_rate_col:
+            rates_df['MONTHLY_RATE'] = pd.to_numeric(df[monthly_rate_col], errors='coerce').fillna(0)
+        else:
+            rates_df['MONTHLY_RATE'] = 0
+            
+        if daily_rate_col:
+            rates_df['DAILY_RATE'] = pd.to_numeric(df[daily_rate_col], errors='coerce').fillna(0)
+        else:
+            rates_df['DAILY_RATE'] = 0
+            
+        if hourly_rate_col:
+            rates_df['HOURLY_RATE'] = pd.to_numeric(df[hourly_rate_col], errors='coerce').fillna(0)
+        else:
+            rates_df['HOURLY_RATE'] = 0
+        
+        # Remove rows with no equipment ID or all zero rates
+        rates_df = rates_df[rates_df['EQUIPMENT_ID'].notna()]
+        rates_df = rates_df[~(rates_df['EQUIPMENT_ID'] == '')]
+        rates_df = rates_df[~((rates_df['MONTHLY_RATE'] == 0) & 
+                              (rates_df['DAILY_RATE'] == 0) & 
+                              (rates_df['HOURLY_RATE'] == 0))]
+        
+        # Standardize equipment ID format to match allocation files
+        rates_df['EQUIPMENT_ID'] = rates_df['EQUIPMENT_ID'].str.replace(r'\s+', '', regex=True)
+        
+        logger.info(f"Extracted {len(rates_df)} equipment rates")
+        return rates_df
+        
     except Exception as e:
         logger.error(f"Error extracting equipment rates: {str(e)}")
         return pd.DataFrame()
 
 def process_allocation_file(file_path):
     """Process a single allocation file to extract equipment billing data"""
-    file_name = os.path.basename(file_path)
-    logger.info(f"Processing allocation file: {file_name}")
+    logger.info(f"Processing allocation file: {os.path.basename(file_path)}")
+    file_ext = os.path.splitext(file_path)[1].lower()
     
     try:
-        # Read the Excel file
-        df = pd.read_excel(file_path)
-        
-        # Find the key columns
-        equip_col = find_matching_column(df, COLUMN_MAPPING['equip_id'])
-        desc_col = find_matching_column(df, COLUMN_MAPPING['description'])
-        job_col = find_matching_column(df, COLUMN_MAPPING['job'])
-        date_col = find_matching_column(df, COLUMN_MAPPING['date'])
-        units_col = find_matching_column(df, COLUMN_MAPPING['units'])
-        freq_col = find_matching_column(df, COLUMN_MAPPING['frequency'])
-        amount_col = find_matching_column(df, COLUMN_MAPPING['amount'])
-        rate_col = find_matching_column(df, COLUMN_MAPPING['rate'])
-        div_col = find_matching_column(df, COLUMN_MAPPING['division'])
-        cost_code_col = find_matching_column(df, COLUMN_MAPPING['cost_code'])
-        phase_col = find_matching_column(df, COLUMN_MAPPING['phase'])
-        
-        if not equip_col:
-            logger.warning(f"Equipment ID column not found in {file_name}")
-            return pd.DataFrame()
-        
-        # Extract job code from filename if not found in the data
-        job_from_filename = None
-        for part in file_name.split():
-            if part.startswith('202') and '-' in part:
-                job_from_filename = part
-                break
-        
-        # Infer division from filename if not found in the data
-        div_from_filename = None
-        for div in DIVISIONS:
-            if div in file_name.upper():
-                div_from_filename = div
-                break
-        
-        # Process each row to extract billing data
-        billing_data = []
-        for idx, row in df.iterrows():
-            # Skip rows without equipment ID
-            if equip_col and (not pd.notna(row[equip_col]) or str(row[equip_col]).strip() == ''):
-                continue
+        # Handle different file formats
+        if file_ext == '.csv':
+            # Determine if it's a division-specific CSV
+            filename = os.path.basename(file_path).upper()
+            is_division_csv = any(div in filename for div in DIVISIONS)
             
-            equip_id = str(row[equip_col]).strip() if equip_col else ""
-            description = str(row[desc_col]).strip() if desc_col and pd.notna(row[desc_col]) else ""
-            job = str(row[job_col]).strip() if job_col and pd.notna(row[job_col]) else job_from_filename or ""
-            date = row[date_col] if date_col and pd.notna(row[date_col]) else datetime.now()
-            units = float(row[units_col]) if units_col and pd.notna(row[units_col]) else 0
-            frequency = str(row[freq_col]).strip().upper() if freq_col and pd.notna(row[freq_col]) else "MONTHLY"
-            amount = float(row[amount_col]) if amount_col and pd.notna(row[amount_col]) else 0
-            rate = float(row[rate_col]) if rate_col and pd.notna(row[rate_col]) else 0
-            division = str(row[div_col]).strip().upper() if div_col and pd.notna(row[div_col]) else div_from_filename or ""
-            cost_code = str(row[cost_code_col]).strip() if cost_code_col and pd.notna(row[cost_code_col]) else ""
-            phase = str(row[phase_col]).strip() if phase_col and pd.notna(row[phase_col]) else ""
-            
-            # Standardize frequency
-            if frequency in FREQUENCY_MAPPING:
-                frequency = FREQUENCY_MAPPING[frequency]
-            elif any(freq in frequency for freq in FREQUENCY_MAPPING.keys()):
-                for key, value in FREQUENCY_MAPPING.items():
-                    if key in frequency:
-                        frequency = value
-                        break
-            else:
-                frequency = "MONTHLY"  # Default to monthly if unknown
-            
-            # Calculate amount if not available but rate and units are
-            if amount == 0 and rate > 0 and units > 0:
-                amount = rate * units
-            
-            # Calculate rate if not available but amount and units are
-            if rate == 0 and amount > 0 and units > 0:
-                rate = amount / units
-            
-            # Format date correctly
-            if isinstance(date, str):
+            # For division-specific CSVs which might have different formats
+            if is_division_csv:
+                logger.info(f"Processing division-specific CSV: {filename}")
+                # Try with various options to handle different CSV formats
                 try:
-                    date = datetime.strptime(date, '%Y-%m-%d')
+                    df = pd.read_csv(file_path, encoding='utf-8')
                 except:
                     try:
-                        date = datetime.strptime(date, '%m/%d/%Y')
+                        df = pd.read_csv(file_path, encoding='latin1')
                     except:
-                        date = datetime.now()
-            
-            # Add to billing data
-            billing_data.append({
-                'EQUIPMENT_ID': equip_id,
-                'DESCRIPTION': description,
-                'JOB': job,
-                'DATE': date,
-                'UNITS': units,
-                'FREQUENCY': frequency,
-                'RATE': rate,
-                'AMOUNT': amount,
-                'DIVISION': division,
-                'COST_CODE': cost_code,
-                'PHASE': phase,
-                'SOURCE_FILE': file_name
-            })
+                        df = pd.read_csv(file_path, encoding='utf-8', sep=';')
+            else:
+                # Standard CSV
+                df = pd.read_csv(file_path)
         
-        return pd.DataFrame(billing_data)
+        elif file_ext in ['.xlsx', '.xls', '.xlsm']:
+            # For Excel files, we need to determine the correct sheet
+            excel_file = pd.ExcelFile(file_path)
+            
+            # Look for sheets with allocation or billing data
+            sheet_name = None
+            sheet_keywords = ['BILLINGS', 'ALLOCATION', 'DATA', 'EQUIP BILLINGS', 'EQUIP']
+            
+            for keyword in sheet_keywords:
+                matching_sheets = [s for s in excel_file.sheet_names if keyword in s.upper()]
+                if matching_sheets:
+                    sheet_name = matching_sheets[0]
+                    break
+            
+            # If no specific sheet found, use the first sheet
+            if not sheet_name and excel_file.sheet_names:
+                sheet_name = excel_file.sheet_names[0]
+            
+            if sheet_name:
+                logger.info(f"Using sheet '{sheet_name}' from {os.path.basename(file_path)}")
+                df = pd.read_excel(file_path, sheet_name=sheet_name)
+            else:
+                logger.error(f"No valid sheets found in {os.path.basename(file_path)}")
+                return pd.DataFrame()
+        else:
+            logger.error(f"Unsupported file format: {file_ext}")
+            return pd.DataFrame()
+        
+        # Find standardized column names
+        data = {}
+        for col_type, patterns in COLUMN_MAPPING.items():
+            col = find_matching_column(df, patterns)
+            if col:
+                data[col_type] = col
+        
+        # Skip if essential columns are missing
+        if 'equip_id' not in data or 'job' not in data:
+            logger.warning(f"Missing essential columns in file: {os.path.basename(file_path)}")
+            
+            # Special handling for division-specific CSVs which might have non-standard formats
+            filename = os.path.basename(file_path).upper()
+            if any(div in filename for div in DIVISIONS):
+                logger.info(f"Attempting special handling for division file: {filename}")
+                
+                # For some division files, the equipment might be in a different format
+                # Try to identify potential equipment ID columns based on values matching equipment patterns
+                if 'equip_id' not in data:
+                    for col in df.columns:
+                        # Check if column values match typical equipment number patterns
+                        sample_values = df[col].astype(str).str.strip().dropna().head(10).tolist()
+                        if any(re.match(r'^[A-Z]+\d+$', str(val)) for val in sample_values):
+                            data['equip_id'] = col
+                            logger.info(f"Found potential equipment ID column: {col}")
+                            break
+                
+                # For job column, look for columns with typical job number formats
+                if 'job' not in data:
+                    for col in df.columns:
+                        sample_values = df[col].astype(str).str.strip().dropna().head(10).tolist()
+                        if any(re.match(r'^\d{4}-\d{3}$', str(val)) for val in sample_values):
+                            data['job'] = col
+                            logger.info(f"Found potential job column: {col}")
+                            break
+            
+            # If still missing essential columns, skip this file
+            if 'equip_id' not in data or 'job' not in data:
+                logger.error(f"Unable to find essential columns in file: {os.path.basename(file_path)}")
+                return pd.DataFrame()
+        
+        # Extract filename elements to determine division if not found in the data
+        if 'division' not in data:
+            filename = os.path.basename(file_path).upper()
+            for div in DIVISIONS:
+                if div in filename:
+                    logger.info(f"Determined division {div} from filename")
+                    df['DIVISION'] = div
+                    data['division'] = 'DIVISION'
+                    break
+            
+            # If still no division, check if we can determine from file path or contents
+            if 'division' not in data:
+                # Check for patterns in sheet content that might indicate division
+                for div in DIVISIONS:
+                    # Check if division appears in any cell in the first few rows
+                    for col in df.columns:
+                        if df[col].astype(str).str.contains(div, case=False, na=False).any():
+                            logger.info(f"Determined division {div} from content")
+                            df['DIVISION'] = div
+                            data['division'] = 'DIVISION'
+                            break
+                    if 'division' in data:
+                        break
+        
+        # Standardize column names for further processing
+        rename_dict = {data[col_type]: col_type for col_type in data}
+        
+        # Add any missing columns with default values
+        for col_type in COLUMN_MAPPING.keys():
+            if col_type not in data:
+                df[col_type] = None
+                
+                # Provide default values for required fields
+                if col_type == 'frequency':
+                    df[col_type] = 'MONTHLY'  # Default billing frequency
+                elif col_type == 'date':
+                    df[col_type] = f'APRIL 1, {YEAR}'  # Default date
+                elif col_type == 'phase':
+                    df[col_type] = '01'  # Default phase
+                elif col_type == 'cost_code':
+                    df[col_type] = '10-100'  # Default cost code
+        
+        # Rename columns to standardized names
+        df = df.rename(columns=rename_dict)
+        
+        # Filter out rows with no equipment ID
+        df = df[df['equip_id'].notna()]
+        
+        # Standardize equipment ID format (remove spaces, leading zeros, etc.)
+        df['equip_id'] = df['equip_id'].astype(str).str.strip().str.upper()
+        df['equip_id'] = df['equip_id'].str.replace(r'\s+', '', regex=True)  # Remove all whitespace
+        
+        # Ensure numeric columns are correctly typed
+        if 'units' in df.columns:
+            df['units'] = pd.to_numeric(df['units'], errors='coerce').fillna(0)
+        
+        if 'rate' in df.columns:
+            df['rate'] = pd.to_numeric(df['rate'], errors='coerce').fillna(0)
+        
+        if 'amount' in df.columns:
+            df['amount'] = pd.to_numeric(df['amount'], errors='coerce').fillna(0)
+        
+        # Standardize job numbers
+        if 'job' in df.columns:
+            # Standardize job number format (e.g., '2024-015')
+            df['job'] = df['job'].astype(str).str.strip().str.upper()
+            
+            # Fix common job number format issues
+            # Convert patterns like "24-15" to "2024-015"
+            df['job'] = df['job'].apply(lambda x: re.sub(r'^(\d{2})-(\d{1,3})$', 
+                                                        lambda m: f'20{m.group(1)}-{m.group(2).zfill(3)}', 
+                                                        str(x)) if pd.notna(x) else x)
+        
+        # Add source file column for tracking
+        df['source_file'] = os.path.basename(file_path)
+        
+        logger.info(f"Successfully processed {os.path.basename(file_path)}: Found {len(df)} equipment records")
+        return df
     
     except Exception as e:
-        logger.error(f"Error processing allocation file {file_name}: {str(e)}")
+        logger.error(f"Error processing file {os.path.basename(file_path)}: {str(e)}")
         return pd.DataFrame()
 
 def generate_master_billing(allocation_data, rates_data):
     """Generate the master billing dataset by applying rates to allocation data"""
-    # Create a copy of the allocation data
-    master_billing = allocation_data.copy()
+    if allocation_data.empty:
+        logger.error("No allocation data provided")
+        return pd.DataFrame()
     
-    # Add rates if available
+    logger.info(f"Generating master billing from {len(allocation_data)} allocation records")
+    
+    # Create a copy to avoid modifying the original
+    billing_df = allocation_data.copy()
+    
+    # Initialize new columns for rate-adjusted values
+    billing_df['HAS_RATE'] = False
+    billing_df['RATE_SOURCE'] = 'Default'
+    
+    # Apply rates from rates data if available
     if not rates_data.empty:
-        # Create a lookup dictionary for rates
-        rates_lookup = {}
-        for _, row in rates_data.iterrows():
-            equip_id = row['EQUIPMENT_ID']
-            rates = {}
-            for rate_type in ['MONTHLY_RATE', 'HOURLY_RATE', 'DAILY_RATE', 'WEEKLY_RATE']:
-                if rate_type in row.index and pd.notna(row[rate_type]):
-                    rates[rate_type] = row[rate_type]
-            rates_lookup[equip_id] = rates
+        logger.info(f"Applying rates from rates data with {len(rates_data)} equipment rate records")
         
-        # Apply rates to master billing
-        for idx, row in master_billing.iterrows():
-            equip_id = row['EQUIPMENT_ID']
-            frequency = row['FREQUENCY']
+        # Merge with rates data to get the appropriate rate
+        for idx, row in billing_df.iterrows():
+            equip_id = row['equip_id']
+            frequency = str(row['frequency']).upper() if pd.notna(row['frequency']) else 'MONTHLY'
             
-            # Skip if already has rate and amount
-            if row['RATE'] > 0 and row['AMOUNT'] > 0:
-                continue
+            # Find matching equipment in rates data
+            rate_matches = rates_data[rates_data['EQUIPMENT_ID'] == equip_id]
             
-            # Look up rates for this equipment
-            if equip_id in rates_lookup:
-                rate_key = frequency + '_RATE'
-                rate_key = rate_key.replace('LY_', '_')  # Remove 'ly' from frequency
+            if not rate_matches.empty:
+                # Determine which rate to use based on frequency
+                if frequency == 'MONTHLY' and rate_matches['MONTHLY_RATE'].iloc[0] > 0:
+                    billing_df.at[idx, 'rate'] = rate_matches['MONTHLY_RATE'].iloc[0]
+                    billing_df.at[idx, 'HAS_RATE'] = True
+                    billing_df.at[idx, 'RATE_SOURCE'] = 'Monthly Rate'
+                elif frequency == 'DAILY' and rate_matches['DAILY_RATE'].iloc[0] > 0:
+                    billing_df.at[idx, 'rate'] = rate_matches['DAILY_RATE'].iloc[0]
+                    billing_df.at[idx, 'HAS_RATE'] = True
+                    billing_df.at[idx, 'RATE_SOURCE'] = 'Daily Rate'
+                elif frequency == 'HOURLY' and rate_matches['HOURLY_RATE'].iloc[0] > 0:
+                    billing_df.at[idx, 'rate'] = rate_matches['HOURLY_RATE'].iloc[0]
+                    billing_df.at[idx, 'HAS_RATE'] = True
+                    billing_df.at[idx, 'RATE_SOURCE'] = 'Hourly Rate'
+                # If frequency doesn't match available rates, find the first non-zero rate
+                else:
+                    if rate_matches['MONTHLY_RATE'].iloc[0] > 0:
+                        billing_df.at[idx, 'rate'] = rate_matches['MONTHLY_RATE'].iloc[0]
+                        billing_df.at[idx, 'frequency'] = 'MONTHLY'
+                        billing_df.at[idx, 'HAS_RATE'] = True
+                        billing_df.at[idx, 'RATE_SOURCE'] = 'Monthly Rate (Default)'
+                    elif rate_matches['DAILY_RATE'].iloc[0] > 0:
+                        billing_df.at[idx, 'rate'] = rate_matches['DAILY_RATE'].iloc[0]
+                        billing_df.at[idx, 'frequency'] = 'DAILY'
+                        billing_df.at[idx, 'HAS_RATE'] = True
+                        billing_df.at[idx, 'RATE_SOURCE'] = 'Daily Rate (Default)'
+                    elif rate_matches['HOURLY_RATE'].iloc[0] > 0:
+                        billing_df.at[idx, 'rate'] = rate_matches['HOURLY_RATE'].iloc[0]
+                        billing_df.at[idx, 'frequency'] = 'HOURLY'
+                        billing_df.at[idx, 'HAS_RATE'] = True
+                        billing_df.at[idx, 'RATE_SOURCE'] = 'Hourly Rate (Default)'
                 
-                # Find the most appropriate rate
-                rate = 0
-                if rate_key in rates_lookup[equip_id]:
-                    rate = rates_lookup[equip_id][rate_key]
-                elif 'MONTHLY_RATE' in rates_lookup[equip_id]:
-                    rate = rates_lookup[equip_id]['MONTHLY_RATE']  # Default to monthly rate
-                
-                # Update rate and calculate amount
-                if rate > 0:
-                    master_billing.at[idx, 'RATE'] = rate
-                    master_billing.at[idx, 'AMOUNT'] = rate * row['UNITS']
+                # Update description if it's empty and available in rates data
+                if (not pd.notna(row['description']) or row['description'] == '') and pd.notna(rate_matches['DESCRIPTION'].iloc[0]):
+                    billing_df.at[idx, 'description'] = rate_matches['DESCRIPTION'].iloc[0]
+            
+            # If equipment is missing a rate, log it
+            if not billing_df.at[idx, 'HAS_RATE']:
+                logger.warning(f"No matching rate found for equipment {equip_id} with frequency {frequency}")
+    
+    # Calculate amount if rate and units are available but amount is not
+    for idx, row in billing_df.iterrows():
+        if pd.notna(row['rate']) and pd.notna(row['units']) and row['rate'] > 0 and row['units'] > 0:
+            if not pd.notna(row['amount']) or row['amount'] == 0:
+                billing_df.at[idx, 'amount'] = row['rate'] * row['units']
+    
+    # Create standardized master billing format
+    master_billing = pd.DataFrame({
+        'Division': billing_df['division'],
+        'Equip #': billing_df['equip_id'],
+        'Description': billing_df['description'],
+        'Date': billing_df['date'],
+        'Job': billing_df['job'],
+        'Phase': billing_df['phase'],
+        'Cost Code': billing_df['cost_code'],
+        'Units': billing_df['units'],
+        'Rate': billing_df['rate'],
+        'Amount': billing_df['amount'],
+        'Frequency': billing_df['frequency'],
+        'Source File': billing_df['source_file'],
+        'Has Rate': billing_df['HAS_RATE'],
+        'Rate Source': billing_df['RATE_SOURCE']
+    })
     
     # Log missing rates
-    missing_rates = master_billing[(master_billing['RATE'] == 0) | (master_billing['AMOUNT'] == 0)]
+    missing_rates = master_billing[master_billing['Rate'] == 0]
     if not missing_rates.empty:
-        logger.warning(f"Missing rates for {len(missing_rates)} equipment items")
-        for _, row in missing_rates.iterrows():
-            logger.warning(f"  - Missing rate for {row['EQUIPMENT_ID']} ({row['DESCRIPTION']}) - Job: {row['JOB']}")
+        logger.warning(f"Missing rates for {len(missing_rates)} equipment records")
     
     return master_billing
 
 def filter_by_division(master_billing, division):
     """Filter the master billing data by division"""
-    if division.upper() == 'ALL':
-        return master_billing
+    if master_billing.empty:
+        return pd.DataFrame()
     
-    return master_billing[master_billing['DIVISION'].str.upper() == division.upper()]
+    # Division might be stored differently (case, spaces, etc.)
+    division_filter = master_billing['Division'].str.upper().str.strip() == division.upper()
+    
+    return master_billing[division_filter].copy()
 
 def export_master_billing(master_billing, output_path):
     """Export the master billing data to Excel"""
+    if master_billing.empty:
+        logger.error("No data to export")
+        return False
+    
     try:
-        # Create a workbook and add a worksheet
-        wb = openpyxl.Workbook()
-        ws = wb.active
-        ws.title = "Master Billing"
+        # Create output directory if it doesn't exist
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
         
-        # Define column headers
-        headers = [
-            'DIVISION', 'EQUIPMENT_ID', 'DESCRIPTION', 'DATE', 'JOB', 
-            'PHASE', 'COST_CODE', 'UNITS', 'FREQUENCY', 'RATE', 'AMOUNT', 
-            'SOURCE_FILE'
-        ]
+        # Save to Excel
+        writer = pd.ExcelWriter(output_path, engine='openpyxl')
+        master_billing.to_excel(writer, sheet_name='Equip Billings', index=False)
         
-        # Add headers
-        for col_idx, header in enumerate(headers, 1):
-            cell = ws.cell(row=1, column=col_idx)
-            cell.value = header
-            cell.font = Font(bold=True)
-            cell.fill = PatternFill(start_color="E6F0F8", end_color="E6F0F8", fill_type="solid")
+        # Access the workbook and the worksheet
+        workbook = writer.book
+        worksheet = writer.sheets['Equip Billings']
         
-        # Add data
-        for row_idx, row in master_billing.iterrows():
-            for col_idx, header in enumerate(headers, 1):
-                cell = ws.cell(row=row_idx + 2, column=col_idx)
-                
-                value = row[header] if header in row else ""
-                
-                # Format date
-                if header == 'DATE' and isinstance(value, (datetime, pd.Timestamp)):
-                    cell.value = value.strftime('%Y-%m-%d')
-                # Format numbers
-                elif header in ['UNITS', 'RATE', 'AMOUNT']:
-                    cell.value = float(value) if pd.notna(value) else 0
-                    cell.number_format = '#,##0.00'
-                else:
-                    cell.value = value
+        # Define styles
+        header_font = Font(bold=True, color="FFFFFF")
+        header_fill = PatternFill(start_color="0072C6", end_color="0072C6", fill_type="solid")
+        header_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
         
-        # Auto-adjust column widths
-        for col_idx, _ in enumerate(headers, 1):
-            col_letter = get_column_letter(col_idx)
-            ws.column_dimensions[col_letter].width = 15
+        # Apply formatting
+        for col_num, col_name in enumerate(master_billing.columns, 1):
+            cell = worksheet.cell(row=1, column=col_num)
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = header_alignment
+            
+            # Auto-size columns
+            worksheet.column_dimensions[get_column_letter(col_num)].width = max(12, len(str(col_name)) + 2)
         
-        # Add total row
-        total_row = len(master_billing) + 2
-        ws.cell(row=total_row, column=1).value = "TOTAL"
-        ws.cell(row=total_row, column=1).font = Font(bold=True)
+        # Add title
+        title_row = worksheet.insert_rows(1)
+        title_cell = worksheet.cell(row=1, column=1)
+        title_cell.value = f"EQUIPMENT BILLING EXPORT - {MONTH_NAME} {YEAR}"
+        title_cell.font = Font(bold=True, size=14)
+        title_cell.alignment = Alignment(horizontal='center')
         
-        # Add total formula for amount
-        amount_col = headers.index('AMOUNT') + 1
-        ws.cell(row=total_row, column=amount_col).value = f"=SUM({get_column_letter(amount_col)}2:{get_column_letter(amount_col)}{total_row-1})"
-        ws.cell(row=total_row, column=amount_col).font = Font(bold=True)
-        ws.cell(row=total_row, column=amount_col).number_format = '#,##0.00'
+        # Merge cells for title
+        worksheet.merge_cells(start_row=1, start_column=1, end_row=1, end_column=len(master_billing.columns))
+        
+        # Format numeric columns
+        money_format = workbook.add_format({'num_format': '$#,##0.00'})
+        for row_idx in range(3, len(master_billing) + 3):  # +3 because of title row and header row
+            rate_cell = worksheet.cell(row=row_idx, column=master_billing.columns.get_loc('Rate') + 1)
+            amount_cell = worksheet.cell(row=row_idx, column=master_billing.columns.get_loc('Amount') + 1)
+            
+            if rate_cell.value and isinstance(rate_cell.value, (int, float)):
+                rate_cell.number_format = '$#,##0.00'
+            
+            if amount_cell.value and isinstance(amount_cell.value, (int, float)):
+                amount_cell.number_format = '$#,##0.00'
+        
+        # Apply alternating row colors
+        for row_idx in range(3, len(master_billing) + 3):  # +3 because of title row and header row
+            if row_idx % 2 == 0:
+                for col_idx in range(1, len(master_billing.columns) + 1):
+                    cell = worksheet.cell(row=row_idx, column=col_idx)
+                    cell.fill = PatternFill(start_color="F5F5F5", end_color="F5F5F5", fill_type="solid")
+        
+        # Apply borders to all cells
+        thin_border = Border(left=Side(style='thin'), 
+                            right=Side(style='thin'),
+                            top=Side(style='thin'),
+                            bottom=Side(style='thin'))
+        
+        for row_idx in range(1, len(master_billing) + 3):  # +3 because of title row and header row
+            for col_idx in range(1, len(master_billing.columns) + 1):
+                cell = worksheet.cell(row=row_idx, column=col_idx)
+                cell.border = thin_border
+        
+        # Add summary information
+        summary_row = len(master_billing) + 4
+        worksheet.cell(row=summary_row, column=1).value = "SUMMARY"
+        worksheet.cell(row=summary_row, column=1).font = Font(bold=True)
+        
+        worksheet.cell(row=summary_row+1, column=1).value = "Total Records:"
+        worksheet.cell(row=summary_row+1, column=2).value = len(master_billing)
+        
+        worksheet.cell(row=summary_row+2, column=1).value = "Total Amount:"
+        worksheet.cell(row=summary_row+2, column=2).value = master_billing['Amount'].sum()
+        worksheet.cell(row=summary_row+2, column=2).number_format = '$#,##0.00'
+        
+        worksheet.cell(row=summary_row+3, column=1).value = "Missing Rates:"
+        worksheet.cell(row=summary_row+3, column=2).value = len(master_billing[master_billing['Rate'] == 0])
+        
+        worksheet.cell(row=summary_row+4, column=1).value = "Export Date:"
+        worksheet.cell(row=summary_row+4, column=2).value = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         
         # Save the workbook
-        wb.save(output_path)
-        logger.info(f"Master billing exported to {output_path}")
+        writer.close()
         
+        logger.info(f"Successfully exported master billing to {output_path}")
         return True
     
     except Exception as e:
@@ -415,9 +648,10 @@ def generate_division_exports(master_billing):
             logger.warning(f"No data found for division {division}")
             continue
         
-        output_path = os.path.join(EXPORTS_DIR, f"{division}_EQUIP_BILLINGS_{MONTH_NAME}_{timestamp}.xlsx")
+        output_path = os.path.join(EXPORTS_DIR, f"{division}_EQUIP_BILLINGS_{MONTH_NAME}_{YEAR}.xlsx")
         if export_master_billing(division_data, output_path):
             export_paths[division] = output_path
+            logger.info(f"Created {division} export with {len(division_data)} records")
     
     return export_paths
 
@@ -442,6 +676,10 @@ def process_master_billing():
         # Process each allocation file
         all_allocation_data = []
         for file_path in allocation_files:
+            # Skip rates file if it's in the allocation files list
+            if rates_file and os.path.samefile(file_path, rates_file):
+                continue
+                
             allocation_data = process_allocation_file(file_path)
             if not allocation_data.empty:
                 all_allocation_data.append(allocation_data)
@@ -464,11 +702,8 @@ def process_master_billing():
         # Generate master billing
         master_billing = generate_master_billing(combined_data, rates_data)
         
-        # Create timestamp for export files
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        
         # Export master billing file
-        master_output_path = os.path.join(EXPORTS_DIR, f"MASTER_EQUIP_BILLINGS_{MONTH_NAME}_{timestamp}.xlsx")
+        master_output_path = os.path.join(EXPORTS_DIR, f"MASTER_EQUIP_BILLINGS_{MONTH_NAME}_{YEAR}.xlsx")
         master_export_success = export_master_billing(master_billing, master_output_path)
         
         # Generate division exports
@@ -476,17 +711,21 @@ def process_master_billing():
         
         # Create combined exports dictionary
         exports = {
-            'MASTER': master_output_path if master_export_success else None,
-            **division_exports
+            'MASTER': master_output_path if master_export_success else None
         }
         
+        # Add division exports
+        for division, path in division_exports.items():
+            exports[division] = path
+        
+        logger.info("PM Master Billing processing completed successfully")
         return {
             'success': True,
             'message': f"Successfully processed {len(allocation_files)} allocation files and generated {len(exports)} exports",
             'record_count': len(master_billing),
             'file_count': len(allocation_files),
             'exports': exports,
-            'missing_rates': len(master_billing[(master_billing['RATE'] == 0) | (master_billing['AMOUNT'] == 0)])
+            'missing_rates': len(master_billing[(master_billing['Rate'] == 0) | (master_billing['Amount'] == 0)])
         }
     
     except Exception as e:
@@ -498,23 +737,6 @@ def process_master_billing():
         }
 
 if __name__ == "__main__":
-    # Configure logging
-    logging.basicConfig(level=logging.INFO, 
-                        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    
-    # Process all files
+    # If run as a script, process all files
     result = process_master_billing()
-    
-    # Print results
-    print("\nProcessing completed.")
-    print(f"Success: {result['success']}")
-    print(f"Message: {result['message']}")
-    
-    if result['success']:
-        print(f"\nProcessed {result['file_count']} files and extracted {result['record_count']} billing records")
-        print(f"Missing rates for {result['missing_rates']} records")
-        
-        print("\nExports generated:")
-        for division, path in result['exports'].items():
-            if path:
-                print(f"  - {division}: {os.path.basename(path)}")
+    print(result)

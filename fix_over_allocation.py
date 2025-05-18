@@ -149,25 +149,21 @@ def generate_corrected_deliverables(df):
         division_data = df[df['Division'] == division].copy()
         
         if not division_data.empty:
-            # Create export dataframe with required columns
+            # Create export dataframe with the required format to match example files
             import_df = pd.DataFrame()
             
-            # Map columns for export
-            import_mapping = {
-                'Equip #': 'Equipment_Number',
-                'Equipment': 'Equipment_Description',
-                'Job': 'Job_Number',
-                'Job Description': 'Job_Description',
-                'Units': 'Units',
-                'Rate': 'Unit_Rate',
-                'Amount': 'Amount',
-                'Cost Code': 'Cost_Code'
-            }
-            
-            # Copy and rename columns
-            for src, target in import_mapping.items():
-                if src in division_data.columns:
-                    import_df[target] = division_data[src]
+            # Set import columns in the correct order
+            import_df['Equipment_Number'] = division_data['Equip #']
+            import_df['Equipment_Description'] = division_data['Equipment']
+            import_df['Date'] = '3/31/2025'  # Fixed date for April billing
+            import_df['Job_Number'] = division_data['Job']
+            import_df['Period'] = 1  # Fixed value
+            import_df['Cost_Code'] = division_data['Cost Code']
+            import_df['Month_Code'] = 4  # April = month 4
+            import_df['Units'] = division_data['Units']
+            import_df['Period_Type'] = 'MONTHLY'  # Fixed value
+            import_df['Unit_Rate'] = division_data['Rate']
+            import_df['Amount'] = division_data['Amount']
             
             # Export to CSV
             import_path = os.path.join(EXPORTS_DIR, f"CORRECTED_REGION_IMPORT_{division}_{MONTH_NAME}_{YEAR}.csv")

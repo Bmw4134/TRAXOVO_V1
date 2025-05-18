@@ -132,6 +132,31 @@ def extract_data_from_pm_file(file_path):
         
         # Convert Units to numeric and filter for positive values
         result_df['Units'] = pd.to_numeric(result_df['Units'], errors='coerce')
+        
+        # Process REVISION column if it exists
+        if 'Revision' in result_df.columns:
+            # Convert Revision values to numeric, keeping non-numeric as NaN
+            result_df['Revision'] = pd.to_numeric(result_df['Revision'], errors='coerce')
+            
+            # Where Revision is a valid number and not 0, use it instead of Units
+            valid_revision_mask = (~result_df['Revision'].isna()) & (result_df['Revision'] > 0)
+            
+            if valid_revision_mask.sum() > 0:
+                logger.info(f"Found {valid_revision_mask.sum()} valid revision values in {file_name}")
+                
+                # Create a 'Source Column' to track where the final value came from
+                result_df['Source Column'] = 'Units'
+                
+                # For rows with valid revisions, update the Units column and mark the source
+                result_df.loc[valid_revision_mask, 'Units'] = result_df.loc[valid_revision_mask, 'Revision']
+                result_df.loc[valid_revision_mask, 'Source Column'] = 'Revision'
+                
+                # Log some examples for debugging
+                sample_revisions = result_df[valid_revision_mask].head(5)
+                for _, row in sample_revisions.iterrows():
+                    logger.info(f"Applied revision for {row['Equip #']} on job {row['Job']}: Revision {row['Revision']}")
+        
+        # Filter for positive Units values
         result_df = result_df[result_df['Units'] > 0]
         
         # Handle "CC NEEDED" in Cost Code

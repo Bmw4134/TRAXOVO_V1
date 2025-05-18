@@ -863,6 +863,252 @@ def daily_report():
                           ls_ee_data=ls_ee_data,
                           noj_data=noj_data)
 
+# Export report routes
+@app.route('/export_report/<report_type>/<format>')
+def export_report(report_type, format):
+    """Generate and export reports in various formats"""
+    from datetime import datetime, timedelta
+    import os
+    from flask import send_file, send_from_directory
+    import io
+    
+    # Create exports directory if it doesn't exist
+    reports_dir = os.path.join('static', 'reports')
+    os.makedirs(reports_dir, exist_ok=True)
+    
+    # Get report date (use yesterday for daily reports)
+    now = datetime.now()
+    yesterday = now - timedelta(days=1)
+    report_date = yesterday if report_type == 'daily' else now
+    date_str = report_date.strftime('%Y-%m-%d')
+    
+    # Handle daily report exports
+    if report_type == 'daily':
+        # Sample data for the report (for demonstration)
+        late_starts = late_start_records if 'late_start_records' in locals() else [
+            {'driver_name': 'John Smith', 'job_site': 'Project Alpha', 
+             'expected_start': yesterday.replace(hour=7, minute=0), 
+             'actual_start': yesterday.replace(hour=7, minute=45), 
+             'minutes_late': 45},
+            {'driver_name': 'Sarah Wilson', 'job_site': 'Project Echo', 
+             'expected_start': yesterday.replace(hour=7, minute=0), 
+             'actual_start': yesterday.replace(hour=7, minute=30), 
+             'minutes_late': 30}
+        ]
+        
+        early_ends = early_end_records if 'early_end_records' in locals() else [
+            {'driver_name': 'Emma Johnson', 'job_site': 'Project Beta', 
+             'expected_end': yesterday.replace(hour=16, minute=0), 
+             'actual_end': yesterday.replace(hour=15, minute=15), 
+             'minutes_early': 45},
+            {'driver_name': 'Michael Brown', 'job_site': 'Project Foxtrot', 
+             'expected_end': yesterday.replace(hour=16, minute=0), 
+             'actual_end': yesterday.replace(hour=15, minute=0), 
+             'minutes_early': 60}
+        ]
+        
+        not_on_job = not_on_job_records if 'not_on_job_records' in locals() else [
+            {'driver_name': 'Robert Davis', 'expected_job': 'Project Charlie', 
+             'actual_job': 'Project Delta', 'time': yesterday.replace(hour=10, minute=30)}
+        ]
+        
+        total_records = len(late_starts) + len(early_ends) + len(not_on_job)
+        on_time = 5  # Sample data
+        
+        # Create report data structure
+        report_data = {
+            'report_date': report_date,
+            'late_starts': len(late_starts),
+            'early_ends': len(early_ends),
+            'not_on_job': len(not_on_job),
+            'on_time': on_time,
+            'total_records': total_records,
+            'late_start_records': late_starts,
+            'early_end_records': early_ends,
+            'not_on_job_records': not_on_job
+        }
+        
+        # PDF Export
+        if format == 'pdf':
+            try:
+                # Create a simple PDF report
+                from reportlab.lib import colors
+                from reportlab.lib.pagesizes import letter
+                from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+                from reportlab.lib.styles import getSampleStyleSheet
+                
+                # Create in-memory PDF
+                buffer = io.BytesIO()
+                pdf = SimpleDocTemplate(buffer, pagesize=letter)
+                styles = getSampleStyleSheet()
+                
+                # Build PDF content
+                content = []
+                content.append(Paragraph(f"Daily Driver Report - {date_str}", styles['Title']))
+                content.append(Spacer(1, 20))
+                
+                # Summary table
+                summary_data = [
+                    ['Metric', 'Count'],
+                    ['Late Starts', len(late_starts)],
+                    ['Early Ends', len(early_ends)],
+                    ['Not On Job', len(not_on_job)],
+                    ['On Time', on_time],
+                    ['Total Records', total_records]
+                ]
+                
+                summary_table = Table(summary_data)
+                summary_table.setStyle(TableStyle([
+                    ('BACKGROUND', (0, 0), (1, 0), colors.grey),
+                    ('TEXTCOLOR', (0, 0), (1, 0), colors.whitesmoke),
+                    ('ALIGN', (0, 0), (1, 0), 'CENTER'),
+                    ('FONTNAME', (0, 0), (1, 0), 'Helvetica-Bold'),
+                    ('BOTTOMPADDING', (0, 0), (1, 0), 12),
+                    ('GRID', (0, 0), (1, -1), 1, colors.black)
+                ]))
+                
+                content.append(summary_table)
+                content.append(Spacer(1, 20))
+                
+                # Late starts table
+                if late_starts:
+                    content.append(Paragraph("Late Start Details", styles['Heading2']))
+                    content.append(Spacer(1, 10))
+                    
+                    late_data = [['Driver', 'Job Site', 'Expected', 'Actual', 'Minutes Late']]
+                    for record in late_starts:
+                        expected = record.get('expected_start')
+                        actual = record.get('actual_start')
+                        expected_str = expected.strftime('%H:%M') if hasattr(expected, 'strftime') else '-'
+                        actual_str = actual.strftime('%H:%M') if hasattr(actual, 'strftime') else '-'
+                        
+                        late_data.append([
+                            record.get('driver_name', '-'),
+                            record.get('job_site', '-'),
+                            expected_str,
+                            actual_str,
+                            str(record.get('minutes_late', '-'))
+                        ])
+                    
+                    late_table = Table(late_data)
+                    late_table.setStyle(TableStyle([
+                        ('BACKGROUND', (0, 0), (-1, 0), colors.red),
+                        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+                        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+                    ]))
+                    
+                    content.append(late_table)
+                    content.append(Spacer(1, 20))
+                
+                # Build PDF
+                pdf.build(content)
+                
+                # Save and return PDF
+                buffer.seek(0)
+                return send_file(
+                    buffer,
+                    as_attachment=True,
+                    download_name=f"daily_driver_report_{date_str}.pdf",
+                    mimetype='application/pdf'
+                )
+                
+            except Exception as e:
+                return f"Error generating PDF: {e}", 500
+        
+        # CSV Export
+        elif format == 'csv':
+            try:
+                import csv
+                from io import StringIO
+                
+                # Create in-memory CSV
+                buffer = StringIO()
+                writer = csv.writer(buffer)
+                
+                # Write header
+                writer.writerow(['TRAXORA Daily Driver Report', date_str])
+                writer.writerow([])
+                
+                # Write summary
+                writer.writerow(['Attendance Summary'])
+                writer.writerow(['Metric', 'Count'])
+                writer.writerow(['Late Starts', len(late_starts)])
+                writer.writerow(['Early Ends', len(early_ends)])
+                writer.writerow(['Not On Job', len(not_on_job)])
+                writer.writerow(['On Time', on_time])
+                writer.writerow(['Total Records', total_records])
+                writer.writerow([])
+                
+                # Write late start details
+                if late_starts:
+                    writer.writerow(['Late Start Details'])
+                    writer.writerow(['Driver', 'Job Site', 'Expected Start', 'Actual Start', 'Minutes Late'])
+                    for record in late_starts:
+                        expected = record.get('expected_start')
+                        actual = record.get('actual_start')
+                        expected_str = expected.strftime('%H:%M') if hasattr(expected, 'strftime') else '-'
+                        actual_str = actual.strftime('%H:%M') if hasattr(actual, 'strftime') else '-'
+                        
+                        writer.writerow([
+                            record.get('driver_name', '-'),
+                            record.get('job_site', '-'),
+                            expected_str,
+                            actual_str,
+                            record.get('minutes_late', '-')
+                        ])
+                    writer.writerow([])
+                
+                # Save CSV to file for download
+                csv_path = os.path.join(reports_dir, f"daily_driver_report_{date_str}.csv")
+                with open(csv_path, 'w', newline='') as f:
+                    f.write(buffer.getvalue())
+                
+                return send_file(
+                    csv_path,
+                    as_attachment=True,
+                    download_name=f"daily_driver_report_{date_str}.csv",
+                    mimetype='text/csv'
+                )
+                
+            except Exception as e:
+                return f"Error generating CSV: {e}", 500
+                
+        # View export options page
+        elif format == 'view':
+            # Create sample recent reports
+            recent_reports = [
+                {
+                    'name': f"daily_driver_report_{date_str}.pdf",
+                    'type': 'pdf',
+                    'date': now.strftime('%Y-%m-%d %H:%M'),
+                    'size': 230,
+                    'url': f"/export_report/daily/pdf"
+                },
+                {
+                    'name': f"daily_driver_report_{date_str}.csv",
+                    'type': 'csv',
+                    'date': now.strftime('%Y-%m-%d %H:%M'),
+                    'size': 120,
+                    'url': f"/export_report/daily/csv"
+                }
+            ]
+            
+            return render_template(
+                'daily_report_export.html',
+                report_date=report_date,
+                pdf_size=230,
+                csv_size=120,
+                recent_reports=recent_reports,
+                late_start_records=late_starts,
+                early_end_records=early_ends,
+                not_on_job_records=not_on_job
+            )
+    
+    # Default: not supported
+    return "Report type or format not supported", 400
+
 # Run the app
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

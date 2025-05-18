@@ -1,149 +1,183 @@
 """
-PM Master Billing Module Routes
+PM Master Billing Routes Module
 
-This module provides routes for the PM Master Billing functionality, which
-processes multiple PM allocation files to generate a consolidated master
-billing report and division-specific exports.
+This module provides routes for processing PM allocation files and generating master billing exports.
 """
 
 import os
-from flask import Blueprint, render_template, request, redirect, url_for, flash, send_file, jsonify
-from flask_login import login_required, current_user
-from pathlib import Path
-import logging
 from datetime import datetime
+from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash, current_app, send_from_directory
+from flask_login import login_required, current_user
+import pandas as pd
+import json
 
-# Import utilities
-from utils.pm_master_billing import process_master_billing
+from app import db
 from utils.activity_logger import log_activity
+from utils.pm_master_billing import process_master_billing, find_all_allocation_files
 
-# Set up logger
-logger = logging.getLogger(__name__)
-
-# Create blueprint
+# Create the blueprint
 pm_master_bp = Blueprint('pm_master', __name__, url_prefix='/pm-master')
-
-# Create export directory
-EXPORTS_DIR = Path('exports/pm_master')
-EXPORTS_DIR.mkdir(exist_ok=True, parents=True)
 
 @pm_master_bp.route('/')
 @login_required
 def index():
-    """PM Master Dashboard Page"""
-    # Check for existing export files
-    export_files = []
-    if EXPORTS_DIR.exists():
-        for file in EXPORTS_DIR.glob('*.xlsx'):
-            export_files.append({
-                'name': file.name,
-                'path': file.name,
-                'size': f"{file.stat().st_size // 1024}K",
-                'modified': datetime.fromtimestamp(file.stat().st_mtime).strftime('%Y-%m-%d %H:%M'),
-                'division': file.name.split('_')[0] if '_' in file.name else 'MASTER'
-            })
-    
-    # Sort files by date modified (newest first)
-    export_files.sort(key=lambda x: x['modified'], reverse=True)
-    
-    # Get available allocation files from the attached_assets folder
-    from utils.pm_master_billing import find_all_allocation_files
+    """PM Master Billing Dashboard"""
+    # Get list of available allocation files
     allocation_files = find_all_allocation_files()
     
-    # Format for display
-    allocation_file_details = []
-    for file_path in allocation_files:
-        file_name = os.path.basename(file_path)
-        file_stat = os.stat(file_path)
-        allocation_file_details.append({
-            'name': file_name,
-            'size': f"{file_stat.st_size // 1024}K",
-            'modified': datetime.fromtimestamp(file_stat.st_mtime).strftime('%Y-%m-%d %H:%M')
-        })
+    # Get list of generated exports
+    exports_dir = os.path.join(current_app.root_path, 'exports')
+    os.makedirs(exports_dir, exist_ok=True)
     
-    return render_template(
-        'pm_master/index.html',
-        title='PM Master Billing',
-        files=allocation_file_details,
-        export_files=export_files
-    )
+    exports = []
+    for filename in os.listdir(exports_dir):
+        if filename.endswith('.xlsx') or filename.endswith('.csv'):
+            export_path = os.path.join(exports_dir, filename)
+            exports.append({
+                'filename': filename,
+                'path': export_path,
+                'size': os.path.getsize(export_path),
+                'modified': datetime.fromtimestamp(os.path.getmtime(export_path)).strftime('%Y-%m-%d %H:%M:%S')
+            })
+    
+    # Sort exports by modified date (newest first)
+    exports.sort(key=lambda x: x['modified'], reverse=True)
+    
+    return render_template('pm_master/index.html', 
+                          allocation_files=allocation_files,
+                          exports=exports)
 
-@pm_master_bp.route('/process-batch', methods=['POST'])
+@pm_master_bp.route('/process', methods=['POST'])
 @login_required
-def process_batch():
-    """Process all allocation files and generate exports"""
+def process_billing():
+    """Process PM allocation files and generate master billing exports"""
     try:
-        # Log the action
-        log_activity(
-            activity_type='batch_process_start',
-            description='Started PM Master batch processing',
-            user_id=current_user.id
-        )
+        # Process the allocation files
+        results = process_master_billing()
         
-        # Process all allocation files
-        result = process_master_billing()
-        
-        if result['success']:
-            # Log success
+        if results['status'] == 'success':
+            # Log the activity
             log_activity(
-                activity_type='batch_process_complete',
-                description=f"Processed {result['file_count']} allocation files and generated {len(result['exports'])} exports",
-                user_id=current_user.id,
+                'pm_master_billing_process',
+                current_user.id,
+                f"Generated master billing with {results['record_count']} records",
                 metadata={
-                    'file_count': result['file_count'],
-                    'record_count': result['record_count'],
-                    'missing_rates': result['missing_rates'],
-                    'exports': list(result['exports'].keys())
+                    'record_count': results['record_count'],
+                    'export_path': results['exports']['master_billing']['path'] if 'master_billing' in results['exports'] else None
                 }
             )
             
-            # Flash success message
-            flash(f"Successfully processed {result['file_count']} allocation files. Generated {len(result['exports'])} export files.", 'success')
+            flash('Successfully processed PM allocation files and generated exports', 'success')
         else:
-            # Log failure
-            log_activity(
-                activity_type='batch_process_error',
-                description=f"Error processing PM allocation files: {result['message']}",
-                user_id=current_user.id
-            )
-            
-            # Flash error message
-            flash(f"Error processing PM allocation files: {result['message']}", 'danger')
+            flash(f"Error processing PM allocation files: {results['message']}", 'danger')
         
         return redirect(url_for('pm_master.index'))
-    
+        
     except Exception as e:
-        logger.error(f"Error in process_batch: {str(e)}")
-        flash(f"An unexpected error occurred: {str(e)}", 'danger')
+        flash(f"Error processing PM allocation files: {str(e)}", 'danger')
         return redirect(url_for('pm_master.index'))
 
 @pm_master_bp.route('/download/<path:filename>')
 @login_required
 def download_export(filename):
-    """Download an exported file"""
+    """Download an export file"""
+    exports_dir = os.path.join(current_app.root_path, 'exports')
+    return send_from_directory(exports_dir, filename, as_attachment=True)
+
+@pm_master_bp.route('/generate-import-files', methods=['POST'])
+@login_required
+def generate_import_files():
+    """Generate division-specific import files"""
     try:
-        file_path = EXPORTS_DIR / filename
+        # Process the allocation files with focus on import file generation
+        results = process_master_billing()
         
-        if not file_path.exists():
-            flash(f"File not found: {filename}", 'danger')
-            return redirect(url_for('pm_master.index'))
+        if results['status'] == 'success' and 'import_files' in results['exports']:
+            import_files = results['exports']['import_files']
+            
+            if import_files:
+                # Log the activity
+                log_activity(
+                    'pm_master_import_files',
+                    current_user.id,
+                    f"Generated {len(import_files)} division import files",
+                    metadata={
+                        'import_files': [f['path'] for f in import_files]
+                    }
+                )
+                
+                # Create success message with links to download
+                message = f"Successfully generated {len(import_files)} division import files: "
+                file_links = []
+                
+                for file_info in import_files:
+                    filename = os.path.basename(file_info['path'])
+                    file_links.append(f"{file_info['division']} ({file_info['record_count']} records)")
+                
+                flash(message + ", ".join(file_links), 'success')
+            else:
+                flash("No import files were generated", 'warning')
+        else:
+            flash(f"Error generating import files: {results.get('message', 'Unknown error')}", 'danger')
         
-        # Log download activity
-        log_activity(
-            activity_type='report_download',
-            description=f"Downloaded PM Master export: {filename}",
-            user_id=current_user.id
-        )
+        return redirect(url_for('pm_master.index'))
         
-        return send_file(file_path, as_attachment=True)
-    
     except Exception as e:
-        logger.error(f"Error in download_export: {str(e)}")
-        flash(f"An unexpected error occurred: {str(e)}", 'danger')
+        flash(f"Error generating import files: {str(e)}", 'danger')
         return redirect(url_for('pm_master.index'))
 
-@pm_master_bp.route('/help')
+@pm_master_bp.route('/summary')
 @login_required
-def help_page():
-    """Display help information for PM Master Billing"""
-    return render_template('pm_master/help.html', title='PM Master Help')
+def billing_summary():
+    """View billing summary by division and job"""
+    try:
+        # Look for master billing export
+        exports_dir = os.path.join(current_app.root_path, 'exports')
+        master_billing_path = os.path.join(exports_dir, 'MASTER_EQUIP_BILLINGS_EXPORT_APRIL_2025.xlsx')
+        
+        if not os.path.exists(master_billing_path):
+            flash("Master billing export not found", 'warning')
+            return redirect(url_for('pm_master.index'))
+        
+        # Load the master billing data
+        billing_data = pd.read_excel(master_billing_path, sheet_name='Equip Billings')
+        
+        # Calculate summary statistics
+        division_summary = billing_data.groupby('division').agg({
+            'amount': 'sum',
+            'equip_id': 'nunique',
+            'job': 'nunique'
+        }).reset_index()
+        
+        division_summary.columns = ['Division', 'Total Amount', 'Unique Equipment', 'Unique Jobs']
+        
+        # Convert to records for template
+        division_records = division_summary.to_dict('records')
+        
+        # Calculate job summary
+        job_summary = billing_data.groupby(['division', 'job']).agg({
+            'amount': 'sum',
+            'equip_id': 'nunique',
+            'units': 'sum'
+        }).reset_index()
+        
+        job_summary.columns = ['Division', 'Job', 'Total Amount', 'Unique Equipment', 'Total Units']
+        
+        # Convert to records and group by division
+        job_records_by_division = {}
+        for division in job_summary['Division'].unique():
+            division_jobs = job_summary[job_summary['Division'] == division].to_dict('records')
+            job_records_by_division[division] = division_jobs
+        
+        # Total amount across all divisions
+        total_amount = billing_data['amount'].sum()
+        
+        return render_template('pm_master/summary.html',
+                              division_summary=division_records,
+                              job_records_by_division=job_records_by_division,
+                              total_amount=total_amount,
+                              export_date=datetime.fromtimestamp(os.path.getmtime(master_billing_path)).strftime('%Y-%m-%d %H:%M:%S'))
+        
+    except Exception as e:
+        flash(f"Error generating billing summary: {str(e)}", 'danger')
+        return redirect(url_for('pm_master.index'))

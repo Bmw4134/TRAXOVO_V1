@@ -258,19 +258,59 @@ def process_allocation_file(file_path):
         if file_ext == '.csv':
             # Determine if it's a division-specific CSV
             filename = os.path.basename(file_path).upper()
-            is_division_csv = any(div in filename for div in DIVISIONS)
+            is_division_csv = any(div in filename for div in DIVISIONS) or any(prefix in filename for prefix in ["01 - ", "02 - ", "03 - ", "SM - "])
             
             # For division-specific CSVs which might have different formats
             if is_division_csv:
                 logger.info(f"Processing division-specific CSV: {filename}")
-                # Try with various options to handle different CSV formats
+                
+                # Determine division from filename
+                if "DFW" in filename or "01 -" in filename:
+                    division = "DFW"
+                elif "HOU" in filename or "02 -" in filename:
+                    division = "HOU"
+                elif "WTX" in filename or "WT" in filename or "03 -" in filename:
+                    division = "WTX"
+                elif "SELECT" in filename or "SM -" in filename:
+                    division = "SELECT"
+                else:
+                    division = "OTHER"
+                
+                # First try to check if the file has headers or not
+                # These division CSV files typically don't have headers
                 try:
-                    df = pd.read_csv(file_path, encoding='utf-8')
-                except:
+                    # Read just the first row to check the content
+                    sample = pd.read_csv(file_path, nrows=1)
+                    # If the first column looks like an equipment ID (e.g., PT-159), it's likely headerless
+                    first_col_value = str(sample.iloc[0, 0]).strip()
+                    
+                    if re.match(r'^[A-Z]{1,3}-\d+$', first_col_value):
+                        # This is a headerless CSV with the format we know
+                        logger.info(f"Detected headerless division-specific CSV: {filename}")
+                        
+                        # Define the headers based on the sample we saw
+                        headers = ["equip_id", "description", "date", "job", "phase", "cost_code", 
+                                "units", "rate", "frequency", "monthly_rate", "amount"]
+                        
+                        # Read the CSV file without headers
+                        df = pd.read_csv(file_path, header=None, names=headers)
+                        
+                        # Add division column
+                        df['division'] = division
+                        logger.info(f"Processed headerless CSV with {len(df)} records from {division}")
+                    else:
+                        # It has headers, process normally
+                        df = pd.read_csv(file_path)
+                except Exception as e:
+                    logger.warning(f"Error detecting headers: {str(e)}. Trying standard processing.")
+                    # Try with various options to handle different CSV formats
                     try:
-                        df = pd.read_csv(file_path, encoding='latin1')
+                        df = pd.read_csv(file_path, encoding='utf-8')
                     except:
-                        df = pd.read_csv(file_path, encoding='utf-8', sep=';')
+                        try:
+                            df = pd.read_csv(file_path, encoding='latin1')
+                        except:
+                            df = pd.read_csv(file_path, encoding='utf-8', sep=';')
             else:
                 # Standard CSV
                 df = pd.read_csv(file_path)
@@ -437,6 +477,21 @@ def generate_master_billing(allocation_data, rates_data):
     
     # Create a copy to avoid modifying the original
     billing_df = allocation_data.copy()
+    
+    # Ensure all column names are lowercased for consistency
+    billing_df.columns = [col.lower() for col in billing_df.columns]
+    
+    # Make sure required columns exist
+    required_columns = ['equip_id', 'job', 'units', 'rate', 'amount', 'division']
+    for col in required_columns:
+        if col not in billing_df.columns:
+            billing_df[col] = None if col != 'units' and col != 'rate' and col != 'amount' else 0
+    
+    # Convert numeric columns
+    numeric_cols = ['units', 'rate', 'amount']
+    for col in numeric_cols:
+        if col in billing_df.columns:
+            billing_df[col] = pd.to_numeric(billing_df[col], errors='coerce').fillna(0)
     
     # Initialize new columns for rate-adjusted values
     billing_df['HAS_RATE'] = False

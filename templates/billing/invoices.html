@@ -77,8 +77,18 @@
         </div>
     </div>
 
+    <!-- Loading Animation Container -->
+    <div class="row mb-4" id="invoices-loading-container">
+        <div class="col-12 text-center">
+            <div id="invoices-loading" class="loading-placeholder" 
+                 data-loader-type="crane" 
+                 data-loader-message="Loading invoice data...">
+            </div>
+        </div>
+    </div>
+    
     <!-- Summary Cards -->
-    <div class="row mb-4">
+    <div class="row mb-4" id="summary-cards" style="display: none;">
         <div class="col-md-3 col-sm-6 mb-3">
             <div class="card bg-primary text-white h-100">
                 <div class="card-body text-center">
@@ -297,9 +307,11 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="text-center mb-4">
-                    <div class="spinner-border text-primary" role="status" id="invoice-loading">
-                        <span class="visually-hidden">Loading...</span>
+                <!-- Construction-themed loading animation -->
+                <div id="invoice-loading">
+                    <div class="loader-container">
+                        <div class="roadroller-loader loader-bounce"></div>
+                        <div class="loader-message">Preparing invoice preview...</div>
                     </div>
                 </div>
                 <div id="invoice-preview" class="d-none">
@@ -387,6 +399,22 @@
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Show loading animation and hide content initially
+        const invoicesLoadingContainer = document.getElementById('invoices-loading-container');
+        const summaryCardsContainer = document.getElementById('summary-cards');
+        const invoicesTableContainer = document.querySelector('.table-responsive').closest('.row');
+        
+        // Simulate loading delay (remove in production and use real data loading event)
+        setTimeout(function() {
+            // Hide loader
+            invoicesLoadingContainer.style.display = 'none';
+            
+            // Show content with fade-in effect
+            summaryCardsContainer.style.display = 'flex';
+            summaryCardsContainer.classList.add('fade-in');
+            invoicesTableContainer.classList.add('fade-in');
+        }, 1800);
+        
         // Filter elements
         const statusFilter = document.getElementById('status-filter');
         const customerFilter = document.getElementById('customer-filter');

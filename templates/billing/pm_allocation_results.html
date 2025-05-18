@@ -139,7 +139,8 @@
                             <div class="input-group">
                                 <input type="number" id="threshold-filter" class="form-control" min="0" max="100" value="0">
                                 <span class="input-group-text">%</span>
-                                <button class="btn btn-outline-secondary" type="button" id="apply-threshold-btn">Apply</button>
+                                <button class="btn btn-outline-secondary loading-button" type="button" id="apply-threshold-btn" 
+                                        data-loading-text="Applying...">Apply</button>
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -151,6 +152,16 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading Animation Container -->
+    <div class="row mb-4 d-none" id="filtering-animation-container">
+        <div class="col-12 text-center">
+            <div id="filtering-animation" class="loading-placeholder" 
+                 data-loader-type="excavator" 
+                 data-loader-message="Filtering allocation data...">
             </div>
         </div>
     </div>
@@ -225,10 +236,18 @@
         const thresholdFilter = document.getElementById('threshold-filter');
         const applyThresholdBtn = document.getElementById('apply-threshold-btn');
         const searchFilter = document.getElementById('search-filter');
+        const filteringAnimationContainer = document.getElementById('filtering-animation-container');
         
         // Add event listeners
         statusFilter.addEventListener('change', filterTable);
-        applyThresholdBtn.addEventListener('click', filterTable);
+        applyThresholdBtn.addEventListener('click', function() {
+            // Show excavator animation when applying threshold filter
+            filteringAnimationContainer.classList.remove('d-none');
+            setTimeout(() => {
+                filterTable();
+                filteringAnimationContainer.classList.add('d-none');
+            }, 1200); // Show animation for 1.2 seconds
+        });
         searchFilter.addEventListener('input', filterTable);
         
         // Function to filter the table

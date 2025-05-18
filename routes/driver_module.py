@@ -259,7 +259,7 @@ def get_sample_attendance_stats():
 @login_required
 def index():
     """Driver module home page"""
-    log_navigation('driver_module.index')
+    log_navigation(current_user.id, 'driver_module.index')
     
     # Get summary statistics
     driver_count = len(get_sample_drivers())
@@ -300,7 +300,7 @@ def daily_report():
 @login_required
 def attendance_dashboard():
     """Attendance dashboard with trends and metrics"""
-    log_navigation('driver_module.attendance_dashboard')
+    log_navigation(current_user.id, 'driver_module.attendance_dashboard')
     
     stats = get_sample_attendance_stats()
     
@@ -310,7 +310,7 @@ def attendance_dashboard():
 @login_required
 def driver_list():
     """List all drivers with filtering options"""
-    log_navigation('driver_module.driver_list')
+    log_navigation(current_user.id, 'driver_module.driver_list')
     
     drivers = get_sample_drivers()
     
@@ -344,7 +344,7 @@ def driver_list():
 @login_required
 def driver_detail(driver_id):
     """Driver detail page with attendance history"""
-    log_navigation(f'driver_module.driver_detail.{driver_id}')
+    log_navigation(current_user.id, f'driver_module.driver_detail.{driver_id}')
     
     # Find the driver in our sample data
     drivers = get_sample_drivers()
@@ -415,7 +415,7 @@ def driver_detail(driver_id):
 @login_required
 def job_site_detail(site_id):
     """Job site detail page with attendance metrics"""
-    log_navigation(f'driver_module.job_site_detail.{site_id}')
+    log_navigation(current_user.id, f'driver_module.job_site_detail.{site_id}')
     
     # Look up job site from our sample data
     stats = get_sample_attendance_stats()
@@ -458,7 +458,7 @@ def job_site_detail(site_id):
 @login_required
 def region_detail(region_id):
     """Region detail page with attendance metrics"""
-    log_navigation(f'driver_module.region_detail.{region_id}')
+    log_navigation(current_user.id, f'driver_module.region_detail.{region_id}')
     
     # Look up region from our sample data
     stats = get_sample_attendance_stats()

@@ -456,6 +456,13 @@ def update_asset_data(force=False, max_age_hours=1):
     Returns:
         list: Updated list of asset dictionaries
     """
+    # Import here to avoid circular imports
+    try:
+        from utils.activity_logger import log_api_pull
+    except ImportError:
+        # If activity logger is not available, create a no-op function
+        def log_api_pull(*args, **kwargs):
+            pass
     # Check if we need to update the cache
     update_needed = force
     last_update_time = None
@@ -510,6 +517,21 @@ def update_asset_data(force=False, max_age_hours=1):
             if save_asset_data(assets):
                 logger.info("Successfully saved updated asset data")
                 
+                # Log successful API pull in activity logs
+                try:
+                    log_api_pull(
+                        api_name="Gauge API", 
+                        resource_count=len(assets),
+                        details={
+                            "source": "gauge_api", 
+                            "last_update": datetime.now().isoformat(),
+                            "asset_count": len(assets)
+                        },
+                        success=True
+                    )
+                except Exception as e:
+                    logger.error(f"Failed to log API pull: {e}")
+                
                 # Sync with database
                 try:
                     from app import app
@@ -524,8 +546,36 @@ def update_asset_data(force=False, max_age_hours=1):
                 
                 return assets
             else:
+                # Log failed save attempt
+                try:
+                    log_api_pull(
+                        api_name="Gauge API", 
+                        resource_count=len(assets),
+                        details={
+                            "source": "gauge_api", 
+                            "error": "Failed to save asset data to file"
+                        },
+                        success=False
+                    )
+                except Exception as e:
+                    logger.error(f"Failed to log API pull failure: {e}")
+                
                 logger.error("Failed to save asset data")
         else:
+            # Log failed API pull
+            try:
+                log_api_pull(
+                    api_name="Gauge API", 
+                    resource_count=0,
+                    details={
+                        "source": "gauge_api", 
+                        "error": "Failed to fetch asset data from API"
+                    },
+                    success=False
+                )
+            except Exception as e:
+                logger.error(f"Failed to log API pull failure: {e}")
+                
             logger.error("Failed to fetch asset data from API")
     else:
         logger.info("Cache is fresh, no update needed")

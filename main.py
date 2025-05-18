@@ -95,6 +95,13 @@ try:
     logging.info("Registered job zone blueprint") 
 except ImportError as e:
     logging.error(f"Failed to register job zone blueprint: {e}")
+    
+try:
+    from routes.geo_tracking import geo_tracking_bp
+    app.register_blueprint(geo_tracking_bp)
+    logging.info("Registered Geolocation Tracking blueprint") 
+except ImportError as e:
+    logging.error(f"Failed to register Geolocation Tracking blueprint: {e}")
 
 try:
     from routes.reports import reports_bp

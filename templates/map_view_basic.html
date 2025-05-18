@@ -324,10 +324,17 @@
                 clearTimeout(refreshTimer);
             }
             
+            console.log('Fetching sample asset data...');
+            
             fetch('/map-view/api/sample-assets')
-                .then(response => response.json())
+                .then(response => {
+                    console.log('Response received:', response.status);
+                    return response.json();
+                })
                 .then(data => {
-                    if (data.status === 'success') {
+                    console.log('Data received:', data);
+                    if (data.status === 'success' && data.assets && data.assets.length > 0) {
+                        console.log(`Loaded ${data.assets.length} assets`);
                         // Store the assets
                         assets = data.assets;
                         
@@ -337,6 +344,8 @@
                         
                         // Set up next refresh if enabled
                         setupAutoRefresh();
+                    } else {
+                        console.error('No assets found in response data');
                     }
                 })
                 .catch(error => {

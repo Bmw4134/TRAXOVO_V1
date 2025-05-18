@@ -369,22 +369,28 @@
             clearTimeout(refreshTimer);
         }
         
-        // Fetch asset data from server
-        fetch('/api/asset-locations')
+        // Fetch asset data from server with sample=true parameter to ensure we get data
+        fetch('/geo-tracking/api/asset-locations?sample=true')
             .then(response => response.json())
             .then(data => {
                 // Update asset markers
-                updateAssetMarkers(data.assets);
-                
-                // Update counts
-                updateAssetCounts(data.assets);
-                
-                // Update last update time
-                updateLastUpdateTime();
-                
-                // Set status to live
-                document.getElementById('updateStatus').textContent = 'Live';
-                document.getElementById('updateStatus').className = 'badge bg-success';
+                if (data.status === 'success' && data.assets && data.assets.length > 0) {
+                    updateAssetMarkers(data.assets);
+                    
+                    // Update counts
+                    updateAssetCounts(data.assets);
+                    
+                    // Update last update time
+                    updateLastUpdateTime();
+                    
+                    // Set status to live
+                    document.getElementById('updateStatus').textContent = data.source === 'sample' ? 'Sample' : 'Live';
+                    document.getElementById('updateStatus').className = data.source === 'sample' ? 'badge bg-warning text-dark' : 'badge bg-success';
+                } else {
+                    console.error('No asset data received:', data);
+                    document.getElementById('updateStatus').textContent = 'No Data';
+                    document.getElementById('updateStatus').className = 'badge bg-danger';
+                }
                 
                 // Setup next refresh if auto-refresh is enabled
                 setupAutoRefresh();

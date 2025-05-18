@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}TRAXORA{% endblock %}</title>
+    <!-- Bootstrap CSS with Replit theme -->
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- jQuery (needed for DataTables) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/custom.css') }}" rel="stylesheet">
+    {% block styles %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="{{ url_for('static', filename='images/traxora-logo.png') }}" alt="TRAXORA" height="30" class="me-2">
+                <span class="fw-bold">TRAXORA</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <!-- Dashboard Link -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">
+                            <i class="bi bi-speedometer2 me-1"></i> Dashboard
+                        </a>
+                    </li>
+                    
+                    <!-- Assets Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="assetsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-truck me-1"></i> Assets
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="assetsDropdown">
+                            <li><a class="dropdown-item" href="{{ url_for('asset_tracking.index') }}"><i class="bi bi-speedometer2 me-1"></i> Live Tracking</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('asset_tracking.list_assets') }}"><i class="bi bi-list-ul me-1"></i> View All Assets</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('asset_tracking.map_view') }}"><i class="bi bi-geo-alt me-1"></i> Asset Map</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-person-badge me-1"></i> Driver Assignments</a></li>
+                        </ul>
+                    </li>
+                    
+                    <!-- PM Allocation Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="pmDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-file-earmark-spreadsheet me-1"></i> PM Allocation
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="pmDropdown">
+                            <li><a class="dropdown-item" href="{{ url_for('pm_allocation_processor') }}"><i class="bi bi-upload me-1"></i> Upload Files</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('auto_process_pm_allocation') }}"><i class="bi bi-magic me-1"></i> Auto-Detect Files</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-file-text me-1"></i> View Reports</a></li>
+                        </ul>
+                    </li>
+                    
+                    <!-- Driver Reports Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="driverDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-vcard me-1"></i> Driver Reports
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="driverDropdown">
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-calendar-day me-1"></i> Daily Report</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-graph-up me-1"></i> Attendance Dashboard</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-file-earmark-text me-1"></i> Historical Reports</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav ms-auto">
+                    {% if current_user.is_authenticated %}
+                    <!-- User Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle me-1"></i> {{ current_user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-1"></i> Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/logout"><i class="bi bi-box-arrow-right me-1"></i> Logout</a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">
+                            <i class="bi bi-box-arrow-in-right me-1"></i> Login
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content -->
+    <main class="py-3">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer mt-auto py-3 bg-dark border-top">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 text-start">
+                    <span class="text-muted">TRAXORA Fleet Management System &copy; 2025</span>
+                </div>
+                <div class="col-md-6 text-end">
+                    <span class="text-muted">Version 1.0.0</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

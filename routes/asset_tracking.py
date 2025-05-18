@@ -99,12 +99,43 @@ def api_assets():
         asset['status_color'] = '#6c757d'  # gray
         
         # Set status colors based on various conditions
-        if asset.get('ignition', False) or asset.get('engTime', 0) > 0:
-            asset['status_color'] = '#28a745'  # green for running/on
-        elif not asset.get('lastReport') or (datetime.now() - datetime.fromisoformat(asset.get('lastReport'))).days > 1:
-            asset['status_color'] = '#dc3545'  # red for no recent reports
-        elif asset.get('status', '').lower() in ['maintenance', 'repair']:
-            asset['status_color'] = '#fd7e14'  # orange for maintenance
+        # Add a default status text
+        if not asset.get('status'):
+            asset['status'] = ''
+            
+        # Default to offline/red for very old report data (or missing report data)
+        if not asset.get('lastReport'):
+            asset['status_color'] = '#dc3545'  # red for no reports
+            asset['status'] = 'Offline'
+        else:
+            # Check if we can parse the date
+            try:
+                last_report = datetime.fromisoformat(asset.get('lastReport'))
+                # Mark as offline if no reports in last 24 hours
+                if (datetime.now() - last_report).days > 1:
+                    asset['status_color'] = '#dc3545'  # red for old reports
+                    if 'status' not in asset or not asset['status']:
+                        asset['status'] = 'Offline'
+                # Check operational status
+                elif asset.get('ignition', False) is True or asset.get('engTime', 0) > 0 or asset.get('engineHours', 0) > 0:
+                    asset['status_color'] = '#28a745'  # green for running/on
+                    if 'status' not in asset or not asset['status']:
+                        asset['status'] = 'Active'
+                # Check maintenance status
+                elif asset.get('status', '').lower() in ['maintenance', 'repair', 'service']:
+                    asset['status_color'] = '#fd7e14'  # orange for maintenance
+                    if 'status' not in asset or not asset['status'] or not asset['status'].lower() in ['maintenance', 'repair', 'service']:
+                        asset['status'] = 'Maintenance'
+                # Default to idle
+                else:
+                    asset['status_color'] = '#6c757d'  # gray for idle
+                    if 'status' not in asset or not asset['status']:
+                        asset['status'] = 'Idle'
+            except (ValueError, TypeError):
+                # If we can't parse the date, mark as offline
+                asset['status_color'] = '#dc3545'  # red
+                if 'status' not in asset or not asset['status']:
+                    asset['status'] = 'Offline'
     
     # Additional filters can be applied here based on request parameters
     

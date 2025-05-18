@@ -956,6 +956,14 @@ def export_report(report_type, format):
     from flask import send_file, send_from_directory
     import io
     
+    # Try to import activity logger
+    try:
+        from utils.activity_logger import log_report_export
+    except ImportError:
+        # Create a dummy function if activity logger is not available
+        def log_report_export(*args, **kwargs):
+            pass
+    
     # Create exports directory if it doesn't exist
     reports_dir = os.path.join('static', 'reports')
     os.makedirs(reports_dir, exist_ok=True)

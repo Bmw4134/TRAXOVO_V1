@@ -416,6 +416,35 @@ def test_daily_report():
         selected_date=report['formatted_date'],
         email_config=get_user_email_config()
     )
+    
+@driver_module_bp.route('/health-check')
+def health_check():
+    """
+    Simple health check route with no authentication required
+    This helps validate that routing is working correctly
+    """
+    report_date = datetime.now().strftime('%Y-%m-%d')
+    attendance_files = {
+        'activity_file': find_latest_activity_file(),
+        'driving_file': find_latest_driving_history_file(),
+        'utilization_file': find_latest_fleet_utilization_file()
+    }
+    
+    response = {
+        'status': 'ok',
+        'timestamp': datetime.now().isoformat(),
+        'report_date': report_date,
+        'attendance_files': attendance_files,
+        'routes_available': [
+            '/drivers/daily-report',
+            '/drivers/send-daily-report-email',
+            '/drivers/test-daily-report',
+            '/drivers/attendance-dashboard',
+            '/drivers/driver-list'
+        ]
+    }
+    
+    return jsonify(response)
 
 @driver_module_bp.route('/daily-report', methods=['GET', 'POST'])
 @login_required

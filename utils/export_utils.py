@@ -63,15 +63,59 @@ def export_daily_report(date_str, output_path, attendance_data=None, employee_da
         # Format the issue sheets
         if 'late_drivers' in attendance_data:
             format_late_sheet(late_sheet, attendance_data['late_drivers'], employee_data, job_data)
+        else:
+            # Add default headers to empty sheet
+            headers = ['Driver', 'Asset ID', 'Scheduled Start', 'Actual Start', 
+                      'Minutes Late', 'Job Site', 'Division', 'Contact Info', 'Email']
+            for col, header in enumerate(headers, start=1):
+                cell = late_sheet.cell(row=1, column=col)
+                cell.value = header
+                cell.font = Font(bold=True)
+                cell.alignment = Alignment(horizontal='center')
+                cell.fill = PatternFill(start_color="DDDDDD", end_color="DDDDDD", fill_type="solid")
+                late_sheet.column_dimensions[get_column_letter(col)].width = 20 if header == 'Email' else 15
         
         if 'early_end_drivers' in attendance_data:
             format_early_sheet(early_sheet, attendance_data['early_end_drivers'], employee_data, job_data)
+        else:
+            # Add default headers to empty sheet
+            headers = ['Driver', 'Asset ID', 'Scheduled End', 'Actual End', 
+                      'Minutes Early', 'Job Site', 'Division', 'Contact Info', 'Email']
+            for col, header in enumerate(headers, start=1):
+                cell = early_sheet.cell(row=1, column=col)
+                cell.value = header
+                cell.font = Font(bold=True)
+                cell.alignment = Alignment(horizontal='center')
+                cell.fill = PatternFill(start_color="DDDDDD", end_color="DDDDDD", fill_type="solid")
+                early_sheet.column_dimensions[get_column_letter(col)].width = 20 if header == 'Email' else 15
             
         if 'missing_drivers' in attendance_data:
             format_missing_sheet(missing_sheet, attendance_data['missing_drivers'], employee_data, job_data)
+        else:
+            # Add default headers to empty sheet
+            headers = ['Driver', 'Asset ID', 'Scheduled Job', 'Actual Job', 
+                      'Region', 'Division', 'Contact Info', 'Email']
+            for col, header in enumerate(headers, start=1):
+                cell = missing_sheet.cell(row=1, column=col)
+                cell.value = header
+                cell.font = Font(bold=True)
+                cell.alignment = Alignment(horizontal='center')
+                cell.fill = PatternFill(start_color="DDDDDD", end_color="DDDDDD", fill_type="solid")
+                missing_sheet.column_dimensions[get_column_letter(col)].width = 20 if header == 'Email' else 15
             
         if 'all_drivers' in attendance_data:
             format_all_drivers_sheet(all_drivers_sheet, attendance_data['all_drivers'], employee_data, job_data)
+        else:
+            # Add default headers to empty sheet
+            headers = ['Driver', 'Asset ID', 'Start Time', 'End Time', 
+                      'Total Hours', 'Job Site', 'Division', 'Contact Info', 'Email']
+            for col, header in enumerate(headers, start=1):
+                cell = all_drivers_sheet.cell(row=1, column=col)
+                cell.value = header
+                cell.font = Font(bold=True)
+                cell.alignment = Alignment(horizontal='center')
+                cell.fill = PatternFill(start_color="DDDDDD", end_color="DDDDDD", fill_type="solid")
+                all_drivers_sheet.column_dimensions[get_column_letter(col)].width = 20 if header == 'Email' else 15
         
         # Save the workbook
         wb.save(output_path)

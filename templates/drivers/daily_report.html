@@ -570,5 +570,140 @@
             });
         });
     });
+    
+    // Email configuration functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        // Save email configuration
+        const saveEmailConfigBtn = document.getElementById('saveEmailConfig');
+        if (saveEmailConfigBtn) {
+            saveEmailConfigBtn.addEventListener('click', function() {
+                document.getElementById('emailConfigForm').submit();
+            });
+        }
+        
+        // Email send modal setup
+        const emailSendModal = document.getElementById('emailSendModal');
+        if (emailSendModal) {
+            emailSendModal.addEventListener('show.bs.modal', function(event) {
+                const button = event.relatedTarget;
+                const reportType = button.getAttribute('data-report-type');
+                document.getElementById('emailReportType').value = reportType;
+                document.getElementById('emailSubject').value = `${reportType.toUpperCase()} Daily Driver Report - {{ report.formatted_date }}`;
+            });
+        }
+        
+        // Send email button
+        const sendEmailBtn = document.getElementById('sendEmailBtn');
+        if (sendEmailBtn) {
+            sendEmailBtn.addEventListener('click', function() {
+                const reportType = document.getElementById('emailReportType').value;
+                const emailTo = document.getElementById('emailTo').value;
+                
+                // Construct URL with parameters
+                let url = `{{ url_for('driver_exports.email_driver_report') }}?export_time=${reportType}&date={{ report.date }}`;
+                
+                // Add email parameter if provided
+                if (emailTo) {
+                    url += `&email=${encodeURIComponent(emailTo)}`;
+                }
+                
+                // Navigate to the URL which will trigger the email send
+                window.location.href = url;
+                
+                // Close the modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('emailSendModal'));
+                if (modal) {
+                    modal.hide();
+                }
+            });
+        }
+        
+        // Add click handlers for the email dropdown items to show the send modal
+        const email8amItems = document.querySelectorAll('a[href*="email_driver_report"][href*="export_time=8am"]');
+        const email9amItems = document.querySelectorAll('a[href*="email_driver_report"][href*="export_time=9am"]');
+        
+        email8amItems.forEach(item => {
+            item.setAttribute('data-bs-toggle', 'modal');
+            item.setAttribute('data-bs-target', '#emailSendModal');
+            item.setAttribute('data-report-type', '8am');
+            item.href = '#';
+        });
+        
+        email9amItems.forEach(item => {
+            item.setAttribute('data-bs-toggle', 'modal');
+            item.setAttribute('data-bs-target', '#emailSendModal');
+            item.setAttribute('data-report-type', '9am');
+            item.href = '#';
+        });
+    });
 </script>
+
+<!-- Email Configuration Modal -->
+<div class="modal fade" id="emailConfigModal" tabindex="-1" aria-labelledby="emailConfigModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="emailConfigModalLabel"><i class="bi bi-envelope-fill me-2"></i>Configure Email Recipients</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="emailConfigForm" action="{{ url_for('driver_module.daily_report') }}" method="post">
+                    <input type="hidden" name="action" value="save_email_config">
+                    <div class="mb-3">
+                        <label for="email8am" class="form-label">8 AM Report Recipients</label>
+                        <textarea class="form-control" id="email8am" name="email8am" rows="3" placeholder="Enter email addresses separated by commas">{{ email_config.get('8am', '') }}</textarea>
+                        <div class="form-text">Who should receive the 8 AM daily driver report?</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email9am" class="form-label">9 AM Report Recipients</label>
+                        <textarea class="form-control" id="email9am" name="email9am" rows="3" placeholder="Enter email addresses separated by commas">{{ email_config.get('9am', '') }}</textarea>
+                        <div class="form-text">Who should receive the 9 AM daily driver report?</div>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="includeCurrentUser" name="includeCurrentUser" checked>
+                        <label class="form-check-label" for="includeCurrentUser">Always include my email</label>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="automaticSend" name="automaticSend">
+                        <label class="form-check-label" for="automaticSend">Send reports automatically daily</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveEmailConfig">Save Configuration</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Email Send Modal -->
+<div class="modal fade" id="emailSendModal" tabindex="-1" aria-labelledby="emailSendModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="emailSendModalLabel"><i class="bi bi-send me-2"></i>Send Report Email</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="emailSendForm">
+                    <input type="hidden" id="emailReportType" name="reportType" value="8am">
+                    <div class="mb-3">
+                        <label for="emailTo" class="form-label">Send To</label>
+                        <input type="text" class="form-control" id="emailTo" name="emailTo" placeholder="Enter email addresses separated by commas">
+                        <div class="form-text">Leave blank to use saved recipient list</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="emailSubject" class="form-label">Subject</label>
+                        <input type="text" class="form-control" id="emailSubject" name="emailSubject" value="Daily Driver Report - {{ report.formatted_date }}" readonly>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-info text-white" id="sendEmailBtn">Send Email</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

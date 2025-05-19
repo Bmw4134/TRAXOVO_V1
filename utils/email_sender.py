@@ -89,6 +89,46 @@ def send_email(subject, html_content, recipients=None, from_email=None, bcc_reci
         # Add content
         message.add_content(Content("text/html", html_content))
         
+        # Add attachment if provided
+        if attachment_path and os.path.exists(attachment_path):
+            with open(attachment_path, 'rb') as f:
+                file_content = f.read()
+                file_content_b64 = base64.b64encode(file_content).decode()
+                
+                # Get file name and extension
+                file_name = os.path.basename(attachment_path)
+                file_extension = os.path.splitext(file_name)[1].lower()
+                
+                # Determine content type based on extension
+                if file_extension == '.pdf':
+                    content_type = 'application/pdf'
+                elif file_extension == '.xlsx':
+                    content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                elif file_extension == '.xls':
+                    content_type = 'application/vnd.ms-excel'
+                elif file_extension == '.csv':
+                    content_type = 'text/csv'
+                elif file_extension in ['.jpg', '.jpeg']:
+                    content_type = 'image/jpeg'
+                elif file_extension == '.png':
+                    content_type = 'image/png'
+                else:
+                    content_type = 'application/octet-stream'
+                
+                # Create the attachment
+                attachment = Attachment()
+                attachment.file_content = FileContent(file_content_b64)
+                attachment.file_type = FileType(content_type)
+                attachment.file_name = FileName(file_name)
+                attachment.disposition = Disposition('attachment')
+                attachment.content_id = ContentId(file_name)
+                
+                # Add attachment to the message
+                message.add_attachment(attachment)
+                logger.info(f"Added attachment: {file_name}")
+        elif attachment_path:
+            logger.warning(f"Attachment file not found: {attachment_path}")
+        
         # Send email
         sg = SendGridAPIClient(SENDGRID_API_KEY)
         response = sg.send(message)

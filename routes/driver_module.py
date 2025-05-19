@@ -453,18 +453,58 @@ def attendance_dashboard():
     
     # Get attendance data for the date range
     try:
-        attendance_data = {}  # We'll implement this later with real data
+        # Import the centralized pipeline connector
+        from utils.attendance_pipeline_connector import get_attendance_data, get_trend_data, get_attendance_audit_log
+        
+        # Get attendance data from our centralized connector
+        attendance_data = get_attendance_data(end_date)
+        
+        # Get trend data for analysis
+        trend_data = get_trend_data(end_date_str=end_date, days=7)  # Last 7 days by default
+        
+        # Get audit log for tracking data processing
+        audit_log = get_attendance_audit_log()
         
         log_navigation('Attendance Dashboard', {'start_date': start_date, 'end_date': end_date})
         return render_template(
             'drivers/attendance_dashboard.html',
             attendance_data=attendance_data,
+            trend_data=trend_data,
+            audit_log=audit_log,
             start_date=start_date,
             end_date=end_date
         )
     except Exception as e:
         logger.error(f"Error loading attendance dashboard: {e}")
         flash('Error loading attendance dashboard data.', 'danger')
+        return redirect(url_for('index'))
+
+@driver_module_bp.route('/driver-list')
+@login_required
+def driver_list():
+    """Display list of all drivers with attendance history"""
+    # Get date range parameters, default to current month
+    today = datetime.now()
+    start_date = request.args.get('start_date', today.replace(day=1).strftime('%Y-%m-%d'))
+    end_date = request.args.get('end_date', today.strftime('%Y-%m-%d'))
+    
+    try:
+        # Import the centralized pipeline connector
+        from utils.attendance_pipeline_connector import get_driver_list
+        
+        # Get driver data from our centralized connector
+        driver_data = get_driver_list()
+        
+        log_navigation('Driver List', {'start_date': start_date, 'end_date': end_date})
+        return render_template(
+            'drivers/driver_list.html',
+            drivers=driver_data,
+            start_date=start_date,
+            end_date=end_date
+        )
+    except Exception as e:
+        logger.error(f"Error loading driver list: {e}")
+        flash('Error loading driver data.', 'danger')
         return redirect(url_for('index'))
 
 @driver_module_bp.route('/export-report', methods=['GET', 'POST'])

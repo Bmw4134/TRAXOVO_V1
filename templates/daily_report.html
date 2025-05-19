@@ -157,9 +157,9 @@
                     <tr>
                       <td>{{ record.driver_name }}</td>
                       <td>{{ record.job_site }}</td>
-                      <td>{{ record.expected_start.strftime('%H:%M') }}</td>
-                      <td>{{ record.actual_start.strftime('%H:%M') }}</td>
-                      <td><span class="status-badge bg-danger">{{ record.minutes_late }} min</span></td>
+                      <td>{{ record.scheduled_start if record.scheduled_start else "" }}</td>
+                      <td>{{ record.actual_start if record.actual_start else "" }}</td>
+                      <td><span class="status-badge bg-danger">{{ record.late_minutes }} min</span></td>
                     </tr>
                   {% endfor %}
                 {% else %}
@@ -346,9 +346,9 @@
                       <td>{{ record.driver_name }}</td>
                       <td><span class="badge bg-danger">Late</span></td>
                       <td>{{ record.job_site }}</td>
-                      <td class="d-none d-md-table-cell">{{ record.expected_start.strftime('%H:%M') if record.expected_start else "" }}</td>
-                      <td class="d-none d-md-table-cell">{{ record.actual_start.strftime('%H:%M') if record.actual_start else "" }}</td>
-                      <td>{{ record.minutes_late }}</td>
+                      <td class="d-none d-md-table-cell">{{ record.scheduled_start if record.scheduled_start else "" }}</td>
+                      <td class="d-none d-md-table-cell">{{ record.actual_start if record.actual_start else "" }}</td>
+                      <td>{{ record.late_minutes }}</td>
                     </tr>
                     {% endfor %}
                     {% for record in early_end_records %}

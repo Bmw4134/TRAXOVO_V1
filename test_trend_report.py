@@ -10,6 +10,7 @@ import sys
 import json
 import logging
 from datetime import datetime, timedelta
+from importlib import import_module
 
 # Local imports
 from trend_report import generate_trend_report, DriverRecord
@@ -100,6 +101,27 @@ def create_test_data():
                 print(f"  Actual: {', '.join(driver_data['flags'])}")
                 print(f"  Status: {'✓ PASS' if match else '✗ FAIL'}")
                 print(f"  Days: late={driver_data['late_count']}, absent={driver_data['absence_count']}")
+                
+                # Debug info for unstable shifts
+                if "UNSTABLE_SHIFT" in expected_flags[name]:
+                    print("  DEBUG: Checking unstable shift data for", driver_data['name'])
+                    # Find the driver's time data from our patterns
+                    if name == normalize_driver_name("JAMES UNSTABLE_SHIFTS"):
+                        pattern = patterns["JAMES UNSTABLE_SHIFTS"]
+                        print(f"  Start times: {pattern['start_times']}")
+                        print(f"  End times: {pattern['end_times']}")
+                        
+                        # Test the unstable shift detection directly
+                        start_times = [
+                            (dates[i], time) for i, time in enumerate(pattern['start_times'])
+                        ]
+                        end_times = [
+                            (dates[i], time) for i, time in enumerate(pattern['end_times'])
+                        ]
+                        
+                        print("  Manually testing unstable shift detection:")
+                        result = import_module('trend_report').has_unstable_shifts(start_times, end_times)
+                        print(f"  Direct test result: {'UNSTABLE' if result else 'STABLE'}")
                 
         # Return report for further inspection
         return report

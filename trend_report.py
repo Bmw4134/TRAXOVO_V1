@@ -115,11 +115,19 @@ def parse_time_to_minutes(time_str):
         # Handle common time formats (with AM/PM)
         if 'AM' in time_str or 'PM' in time_str:
             time_obj = datetime.strptime(time_str, '%I:%M %p')
+            # Convert 12-hour format to 24-hour
+            hour = time_obj.hour
+            if 'PM' in time_str and hour < 12:
+                hour += 12
+            elif 'AM' in time_str and hour == 12:
+                hour = 0
         else:
             time_obj = datetime.strptime(time_str, '%H:%M')
+            hour = time_obj.hour
             
-        return time_obj.hour * 60 + time_obj.minute
+        return hour * 60 + time_obj.minute
     except (ValueError, TypeError):
+        logger.warning(f"Could not parse time string: {time_str}")
         return None
 
 def has_unstable_shifts(start_times, end_times):
@@ -138,34 +146,68 @@ def has_unstable_shifts(start_times, end_times):
         
     # Extract and convert times to minutes after midnight
     start_minutes = []
-    for _, time_str in start_times:
+    for date, time_str in start_times:
         minutes = parse_time_to_minutes(time_str)
         if minutes is not None:
-            start_minutes.append(minutes)
+            start_minutes.append((date, minutes))
             
     end_minutes = []
-    for _, time_str in end_times:
+    for date, time_str in end_times:
         minutes = parse_time_to_minutes(time_str)
         if minutes is not None:
-            end_minutes.append(minutes)
-            
-    # Check for unstable start times
-    if start_minutes:
-        start_min = min(start_minutes)
-        start_max = max(start_minutes)
+            end_minutes.append((date, minutes))
+    
+    # Need at least 2 valid times for comparison
+    if len(start_minutes) < 2:
+        return False
+        
+    # Check for unstable start times (maximum variation)
+    start_values = [minutes for _, minutes in start_minutes]
+    if start_values:
+        start_min = min(start_values)
+        start_max = max(start_values)
         start_diff = start_max - start_min
         
+        logger.info(f"Start time variation: {start_diff} minutes (min={start_min}, max={start_max})")
         if start_diff >= UNSTABLE_SHIFT_THRESHOLD:
+            logger.info(f"UNSTABLE_SHIFT: Start time variation of {start_diff} minutes exceeds threshold of {UNSTABLE_SHIFT_THRESHOLD}")
             return True
             
-    # Check for unstable end times
-    if end_minutes:
-        end_min = min(end_minutes)
-        end_max = max(end_minutes)
+    # Check for unstable end times (maximum variation)
+    end_values = [minutes for _, minutes in end_minutes]
+    if end_values and len(end_values) >= 2:
+        end_min = min(end_values)
+        end_max = max(end_values)
         end_diff = end_max - end_min
         
+        logger.info(f"End time variation: {end_diff} minutes (min={end_min}, max={end_max})")
         if end_diff >= UNSTABLE_SHIFT_THRESHOLD:
+            logger.info(f"UNSTABLE_SHIFT: End time variation of {end_diff} minutes exceeds threshold of {UNSTABLE_SHIFT_THRESHOLD}")
             return True
+    
+    # Check for shift duration stability
+    if len(start_minutes) >= 2 and len(end_minutes) >= 2:
+        # Build map of dates to shift durations
+        shift_durations = {}
+        
+        for date, start_minute in start_minutes:
+            for end_date, end_minute in end_minutes:
+                if date == end_date:
+                    duration = end_minute - start_minute
+                    if duration > 0:  # Valid shift duration
+                        shift_durations[date] = duration
+        
+        # Check variation in shift duration if we have at least 2 valid days
+        if len(shift_durations) >= 2:
+            durations = list(shift_durations.values())
+            min_duration = min(durations)
+            max_duration = max(durations)
+            duration_diff = max_duration - min_duration
+            
+            logger.info(f"Shift duration variation: {duration_diff} minutes (min={min_duration}, max={max_duration})")
+            if duration_diff >= UNSTABLE_SHIFT_THRESHOLD:
+                logger.info(f"UNSTABLE_SHIFT: Shift duration variation of {duration_diff} minutes exceeds threshold of {UNSTABLE_SHIFT_THRESHOLD}")
+                return True
             
     return False
 

@@ -46,6 +46,177 @@ def allowed_file(filename):
     """Check if file has an allowed extension"""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+# Email configuration helper functions
+def get_user_email_config():
+    """
+    Get email configuration for the current user
+    Returns a dictionary with configuration values
+    """
+    if not current_user.is_authenticated:
+        return {'8am': '', '9am': ''}
+    
+    # Initialize with default empty values
+    email_config = {'8am': '', '9am': ''}
+    
+    # Try to get user's saved email configuration
+    try:
+        # Get 8am email recipients
+        setting_8am = UserSettings.query.filter_by(
+            user_id=current_user.id,
+            setting_key='email_recipients_8am'
+        ).first()
+        
+        if setting_8am:
+            email_config['8am'] = setting_8am.setting_value
+            
+        # Get 9am email recipients
+        setting_9am = UserSettings.query.filter_by(
+            user_id=current_user.id,
+            setting_key='email_recipients_9am'
+        ).first()
+        
+        if setting_9am:
+            email_config['9am'] = setting_9am.setting_value
+            
+    except Exception as e:
+        logging.error(f"Error retrieving email configuration: {e}")
+    
+    return email_config
+
+def save_email_config():
+    """
+    Save email configuration from form submission
+    """
+    if not current_user.is_authenticated:
+        flash('You must be logged in to save email configuration.', 'warning')
+        return redirect(url_for('driver_module.daily_report'))
+    
+    try:
+        # Get form data
+        email_8am = request.form.get('email8am', '')
+        email_9am = request.form.get('email9am', '')
+        
+        # Save 8am configuration
+        setting_8am = UserSettings.query.filter_by(
+            user_id=current_user.id,
+            setting_key='email_recipients_8am'
+        ).first()
+        
+        if not setting_8am:
+            setting_8am = UserSettings(
+                user_id=current_user.id,
+                setting_key='email_recipients_8am',
+                setting_value=email_8am
+            )
+            db.session.add(setting_8am)
+        else:
+            setting_8am.setting_value = email_8am
+        
+        # Save 9am configuration
+        setting_9am = UserSettings.query.filter_by(
+            user_id=current_user.id,
+            setting_key='email_recipients_9am'
+        ).first()
+        
+        if not setting_9am:
+            setting_9am = UserSettings(
+                user_id=current_user.id,
+                setting_key='email_recipients_9am',
+                setting_value=email_9am
+            )
+            db.session.add(setting_9am)
+        else:
+            setting_9am.setting_value = email_9am
+        
+        # Save to database
+        db.session.commit()
+        
+        # Save a system-wide email list if admin
+        if hasattr(current_user, 'is_admin') and current_user.is_admin:
+            # Update 8am global list
+            email_list_8am = EmailRecipientList.query.filter_by(
+                list_name='daily_driver_8am'
+            ).first()
+            
+            if not email_list_8am:
+                email_list_8am = EmailRecipientList(
+                    list_name='daily_driver_8am',
+                    description='Daily Driver Report 8am Recipients',
+                    recipients=email_8am,
+                    created_by=current_user.id
+                )
+                db.session.add(email_list_8am)
+            else:
+                email_list_8am.recipients = email_8am
+            
+            # Update 9am global list
+            email_list_9am = EmailRecipientList.query.filter_by(
+                list_name='daily_driver_9am'
+            ).first()
+            
+            if not email_list_9am:
+                email_list_9am = EmailRecipientList(
+                    list_name='daily_driver_9am',
+                    description='Daily Driver Report 9am Recipients',
+                    recipients=email_9am,
+                    created_by=current_user.id
+                )
+                db.session.add(email_list_9am)
+            else:
+                email_list_9am.recipients = email_9am
+                
+            db.session.commit()
+        
+        flash('Email configuration saved successfully.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Error saving email configuration: {e}")
+        flash('Error saving email configuration.', 'danger')
+    
+    return redirect(url_for('driver_module.daily_report'))
+
+def get_report_recipients(export_time):
+    """
+    Get recipients for a specific report time (8am or 9am)
+    Combines system-wide and user-specific settings
+    
+    Args:
+        export_time (str): The report time ('8am' or '9am')
+        
+    Returns:
+        list: List of email addresses
+    """
+    recipients = []
+    
+    try:
+        # Get system-wide recipients
+        list_name = f'daily_driver_{export_time}'
+        email_list = EmailRecipientList.query.filter_by(
+            list_name=list_name,
+            is_active=True
+        ).first()
+        
+        if email_list:
+            recipients.extend(email_list.get_recipients_list())
+        
+        # Get user-specific recipients if logged in
+        if current_user.is_authenticated:
+            setting_key = f'email_recipients_{export_time}'
+            user_setting = UserSettings.query.filter_by(
+                user_id=current_user.id,
+                setting_key=setting_key
+            ).first()
+            
+            if user_setting and user_setting.setting_value:
+                user_recipients = [email.strip() for email in user_setting.setting_value.split(',') if email.strip()]
+                for email in user_recipients:
+                    if email not in recipients:
+                        recipients.append(email)
+    except Exception as e:
+        logging.error(f"Error getting report recipients: {e}")
+    
+    return recipients
+
 def get_drivers():
     """
     Get driver data from the database

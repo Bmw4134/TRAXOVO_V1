@@ -184,6 +184,7 @@ def process_daily_usage_data(file_path, date_str=None):
                     # Check if late
                     if minutes_late > 0:
                         report['summary']['late_drivers'] += 1
+                        report['summary']['total_issues'] += 1
                         report['late_drivers'].append({
                             'id': len(report['late_drivers']) + 1,
                             'employee_id': employee_id,
@@ -206,6 +207,7 @@ def process_daily_usage_data(file_path, date_str=None):
                     
                     if minutes_early > 0:
                         report['summary']['early_end_drivers'] += 1
+                        report['summary']['total_issues'] += 1
                         report['early_end_drivers'].append({
                             'id': len(report['early_end_drivers']) + 1,
                             'employee_id': employee_id,
@@ -222,6 +224,7 @@ def process_daily_usage_data(file_path, date_str=None):
                 # Check for missing data (exceptions)
                 if not actual_start_time or not actual_end_time:
                     report['summary']['exception_drivers'] += 1
+                    report['summary']['total_issues'] += 1
                     report['exceptions'].append({
                         'id': len(report['exceptions']) + 1,
                         'employee_id': employee_id,

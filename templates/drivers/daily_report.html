@@ -31,30 +31,30 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><h6 class="dropdown-header">Standard Reports</h6></li>
-                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_report') }}?type=daily&format=pdf">PDF Report</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_report') }}?type=daily&format=csv">CSV Data</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_report') }}?type=daily&format=xlsx">Excel Spreadsheet</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_driver_report') }}?type=daily&format=pdf">PDF Report</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_driver_report') }}?type=daily&format=csv">CSV Data</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_driver_report') }}?type=daily&format=xlsx">Excel Spreadsheet</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><h6 class="dropdown-header">Daily Driver Reports</h6></li>
-                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_report') }}?export_time=8am&date={{ report.date }}&format=xlsx">
+                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_driver_report') }}?export_time=8am&date={{ report.date }}&format=xlsx">
                             <i class="bi bi-clock"></i> 8AM Report
                         </a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_report') }}?export_time=9am&date={{ report.date }}&format=xlsx">
+                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_driver_report') }}?export_time=9am&date={{ report.date }}&format=xlsx">
                             <i class="bi bi-clock"></i> 9AM Report
                         </a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_report') }}?export_time=8am&date={{ report.date }}&format=xlsx&direct=true">
+                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_driver_report') }}?export_time=8am&date={{ report.date }}&format=xlsx&direct=true">
                             <i class="bi bi-download"></i> Direct 8AM Download
                         </a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_report') }}?export_time=9am&date={{ report.date }}&format=xlsx&direct=true">
+                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_driver_report') }}?export_time=9am&date={{ report.date }}&format=xlsx&direct=true">
                             <i class="bi bi-download"></i> Direct 9AM Download
                         </a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><h6 class="dropdown-header">Email Reports</h6></li>
-                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_report') }}?email=true&export_time=8am&date={{ report.date }}">
+                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_driver_report') }}?email=true&export_time=8am&date={{ report.date }}">
                             <i class="bi bi-envelope"></i> Email 8AM Report
                         </a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_report') }}?email=true&export_time=9am&date={{ report.date }}">
+                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_driver_report') }}?email=true&export_time=9am&date={{ report.date }}">
                             <i class="bi bi-envelope"></i> Email 9AM Report
                         </a></li>
                     </ul>

@@ -71,7 +71,7 @@ def process_daily_usage_data(file_path, date_str=None):
         date_str (str): Date string in YYYY-MM-DD format, defaults to today
         
     Returns:
-        dict: Processed daily report data
+        dict: Processed daily report data with accurate unique driver counts
     """
     if not os.path.exists(file_path):
         logger.error(f"File not found: {file_path}")
@@ -123,23 +123,74 @@ def process_daily_usage_data(file_path, date_str=None):
         # Normalize column names (remove spaces, lowercase)
         df.columns = [col.strip().lower().replace(' ', '_') for col in df.columns]
         
-        # Track unique drivers to avoid duplicates
-        unique_drivers = set()
+        # Filter for the specific date if provided
+        if date_str:
+            # Convert date_str to the format in the file (M/D/YYYY)
+            try:
+                filter_date = datetime.strptime(date_str, '%Y-%m-%d').strftime('%-m/%-d/%Y')
+                df = df[df['date'] == filter_date]
+                logger.info(f"Filtered to {len(df)} records for date {filter_date}")
+            except Exception as e:
+                logger.error(f"Error filtering by date: {e}")
         
-        # Process each row as a driver entry
+        # First pass: collect all unique drivers
+        unique_drivers = set()
+        driver_data = {}  # Store all data for each unique driver
+        
+        # Group data by employee ID to collect all entries for each driver
         for _, row in df.iterrows():
             try:
-                # Extract driver info and times
+                # Extract driver info based on different formats in the data
+                asset_label = str(row.get('assetlabel', 'Unknown'))
+                
+                # Handle different formats of asset labels
+                employee_id = ""
+                driver_name = ""
+                
+                # Format: ET-XX (NAME) or PT-XX (NAME) format
+                if '(' in asset_label and ')' in asset_label:
+                    parts = asset_label.split('(', 1)
+                    employee_id = parts[0].strip()
+                    driver_name = parts[1].split(')', 1)[0].strip()
+                # Format: #XXXXXX - NAME format
+                elif ' - ' in asset_label:
+                    parts = asset_label.split(' - ')
+                    employee_id = parts[0].strip()
+                    driver_name = parts[1].strip() if len(parts) > 1 else 'Unknown'
+                else:
+                    # Fallback
+                    employee_id = asset_label
+                    driver_name = str(row.get('name', 'Unknown')).strip()
+                
+                # Create a unique key for this driver
+                driver_key = f"{employee_id}_{driver_name}"
+                
+                # Add to unique drivers set
+                unique_drivers.add(driver_key)
+                
+                # Collect data for this driver
+                if driver_key not in driver_data:
+                    driver_data[driver_key] = []
+                
+                # Add this row's data to the driver's collected data
+                driver_data[driver_key].append(row)
+                
+            except Exception as e:
+                logger.error(f"Error processing driver identification: {e}")
+        
+        # Update the total drivers count - this is the actual number of unique drivers
+        report['summary']['total_drivers'] = len(unique_drivers)
+        
+        # Process each unique driver
+        for driver_key, rows in driver_data.items():
+            try:
+                # Get the first row for this driver to extract common information
+                row = rows[0]  # Use the first entry for this driver's basic info
+                
+                # Extract driver info
                 asset_label = str(row.get('assetlabel', 'Unknown')).split(' - ')
                 employee_id = asset_label[0].strip() if len(asset_label) > 0 else 'Unknown'
                 driver_name = asset_label[1].strip() if len(asset_label) > 1 else 'Unknown'
-                
-                # Skip if we've already processed this driver
-                driver_key = f"{employee_id}_{driver_name}"
-                if driver_key in unique_drivers:
-                    continue
-                
-                unique_drivers.add(driver_key)
                 
                 # Get vehicle info - parse from asset label if available
                 vehicle_info = ""
@@ -159,7 +210,7 @@ def process_daily_usage_data(file_path, date_str=None):
                     # Extract city and state from location
                     job_site = location.split(',')[0].strip()
                 
-                # Get start/end times and parse them
+                # Get start/end times and parse them - use the entry for this specific date
                 started = str(row.get('started', 'N/A')).strip()
                 stopped = str(row.get('stopped', 'N/A')).strip()
                 
@@ -172,9 +223,6 @@ def process_daily_usage_data(file_path, date_str=None):
                 actual_end_time = None  
                 if stopped and stopped != 'N/A':
                     actual_end_time = parse_time(stopped)
-                
-                # Count as a driver
-                report['summary']['total_drivers'] += 1
                 
                 # Check for morning attendance
                 if actual_start_time:

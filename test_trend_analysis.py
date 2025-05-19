@@ -44,12 +44,12 @@ def setup_test_environment():
 
 def run_trend_analysis(dates):
     """Run trend analysis on the test data"""
-    # Temporarily override the default data source
+    # Temporarily override the default process_attendance_data function
     import utils.attendance_processor as processor
-    original_read_func = processor.read_daily_usage_file
+    original_process_func = processor.process_attendance_data
     
-    def mock_read_daily_usage(date=None, file_path=None, return_all_data=False):
-        """Override to read from test data instead of production data"""
+    def mock_process_attendance_data(date=None):
+        """Mock process_attendance_data to use our test data"""
         if date:
             test_file = f'test_data/DailyUsage_{date}.csv'
             if os.path.exists(test_file):
@@ -68,9 +68,6 @@ def run_trend_analysis(dates):
                     for row in reader:
                         if row and 'Asset' in row and row['Asset']:
                             data.append(row)
-                            
-                if return_all_data:
-                    return data
                 
                 # Process the data and return the same structure as the real function
                 result = {
@@ -113,7 +110,7 @@ def run_trend_analysis(dates):
         return {}
     
     # Apply our override
-    processor.read_daily_usage_file = mock_read_daily_usage
+    processor.process_attendance_data = mock_process_attendance_data
     
     try:
         # Run the trend analysis
@@ -146,7 +143,7 @@ def run_trend_analysis(dates):
         return results
     finally:
         # Restore the original function
-        processor.read_daily_usage_file = original_read_func
+        processor.process_attendance_data = original_process_func
 
 def main():
     """Main function"""

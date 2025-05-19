@@ -19,6 +19,9 @@ from utils.activity_logger import (
     log_feature_usage, log_search
 )
 
+# Import database
+from app import db
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -568,7 +571,8 @@ def driver_list():
     """List all drivers with filtering options"""
     log_navigation(current_user.id, 'driver_module.driver_list')
     
-    drivers = get_sample_drivers()
+    # Get all drivers from the database
+    drivers = get_drivers()
     
     # Handle filtering
     region = request.args.get('region')
@@ -600,115 +604,314 @@ def driver_list():
 @login_required
 def driver_detail(driver_id):
     """Driver detail page with attendance history"""
-    log_navigation(current_user.id, f'driver_module.driver_detail.{driver_id}')
-    
-    # Find the driver in our sample data
-    drivers = get_sample_drivers()
-    driver = next((d for d in drivers if d['id'] == driver_id), None)
-    
-    if not driver:
-        flash('Driver not found', 'danger')
-        return redirect(url_for('driver_module.driver_list'))
-    
-    # Generate sample attendance history
-    today = datetime.now()
-    history = []
-    
-    for i in range(30):
-        date = today - timedelta(days=i)
-        date_str = date.strftime('%Y-%m-%d')
+    try:
+        log_navigation(current_user.id, f'driver_module.driver_detail.{driver_id}')
         
-        # Randomize status but weight toward on-time
-        import random
-        status_weights = {'on_time': 0.85, 'late': 0.10, 'early_end': 0.03, 'not_on_job': 0.02}
-        status = random.choices(
-            list(status_weights.keys()), 
-            weights=list(status_weights.values()), 
-            k=1
-        )[0]
+        # Import models
+        from models.driver_attendance import DriverAttendance, AttendanceRecord
         
-        entry = {
-            'date': date_str,
-            'status': status,
-            'scheduled_start': '07:00 AM',
-            'actual_start': '07:00 AM',
-            'scheduled_end': '05:30 PM',
-            'actual_end': '05:30 PM',
-            'job_site': driver['job_site'],
-            'vehicle': driver['vehicle']
+        # Get the driver from the database
+        driver_record = DriverAttendance.query.get(driver_id)
+        
+        if not driver_record:
+            flash('Driver not found', 'danger')
+            return redirect(url_for('driver_module.driver_list'))
+        
+        # Convert to the format used in templates
+        driver = {
+            'id': str(driver_record.id),
+            'name': driver_record.full_name,
+            'employee_id': driver_record.employee_id,
+            'status': 'Active' if driver_record.is_active else 'Inactive',
+            'region': driver_record.division or 'Unknown',
+            'job_site': 'Multiple', # Will be calculated below
+            'attendance_score': 0,   # Will be calculated below
+            'late_count': 0,         # Will be calculated below
+            'early_end_count': 0,    # Will be calculated below
+            'not_on_job_count': 0,   # Will be calculated below
+            'vehicle': 'N/A'         # Will be updated if available
         }
         
-        # Adjust times based on status
-        if status == 'late':
-            minutes_late = random.randint(5, 45)
-            actual_time = (date.replace(hour=7, minute=0) + 
-                          timedelta(minutes=minutes_late))
-            entry['actual_start'] = actual_time.strftime('%I:%M %p')
-            entry['minutes_late'] = minutes_late
+        # Get attendance history from database
+        today = datetime.now().date()
+        thirty_days_ago = today - timedelta(days=30)
+        
+        # Query attendance records from the database
+        attendance_records = AttendanceRecord.query.filter(
+            AttendanceRecord.driver_id == driver_id,
+            AttendanceRecord.date.between(thirty_days_ago, today)
+        ).order_by(AttendanceRecord.date.desc()).all()
+        
+        # Process records into history format
+        history = []
+        
+        # Process each attendance record into the format needed for the template
+        for record in attendance_records:
+            # Determine status
+            status = 'On Time'
+            if record.late_start:
+                status = 'Late Start'
+            elif record.early_end:
+                status = 'Early End'
+            elif record.not_on_job:
+                status = 'Not on Job'
             
-        elif status == 'early_end':
-            minutes_early = random.randint(5, 30)
-            actual_time = (date.replace(hour=17, minute=30) - 
-                          timedelta(minutes=minutes_early))
-            entry['actual_end'] = actual_time.strftime('%I:%M %p')
-            entry['minutes_early'] = minutes_early
+            # Format times
+            scheduled_start = record.expected_start_time.strftime('%I:%M %p') if record.expected_start_time else 'N/A'
+            actual_start = record.actual_start_time.strftime('%I:%M %p') if record.actual_start_time else 'N/A'
+            scheduled_end = record.expected_end_time.strftime('%I:%M %p') if record.expected_end_time else 'N/A'
+            actual_end = record.actual_end_time.strftime('%I:%M %p') if record.actual_end_time else 'N/A'
             
-        elif status == 'not_on_job':
-            entry['reason'] = random.choice([
-                'Vehicle maintenance',
-                'Weather conditions',
-                'Job site closure',
-                'Equipment failure'
-            ])
+            # Get job site name
+            job_site = 'Unknown'
+            if record.assigned_job:
+                job_site = record.assigned_job.name
             
-        history.append(entry)
-    
-    return render_template('drivers/driver_detail.html', 
-                          driver=driver,
-                          attendance_history=history)
+            # Calculate late/early minutes if applicable
+            minutes_late = 0
+            if record.late_start and record.expected_start_time and record.actual_start_time:
+                time_diff = record.actual_start_time - record.expected_start_time
+                minutes_late = int(time_diff.total_seconds() / 60)
+                
+            minutes_early = 0
+            if record.early_end and record.expected_end_time and record.actual_end_time:
+                time_diff = record.expected_end_time - record.actual_end_time
+                minutes_early = int(time_diff.total_seconds() / 60)
+            
+            # Create the history entry
+            entry = {
+                'date': record.date.strftime('%Y-%m-%d'),
+                'weekday': record.date.strftime('%A'),
+                'job_site': job_site,
+                'status': status,
+                'scheduled_start': scheduled_start,
+                'actual_start': actual_start,
+                'scheduled_end': scheduled_end,
+                'actual_end': actual_end,
+                'vehicle': record.asset_id or 'N/A',
+                'notes': record.notes or ''
+            }
+            
+            # Add late/early minutes if applicable
+            if minutes_late > 0:
+                entry['minutes_late'] = minutes_late
+                
+            if minutes_early > 0:
+                entry['minutes_early'] = minutes_early
+            
+            history.append(entry)
+        
+        # Fill in dates with no records to ensure complete 30-day history
+        dates_with_records = {record.date.strftime('%Y-%m-%d') for record in attendance_records}
+        
+        for i in range(30):
+            date = today - timedelta(days=i)
+            date_str = date.strftime('%Y-%m-%d')
+            
+            if date_str not in dates_with_records:
+                # Add placeholder for days with no records
+                history.append({
+                    'date': date_str,
+                    'weekday': date.strftime('%A'),
+                    'job_site': 'N/A',
+                    'status': 'No Data',
+                    'scheduled_start': 'N/A',
+                    'actual_start': 'N/A',
+                    'scheduled_end': 'N/A',
+                    'actual_end': 'N/A',
+                    'vehicle': 'N/A',
+                    'notes': ''
+                })
+        
+        # Sort history by date (newest first)
+        history = sorted(history, key=lambda x: x['date'], reverse=True)
+        
+        # Calculate metrics from actual records
+        late_count = sum(1 for r in attendance_records if r.late_start)
+        early_end_count = sum(1 for r in attendance_records if r.early_end)
+        not_on_job_count = sum(1 for r in attendance_records if r.not_on_job)
+        
+        total_records = len(attendance_records)
+        problem_records = late_count + early_end_count + not_on_job_count
+        on_time_count = total_records - problem_records
+        
+        attendance_score = int((on_time_count / total_records) * 100) if total_records > 0 else 0
+        
+        # Update driver data with calculated metrics
+        driver['late_count'] = late_count
+        driver['early_end_count'] = early_end_count
+        driver['not_on_job_count'] = not_on_job_count
+        driver['attendance_score'] = attendance_score
+        
+        # Find most frequent job site and vehicle
+        if attendance_records:
+            # Most frequent job site
+            job_sites = {}
+            for record in attendance_records:
+                if record.assigned_job and record.assigned_job.name:
+                    site_name = record.assigned_job.name
+                    job_sites[site_name] = job_sites.get(site_name, 0) + 1
+            
+            if job_sites:
+                most_frequent_site = max(job_sites.items(), key=lambda x: x[1])[0]
+                driver['job_site'] = most_frequent_site
+                
+            # Most recent vehicle
+            vehicles = [r.asset_id for r in attendance_records if r.asset_id]
+            if vehicles:
+                driver['vehicle'] = vehicles[0]
+        
+        return render_template('drivers/driver_detail.html', 
+                              driver=driver,
+                              attendance_history=history)
+                              
+    except Exception as e:
+        logger.error(f"Error loading driver detail: {str(e)}")
+        flash(f"Error loading driver details: {str(e)}", "danger")
+        return redirect(url_for('driver_module.driver_list'))
 
 @driver_module_bp.route('/job_site_detail/<site_id>')
 @login_required
 def job_site_detail(site_id):
     """Job site detail page with attendance metrics"""
-    log_navigation(current_user.id, f'driver_module.job_site_detail.{site_id}')
-    
-    # Look up job site from our sample data
-    stats = get_sample_attendance_stats()
-    site = next((s for s in stats['job_sites'] if s['id'] == site_id), None)
-    
-    if not site:
-        flash('Job site not found', 'danger')
+    try:
+        log_navigation(current_user.id, f'driver_module.job_site_detail.{site_id}')
+        
+        # Import required models
+        from models.driver_attendance import AttendanceRecord, JobSite, DriverAttendance
+        
+        # Get the job site from the database
+        site = JobSite.query.get(site_id)
+        
+        if not site:
+            flash('Job site not found', 'danger')
+            return redirect(url_for('driver_module.attendance_dashboard'))
+        
+        # Format for template
+        site_data = {
+            'id': str(site.id),
+            'name': site.name,
+            'location': site.location or 'N/A',
+            'status': 'Active' if getattr(site, 'is_active', True) else 'Inactive',
+            'on_time_count': 0,
+            'late_count': 0,
+            'not_on_job_count': 0,
+            'attendance_score': 0
+        }
+        
+        # Get attendance records for this job site for the last 30 days
+        today = datetime.now().date()
+        thirty_days_ago = today - timedelta(days=30)
+        
+        attendance_records = AttendanceRecord.query.filter(
+            AttendanceRecord.job_site_id == site_id,
+            AttendanceRecord.date.between(thirty_days_ago, today)
+        ).all()
+        
+        # Calculate site metrics
+        total_records = len(attendance_records)
+        late_count = sum(1 for r in attendance_records if r.late_start)
+        early_end_count = sum(1 for r in attendance_records if r.early_end)
+        not_on_job_count = sum(1 for r in attendance_records if r.not_on_job)
+        on_time_count = total_records - (late_count + early_end_count + not_on_job_count)
+        
+        site_data['on_time_count'] = on_time_count
+        site_data['late_count'] = late_count
+        site_data['not_on_job_count'] = not_on_job_count
+        site_data['attendance_score'] = int((on_time_count / total_records) * 100) if total_records > 0 else 0
+        
+        # Get drivers assigned to this job site
+        driver_ids = set(record.driver_id for record in attendance_records if record.driver_id)
+        drivers = []
+        
+        for driver_id in driver_ids:
+            driver_record = DriverAttendance.query.get(driver_id)
+            if driver_record:
+                # Get driver-specific attendance records for this site
+                driver_site_records = [r for r in attendance_records if r.driver_id == driver_id]
+                total_driver_records = len(driver_site_records)
+                
+                if total_driver_records > 0:
+                    driver_late_count = sum(1 for r in driver_site_records if r.late_start)
+                    driver_early_end_count = sum(1 for r in driver_site_records if r.early_end)
+                    driver_not_on_job_count = sum(1 for r in driver_site_records if r.not_on_job)
+                    driver_on_time_count = total_driver_records - (driver_late_count + driver_early_end_count + driver_not_on_job_count)
+                    attendance_score = int((driver_on_time_count / total_driver_records) * 100)
+                    
+                    drivers.append({
+                        'id': str(driver_record.id),
+                        'name': driver_record.full_name,
+                        'employee_id': driver_record.employee_id,
+                        'status': 'Active' if getattr(driver_record, 'is_active', True) else 'Inactive',
+                        'attendance_score': attendance_score,
+                        'late_count': driver_late_count,
+                        'early_end_count': driver_early_end_count,
+                        'not_on_job_count': driver_not_on_job_count
+                    })
+        
+        # Generate daily metrics for the last 14 days
+        daily_metrics = []
+        
+        # Group attendance records by date
+        attendance_by_date = {}
+        for record in attendance_records:
+            date_str = record.date.strftime('%Y-%m-%d')
+            if date_str not in attendance_by_date:
+                attendance_by_date[date_str] = {
+                    'date': date_str,
+                    'driver_count': 0,
+                    'on_time_count': 0,
+                    'late_count': 0,
+                    'early_end_count': 0,
+                    'not_on_job_count': 0
+                }
+            
+            attendance_by_date[date_str]['driver_count'] += 1
+            
+            if record.late_start:
+                attendance_by_date[date_str]['late_count'] += 1
+            elif record.early_end:
+                attendance_by_date[date_str]['early_end_count'] += 1
+            elif record.not_on_job:
+                attendance_by_date[date_str]['not_on_job_count'] += 1
+            else:
+                attendance_by_date[date_str]['on_time_count'] += 1
+        
+        # Generate metrics for the last 14 days
+        for i in range(14):
+            date = today - timedelta(days=i)
+            date_str = date.strftime('%Y-%m-%d')
+            
+            # Use real data if available, otherwise empty metrics
+            if date_str in attendance_by_date:
+                data = attendance_by_date[date_str]
+                driver_count = data['driver_count']
+                on_time_count = data['on_time_count']
+                late_count = data['late_count']
+                on_time_pct = int((on_time_count / driver_count) * 100) if driver_count > 0 else 0
+            else:
+                driver_count = 0
+                on_time_count = 0
+                late_count = 0
+                on_time_pct = 0
+            
+            daily_metrics.append({
+                'date': date_str,
+                'driver_count': driver_count,
+                'on_time_count': on_time_count,
+                'late_count': late_count,
+                'on_time_percentage': on_time_pct
+            })
+        
+        return render_template('drivers/job_site_detail.html',
+                             site=site_data,
+                             drivers=drivers,
+                             daily_metrics=daily_metrics)
+                             
+    except Exception as e:
+        logger.error(f"Error loading job site detail: {str(e)}")
+        flash(f"Error loading job site details: {str(e)}", "danger")
         return redirect(url_for('driver_module.attendance_dashboard'))
-    
-    # Generate sample drivers for this job site
-    drivers = [d for d in get_sample_drivers() if site_id in d['job_site']]
-    
-    # Generate sample daily metrics for the last 14 days
-    today = datetime.now()
-    daily_metrics = []
-    
-    for i in range(14):
-        date = today - timedelta(days=i)
-        date_str = date.strftime('%Y-%m-%d')
-        
-        import random
-        on_time_pct = random.randint(80, 98)
-        driver_count = random.randint(5, 15)
-        on_time_count = int((on_time_pct / 100) * driver_count)
-        
-        daily_metrics.append({
-            'date': date_str,
-            'driver_count': driver_count,
-            'on_time_count': on_time_count,
-            'late_count': driver_count - on_time_count,
-            'on_time_percentage': on_time_pct
-        })
-    
-    return render_template('drivers/job_site_detail.html',
-                          site=site,
-                          drivers=drivers,
-                          daily_metrics=daily_metrics)
 
 @driver_module_bp.route('/region_detail/<region_id>')
 @login_required

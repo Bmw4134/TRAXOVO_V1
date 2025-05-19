@@ -1,112 +1,324 @@
 """
-Export utility functions for report generation
+Export Functions Utility Module
+
+This module provides helper functions for generating and exporting various report formats,
+including Excel, CSV, and PDF through a consistent interface.
 """
+
 import os
-import csv
 import logging
-from datetime import datetime
+import csv
+import pandas as pd
 import openpyxl
-from openpyxl.styles import Font, Alignment, PatternFill
+from datetime import datetime
+from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter, landscape
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
-# Define exports folder
-EXPORTS_FOLDER = 'exports'
-
-def ensure_exports_folder():
+def ensure_exports_folder(subfolder=""):
     """Ensure the exports folder exists"""
-    if not os.path.exists(EXPORTS_FOLDER):
-        os.makedirs(EXPORTS_FOLDER)
-    return EXPORTS_FOLDER
-
-def generate_unique_filename(report_type, report_date, region_id=None, format='xlsx'):
-    """Generate a unique filename for an export"""
-    # Format dates
-    formatted_date = report_date.strftime('%m_%d_%Y')
-    timestamp = datetime.now().strftime('%H%M%S')
+    exports_path = os.path.join('exports', subfolder) if subfolder else 'exports'
+    os.makedirs(exports_path, exist_ok=True)
+    return exports_path
     
-    # Build filename
-    filename_base = f"{report_type}_report_{formatted_date}"
-    if region_id:
-        filename_base += f"_region_{region_id}"
-    
-    # Add timestamp for uniqueness
-    filename = f"{filename_base}_{timestamp}.{format}"
+def generate_unique_filename(base_name, extension, subfolder=""):
+    """Generate a unique filename with timestamp"""
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    filename = f"{base_name}_{timestamp}.{extension}"
     return filename
 
-def export_to_csv(file_path, records, fieldnames):
-    """Export records to CSV file"""
-    with open(file_path, 'w', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        
-        for record in records:
-            processed_record = {}
-            for key in fieldnames:
-                value = record.get(key)
-                # Format date/time values
-                if isinstance(value, datetime):
-                    processed_record[key] = value.strftime('%Y-%m-%d')
-                elif hasattr(value, 'strftime'):  # Time objects
-                    processed_record[key] = value.strftime('%H:%M')
-                else:
-                    processed_record[key] = value
-            writer.writerow(processed_record)
+def format_column_headers(worksheet, headers):
+    """Format column headers with styling"""
+    # Define header style
+    header_font = Font(bold=True, color='FFFFFF')
+    header_fill = PatternFill(start_color='0066CC', end_color='0066CC', fill_type='solid')
+    header_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
     
-    return file_path
+    # Apply formatting to headers
+    for col_idx, header in enumerate(headers, 1):
+        cell = worksheet.cell(row=1, column=col_idx, value=header)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = header_alignment
+        
+        # Set column width based on header length (min 10, max 30)
+        col_width = min(max(len(str(header)) + 2, 10), 30)
+        worksheet.column_dimensions[get_column_letter(col_idx)].width = col_width
 
-def export_to_excel(file_path, records, headers, sheet_title="Report"):
-    """Export records to Excel file with formatting"""
-    wb = openpyxl.Workbook()
-    ws = wb.active
-    ws.title = sheet_title
+def export_to_excel(data, filename, sheet_name="Data", subfolder=""):
+    """
+    Export data to Excel XLSX format
     
-    # Add header row with styling
-    for col, header in enumerate(headers.values(), 1):
-        cell = ws.cell(row=1, column=col, value=header)
-        cell.font = Font(bold=True)
-        cell.fill = PatternFill(start_color="DDDDDD", end_color="DDDDDD", fill_type="solid")
-    
-    # Add data rows
-    for row_idx, record in enumerate(records, 2):
-        col_idx = 1
+    Args:
+        data (list): List of dictionaries containing row data
+        filename (str): Output filename
+        sheet_name (str): Name of the worksheet
+        subfolder (str): Optional subfolder within exports directory
         
-        for field in headers.keys():
-            value = record.get(field)
+    Returns:
+        str: Path to the created file
+    """
+    try:
+        # Ensure exports folder exists
+        exports_path = ensure_exports_folder(subfolder)
+        file_path = os.path.join(exports_path, filename)
+        
+        # Create workbook and active sheet
+        workbook = openpyxl.Workbook()
+        worksheet = workbook.active
+        worksheet.title = sheet_name
+        
+        # If data is empty, return with empty file
+        if not data:
+            workbook.save(file_path)
+            logger.info(f"Created empty Excel file: {file_path}")
+            return file_path
             
-            # Format date/time values
-            if isinstance(value, datetime):
-                cell_value = value.strftime('%Y-%m-%d')
-            elif hasattr(value, 'strftime'):  # Time objects
-                cell_value = value.strftime('%H:%M')
-            else:
-                cell_value = value
-                
-            # Write cell value
-            ws.cell(row=row_idx, column=col_idx, value=cell_value)
+        # Get headers from first row dict keys
+        headers = list(data[0].keys())
+        
+        # Write headers
+        for col_idx, header in enumerate(headers, 1):
+            worksheet.cell(row=1, column=col_idx, value=header)
+        
+        # Format headers
+        format_column_headers(worksheet, headers)
+        
+        # Write data rows
+        for row_idx, row_data in enumerate(data, 2):
+            for col_idx, header in enumerate(headers, 1):
+                value = row_data.get(header, '')
+                worksheet.cell(row=row_idx, column=col_idx, value=value)
+        
+        # Save workbook
+        workbook.save(file_path)
+        logger.info(f"Exported Excel file: {file_path}")
+        return file_path
+    
+    except Exception as e:
+        logger.error(f"Error exporting to Excel: {str(e)}")
+        return None
+
+def export_to_csv(data, filename, subfolder=""):
+    """
+    Export data to CSV format
+    
+    Args:
+        data (list): List of dictionaries containing row data
+        filename (str): Output filename
+        subfolder (str): Optional subfolder within exports directory
+        
+    Returns:
+        str: Path to the created file
+    """
+    try:
+        # Ensure exports folder exists
+        exports_path = ensure_exports_folder(subfolder)
+        file_path = os.path.join(exports_path, filename)
+        
+        # If data is empty, return with empty file
+        if not data:
+            with open(file_path, 'w', newline='') as csvfile:
+                pass
+            logger.info(f"Created empty CSV file: {file_path}")
+            return file_path
             
-            # Apply conditional formatting for status
-            if field == 'status':
-                status_cell = ws.cell(row=row_idx, column=col_idx)
-                if value == 'Late Start':
-                    status_cell.fill = PatternFill(start_color="FFCCCC", end_color="FFCCCC", fill_type="solid")
-                elif value == 'Early End':
-                    status_cell.fill = PatternFill(start_color="FFEECC", end_color="FFEECC", fill_type="solid")
-                elif value == 'Not on Job':
-                    status_cell.fill = PatternFill(start_color="FFDDDD", end_color="FFDDDD", fill_type="solid")
-                elif value == 'On Time':
-                    status_cell.fill = PatternFill(start_color="CCFFCC", end_color="CCFFCC", fill_type="solid")
+        # Get headers from first row dict keys
+        headers = list(data[0].keys())
+        
+        # Write CSV file
+        with open(file_path, 'w', newline='') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=headers)
+            writer.writeheader()
+            writer.writerows(data)
+        
+        logger.info(f"Exported CSV file: {file_path}")
+        return file_path
+    
+    except Exception as e:
+        logger.error(f"Error exporting to CSV: {str(e)}")
+        return None
+
+def export_to_pdf(data, filename, title="Report", subfolder=""):
+    """
+    Export data to PDF format
+    
+    Args:
+        data (list): List of dictionaries containing row data
+        filename (str): Output filename
+        title (str): Report title
+        subfolder (str): Optional subfolder within exports directory
+        
+    Returns:
+        str: Path to the created file
+    """
+    try:
+        # Ensure exports folder exists
+        exports_path = ensure_exports_folder(subfolder)
+        file_path = os.path.join(exports_path, filename)
+        
+        # Create PDF document
+        doc = SimpleDocTemplate(
+            file_path,
+            pagesize=landscape(letter),
+            rightMargin=0.5*inch,
+            leftMargin=0.5*inch,
+            topMargin=0.5*inch,
+            bottomMargin=0.5*inch
+        )
+        
+        # Create elements list to build PDF
+        elements = []
+        
+        # Add title
+        styles = getSampleStyleSheet()
+        title_style = styles['Heading1']
+        title_style.alignment = 1  # Center alignment
+        elements.append(Paragraph(title, title_style))
+        elements.append(Spacer(1, 0.25*inch))
+        
+        # If data is empty, add note and return
+        if not data:
+            elements.append(Paragraph("No data available for this report.", styles['Normal']))
+            doc.build(elements)
+            logger.info(f"Created empty PDF file: {file_path}")
+            return file_path
             
-            col_idx += 1
+        # Get headers from first row dict keys
+        headers = list(data[0].keys())
+        
+        # Prepare table data including headers
+        table_data = [headers]
+        for row in data:
+            table_data.append([str(row.get(header, '')) for header in headers])
+        
+        # Create table
+        table = Table(table_data)
+        
+        # Style the table
+        style = TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.darkblue),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 12),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('ALIGN', (0, 1), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -1), 10),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ])
+        
+        # Add alternating row colors
+        for row in range(1, len(table_data)):
+            if row % 2 == 0:
+                style.add('BACKGROUND', (0, row), (-1, row), colors.lightgrey)
+        
+        table.setStyle(style)
+        elements.append(table)
+        
+        # Add generation timestamp
+        timestamp_style = ParagraphStyle(
+            name='TimestampStyle',
+            parent=styles['Normal'],
+            fontSize=8,
+            textColor=colors.gray,
+            alignment=1
+        )
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        elements.append(Spacer(1, 0.25*inch))
+        elements.append(Paragraph(f"Generated on: {timestamp}", timestamp_style))
+        
+        # Build PDF
+        doc.build(elements)
+        logger.info(f"Exported PDF file: {file_path}")
+        return file_path
     
-    # Auto-size columns for better readability
-    for col in range(1, len(headers) + 1):
-        column_letter = get_column_letter(col)
-        ws.column_dimensions[column_letter].width = 15
+    except Exception as e:
+        logger.error(f"Error exporting to PDF: {str(e)}")
+        return None
+
+def dataframe_to_list(df):
+    """
+    Convert a pandas DataFrame to a list of dictionaries
     
-    # Save the Excel file
-    wb.save(file_path)
+    Args:
+        df (pandas.DataFrame): Input DataFrame
+        
+    Returns:
+        list: List of dictionaries (each representing a row)
+    """
+    if df is None or df.empty:
+        return []
     
-    return file_path
+    return df.to_dict(orient='records')
+
+def export_dataframe(df, filename, format_type='xlsx', subfolder="", title="Report"):
+    """
+    Export a pandas DataFrame to the specified format
+    
+    Args:
+        df (pandas.DataFrame): DataFrame to export
+        filename (str): Output filename (without extension)
+        format_type (str): 'xlsx', 'csv', or 'pdf'
+        subfolder (str): Optional subfolder within exports directory
+        title (str): Report title (for PDF)
+        
+    Returns:
+        str: Path to the created file or None if failed
+    """
+    # Convert DataFrame to list of dictionaries for consistent handling
+    data = dataframe_to_list(df)
+    
+    # Add extension if not already present
+    if not filename.lower().endswith(f".{format_type.lower()}"):
+        filename = f"{filename}.{format_type.lower()}"
+    
+    # Export based on format type
+    if format_type.lower() == 'xlsx':
+        return export_to_excel(data, filename, subfolder=subfolder)
+    elif format_type.lower() == 'csv':
+        return export_to_csv(data, filename, subfolder=subfolder)
+    elif format_type.lower() == 'pdf':
+        return export_to_pdf(data, filename, title=title, subfolder=subfolder)
+    else:
+        logger.error(f"Unsupported export format: {format_type}")
+        return None
+
+def export_fsi_format(df, region, month, year, subfolder="foundation"):
+    """
+    Export data in Foundation System Import (FSI) format
+    
+    Args:
+        df (pandas.DataFrame): DataFrame with the data to export
+        region (str): Region code (DFW, HOU, WT)
+        month (str): Month name
+        year (str): Year
+        subfolder (str): Optional subfolder within exports directory
+        
+    Returns:
+        str: Path to the created file or None if failed
+    """
+    try:
+        # Ensure exports folder exists
+        exports_path = ensure_exports_folder(subfolder)
+        filename = f"FSI_IMPORT_{region}_{month}_{year}.csv"
+        file_path = os.path.join(exports_path, filename)
+        
+        # Export without header (Foundation format requirement)
+        df.to_csv(file_path, index=False, header=False)
+        logger.info(f"Exported FSI format file: {file_path}")
+        return file_path
+    
+    except Exception as e:
+        logger.error(f"Error exporting FSI format: {str(e)}")
+        return None

@@ -18,6 +18,11 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 
+# Import export functions
+from utils.export_functions import (
+    export_dataframe, export_fsi_format, ensure_exports_folder
+)
+
 # Configure logger
 logger = logging.getLogger(__name__)
 
@@ -28,13 +33,23 @@ april_billing_bp = Blueprint('april_billing', __name__, url_prefix='/april-billi
 UPLOAD_FOLDER = 'uploads/april_billing'
 PROCESSED_FOLDER = 'processed/april_billing'
 EXPORTS_FOLDER = 'exports/april_billing'
+MONTH_NAME = 'APRIL'
+YEAR = '2025'
 
 # Create necessary directories
 for folder in [UPLOAD_FOLDER, PROCESSED_FOLDER, EXPORTS_FOLDER]:
     os.makedirs(folder, exist_ok=True)
 
 # Global variables to store processed data
-source_data = {}
+source_data = {
+    'timecards': None,
+    'daily_usage': None,
+    'driving_history': None,
+    'assets_time': None,
+    'activity_detail': None,
+    'allocations': None,
+    'pm_revisions': None
+}
 processed_data = None
 region_data = {}
 job_data = {}

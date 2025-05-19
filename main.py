@@ -893,165 +893,80 @@ def auto_process_pm_allocation():
 @app.route('/daily_report')
 @login_required
 def daily_report():
-    """Generate daily driver report"""
+    """Generate daily driver report using the automated attendance pipeline"""
     import os
     from datetime import datetime, timedelta
-    from pathlib import Path
     
-    # Use today's date for the report by default
-    today = datetime.now()
-    today_day_name = today.strftime('%A')
-    today_month = today.strftime('%B')
-    today_day = today.strftime('%d').lstrip('0')
+    # Import the attendance interface module
+    from utils.attendance_interface import get_attendance_data, get_trend_data
     
-    # Keep yesterday variable for backwards compatibility with existing code
-    yesterday = today
-    yesterday_day_name = today_day_name
-    yesterday_month = today_month  
-    yesterday_day = today_day
-    
-    # Check if there are existing files from today
-    real_data_found = False
-    
-    # Attached assets directory
-    assets_dir = Path('attached_assets')
-    
-    # Check for files matching today's date
-    for filename in os.listdir(assets_dir):
-        if "DAILY LATE START" in filename and today.strftime('%m.%d.%Y') in filename:
-            real_data_found = True
-            break
-            
-    # If no files for today are found, also check for yesterday's data
-    if not real_data_found:
-        yesterday = today - timedelta(days=1)
-        for filename in os.listdir(assets_dir):
-            if "DAILY LATE START" in filename and yesterday.strftime('%m.%d.%Y') in filename:
-                real_data_found = True
-                break
-            
-    # Process and generate the report
-    data_files = []
-    ls_ee_data = []
-    noj_data = []
-    
-    if real_data_found:
-        # Read real data
-        pass  # Placeholder - actual implementation
+    # Get date from query parameters, default to today
+    date_str = request.args.get('date')
+    if not date_str:
+        today = datetime.now()
+        date_str = today.strftime('%Y-%m-%d')
     else:
-        # Use sample data
-        ls_ee_data = [
-            ['JARED RUHRUP', '2024-019', 'Tarrant VA Bridge Rehab', 'PT-237', '240441', 'Miramontes Jr, Juan C', '', 'Arrived', 'Departed', '2024-023', '7:00 AM', '5:30 PM', 'Late', 'Left Early', '7:11 AM', '4:55 PM', '7:54:00', '0'],
-            ['LUIS A. MORALES', '2023-035', 'Harris VA Bridge Rehabs', 'PT-160', '440455', 'Saldierna Jr, Armando', '', 'Arrived', 'Departed', '2023-035', '7:00 AM', '5:30 PM', 'Late', 'Left Early', '8:32 AM', '4:44 PM', '2:48:00', '0'],
-            ['VARIOUS', 'TEXDIST', 'Texas District Office', 'PT-241', '210050', 'Garcia, Mark E XL', '', 'Arrived', 'Departed', '2025-004', '8:00 AM', '5:00 PM', 'Late', 'Left Early', '8:50 AM', '4:33 PM', '7:09:00', '0'],
-            ['VARIOUS', 'TRAFFIC WALNUT HILL YARD', 'TRAFFIC WALNUT HILL YARD', 'PT-173', '240494', 'Hernandez, Juan B', '', 'Arrived', 'Departed', '2024-004', '7:00 AM', '5:30 PM', 'Late', 'Left Early', '7:04 AM', '5:12 PM', '1:58:00', '0']
-        ]
+        today = datetime.strptime(date_str, '%Y-%m-%d')
+    
+    # Calculate yesterday for navigation
+    yesterday = (today - timedelta(days=1)).strftime('%Y-%m-%d')
+    tomorrow = (today + timedelta(days=1)).strftime('%Y-%m-%d')
+    
+    try:
+        # Get report data from the automated attendance pipeline
+        report = get_attendance_data(date_str)
         
-        noj_data = [
-            ['*N/A', 'N.O.J.Y.', 'NOT ON DHISTORY REPORT', 'ET-41', '240801', 'Hampton, Justin D', '', '', 'NOJY', 'NOJY', 'NOJY', '12:00 AM', '0', ''],
-            ['*N/A', 'N.O.J.Y.', 'NOT ON DHISTORY REPORT', 'PT-19S', 'FIGBRY', 'Figueroa, Bryan', '', '', 'NOJY', 'NOJY', 'NOJY', '12:00 AM', '1', '']
-        ]
+        if report:
+            # Get trend data for the 5-day period ending on the selected date
+            trend_data = get_trend_data(end_date=date_str, days=5)
+            trend_summary = trend_data.get('summary', {})
+            
+            # Return the report using data from the automated pipeline
+            return render_template('daily_report.html',
+                report_date=report['formatted_date'],
+                total_records=report['summary']['total_drivers'],
+                late_starts=report['summary']['late_count'],
+                early_ends=report['summary']['early_end_count'],
+                not_on_job=report['summary']['not_on_job_count'],
+                on_time=report['summary']['on_time_drivers'],
+                late_start_records=report['late_drivers'],
+                early_end_records=report['early_end_drivers'],
+                not_on_job_records=report['not_on_job_drivers'],
+                yesterday=yesterday,
+                yesterday_day_name=today.strftime('%A'),
+                tomorrow=tomorrow,
+                trend_data=trend_data,
+                trend_summary=trend_summary
+            )
+        else:
+            # If no data is available for the selected date, show a helpful message
+            logging.warning(f"No attendance data available for {date_str}")
+            flash(f"No attendance data is available for {date_str}. Try a different date or run the attendance pipeline.", "warning")
+    except Exception as e:
+        logging.error(f"Error loading attendance data: {e}")
+        flash(f"Error loading report data: {e}", "danger")
     
-    # Render template with data
-    from datetime import datetime
-    
-    # Create data for daily report template
-    now = datetime.now()
-    report_date = today  # Use today's date consistently
-    
-    # Process data from API or file sources
-    total_records = len(ls_ee_data) if ls_ee_data else 0
-    
-    # Initialize counters
-    late_starts = 0
-    early_ends = 0 
-    not_on_job = len(noj_data) if noj_data else 0
-    
-    # Count LATE and EARLY incidents from ls_ee_data
-    if ls_ee_data:
-        for row in ls_ee_data:
-            if len(row) > 12 and row[12] == 'Late':
-                late_starts += 1
-            if len(row) > 12 and row[13] == 'Left Early':
-                early_ends += 1
-                
-    on_time = total_records - (late_starts + early_ends + not_on_job)
-    
-    # Create sample records for display
-    late_start_records = []
-    early_end_records = []
-    not_on_job_records = []
-    
-    # Process data into proper format for template
-    if ls_ee_data:
-        for row in ls_ee_data:
-            # Process data based on late start status - check for column values
-            if len(row) > 12 and row[12] == 'Late':
-                # Format times with better error handling
-                expected_time = '7:00 AM'
-                actual_time = '7:30 AM'
-                
-                if len(row) > 10 and row[10]:
-                    expected_time = row[10]
-                if len(row) > 14 and row[14]:
-                    actual_time = row[14]
-                
-                # Handle minute calculation
-                minutes_late = 30
-                if len(row) > 16 and row[16]:
-                    try:
-                        # Time often in format HH:MM:SS
-                        time_parts = row[16].split(':')
-                        if len(time_parts) >= 2:
-                            minutes_late = int(time_parts[0]) * 60 + int(time_parts[1])
-                    except:
-                        pass
-                        
-                # Create structured record
-                late_start_records.append({
-                    'driver_name': row[5] if len(row) > 5 else 'Unknown',
-                    'job_site': row[2] if len(row) > 2 else row[1] if len(row) > 1 else 'Unknown Site',
-                    'expected_start': datetime.strptime(f"{today.strftime('%Y-%m-%d')} {expected_time}", "%Y-%m-%d %I:%M %p") 
-                                      if ':' in expected_time and ('AM' in expected_time or 'PM' in expected_time)
-                                      else datetime.strptime(f"{today.strftime('%Y-%m-%d')} 07:00 AM", "%Y-%m-%d %I:%M %p"),
-                    'actual_start': datetime.strptime(f"{today.strftime('%Y-%m-%d')} {actual_time}", "%Y-%m-%d %I:%M %p")
-                                    if ':' in actual_time and ('AM' in actual_time or 'PM' in actual_time)
-                                    else datetime.strptime(f"{today.strftime('%Y-%m-%d')} 07:30 AM", "%Y-%m-%d %I:%M %p"),
-                    'minutes_late': minutes_late
-                })
-            elif row[2] == 'EARLY END' and len(row) > 10:
-                early_end_records.append({
-                    'driver_name': row[5] if len(row) > 5 else 'Unknown',
-                    'job_site': row[1] if len(row) > 1 else 'Unknown',
-                    'expected_end': datetime.strptime(f"{now.strftime('%Y-%m-%d')} 16:00", "%Y-%m-%d %H:%M") if len(row) <= 8 else now,
-                    'actual_end': datetime.strptime(f"{now.strftime('%Y-%m-%d')} 15:30", "%Y-%m-%d %H:%M") if len(row) <= 8 else now,
-                    'minutes_early': int(row[12]) if len(row) > 12 and row[12].isdigit() else 30
-                })
-            elif row[2] == 'NOT ON JOB' and len(row) > 8:
-                not_on_job_records.append({
-                    'driver_name': row[5] if len(row) > 5 else 'Unknown',
-                    'expected_job': row[8] if len(row) > 8 else 'Unknown',
-                    'actual_job': row[9] if len(row) > 9 else 'Unknown Location',
-                    'time': datetime.strptime(f"{now.strftime('%Y-%m-%d')} {row[11] if len(row) > 11 and row[11] else '12:00'}", 
-                                             "%Y-%m-%d %H:%M" if ':' in (row[11] if len(row) > 11 else '') else "%Y-%m-%d %I:%M %p")
-                })
-    
+    # Fall back to an empty report template if data could not be loaded
     return render_template('daily_report.html',
-                          report_date=report_date,
-                          total_records=total_records,
-                          late_starts=late_starts,
-                          early_ends=early_ends,
-                          not_on_job=not_on_job,
-                          on_time=on_time,
-                          late_start_records=late_start_records,
-                          early_end_records=early_end_records,
-                          not_on_job_records=not_on_job_records,
-                          yesterday=yesterday,
-                          yesterday_day_name=today_day_name,
-                          yesterday_month=today_month,
-                          yesterday_day=today_day,
-                          ls_ee_data=ls_ee_data,
-                          noj_data=noj_data)
+        report_date=today.strftime('%A, %B %d, %Y'),
+        total_records=0,
+        late_starts=0,
+        early_ends=0,
+        not_on_job=0,
+        on_time=0,
+        late_start_records=[],
+        early_end_records=[],
+        not_on_job_records=[],
+        yesterday=yesterday,
+        yesterday_day_name=today.strftime('%A'),
+        tomorrow=tomorrow,
+        trend_data={'driver_trends': {}, 'summary': {}},
+        trend_summary={
+            'chronic_late_count': 0,
+            'repeated_absence_count': 0,
+            'unstable_shift_count': 0
+        }
+    )
 
 # Export report routes
 @app.route('/export_report/<report_type>/<format>')

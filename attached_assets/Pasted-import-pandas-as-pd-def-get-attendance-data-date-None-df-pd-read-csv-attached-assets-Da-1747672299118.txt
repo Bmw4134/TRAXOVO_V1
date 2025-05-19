@@ -1,0 +1,57 @@
+import pandas as pd
+
+def get_attendance_data(date=None):
+    df = pd.read_csv("attached_assets/DailyUsage.csv", skiprows=SKIPROWS_DAILY_USAGE, low_memory=False)
+    driver_issues = defaultdict(set)
+    drivers_detail = {}
+
+    for _, row in df.iterrows():
+        label = row.get("assetlabel", "")
+        employee_id = extract_driver_from_label(label)
+        name = employee_id  # fallback
+        vehicle = clean_asset_info(label)
+
+        started = parse_time_with_tz(row.get("started"))
+        stopped = parse_time_with_tz(row.get("stopped"))
+        scheduled_start = parse_time_with_tz(DEFAULT_START_TIME)
+
+        late = calculate_lateness(started, scheduled_start, DEFAULT_THRESHOLD_MINUTES)
+        early = calculate_lateness(scheduled_start, stopped, DEFAULT_THRESHOLD_MINUTES)
+        not_on_job = not started or not stopped
+        missing_data = pd.isna(row).any()
+
+        if late: driver_issues[employee_id].add("late")
+        if early: driver_issues[employee_id].add("early")
+        if not_on_job: driver_issues[employee_id].add("no_show")
+        if missing_data: driver_issues[employee_id].add("exception")
+
+        if employee_id not in drivers_detail:
+            drivers_detail[employee_id] = {
+                "employee_id": employee_id,
+                "name": name,
+                "vehicle": vehicle,
+                "expected_start": DEFAULT_START_TIME,
+                "actual_start": row.get("started", ""),
+                "scheduled_start": DEFAULT_START_TIME,
+                "division": row.get("companyname1", "UNKNOWN"),
+                "job_site": row.get("location", "UNKNOWN")
+            }
+
+    summary = {
+        "total_drivers": len(driver_issues),
+        "late_drivers": sum("late" in v for v in driver_issues.values()),
+        "early_end_drivers": sum("early" in v for v in driver_issues.values()),
+        "not_on_job_drivers": sum("no_show" in v for v in driver_issues.values()),
+        "exception_drivers": sum("exception" in v for v in driver_issues.values()),
+    }
+    summary["total_issues"] = sum(summary[k] for k in summary if k.endswith("_drivers"))
+
+    return {
+        "date": date,
+        "formatted_date": date,
+        "summary": summary,
+        "late_drivers": [drivers_detail[eid] for eid, v in driver_issues.items() if "late" in v],
+        "early_end_drivers": [drivers_detail[eid] for eid, v in driver_issues.items() if "early" in v],
+        "not_on_job_drivers": [drivers_detail[eid] for eid, v in driver_issues.items() if "no_show" in v],
+        "exceptions": [drivers_detail[eid] for eid, v in driver_issues.items() if "exception" in v]
+    }

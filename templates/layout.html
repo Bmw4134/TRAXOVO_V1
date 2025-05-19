@@ -53,6 +53,7 @@
                             <li><a class="dropdown-item" href="/assets/list"><i class="bi bi-list-ul me-1"></i> View All Assets</a></li>
                             <li><a class="dropdown-item" href="/assets/map"><i class="bi bi-geo-alt me-1"></i> Asset Map</a></li>
                             <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('driver_module.vehicle_audit') }}"><i class="bi bi-clock-history me-1"></i> Vehicle History Audit</a></li>
                             <li><a class="dropdown-item" href="#"><i class="bi bi-person-badge me-1"></i> Driver Assignments</a></li>
                             <li><a class="dropdown-item" data-role-access="admin,manager"><i class="bi bi-plus-circle me-1"></i> Add New Asset</a></li>
                             <li><a class="dropdown-item" data-role-access="admin,manager"><i class="bi bi-upload me-1"></i> Import Assets</a></li>
@@ -99,6 +100,7 @@
                             <li><a class="dropdown-item" href="{{ url_for('driver_module.daily_report') }}"><i class="bi bi-calendar-day me-1"></i> Daily Report</a></li>
                             <li><a class="dropdown-item" href="{{ url_for('driver_module.attendance_dashboard') }}"><i class="bi bi-graph-up me-1"></i> Attendance Dashboard</a></li>
                             <li><a class="dropdown-item" href="{{ url_for('driver_module.driver_list') }}"><i class="bi bi-people me-1"></i> Driver Management</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('driver_module.vehicle_audit') }}"><i class="bi bi-clock-history me-1"></i> Vehicle History Audit</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="#"><i class="bi bi-exclamation-triangle me-1"></i> Attendance Flags</a></li>
                             <li><a class="dropdown-item" data-role-access="admin,manager"><i class="bi bi-sliders me-1"></i> Alert Thresholds</a></li>

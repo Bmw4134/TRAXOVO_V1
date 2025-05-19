@@ -1,46 +1,49 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asset Tracker</title>
-    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mobile Asset Map</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        html, body {
+        body, html {
+            height: 100%;
             margin: 0;
             padding: 0;
-            width: 100%;
-            height: 100%;
+            overflow: hidden;
         }
         #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
             width: 100%;
             height: 100%;
-            position: absolute;
+            z-index: 0;
         }
-        .header {
+        .title {
             position: absolute;
             top: 10px;
             left: 10px;
-            z-index: 1000;
+            z-index: 999;
             background: rgba(0,0,0,0.7);
-            padding: 10px;
-            border-radius: 5px;
             color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
             font-weight: bold;
         }
-        .asset-dot {
-            border-radius: 50%;
-            width: 30px !important;
-            height: 30px !important;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .asset-marker {
+            width: 32px !important;
+            height: 32px !important;
+            background-color: #f00;
+            border-radius: 16px;
+            border: 2px solid #fff;
             color: white;
             font-weight: bold;
-            font-size: 12px;
-            border: 2px solid white;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            text-align: center;
+            line-height: 32px;
         }
         .excavator { background-color: #ffc107; }
         .loader { background-color: #28a745; }
@@ -51,55 +54,53 @@
 </head>
 <body>
     <div id="map"></div>
-    <div class="header">TRAXORA Asset Tracker</div>
+    <div class="title">TRAXORA Assets</div>
 
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // Create map
-        const map = L.map('map').setView([32.7767, -96.7970], 7);
+        // Initialize map centered on Texas
+        var map = L.map('map').setView([31.5, -99.0], 6);
         
-        // Add tile layer
+        // Add OpenStreetMap base layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors'
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
         }).addTo(map);
         
-        // Create mock asset data
-        const assetData = [
-            { id: 'EX1001', type: 'excavator', lat: 32.8, lng: -96.8, name: 'Large Excavator' },
-            { id: 'LD2002', type: 'loader', lat: 32.7, lng: -96.9, name: 'Front Loader' },
-            { id: 'DZ3003', type: 'dozer', lat: 32.9, lng: -97.0, name: 'Bulldozer' },
-            { id: 'TK4004', type: 'truck', lat: 32.75, lng: -96.75, name: 'Dump Truck' },
-            { id: 'PU5005', type: 'pickup', lat: 32.85, lng: -96.85, name: 'Pickup Truck' },
+        // Asset data (hardcoded sample data)
+        var assets = [
+            // Dallas area
+            { id: "EX1001", type: "excavator", lat: 32.78, lng: -96.80, name: "Excavator 1001" },
+            { id: "LD2002", type: "loader", lat: 32.75, lng: -96.77, name: "Loader 2002" },
+            { id: "DZ3003", type: "dozer", lat: 32.73, lng: -96.85, name: "Dozer 3003" },
+            { id: "TK4004", type: "truck", lat: 32.80, lng: -96.81, name: "Truck 4004" },
             
             // Houston area
-            { id: 'EX1006', type: 'excavator', lat: 29.7, lng: -95.3, name: 'Mini Excavator' },
-            { id: 'LD2007', type: 'loader', lat: 29.8, lng: -95.4, name: 'Wheel Loader' },
-            { id: 'TK4008', type: 'truck', lat: 29.6, lng: -95.2, name: 'Water Truck' },
+            { id: "EX1005", type: "excavator", lat: 29.76, lng: -95.37, name: "Excavator 1005" },
+            { id: "LD2006", type: "loader", lat: 29.75, lng: -95.40, name: "Loader 2006" },
+            { id: "TK4007", type: "truck", lat: 29.72, lng: -95.35, name: "Truck 4007" },
             
-            // West Texas area
-            { id: 'DZ3009', type: 'dozer', lat: 31.8, lng: -102.3, name: 'Track Dozer' },
-            { id: 'PU5010', type: 'pickup', lat: 31.9, lng: -102.4, name: 'Service Truck' }
+            // West Texas
+            { id: "DZ3008", type: "dozer", lat: 31.84, lng: -102.36, name: "Dozer 3008" },
+            { id: "PU5009", type: "pickup", lat: 31.82, lng: -102.32, name: "Pickup 5009" }
         ];
         
-        // Add markers to the map
-        assetData.forEach(asset => {
-            // Create custom icon
-            const iconHtml = `<div class="asset-dot ${asset.type}">${asset.id.substring(0, 2)}</div>`;
-            const icon = L.divIcon({
-                html: iconHtml,
-                className: '',
-                iconSize: [30, 30],
-                iconAnchor: [15, 15]
-            });
+        // Add markers for each asset
+        assets.forEach(function(asset) {
+            // Create marker with custom icon
+            var marker = L.marker([asset.lat, asset.lng], {
+                icon: L.divIcon({
+                    className: '',
+                    html: '<div class="asset-marker ' + asset.type + '">' + asset.id.substr(0, 2) + '</div>',
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 16]
+                })
+            }).addTo(map);
             
-            // Create marker with popup
-            const marker = L.marker([asset.lat, asset.lng], { icon }).addTo(map);
-            marker.bindPopup(`<b>${asset.id}</b><br>${asset.name}`);
+            // Add popup with asset info
+            marker.bindPopup("<b>" + asset.id + "</b><br>" + asset.name);
         });
-        
-        // Fit map bounds to show all markers
-        const bounds = assetData.map(asset => [asset.lat, asset.lng]);
-        map.fitBounds(bounds);
     </script>
 </body>
 </html>

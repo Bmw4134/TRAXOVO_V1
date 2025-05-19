@@ -211,12 +211,12 @@ def validate_report(report_data):
     
     return results
 
-def get_trend_analysis_data(start_date, end_date=None, dates=None):
+def get_trend_analysis_data(start_date=None, end_date=None, dates=None):
     """
     Get attendance trend analysis data for a date range
     
     Args:
-        start_date (str): Start date in YYYY-MM-DD format
+        start_date (str, optional): Start date in YYYY-MM-DD format
         end_date (str, optional): End date in YYYY-MM-DD format
         dates (list, optional): List of specific dates to analyze
         
@@ -224,17 +224,25 @@ def get_trend_analysis_data(start_date, end_date=None, dates=None):
         dict: Trend analysis data
     """
     try:
-        # Import attendance trends module
+        # Import trend analyzer module
         sys.path.append('.')
-        from utils.attendance_trends import process_date_range
+        from utils.trend_analyzer import analyze_trends
         
         # Process the date range or specific dates
         if dates:
-            return process_date_range(dates)
+            return analyze_trends(specific_dates=dates)
+        elif start_date and end_date:
+            return analyze_trends(date_range=(start_date, end_date))
+        elif start_date:
+            # Single date analysis
+            return analyze_trends(specific_dates=[start_date])
         else:
-            return process_date_range(start_date, end_date)
+            # Default to last 5 days
+            return analyze_trends()
     except Exception as e:
         logger.error(f"Error getting trend analysis data: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
         return None
 
 def print_trend_report(trend_data):

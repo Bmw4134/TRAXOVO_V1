@@ -17,6 +17,7 @@ from collections import defaultdict
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import config
 from utils.attendance_processor import read_daily_usage_file, process_attendance_data
+from typing import Dict, List, Any, Optional, Union, Tuple
 from driver_utils import extract_driver_from_label, clean_asset_info, is_vehicle_id, normalize_driver_name
 
 # Configure logging
@@ -28,14 +29,13 @@ CHRONIC_LATE_THRESHOLD = 3  # Number of late occurrences in observation period
 REPEATED_ABSENCE_THRESHOLD = 2  # Number of absences in observation period
 UNSTABLE_SHIFT_THRESHOLD = 180  # Minutes (3 hours) of variation in start/end times
 
-def process_date_range(start_date=None, end_date=None, file_path=None):
+def process_date_range(start_date=None, end_date=None):
     """
     Process attendance data for a range of dates
     
     Args:
         start_date (str or list, optional): Start date in YYYY-MM-DD format or a list of dates
         end_date (str, optional): End date in YYYY-MM-DD format (inclusive)
-        file_path (str, optional): Path to the DailyUsage.csv file, if None will search in uploads folder
     
     Returns:
         dict: Dictionary with trend analysis and per-driver summaries
@@ -112,7 +112,7 @@ def process_date_range(start_date=None, end_date=None, file_path=None):
     
     for date in dates_to_process:
         # Process attendance data for this date
-        attendance_data = process_attendance_data(date, file_path)
+        attendance_data = process_attendance_data(date)
         if not attendance_data:
             logger.warning(f"No attendance data available for {date}")
             continue
@@ -262,24 +262,29 @@ def process_date_range(start_date=None, end_date=None, file_path=None):
     # Analyze trends for each driver
     for driver_id, driver_data in all_driver_data.items():
         # Skip drivers with no data
-        if not driver_data['dates']:
+        date_count = len(driver_data.get('dates', {}))
+        if date_count == 0:
             continue
         
         # Check for trend flags
         flags = []
         
         # Check for chronic lateness
-        if driver_data['late_count'] >= CHRONIC_LATE_THRESHOLD:
+        late_count = driver_data.get('late_count', 0)
+        if late_count >= CHRONIC_LATE_THRESHOLD:
             flags.append('CHRONIC_LATE')
             result['trend_summary']['chronic_late_count'] += 1
         
         # Check for repeated absences
-        if driver_data['absence_count'] >= REPEATED_ABSENCE_THRESHOLD:
+        absence_count = driver_data.get('absence_count', 0)
+        if absence_count >= REPEATED_ABSENCE_THRESHOLD:
             flags.append('REPEATED_ABSENCE')
             result['trend_summary']['repeated_absence_count'] += 1
         
         # Check for unstable shifts
-        if _has_unstable_shifts(driver_data['start_times'], driver_data['end_times']):
+        start_times = driver_data.get('start_times', [])
+        end_times = driver_data.get('end_times', [])
+        if _has_unstable_shifts(start_times, end_times):
             flags.append('UNSTABLE_SHIFT')
             result['trend_summary']['unstable_shift_count'] += 1
         
@@ -287,14 +292,19 @@ def process_date_range(start_date=None, end_date=None, file_path=None):
         driver_data['flags'] = flags
         
         # Add to driver trends
+        employee_id = driver_data.get('employee_id', '')
+        if not employee_id:
+            employee_id = f"D{len(result['driver_trends']):03d}"
+            
+        # Add to driver trends
         result['driver_trends'].append({
-            'employee_id': driver_data.get('employee_id', f"D{len(result['driver_trends']):03d}"),
-            'name': driver_data['name'],
+            'employee_id': employee_id,
+            'name': driver_data.get('name', ''),
             'flags': flags,
-            'days_analyzed': len(driver_data['dates']),
-            'late_count': driver_data['late_count'],
-            'early_end_count': driver_data['early_end_count'],
-            'absence_count': driver_data['absence_count']
+            'days_analyzed': date_count,
+            'late_count': late_count,
+            'early_end_count': driver_data.get('early_end_count', 0),
+            'absence_count': absence_count
         })
     
     # Update total drivers analyzed

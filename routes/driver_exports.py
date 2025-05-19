@@ -171,4 +171,4 @@ def download_export(filename):
     except Exception as e:
         logger.error(f"Error downloading export: {str(e)}")
         flash(f"Error downloading export: {str(e)}", "danger")
-        return redirect(url_for('driver_module.index')
+        return redirect(url_for('driver_module.index'))

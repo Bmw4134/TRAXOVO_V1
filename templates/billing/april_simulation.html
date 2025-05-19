@@ -1,0 +1,254 @@
+{% extends "layout.html" %}
+
+{% block title %}April 2025 Billing Simulation{% endblock %}
+
+{% block content %}
+<div class="container-fluid my-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h1 class="display-5 mb-2">
+                <i class="bi bi-calendar-check me-2"></i>April 2025 Billing
+            </h1>
+            <p class="lead text-muted">
+                Dashboard Workflow Simulation
+            </p>
+        </div>
+        <div class="col-md-6 text-md-end">
+            <div class="btn-group">
+                <a href="{{ url_for('april_billing.cost_code_breakdown') }}" class="btn btn-info text-white">
+                    <i class="bi bi-pie-chart me-1"></i> Cost Code Breakdown
+                </a>
+                <a href="{{ url_for('april_billing.export_data') }}?type=summary&format=xlsx" class="btn btn-success">
+                    <i class="bi bi-file-earmark-excel me-1"></i> Export Summary
+                </a>
+                <a href="{{ url_for('april_billing.export_data') }}?type=foundation&format=xlsx" class="btn btn-primary">
+                    <i class="bi bi-database-fill me-1"></i> FSI Export
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body text-center">
+                    <h1 class="display-4 mb-0">{{ summary.total_assets }}</h1>
+                    <h5 class="card-title">Total Assets</h5>
+                    <p class="mb-0">{{ summary.month }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body text-center">
+                    <h1 class="display-4 mb-0">{{ "%.1f"|format(summary.total_units) }}</h1>
+                    <h5 class="card-title">Total Units</h5>
+                    <p class="mb-0">Original Allocation</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body text-center">
+                    <h1 class="display-4 mb-0">{{ "%.1f"|format(summary.revised_units) }}</h1>
+                    <h5 class="card-title">Revised Units</h5>
+                    <p class="mb-0">After PM Allocation</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card bg-warning text-dark h-100">
+                <div class="card-body text-center">
+                    <h1 class="display-4 mb-0">{{ "%.1f"|format(summary.total_difference) }}</h1>
+                    <h5 class="card-title">Net Change</h5>
+                    <p class="mb-0">From Revisions</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Region Summary -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Regional Summary</h5>
+                    <span class="badge bg-primary rounded-pill">{{ regions|length }} Regions</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Region</th>
+                                    <th class="text-center">Assets</th>
+                                    <th class="text-center">Jobs</th>
+                                    <th class="text-end">Original Units</th>
+                                    <th class="text-end">Revised Units</th>
+                                    <th class="text-end">Difference</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for region in regions %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ url_for('april_billing.region_detail', region_id=region.region) }}" class="fw-bold text-primary">
+                                            {{ region.region }}
+                                        </a>
+                                    </td>
+                                    <td class="text-center">{{ region.asset_count }}</td>
+                                    <td class="text-center">{{ region.job_count }}</td>
+                                    <td class="text-end">{{ "%.1f"|format(region.total_units) }}</td>
+                                    <td class="text-end">{{ "%.1f"|format(region.revised_units) }}</td>
+                                    <td class="text-end text-{% if region.revised_units > region.total_units %}success{% elif region.revised_units < region.total_units %}danger{% else %}muted{% endif %}">
+                                        {{ "%.1f"|format(region.revised_units - region.total_units) }}
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{{ url_for('april_billing.region_detail', region_id=region.region) }}" class="btn btn-outline-primary">
+                                                <i class="bi bi-search"></i>
+                                            </a>
+                                            <a href="{{ url_for('april_billing.export_data') }}?type=detail&format=xlsx&region={{ region.region }}" class="btn btn-outline-success">
+                                                <i class="bi bi-download"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Job Summary -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Job Summary</h5>
+                    <span class="badge bg-primary rounded-pill">{{ jobs|length }} Jobs</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Job</th>
+                                    <th>Region</th>
+                                    <th class="text-center">Assets</th>
+                                    <th class="text-end">Original Units</th>
+                                    <th class="text-end">Revised Units</th>
+                                    <th class="text-end">Difference</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for job in jobs %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ url_for('april_billing.job_detail', job_id=job.job) }}" class="fw-bold text-primary">
+                                            {{ job.job }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('april_billing.region_detail', region_id=job.region) }}">
+                                            {{ job.region }}
+                                        </a>
+                                    </td>
+                                    <td class="text-center">{{ job.asset_count }}</td>
+                                    <td class="text-end">{{ "%.1f"|format(job.total_units) }}</td>
+                                    <td class="text-end">{{ "%.1f"|format(job.revised_units) }}</td>
+                                    <td class="text-end text-{% if job.revised_units > job.total_units %}success{% elif job.revised_units < job.total_units %}danger{% else %}muted{% endif %}">
+                                        {{ "%.1f"|format(job.revised_units - job.total_units) }}
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{{ url_for('april_billing.job_detail', job_id=job.job) }}" class="btn btn-outline-primary">
+                                                <i class="bi bi-search"></i>
+                                            </a>
+                                            <a href="{{ url_for('april_billing.export_data') }}?type=detail&format=xlsx&job={{ job.job }}" class="btn btn-outline-success">
+                                                <i class="bi bi-download"></i>
+                                            </a>
+                                            <a href="{{ url_for('april_billing.export_data') }}?type=foundation&format=xlsx&job={{ job.job }}" class="btn btn-outline-info">
+                                                <i class="bi bi-database-fill"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent PM Allocation Files -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">April PM Allocation Files</h5>
+                    <a href="{{ url_for('billing_module.pm_allocation') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Filename</th>
+                                    <th>Region</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for file in allocation_files %}
+                                <tr>
+                                    <td>{{ file.filename }}</td>
+                                    <td>{{ file.region }}</td>
+                                    <td>
+                                        {% if file.status == 'Final' %}
+                                            <span class="badge bg-success">Final</span>
+                                        {% elif file.status == 'Updated' %}
+                                            <span class="badge bg-info text-white">Updated</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Original</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" disabled title="View file details">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-success" disabled title="Download file">
+                                                <i class="bi bi-download"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add any JavaScript needed for the page here
+    });
+</script>
+{% endblock %}

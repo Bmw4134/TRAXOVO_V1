@@ -170,6 +170,14 @@ try:
 except ImportError as e:
     logging.error(f"Failed to register Driver Module blueprint: {e}")
 
+# Register driver exports blueprint for report generation
+try:
+    from routes.driver_exports import driver_exports_bp
+    app.register_blueprint(driver_exports_bp)
+    logging.info("Registered Driver Exports blueprint")
+except ImportError as e:
+    logging.error(f"Failed to register Driver Exports blueprint: {e}")
+
 try:
     from routes.billing_module import billing_module_bp
     app.register_blueprint(billing_module_bp)

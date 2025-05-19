@@ -1,0 +1,174 @@
+{% extends "layout.html" %}
+
+{% block title %}Asset {{ asset_id }} Detail - April 2025{% endblock %}
+
+{% block content %}
+<div class="container-fluid my-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h1 class="display-5 mb-2">
+                <i class="bi bi-truck me-2"></i>Asset {{ asset_id }}
+            </h1>
+            <p class="lead text-muted">
+                April 2025 Billing Detail
+            </p>
+        </div>
+        <div class="col-md-6 text-md-end">
+            <div class="btn-group">
+                <a href="{{ url_for('april_billing.job_detail', job_id=asset_data.JOB) }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Job {{ asset_data.JOB }}
+                </a>
+                <a href="{{ url_for('april_billing.export_data') }}?type=detail&format=xlsx&asset={{ asset_id }}" class="btn btn-success">
+                    <i class="bi bi-file-earmark-excel me-1"></i> Export Detail
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Asset Info Card -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Asset Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <th scope="row" style="width: 30%;">Asset ID:</th>
+                                        <td>{{ asset_data['ASSET ID'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Equipment:</th>
+                                        <td>{{ asset_data['EQUIPMENT'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Driver:</th>
+                                        <td>{{ asset_data['DRIVER'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Division:</th>
+                                        <td>{{ asset_data['DIV'] }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <th scope="row" style="width: 30%;">Job:</th>
+                                        <td>
+                                            <a href="{{ url_for('april_billing.job_detail', job_id=asset_data.JOB) }}">
+                                                {{ asset_data['JOB'] }}
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Cost Code:</th>
+                                        <td>{{ asset_data['COST CODE'] or 'N/A' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Original Units:</th>
+                                        <td>{{ "%.2f"|format(asset_data['UNIT ALLOCATION']) if asset_data['UNIT ALLOCATION'] is not none else '0.00' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Revised Units:</th>
+                                        <td class="{% if asset_data['REVISION'] and asset_data['REVISION'] > asset_data['UNIT ALLOCATION'] %}text-success{% elif asset_data['REVISION'] and asset_data['REVISION'] < asset_data['UNIT ALLOCATION'] %}text-danger{% endif %}">
+                                            {{ "%.2f"|format(asset_data['REVISION']) if asset_data['REVISION'] is not none else "%.2f"|format(asset_data['UNIT ALLOCATION']) if asset_data['UNIT ALLOCATION'] is not none else '0.00' }}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Additional Details -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-4 mb-md-0">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">Billing Details</h5>
+                </div>
+                <div class="card-body">
+                    {% if asset_data['REVISION'] is not none and asset_data['REVISION'] != asset_data['UNIT ALLOCATION'] %}
+                    <div class="alert alert-{% if asset_data['REVISION'] > asset_data['UNIT ALLOCATION'] %}success{% else %}warning{% endif %}">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        <strong>PM Revision Applied:</strong> This asset has been revised by the Project Manager from 
+                        {{ "%.2f"|format(asset_data['UNIT ALLOCATION']) if asset_data['UNIT ALLOCATION'] is not none else '0.00' }} to 
+                        {{ "%.2f"|format(asset_data['REVISION']) }} units.
+                    </div>
+                    {% else %}
+                    <div class="alert alert-secondary">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        <strong>No Revision Applied:</strong> The original allocation is being used for billing.
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mt-3">
+                        <h6>Notes / Details:</h6>
+                        <p class="mb-0">{{ asset_data['NOTE / DETAIL'] or 'No additional notes provided.' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">Foundation Export Preview</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-3">The following data will be included in the Foundation Export:</p>
+                    <table class="table table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Job:</td>
+                                <td>{{ asset_data['JOB'] }}</td>
+                            </tr>
+                            <tr>
+                                <td>Cost Code:</td>
+                                <td>{{ asset_data['COST CODE'] or '9000 100F' }}</td>
+                            </tr>
+                            <tr>
+                                <td>Equipment:</td>
+                                <td>{{ asset_data['EQUIPMENT'] }}</td>
+                            </tr>
+                            <tr>
+                                <td>Units:</td>
+                                <td class="fw-bold">{{ "%.2f"|format(asset_data['REVISION']) if asset_data['REVISION'] is not none else "%.2f"|format(asset_data['UNIT ALLOCATION']) if asset_data['UNIT ALLOCATION'] is not none else '0.00' }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="d-grid mt-3">
+                        <a href="{{ url_for('april_billing.export_data') }}?type=foundation&format=xlsx&asset={{ asset_id }}" class="btn btn-primary">
+                            <i class="bi bi-database-fill me-1"></i> Generate FSI Export
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add any JavaScript needed for the page here
+    });
+</script>
+{% endblock %}

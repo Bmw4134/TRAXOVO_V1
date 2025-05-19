@@ -1,59 +1,71 @@
 """
-Email Configuration Model
+Email Configuration Models
 
-This module provides the database model for storing email lists
-and system-wide email configurations.
+This module provides models for storing email configuration settings.
 """
+
+import logging
 from datetime import datetime
+from sqlalchemy import Column, Integer, String, DateTime, func
+
 from app import db
 
+# Set up logger
+logger = logging.getLogger(__name__)
 
 class EmailRecipientList(db.Model):
-    """
-    Email Recipient List Model
-    
-    This model stores lists of email recipients for various system reports.
-    """
+    """Model for storing email recipient lists"""
     __tablename__ = 'email_recipient_lists'
     
-    id = db.Column(db.Integer, primary_key=True)
-    list_name = db.Column(db.String(50), unique=True, nullable=False)
-    description = db.Column(db.String(255))
-    recipients = db.Column(db.Text, nullable=False)  # Comma-separated email addresses
-    created_by = db.Column(db.Integer, db.ForeignKey('users.id'))
-    is_active = db.Column(db.Boolean, default=True)
-    created_at = db.Column(db.DateTime, default=datetime.now)
-    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, nullable=False, index=True)
+    list_name = Column(String(128), nullable=False)
+    recipients = Column(String(2048))  # Comma-separated list of email addresses
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
     
-    def __repr__(self):
-        return f'<EmailRecipientList {self.list_name}>'
+    @classmethod
+    def get_recipients(cls, user_id, list_name, default=""):
+        """Get recipients for a specific list"""
+        try:
+            recipient_list = cls.query.filter_by(
+                user_id=user_id,
+                list_name=list_name
+            ).first()
+            
+            if recipient_list and recipient_list.recipients:
+                return recipient_list.recipients
+            return default
+        except Exception as e:
+            logger.error(f"Error getting recipients for {list_name}, user {user_id}: {e}")
+            return default
     
-    def get_recipients_list(self):
-        """
-        Returns a list of email addresses from the comma-separated string
-        """
-        if not self.recipients:
-            return []
-        return [email.strip() for email in self.recipients.split(',') if email.strip()]
-    
-    def add_recipient(self, email):
-        """
-        Adds an email to the recipient list if not already present
-        """
-        current_recipients = self.get_recipients_list()
-        if email not in current_recipients:
-            current_recipients.append(email)
-            self.recipients = ','.join(current_recipients)
+    @classmethod
+    def set_recipients(cls, user_id, list_name, recipients):
+        """Set recipients for a specific list"""
+        try:
+            # Check if list exists
+            recipient_list = cls.query.filter_by(
+                user_id=user_id,
+                list_name=list_name
+            ).first()
+            
+            if recipient_list:
+                # Update existing list
+                recipient_list.recipients = recipients
+                recipient_list.updated_at = datetime.now()
+            else:
+                # Create new list
+                recipient_list = cls(
+                    user_id=user_id,
+                    list_name=list_name,
+                    recipients=recipients
+                )
+                db.session.add(recipient_list)
+            
+            db.session.commit()
             return True
-        return False
-    
-    def remove_recipient(self, email):
-        """
-        Removes an email from the recipient list if present
-        """
-        current_recipients = self.get_recipients_list()
-        if email in current_recipients:
-            current_recipients.remove(email)
-            self.recipients = ','.join(current_recipients)
-            return True
-        return False
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f"Error setting recipients for {list_name}, user {user_id}: {e}")
+            return False

@@ -164,6 +164,9 @@ def main():
         def mock_process_attendance_data(date=None):
             """Mock process_attendance_data to use our test data"""
             if date and date in test_data:
+                logger.info(f"Processing test data for date: {date}")
+                logger.info(f"Late drivers: {len(test_data[date]['late_drivers'])}")
+                logger.info(f"Absent drivers: {len(test_data[date]['not_on_job_drivers'])}")
                 return test_data[date]
             return {}
         

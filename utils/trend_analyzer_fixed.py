@@ -215,12 +215,14 @@ def analyze_trends(date_range=None, specific_dates=None):
     for normalized_name, data in driver_data.items():
         flags = []
         
-        # Check for chronic lateness
+        # Check for chronic lateness (DEBUG: log late_days for each driver)
+        logger.info(f"Driver {data.name}: late_days={data.late_days}, days analyzed={len(data.dates)}")
         if data.late_days >= CHRONIC_LATE_THRESHOLD:
             flags.append('CHRONIC_LATE')
             results['trend_summary']['chronic_late_count'] += 1
-            
+        
         # Check for repeated absences
+        logger.info(f"Driver {data.name}: absent_days={data.absent_days}")
         if data.absent_days >= REPEATED_ABSENCE_THRESHOLD:
             flags.append('REPEATED_ABSENCE')
             results['trend_summary']['repeated_absence_count'] += 1

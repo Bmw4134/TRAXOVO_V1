@@ -898,15 +898,20 @@ def auto_process_pm_allocation():
     # Redirect back to the PM allocation page
     return redirect(url_for('pm_allocation_processor'))
 
-@app.route('/daily_report')
+@app.route('/legacy_daily_report')
 @login_required
-def daily_report():
-    """Generate daily driver report using the automated attendance pipeline"""
-    import os
-    from datetime import datetime, timedelta
+def legacy_daily_report():
+    """Legacy entry point for daily driver report (redirects to new blueprint version)"""
+    from flask import redirect, url_for, request
     
-    # Import the centralized attendance pipeline connector
-    from utils.attendance_pipeline_connector import get_attendance_data
+    # Get the date parameter if any
+    date_param = request.args.get('date')
+    
+    # Redirect to the new blueprint route
+    if date_param:
+        return redirect(url_for('driver_module.daily_report', date=date_param))
+    else:
+        return redirect(url_for('driver_module.daily_report'))
     
     # Get date from query parameters, default to today
     date_str = request.args.get('date')

@@ -6,9 +6,13 @@ This module handles sending email reports through SendGrid.
 import os
 import logging
 import traceback
+import base64
 from datetime import datetime
 from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail, Email, To, Content
+from sendgrid.helpers.mail import (
+    Mail, Email, To, Content, Attachment, FileContent, 
+    FileName, FileType, Disposition, ContentId
+)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO,
@@ -26,7 +30,7 @@ BCC_RECIPIENTS = [
     'archives@systemsmith.com'
 ]
 
-def send_email(subject, html_content, recipients=None, from_email=None, bcc_recipients=None):
+def send_email(subject, html_content, recipients=None, from_email=None, bcc_recipients=None, attachment_path=None):
     """
     Send an email using SendGrid API
     
@@ -36,6 +40,7 @@ def send_email(subject, html_content, recipients=None, from_email=None, bcc_reci
         recipients (list, optional): List of recipient email addresses. Defaults to DEFAULT_RECIPIENTS.
         from_email (str, optional): Sender email address. Defaults to DEFAULT_FROM_EMAIL.
         bcc_recipients (list, optional): List of BCC recipients. Defaults to BCC_RECIPIENTS.
+        attachment_path (str, optional): Path to file to attach to the email.
     
     Returns:
         tuple: (success, message)

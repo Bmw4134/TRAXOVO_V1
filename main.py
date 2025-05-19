@@ -193,6 +193,14 @@ try:
 except ImportError as e:
     logging.error(f"Failed to register April Billing Simulation blueprint: {e}")
 
+# Register Attendance Trends API blueprint
+try:
+    from routes.trend_api import register_trend_api
+    register_trend_api(app)
+    logging.info("Registered Attendance Trends API blueprint")
+except ImportError as e:
+    logging.error(f"Failed to register Attendance Trends API blueprint: {e}")
+
 @login_manager.user_loader
 def load_user(user_id):
     """Load user from database"""

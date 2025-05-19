@@ -410,12 +410,36 @@ def daily_report():
     # Get email configuration for the current user
     email_config = get_user_email_config()
     
+    # Get attendance trend data for the last 5 days
+    try:
+        from utils.attendance_trends_api import get_driver_trends
+        end_date = date_obj.strftime('%Y-%m-%d')
+        trend_data = get_driver_trends(end_date=end_date, days=5)
+        
+        # Set trend summary counts for display
+        trend_summary = trend_data.get('summary', {})
+        chronic_late_count = trend_summary.get('chronic_late_count', 0)
+        repeated_absence_count = trend_summary.get('repeated_absence_count', 0)
+        unstable_shift_count = trend_summary.get('unstable_shift_count', 0)
+    except Exception as e:
+        logger.error(f"Error getting trend data: {e}")
+        trend_data = {"driver_trends": {}, "summary": {}}
+        chronic_late_count = 0
+        repeated_absence_count = 0 
+        unstable_shift_count = 0
+    
     log_navigation('Daily Driver Report', {'date': date_str})
     return render_template(
         'drivers/daily_report.html',
         report=report,
         selected_date=report['formatted_date'],
-        email_config=email_config
+        email_config=email_config,
+        trend_data=trend_data,
+        trend_summary={
+            'chronic_late_count': chronic_late_count,
+            'repeated_absence_count': repeated_absence_count,
+            'unstable_shift_count': unstable_shift_count
+        }
     )
 
 @driver_module_bp.route('/attendance-dashboard')

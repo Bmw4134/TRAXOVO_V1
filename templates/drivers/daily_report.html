@@ -345,6 +345,115 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
+    // Load attendance trend data
+    loadAttendanceTrends();
+    
+    // Function to load and display attendance trend data
+    function loadAttendanceTrends() {
+        const reportDate = reportDateInput.value || '{{ selected_date or today }}';
+        const apiUrl = `/api/driver-trends?end=${reportDate}&days=5`;
+        
+        fetch(apiUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Update summary counts
+                const summary = data.summary || {};
+                document.getElementById('chronic-late-count').textContent = summary.chronic_late_count || 0;
+                document.getElementById('repeated-absence-count').textContent = summary.repeated_absence_count || 0;
+                document.getElementById('unstable-shift-count').textContent = summary.unstable_shift_count || 0;
+                
+                // Populate trend table
+                const trends = data.driver_trends || {};
+                const tableBody = document.getElementById('trend-table-body');
+                tableBody.innerHTML = '';
+                
+                let driverCount = 0;
+                
+                Object.keys(trends).forEach(driverName => {
+                    driverCount++;
+                    const driver = trends[driverName];
+                    const flags = driver.flags || [];
+                    const flagBadges = flags.map(flag => {
+                        let badgeClass = 'bg-secondary';
+                        if (flag === 'CHRONIC_LATE') badgeClass = 'bg-danger';
+                        if (flag === 'REPEATED_ABSENCE') badgeClass = 'bg-warning';
+                        if (flag === 'UNSTABLE_SHIFT') badgeClass = 'bg-info';
+                        
+                        return `<span class="badge ${badgeClass} me-1">${formatFlag(flag)}</span>`;
+                    }).join('');
+                    
+                    const row = document.createElement('tr');
+                    
+                    // Highlight rows with flags
+                    if (flags.includes('CHRONIC_LATE')) {
+                        row.className = 'table-danger';
+                    } else if (flags.includes('REPEATED_ABSENCE')) {
+                        row.className = 'table-warning';
+                    } else if (flags.includes('UNSTABLE_SHIFT')) {
+                        row.className = 'table-info';
+                    }
+                    
+                    row.innerHTML = `
+                        <td>${driverName}</td>
+                        <td>${driver.late_count || 0}</td>
+                        <td>${driver.absence_count || 0}</td>
+                        <td>${flagBadges || '<span class="text-muted">None</span>'}</td>
+                        <td>
+                            <a href="/drivers/vehicle-audit?search=${encodeURIComponent(driverName)}" class="btn btn-sm btn-secondary">
+                                <i class="bi bi-search"></i> View History
+                            </a>
+                        </td>
+                    `;
+                    
+                    tableBody.appendChild(row);
+                });
+                
+                // Show message if no trends found
+                if (driverCount === 0) {
+                    const emptyRow = document.createElement('tr');
+                    emptyRow.innerHTML = `
+                        <td colspan="5" class="text-center text-muted">
+                            No attendance trends found for the selected date range
+                        </td>
+                    `;
+                    tableBody.appendChild(emptyRow);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching attendance trends:', error);
+                document.getElementById('trend-table-body').innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center text-danger">
+                            <i class="bi bi-exclamation-triangle"></i> Error loading attendance trends
+                        </td>
+                    </tr>
+                `;
+            });
+    }
+    
+    // Helper function to format flag names for display
+    function formatFlag(flag) {
+        switch (flag) {
+            case 'CHRONIC_LATE':
+                return 'Chronic Late';
+            case 'REPEATED_ABSENCE':
+                return 'Repeated Absence'; 
+            case 'UNSTABLE_SHIFT':
+                return 'Unstable Shift';
+            default:
+                return flag.replace(/_/g, ' ').toLowerCase()
+                    .replace(/\b\w/g, c => c.toUpperCase());
+        }
+    }
+    
+    // Update trends when date changes
+    reportDateInput.addEventListener('change', loadAttendanceTrends);
+    
     // Initialize charts if we have data
     {% if driver_data %}
         // Late starts chart

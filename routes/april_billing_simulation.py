@@ -985,16 +985,28 @@ def export_data():
     export_df = processed_data.copy()
     
     if region:
-        export_df = export_df[export_df['DIV'] == region]
+        if 'Region' in export_df.columns:
+            export_df = export_df[export_df['Region'] == region]
+        elif 'DIV' in export_df.columns:
+            export_df = export_df[export_df['DIV'] == region]
     
     if job:
-        export_df = export_df[export_df['JOB'] == job]
+        if 'Job' in export_df.columns:
+            export_df = export_df[export_df['Job'] == job]
+        elif 'JOB' in export_df.columns:
+            export_df = export_df[export_df['JOB'] == job]
     
     if cost_code:
-        export_df = export_df[export_df['COST CODE'] == cost_code]
+        if 'Cost Code' in export_df.columns:
+            export_df = export_df[export_df['Cost Code'] == cost_code]
+        elif 'COST CODE' in export_df.columns:
+            export_df = export_df[export_df['COST CODE'] == cost_code]
     
     if asset:
-        export_df = export_df[export_df['ASSET ID'] == asset]
+        if 'Asset ID' in export_df.columns:
+            export_df = export_df[export_df['Asset ID'] == asset]
+        elif 'ASSET ID' in export_df.columns:
+            export_df = export_df[export_df['ASSET ID'] == asset]
     
     # Generate appropriate filename
     filename_parts = ['april_2025']
@@ -1013,9 +1025,78 @@ def export_data():
     
     # Create export file
     if export_type == 'foundation':
-        return export_foundation_format(export_df, filename, export_format)
+        # For Foundation format exports we need to ensure proper column names
+        # since the export function expects specific column names
+        column_mapping = {
+            'Job': 'JOB', 'job': 'JOB', 'JOB': 'JOB',
+            'Cost Code': 'COST CODE', 'cost_code': 'COST CODE', 'COST CODE': 'COST CODE',
+            'Asset ID': 'ASSET ID', 'asset_id': 'ASSET ID', 'ASSET ID': 'ASSET ID',
+            'Equipment': 'EQUIPMENT', 'equipment': 'EQUIPMENT', 'EQUIPMENT': 'EQUIPMENT',
+            'Units': 'UNITS', 'units': 'UNITS', 'UNITS': 'UNITS',
+            'Amount': 'AMOUNT', 'amount': 'AMOUNT', 'AMOUNT': 'AMOUNT',
+            'Region': 'REGION', 'region': 'REGION', 'REGION': 'REGION',
+            'Driver': 'DRIVER', 'driver': 'DRIVER', 'DRIVER': 'DRIVER'
+        }
+        
+        # Rename columns based on mapping
+        for old_col, new_col in column_mapping.items():
+            if old_col in export_df.columns:
+                export_df = export_df.rename(columns={old_col: new_col})
+        
+        # Make sure required columns exist
+        for required_col in ['JOB', 'COST CODE', 'ASSET ID', 'EQUIPMENT', 'UNITS', 'AMOUNT']:
+            if required_col not in export_df.columns:
+                if required_col == 'UNITS' and 'Units' in export_df.columns:
+                    export_df['UNITS'] = export_df['Units']
+                elif required_col == 'AMOUNT' and 'Amount' in export_df.columns:
+                    export_df['AMOUNT'] = export_df['Amount']
+                else:
+                    # Add empty column if missing
+                    export_df[required_col] = ''
+        
+        # Extract only the required columns for Foundation export
+        foundation_df = export_df[['JOB', 'COST CODE', 'ASSET ID', 'EQUIPMENT', 'UNITS', 'AMOUNT']]
+        
+        # Convert numeric columns to ensure proper calculations
+        foundation_df['UNITS'] = pd.to_numeric(foundation_df['UNITS'], errors='coerce').fillna(0)
+        foundation_df['AMOUNT'] = pd.to_numeric(foundation_df['AMOUNT'], errors='coerce').fillna(0)
+        
+        # Add region code for FSI export
+        region_code = region if region else 'DFW'  # Default to DFW if no specific region filter
+        
+        # Use the export function to generate FSI format
+        return export_fsi_format(
+            df=foundation_df,
+            region=region_code,
+            month=MONTH_NAME,
+            year=YEAR,
+            subfolder='april_billing/foundation'
+        )
     else:
-        return export_detail_format(export_df, filename, export_format)
+        # For detail format, we don't need to reshape the data as much
+        title = f"April 2025 Billing Detail"
+        if region:
+            title += f" - Region {region}"
+        if job:
+            title += f" - Job {job}"
+        if cost_code:
+            title += f" - CC {cost_code}"
+        if asset:
+            title += f" - Asset {asset}"
+            
+        export_path = export_dataframe(
+            df=export_df,
+            filename=filename,
+            format_type=export_format,
+            subfolder='april_billing/detail',
+            title=title
+        )
+        
+        if export_path:
+            return send_file(export_path, as_attachment=True)
+        else:
+            flash('Error creating export file', 'error')
+            return redirect(url_for('april_billing.index'))
 
 def process_allocation_file(file_path, filename):
     """Process an allocation file and extract relevant data"""

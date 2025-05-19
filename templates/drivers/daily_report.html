@@ -123,9 +123,10 @@
         <div class="col-md-3 col-sm-6 mb-3">
             <div class="card bg-warning text-dark h-100">
                 <div class="card-body text-center">
-                    <h1 class="display-4 mb-0">{{ report.summary.late_drivers + report.summary.early_end_drivers }}</h1>
+                    {% set attendance_issues = report.late_drivers|length + report.early_end_drivers|length - report.late_drivers|selectattr('employee_id', 'in', report.early_end_drivers|map(attribute='employee_id')|list)|list|length %}
+                    <h1 class="display-4 mb-0">{{ attendance_issues }}</h1>
                     <h5 class="card-title">Attendance Issues</h5>
-                    <p class="mb-0">{{ report.summary.late_drivers }} Late, {{ report.summary.early_end_drivers }} Early</p>
+                    <p class="mb-0">{{ report.late_drivers|length }} Late, {{ report.early_end_drivers|length }} Early</p>
                 </div>
             </div>
         </div>

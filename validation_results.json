@@ -4,20 +4,21 @@
   "warnings": [
     {
       "type": "total_drivers_mismatch",
-      "message": "Total drivers count may be inaccurate: Summary shows 50, but there are 19 unique drivers with issues"
+      "message": "Total drivers count may be inaccurate: Summary shows 40, but there are 16 unique drivers with issues"
     }
   ],
   "statistics": {
-    "report_date": "2025-05-16",
-    "total_unique_drivers": 19,
-    "total_issues": 20,
-    "late_drivers": 4,
-    "early_end_drivers": 9,
+    "report_date": "2025-05-18",
+    "total_unique_drivers": 16,
+    "total_issues": 18,
+    "late_drivers": 1,
+    "early_end_drivers": 10,
     "not_on_job_drivers": 7,
     "exception_drivers": 0,
-    "drivers_with_multiple_issues": 1,
+    "drivers_with_multiple_issues": 2,
     "multiple_issue_details": [
-      "SIERRA Joseph Q. Walker: late_drivers, early_end_drivers"
+      "Barbara Flores: late_drivers, not_on_job_drivers",
+      "Rosa Robinson (ID-118) [HOU]: early_end_drivers, not_on_job_drivers"
     ]
   }
 }

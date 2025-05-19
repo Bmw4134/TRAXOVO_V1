@@ -1,614 +1,642 @@
 {
-  "date": "2025-05-16",
+  "date": "2025-05-18",
   "raw_data": [
     {
-      "Date": "2025-05-16",
-      "Asset": "ET-20 Robert Jones (EMP2484)",
-      "Time Start": "07:32 AM",
-      "Time Stop": "03:26 PM",
-      "Company": "Ragle Inc.",
-      "Job Site": "Grapevine Mall"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "RT-18 Elizabeth Jackson",
+      "Date": "2025-05-18",
+      "Asset": "ET-07 Elizabeth Jones",
       "Time Start": "",
-      "Time Stop": "15:33",
-      "Company": "Highland Construction",
-      "Job Site": "Carrollton Bridge"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "FORD F250 Mary Rodriguez",
-      "Time Start": "06:53 AM",
-      "Time Stop": "15:39",
-      "Company": "Select Contracting",
-      "Job Site": "Allen Sports Complex"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "PT-16 Ana Wilson",
-      "Time Start": "06:28 AM",
-      "Time Stop": "15:35",
-      "Company": "Ragle Inc.",
-      "Job Site": "Fort Worth West"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "LT-62 Luis M. Moore EMP3637",
-      "Time Start": "07:08 AM",
-      "Time Stop": "02:42 PM",
-      "Company": "Ragle Inc.",
-      "Job Site": "Richardson Office Park"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "PT-75 Jorge Garcia (EMP3862)",
-      "Time Start": "07:10 CT",
-      "Time Stop": "15:31 CT",
-      "Company": "Select Contracting",
-      "Job Site": "Fort Worth West"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "GMC SIERRA Elizabeth Taylor - EMP5568",
-      "Time Start": "07:00 AM",
-      "Time Stop": "15:21",
-      "Company": "Ragle Inc.",
-      "Job Site": "Frisco Town Center"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "RT-09 Robert Anderson",
-      "Time Start": "07:08 AM",
       "Time Stop": "",
-      "Company": "Ragle Inc.",
-      "Job Site": "Carrollton Bridge"
+      "Company": "Texas Earth Movers",
+      "Job Site": "Fort Worth West",
+      "Division": ""
     },
     {
-      "Date": "2025-05-16",
-      "Asset": "CT-72 Rosa W. Jones",
-      "Time Start": "06:57 AM",
-      "Time Stop": "03:25 PM",
-      "Company": "Select Contracting",
-      "Job Site": "Coppell Industrial"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "PT-02 Jorge Gonzalez - EMP6627",
-      "Time Start": "06:55",
-      "Time Stop": "03:28 PM",
-      "Company": "Highland Construction",
-      "Job Site": "Fort Worth West"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "PT-56 Carlos Martinez (EMP5206)",
-      "Time Start": "07:09",
-      "Time Stop": "15:21",
-      "Company": "Ragle Inc.",
-      "Job Site": "Denton Highway"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "LT-28 Francisco F. Allen",
-      "Time Start": "07:04 AM",
-      "Time Stop": "15:39",
-      "Company": "Highland Construction",
-      "Job Site": "Southlake Plaza"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "ET-28 Patricia Perez",
-      "Time Start": "06:57 AM",
+      "Date": "2025-05-18",
+      "Asset": "RAM-2500 Rosa Ramirez [HOU]",
+      "Time Start": "06:53",
       "Time Stop": "03:26 PM",
       "Company": "Select Contracting",
-      "Job Site": "Lewisville Dam"
+      "Job Site": "Lewisville Dam",
+      "Division": ""
     },
     {
-      "Date": "2025-05-16",
-      "Asset": "FORD F250 Miguel U. Lewis",
-      "Time Start": "07:06",
-      "Time Stop": "15:25",
+      "Date": "2025-05-18",
+      "Asset": "RT-62 Mar\u00eda Adams - E57337",
+      "Time Start": "07:04 AM",
+      "Time Stop": "03:38 PM",
       "Company": "Highland Construction",
-      "Job Site": "Dallas North"
+      "Job Site": "Irving South",
+      "Division": "WT"
     },
     {
-      "Date": "2025-05-16",
-      "Asset": "RT-07 Jos\u00e9 Adams EMP4135",
+      "Date": "2025-05-18",
+      "Asset": "FORD F250 Charles Johnson - E75931 [WT]",
+      "Time Start": "06:55 CT",
+      "Time Stop": "03:28 PM CT",
+      "Company": "Ragle Inc.",
+      "Job Site": "Allen Sports Complex",
+      "Division": "WT"
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "RT-27 Karen B. Davis",
+      "Time Start": "06:58",
+      "Time Stop": "15:24",
+      "Company": "Select Contracting",
+      "Job Site": "Richardson Office Park",
+      "Division": ""
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "RAM-2500 Jennifer Brown E72610",
+      "Time Start": "09:30 PM",
+      "Time Stop": "05:50 (+1)",
+      "Company": "Select Contracting",
+      "Job Site": "Fort Worth West",
+      "Division": ""
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "FORD F250 Jennifer Brown E72610",
       "Time Start": "07:03",
-      "Time Stop": "03:21 PM",
-      "Company": "Highland Construction",
-      "Job Site": "Carrollton Bridge"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "RT-47 Linda Taylor",
-      "Time Start": "07:10",
-      "Time Stop": "15:13",
-      "Company": "Texas Earth Movers",
-      "Job Site": "Irving South"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "RT-52 Joseph T. Garcia",
-      "Time Start": "06:52 AM",
-      "Time Stop": "02:23 PM",
-      "Company": "Ragle Inc.",
-      "Job Site": "Lewisville Dam"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "F-150 Barbara Brown (EMP3521)",
-      "Time Start": "06:58 AM",
-      "Time Stop": "14:09",
-      "Company": "Texas Earth Movers",
-      "Job Site": "Grapevine Mall"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "CHEVY SILVERADO Roberto F. Walker",
-      "Time Start": "07:10",
-      "Time Stop": "03:23 PM",
-      "Company": "Ragle Inc.",
-      "Job Site": "Denton Highway"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "GMC SIERRA Joseph Q. Walker",
-      "Time Start": "07:30 AM",
-      "Time Stop": "15:12",
-      "Company": "Texas Earth Movers",
-      "Job Site": "Denton Highway"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "ET-40 Thomas Garcia",
-      "Time Start": "06:11",
-      "Time Stop": "15:20",
-      "Company": "Ragle Inc.",
-      "Job Site": "Irving South"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "LT-03 Mary Nguyen",
-      "Time Start": "07:07",
-      "Time Stop": "15:12",
-      "Company": "Ragle Inc.",
-      "Job Site": "Southlake Plaza"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "HT-02 Patricia Martin (EMP8511)",
-      "Time Start": "06:59 AM",
-      "Time Stop": "",
+      "Time Stop": "15:29",
       "Company": "Select Contracting",
-      "Job Site": "Coppell Industrial"
+      "Job Site": "Grapevine Mall",
+      "Division": ""
     },
     {
-      "Date": "2025-05-16",
-      "Asset": "CT-24 William F. Anderson (EMP3261)",
-      "Time Start": "06:57",
-      "Time Stop": "15:20",
-      "Company": "Highland Construction",
-      "Job Site": "McKinney Residential"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "RT-62 Jorge Baker",
-      "Time Start": "07:02 AM",
-      "Time Stop": "15:27",
-      "Company": "Select Contracting",
-      "Job Site": "Plano East"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "GMC SIERRA Joseph Robinson (EMP7759)",
-      "Time Start": "07:06 AM",
-      "Time Stop": "14:27",
-      "Company": "Texas Earth Movers",
-      "Job Site": "Lewisville Dam"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "ET-42 Charles Z. Baker (EMP8874)",
-      "Time Start": "06:59",
-      "Time Stop": "03:21 PM",
-      "Company": "Select Contracting",
-      "Job Site": "Grapevine Mall"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "CHEVY SILVERADO Francisco K. Miller EMP9620",
-      "Time Start": "",
-      "Time Stop": "",
-      "Company": "Highland Construction",
-      "Job Site": "Arlington Central"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "CT-66 Barbara P. Lopez",
-      "Time Start": "07:03 AM",
-      "Time Stop": "03:29 PM",
-      "Company": "Select Contracting",
-      "Job Site": "Denton Highway"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "PT-27 Thomas Torres EMP6434",
-      "Time Start": "07:04 AM",
-      "Time Stop": "03:40 PM",
-      "Company": "Ragle Inc.",
-      "Job Site": "Grapevine Mall"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "LT-98 Michael D. Ramirez",
-      "Time Start": "",
-      "Time Stop": "",
-      "Company": "Ragle Inc.",
-      "Job Site": "Plano East"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "LT-38 Michael X. Garcia EMP8486 / John Scott",
-      "Time Start": "07:03 AM",
-      "Time Stop": "15:31",
-      "Company": "Texas Earth Movers",
-      "Job Site": "Frisco Town Center"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "PT-60 Rosa Ramirez",
-      "Time Start": "07:02 AM",
-      "Time Stop": "02:19 PM",
-      "Company": "Select Contracting",
-      "Job Site": "Arlington Central"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "ET-48 Robert Green",
-      "Time Start": "07:02 AM",
-      "Time Stop": "03:24 PM",
-      "Company": "Ragle Inc.",
-      "Job Site": "Allen Sports Complex"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "HT-49 Karen H. Thomas",
-      "Time Start": "06:57 AM",
-      "Time Stop": "15:25",
-      "Company": "Select Contracting",
-      "Job Site": "Dallas North"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "CT-43 Miguel Smith",
-      "Time Start": "07:09",
-      "Time Stop": "15:25",
-      "Company": "Ragle Inc.",
-      "Job Site": "Denton Highway"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "GMC SIERRA Rosa Nelson",
-      "Time Start": "06:19 AM",
-      "Time Stop": "15:21",
-      "Company": "Highland Construction",
-      "Job Site": "Dallas North"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "CT-79 Mary K. Hernandez EMP2762",
-      "Time Start": "07:00",
-      "Time Stop": "03:34 PM",
-      "Company": "Highland Construction",
-      "Job Site": "Irving South"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "LT-43 Roberto Z. Thomas (EMP1800)",
-      "Time Start": "06:44",
-      "Time Stop": "03:32 PM",
-      "Company": "Highland Construction",
-      "Job Site": "Lewisville Dam"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "ET-60 Richard Rodriguez",
-      "Time Start": "06:50 AM",
-      "Time Stop": "15:31",
-      "Company": "Highland Construction",
-      "Job Site": "Arlington Central"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "F-150 Michael Lewis",
-      "Time Start": "06:52 AM",
-      "Time Stop": "",
-      "Company": "Texas Earth Movers",
-      "Job Site": "Arlington Central"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "RAM-2500 Rosa Moore",
-      "Time Start": "07:02 AM",
-      "Time Stop": "15:25",
-      "Company": "Highland Construction",
-      "Job Site": "McKinney Residential"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "GMC SIERRA Teresa I. Martinez (EMP5558)",
-      "Time Start": "07:34",
-      "Time Stop": "03:21 PM",
-      "Company": "Texas Earth Movers",
-      "Job Site": "Frisco Town Center"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "RAM-2500 Ana Miller",
-      "Time Start": "07:08",
-      "Time Stop": "14:22",
-      "Company": "Ragle Inc.",
-      "Job Site": "Allen Sports Complex"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "CT-85 Juan Perez",
-      "Time Start": "07:02 AM",
-      "Time Stop": "",
-      "Company": "Select Contracting",
-      "Job Site": "Coppell Industrial"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "RAM-2500 Richard Lewis",
-      "Time Start": "06:57 AM",
-      "Time Stop": "15:20",
-      "Company": "Highland Construction",
-      "Job Site": "Denton Highway"
-    },
-    {
-      "Date": "2025-05-16",
-      "Asset": "ET-41 William Gonzalez EMP5731",
-      "Time Start": "06:48 AM",
+      "Date": "2025-05-18",
+      "Asset": "ET-49 Rosa Ramirez [HOU]",
+      "Time Start": "06:53 AM",
       "Time Stop": "15:22",
-      "Company": "Select Contracting",
-      "Job Site": "Coppell Industrial"
+      "Company": "Highland Construction",
+      "Job Site": "Coppell Industrial",
+      "Division": "WT"
     },
     {
-      "Date": "2025-05-16",
-      "Asset": "LT-02 Rosa A. Taylor",
-      "Time Start": "06:50",
-      "Time Stop": "03:24 PM",
+      "Date": "2025-05-18",
+      "Asset": "GMC SIERRA Richard Rodriguez [WT]",
+      "Time Start": "",
+      "Time Stop": "03:39 PM",
+      "Company": "Highland Construction",
+      "Job Site": "Carrollton Bridge",
+      "Division": ""
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "F-150 Isabel S. Allen - ID-100 [HOU]",
+      "Time Start": "06:50 AM",
+      "Time Stop": "15:23",
       "Company": "Texas Earth Movers",
-      "Job Site": "Southlake Plaza"
+      "Job Site": "Denton Highway",
+      "Division": "HOU"
     },
     {
-      "Date": "2025-05-16",
-      "Asset": "RT-58 Elizabeth Gonzalez",
-      "Time Start": "07:37",
+      "Date": "2025-05-18",
+      "Asset": "RT-22 Mar\u00eda Adams - E57337",
+      "Time Start": "06:58",
+      "Time Stop": "03:38 PM",
+      "Company": "Texas Earth Movers",
+      "Job Site": "Grapevine Mall",
+      "Division": ""
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "LT-97 Barbara Flores",
+      "Time Start": "07:26",
       "Time Stop": "15:31",
       "Company": "Highland Construction",
-      "Job Site": "Southlake Plaza"
+      "Job Site": "Plano East",
+      "Division": "DFW"
     },
     {
-      "Date": "2025-05-16",
-      "Asset": "CHEVY SILVERADO Luis Thomas / Jennifer Williams (EMP4882)",
-      "Time Start": "07:06 AM",
+      "Date": "2025-05-18",
+      "Asset": "RT-38 Laura Z. Robinson - EMP6580",
+      "Time Start": "06:55",
+      "Time Stop": "15:34",
+      "Company": "Ragle Inc.",
+      "Job Site": "Southlake Plaza",
+      "Division": "WT"
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "RT-08 Richard Scott [HOU]",
+      "Time Start": "06:57 AM",
+      "Time Stop": "15:05",
+      "Company": "Highland Construction",
+      "Job Site": "Arlington Central",
+      "Division": "WT"
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "RAM-2500 Jorge Wright [HOU]",
+      "Time Start": "07:10",
+      "Time Stop": "15:32",
+      "Company": "Select Contracting",
+      "Job Site": "Grapevine Mall",
+      "Division": ""
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "PT-37 Juan Scott (E23092)",
+      "Time Start": "07:08 AM",
+      "Time Stop": "02:04 PM",
+      "Company": "Highland Construction",
+      "Job Site": "Irving South",
+      "Division": ""
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "HT-27 Carmen E. Lopez",
+      "Time Start": "21:56",
+      "Time Stop": "06:24 AM (+1)",
+      "Company": "Ragle Inc.",
+      "Job Site": "Irving South",
+      "Division": "DFW"
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "CHEVY SILVERADO Juan Lewis",
+      "Time Start": "07:10 AM",
+      "Time Stop": "03:24 PM",
+      "Company": "Highland Construction",
+      "Job Site": "Dallas North",
+      "Division": "WT"
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "RT-85 Rosa Robinson (ID-118) [HOU]",
+      "Time Start": "07:07",
+      "Time Stop": "03:01 PM",
+      "Company": "Texas Earth Movers",
+      "Job Site": "Richardson Office Park",
+      "Division": "DFW"
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "LT-03 Sarah Brown (E98729) [DFW]",
+      "Time Start": "07:03",
       "Time Stop": "03:31 PM",
       "Company": "Select Contracting",
-      "Job Site": "Lewisville Dam"
+      "Job Site": "Grapevine Mall",
+      "Division": "WT"
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "ET-71 Mar\u00eda Adams - E57337",
+      "Time Start": "07:03",
+      "Time Stop": "03:34 PM",
+      "Company": "Select Contracting",
+      "Job Site": "Dallas North",
+      "Division": ""
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "CT-52 Rosa Allen [DFW]",
+      "Time Start": "06:52",
+      "Time Stop": "15:35",
+      "Company": "Texas Earth Movers",
+      "Job Site": "Carrollton Bridge",
+      "Division": ""
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "F-150 Barbara Flores",
+      "Time Start": "07:00 AM",
+      "Time Stop": "",
+      "Company": "Texas Earth Movers",
+      "Job Site": "Richardson Office Park",
+      "Division": ""
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "PT-33 Rosa Robinson (ID-118) [HOU]",
+      "Time Start": "07:09 AM",
+      "Time Stop": "",
+      "Company": "Highland Construction",
+      "Job Site": "Frisco Town Center",
+      "Division": "HOU"
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "RAM-2500 Carmen Adams - EMP6934 [HOU] / Mar\u00eda Hernandez EMP4341 [DFW]",
+      "Time Start": "06:56",
+      "Time Stop": "15:40",
+      "Company": "Select Contracting",
+      "Job Site": "Allen Sports Complex",
+      "Division": ""
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "LT-15 Michael Green ID-589 [HOU]",
+      "Time Start": "07:00 AM",
+      "Time Stop": "15:28",
+      "Company": "Select Contracting",
+      "Job Site": "Lewisville Dam",
+      "Division": "HOU"
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "HT-36 Laura Young (ID-684)",
+      "Time Start": "06:51 AM",
+      "Time Stop": "15:20",
+      "Company": "Highland Construction",
+      "Job Site": "Richardson Office Park",
+      "Division": ""
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "??? John Adams (E56765) [HOU]",
+      "Time Start": "",
+      "Time Stop": "",
+      "Company": "Select Contracting",
+      "Job Site": "Southlake Plaza",
+      "Division": ""
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "PT-07 Sarah Brown (E98729) [DFW]",
+      "Time Start": "06:55",
+      "Time Stop": "03:27 PM",
+      "Company": "Texas Earth Movers",
+      "Job Site": "Plano East",
+      "Division": "DFW"
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "GMC SIERRA Miguel T. Gonzalez ID-153 [DFW]",
+      "Time Start": "07:01",
+      "Time Stop": "03:35 PM",
+      "Company": "Select Contracting",
+      "Job Site": "McKinney Residential",
+      "Division": ""
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "RT-70 Laura Young (ID-684)",
+      "Time Start": "06:52",
+      "Time Stop": "03:29 PM",
+      "Company": "Ragle Inc.",
+      "Job Site": "Denton Highway",
+      "Division": "DFW"
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "",
+      "Time Start": "06:56 AM",
+      "Time Stop": "15:33",
+      "Company": "Select Contracting",
+      "Job Site": "Arlington Central",
+      "Division": "HOU"
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "FORD F250 Robert U. Ramirez",
+      "Time Start": "06:53 AM",
+      "Time Stop": "03:40 PM",
+      "Company": "Texas Earth Movers",
+      "Job Site": "Irving South",
+      "Division": ""
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "CHEVY SILVERADO Jorge Scott [DFW]",
+      "Time Start": "06:59 CT",
+      "Time Stop": "15:35 CT",
+      "Company": "Texas Earth Movers",
+      "Job Site": "Plano East",
+      "Division": "HOU"
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "GMC SIERRA Pedro Lewis E12589",
+      "Time Start": "06:56 AM",
+      "Time Stop": "03:26 PM (Next Day)",
+      "Company": "Ragle Inc.",
+      "Job Site": "Plano East",
+      "Division": ""
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "LT-22 William Allen",
+      "Time Start": "06:54 AM",
+      "Time Stop": "02:40 PM",
+      "Company": "Texas Earth Movers",
+      "Job Site": "Arlington Central",
+      "Division": "HOU"
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "PT-11 Pedro Lopez",
+      "Time Start": "06:52",
+      "Time Stop": "14:46",
+      "Company": "Ragle Inc.",
+      "Job Site": "Dallas North",
+      "Division": "DFW"
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "HT-64 Gabriela Davis",
+      "Time Start": "06:53 AM",
+      "Time Stop": "11:47",
+      "Company": "Highland Construction",
+      "Job Site": "Lewisville Dam",
+      "Division": ""
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "CHEVY SILVERADO Laura Z. Robinson - EMP6580",
+      "Time Start": "06:53 AM",
+      "Time Stop": "03:26 PM",
+      "Company": "Select Contracting",
+      "Job Site": "Richardson Office Park",
+      "Division": ""
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "PT-20 Patricia O. Young (EMP9079)",
+      "Time Start": "",
+      "Time Stop": "15:32",
+      "Company": "Select Contracting",
+      "Job Site": "Irving South",
+      "Division": "DFW"
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "ET-67 David Thomas",
+      "Time Start": "07:01",
+      "Time Stop": "14:10",
+      "Company": "Ragle Inc.",
+      "Job Site": "Fort Worth West",
+      "Division": "DFW"
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "RT-78 Carmen Wilson (E49434) [DFW]",
+      "Time Start": "06:41 AM",
+      "Time Stop": "15:30",
+      "Company": "Highland Construction",
+      "Job Site": "Southlake Plaza",
+      "Division": ""
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "FORD F250 Juan Lopez - EMP6241",
+      "Time Start": "06:37",
+      "Time Stop": "15:11",
+      "Company": "Texas Earth Movers",
+      "Job Site": "Coppell Industrial",
+      "Division": ""
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "GMC SIERRA Charles Johnson - E75931 [WT]",
+      "Time Start": "07:06",
+      "Time Stop": "",
+      "Company": "Highland Construction",
+      "Job Site": "Richardson Office Park",
+      "Division": "WT"
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "PT-76 Linda Lewis",
+      "Time Start": "06:47 AM",
+      "Time Stop": "03:21 PM",
+      "Company": "Ragle Inc.",
+      "Job Site": "Denton Highway",
+      "Division": "HOU"
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "LT-93 Jorge Hernandez - EMP8509 [WT]",
+      "Time Start": "07:06",
+      "Time Stop": "03:24 PM",
+      "Company": "Texas Earth Movers",
+      "Job Site": "Grapevine Mall",
+      "Division": "HOU"
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "RT-02 Juana Wilson E38977 [WT]",
+      "Time Start": "06:54",
+      "Time Stop": "15:21 (Next Day)",
+      "Company": "Select Contracting",
+      "Job Site": "Coppell Industrial",
+      "Division": "DFW"
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "HT-04 Michael Wilson ID-421",
+      "Time Start": "06:52 AM",
+      "Time Stop": "14:40",
+      "Company": "Ragle Inc.",
+      "Job Site": "Richardson Office Park",
+      "Division": "DFW"
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "RAM-2500 Robert U. Ramirez",
+      "Time Start": "06:54 AM",
+      "Time Stop": "03:21 PM (Next Day)",
+      "Company": "Highland Construction",
+      "Job Site": "McKinney Residential",
+      "Division": "DFW"
+    },
+    {
+      "Date": "2025-05-18",
+      "Asset": "F-150 Francisco Wright [DFW]",
+      "Time Start": "06:52 AM",
+      "Time Stop": "14:00",
+      "Company": "Texas Earth Movers",
+      "Job Site": "Coppell Industrial",
+      "Division": ""
     }
   ],
   "late_drivers": [
     {
-      "driver": "Robert Jones (EMP2484)",
-      "asset": "ET-20",
-      "asset_label": "ET-20 Robert Jones (EMP2484)",
-      "company": "Ragle Inc.",
-      "job_site": "Grapevine Mall",
-      "time_start": "07:32 AM",
-      "time_stop": "03:26 PM",
-      "minutes_late": 32
-    },
-    {
-      "driver": "SIERRA Joseph Q. Walker",
-      "asset": "GMC",
-      "asset_label": "GMC SIERRA Joseph Q. Walker",
-      "company": "Texas Earth Movers",
-      "job_site": "Denton Highway",
-      "time_start": "07:30 AM",
-      "time_stop": "15:12",
-      "minutes_late": 30,
-      "minutes_early": 18
-    },
-    {
-      "driver": "SIERRA Teresa I. Martinez (EMP5558)",
-      "asset": "GMC",
-      "asset_label": "GMC SIERRA Teresa I. Martinez (EMP5558)",
-      "company": "Texas Earth Movers",
-      "job_site": "Frisco Town Center",
-      "time_start": "07:34",
-      "time_stop": "03:21 PM",
-      "minutes_late": 34
-    },
-    {
-      "driver": "Elizabeth Gonzalez",
-      "asset": "RT-58",
-      "asset_label": "RT-58 Elizabeth Gonzalez",
+      "driver": "Barbara Flores",
+      "asset": "LT-97",
+      "asset_label": "LT-97 Barbara Flores",
       "company": "Highland Construction",
-      "job_site": "Southlake Plaza",
-      "time_start": "07:37",
+      "job_site": "Plano East",
+      "time_start": "07:26",
       "time_stop": "15:31",
-      "minutes_late": 37
+      "minutes_late": 26
     }
   ],
   "early_end_drivers": [
     {
-      "driver": "Luis M. Moore EMP3637",
-      "asset": "LT-62",
-      "asset_label": "LT-62 Luis M. Moore EMP3637",
+      "driver": "Richard Scott [HOU]",
+      "asset": "RT-08",
+      "asset_label": "RT-08 Richard Scott [HOU]",
+      "company": "Highland Construction",
+      "job_site": "Arlington Central",
+      "time_start": "06:57 AM",
+      "time_stop": "15:05",
+      "minutes_early": 25
+    },
+    {
+      "driver": "Juan Scott (E23092)",
+      "asset": "PT-37",
+      "asset_label": "PT-37 Juan Scott (E23092)",
+      "company": "Highland Construction",
+      "job_site": "Irving South",
+      "time_start": "07:08 AM",
+      "time_stop": "02:04 PM",
+      "minutes_early": 86
+    },
+    {
+      "driver": "Rosa Robinson (ID-118) [HOU]",
+      "asset": "RT-85",
+      "asset_label": "RT-85 Rosa Robinson (ID-118) [HOU]",
+      "company": "Texas Earth Movers",
+      "job_site": "Richardson Office Park",
+      "time_start": "07:07",
+      "time_stop": "03:01 PM",
+      "minutes_early": 29
+    },
+    {
+      "driver": "William Allen",
+      "asset": "LT-22",
+      "asset_label": "LT-22 William Allen",
+      "company": "Texas Earth Movers",
+      "job_site": "Arlington Central",
+      "time_start": "06:54 AM",
+      "time_stop": "02:40 PM",
+      "minutes_early": 50
+    },
+    {
+      "driver": "Pedro Lopez",
+      "asset": "PT-11",
+      "asset_label": "PT-11 Pedro Lopez",
+      "company": "Ragle Inc.",
+      "job_site": "Dallas North",
+      "time_start": "06:52",
+      "time_stop": "14:46",
+      "minutes_early": 44
+    },
+    {
+      "driver": "Gabriela Davis",
+      "asset": "HT-64",
+      "asset_label": "HT-64 Gabriela Davis",
+      "company": "Highland Construction",
+      "job_site": "Lewisville Dam",
+      "time_start": "06:53 AM",
+      "time_stop": "11:47",
+      "minutes_early": 223
+    },
+    {
+      "driver": "David Thomas",
+      "asset": "ET-67",
+      "asset_label": "ET-67 David Thomas",
+      "company": "Ragle Inc.",
+      "job_site": "Fort Worth West",
+      "time_start": "07:01",
+      "time_stop": "14:10",
+      "minutes_early": 80
+    },
+    {
+      "driver": "Juan Lopez - EMP6241",
+      "asset": "FORD F250",
+      "asset_label": "FORD F250 Juan Lopez - EMP6241",
+      "company": "Texas Earth Movers",
+      "job_site": "Coppell Industrial",
+      "time_start": "06:37",
+      "time_stop": "15:11",
+      "minutes_early": 19
+    },
+    {
+      "driver": "Michael Wilson ID-421",
+      "asset": "HT-04",
+      "asset_label": "HT-04 Michael Wilson ID-421",
       "company": "Ragle Inc.",
       "job_site": "Richardson Office Park",
-      "time_start": "07:08 AM",
-      "time_stop": "02:42 PM",
-      "minutes_early": 48
-    },
-    {
-      "driver": "Linda Taylor",
-      "asset": "RT-47",
-      "asset_label": "RT-47 Linda Taylor",
-      "company": "Texas Earth Movers",
-      "job_site": "Irving South",
-      "time_start": "07:10",
-      "time_stop": "15:13",
-      "minutes_early": 17
-    },
-    {
-      "driver": "Joseph T. Garcia",
-      "asset": "RT-52",
-      "asset_label": "RT-52 Joseph T. Garcia",
-      "company": "Ragle Inc.",
-      "job_site": "Lewisville Dam",
       "time_start": "06:52 AM",
-      "time_stop": "02:23 PM",
-      "minutes_early": 67
+      "time_stop": "14:40",
+      "minutes_early": 50
     },
     {
-      "driver": "Barbara Brown (EMP3521)",
+      "driver": "Francisco Wright [DFW]",
       "asset": "F-150",
-      "asset_label": "F-150 Barbara Brown (EMP3521)",
+      "asset_label": "F-150 Francisco Wright [DFW]",
       "company": "Texas Earth Movers",
-      "job_site": "Grapevine Mall",
-      "time_start": "06:58 AM",
-      "time_stop": "14:09",
-      "minutes_early": 81
-    },
-    {
-      "driver": "SIERRA Joseph Q. Walker",
-      "asset": "GMC",
-      "asset_label": "GMC SIERRA Joseph Q. Walker",
-      "company": "Texas Earth Movers",
-      "job_site": "Denton Highway",
-      "time_start": "07:30 AM",
-      "time_stop": "15:12",
-      "minutes_late": 30,
-      "minutes_early": 18
-    },
-    {
-      "driver": "Mary Nguyen",
-      "asset": "LT-03",
-      "asset_label": "LT-03 Mary Nguyen",
-      "company": "Ragle Inc.",
-      "job_site": "Southlake Plaza",
-      "time_start": "07:07",
-      "time_stop": "15:12",
-      "minutes_early": 18
-    },
-    {
-      "driver": "SIERRA Joseph Robinson (EMP7759)",
-      "asset": "GMC",
-      "asset_label": "GMC SIERRA Joseph Robinson (EMP7759)",
-      "company": "Texas Earth Movers",
-      "job_site": "Lewisville Dam",
-      "time_start": "07:06 AM",
-      "time_stop": "14:27",
-      "minutes_early": 63
-    },
-    {
-      "driver": "Rosa Ramirez",
-      "asset": "PT-60",
-      "asset_label": "PT-60 Rosa Ramirez",
-      "company": "Select Contracting",
-      "job_site": "Arlington Central",
-      "time_start": "07:02 AM",
-      "time_stop": "02:19 PM",
-      "minutes_early": 71
-    },
-    {
-      "driver": "Ana Miller",
-      "asset": "RAM-2500",
-      "asset_label": "RAM-2500 Ana Miller",
-      "company": "Ragle Inc.",
-      "job_site": "Allen Sports Complex",
-      "time_start": "07:08",
-      "time_stop": "14:22",
-      "minutes_early": 68
+      "job_site": "Coppell Industrial",
+      "time_start": "06:52 AM",
+      "time_stop": "14:00",
+      "minutes_early": 90
     }
   ],
   "not_on_job_drivers": [
     {
-      "driver": "Elizabeth Jackson",
-      "asset": "RT-18",
-      "asset_label": "RT-18 Elizabeth Jackson",
-      "company": "Highland Construction",
-      "job_site": "Carrollton Bridge",
-      "time_start": "",
-      "time_stop": "15:33"
-    },
-    {
-      "driver": "Robert Anderson",
-      "asset": "RT-09",
-      "asset_label": "RT-09 Robert Anderson",
-      "company": "Ragle Inc.",
-      "job_site": "Carrollton Bridge",
-      "time_start": "07:08 AM",
-      "time_stop": ""
-    },
-    {
-      "driver": "Patricia Martin (EMP8511)",
-      "asset": "HT-02",
-      "asset_label": "HT-02 Patricia Martin (EMP8511)",
-      "company": "Select Contracting",
-      "job_site": "Coppell Industrial",
-      "time_start": "06:59 AM",
-      "time_stop": ""
-    },
-    {
-      "driver": "SILVERADO Francisco K. Miller EMP9620",
-      "asset": "CHEVY",
-      "asset_label": "CHEVY SILVERADO Francisco K. Miller EMP9620",
-      "company": "Highland Construction",
-      "job_site": "Arlington Central",
-      "time_start": "",
-      "time_stop": ""
-    },
-    {
-      "driver": "Michael D. Ramirez",
-      "asset": "LT-98",
-      "asset_label": "LT-98 Michael D. Ramirez",
-      "company": "Ragle Inc.",
-      "job_site": "Plano East",
-      "time_start": "",
-      "time_stop": ""
-    },
-    {
-      "driver": "Michael Lewis",
-      "asset": "F-150",
-      "asset_label": "F-150 Michael Lewis",
+      "driver": "Elizabeth Jones",
+      "asset": "ET-07",
+      "asset_label": "ET-07 Elizabeth Jones",
       "company": "Texas Earth Movers",
-      "job_site": "Arlington Central",
-      "time_start": "06:52 AM",
+      "job_site": "Fort Worth West",
+      "time_start": "",
       "time_stop": ""
     },
     {
-      "driver": "Juan Perez",
-      "asset": "CT-85",
-      "asset_label": "CT-85 Juan Perez",
+      "driver": "SIERRA Richard Rodriguez [WT]",
+      "asset": "GMC",
+      "asset_label": "GMC SIERRA Richard Rodriguez [WT]",
+      "company": "Highland Construction",
+      "job_site": "Carrollton Bridge",
+      "time_start": "",
+      "time_stop": "03:39 PM"
+    },
+    {
+      "driver": "Barbara Flores",
+      "asset": "F-150",
+      "asset_label": "F-150 Barbara Flores",
+      "company": "Texas Earth Movers",
+      "job_site": "Richardson Office Park",
+      "time_start": "07:00 AM",
+      "time_stop": ""
+    },
+    {
+      "driver": "Rosa Robinson (ID-118) [HOU]",
+      "asset": "PT-33",
+      "asset_label": "PT-33 Rosa Robinson (ID-118) [HOU]",
+      "company": "Highland Construction",
+      "job_site": "Frisco Town Center",
+      "time_start": "07:09 AM",
+      "time_stop": ""
+    },
+    {
+      "driver": ") [HOU]",
+      "asset": "E56765",
+      "asset_label": "??? John Adams (E56765) [HOU]",
       "company": "Select Contracting",
-      "job_site": "Coppell Industrial",
-      "time_start": "07:02 AM",
+      "job_site": "Southlake Plaza",
+      "time_start": "",
+      "time_stop": ""
+    },
+    {
+      "driver": "Patricia O. Young (EMP9079)",
+      "asset": "PT-20",
+      "asset_label": "PT-20 Patricia O. Young (EMP9079)",
+      "company": "Select Contracting",
+      "job_site": "Irving South",
+      "time_start": "",
+      "time_stop": "15:32"
+    },
+    {
+      "driver": "SIERRA Charles Johnson - E75931 [WT]",
+      "asset": "GMC",
+      "asset_label": "GMC SIERRA Charles Johnson - E75931 [WT]",
+      "company": "Highland Construction",
+      "job_site": "Richardson Office Park",
+      "time_start": "07:06",
       "time_stop": ""
     }
   ],
   "exception_drivers": [],
   "summary": {
-    "total_drivers": 50,
-    "total_issues": 20,
-    "late_count": 4,
-    "early_end_count": 9,
+    "total_drivers": 40,
+    "total_issues": 18,
+    "late_count": 1,
+    "early_end_count": 10,
     "not_on_job_count": 7,
     "exception_count": 0
   }

@@ -15,6 +15,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from utils.attendance_audit import log_file_processing, setup_audit_database
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

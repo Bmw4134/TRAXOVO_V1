@@ -9,6 +9,9 @@ import os
 import json
 import logging
 from datetime import datetime, timedelta
+from models.user_settings import UserSettings
+from models.email_configuration import EmailRecipientList
+from flask_login import current_user
 from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash, session, current_app, send_file
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
@@ -358,10 +361,14 @@ def index():
     
     return render_template('drivers/index.html', stats=stats)
 
-@driver_module_bp.route('/daily_report')
+@driver_module_bp.route('/daily_report', methods=['GET', 'POST'])
 @login_required
 def daily_report():
-    """Daily driver attendance report"""
+    """Daily driver attendance report with email configuration"""
+    # Handle email configuration POST request
+    if request.method == 'POST' and request.form.get('action') == 'save_email_config':
+        return save_email_config()
+    
     # Get date parameter, default to today
     date_param = request.args.get('date', datetime.now().strftime('%Y-%m-%d'))
     
@@ -376,10 +383,14 @@ def daily_report():
     prev_day = (report_date - timedelta(days=1)).strftime('%Y-%m-%d')
     next_day = (report_date + timedelta(days=1)).strftime('%Y-%m-%d')
     
+    # Get email configuration for the current user
+    email_config = get_user_email_config()
+    
     return render_template('drivers/daily_report.html', 
                           report=report_data, 
                           prev_day=prev_day,
-                          next_day=next_day)
+                          next_day=next_day,
+                          email_config=email_config)
 
 @driver_module_bp.route('/attendance_dashboard')
 @login_required

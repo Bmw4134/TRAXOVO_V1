@@ -577,7 +577,8 @@ def export_report():
         filename=filename,
         report_type=report_type,
         export_format=export_format,
-        download_url=url_for('driver_module.download_export', filename=filename)
+        download_url=url_for('driver_module.download_export', filename=filename),
+        now=datetime.now()
     )
 
 @driver_module_bp.route('/download_export/<filename>')

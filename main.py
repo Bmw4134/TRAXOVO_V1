@@ -185,6 +185,14 @@ try:
 except ImportError as e:
     logging.error(f"Failed to register Billing Module blueprint: {e}")
 
+# Register April 2025 Billing Simulation blueprint
+try:
+    from routes.april_billing_simulation import april_billing_bp
+    app.register_blueprint(april_billing_bp)
+    logging.info("Registered April Billing Simulation blueprint")
+except ImportError as e:
+    logging.error(f"Failed to register April Billing Simulation blueprint: {e}")
+
 @login_manager.user_loader
 def load_user(user_id):
     """Load user from database"""

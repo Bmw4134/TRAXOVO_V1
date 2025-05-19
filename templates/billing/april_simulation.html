@@ -8,177 +8,257 @@
     <div class="row mb-4">
         <div class="col-md-6">
             <h1 class="display-5 mb-2">
-                <i class="bi bi-calendar-check me-2"></i>April 2025 Billing
+                <i class="bi bi-graph-up-arrow me-2"></i>April 2025 Billing
             </h1>
             <p class="lead text-muted">
-                Dashboard Workflow Simulation
+                Automatic Allocation Process
             </p>
         </div>
         <div class="col-md-6 text-md-end">
             <div class="btn-group">
-                <a href="{{ url_for('april_billing.cost_code_breakdown') }}" class="btn btn-info text-white">
-                    <i class="bi bi-pie-chart me-1"></i> Cost Code Breakdown
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
                 </a>
-                <a href="{{ url_for('april_billing.export_data') }}?type=summary&format=xlsx" class="btn btn-success">
-                    <i class="bi bi-file-earmark-excel me-1"></i> Export Summary
+                {% if has_data %}
+                <a href="{{ url_for('april_billing.export_data') }}?type=detail&format=xlsx" class="btn btn-success">
+                    <i class="bi bi-file-earmark-excel me-1"></i> Export All
                 </a>
                 <a href="{{ url_for('april_billing.export_data') }}?type=foundation&format=xlsx" class="btn btn-primary">
                     <i class="bi bi-database-fill me-1"></i> FSI Export
                 </a>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Summary Cards -->
-    <div class="row mb-4">
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card bg-primary text-white h-100">
-                <div class="card-body text-center">
-                    <h1 class="display-4 mb-0">{{ summary.total_assets }}</h1>
-                    <h5 class="card-title">Total Assets</h5>
-                    <p class="mb-0">{{ summary.month }}</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card bg-success text-white h-100">
-                <div class="card-body text-center">
-                    <h1 class="display-4 mb-0">{{ "%.1f"|format(summary.total_units) }}</h1>
-                    <h5 class="card-title">Total Units</h5>
-                    <p class="mb-0">Original Allocation</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card bg-info text-white h-100">
-                <div class="card-body text-center">
-                    <h1 class="display-4 mb-0">{{ "%.1f"|format(summary.revised_units) }}</h1>
-                    <h5 class="card-title">Revised Units</h5>
-                    <p class="mb-0">After PM Allocation</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card bg-warning text-dark h-100">
-                <div class="card-body text-center">
-                    <h1 class="display-4 mb-0">{{ "%.1f"|format(summary.total_difference) }}</h1>
-                    <h5 class="card-title">Net Change</h5>
-                    <p class="mb-0">From Revisions</p>
-                </div>
+                {% endif %}
             </div>
         </div>
     </div>
 
-    <!-- Region Summary -->
+    <!-- Simulation Process -->
+    <div class="row mb-4">
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Step 1: Upload Source Files</h5>
+                </div>
+                <div class="card-body">
+                    <p>Upload the source RAGLE allocation files and PM revision files for April 2025.</p>
+                    
+                    <form action="{{ url_for('april_billing.upload_file') }}" method="post" enctype="multipart/form-data" class="mb-3">
+                        <div class="mb-3">
+                            <label for="file" class="form-label">Select Excel File</label>
+                            <input type="file" class="form-control" id="file" name="file" accept=".xlsx,.xls,.xlsm" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">File Type</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="file_type" id="allocation" value="allocation" checked>
+                                <label class="form-check-label" for="allocation">
+                                    Base Allocation File
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="file_type" id="pm" value="pm">
+                                <label class="form-check-label" for="pm">
+                                    PM Revision File
+                                </label>
+                            </div>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-upload me-1"></i> Upload File
+                            </button>
+                        </div>
+                    </form>
+                    
+                    {% if uploaded_files %}
+                    <div class="alert alert-success">
+                        <h6 class="alert-heading"><i class="bi bi-check-circle-fill me-2"></i>Uploaded Files</h6>
+                        <ul class="mb-0">
+                            {% for file in uploaded_files %}
+                            <li>{{ file }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">Step 2: Process Data</h5>
+                </div>
+                <div class="card-body">
+                    <p>Run the automated allocation process to generate the billing data.</p>
+                    
+                    <div class="alert alert-secondary mb-3">
+                        <h6 class="alert-heading">Business Rules Applied:</h6>
+                        <ul class="mb-0 small">
+                            <li>No asset can be billed for more than 1.0 units total</li>
+                            <li>Legacy jobs (< 2023-014) use cost code 9000 100M</li>
+                            <li>Other jobs use PM revisions or fallback to 9000 100F</li>
+                            <li>PM revisions override unit allocations when present</li>
+                        </ul>
+                    </div>
+                    
+                    <form action="{{ url_for('april_billing.process_data') }}" method="post">
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-info text-white" {% if not uploaded_files %}disabled{% endif %}>
+                                <i class="bi bi-gear-fill me-1"></i> Process Allocations
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">Step 3: View Results</h5>
+                </div>
+                <div class="card-body">
+                    <p>Review the processed billing data by region, job, and cost code.</p>
+                    
+                    {% if has_data %}
+                    <div class="alert alert-success mb-3">
+                        <h6 class="alert-heading"><i class="bi bi-check-circle-fill me-2"></i>Processing Complete</h6>
+                        <p class="mb-0">Your billing data is ready to view and export!</p>
+                    </div>
+                    
+                    <div class="list-group mb-3">
+                        <a href="{{ url_for('april_billing.cost_code_detail') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            View by Cost Code
+                            <span class="badge bg-primary rounded-pill">{{ summary.cost_code_count }}</span>
+                        </a>
+                        {% for region in summary.regions %}
+                        <a href="{{ url_for('april_billing.region_detail', region_id=region) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            {{ region }} Region
+                            <span class="badge bg-success rounded-pill">{{ summary.regions|length }}</span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-secondary mb-3">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        <span>No data has been processed yet. Complete steps 1 and 2 first.</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if has_data %}
+    <!-- Billing Summary -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card shadow-sm">
-                <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">Regional Summary</h5>
-                    <span class="badge bg-primary rounded-pill">{{ regions|length }} Regions</span>
+                <div class="card-header bg-dark text-white">
+                    <h5 class="card-title mb-0">April 2025 Billing Summary</h5>
                 </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>Region</th>
-                                    <th class="text-center">Assets</th>
-                                    <th class="text-center">Jobs</th>
-                                    <th class="text-end">Original Units</th>
-                                    <th class="text-end">Revised Units</th>
-                                    <th class="text-end">Difference</th>
-                                    <th class="text-center">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for region in regions %}
-                                <tr>
-                                    <td>
-                                        <a href="{{ url_for('april_billing.region_detail', region_id=region.region) }}" class="fw-bold text-primary">
-                                            {{ region.region }}
-                                        </a>
-                                    </td>
-                                    <td class="text-center">{{ region.asset_count }}</td>
-                                    <td class="text-center">{{ region.job_count }}</td>
-                                    <td class="text-end">{{ "%.1f"|format(region.total_units) }}</td>
-                                    <td class="text-end">{{ "%.1f"|format(region.revised_units) }}</td>
-                                    <td class="text-end text-{% if region.revised_units > region.total_units %}success{% elif region.revised_units < region.total_units %}danger{% else %}muted{% endif %}">
-                                        {{ "%.1f"|format(region.revised_units - region.total_units) }}
-                                    </td>
-                                    <td class="text-center">
-                                        <div class="btn-group btn-group-sm">
-                                            <a href="{{ url_for('april_billing.region_detail', region_id=region.region) }}" class="btn btn-outline-primary">
-                                                <i class="bi bi-search"></i>
-                                            </a>
-                                            <a href="{{ url_for('april_billing.export_data') }}?type=detail&format=xlsx&region={{ region.region }}" class="btn btn-outline-success">
-                                                <i class="bi bi-download"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <div class="card bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="card-subtitle mb-2 text-muted">Total Assets</h6>
+                                    <h2 class="card-title mb-0">{{ summary.asset_count }}</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="card-subtitle mb-2 text-muted">Total Jobs</h6>
+                                    <h2 class="card-title mb-0">{{ summary.job_count }}</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="card-subtitle mb-2 text-muted">Total Regions</h6>
+                                    <h2 class="card-title mb-0">{{ summary.region_count }}</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="card-subtitle mb-2 text-muted">Total Cost Codes</h6>
+                                    <h2 class="card-title mb-0">{{ summary.cost_code_count }}</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="card-title mb-0">Units Summary</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="unitChart" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-header bg-success text-white">
+                                    <h5 class="card-title mb-0">Job Distribution</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="jobChart" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Job Summary -->
-    <div class="row mb-4">
+    
+    <!-- Job List -->
+    <div class="row">
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">Job Summary</h5>
-                    <span class="badge bg-primary rounded-pill">{{ jobs|length }} Jobs</span>
+                    <h5 class="card-title mb-0">All Jobs</h5>
+                    <div class="input-group" style="max-width: 300px;">
+                        <span class="input-group-text">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" id="job-search" class="form-control" placeholder="Search jobs...">
+                    </div>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover mb-0">
+                        <table class="table table-striped table-hover mb-0" id="job-table">
                             <thead class="table-dark">
                                 <tr>
                                     <th>Job</th>
                                     <th>Region</th>
                                     <th class="text-center">Assets</th>
+                                    <th class="text-center">Cost Codes</th>
                                     <th class="text-end">Original Units</th>
                                     <th class="text-end">Revised Units</th>
-                                    <th class="text-end">Difference</th>
                                     <th class="text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for job in jobs %}
+                                {% for job in summary.jobs %}
                                 <tr>
-                                    <td>
-                                        <a href="{{ url_for('april_billing.job_detail', job_id=job.job) }}" class="fw-bold text-primary">
-                                            {{ job.job }}
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <a href="{{ url_for('april_billing.region_detail', region_id=job.region) }}">
-                                            {{ job.region }}
-                                        </a>
-                                    </td>
-                                    <td class="text-center">{{ job.asset_count }}</td>
-                                    <td class="text-end">{{ "%.1f"|format(job.total_units) }}</td>
-                                    <td class="text-end">{{ "%.1f"|format(job.revised_units) }}</td>
-                                    <td class="text-end text-{% if job.revised_units > job.total_units %}success{% elif job.revised_units < job.total_units %}danger{% else %}muted{% endif %}">
-                                        {{ "%.1f"|format(job.revised_units - job.total_units) }}
-                                    </td>
+                                    <td>{{ job }}</td>
+                                    <td>Region</td>
+                                    <td class="text-center">-</td>
+                                    <td class="text-center">-</td>
+                                    <td class="text-end">-</td>
+                                    <td class="text-end">-</td>
                                     <td class="text-center">
-                                        <div class="btn-group btn-group-sm">
-                                            <a href="{{ url_for('april_billing.job_detail', job_id=job.job) }}" class="btn btn-outline-primary">
-                                                <i class="bi bi-search"></i>
-                                            </a>
-                                            <a href="{{ url_for('april_billing.export_data') }}?type=detail&format=xlsx&job={{ job.job }}" class="btn btn-outline-success">
-                                                <i class="bi bi-download"></i>
-                                            </a>
-                                            <a href="{{ url_for('april_billing.export_data') }}?type=foundation&format=xlsx&job={{ job.job }}" class="btn btn-outline-info">
-                                                <i class="bi bi-database-fill"></i>
-                                            </a>
-                                        </div>
+                                        <a href="{{ url_for('april_billing.job_detail', job_id=job) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-search"></i> View
+                                        </a>
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -189,66 +269,84 @@
             </div>
         </div>
     </div>
-
-    <!-- Recent PM Allocation Files -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">April PM Allocation Files</h5>
-                    <a href="{{ url_for('billing_module.pm_allocation') }}" class="btn btn-sm btn-outline-primary">View All</a>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Filename</th>
-                                    <th>Region</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for file in allocation_files %}
-                                <tr>
-                                    <td>{{ file.filename }}</td>
-                                    <td>{{ file.region }}</td>
-                                    <td>
-                                        {% if file.status == 'Final' %}
-                                            <span class="badge bg-success">Final</span>
-                                        {% elif file.status == 'Updated' %}
-                                            <span class="badge bg-info text-white">Updated</span>
-                                        {% else %}
-                                            <span class="badge bg-secondary">Original</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm">
-                                            <button class="btn btn-outline-primary" disabled title="View file details">
-                                                <i class="bi bi-eye"></i>
-                                            </button>
-                                            <button class="btn btn-outline-success" disabled title="Download file">
-                                                <i class="bi bi-download"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    {% endif %}
 </div>
 {% endblock %}
 
 {% block scripts %}
+{% if has_data %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Add any JavaScript needed for the page here
+        // Unit Chart
+        const unitCtx = document.getElementById('unitChart').getContext('2d');
+        new Chart(unitCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Original Units', 'Revised Units'],
+                datasets: [{
+                    label: 'Units',
+                    data: [{{ summary.total_units }}, {{ summary.revised_units }}],
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.5)',
+                        'rgba(75, 192, 192, 0.5)'
+                    ],
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(75, 192, 192, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        
+        // Job Distribution Chart
+        const jobCtx = document.getElementById('jobChart').getContext('2d');
+        new Chart(jobCtx, {
+            type: 'doughnut',
+            data: {
+                labels: {{ summary.regions|tojson }},
+                datasets: [{
+                    label: 'Jobs by Region',
+                    data: {{ summary.regions|map('length')|list|tojson }},
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.5)',
+                        'rgba(54, 162, 235, 0.5)',
+                        'rgba(255, 206, 86, 0.5)',
+                        'rgba(75, 192, 192, 0.5)',
+                        'rgba(153, 102, 255, 0.5)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            }
+        });
+        
+        // Add search functionality for the job table
+        document.getElementById('job-search').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const table = document.getElementById('job-table');
+            const rows = table.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
     });
 </script>
+{% endif %}
 {% endblock %}

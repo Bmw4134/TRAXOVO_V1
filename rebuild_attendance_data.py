@@ -3,124 +3,227 @@
 Rebuild Attendance Data
 
 This script forces a refresh of the attendance data for a specified date range
-and regenerates the daily driver reports.
+and regenerates the daily driver reports with enhanced job and employee information.
+It also ensures that the exported reports include all necessary fields for analysis.
 """
 
 import sys
+import os
 import logging
+import traceback
+import pandas as pd
 from datetime import datetime, timedelta
+from pathlib import Path
 
-# Configure basic logging
-logging.basicConfig(level=logging.INFO, 
-                   format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# Configure robust logging with file output
+log_dir = Path('logs')
+log_dir.mkdir(exist_ok=True)
+log_file = log_dir / 'attendance_rebuild.log'
+
+# Set up multi-destination logging
+logging.basicConfig(
+    level=logging.INFO, 
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(log_file),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
 logger = logging.getLogger(__name__)
 
 # Import attendance pipeline modules
 from utils.attendance_pipeline_connector import (
     get_attendance_data, 
     get_trend_data,
-    get_driver_list
+    get_driver_list,
+    clear_cache
 )
 
-def rebuild_attendance_data(start_date_str, end_date_str):
+# Import export utilities
+from utils.export_utils import export_daily_report
+
+def load_employee_job_data():
     """
-    Rebuild attendance data for a specified date range.
+    Load and process employee and job data from the consolidated workbook
+    
+    Returns:
+        tuple: (employee_data, job_data) - DataFrames with employee and job information
+    """
+    try:
+        # Find the consolidated employee and job lists workbook
+        employee_job_file = "attached_assets/Consolidated_Employee_And_Job_Lists_Corrected.xlsx"
+        
+        if not os.path.exists(employee_job_file):
+            logger.warning(f"Consolidated employee/job file not found: {employee_job_file}")
+            return None, None
+        
+        # Load employee data from first sheet
+        employee_data = pd.read_excel(employee_job_file, sheet_name="Employees")
+        logger.info(f"Loaded {len(employee_data)} employee records")
+        
+        # Load job data from second sheet
+        job_data = pd.read_excel(employee_job_file, sheet_name="Jobs")
+        logger.info(f"Loaded {len(job_data)} job records")
+        
+        return employee_data, job_data
+    
+    except Exception as e:
+        logger.error(f"Error loading employee/job data: {e}")
+        logger.debug(traceback.format_exc())
+        return None, None
+
+def rebuild_attendance_data(date_list=None):
+    """
+    Rebuild attendance data for a specified list of dates.
     
     Args:
-        start_date_str (str): Start date in YYYY-MM-DD format
-        end_date_str (str): End date in YYYY-MM-DD format
+        date_list (list): List of dates in YYYY-MM-DD format
+    
+    Returns:
+        bool: True if successful, False otherwise
     """
-    logger.info(f"Starting attendance data rebuild for {start_date_str} to {end_date_str}")
+    # If no date list is provided, use the specific dates requested
+    if date_list is None:
+        date_list = ['2025-05-15', '2025-05-16', '2025-05-19']
     
-    # Parse dates
+    logger.info(f"Starting attendance data rebuild for dates: {', '.join(date_list)}")
+    
+    # First, clear the cache to ensure fresh data
     try:
-        start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
-        end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
-    except ValueError:
-        logger.error("Invalid date format. Please use YYYY-MM-DD.")
-        return False
+        logger.info("Clearing attendance data cache")
+        clear_cache()
+    except Exception as e:
+        logger.error(f"Error clearing cache: {e}")
     
-    # Generate list of dates to process
-    current_date = start_date
-    date_list = []
+    # Load employee and job data for enrichment
+    employee_data, job_data = load_employee_job_data()
     
-    while current_date <= end_date:
-        date_list.append(current_date.strftime('%Y-%m-%d'))
-        current_date += timedelta(days=1)
+    # Create export directory
+    export_dir = Path('exports/daily_reports')
+    export_dir.mkdir(exist_ok=True, parents=True)
     
-    logger.info(f"Processing {len(date_list)} dates: {', '.join(date_list)}")
+    # Process each date individually
+    all_dates_success = True
+    processed_dates = []
     
-    # Process each date individually first
     for date_str in date_list:
         logger.info(f"Processing attendance data for {date_str}")
         try:
             # Force refresh the attendance data
             attendance_data = get_attendance_data(date_str, force_refresh=True)
             
-            # Log the results
-            late_count = attendance_data.get('late_count', 0)
-            early_count = attendance_data.get('early_count', 0)
-            missing_count = attendance_data.get('missing_count', 0)
-            total_drivers = attendance_data.get('total_drivers', 0)
-            
-            logger.info(f"Processed attendance data for {date_str}: "
-                       f"{total_drivers} total drivers, "
-                       f"{late_count} late, "
-                       f"{early_count} early end, "
-                       f"{missing_count} not on job")
+            if attendance_data:
+                # Log the results
+                late_count = attendance_data.get('late_count', 0)
+                early_count = attendance_data.get('early_count', 0)
+                missing_count = attendance_data.get('missing_count', 0)
+                total_drivers = attendance_data.get('total_drivers', 0)
+                
+                logger.info(f"Processed attendance data for {date_str}: "
+                           f"{total_drivers} total drivers, "
+                           f"{late_count} late, "
+                           f"{early_count} early end, "
+                           f"{missing_count} not on job")
+                
+                # Export the data to Excel
+                try:
+                    export_path = export_dir / f"daily_report_{date_str}.xlsx"
+                    export_success = export_daily_report(
+                        date_str, 
+                        export_path,
+                        attendance_data=attendance_data,
+                        employee_data=employee_data,
+                        job_data=job_data
+                    )
+                    if export_success:
+                        logger.info(f"Exported report to {export_path}")
+                    else:
+                        logger.warning(f"Failed to export report for {date_str}")
+                except Exception as e:
+                    logger.error(f"Error exporting report for {date_str}: {e}")
+                
+                processed_dates.append(date_str)
+            else:
+                logger.error(f"Failed to get attendance data for {date_str}")
+                all_dates_success = False
         except Exception as e:
             logger.error(f"Error processing {date_str}: {e}")
+            logger.debug(traceback.format_exc())
+            all_dates_success = False
     
-    # Now rebuild trend data for the entire range
-    try:
-        logger.info(f"Rebuilding trend data for {start_date_str} to {end_date_str}")
-        trend_data = get_trend_data(start_date_str, end_date_str, 
-                                   days=(end_date - start_date).days + 1,
-                                   force_refresh=True)
-        
-        # Log trend analysis results
-        chronic_late_count = len(trend_data.get('chronic_lates', []))
-        repeated_absence_count = len(trend_data.get('repeated_absences', []))
-        unstable_shift_count = len(trend_data.get('unstable_shifts', []))
-        
-        logger.info(f"Trend analysis results: "
-                   f"{chronic_late_count} chronic late, "
-                   f"{repeated_absence_count} repeated absences, "
-                   f"{unstable_shift_count} unstable shifts")
-    except Exception as e:
-        logger.error(f"Error rebuilding trend data: {e}")
+    # Now rebuild trend data for the processed dates
+    if processed_dates:
+        try:
+            logger.info(f"Rebuilding trend data for processed dates")
+            # Use min and max of processed dates to get range
+            start_date = min(processed_dates)
+            end_date = max(processed_dates)
+            days = len(processed_dates)
+            
+            trend_data = get_trend_data(start_date, end_date, 
+                                       days=days,
+                                       force_refresh=True)
+            
+            # Log trend analysis results
+            chronic_late_count = len(trend_data.get('chronic_lates', []))
+            repeated_absence_count = len(trend_data.get('repeated_absences', []))
+            unstable_shift_count = len(trend_data.get('unstable_shifts', []))
+            
+            logger.info(f"Trend analysis results: "
+                       f"{chronic_late_count} chronic late, "
+                       f"{repeated_absence_count} repeated absences, "
+                       f"{unstable_shift_count} unstable shifts")
+        except Exception as e:
+            logger.error(f"Error rebuilding trend data: {e}")
+            logger.debug(traceback.format_exc())
     
     # Finally, rebuild the driver list
     try:
-        logger.info(f"Rebuilding driver list for {start_date_str} to {end_date_str}")
-        driver_list = get_driver_list(start_date_str, end_date_str, 
-                                     days=(end_date - start_date).days + 1,
-                                     force_refresh=True)
-        
-        total_drivers = len(driver_list.get('drivers', []))
-        logger.info(f"Rebuilt driver list with {total_drivers} drivers")
+        if processed_dates:
+            logger.info(f"Rebuilding driver list for processed dates")
+            driver_list = get_driver_list(start_date, end_date, 
+                                         days=days,
+                                         force_refresh=True)
+            
+            total_drivers = len(driver_list.get('drivers', []))
+            logger.info(f"Rebuilt driver list with {total_drivers} drivers")
     except Exception as e:
         logger.error(f"Error rebuilding driver list: {e}")
+        logger.debug(traceback.format_exc())
     
     logger.info("Attendance data rebuild complete")
-    return True
+    return all_dates_success
 
 if __name__ == "__main__":
-    # Check arguments
-    if len(sys.argv) < 3:
-        print(f"Usage: {sys.argv[0]} START_DATE END_DATE")
-        print("Example: python rebuild_attendance_data.py 2025-05-15 2025-05-19")
-        sys.exit(1)
-    
-    start_date = sys.argv[1]
-    end_date = sys.argv[2]
-    
-    # Run the rebuild
-    success = rebuild_attendance_data(start_date, end_date)
+    # Check if specific dates are provided as arguments
+    if len(sys.argv) > 1:
+        # Get dates from arguments
+        date_list = []
+        for arg in sys.argv[1:]:
+            if arg.startswith("--"):
+                continue  # Skip flags
+            try:
+                # Validate date format
+                datetime.strptime(arg, '%Y-%m-%d')
+                date_list.append(arg)
+            except ValueError:
+                logger.error(f"Invalid date format: {arg}, expected YYYY-MM-DD")
+                continue
+        
+        if date_list:
+            logger.info(f"Using provided dates: {', '.join(date_list)}")
+            success = rebuild_attendance_data(date_list)
+        else:
+            logger.error("No valid dates provided")
+            sys.exit(1)
+    else:
+        # Default behavior - use the hardcoded dates
+        logger.info("No dates provided, using default dates: 2025-05-15, 2025-05-16, 2025-05-19")
+        success = rebuild_attendance_data()  # Will use the default dates
     
     if success:
-        print(f"Successfully rebuilt attendance data for {start_date} to {end_date}")
+        logger.info("Successfully rebuilt attendance data")
         sys.exit(0)
     else:
-        print(f"Failed to rebuild attendance data for {start_date} to {end_date}")
+        logger.error("Failed to rebuild attendance data")
         sys.exit(1)

@@ -1,512 +1,483 @@
 """
-Export Utilities
+Export Utilities for Daily Reports
 
-This module provides functions for exporting various system reports
-in multiple formats (Excel, CSV, PDF).
+This module provides utility functions for exporting daily reports in various formats,
+including Excel, CSV, and PDF. It ensures reports have consistent formatting and 
+include all required information for analysis.
 """
 
 import os
-import csv
-import json
 import logging
 import pandas as pd
+import openpyxl
 from datetime import datetime
+from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+from openpyxl.utils import get_column_letter
 from pathlib import Path
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter, landscape
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
 # Configure logging
 logger = logging.getLogger(__name__)
 
-# Define export directory
-EXPORTS_DIR = Path('exports')
-
-def ensure_export_dir():
-    """Ensure the exports directory exists"""
-    if not EXPORTS_DIR.exists():
-        EXPORTS_DIR.mkdir(parents=True)
-    
-    # Create subdirectories for different report types
-    for subdir in ['assets', 'alerts', 'maintenance', 'driver_reports', 'billing']:
-        subdir_path = EXPORTS_DIR / subdir
-        if not subdir_path.exists():
-            subdir_path.mkdir(parents=True)
-
-def export_assets_to_excel(assets, filename=None):
+def export_daily_report(date_str, output_path, attendance_data=None, employee_data=None, job_data=None):
     """
-    Export assets list to Excel format
+    Export daily report to Excel with enriched employee and job information
     
     Args:
-        assets (list): List of asset objects or dictionaries
-        filename (str, optional): Output filename. If None, will generate a default name.
+        date_str (str): Date string in YYYY-MM-DD format
+        output_path (str or Path): Path to save the Excel file
+        attendance_data (dict): Attendance data to export
+        employee_data (DataFrame): Employee data for enrichment
+        job_data (DataFrame): Job data for enrichment
         
     Returns:
-        str: Path to the exported file
+        bool: True if successful, False otherwise
     """
-    ensure_export_dir()
-    
-    # Generate filename if not provided
-    if not filename:
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        filename = f"assets_export_{timestamp}.xlsx"
-    
-    # Ensure .xlsx extension
-    if not filename.endswith('.xlsx'):
-        filename += '.xlsx'
-        
-    # Full path to output file
-    filepath = EXPORTS_DIR / 'assets' / filename
-    
     try:
-        # Convert assets to a format pandas can handle
-        assets_data = []
-        for asset in assets:
-            # Handle both ORM objects and dictionaries
-            if hasattr(asset, '__dict__'):
-                # Convert ORM object to dict, excluding SQLAlchemy special attributes
-                asset_dict = {k: v for k, v in asset.__dict__.items() 
-                             if not k.startswith('_')}
-                assets_data.append(asset_dict)
-            else:
-                # Already a dict
-                assets_data.append(asset)
-        
-        # Create DataFrame
-        df = pd.DataFrame(assets_data)
-        
-        # Write to Excel
-        with pd.ExcelWriter(filepath, engine='openpyxl') as writer:
-            df.to_excel(writer, sheet_name='Assets', index=False)
+        # If attendance_data not provided, get it from the pipeline
+        if attendance_data is None:
+            from utils.attendance_pipeline_connector import get_attendance_data
+            attendance_data = get_attendance_data(date_str)
             
-            # Auto-adjust column widths for better readability
-            worksheet = writer.sheets['Assets']
-            for idx, col in enumerate(df.columns):
-                max_len = df[col].astype(str).map(len).max()
-                max_len = max(max_len, len(col)) + 2  # Add a little extra space
-                worksheet.column_dimensions[worksheet.cell(1, idx+1).column_letter].width = max_len
+        if not attendance_data:
+            logger.error(f"No attendance data available for {date_str}")
+            return False
+            
+        # Create a new workbook
+        wb = openpyxl.Workbook()
         
-        logger.info(f"Exported {len(assets)} assets to Excel: {filepath}")
-        return str(filepath)
-    
+        # Create sheets
+        summary_sheet = wb.active
+        summary_sheet.title = "Summary"
+        late_sheet = wb.create_sheet("Late Arrivals")
+        early_sheet = wb.create_sheet("Early Departures")
+        missing_sheet = wb.create_sheet("Not On Job")
+        all_drivers_sheet = wb.create_sheet("All Drivers")
+        
+        # Format the summary sheet
+        format_summary_sheet(summary_sheet, date_str, attendance_data)
+        
+        # Format the issue sheets
+        if 'late_drivers' in attendance_data:
+            format_late_sheet(late_sheet, attendance_data['late_drivers'], employee_data, job_data)
+        
+        if 'early_end_drivers' in attendance_data:
+            format_early_sheet(early_sheet, attendance_data['early_end_drivers'], employee_data, job_data)
+            
+        if 'missing_drivers' in attendance_data:
+            format_missing_sheet(missing_sheet, attendance_data['missing_drivers'], employee_data, job_data)
+            
+        if 'all_drivers' in attendance_data:
+            format_all_drivers_sheet(all_drivers_sheet, attendance_data['all_drivers'], employee_data, job_data)
+        
+        # Save the workbook
+        wb.save(output_path)
+        logger.info(f"Successfully exported daily report to {output_path}")
+        return True
+        
     except Exception as e:
-        logger.error(f"Error exporting assets to Excel: {e}")
-        raise
+        logger.error(f"Error exporting daily report: {e}")
+        import traceback
+        logger.debug(traceback.format_exc())
+        return False
 
-def export_assets_to_csv(assets, filename=None):
-    """
-    Export assets list to CSV format
+def format_summary_sheet(sheet, date_str, attendance_data):
+    """Format the summary sheet with attendance statistics"""
+    # Add title
+    sheet.merge_cells('A1:G1')
+    sheet['A1'] = f"Daily Attendance Report - {date_str}"
+    sheet['A1'].font = Font(size=16, bold=True)
+    sheet['A1'].alignment = Alignment(horizontal='center')
     
-    Args:
-        assets (list): List of asset objects or dictionaries
-        filename (str, optional): Output filename. If None, will generate a default name.
-        
-    Returns:
-        str: Path to the exported file
-    """
-    ensure_export_dir()
+    # Format column widths
+    sheet.column_dimensions['A'].width = 25
+    sheet.column_dimensions['B'].width = 15
     
-    # Generate filename if not provided
-    if not filename:
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        filename = f"assets_export_{timestamp}.csv"
+    # Add statistics
+    row = 3
+    sheet.cell(row=row, column=1).value = "Total Drivers"
+    sheet.cell(row=row, column=2).value = attendance_data.get('total_drivers', 0)
+    sheet.cell(row=row, column=1).font = Font(bold=True)
     
-    # Ensure .csv extension
-    if not filename.endswith('.csv'):
-        filename += '.csv'
-        
-    # Full path to output file
-    filepath = EXPORTS_DIR / 'assets' / filename
+    row += 1
+    sheet.cell(row=row, column=1).value = "Late Arrivals"
+    sheet.cell(row=row, column=2).value = attendance_data.get('late_count', 0)
+    sheet.cell(row=row, column=1).font = Font(bold=True)
     
-    try:
-        # Convert assets to a list of dictionaries
-        assets_data = []
-        for asset in assets:
-            # Handle both ORM objects and dictionaries
-            if hasattr(asset, '__dict__'):
-                # Convert ORM object to dict, excluding SQLAlchemy special attributes
-                asset_dict = {k: v for k, v in asset.__dict__.items() 
-                             if not k.startswith('_')}
-                assets_data.append(asset_dict)
-            else:
-                # Already a dict
-                assets_data.append(asset)
-        
-        # If no assets, create empty file with headers
-        if not assets_data:
-            with open(filepath, 'w', newline='') as csvfile:
-                writer = csv.writer(csvfile)
-                writer.writerow(['No assets found'])
-            return str(filepath)
-            
-        # Get field names from first asset
-        fieldnames = list(assets_data[0].keys())
-        
-        # Write to CSV
-        with open(filepath, 'w', newline='') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            writer.writeheader()
-            for asset in assets_data:
-                writer.writerow(asset)
-        
-        logger.info(f"Exported {len(assets)} assets to CSV: {filepath}")
-        return str(filepath)
+    row += 1
+    sheet.cell(row=row, column=1).value = "Early Departures"
+    sheet.cell(row=row, column=2).value = attendance_data.get('early_count', 0)
+    sheet.cell(row=row, column=1).font = Font(bold=True)
     
-    except Exception as e:
-        logger.error(f"Error exporting assets to CSV: {e}")
-        raise
+    row += 1
+    sheet.cell(row=row, column=1).value = "Not On Job"
+    sheet.cell(row=row, column=2).value = attendance_data.get('missing_count', 0)
+    sheet.cell(row=row, column=1).font = Font(bold=True)
+    
+    # Add file information
+    row += 2
+    sheet.cell(row=row, column=1).value = "Report Sources:"
+    sheet.cell(row=row, column=1).font = Font(bold=True)
+    
+    row += 1
+    sheet.cell(row=row, column=1).value = "Activity File"
+    activity_file = attendance_data.get('sources', {}).get('activity_file', 'N/A')
+    sheet.cell(row=row, column=2).value = activity_file if activity_file else 'N/A'
+    
+    row += 1
+    sheet.cell(row=row, column=1).value = "Driving History File"
+    driving_file = attendance_data.get('sources', {}).get('driving_file', 'N/A')
+    sheet.cell(row=row, column=2).value = driving_file if driving_file else 'N/A'
+    
+    row += 1
+    sheet.cell(row=row, column=1).value = "Fleet Utilization File"
+    utilization_file = attendance_data.get('sources', {}).get('utilization_file', 'N/A')
+    sheet.cell(row=row, column=2).value = utilization_file if utilization_file else 'N/A'
+    
+    # Add generation timestamp
+    row += 2
+    sheet.cell(row=row, column=1).value = "Generated"
+    sheet.cell(row=row, column=2).value = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-def export_assets_to_json(assets, filename=None):
-    """
-    Export assets list to JSON format
+def format_late_sheet(sheet, late_drivers, employee_data, job_data):
+    """Format the late arrivals sheet"""
+    # Add headers
+    headers = ['Driver', 'Asset ID', 'Scheduled Start', 'Actual Start', 
+              'Minutes Late', 'Job Site', 'Division', 'Contact Info']
     
-    Args:
-        assets (list): List of asset objects or dictionaries
-        filename (str, optional): Output filename. If None, will generate a default name.
+    for col, header in enumerate(headers, start=1):
+        cell = sheet.cell(row=1, column=col)
+        cell.value = header
+        cell.font = Font(bold=True)
+        cell.alignment = Alignment(horizontal='center')
+        cell.fill = PatternFill(start_color="DDDDDD", end_color="DDDDDD", fill_type="solid")
         
-    Returns:
-        str: Path to the exported file
-    """
-    ensure_export_dir()
+        # Set column width
+        sheet.column_dimensions[get_column_letter(col)].width = 15
     
-    # Generate filename if not provided
-    if not filename:
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        filename = f"assets_export_{timestamp}.json"
-    
-    # Ensure .json extension
-    if not filename.endswith('.json'):
-        filename += '.json'
+    # Add data rows
+    for i, driver in enumerate(late_drivers, start=2):
+        sheet.cell(row=i, column=1).value = driver.get('driver_name', 'Unknown')
+        sheet.cell(row=i, column=2).value = driver.get('asset_id', '')
+        sheet.cell(row=i, column=3).value = driver.get('scheduled_start', '')
+        sheet.cell(row=i, column=4).value = driver.get('actual_start', '')
+        sheet.cell(row=i, column=5).value = driver.get('minutes_late', 0)
+        sheet.cell(row=i, column=6).value = driver.get('job_site', '')
         
-    # Full path to output file
-    filepath = EXPORTS_DIR / 'assets' / filename
-    
-    try:
-        # Convert assets to a list of dictionaries
-        assets_data = []
-        for asset in assets:
-            # Handle both ORM objects and dictionaries
-            if hasattr(asset, '__dict__'):
-                # Convert ORM object to dict, excluding SQLAlchemy special attributes
-                asset_dict = {k: v for k, v in asset.__dict__.items() 
-                             if not k.startswith('_')}
-                
-                # Convert datetime objects to strings for JSON serialization
-                for key, value in asset_dict.items():
-                    if isinstance(value, datetime):
-                        asset_dict[key] = value.isoformat()
-                
-                assets_data.append(asset_dict)
-            else:
-                # Already a dict, but need to handle datetime objects
-                asset_dict = asset.copy()
-                for key, value in asset_dict.items():
-                    if isinstance(value, datetime):
-                        asset_dict[key] = value.isoformat()
-                
-                assets_data.append(asset_dict)
+        # Add division from job data if available
+        job_site = driver.get('job_site', '')
+        division = ''
+        if job_data is not None and job_site:
+            job_match = job_data[job_data['Job Number'] == job_site]
+            if not job_match.empty:
+                division = job_match.iloc[0].get('Division', '')
+        sheet.cell(row=i, column=7).value = division
         
-        # Write to JSON
-        with open(filepath, 'w') as jsonfile:
-            json.dump(assets_data, jsonfile, indent=2)
+        # Add contact info from employee data if available
+        driver_name = driver.get('driver_name', '')
+        contact_info = ''
+        if employee_data is not None and driver_name:
+            # Try exact match first
+            employee_match = employee_data[employee_data['Employee Name'] == driver_name]
+            # If no exact match, try contains match
+            if employee_match.empty:
+                employee_match = employee_data[employee_data['Employee Name'].str.contains(driver_name, na=False)]
+            
+            if not employee_match.empty:
+                contact_info = employee_match.iloc[0].get('Phone', '')
         
-        logger.info(f"Exported {len(assets)} assets to JSON: {filepath}")
-        return str(filepath)
-    
-    except Exception as e:
-        logger.error(f"Error exporting assets to JSON: {e}")
-        raise
+        sheet.cell(row=i, column=8).value = contact_info
 
-def export_alerts_to_excel(alerts, filename=None):
-    """
-    Export equipment alerts to Excel format
+def format_early_sheet(sheet, early_drivers, employee_data, job_data):
+    """Format the early departures sheet"""
+    # Add headers
+    headers = ['Driver', 'Asset ID', 'Scheduled End', 'Actual End', 
+              'Minutes Early', 'Job Site', 'Division', 'Contact Info']
     
-    Args:
-        alerts (list): List of alert objects or dictionaries
-        filename (str, optional): Output filename. If None, will generate a default name.
+    for col, header in enumerate(headers, start=1):
+        cell = sheet.cell(row=1, column=col)
+        cell.value = header
+        cell.font = Font(bold=True)
+        cell.alignment = Alignment(horizontal='center')
+        cell.fill = PatternFill(start_color="DDDDDD", end_color="DDDDDD", fill_type="solid")
         
-    Returns:
-        str: Path to the exported file
-    """
-    ensure_export_dir()
+        # Set column width
+        sheet.column_dimensions[get_column_letter(col)].width = 15
     
-    # Generate filename if not provided
-    if not filename:
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        filename = f"equipment_alerts_{timestamp}.xlsx"
-    
-    # Ensure .xlsx extension
-    if not filename.endswith('.xlsx'):
-        filename += '.xlsx'
+    # Add data rows
+    for i, driver in enumerate(early_drivers, start=2):
+        sheet.cell(row=i, column=1).value = driver.get('driver_name', 'Unknown')
+        sheet.cell(row=i, column=2).value = driver.get('asset_id', '')
+        sheet.cell(row=i, column=3).value = driver.get('scheduled_end', '')
+        sheet.cell(row=i, column=4).value = driver.get('actual_end', '')
+        sheet.cell(row=i, column=5).value = driver.get('minutes_early', 0)
+        sheet.cell(row=i, column=6).value = driver.get('job_site', '')
         
-    # Full path to output file
-    filepath = EXPORTS_DIR / 'alerts' / filename
-    
-    try:
-        # Convert alerts to a format pandas can handle
-        alerts_data = []
-        for alert in alerts:
-            # Handle both ORM objects and dictionaries
-            if hasattr(alert, '__dict__'):
-                # Convert ORM object to dict, excluding SQLAlchemy special attributes
-                alert_dict = {k: v for k, v in alert.__dict__.items() 
-                             if not k.startswith('_')}
-                
-                # Handle nested details field
-                if 'details' in alert_dict and isinstance(alert_dict['details'], dict):
-                    for key, value in alert_dict['details'].items():
-                        alert_dict[f"detail_{key}"] = value
-                    
-                alerts_data.append(alert_dict)
-            else:
-                # Already a dict
-                alert_dict = alert.copy()
-                
-                # Handle nested details field
-                if 'details' in alert_dict and isinstance(alert_dict['details'], dict):
-                    for key, value in alert_dict['details'].items():
-                        alert_dict[f"detail_{key}"] = value
-                
-                alerts_data.append(alert_dict)
+        # Add division from job data if available
+        job_site = driver.get('job_site', '')
+        division = ''
+        if job_data is not None and job_site:
+            job_match = job_data[job_data['Job Number'] == job_site]
+            if not job_match.empty:
+                division = job_match.iloc[0].get('Division', '')
+        sheet.cell(row=i, column=7).value = division
         
-        # Create DataFrame
-        df = pd.DataFrame(alerts_data)
-        
-        # Write to Excel
-        with pd.ExcelWriter(filepath, engine='openpyxl') as writer:
-            df.to_excel(writer, sheet_name='Equipment Alerts', index=False)
+        # Add contact info from employee data if available
+        driver_name = driver.get('driver_name', '')
+        contact_info = ''
+        if employee_data is not None and driver_name:
+            # Try exact match first
+            employee_match = employee_data[employee_data['Employee Name'] == driver_name]
+            # If no exact match, try contains match
+            if employee_match.empty:
+                employee_match = employee_data[employee_data['Employee Name'].str.contains(driver_name, na=False)]
             
-            # Auto-adjust column widths for better readability
-            worksheet = writer.sheets['Equipment Alerts']
-            for idx, col in enumerate(df.columns):
-                max_len = df[col].astype(str).map(len).max()
-                max_len = max(max_len, len(col)) + 2  # Add a little extra space
-                worksheet.column_dimensions[worksheet.cell(1, idx+1).column_letter].width = max_len
+            if not employee_match.empty:
+                contact_info = employee_match.iloc[0].get('Phone', '')
         
-        logger.info(f"Exported {len(alerts)} alerts to Excel: {filepath}")
-        return str(filepath)
-    
-    except Exception as e:
-        logger.error(f"Error exporting alerts to Excel: {e}")
-        raise
+        sheet.cell(row=i, column=8).value = contact_info
 
-def export_alerts_to_csv(alerts, filename=None):
-    """
-    Export equipment alerts to CSV format
+def format_missing_sheet(sheet, missing_drivers, employee_data, job_data):
+    """Format the not on job sheet"""
+    # Add headers
+    headers = ['Driver', 'Asset ID', 'Scheduled Job', 'Actual Job', 
+              'Region', 'Division', 'Contact Info']
     
-    Args:
-        alerts (list): List of alert objects or dictionaries
-        filename (str, optional): Output filename. If None, will generate a default name.
+    for col, header in enumerate(headers, start=1):
+        cell = sheet.cell(row=1, column=col)
+        cell.value = header
+        cell.font = Font(bold=True)
+        cell.alignment = Alignment(horizontal='center')
+        cell.fill = PatternFill(start_color="DDDDDD", end_color="DDDDDD", fill_type="solid")
         
-    Returns:
-        str: Path to the exported file
-    """
-    ensure_export_dir()
+        # Set column width
+        sheet.column_dimensions[get_column_letter(col)].width = 15
     
-    # Generate filename if not provided
-    if not filename:
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        filename = f"equipment_alerts_{timestamp}.csv"
-    
-    # Ensure .csv extension
-    if not filename.endswith('.csv'):
-        filename += '.csv'
+    # Add data rows
+    for i, driver in enumerate(missing_drivers, start=2):
+        sheet.cell(row=i, column=1).value = driver.get('driver_name', 'Unknown')
+        sheet.cell(row=i, column=2).value = driver.get('asset_id', '')
+        sheet.cell(row=i, column=3).value = driver.get('assigned_job', '')
+        sheet.cell(row=i, column=4).value = driver.get('actual_job', 'Not Found')
         
-    # Full path to output file
-    filepath = EXPORTS_DIR / 'alerts' / filename
-    
-    try:
-        # Convert alerts to a list of dictionaries
-        alerts_data = []
-        for alert in alerts:
-            # Handle both ORM objects and dictionaries
-            if hasattr(alert, '__dict__'):
-                # Convert ORM object to dict, excluding SQLAlchemy special attributes
-                alert_dict = {k: v for k, v in alert.__dict__.items() 
-                             if not k.startswith('_')}
-                
-                # Handle nested details field
-                if 'details' in alert_dict and isinstance(alert_dict['details'], dict):
-                    # Flatten the details field
-                    for key, value in alert_dict['details'].items():
-                        alert_dict[f"detail_{key}"] = value
-                    del alert_dict['details']
-                
-                alerts_data.append(alert_dict)
-            else:
-                # Already a dict
-                alert_dict = alert.copy()
-                
-                # Handle nested details field
-                if 'details' in alert_dict and isinstance(alert_dict['details'], dict):
-                    # Flatten the details field
-                    for key, value in alert_dict['details'].items():
-                        alert_dict[f"detail_{key}"] = value
-                    del alert_dict['details']
-                
-                alerts_data.append(alert_dict)
+        # Add region and division from job data if available
+        assigned_job = driver.get('assigned_job', '')
+        region = ''
+        division = ''
+        if job_data is not None and assigned_job:
+            job_match = job_data[job_data['Job Number'] == assigned_job]
+            if not job_match.empty:
+                region = job_match.iloc[0].get('Region', '')
+                division = job_match.iloc[0].get('Division', '')
         
-        # If no alerts, create empty file with headers
-        if not alerts_data:
-            with open(filepath, 'w', newline='') as csvfile:
-                writer = csv.writer(csvfile)
-                writer.writerow(['No alerts found'])
-            return str(filepath)
+        sheet.cell(row=i, column=5).value = region
+        sheet.cell(row=i, column=6).value = division
+        
+        # Add contact info from employee data if available
+        driver_name = driver.get('driver_name', '')
+        contact_info = ''
+        if employee_data is not None and driver_name:
+            # Try exact match first
+            employee_match = employee_data[employee_data['Employee Name'] == driver_name]
+            # If no exact match, try contains match
+            if employee_match.empty:
+                employee_match = employee_data[employee_data['Employee Name'].str.contains(driver_name, na=False)]
             
-        # Get field names from all alerts (some might have different fields)
-        fieldnames = set()
-        for alert in alerts_data:
-            fieldnames.update(alert.keys())
-        fieldnames = sorted(list(fieldnames))
+            if not employee_match.empty:
+                contact_info = employee_match.iloc[0].get('Phone', '')
         
-        # Write to CSV
-        with open(filepath, 'w', newline='') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            writer.writeheader()
-            for alert in alerts_data:
-                writer.writerow(alert)
-        
-        logger.info(f"Exported {len(alerts)} alerts to CSV: {filepath}")
-        return str(filepath)
-    
-    except Exception as e:
-        logger.error(f"Error exporting alerts to CSV: {e}")
-        raise
+        sheet.cell(row=i, column=7).value = contact_info
 
-def export_driver_report_to_excel(report_data, filename=None):
-    """
-    Export driver attendance report to Excel format
+def format_all_drivers_sheet(sheet, all_drivers, employee_data, job_data):
+    """Format the all drivers sheet"""
+    # Add headers
+    headers = ['Driver', 'Asset ID', 'Start Time', 'End Time', 
+              'Total Hours', 'Job Site', 'Division', 'Contact Info']
     
-    Args:
-        report_data (dict): Dictionary containing report sections (late_starts, early_ends, not_on_job)
-        filename (str, optional): Output filename. If None, will generate a default name.
+    for col, header in enumerate(headers, start=1):
+        cell = sheet.cell(row=1, column=col)
+        cell.value = header
+        cell.font = Font(bold=True)
+        cell.alignment = Alignment(horizontal='center')
+        cell.fill = PatternFill(start_color="DDDDDD", end_color="DDDDDD", fill_type="solid")
         
-    Returns:
-        str: Path to the exported file
-    """
-    ensure_export_dir()
+        # Set column width
+        sheet.column_dimensions[get_column_letter(col)].width = 15
     
-    # Generate filename if not provided
-    if not filename:
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        filename = f"driver_report_{timestamp}.xlsx"
-    
-    # Ensure .xlsx extension
-    if not filename.endswith('.xlsx'):
-        filename += '.xlsx'
+    # Add data rows
+    for i, driver in enumerate(all_drivers, start=2):
+        sheet.cell(row=i, column=1).value = driver.get('driver_name', 'Unknown')
+        sheet.cell(row=i, column=2).value = driver.get('asset_id', '')
+        sheet.cell(row=i, column=3).value = driver.get('start_time', '')
+        sheet.cell(row=i, column=4).value = driver.get('end_time', '')
         
-    # Full path to output file
-    filepath = EXPORTS_DIR / 'driver_reports' / filename
-    
-    try:
-        # Create Excel writer
-        with pd.ExcelWriter(filepath, engine='openpyxl') as writer:
-            # Export late starts
-            if 'late_starts' in report_data and report_data['late_starts']:
-                late_df = pd.DataFrame(report_data['late_starts'])
-                late_df.to_excel(writer, sheet_name='Late Starts', index=False)
+        # Calculate total hours if both start and end times are available
+        total_hours = ''
+        start_time = driver.get('start_time', '')
+        end_time = driver.get('end_time', '')
+        if start_time and end_time:
+            try:
+                start_dt = datetime.strptime(start_time, '%H:%M')
+                end_dt = datetime.strptime(end_time, '%H:%M')
+                # Handle next-day end times
+                if end_dt < start_dt:
+                    end_dt = end_dt.replace(day=start_dt.day + 1)
+                hours = (end_dt - start_dt).total_seconds() / 3600
+                total_hours = f"{hours:.2f}"
+            except Exception:
+                total_hours = 'Error'
                 
-                # Auto-adjust column widths
-                worksheet = writer.sheets['Late Starts']
-                for idx, col in enumerate(late_df.columns):
-                    max_len = late_df[col].astype(str).map(len).max()
-                    max_len = max(max_len, len(col)) + 2  # Add a little extra space
-                    worksheet.column_dimensions[worksheet.cell(1, idx+1).column_letter].width = max_len
-            
-            # Export early ends
-            if 'early_ends' in report_data and report_data['early_ends']:
-                early_df = pd.DataFrame(report_data['early_ends'])
-                early_df.to_excel(writer, sheet_name='Early Ends', index=False)
-                
-                # Auto-adjust column widths
-                worksheet = writer.sheets['Early Ends']
-                for idx, col in enumerate(early_df.columns):
-                    max_len = early_df[col].astype(str).map(len).max()
-                    max_len = max(max_len, len(col)) + 2  # Add a little extra space
-                    worksheet.column_dimensions[worksheet.cell(1, idx+1).column_letter].width = max_len
-            
-            # Export not on job
-            if 'not_on_job' in report_data and report_data['not_on_job']:
-                noj_df = pd.DataFrame(report_data['not_on_job'])
-                noj_df.to_excel(writer, sheet_name='Not On Job', index=False)
-                
-                # Auto-adjust column widths
-                worksheet = writer.sheets['Not On Job']
-                for idx, col in enumerate(noj_df.columns):
-                    max_len = noj_df[col].astype(str).map(len).max()
-                    max_len = max(max_len, len(col)) + 2  # Add a little extra space
-                    worksheet.column_dimensions[worksheet.cell(1, idx+1).column_letter].width = max_len
-            
-            # Export summary
-            if 'summary' in report_data:
-                summary_data = []
-                summary_data.append({'Metric': 'Late Starts', 'Count': len(report_data.get('late_starts', []))})
-                summary_data.append({'Metric': 'Early Ends', 'Count': len(report_data.get('early_ends', []))})
-                summary_data.append({'Metric': 'Not On Job', 'Count': len(report_data.get('not_on_job', []))})
-                summary_data.append({'Metric': 'Total Issues', 'Count': (
-                    len(report_data.get('late_starts', [])) + 
-                    len(report_data.get('early_ends', [])) + 
-                    len(report_data.get('not_on_job', []))
-                )})
-                
-                summary_df = pd.DataFrame(summary_data)
-                summary_df.to_excel(writer, sheet_name='Summary', index=False)
-                
-                # Auto-adjust column widths
-                worksheet = writer.sheets['Summary']
-                for idx, col in enumerate(summary_df.columns):
-                    max_len = summary_df[col].astype(str).map(len).max()
-                    max_len = max(max_len, len(col)) + 2  # Add a little extra space
-                    worksheet.column_dimensions[worksheet.cell(1, idx+1).column_letter].width = max_len
+        sheet.cell(row=i, column=5).value = total_hours
+        sheet.cell(row=i, column=6).value = driver.get('job_site', '')
         
-        logger.info(f"Exported driver report to Excel: {filepath}")
-        return str(filepath)
-    
-    except Exception as e:
-        logger.error(f"Error exporting driver report to Excel: {e}")
-        raise
+        # Add division from job data if available
+        job_site = driver.get('job_site', '')
+        division = ''
+        if job_data is not None and job_site:
+            job_match = job_data[job_data['Job Number'] == job_site]
+            if not job_match.empty:
+                division = job_match.iloc[0].get('Division', '')
+        sheet.cell(row=i, column=7).value = division
+        
+        # Add contact info from employee data if available
+        driver_name = driver.get('driver_name', '')
+        contact_info = ''
+        if employee_data is not None and driver_name:
+            # Try exact match first
+            employee_match = employee_data[employee_data['Employee Name'] == driver_name]
+            # If no exact match, try contains match
+            if employee_match.empty:
+                employee_match = employee_data[employee_data['Employee Name'].str.contains(driver_name, na=False)]
+            
+            if not employee_match.empty:
+                contact_info = employee_match.iloc[0].get('Phone', '')
+        
+        sheet.cell(row=i, column=8).value = contact_info
 
-def export_billing_data_to_excel(billing_data, filename=None):
-    """
-    Export PM billing allocation data to Excel format
-    
-    Args:
-        billing_data (dict): Dictionary containing billing sections
-        filename (str, optional): Output filename. If None, will generate a default name.
-        
-    Returns:
-        str: Path to the exported file
-    """
-    ensure_export_dir()
-    
-    # Generate filename if not provided
-    if not filename:
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        filename = f"pm_billing_{timestamp}.xlsx"
-    
-    # Ensure .xlsx extension
-    if not filename.endswith('.xlsx'):
-        filename += '.xlsx'
-        
-    # Full path to output file
-    filepath = EXPORTS_DIR / 'billing' / filename
-    
+def export_daily_report_pdf(date_str, output_path, attendance_data=None):
+    """Export daily report to PDF format"""
     try:
-        # Create Excel writer
-        with pd.ExcelWriter(filepath, engine='openpyxl') as writer:
-            # Export each section to its own sheet
-            for section_name, section_data in billing_data.items():
-                if isinstance(section_data, list) and section_data:
-                    df = pd.DataFrame(section_data)
-                    df.to_excel(writer, sheet_name=section_name[:31], index=False)  # Limit sheet name to 31 chars
-                    
-                    # Auto-adjust column widths
-                    worksheet = writer.sheets[section_name[:31]]
-                    for idx, col in enumerate(df.columns):
-                        max_len = df[col].astype(str).map(len).max()
-                        max_len = max(max_len, len(col)) + 2  # Add a little extra space
-                        worksheet.column_dimensions[worksheet.cell(1, idx+1).column_letter].width = max_len
+        # If attendance_data not provided, get it from the pipeline
+        if attendance_data is None:
+            from utils.attendance_pipeline_connector import get_attendance_data
+            attendance_data = get_attendance_data(date_str)
+            
+        if not attendance_data:
+            logger.error(f"No attendance data available for {date_str}")
+            return False
+            
+        # Create PDF document
+        doc = SimpleDocTemplate(
+            output_path, 
+            pagesize=landscape(letter),
+            rightMargin=30, 
+            leftMargin=30, 
+            topMargin=30, 
+            bottomMargin=30
+        )
         
-        logger.info(f"Exported billing data to Excel: {filepath}")
-        return str(filepath)
-    
+        # Styles
+        styles = getSampleStyleSheet()
+        title_style = styles['Title']
+        heading_style = styles['Heading2']
+        normal_style = styles['Normal']
+        
+        # Content elements
+        elements = []
+        
+        # Title
+        title = Paragraph(f"Daily Attendance Report - {date_str}", title_style)
+        elements.append(title)
+        elements.append(Spacer(1, 20))
+        
+        # Summary section
+        elements.append(Paragraph("Summary", heading_style))
+        
+        summary_data = [
+            ["Metric", "Value"],
+            ["Total Drivers", str(attendance_data.get('total_drivers', 0))],
+            ["Late Arrivals", str(attendance_data.get('late_count', 0))],
+            ["Early Departures", str(attendance_data.get('early_count', 0))],
+            ["Not On Job", str(attendance_data.get('missing_count', 0))]
+        ]
+        
+        summary_table = Table(summary_data, colWidths=[200, 100])
+        summary_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ]))
+        
+        elements.append(summary_table)
+        elements.append(Spacer(1, 20))
+        
+        # Late arrivals section
+        if 'late_drivers' in attendance_data and attendance_data['late_drivers']:
+            elements.append(Paragraph("Late Arrivals", heading_style))
+            
+            late_data = [["Driver", "Asset ID", "Scheduled Start", "Actual Start", "Minutes Late", "Job Site"]]
+            
+            for driver in attendance_data['late_drivers']:
+                late_data.append([
+                    driver.get('driver_name', 'Unknown'),
+                    driver.get('asset_id', ''),
+                    driver.get('scheduled_start', ''),
+                    driver.get('actual_start', ''),
+                    str(driver.get('minutes_late', 0)),
+                    driver.get('job_site', '')
+                ])
+            
+            late_table = Table(late_data, colWidths=[100, 70, 90, 90, 70, 70])
+            late_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black)
+            ]))
+            
+            elements.append(late_table)
+            elements.append(Spacer(1, 20))
+            
+        # File information
+        elements.append(Paragraph("Report Sources", heading_style))
+        
+        source_data = [
+            ["Source", "File"],
+            ["Activity File", attendance_data.get('sources', {}).get('activity_file', 'N/A')],
+            ["Driving History File", attendance_data.get('sources', {}).get('driving_file', 'N/A')],
+            ["Fleet Utilization File", attendance_data.get('sources', {}).get('utilization_file', 'N/A')]
+        ]
+        
+        source_table = Table(source_data, colWidths=[200, 300])
+        source_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ]))
+        
+        elements.append(source_table)
+        
+        # Build the document
+        doc.build(elements)
+        logger.info(f"Successfully exported daily report to PDF: {output_path}")
+        return True
+        
     except Exception as e:
-        logger.error(f"Error exporting billing data to Excel: {e}")
-        raise
+        logger.error(f"Error exporting daily report to PDF: {e}")
+        import traceback
+        logger.debug(traceback.format_exc())
+        return False

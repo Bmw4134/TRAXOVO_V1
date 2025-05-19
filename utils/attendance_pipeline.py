@@ -96,6 +96,9 @@ def find_latest_fleet_utilization_file():
     return latest_file
 
 
+# Import timezone normalizer
+from utils.timezone_normalizer import normalize_time_string
+
 def normalize_time(time_str):
     """
     Normalize time string to HH:MM format.
@@ -109,34 +112,15 @@ def normalize_time(time_str):
     if not time_str or pd.isna(time_str):
         return None
     
-    # Convert to string explicitly for safety
-    time_str = str(time_str).strip()
+    # Use timezone normalizer to standardize time handling
+    normalized_time, is_next_day = normalize_time_string(time_str)
     
-    # Try various formats
-    formats = [
-        '%H:%M',         # 13:45
-        '%H:%M:%S',      # 13:45:30
-        '%I:%M %p',      # 1:45 PM
-        '%I:%M:%S %p',   # 1:45:30 PM
-        '%I:%M%p',       # 1:45PM
-        '%I:%M:%S%p',    # 1:45:30PM
-        '%I %p',         # 1 PM
-        '%I%p'           # 1PM
-    ]
+    # Add next-day indicator if detected
+    if normalized_time and is_next_day:
+        normalized_time += " (+1)"
+        logger.info(f"Detected next-day time: {time_str} -> {normalized_time}")
     
-    # Try each format
-    for fmt in formats:
-        try:
-            # Parse time string
-            dt = datetime.strptime(time_str, fmt)
-            # Return normalized format
-            return dt.strftime('%H:%M')
-        except ValueError:
-            continue
-    
-    # If we got here, none of the formats matched
-    logger.warning(f"Could not normalize time string: {time_str}")
-    return None
+    return normalized_time
 
 
 def parse_activity_detail(file_path):
@@ -387,6 +371,9 @@ def merge_attendance_records(activity_records, driving_records, schedule_records
                 'data_sources': ['driving_history']
             }
     
+    # Import timezone calculation utility
+    from utils.timezone_normalizer import calculate_time_difference_minutes
+    
     # Calculate lateness and early departure
     for driver_name, record in merged_records.items():
         # Default scheduled start if not available
@@ -395,37 +382,37 @@ def merge_attendance_records(activity_records, driving_records, schedule_records
         
         # Calculate lateness
         if record.get('scheduled_start') and record.get('actual_start'):
-            # Convert to datetime objects
             try:
-                scheduled = datetime.strptime(record['scheduled_start'], '%H:%M')
-                actual = datetime.strptime(record['actual_start'], '%H:%M')
-                
-                # Calculate minutes late
-                delta = actual - scheduled
-                minutes_late = delta.total_seconds() / 60
+                # Use the timezone utility to calculate the difference
+                minutes_late = calculate_time_difference_minutes(
+                    record['scheduled_start'], 
+                    record['actual_start']
+                )
                 
                 # Only positive values (late arrivals)
-                if minutes_late > 0:
-                    record['late_minutes'] = round(minutes_late)
-            except (ValueError, TypeError):
-                logger.warning(f"Could not calculate lateness for driver {driver_name}")
+                if minutes_late and minutes_late > 0:
+                    record['late_minutes'] = minutes_late
+                    logger.info(f"Driver {driver_name} is {minutes_late} minutes late: "
+                               f"scheduled {record['scheduled_start']}, actual {record['actual_start']}")
+            except Exception as e:
+                logger.warning(f"Could not calculate lateness for driver {driver_name}: {e}")
         
         # Calculate early departure
         if record.get('scheduled_end') and record.get('actual_end'):
-            # Convert to datetime objects
             try:
-                scheduled = datetime.strptime(record['scheduled_end'], '%H:%M')
-                actual = datetime.strptime(record['actual_end'], '%H:%M')
-                
-                # Calculate minutes early
-                delta = scheduled - actual
-                minutes_early = delta.total_seconds() / 60
+                # Use the timezone utility to calculate the difference
+                minutes_early = calculate_time_difference_minutes(
+                    record['actual_end'], 
+                    record['scheduled_end']
+                )
                 
                 # Only positive values (early departures)
-                if minutes_early > 0:
-                    record['early_minutes'] = round(minutes_early)
-            except (ValueError, TypeError):
-                logger.warning(f"Could not calculate early departure for driver {driver_name}")
+                if minutes_early and minutes_early > 0:
+                    record['early_minutes'] = minutes_early
+                    logger.info(f"Driver {driver_name} left {minutes_early} minutes early: "
+                               f"scheduled {record['scheduled_end']}, actual {record['actual_end']}")
+            except Exception as e:
+                logger.warning(f"Could not calculate early departure for driver {driver_name}: {e}")
     
     # Convert to list
     merged_list = list(merged_records.values())

@@ -1,188 +1,260 @@
 """
 Structured Logger
 
-This module provides unified logging functionality across the application,
-with consistent formatting, levels, and output destinations.
+This module provides consistent logging formats across the application with
+color-coded log levels and structured metadata for better filtering and analysis.
 """
 
-import os
-import logging
 import json
-from datetime import datetime
-import traceback
-from logging.handlers import RotatingFileHandler
+import logging
+import os
 import sys
-from pathlib import Path
+import traceback
+from datetime import datetime
 
-# Ensure log directory exists
-log_dir = Path("logs")
-log_dir.mkdir(exist_ok=True)
+# Configure logging colors
+COLORS = {
+    'DEBUG': '\033[36m',  # Cyan
+    'INFO': '\033[32m',   # Green
+    'WARNING': '\033[33m', # Yellow
+    'ERROR': '\033[31m',  # Red
+    'CRITICAL': '\033[41m\033[37m', # White on Red background
+    'RESET': '\033[0m'    # Reset
+}
 
-# Configure logger with colored output and file handler
-class ColoredFormatter(logging.Formatter):
-    """Custom formatter with colored output based on log level"""
-    
-    COLORS = {
-        'DEBUG': '\033[94m',  # Blue
-        'INFO': '\033[92m',   # Green
-        'WARNING': '\033[93m', # Yellow
-        'ERROR': '\033[91m',  # Red
-        'CRITICAL': '\033[41m\033[97m' # White on Red background
-    }
-    RESET = '\033[0m'
+# Ensure logs directory exists
+logs_dir = os.path.join(os.getcwd(), 'logs')
+if not os.path.exists(logs_dir):
+    os.makedirs(logs_dir)
+
+# Define log file paths
+SYSTEM_LOG_FILE = os.path.join(logs_dir, 'system.log')
+API_LOG_FILE = os.path.join(logs_dir, 'api.log')
+PIPELINE_LOG_FILE = os.path.join(logs_dir, 'pipeline.log')
+ERROR_LOG_FILE = os.path.join(logs_dir, 'error.log')
+
+
+class ColorFormatter(logging.Formatter):
+    """Custom formatter to add colors to log messages based on level."""
     
     def format(self, record):
-        log_message = super().format(record)
-        if record.levelname in self.COLORS:
-            log_message = f"{self.COLORS[record.levelname]}{log_message}{self.RESET}"
-        return log_message
+        """Format log record with color."""
+        # Apply color if output is to a terminal
+        is_tty = hasattr(sys.stdout, 'isatty') and sys.stdout.isatty()
+        
+        # Get level name and appropriate color
+        levelname = record.levelname
+        color = COLORS.get(levelname, COLORS['RESET']) if is_tty else ''
+        reset = COLORS['RESET'] if is_tty else ''
+        
+        # Apply color to level name
+        record.levelname_colored = f"{color}{levelname}{reset}"
+        
+        # Format timestamp if needed
+        if not hasattr(record, 'asctime'):
+            record.asctime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        
+        # Call the original formatter's format method
+        return super().format(record)
 
-# Configure a custom JSON formatter for structured logging
+
+class StructuredLogRecord(logging.LogRecord):
+    """Custom LogRecord that adds structured metadata."""
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.metadata = {}
+
+
+class StructuredLogger(logging.Logger):
+    """Logger that supports structured logging with metadata."""
+    
+    def _log(self, level, msg, args, exc_info=None, extra=None, stack_info=False, 
+             stacklevel=1, metadata=None):
+        """Add metadata to the log record."""
+        if metadata is None:
+            metadata = {}
+        
+        # Create or update extra
+        extra_dict = {} if extra is None else extra
+        extra_dict['metadata'] = metadata
+        
+        # Add timestamp to metadata
+        if 'timestamp' not in metadata:
+            metadata['timestamp'] = datetime.now().isoformat()
+        
+        # Call the parent class's _log method with the updated extra
+        super()._log(level, msg, args, exc_info, extra_dict, stack_info, stacklevel)
+    
+    def debug(self, msg, *args, **kwargs):
+        """Log with DEBUG level."""
+        metadata = kwargs.pop('metadata', {})
+        self._log(logging.DEBUG, msg, args, metadata=metadata, **kwargs)
+    
+    def info(self, msg, *args, **kwargs):
+        """Log with INFO level."""
+        metadata = kwargs.pop('metadata', {})
+        self._log(logging.INFO, msg, args, metadata=metadata, **kwargs)
+    
+    def warning(self, msg, *args, **kwargs):
+        """Log with WARNING level."""
+        metadata = kwargs.pop('metadata', {})
+        self._log(logging.WARNING, msg, args, metadata=metadata, **kwargs)
+    
+    def error(self, msg, *args, **kwargs):
+        """Log with ERROR level."""
+        metadata = kwargs.pop('metadata', {})
+        self._log(logging.ERROR, msg, args, metadata=metadata, **kwargs)
+    
+    def critical(self, msg, *args, **kwargs):
+        """Log with CRITICAL level."""
+        metadata = kwargs.pop('metadata', {})
+        self._log(logging.CRITICAL, msg, args, metadata=metadata, **kwargs)
+    
+    def exception(self, msg, *args, exc_info=True, **kwargs):
+        """Log with ERROR level including exception information."""
+        metadata = kwargs.pop('metadata', {})
+        if not metadata.get('exception_traceback') and exc_info:
+            metadata['exception_traceback'] = traceback.format_exc()
+        self._log(logging.ERROR, msg, args, exc_info=exc_info, metadata=metadata, **kwargs)
+
+
+# Register the custom logger class
+logging.setLoggerClass(StructuredLogger)
+
+
 class JsonFormatter(logging.Formatter):
-    """Custom formatter that outputs logs in JSON format"""
+    """Format logs as JSON for structured storage and analysis."""
     
     def format(self, record):
-        # Create a structured log record
+        """Format log record as JSON."""
         log_data = {
-            'timestamp': datetime.utcnow().isoformat(),
+            'timestamp': getattr(record, 'asctime', datetime.now().isoformat()),
             'level': record.levelname,
+            'message': record.getMessage(),
+            'logger': record.name,
             'module': record.module,
-            'function': record.funcName,
-            'line': record.lineno,
-            'message': record.getMessage()
+            'filename': record.filename,
+            'lineno': record.lineno,
         }
+        
+        # Add metadata if available
+        if hasattr(record, 'metadata') and record.metadata:
+            log_data['metadata'] = record.metadata
         
         # Add exception info if available
         if record.exc_info:
             log_data['exception'] = {
-                'type': record.exc_info[0].__name__,
+                'type': str(record.exc_info[0].__name__),
                 'message': str(record.exc_info[1]),
                 'traceback': traceback.format_exception(*record.exc_info)
             }
         
-        # Add extra fields
-        if hasattr(record, 'extra'):
-            log_data.update(record.extra)
-        
         return json.dumps(log_data)
 
 
-def get_logger(name, enable_console=True):
-    """
-    Get a configured logger instance with both file and console handlers.
+def setup_console_handler(logger, level=logging.INFO):
+    """Set up console handler with color formatting."""
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(level)
     
-    Args:
-        name (str): Name of the logger, usually __name__ of the module
-        enable_console (bool): Whether to enable console output
-        
-    Returns:
-        logging.Logger: Configured logger instance
-    """
-    # Create logger
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.DEBUG)
-    logger.propagate = False
-    
-    # Remove existing handlers (to avoid duplicates if called multiple times)
-    if logger.handlers:
-        logger.handlers = []
-    
-    # Create formatter
-    console_formatter = ColoredFormatter(
-        '%(asctime)s [%(levelname)s] %(name)s:%(lineno)d - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
+    # Define a format with colored level names
+    formatter = ColorFormatter(
+        '%(levelname_colored)s [%(name)s] %(message)s'
     )
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
     
-    # JSON formatter for file logging
-    json_formatter = JsonFormatter()
+    return console_handler
+
+
+def setup_file_handler(logger, file_path, level=logging.INFO, json_format=False):
+    """Set up file handler with optional JSON formatting."""
+    # Create directory if it doesn't exist
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
     
-    # Create console handler
-    if enable_console:
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(logging.INFO)
-        console_handler.setFormatter(console_formatter)
-        logger.addHandler(console_handler)
+    file_handler = logging.FileHandler(file_path)
+    file_handler.setLevel(level)
     
-    # Create rotating file handler
-    file_handler = RotatingFileHandler(
-        f"logs/{name.replace('.', '_')}.log",
-        maxBytes=5 * 1024 * 1024,  # 5 MB
-        backupCount=5              # Keep 5 backup files
-    )
-    file_handler.setLevel(logging.DEBUG)
-    file_handler.setFormatter(json_formatter)
+    if json_format:
+        formatter = JsonFormatter()
+    else:
+        formatter = logging.Formatter(
+            '[%(asctime)s] %(levelname)s [%(name)s] %(message)s'
+        )
+    
+    file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
     
-    # Create a separate handler for errors
-    error_handler = RotatingFileHandler(
-        "logs/error.log",
-        maxBytes=5 * 1024 * 1024,  # 5 MB
-        backupCount=5              # Keep 5 backup files
-    )
-    error_handler.setLevel(logging.ERROR)
-    error_handler.setFormatter(json_formatter)
-    logger.addHandler(error_handler)
+    return file_handler
+
+
+def get_system_logger(name='system'):
+    """Get a logger for system-wide events."""
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
+    
+    # Only add handlers if they don't exist yet
+    if not logger.handlers:
+        setup_console_handler(logger, logging.INFO)
+        setup_file_handler(logger, SYSTEM_LOG_FILE, logging.DEBUG)
+        
+        # Add JSON format for error log
+        error_handler = setup_file_handler(
+            logger, ERROR_LOG_FILE, logging.ERROR, json_format=True
+        )
     
     return logger
 
 
-# Pre-configured loggers for different subsystems
-def get_pipeline_logger():
-    """Get logger specifically configured for data pipeline operations"""
-    return get_logger("pipeline")
-
-
-def get_api_logger():
-    """Get logger specifically configured for API endpoint operations"""
-    return get_logger("api")
-
-
-def get_trend_logger():
-    """Get logger specifically configured for trend analysis operations"""
-    return get_logger("trend_analysis")
-
-
-def get_billing_logger():
-    """Get logger specifically configured for billing operations"""
-    return get_logger("billing")
-
-
-# Simple log viewing function to display logs from a file
-def get_log_entries(log_file="error.log", max_entries=100, level=None):
-    """
-    Get log entries from a log file.
+def get_api_logger(name='api'):
+    """Get a logger for API calls and responses."""
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
     
-    Args:
-        log_file (str): Name of the log file to read (relative to logs directory)
-        max_entries (int): Maximum number of entries to return
-        level (str): Filter by log level (INFO, ERROR, etc.)
+    # Only add handlers if they don't exist yet
+    if not logger.handlers:
+        setup_console_handler(logger, logging.INFO)
+        setup_file_handler(logger, API_LOG_FILE, logging.DEBUG)
         
-    Returns:
-        list: List of parsed log entries
-    """
-    entries = []
+        # Add JSON format for error log
+        error_handler = setup_file_handler(
+            logger, ERROR_LOG_FILE, logging.ERROR, json_format=True
+        )
     
-    try:
-        with open(f"logs/{log_file}", "r") as f:
-            for line in f:
-                try:
-                    # Parse JSON log entry
-                    entry = json.loads(line.strip())
-                    
-                    # Apply level filter if specified
-                    if level and entry.get('level') != level:
-                        continue
-                    
-                    entries.append(entry)
-                    
-                    # Limit to max entries
-                    if len(entries) >= max_entries:
-                        break
-                except json.JSONDecodeError:
-                    # Skip malformed lines
-                    continue
-                    
-        # Return most recent entries first
-        return list(reversed(entries))
-    except FileNotFoundError:
-        return []
+    return logger
+
+
+def get_pipeline_logger(name='pipeline'):
+    """Get a logger for data pipeline operations."""
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
+    
+    # Only add handlers if they don't exist yet
+    if not logger.handlers:
+        setup_console_handler(logger, logging.INFO)
+        setup_file_handler(logger, PIPELINE_LOG_FILE, logging.DEBUG)
+        
+        # Add JSON format for error log
+        error_handler = setup_file_handler(
+            logger, ERROR_LOG_FILE, logging.ERROR, json_format=True
+        )
+    
+    return logger
+
+
+# Initialize root logger
+def init_root_logger():
+    """Initialize root logger with basic configuration."""
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO)
+    
+    # Only add handler if it doesn't exist yet
+    if not root_logger.handlers:
+        setup_console_handler(root_logger, logging.INFO)
+    
+    return root_logger
+
+
+# Initialize the root logger
+init_root_logger()

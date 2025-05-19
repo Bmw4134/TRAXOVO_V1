@@ -146,21 +146,33 @@ def process_daily_usage_data(file_path, date_str=None):
                 # Handle different formats of asset labels
                 employee_id = ""
                 driver_name = ""
+                vehicle_info = ""
                 
-                # Format: ET-XX (NAME) or PT-XX (NAME) format
+                # Format: ET-XX (NAME) or PT-XX (NAME) RAM 1500 etc. format
                 if '(' in asset_label and ')' in asset_label:
                     parts = asset_label.split('(', 1)
                     employee_id = parts[0].strip()
-                    driver_name = parts[1].split(')', 1)[0].strip()
-                # Format: #XXXXXX - NAME format
+                    
+                    # Extract name and possibly vehicle info after the parentheses
+                    if ')' in parts[1]:
+                        name_parts = parts[1].split(')', 1)
+                        driver_name = name_parts[0].strip()
+                        # Anything after the closing parenthesis is vehicle info
+                        if len(name_parts) > 1:
+                            vehicle_info = name_parts[1].strip()
+                
+                # Format: #XXXXXX - NAME - VEHICLE format  
                 elif ' - ' in asset_label:
                     parts = asset_label.split(' - ')
                     employee_id = parts[0].strip()
                     driver_name = parts[1].strip() if len(parts) > 1 else 'Unknown'
+                    vehicle_info = parts[2].strip() if len(parts) > 2 else ''
+                
                 else:
-                    # Fallback
+                    # Fallback for other formats
                     employee_id = asset_label
                     driver_name = str(row.get('name', 'Unknown')).strip()
+                    vehicle_info = str(row.get('assettype', '')).strip()
                 
                 # Create a unique key for this driver
                 driver_key = f"{employee_id}_{driver_name}"
@@ -187,16 +199,38 @@ def process_daily_usage_data(file_path, date_str=None):
                 # Get the first row for this driver to extract common information
                 row = rows[0]  # Use the first entry for this driver's basic info
                 
-                # Extract driver info
-                asset_label = str(row.get('assetlabel', 'Unknown')).split(' - ')
-                employee_id = asset_label[0].strip() if len(asset_label) > 0 else 'Unknown'
-                driver_name = asset_label[1].strip() if len(asset_label) > 1 else 'Unknown'
+                # Extract driver info using our enhanced format parsing
+                asset_label = str(row.get('assetlabel', 'Unknown'))
                 
-                # Get vehicle info - parse from asset label if available
+                # Handle different formats of asset labels
+                employee_id = ""
+                driver_name = ""
                 vehicle_info = ""
-                if len(asset_label) > 2:
-                    vehicle_info = asset_label[2].strip()
+                
+                # Format: ET-XX (NAME) or PT-XX (NAME) RAM 1500 etc. format
+                if '(' in asset_label and ')' in asset_label:
+                    parts = asset_label.split('(', 1)
+                    employee_id = parts[0].strip()
+                    
+                    # Extract name and possibly vehicle info after the parentheses
+                    if ')' in parts[1]:
+                        name_parts = parts[1].split(')', 1)
+                        driver_name = name_parts[0].strip()
+                        # Anything after the closing parenthesis is vehicle info
+                        if len(name_parts) > 1:
+                            vehicle_info = name_parts[1].strip()
+                
+                # Format: #XXXXXX - NAME - VEHICLE format  
+                elif ' - ' in asset_label:
+                    parts = asset_label.split(' - ')
+                    employee_id = parts[0].strip()
+                    driver_name = parts[1].strip() if len(parts) > 1 else 'Unknown'
+                    vehicle_info = parts[2].strip() if len(parts) > 2 else ''
+                
                 else:
+                    # Fallback for other formats
+                    employee_id = asset_label
+                    driver_name = str(row.get('name', 'Unknown')).strip()
                     vehicle_info = str(row.get('assettype', '')).strip()
                 
                 # Get division/region from CompanyName or other field
@@ -302,6 +336,30 @@ def process_daily_usage_data(file_path, date_str=None):
         if 'not_on_job_drivers' not in report or not report['not_on_job_drivers']:
             report['not_on_job_drivers'] = []
             
+        # Use a set to track unique driver IDs for accurate count
+        unique_driver_ids = set()
+        
+        # Add all unique IDs from all categories
+        for driver in report['late_drivers']:
+            unique_driver_ids.add(driver['employee_id'])
+        
+        for driver in report['early_end_drivers']:
+            unique_driver_ids.add(driver['employee_id'])
+            
+        for driver in report['not_on_job_drivers']:
+            unique_driver_ids.add(driver['employee_id'])
+            
+        for driver in report['exceptions']:
+            unique_driver_ids.add(driver['employee_id'])
+            
+        # Set the total drivers count based on unique driver IDs
+        # This gives a more accurate count than just using the number of unique_drivers
+        report['summary']['total_drivers'] = len(unique_driver_ids) if unique_driver_ids else len(driver_data)
+        
+        # Log the final counts for verification
+        logger.info(f"Final report summary: {report['summary']}")
+        logger.info(f"Total unique drivers counted: {len(unique_driver_ids)}")
+        
         return report
         
     except Exception as e:

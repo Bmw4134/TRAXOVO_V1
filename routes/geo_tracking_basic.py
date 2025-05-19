@@ -24,6 +24,11 @@ def map_view():
 def mobile_map_view():
     """Display a mobile-optimized version of the map."""
     return render_template('map_view_mobile.html')
+    
+@geo_tracking_basic_bp.route('/simple')
+def simple_map_view():
+    """Display an ultra-simplified version of the map for maximum compatibility."""
+    return render_template('map_simple.html')
 
 @geo_tracking_basic_bp.route('/api/sample-assets')
 def get_sample_assets():

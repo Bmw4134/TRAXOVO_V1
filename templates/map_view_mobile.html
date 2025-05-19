@@ -530,7 +530,6 @@
             
             // Update status text
             document.getElementById('statusText').textContent = 'Loading...';
-            document.getElementById('refreshBtn').disabled = true;
             document.getElementById('refreshButton').disabled = true;
             
             // Clear existing refresh timer
@@ -538,16 +537,21 @@
                 clearTimeout(refreshTimer);
             }
             
-            // API request with timestamp to avoid caching
-            fetch('/map-view/api/sample-assets?t=' + Date.now())
-                .then(response => response.json())
+            // For troubleshooting on mobile, always prefer sample data first
+            fetch('/map-view/api/sample-assets?sample=true&t=' + Date.now())
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    return response.json();
+                })
                 .then(data => {
                     // Hide loading overlay
                     document.getElementById('loadingOverlay').style.display = 'none';
+                    console.log('Data received:', data);
                     
-                    if (data.status === 'success' && data.assets && data.assets.length > 0) {
-                        console.log(`Loaded ${data.assets.length} assets from ${data.source}`);
+                    if (data && data.status === 'success' && data.assets && data.assets.length > 0) {
+                        console.log(`Loaded ${data.assets.length} assets from ${data.source || 'unknown'}`);
                         
+                        // Generate sample data if we got an empty response
                         // Store assets
                         assets = data.assets;
                         
@@ -557,19 +561,18 @@
                         // Update status text
                         if (data.source === 'gauge_api') {
                             document.getElementById('statusText').textContent = 'Live Data';
-                            document.getElementById('statusText').className = 'text-success';
                         } else {
                             document.getElementById('statusText').textContent = 'Sample Data';
-                            document.getElementById('statusText').className = 'text-warning';
                         }
                     } else {
-                        console.error('No assets found in response');
-                        document.getElementById('statusText').textContent = 'No Data';
-                        document.getElementById('statusText').className = 'text-danger';
+                        console.error('No assets found in response, using fallback data');
+                        // Generate and use fallback data
+                        assets = generateFallbackSampleData();
+                        updateMarkers();
+                        document.getElementById('statusText').textContent = 'Fallback Data';
                     }
                     
-                    // Re-enable refresh buttons
-                    document.getElementById('refreshBtn').disabled = false;
+                    // Re-enable refresh button
                     document.getElementById('refreshButton').disabled = false;
                     
                     // Set up refresh after 45 seconds
@@ -578,9 +581,13 @@
                 .catch(error => {
                     console.error('Error loading assets:', error);
                     document.getElementById('loadingOverlay').style.display = 'none';
-                    document.getElementById('statusText').textContent = 'Error';
-                    document.getElementById('statusText').className = 'text-danger';
-                    document.getElementById('refreshBtn').disabled = false;
+                    
+                    // Generate and use fallback data on error
+                    console.log('Using fallback data due to error');
+                    assets = generateFallbackSampleData();
+                    updateMarkers();
+                    
+                    document.getElementById('statusText').textContent = 'Fallback Data';
                     document.getElementById('refreshButton').disabled = false;
                     
                     // Set up refresh after 30 seconds despite error

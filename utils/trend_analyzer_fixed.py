@@ -11,7 +11,7 @@ import json
 import logging
 from datetime import datetime, timedelta
 from collections import defaultdict
-from typing import Dict, List, Tuple, Union, Optional, Any
+from typing import Dict, List, Tuple, Union, Optional, Any, Set
 
 # Add project root to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -23,9 +23,22 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Trend detection thresholds
-CHRONIC_LATE_THRESHOLD = 3     # Number of late days to flag as chronic
+CHRONIC_LATE_THRESHOLD = 3      # Number of late days to flag as chronic
 REPEATED_ABSENCE_THRESHOLD = 2  # Number of absent days to flag as repeated
 UNSTABLE_SHIFT_THRESHOLD = 180  # Minutes (3 hours) of shift time variation 
+
+class DriverTrendData:
+    """Class to store attendance trend data for a driver"""
+    
+    def __init__(self, name: str):
+        self.name = name
+        self.dates = {}  # type: Dict[str, Dict[str, bool]]
+        self.late_days = 0
+        self.early_end_days = 0
+        self.absent_days = 0
+        self.start_times = []  # type: List[Tuple[str, str]]
+        self.end_times = []    # type: List[Tuple[str, str]]
+        self.flags = []        # type: List[str]
 
 def analyze_trends(date_range=None, specific_dates=None):
     """
@@ -90,16 +103,7 @@ def analyze_trends(date_range=None, specific_dates=None):
     results['trend_summary']['days_analyzed'] = len(dates_to_process)
     
     # Dictionary to track driver data across all dates
-    driver_data = defaultdict(lambda: {
-        'name': '',
-        'dates': {},
-        'late_days': 0,
-        'early_end_days': 0,
-        'absent_days': 0,
-        'start_times': [],
-        'end_times': [],
-        'flags': []
-    })
+    driver_data = {}  # type: Dict[str, DriverTrendData]
     
     # Process each date
     for date in dates_to_process:
@@ -122,21 +126,26 @@ def analyze_trends(date_range=None, specific_dates=None):
                 continue
                 
             normalized_name = normalize_driver_name(name)
-            driver_data[normalized_name]['name'] = name
-            driver_data[normalized_name]['late_days'] += 1
+            
+            # Initialize driver data if needed
+            if normalized_name not in driver_data:
+                driver_data[normalized_name] = DriverTrendData(name)
+                
+            # Update driver data
+            driver_data[normalized_name].late_days += 1
             
             # Store start/end times for shift stability analysis
-            if driver.get('time_start'):
-                driver_data[normalized_name]['start_times'].append(
-                    (date, driver.get('time_start'))
+            if 'time_start' in driver and driver['time_start']:
+                driver_data[normalized_name].start_times.append(
+                    (date, driver['time_start'])
                 )
-            if driver.get('time_stop'):
-                driver_data[normalized_name]['end_times'].append(
-                    (date, driver.get('time_stop'))
+            if 'time_stop' in driver and driver['time_stop']:
+                driver_data[normalized_name].end_times.append(
+                    (date, driver['time_stop'])
                 )
                 
             # Store date-specific data
-            driver_data[normalized_name]['dates'][date] = {
+            driver_data[normalized_name].dates[date] = {
                 'late': True,
                 'early_end': False,
                 'absent': False
@@ -149,24 +158,32 @@ def analyze_trends(date_range=None, specific_dates=None):
                 continue
                 
             normalized_name = normalize_driver_name(name)
-            driver_data[normalized_name]['name'] = name
-            driver_data[normalized_name]['early_end_days'] += 1
+            
+            # Initialize driver data if needed
+            if normalized_name not in driver_data:
+                driver_data[normalized_name] = DriverTrendData(name)
+                
+            # Update driver data
+            driver_data[normalized_name].early_end_days += 1
             
             # Add start/end times if not already added
-            if driver.get('time_start') and not any(date == d[0] for d in driver_data[normalized_name]['start_times']):
-                driver_data[normalized_name]['start_times'].append(
-                    (date, driver.get('time_start'))
+            date_start_times = {d[0] for d in driver_data[normalized_name].start_times}
+            date_end_times = {d[0] for d in driver_data[normalized_name].end_times}
+            
+            if 'time_start' in driver and driver['time_start'] and date not in date_start_times:
+                driver_data[normalized_name].start_times.append(
+                    (date, driver['time_start'])
                 )
-            if driver.get('time_stop') and not any(date == d[0] for d in driver_data[normalized_name]['end_times']):
-                driver_data[normalized_name]['end_times'].append(
-                    (date, driver.get('time_stop'))
+            if 'time_stop' in driver and driver['time_stop'] and date not in date_end_times:
+                driver_data[normalized_name].end_times.append(
+                    (date, driver['time_stop'])
                 )
             
             # Update or create date entry
-            if date in driver_data[normalized_name]['dates']:
-                driver_data[normalized_name]['dates'][date]['early_end'] = True
+            if date in driver_data[normalized_name].dates:
+                driver_data[normalized_name].dates[date]['early_end'] = True
             else:
-                driver_data[normalized_name]['dates'][date] = {
+                driver_data[normalized_name].dates[date] = {
                     'late': False,
                     'early_end': True,
                     'absent': False
@@ -179,46 +196,51 @@ def analyze_trends(date_range=None, specific_dates=None):
                 continue
                 
             normalized_name = normalize_driver_name(name)
-            driver_data[normalized_name]['name'] = name
-            driver_data[normalized_name]['absent_days'] += 1
+            
+            # Initialize driver data if needed
+            if normalized_name not in driver_data:
+                driver_data[normalized_name] = DriverTrendData(name)
+                
+            # Update driver data
+            driver_data[normalized_name].absent_days += 1
             
             # Store date-specific data
-            driver_data[normalized_name]['dates'][date] = {
+            driver_data[normalized_name].dates[date] = {
                 'late': False,
                 'early_end': False,
                 'absent': True
             }
     
     # Analyze trends for each driver
-    for name, data in driver_data.items():
+    for normalized_name, data in driver_data.items():
         flags = []
         
         # Check for chronic lateness
-        if data['late_days'] >= CHRONIC_LATE_THRESHOLD:
+        if data.late_days >= CHRONIC_LATE_THRESHOLD:
             flags.append('CHRONIC_LATE')
             results['trend_summary']['chronic_late_count'] += 1
             
         # Check for repeated absences
-        if data['absent_days'] >= REPEATED_ABSENCE_THRESHOLD:
+        if data.absent_days >= REPEATED_ABSENCE_THRESHOLD:
             flags.append('REPEATED_ABSENCE')
             results['trend_summary']['repeated_absence_count'] += 1
             
         # Check for unstable shifts
-        if has_unstable_shifts(data['start_times'], data['end_times']):
+        if has_unstable_shifts(data.start_times, data.end_times):
             flags.append('UNSTABLE_SHIFT')
             results['trend_summary']['unstable_shift_count'] += 1
             
         # Only add drivers with flags to the results
         if flags:
-            data['flags'] = flags
+            data.flags = flags
             results['driver_trends'].append({
                 'employee_id': f"D{len(results['driver_trends']):03d}",
-                'name': data['name'],
+                'name': data.name,
                 'flags': flags,
-                'days_analyzed': len(data['dates']),
-                'late_count': data['late_days'],
-                'early_end_count': data['early_end_days'],
-                'absence_count': data['absent_days']
+                'days_analyzed': len(data.dates),
+                'late_count': data.late_days,
+                'early_end_count': data.early_end_days,
+                'absence_count': data.absent_days
             })
     
     results['trend_summary']['total_drivers_analyzed'] = len(driver_data)

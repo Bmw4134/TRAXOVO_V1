@@ -1,0 +1,15 @@
+{
+  "date_range": {
+    "start": "2025-05-14",
+    "end": "2025-05-18"
+  },
+  "daily_summaries": {},
+  "driver_trends": [],
+  "trend_summary": {
+    "total_drivers_analyzed": 0,
+    "chronic_late_count": 0,
+    "repeated_absence_count": 0,
+    "unstable_shift_count": 0,
+    "days_analyzed": 5
+  }
+}

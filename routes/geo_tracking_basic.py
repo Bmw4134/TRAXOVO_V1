@@ -20,6 +20,11 @@ def map_view():
     """Display the basic map view without requiring login."""
     return render_template('map_view_basic.html')
 
+@geo_tracking_basic_bp.route('/mobile')
+def mobile_map_view():
+    """Display a mobile-optimized version of the map."""
+    return render_template('map_view_mobile.html')
+
 @geo_tracking_basic_bp.route('/api/sample-assets')
 def get_sample_assets():
     """Provide real asset data from the Gauge API."""

@@ -897,8 +897,8 @@ def daily_report():
     import os
     from datetime import datetime, timedelta
     
-    # Import the attendance interface module
-    from utils.attendance_interface import get_attendance_data, get_trend_data
+    # Import the centralized attendance pipeline connector
+    from utils.attendance_pipeline_connector import get_attendance_data
     
     # Get date from query parameters, default to today
     date_str = request.args.get('date')
@@ -911,32 +911,36 @@ def daily_report():
     # Calculate yesterday for navigation
     yesterday = (today - timedelta(days=1)).strftime('%Y-%m-%d')
     tomorrow = (today + timedelta(days=1)).strftime('%Y-%m-%d')
+    formatted_date = today.strftime('%A, %B %d, %Y')
     
     try:
-        # Get report data from the automated attendance pipeline
-        report = get_attendance_data(date_str)
+        # Get attendance data from the centralized pipeline connector
+        attendance_data = get_attendance_data(date_str)
         
-        if report:
-            # Get trend data for the 5-day period ending on the selected date
-            trend_data = get_trend_data(end_date=date_str, days=5)
-            trend_summary = trend_data.get('summary', {})
+        if attendance_data and attendance_data.get('total_records', 0) > 0:
+            # Log successful data retrieval
+            logging.info(f"Loaded attendance data for {date_str}: {attendance_data['total_records']} records")
             
             # Return the report using data from the automated pipeline
             return render_template('daily_report.html',
-                report_date=report['formatted_date'],
-                total_records=report['summary']['total_drivers'],
-                late_starts=report['summary']['late_count'],
-                early_ends=report['summary']['early_end_count'],
-                not_on_job=report['summary']['not_on_job_count'],
-                on_time=report['summary']['on_time_drivers'],
-                late_start_records=report['late_drivers'],
-                early_end_records=report['early_end_drivers'],
-                not_on_job_records=report['not_on_job_drivers'],
+                report_date=formatted_date,
+                total_records=attendance_data.get('total_records', 0),
+                late_starts=attendance_data.get('late_starts', 0),
+                early_ends=attendance_data.get('early_ends', 0),
+                not_on_job=attendance_data.get('not_on_job', 0),
+                on_time=attendance_data.get('on_time', 0),
+                late_start_records=attendance_data.get('late_start_records', []),
+                early_end_records=attendance_data.get('early_end_records', []),
+                not_on_job_records=attendance_data.get('not_on_job_records', []),
                 yesterday=yesterday,
-                yesterday_day_name=today.strftime('%A'),
+                yesterday_day_name=yesterday,
                 tomorrow=tomorrow,
-                trend_data=trend_data,
-                trend_summary=trend_summary
+                trend_data=attendance_data.get('trend_data', {'driver_trends': {}, 'summary': {}}),
+                trend_summary=attendance_data.get('trend_data', {}).get('summary', {
+                    'chronic_late_count': 0,
+                    'repeated_absence_count': 0,
+                    'unstable_shift_count': 0
+                })
             )
         else:
             # If no data is available for the selected date, show a helpful message
@@ -948,7 +952,7 @@ def daily_report():
     
     # Fall back to an empty report template if data could not be loaded
     return render_template('daily_report.html',
-        report_date=today.strftime('%A, %B %d, %Y'),
+        report_date=formatted_date,
         total_records=0,
         late_starts=0,
         early_ends=0,
@@ -958,7 +962,7 @@ def daily_report():
         early_end_records=[],
         not_on_job_records=[],
         yesterday=yesterday,
-        yesterday_day_name=today.strftime('%A'),
+        yesterday_day_name=yesterday,
         tomorrow=tomorrow,
         trend_data={'driver_trends': {}, 'summary': {}},
         trend_summary={

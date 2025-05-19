@@ -251,7 +251,7 @@
                 <div class="timeline-content">
                   <div class="d-flex justify-content-between">
                     <strong>Generated Daily Report</strong>
-                    <small class="text-muted">{{ (report_date|default(now)).strftime('%H:%M') }}</small>
+                    <small class="text-muted">{{ report_date }}</small>
                   </div>
                   <div>{{ (total_records|default(0)) }} attendance incidents tracked today</div>
                 </div>

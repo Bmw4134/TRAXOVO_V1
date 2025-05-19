@@ -64,12 +64,14 @@ def create_test_attendance_data(file_pattern=None):
         'JENNIFER CONSISTENT', 'WILLIAM RELIABLE'
     ]
     
-    # Generate dates for last 5 days
-    end_date = datetime.now()
+    # Hard-code dates for consistent testing (use today and previous 4 days)
+    today = datetime.now()
     dates = []
     for i in range(5):
-        date = (end_date - timedelta(days=4-i)).strftime('%Y-%m-%d')
+        date = (today - timedelta(days=4-i)).strftime('%Y-%m-%d')
         dates.append(date)
+    
+    logger.info(f"Generated test dates: {dates}")
     
     # Create attendance data for each date
     all_attendance_data = {}
@@ -98,38 +100,48 @@ def create_test_attendance_data(file_pattern=None):
             pattern_type = pattern['pattern']
             
             if pattern_type == 'chronic_late':
+                # Always late - all 5 days with different late times
                 driver_info['time_start'] = pattern['times'][day_idx]
-                if driver_info['time_start'] > '07:15 AM':
-                    attendance_data['late_drivers'].append(driver_info.copy())
+                attendance_data['late_drivers'].append(driver_info.copy())
+                logger.info(f"Date {date}: {name} is LATE, arrived at {pattern['times'][day_idx]}")
                     
             elif pattern_type == 'early_end':
+                # Always leaves early on 4 of 5 days
                 driver_info['time_stop'] = pattern['times'][day_idx]
-                if driver_info['time_stop'] < '03:00 PM':
+                if day_idx < 4:  # First 4 days
                     attendance_data['early_end_drivers'].append(driver_info.copy())
+                    logger.info(f"Date {date}: {name} LEFT EARLY at {pattern['times'][day_idx]}")
                     
             elif pattern_type == 'absent':
+                # Absent on specific days
                 if day_idx in pattern['days']:
                     driver_info['time_start'] = ''
                     driver_info['time_stop'] = ''
                     attendance_data['not_on_job_drivers'].append(driver_info.copy())
+                    logger.info(f"Date {date}: {name} is ABSENT")
                     
             elif pattern_type == 'unstable':
+                # Highly variable shift times
                 driver_info['time_start'] = pattern['start_times'][day_idx]
                 driver_info['time_stop'] = pattern['end_times'][day_idx]
                 if driver_info['time_start'] > '07:15 AM':
                     attendance_data['late_drivers'].append(driver_info.copy())
+                logger.info(f"Date {date}: {name} has UNSTABLE shift: {pattern['start_times'][day_idx]} - {pattern['end_times'][day_idx]}")
                     
             elif pattern_type == 'combined':
+                # Mix of late and absent days
                 if day_idx in pattern.get('late_days', []):
                     driver_info['time_start'] = '07:35 AM'
                     attendance_data['late_drivers'].append(driver_info.copy())
+                    logger.info(f"Date {date}: {name} is LATE")
                     
                 if day_idx in pattern.get('absent_days', []):
                     driver_info['time_start'] = ''
                     driver_info['time_stop'] = ''
                     attendance_data['not_on_job_drivers'].append(driver_info.copy())
+                    logger.info(f"Date {date}: {name} is ABSENT")
             
-            # Add to all drivers
+            # Add to all drivers list (regardless of attendance status)
             attendance_data['all_drivers'].append(driver_info)
         
         # Add regular drivers (no issues)
@@ -143,6 +155,11 @@ def create_test_attendance_data(file_pattern=None):
                 'status': 'Active'
             }
             attendance_data['all_drivers'].append(driver_info)
+            
+        # Ensure our test drivers are in the appropriate lists
+        logger.info(f"Date {date}: {len(attendance_data['late_drivers'])} late drivers, " +
+                   f"{len(attendance_data['early_end_drivers'])} early end drivers, " +
+                   f"{len(attendance_data['not_on_job_drivers'])} absent drivers")
             
         all_attendance_data[date] = attendance_data
     

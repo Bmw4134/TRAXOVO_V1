@@ -1,393 +1,343 @@
 """
-Attendance Data Processor
+Attendance Processor Module
 
-This module processes driver attendance data from various input files
-and formats it for use in the daily driver report.
+This module processes attendance data from Daily Usage CSV and Excel files,
+extracts structured information about driver attendance, and identifies issues
+such as late starts, early ends, and drivers not on job.
 """
 
 import os
-import csv
-import pandas as pd
-from datetime import datetime, timedelta
+import re
 import logging
+import pandas as pd
+from datetime import datetime, time
 
-# Configure logging
+from time_utils import parse_time_string, is_late_start, is_early_end
+from driver_utils import extract_driver_from_label, clean_asset_info
+from config import (
+    SKIPROWS_DAILY_USAGE, 
+    DRIVER_EXPECTED_START_TIME, 
+    DRIVER_EXPECTED_END_TIME,
+    DRIVER_LATE_THRESHOLD_MINUTES,
+    DRIVER_EARLY_END_THRESHOLD_MINUTES,
+    UPLOADS_FOLDER
+)
+
+# Configure logger
 logger = logging.getLogger(__name__)
 
-def parse_time(time_str, default=None):
-    """Parse time string in various formats and return a datetime object"""
-    if not time_str or time_str == 'N/A' or time_str == ':':
-        return default
-        
-    try:
-        # Handle format like "06:15 AM CT"
-        if 'CT' in time_str:
-            time_str = time_str.replace(' CT', '')
-        
-        # Parse time in 12-hour format
-        return datetime.strptime(time_str, '%I:%M %p')
-    except Exception as e:
-        try:
-            # Try 24-hour format as fallback
-            return datetime.strptime(time_str, '%H:%M')
-        except Exception:
-            logger.error(f"Error parsing time '{time_str}': {e}")
-            return default
-
-def calculate_minutes_late(scheduled_time, actual_time, threshold_minutes=5):
+def find_latest_daily_file(file_pattern='DailyUsage', extension='.csv'):
     """
-    Calculate minutes late between scheduled and actual times
-    Only counts as late if more than threshold_minutes (default 5) late
-    """
-    if not scheduled_time or not actual_time:
-        return 0
-        
-    # Calculate time difference in minutes
-    diff_minutes = (actual_time - scheduled_time).seconds // 60
-    
-    # Only consider late if more than threshold minutes
-    return max(0, diff_minutes - threshold_minutes) if diff_minutes > threshold_minutes else 0
-
-def calculate_minutes_early(scheduled_time, actual_time, threshold_minutes=5):
-    """
-    Calculate minutes early for departure between scheduled and actual times
-    Only counts as early if more than threshold_minutes (default 5) early
-    """
-    if not scheduled_time or not actual_time:
-        return 0
-        
-    # Calculate time difference in minutes
-    diff_minutes = (scheduled_time - actual_time).seconds // 60
-    
-    # Only consider early if more than threshold minutes
-    return max(0, diff_minutes - threshold_minutes) if diff_minutes > threshold_minutes else 0
-
-def process_daily_usage_data(file_path, date_str=None):
-    """
-    Process daily usage data from CSV file
+    Find the most recent Daily Usage file in the uploads folder
     
     Args:
-        file_path (str): Path to the daily usage CSV file
-        date_str (str): Date string in YYYY-MM-DD format, defaults to today
+        file_pattern (str): Pattern to match in filenames
+        extension (str): File extension to look for
         
     Returns:
-        dict: Processed daily report data with accurate unique driver counts
+        str: Path to the latest file, or None if not found
     """
-    if not os.path.exists(file_path):
-        logger.error(f"File not found: {file_path}")
-        return None
-        
-    # Default to today if no date provided
-    if not date_str:
-        date_str = datetime.now().strftime('%Y-%m-%d')
-    
-    # Convert date string to datetime object
     try:
-        report_date = datetime.strptime(date_str, '%Y-%m-%d')
-        formatted_date = report_date.strftime('%A, %B %d, %Y')
+        files = [f for f in os.listdir(UPLOADS_FOLDER) 
+                if file_pattern in f and f.endswith(extension)]
+        
+        if not files:
+            logger.warning(f"No {file_pattern} files found in {UPLOADS_FOLDER}")
+            return None
+        
+        # Sort by modification time (newest first)
+        files.sort(key=lambda x: os.path.getmtime(os.path.join(UPLOADS_FOLDER, x)), 
+                  reverse=True)
+        
+        return os.path.join(UPLOADS_FOLDER, files[0])
     except Exception as e:
-        logger.error(f"Error parsing date '{date_str}': {e}")
-        report_date = datetime.now()
-        formatted_date = report_date.strftime('%A, %B %d, %Y')
+        logger.error(f"Error finding latest file: {e}")
+        return None
+
+def extract_employee_id(driver_name):
+    """
+    Extract employee ID from driver name if present
+    Pattern: Name may contain ID in format "NAME (ID123)" or "NAME - ID123"
     
-    # Standard start/end times
-    standard_start_time = parse_time('07:00 AM')
-    standard_end_time = parse_time('05:00 PM')
+    Args:
+        driver_name (str): Driver name possibly containing ID
+        
+    Returns:
+        tuple: (clean_name, employee_id) where employee_id may be None
+    """
+    if not driver_name or not isinstance(driver_name, str):
+        return "", None
     
-    # Initialize report data
-    report = {
-        'date': date_str,
-        'formatted_date': formatted_date,
-        'divisions': set(),
-        'summary': {
-            'total_drivers': 0,            # Total unique drivers
-            'total_morning_drivers': 0,    # Total drivers with morning check-in
-            'on_time_drivers': 0,          # Drivers who arrived on time
-            'total_issues': 0,             # Total of all issue categories combined
-            'late_drivers': 0,             # Drivers who were late
-            'early_end_drivers': 0,        # Drivers who left early
-            'not_on_job_drivers': 0,       # Drivers not on job
-            'exception_drivers': 0         # Drivers with exceptions/missing data
-        },
-        'late_drivers': [],
-        'early_end_drivers': [],
-        'not_on_job_drivers': [],
-        'exceptions': []
-    }
+    # Clean up
+    driver_name = driver_name.strip()
+    
+    # Check for ID in parentheses: "NAME (ID123)"
+    paren_match = re.search(r'(.*?)\s*\(([A-Z0-9]+)\)\s*$', driver_name)
+    if paren_match:
+        return paren_match.group(1).strip(), paren_match.group(2)
+    
+    # Check for ID after dash: "NAME - ID123"
+    dash_match = re.search(r'(.*?)\s*-\s*([A-Z0-9]+)\s*$', driver_name)
+    if dash_match:
+        return dash_match.group(1).strip(), dash_match.group(2)
+    
+    # Check for standard employee ID format at the end: "NAME EMP123"
+    id_match = re.search(r'(.*?)\s+((?:EMP|ID|E)[0-9]{3,6})\s*$', driver_name, re.IGNORECASE)
+    if id_match:
+        return id_match.group(1).strip(), id_match.group(2)
+    
+    # No employee ID found
+    return driver_name, None
+
+def read_daily_usage_file(file_path=None, date=None):
+    """
+    Read and parse a Daily Usage CSV file
+    
+    Args:
+        file_path (str): Path to CSV file, or None to find latest
+        date (str): Date to filter records by (YYYY-MM-DD format)
+        
+    Returns:
+        dict: Processed data with driver attendance details
+    """
+    # Find latest file if not specified
+    if not file_path:
+        file_path = find_latest_daily_file()
+        if not file_path:
+            logger.error("No Daily Usage file found")
+            return {'error': 'No Daily Usage file found'}
     
     try:
-        # Read CSV file using pandas to handle complex format with header rows
-        # Skip the header section (first 6 rows) and use row 7 as header
-        df = pd.read_csv(file_path, skiprows=6, low_memory=False)
+        # Read CSV with custom handling for odd format
+        # Skip initial rows as specified in config
+        df = pd.read_csv(file_path, skiprows=SKIPROWS_DAILY_USAGE)
         
-        # Normalize column names (remove spaces, lowercase)
-        df.columns = [col.strip().lower().replace(' ', '_') for col in df.columns]
+        # Clean up column names (they may have whitespace or unusual characters)
+        df.columns = [c.strip() for c in df.columns]
         
-        # Filter for the specific date if provided
-        if date_str:
-            # Convert date_str to the format in the file (M/D/YYYY)
+        # Standardize expected column names
+        column_mapping = {
+            'Asset': 'asset_label',
+            'Asset Label': 'asset_label',
+            'Date': 'date',
+            'Time Start': 'start_time',
+            'Start Time': 'start_time',
+            'Time Stop': 'end_time',
+            'End Time': 'end_time',
+            'Stop Time': 'end_time',
+            'Company': 'company',
+            'Job Site': 'job_site',
+            'Location': 'location'
+        }
+        
+        # Rename columns based on mapping
+        for old_name, new_name in column_mapping.items():
+            if old_name in df.columns:
+                df.rename(columns={old_name: new_name}, inplace=True)
+        
+        # Check that required columns exist
+        required_columns = ['asset_label', 'date', 'start_time', 'end_time']
+        missing_columns = [col for col in required_columns if col not in df.columns]
+        
+        if missing_columns:
+            logger.error(f"Missing required columns in CSV: {missing_columns}")
+            return {'error': f"File is missing required columns: {', '.join(missing_columns)}"}
+        
+        # Filter by date if specified
+        if date:
             try:
-                filter_date = datetime.strptime(date_str, '%Y-%m-%d').strftime('%-m/%-d/%Y')
-                df = df[df['date'] == filter_date]
-                logger.info(f"Filtered to {len(df)} records for date {filter_date}")
+                target_date = datetime.strptime(date, '%Y-%m-%d').date()
+                
+                # Convert date column to datetime if it's not already
+                if not pd.api.types.is_datetime64_dtype(df['date']):
+                    df['date'] = pd.to_datetime(df['date'], errors='coerce')
+                
+                # Filter to records from the target date
+                df = df[df['date'].dt.date == target_date]
+                
+                if df.empty:
+                    logger.warning(f"No records found for date {date}")
+                    return {'date': date, 'drivers': [], 'summary': {'total_drivers': 0}}
             except Exception as e:
                 logger.error(f"Error filtering by date: {e}")
         
-        # First pass: collect all unique drivers
-        unique_drivers = set()
-        driver_data = {}  # Store all data for each unique driver
-        
-        # Group data by employee ID to collect all entries for each driver
-        for _, row in df.iterrows():
-            try:
-                # Extract driver info based on different formats in the data
-                asset_label = str(row.get('assetlabel', 'Unknown'))
-                
-                # Handle different formats of asset labels
-                employee_id = ""
-                driver_name = ""
-                vehicle_info = ""
-                
-                # Format: ET-XX (NAME) or PT-XX (NAME) RAM 1500 etc. format
-                if '(' in asset_label and ')' in asset_label:
-                    parts = asset_label.split('(', 1)
-                    employee_id = parts[0].strip()
-                    
-                    # Extract name and possibly vehicle info after the parentheses
-                    if ')' in parts[1]:
-                        name_parts = parts[1].split(')', 1)
-                        driver_name = name_parts[0].strip()
-                        # Anything after the closing parenthesis is vehicle info
-                        if len(name_parts) > 1:
-                            vehicle_info = name_parts[1].strip()
-                
-                # Format: #XXXXXX - NAME - VEHICLE format  
-                elif ' - ' in asset_label:
-                    parts = asset_label.split(' - ')
-                    employee_id = parts[0].strip()
-                    driver_name = parts[1].strip() if len(parts) > 1 else 'Unknown'
-                    vehicle_info = parts[2].strip() if len(parts) > 2 else ''
-                
-                else:
-                    # Fallback for other formats
-                    employee_id = asset_label
-                    driver_name = str(row.get('name', 'Unknown')).strip()
-                    vehicle_info = str(row.get('assettype', '')).strip()
-                
-                # Create a unique key for this driver
-                driver_key = f"{employee_id}_{driver_name}"
-                
-                # Add to unique drivers set
-                unique_drivers.add(driver_key)
-                
-                # Collect data for this driver
-                if driver_key not in driver_data:
-                    driver_data[driver_key] = []
-                
-                # Add this row's data to the driver's collected data
-                driver_data[driver_key].append(row)
-                
-            except Exception as e:
-                logger.error(f"Error processing driver identification: {e}")
-        
-        # Update the total drivers count - this is the actual number of unique drivers
-        report['summary']['total_drivers'] = len(unique_drivers)
-        
-        # Process each unique driver
-        for driver_key, rows in driver_data.items():
-            try:
-                # Get the first row for this driver to extract common information
-                row = rows[0]  # Use the first entry for this driver's basic info
-                
-                # Extract driver info using our enhanced format parsing
-                asset_label = str(row.get('assetlabel', 'Unknown'))
-                
-                # Handle different formats of asset labels
-                employee_id = ""
-                driver_name = ""
-                vehicle_info = ""
-                
-                # Format: ET-XX (NAME) or PT-XX (NAME) RAM 1500 etc. format
-                if '(' in asset_label and ')' in asset_label:
-                    parts = asset_label.split('(', 1)
-                    employee_id = parts[0].strip()
-                    
-                    # Extract name and possibly vehicle info after the parentheses
-                    if ')' in parts[1]:
-                        name_parts = parts[1].split(')', 1)
-                        driver_name = name_parts[0].strip()
-                        # Anything after the closing parenthesis is vehicle info
-                        if len(name_parts) > 1:
-                            vehicle_info = name_parts[1].strip()
-                
-                # Format: #XXXXXX - NAME - VEHICLE format  
-                elif ' - ' in asset_label:
-                    parts = asset_label.split(' - ')
-                    employee_id = parts[0].strip()
-                    driver_name = parts[1].strip() if len(parts) > 1 else 'Unknown'
-                    vehicle_info = parts[2].strip() if len(parts) > 2 else ''
-                
-                else:
-                    # Fallback for other formats
-                    employee_id = asset_label
-                    driver_name = str(row.get('name', 'Unknown')).strip()
-                    vehicle_info = str(row.get('assettype', '')).strip()
-                
-                # Get division/region from CompanyName or other field
-                division = str(row.get('companyname1', 'Unknown')).strip()
-                report['divisions'].add(division)
-                
-                # Get job site from Location
-                location = str(row.get('location', 'Unknown')).strip()
-                job_site = location
-                if ',' in location:
-                    # Extract city and state from location
-                    job_site = location.split(',')[0].strip()
-                
-                # Get start/end times and parse them - use the entry for this specific date
-                started = str(row.get('started', 'N/A')).strip()
-                stopped = str(row.get('stopped', 'N/A')).strip()
-                
-                # Use start time from data file or default to standard
-                actual_start_time = None
-                if started and started != 'N/A':
-                    actual_start_time = parse_time(started)
-                
-                # Use end time from data file or default to standard
-                actual_end_time = None  
-                if stopped and stopped != 'N/A':
-                    actual_end_time = parse_time(stopped)
-                
-                # Check for morning attendance
-                if actual_start_time:
-                    report['summary']['total_morning_drivers'] += 1
-                    
-                    # Calculate lateness
-                    minutes_late = 0
-                    if standard_start_time:
-                        # Only compare if we have both times
-                        minutes_late = calculate_minutes_late(standard_start_time, actual_start_time) if actual_start_time > standard_start_time else 0
-                    
-                    # Check if late
-                    if minutes_late > 0:
-                        report['summary']['late_drivers'] += 1
-                        report['summary']['total_issues'] += 1
-                        report['late_drivers'].append({
-                            'id': len(report['late_drivers']) + 1,
-                            'employee_id': employee_id,
-                            'name': driver_name,
-                            'division': division,
-                            'region': division,
-                            'job_site': job_site,
-                            'expected_start': standard_start_time.strftime('%I:%M %p') if standard_start_time else "07:00 AM",
-                            'actual_start': actual_start_time.strftime('%I:%M %p') if actual_start_time else "N/A",
-                            'scheduled_start': standard_start_time.strftime('%I:%M %p') if standard_start_time else "07:00 AM",
-                            'minutes_late': minutes_late,
-                            'vehicle': vehicle_info
-                        })
-                    else:
-                        report['summary']['on_time_drivers'] += 1
-                
-                # Check for early departure
-                if actual_end_time and standard_end_time:
-                    minutes_early = calculate_minutes_early(standard_end_time, actual_end_time) if actual_end_time < standard_end_time else 0
-                    
-                    if minutes_early > 0:
-                        report['summary']['early_end_drivers'] += 1
-                        report['summary']['total_issues'] += 1
-                        report['early_end_drivers'].append({
-                            'id': len(report['early_end_drivers']) + 1,
-                            'employee_id': employee_id,
-                            'name': driver_name,
-                            'division': division,
-                            'region': division,
-                            'job_site': job_site,
-                            'expected_end': standard_end_time.strftime('%I:%M %p') if standard_end_time else "05:00 PM",
-                            'actual_end': actual_end_time.strftime('%I:%M %p') if actual_end_time else "N/A",
-                            'minutes_early': minutes_early,
-                            'vehicle': vehicle_info
-                        })
-                
-                # Check for missing data (exceptions)
-                if not actual_start_time or not actual_end_time:
-                    report['summary']['exception_drivers'] += 1
-                    report['summary']['total_issues'] += 1
-                    report['exceptions'].append({
-                        'id': len(report['exceptions']) + 1,
-                        'employee_id': employee_id,
-                        'name': driver_name,
-                        'division': division,
-                        'region': division,
-                        'job_site': job_site,
-                        'expected_time': standard_start_time.strftime('%I:%M %p') if standard_start_time else "07:00 AM",
-                        'actual_time': 'No Data',
-                        'exception_type': 'Missing GPS Data',
-                        'vehicle': vehicle_info
-                    })
-                
-            except Exception as e:
-                logger.error(f"Error processing row: {e}")
-                continue
-        
-        # Convert divisions to list for serialization
-        report['divisions'] = list(report['divisions'])
-        
-        # Add some default empty list if needed by the template
-        if 'not_on_job_drivers' not in report or not report['not_on_job_drivers']:
-            report['not_on_job_drivers'] = []
-            
-        # Use a set to track unique driver IDs for accurate count
-        unique_driver_ids = set()
-        
-        # Add all unique IDs from all categories
-        for driver in report['late_drivers']:
-            unique_driver_ids.add(driver['employee_id'])
-        
-        for driver in report['early_end_drivers']:
-            unique_driver_ids.add(driver['employee_id'])
-            
-        for driver in report['not_on_job_drivers']:
-            unique_driver_ids.add(driver['employee_id'])
-            
-        for driver in report['exceptions']:
-            unique_driver_ids.add(driver['employee_id'])
-            
-        # Set the total drivers count based on unique driver IDs
-        # This gives a more accurate count than just using the number of unique_drivers
-        report['summary']['total_drivers'] = len(unique_driver_ids) if unique_driver_ids else len(driver_data)
-        
-        # Log the final counts for verification
-        logger.info(f"Final report summary: {report['summary']}")
-        logger.info(f"Total unique drivers counted: {len(unique_driver_ids)}")
-        
-        return report
+        # Process the data
+        processed_data = process_attendance_data(df)
+        return processed_data
         
     except Exception as e:
-        logger.error(f"Error processing daily usage data: {e}")
-        return None
+        logger.error(f"Error reading Daily Usage file: {e}")
+        return {'error': f"Failed to process file: {str(e)}"}
 
-def process_attendance_file(file_path):
+def process_attendance_data(df):
     """
-    Process attendance file based on its type
+    Process attendance data from DataFrame into structured format with issues highlighted
     
     Args:
-        file_path (str): Path to the attendance file
+        df (DataFrame): Pandas DataFrame with attendance data
         
     Returns:
-        dict: Processed attendance data
+        dict: Processed attendance data with identified issues
     """
-    # Determine file type based on extension
-    _, ext = os.path.splitext(file_path)
+    # Extract date from the first row or use current date
+    try:
+        if 'date' in df.columns and not df.empty:
+            # Convert to datetime if not already
+            if not pd.api.types.is_datetime64_dtype(df['date']):
+                df['date'] = pd.to_datetime(df['date'], errors='coerce')
+            
+            report_date = df['date'].iloc[0].strftime('%Y-%m-%d')
+        else:
+            report_date = datetime.now().strftime('%Y-%m-%d')
+    except:
+        report_date = datetime.now().strftime('%Y-%m-%d')
     
-    if ext.lower() == '.csv':
-        if 'dailyusage' in file_path.lower():
-            return process_daily_usage_data(file_path)
-        # Add other CSV file processors as needed
+    # Prepare containers for different categories of issues
+    late_drivers = []
+    early_end_drivers = []
+    not_on_job_drivers = []
+    exception_drivers = []
     
-    elif ext.lower() in ['.xlsx', '.xls']:
-        # Process Excel files
-        return None
+    # Process each row
+    for _, row in df.iterrows():
+        try:
+            # Extract driver name and asset ID from label
+            asset_label = row.get('asset_label', '')
+            driver_name = extract_driver_from_label(asset_label)
+            asset_id = clean_asset_info(asset_label)
+            
+            # Extract employee ID if present in the driver name
+            driver_name, employee_id = extract_employee_id(driver_name)
+            
+            # Parse start and end times with the report date as default
+            date_obj = datetime.strptime(report_date, '%Y-%m-%d').date()
+            start_time = parse_time_string(row.get('start_time', ''), date_obj)
+            end_time = parse_time_string(row.get('end_time', ''), date_obj)
+            
+            # Skip records with missing essential data
+            if not driver_name or not start_time:
+                continue
+            
+            # Create basic driver data structure
+            driver_data = {
+                'driver_name': driver_name,
+                'asset_id': asset_id,
+                'start_time': start_time.strftime('%I:%M %p') if start_time else None,
+                'end_time': end_time.strftime('%I:%M %p') if end_time else None,
+                'job_site': row.get('job_site', row.get('location', 'Unknown')),
+                'company': row.get('company', 'Unknown')
+            }
+            
+            # Add employee ID if available
+            if employee_id:
+                driver_data['employee_id'] = employee_id
+            else:
+                # Generate a consistent ID based on driver name if no ID exists
+                # This ensures we can track the same driver across categories
+                driver_data['employee_id'] = f"GEN-{abs(hash(driver_name)) % 100000}"
+            
+            # Check for issues:
+            
+            # 1. Late start
+            if start_time and is_late_start(start_time, 
+                                           threshold_minutes=DRIVER_LATE_THRESHOLD_MINUTES):
+                # Calculate minutes late
+                expected_start = datetime.combine(date_obj, DRIVER_EXPECTED_START_TIME)
+                expected_start = expected_start.replace(tzinfo=start_time.tzinfo)
+                minutes_late = (start_time - expected_start).total_seconds() / 60
+                
+                driver_data['minutes_late'] = int(minutes_late)
+                late_drivers.append(driver_data.copy())
+            
+            # 2. Early end
+            if end_time and is_early_end(end_time, 
+                                        threshold_minutes=DRIVER_EARLY_END_THRESHOLD_MINUTES):
+                # Calculate minutes early
+                expected_end = datetime.combine(date_obj, DRIVER_EXPECTED_END_TIME)
+                expected_end = expected_end.replace(tzinfo=end_time.tzinfo)
+                minutes_early = (expected_end - end_time).total_seconds() / 60
+                
+                driver_data['minutes_early'] = int(minutes_early)
+                early_end_drivers.append(driver_data.copy())
+            
+            # 3. Not on job (missing either start or end time)
+            if (not start_time and end_time) or (start_time and not end_time):
+                driver_data['issue'] = 'missing_time_record'
+                not_on_job_drivers.append(driver_data.copy())
+            
+            # 4. Other exceptions (e.g., both start and end missing but driver assigned)
+            elif not start_time and not end_time:
+                driver_data['issue'] = 'no_time_records'
+                exception_drivers.append(driver_data.copy())
+            
+            # 5. Unusual work hours (less than 4 hours or more than 12)
+            elif start_time and end_time:
+                hours_worked = (end_time - start_time).total_seconds() / 3600
+                if hours_worked < 4:
+                    driver_data['issue'] = 'short_day'
+                    driver_data['hours_worked'] = round(hours_worked, 1)
+                    exception_drivers.append(driver_data.copy())
+                elif hours_worked > 12:
+                    driver_data['issue'] = 'long_day'
+                    driver_data['hours_worked'] = round(hours_worked, 1)
+                    exception_drivers.append(driver_data.copy())
+            
+        except Exception as e:
+            logger.error(f"Error processing row: {e}")
+            continue
     
-    # Default fallback
-    logger.error(f"Unsupported file type: {ext}")
-    return None
+    # Calculate summary statistics
+    # Count unique drivers by employee_id
+    all_employee_ids = set()
+    for driver_list in [late_drivers, early_end_drivers, not_on_job_drivers, exception_drivers]:
+        for driver in driver_list:
+            all_employee_ids.add(driver.get('employee_id'))
+    
+    total_issues = len(late_drivers) + len(early_end_drivers) + len(not_on_job_drivers) + len(exception_drivers)
+    
+    summary = {
+        'total_drivers': len(all_employee_ids),
+        'total_issues': total_issues,
+        'late_count': len(late_drivers),
+        'early_end_count': len(early_end_drivers),
+        'not_on_job_count': len(not_on_job_drivers),
+        'exception_count': len(exception_drivers)
+    }
+    
+    # Prepare result
+    result = {
+        'date': report_date,
+        'late_drivers': late_drivers,
+        'early_end_drivers': early_end_drivers,
+        'not_on_job_drivers': not_on_job_drivers,
+        'exception_drivers': exception_drivers,
+        'summary': summary
+    }
+    
+    return result
+
+def get_attendance_data(date=None):
+    """
+    Get attendance data for a specific date
+    
+    Args:
+        date (str): Date in YYYY-MM-DD format, or None for latest available
+        
+    Returns:
+        dict: Processed attendance data with issues identified
+    """
+    # Find file for the specific date
+    if date:
+        # Try to find a file matching the date pattern
+        file_pattern = f"DailyUsage_{date.replace('-', '')}"
+        file_path = find_latest_daily_file(file_pattern)
+        
+        if not file_path:
+            # If no specific file found, use latest and filter by date
+            file_path = find_latest_daily_file()
+    else:
+        # Just use latest available file
+        file_path = find_latest_daily_file()
+    
+    # Process the file
+    return read_daily_usage_file(file_path, date)

@@ -424,7 +424,7 @@ def index():
     log_navigation('Driver Module Home')
     return render_template('drivers/index.html')
 
-@driver_module_bp.route('/daily-report')
+@driver_module_bp.route('/daily-report', methods=['GET', 'POST'])
 @login_required
 def daily_report():
     """Daily driver attendance report with email configuration"""
@@ -434,10 +434,7 @@ def daily_report():
     # Get report data
     report = get_daily_report(date_str)
     
-    # Get email configuration for the current user
-    email_config = get_user_email_config()
-    
-    # Check for form submission
+    # Handle form submission for email configuration
     if request.method == 'POST' and request.form.get('action') == 'save_email_config':
         if save_email_config():
             flash('Email configuration saved successfully.', 'success')
@@ -446,6 +443,9 @@ def daily_report():
         
         # Redirect to avoid form resubmission
         return redirect(url_for('driver_module.daily_report', date=date_str))
+    
+    # Get email configuration for the current user
+    email_config = get_user_email_config()
     
     log_navigation('Daily Driver Report', {'date': date_str})
     return render_template(

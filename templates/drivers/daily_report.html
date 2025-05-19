@@ -465,8 +465,16 @@
     // Show the summary cards after a short delay
     document.addEventListener('DOMContentLoaded', function() {
         setTimeout(function() {
-            document.getElementById('report-loading-container').style.display = 'none';
-            document.getElementById('summary-cards').style.display = 'flex';
+            const loadingContainer = document.getElementById('report-loading-container');
+            const summaryCards = document.getElementById('summary-cards');
+            
+            if (loadingContainer) {
+                loadingContainer.style.display = 'none';
+            }
+            
+            if (summaryCards) {
+                summaryCards.style.display = 'flex';
+            }
         }, 500);
         
         // Initialize buttons

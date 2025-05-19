@@ -61,8 +61,8 @@ def export_daily_report(date_str, output_path, attendance_data=None, employee_da
         format_summary_sheet(summary_sheet, date_str, attendance_data)
         
         # Format the issue sheets
-        if 'late_drivers' in attendance_data:
-            format_late_sheet(late_sheet, attendance_data['late_drivers'], employee_data, job_data)
+        if 'late_start_records' in attendance_data:
+            format_late_sheet(late_sheet, attendance_data['late_start_records'], employee_data, job_data)
         else:
             # Add default headers to empty sheet
             headers = ['Driver', 'Asset ID', 'Scheduled Start', 'Actual Start', 
@@ -75,8 +75,8 @@ def export_daily_report(date_str, output_path, attendance_data=None, employee_da
                 cell.fill = PatternFill(start_color="DDDDDD", end_color="DDDDDD", fill_type="solid")
                 late_sheet.column_dimensions[get_column_letter(col)].width = 20 if header == 'Email' else 15
         
-        if 'early_end_drivers' in attendance_data:
-            format_early_sheet(early_sheet, attendance_data['early_end_drivers'], employee_data, job_data)
+        if 'early_end_records' in attendance_data:
+            format_early_sheet(early_sheet, attendance_data['early_end_records'], employee_data, job_data)
         else:
             # Add default headers to empty sheet
             headers = ['Driver', 'Asset ID', 'Scheduled End', 'Actual End', 
@@ -89,8 +89,8 @@ def export_daily_report(date_str, output_path, attendance_data=None, employee_da
                 cell.fill = PatternFill(start_color="DDDDDD", end_color="DDDDDD", fill_type="solid")
                 early_sheet.column_dimensions[get_column_letter(col)].width = 20 if header == 'Email' else 15
             
-        if 'missing_drivers' in attendance_data:
-            format_missing_sheet(missing_sheet, attendance_data['missing_drivers'], employee_data, job_data)
+        if 'not_on_job_records' in attendance_data:
+            format_missing_sheet(missing_sheet, attendance_data['not_on_job_records'], employee_data, job_data)
         else:
             # Add default headers to empty sheet
             headers = ['Driver', 'Asset ID', 'Scheduled Job', 'Actual Job', 
@@ -103,8 +103,20 @@ def export_daily_report(date_str, output_path, attendance_data=None, employee_da
                 cell.fill = PatternFill(start_color="DDDDDD", end_color="DDDDDD", fill_type="solid")
                 missing_sheet.column_dimensions[get_column_letter(col)].width = 20 if header == 'Email' else 15
             
-        if 'all_drivers' in attendance_data:
-            format_all_drivers_sheet(all_drivers_sheet, attendance_data['all_drivers'], employee_data, job_data)
+        # We don't have an 'all_drivers' list, we'll create one from the original records
+        if attendance_data.get('total_drivers', 0) > 0 and 'late_start_records' in attendance_data:
+            # Combine all records to create a complete drivers list
+            combined_drivers = attendance_data.get('late_start_records', []).copy()
+            # Add early end drivers that aren't already in the list
+            for driver in attendance_data.get('early_end_records', []):
+                if not any(d.get('driver_name') == driver.get('driver_name') for d in combined_drivers):
+                    combined_drivers.append(driver)
+            # Add missing drivers that aren't already in the list
+            for driver in attendance_data.get('not_on_job_records', []):
+                if not any(d.get('driver_name') == driver.get('driver_name') for d in combined_drivers):
+                    combined_drivers.append(driver)
+                    
+            format_all_drivers_sheet(all_drivers_sheet, combined_drivers, employee_data, job_data)
         else:
             # Add default headers to empty sheet
             headers = ['Driver', 'Asset ID', 'Start Time', 'End Time', 

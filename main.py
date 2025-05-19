@@ -201,6 +201,14 @@ try:
 except ImportError as e:
     logging.error(f"Failed to register Attendance Trends API blueprint: {e}")
 
+# Register System Logs blueprint
+try:
+    from routes.system_logs import register_blueprint
+    register_blueprint(app)
+    logging.info("Registered System Logs blueprint")
+except ImportError as e:
+    logging.error(f"Failed to register System Logs blueprint: {e}")
+
 @login_manager.user_loader
 def load_user(user_id):
     """Load user from database"""

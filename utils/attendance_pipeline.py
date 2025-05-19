@@ -28,48 +28,76 @@ def find_latest_activity_file():
     """Find the latest activity detail file in the attached_assets directory"""
     activity_files = []
     
-    # Check attached_assets directory for files
-    assets_dir = Path("attached_assets")
-    if not assets_dir.exists():
-        logger.warning(f"Directory not found: {assets_dir}")
+    try:
+        # Check attached_assets directory for files
+        assets_dir = Path("attached_assets")
+        if not assets_dir.exists():
+            logger.warning(f"Directory not found: {assets_dir}")
+            return None
+        
+        # Look for ActivityDetail files with fault tolerance
+        for file in assets_dir.glob("ActivityDetail*.csv"):
+            # Validate file exists and is readable
+            if os.path.isfile(file) and os.access(file, os.R_OK):
+                activity_files.append(str(file))
+            else:
+                logger.warning(f"File exists but not readable: {file}")
+        
+        if not activity_files:
+            logger.warning("No ActivityDetail files found")
+            return None
+        
+        # Return the latest file based on modification time
+        latest_file = max(activity_files, key=os.path.getmtime)
+        logger.info(f"Found latest activity file: {latest_file}")
+        return latest_file
+        
+    except Exception as e:
+        logger.error(f"Error finding latest activity file: {str(e)}")
+        # Return fallback file path if it exists
+        fallback_file = "attached_assets/ActivityDetail.csv"
+        if os.path.exists(fallback_file):
+            logger.info(f"Using fallback activity file: {fallback_file}")
+            return fallback_file
         return None
-    
-    # Look for ActivityDetail files
-    for file in assets_dir.glob("ActivityDetail*.csv"):
-        activity_files.append(str(file))
-    
-    if not activity_files:
-        logger.warning("No ActivityDetail files found")
-        return None
-    
-    # Return the latest file based on modification time
-    latest_file = max(activity_files, key=os.path.getmtime)
-    logger.info(f"Found latest activity file: {latest_file}")
-    return latest_file
 
 
 def find_latest_driving_history_file():
     """Find the latest driving history file in the attached_assets directory"""
     driving_files = []
     
-    # Check attached_assets directory for files
-    assets_dir = Path("attached_assets")
-    if not assets_dir.exists():
-        logger.warning(f"Directory not found: {assets_dir}")
+    try:
+        # Check attached_assets directory for files
+        assets_dir = Path("attached_assets")
+        if not assets_dir.exists():
+            logger.warning(f"Directory not found: {assets_dir}")
+            return None
+        
+        # Look for DrivingHistory files with fault tolerance
+        for file in assets_dir.glob("DrivingHistory*.csv"):
+            # Validate file exists and is readable
+            if os.path.isfile(file) and os.access(file, os.R_OK):
+                driving_files.append(str(file))
+            else:
+                logger.warning(f"File exists but not readable: {file}")
+        
+        if not driving_files:
+            logger.warning("No DrivingHistory files found")
+            return None
+        
+        # Return the latest file based on modification time
+        latest_file = max(driving_files, key=os.path.getmtime)
+        logger.info(f"Found latest driving history file: {latest_file}")
+        return latest_file
+        
+    except Exception as e:
+        logger.error(f"Error finding latest driving history file: {str(e)}")
+        # Return fallback file path if it exists
+        fallback_file = "attached_assets/DrivingHistory.csv"
+        if os.path.exists(fallback_file):
+            logger.info(f"Using fallback driving history file: {fallback_file}")
+            return fallback_file
         return None
-    
-    # Look for DrivingHistory files
-    for file in assets_dir.glob("DrivingHistory*.csv"):
-        driving_files.append(str(file))
-    
-    if not driving_files:
-        logger.warning("No DrivingHistory files found")
-        return None
-    
-    # Return the latest file based on modification time
-    latest_file = max(driving_files, key=os.path.getmtime)
-    logger.info(f"Found latest driving history file: {latest_file}")
-    return latest_file
 
 
 def find_latest_fleet_utilization_file():

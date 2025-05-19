@@ -1,334 +1,211 @@
 """
 Time Utilities Module
 
-This module provides functions for working with time data,
-particularly for parsing, formatting, and calculating time
-differences in the context of driver reporting.
+This module contains utility functions for working with time values,
+particularly for parsing and comparing times in attendance records.
 """
 
 import re
 import logging
-from datetime import datetime, timedelta
-from zoneinfo import ZoneInfo
-import pytz
+from datetime import datetime, timedelta, time
 
-# Configure logger
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Default timezone
-DEFAULT_TZ = ZoneInfo("America/Chicago")  # Central Time
+# Time format constants
+TIME_FORMATS = [
+    '%I:%M %p',  # 12-hour with AM/PM (e.g., "07:00 AM")
+    '%H:%M',     # 24-hour (e.g., "07:00")
+    '%I:%M%p',   # 12-hour without space (e.g., "07:00AM")
+    '%I:%M',     # 12-hour without AM/PM (assumes AM)
+    '%H:%M:%S',  # 24-hour with seconds
+]
 
-# Compatibility functions for older modules
-def parse_time_with_tz(time_str, default_date=None):
-    """Compatibility function for older code - redirects to parse_time_string"""
-    return parse_time_string(time_str, default_date)
+# Time zone abbreviations (for stripping from input)
+TIME_ZONE_ABBREVS = ['CT', 'ET', 'MT', 'PT', 'CST', 'EST', 'MST', 'PST']
 
-def calculate_lateness(start_time, expected_start=None, threshold_minutes=15):
-    """Compatibility function for older code - calculates lateness in minutes"""
-    if not start_time:
-        return 0
-        
-    if not expected_start:
-        # Get the date from start_time
-        date = start_time.date()
-        # Create expected start time at 7:00 AM
-        expected_start = datetime.combine(date, datetime.min.time().replace(hour=7))
-        # Add timezone info
-        if expected_start.tzinfo is None:
-            expected_start = expected_start.replace(tzinfo=DEFAULT_TZ)
-    
-    # If not late, return 0
-    if start_time <= expected_start:
-        return 0
-        
-    # Calculate lateness in minutes
-    lateness_minutes = (start_time - expected_start).total_seconds() / 60
-    
-    # If within threshold, not considered late
-    if lateness_minutes <= threshold_minutes:
-        return 0
-        
-    return int(lateness_minutes)
-
-def parse_time_string(time_str, default_date=None):
+def parse_time(time_str):
     """
-    Parse a time string into a datetime object
+    Parse a time string into a datetime.time object
     
-    Handles various formats including:
-    - "8:30 AM" or "8:30 AM CT" 
-    - "08:30" or "08:30 CT"
-    - ISO format "2023-05-15T08:30:00"
-    - Excel/CSV export formats
+    Handles various time formats and cleans the input string.
     
     Args:
         time_str (str): Time string to parse
-        default_date (datetime.date): Default date to use if not specified in time_str
         
     Returns:
-        datetime: Parsed datetime object, or None if parsing fails
+        datetime.time: Parsed time object or None if parsing fails
     """
-    if not time_str or not isinstance(time_str, str):
-        return None
-    
-    time_str = time_str.strip()
-    
-    # If empty after stripping
     if not time_str:
         return None
-        
-    # Get the default date to use
-    if not default_date:
-        default_date = datetime.now(DEFAULT_TZ).date()
-    elif isinstance(default_date, datetime):
-        default_date = default_date.date()
     
-    # Check for timezone suffix and remove it temporarily
-    timezone = DEFAULT_TZ
-    tz_match = re.search(r'\s+(CT|ET|PT|MT|CST|EST|PST|MST)$', time_str)
-    if tz_match:
-        tz_code = tz_match.group(1)
-        time_str = time_str[:tz_match.start()]
-        
-        # Map timezone abbreviations to pytz timezones
-        tz_map = {
-            'CT': 'America/Chicago',
-            'ET': 'America/New_York',
-            'PT': 'America/Los_Angeles',
-            'MT': 'America/Denver',
-            'CST': 'America/Chicago',
-            'EST': 'America/New_York',
-            'PST': 'America/Los_Angeles',
-            'MST': 'America/Denver',
-        }
-        if tz_code in tz_map:
-            timezone = ZoneInfo(tz_map[tz_code])
+    # Clean the input string
+    time_str = clean_time_string(time_str)
     
-    try:
-        # Try various formats
-        formats = [
-            # 12-hour formats with AM/PM
-            "%I:%M %p",       # "8:30 AM"
-            "%I:%M:%S %p",    # "8:30:00 AM"
-            "%I:%M%p",        # "8:30AM"
-            "%I:%M:%S%p",     # "8:30:00AM"
-            
-            # 24-hour formats
-            "%H:%M",          # "08:30" or "8:30"
-            "%H:%M:%S",       # "08:30:00" or "8:30:00"
-            
-            # Date and time formats
-            "%Y-%m-%d %H:%M:%S",  # "2023-05-15 08:30:00"
-            "%Y-%m-%d %H:%M",     # "2023-05-15 08:30"
-            "%m/%d/%Y %H:%M:%S",  # "05/15/2023 08:30:00"
-            "%m/%d/%Y %H:%M",     # "05/15/2023 08:30"
-            "%m/%d/%y %H:%M:%S",  # "05/15/23 08:30:00"
-            "%m/%d/%y %H:%M",     # "05/15/23 08:30"
-        ]
-        
-        # Try to parse with each format
-        parsed_dt = None
-        
-        for fmt in formats:
-            try:
-                if '%Y' in fmt or '%y' in fmt:
-                    # Format has date, parse directly
-                    parsed_dt = datetime.strptime(time_str, fmt)
-                    # Add timezone info
-                    parsed_dt = parsed_dt.replace(tzinfo=timezone)
-                    return parsed_dt
-                else:
-                    # Format is time only, combine with default date
-                    parsed_time = datetime.strptime(time_str, fmt).time()
-                    parsed_dt = datetime.combine(default_date, parsed_time)
-                    # Add timezone info
-                    parsed_dt = parsed_dt.replace(tzinfo=timezone)
-                    return parsed_dt
-            except ValueError:
-                continue
-        
-        # Try ISO format as last resort
+    # Try each format
+    for fmt in TIME_FORMATS:
         try:
-            parsed_dt = datetime.fromisoformat(time_str)
-            # Add timezone if not present
-            if parsed_dt.tzinfo is None:
-                parsed_dt = parsed_dt.replace(tzinfo=timezone)
-            return parsed_dt
+            dt = datetime.strptime(time_str, fmt)
+            return dt.time()
         except ValueError:
-            pass
-        
-        # If all parsing attempts failed
-        logger.warning(f"Failed to parse time string: {time_str}")
-        return None
+            continue
     
-    except Exception as e:
-        logger.error(f"Error parsing time string '{time_str}': {e}")
-        return None
+    # If all formats fail, log and return None
+    logger.warning(f"Could not parse time: {time_str}")
+    return None
 
-def format_time(dt, format_str="%I:%M %p"):
+def clean_time_string(time_str):
     """
-    Format a datetime object as a time string
+    Clean a time string for parsing
+    
+    Removes timezone abbreviations, extra spaces, and normalizes AM/PM.
     
     Args:
-        dt (datetime): Datetime object to format
-        format_str (str): Format string to use
+        time_str (str): Time string to clean
         
     Returns:
-        str: Formatted time string, or empty string if dt is None
+        str: Cleaned time string
     """
-    if not dt:
+    if not time_str:
+        return time_str
+    
+    # Convert to string if needed
+    time_str = str(time_str).strip()
+    
+    # Remove timezone abbreviations
+    for tz in TIME_ZONE_ABBREVS:
+        time_str = re.sub(rf'\s*{tz}\s*$', '', time_str, flags=re.IGNORECASE)
+    
+    # Normalize AM/PM format
+    time_str = re.sub(r'([0-9])([AP]\.?M\.?)', r'\1 \2', time_str, flags=re.IGNORECASE)
+    time_str = re.sub(r'([AP])\.?M\.?', lambda m: m.group(0).upper(), time_str, flags=re.IGNORECASE)
+    time_str = re.sub(r'AM', 'AM', time_str, flags=re.IGNORECASE)
+    time_str = re.sub(r'PM', 'PM', time_str, flags=re.IGNORECASE)
+    
+    # Remove extra spaces
+    time_str = re.sub(r'\s+', ' ', time_str).strip()
+    
+    return time_str
+
+def calculate_time_difference(time1, time2):
+    """
+    Calculate the difference in minutes between two time objects
+    
+    For attendance calculations, if time2 is earlier than time1, it's
+    considered to be on the same day (not the next day).
+    
+    Args:
+        time1 (datetime.time): First time
+        time2 (datetime.time): Second time
+        
+    Returns:
+        int: Difference in minutes (positive if time2 > time1, negative if time1 > time2)
+    """
+    if not time1 or not time2:
+        return 0
+    
+    # Convert to datetime objects with a base date
+    base_date = datetime.now().date()
+    dt1 = datetime.combine(base_date, time1)
+    dt2 = datetime.combine(base_date, time2)
+    
+    # Calculate difference in minutes
+    diff = (dt2 - dt1).total_seconds() / 60
+    
+    # Handle crossing midnight (assume same day for attendance)
+    if diff < -720:  # More than 12 hours negative = crossing midnight forward
+        dt2 = datetime.combine(base_date + timedelta(days=1), time2)
+        diff = (dt2 - dt1).total_seconds() / 60
+    elif diff > 720:  # More than 12 hours positive = crossing midnight backward
+        dt1 = datetime.combine(base_date + timedelta(days=1), time1)
+        diff = (dt2 - dt1).total_seconds() / 60
+    
+    return round(diff)
+
+def in_allowed_range(actual_time, expected_time, grace_period_minutes):
+    """
+    Check if an actual time is within the allowed range of an expected time
+    
+    Args:
+        actual_time (datetime.time): Actual time to check
+        expected_time (datetime.time): Expected time
+        grace_period_minutes (int): Grace period in minutes
+        
+    Returns:
+        bool: True if within range, False otherwise
+    """
+    if not actual_time or not expected_time:
+        return False
+    
+    diff = calculate_time_difference(expected_time, actual_time)
+    return abs(diff) <= grace_period_minutes
+
+def format_time(time_obj, use_12h=True):
+    """
+    Format a time object as a string
+    
+    Args:
+        time_obj (datetime.time): Time object to format
+        use_12h (bool): Whether to use 12-hour format with AM/PM
+        
+    Returns:
+        str: Formatted time string
+    """
+    if not time_obj:
         return ""
     
-    try:
-        # Ensure datetime has timezone info
-        if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=DEFAULT_TZ)
-        
-        # Format the time
-        return dt.strftime(format_str)
-    except Exception as e:
-        logger.error(f"Error formatting time '{dt}': {e}")
-        return ""
+    if use_12h:
+        return time_obj.strftime("%I:%M %p")
+    else:
+        return time_obj.strftime("%H:%M")
 
-def calculate_time_difference(start_time, end_time, unit='minutes'):
+def format_duration(minutes):
     """
-    Calculate the difference between two times
+    Format a duration in minutes as a human-readable string
     
     Args:
-        start_time (datetime): Start time
-        end_time (datetime): End time
-        unit (str): Unit for the result ('minutes', 'hours', or 'seconds')
+        minutes (int): Duration in minutes
         
     Returns:
-        int or float: Time difference in the specified unit, or None if calculation fails
+        str: Formatted duration string (e.g., "2h 30m")
     """
-    if not start_time or not end_time:
-        return None
+    if not minutes:
+        return "0m"
     
-    try:
-        # Ensure both times have timezone info
-        if start_time.tzinfo is None:
-            start_time = start_time.replace(tzinfo=DEFAULT_TZ)
-        if end_time.tzinfo is None:
-            end_time = end_time.replace(tzinfo=DEFAULT_TZ)
-        
-        # Calculate difference
-        delta = end_time - start_time
-        
-        # Convert to specified unit
-        if unit == 'seconds':
-            return delta.total_seconds()
-        elif unit == 'minutes':
-            return delta.total_seconds() / 60
-        elif unit == 'hours':
-            return delta.total_seconds() / 3600
-        else:
-            logger.warning(f"Unsupported time difference unit: {unit}")
-            return delta.total_seconds() / 60  # Default to minutes
-    except Exception as e:
-        logger.error(f"Error calculating time difference: {e}")
-        return None
+    hours, mins = divmod(abs(minutes), 60)
+    
+    if hours > 0:
+        return f"{hours}h {mins}m"
+    else:
+        return f"{mins}m"
 
-def is_late_start(start_time, expected_start=None, threshold_minutes=0):
+def get_business_days_in_month(year, month):
     """
-    Check if a start time is considered late
+    Get the number of business days (Mon-Fri) in a month
     
     Args:
-        start_time (datetime): Actual start time
-        expected_start (datetime): Expected start time, defaults to 7:00 AM
-        threshold_minutes (int): Minutes of grace period
+        year (int): Year
+        month (int): Month (1-12)
         
     Returns:
-        bool: True if start_time is later than expected_start + threshold_minutes
+        int: Number of business days
     """
-    if not start_time:
-        return False
+    # Get the first day of the month
+    first_day = datetime(year, month, 1)
     
-    try:
-        # Default expected start time is 7:00 AM if not specified
-        if not expected_start:
-            # Get the date from start_time
-            date = start_time.date()
-            # Create expected start time at 7:00 AM
-            expected_start = datetime.combine(date, datetime.min.time().replace(hour=7))
-            # Add timezone info
-            if expected_start.tzinfo is None:
-                expected_start = expected_start.replace(tzinfo=DEFAULT_TZ)
-        
-        # Add grace period
-        expected_with_threshold = expected_start + timedelta(minutes=threshold_minutes)
-        
-        # Compare times
-        return start_time > expected_with_threshold
-    except Exception as e:
-        logger.error(f"Error checking for late start: {e}")
-        return False
-
-def is_early_end(end_time, expected_end=None, threshold_minutes=0):
-    """
-    Check if an end time is considered early
+    # Get the last day of the month
+    if month == 12:
+        last_day = datetime(year + 1, 1, 1) - timedelta(days=1)
+    else:
+        last_day = datetime(year, month + 1, 1) - timedelta(days=1)
     
-    Args:
-        end_time (datetime): Actual end time
-        expected_end (datetime): Expected end time, defaults to 3:30 PM
-        threshold_minutes (int): Minutes of grace period
-        
-    Returns:
-        bool: True if end_time is earlier than expected_end - threshold_minutes
-    """
-    if not end_time:
-        return False
+    # Count business days
+    business_days = 0
+    current_day = first_day
+    while current_day <= last_day:
+        if current_day.weekday() < 5:  # Monday-Friday
+            business_days += 1
+        current_day += timedelta(days=1)
     
-    try:
-        # Default expected end time is 3:30 PM if not specified
-        if not expected_end:
-            # Get the date from end_time
-            date = end_time.date()
-            # Create expected end time at 3:30 PM
-            expected_end = datetime.combine(date, datetime.min.time().replace(hour=15, minute=30))
-            # Add timezone info
-            if expected_end.tzinfo is None:
-                expected_end = expected_end.replace(tzinfo=DEFAULT_TZ)
-        
-        # Subtract grace period
-        expected_with_threshold = expected_end - timedelta(minutes=threshold_minutes)
-        
-        # Compare times
-        return end_time < expected_with_threshold
-    except Exception as e:
-        logger.error(f"Error checking for early end: {e}")
-        return False
-
-def get_date_range(reference_date, range_days, include_today=True):
-    """
-    Get a date range ending on reference_date
-    
-    Args:
-        reference_date (datetime.date or str): End date for the range
-        range_days (int): Number of days in the range
-        include_today (bool): Whether to include reference_date in the range
-        
-    Returns:
-        tuple: (start_date, end_date) as datetime.date objects
-    """
-    try:
-        # Parse reference date if it's a string
-        if isinstance(reference_date, str):
-            reference_date = datetime.strptime(reference_date, "%Y-%m-%d").date()
-        elif isinstance(reference_date, datetime):
-            reference_date = reference_date.date()
-        
-        # Calculate end date
-        end_date = reference_date
-        
-        # Calculate start date
-        if include_today:
-            start_date = end_date - timedelta(days=range_days - 1)
-        else:
-            start_date = end_date - timedelta(days=range_days)
-        
-        return (start_date, end_date)
-    except Exception as e:
-        logger.error(f"Error calculating date range: {e}")
-        # Fall back to current date and past week
-        today = datetime.now(DEFAULT_TZ).date()
-        return (today - timedelta(days=7), today)
+    return business_days

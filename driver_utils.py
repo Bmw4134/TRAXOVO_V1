@@ -5,11 +5,14 @@ This module contains utility functions for working with driver data,
 particularly for extracting and formatting driver information from asset labels.
 """
 
+import os
 import re
+import sys
 import logging
-from config import VEHICLE_PREFIXES, EQUIPMENT_PREFIXES
+import config
 
-# Configure logger
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def extract_driver_from_label(label):
@@ -26,45 +29,39 @@ def extract_driver_from_label(label):
     Returns:
         str: Driver name or empty string if not found
     """
-    if not label or not isinstance(label, str):
+    if not label:
         return ""
     
-    # Clean up the label
-    label = label.strip().upper()
+    # Convert to string if needed
+    label = str(label).strip()
     
-    # Try to find pattern with vehicle prefix (e.g., "ET-01 DRIVER NAME")
-    for prefix in VEHICLE_PREFIXES:
-        if prefix in label:
-            parts = label.split(prefix, 1)
-            if len(parts) > 1:
-                # Find the ID part (number after prefix)
-                id_part_match = re.search(r'^\d+', parts[1].strip())
-                if id_part_match:
-                    id_part = id_part_match.group(0)
-                    # Everything after the ID is the driver name
-                    driver_part = parts[1][len(id_part):].strip()
-                    return driver_part
+    # Try to match common vehicle/equipment ID patterns
+    for pattern in config.EQUIPMENT_PATTERNS + config.VEHICLE_PATTERNS:
+        match = re.search(pattern, label, re.IGNORECASE)
+        if match:
+            # Extract everything after the match
+            start_idx = match.end()
+            driver_name = label[start_idx:].strip()
+            
+            # Remove any leading separators
+            driver_name = re.sub(r'^[\s\-_]+', '', driver_name)
+            
+            return driver_name
     
-    # Try standard pattern (vehicle identifier followed by driver name)
-    # Look for common separators between vehicle ID and driver name
-    separators = [' ', '-', '_', ':', '|']
-    for separator in separators:
-        if separator in label:
-            parts = label.split(separator, 1)
-            # Check if first part looks like a vehicle ID (contains number or is short)
-            if (any(c.isdigit() for c in parts[0]) or len(parts[0]) <= 8) and len(parts[1].strip()) > 0:
-                return parts[1].strip()
-    
-    # If no clear separator found, try to split on the first whitespace after a number
-    match = re.search(r'\d+\s+([A-Z\s\.]+)$', label)
+    # If no pattern matched, try some heuristics
+    # Look for pattern of letters followed by digits, then assume driver name follows
+    match = re.search(r'[A-Za-z]+[\-\s]?\d+', label)
     if match:
-        return match.group(1).strip()
+        start_idx = match.end()
+        driver_name = label[start_idx:].strip()
+        driver_name = re.sub(r'^[\s\-_]+', '', driver_name)
+        return driver_name
     
-    # If all else fails and the label is long enough, assume the whole thing is a driver name
-    if len(label) > 10 and ' ' in label:
-        return label
+    # If all else fails, and there's a space, assume first part is asset and rest is driver
+    if ' ' in label:
+        parts = label.split(' ', 1)
+        return parts[1].strip()
     
-    # No driver name found
     return ""
 
 def clean_asset_info(label):
@@ -77,41 +74,31 @@ def clean_asset_info(label):
     Returns:
         str: Asset ID or empty string if not found
     """
-    if not label or not isinstance(label, str):
+    if not label:
         return ""
     
-    # Clean up the label
-    label = label.strip().upper()
+    # Convert to string if needed
+    label = str(label).strip()
     
-    # Look for standard vehicle prefixes
-    for prefix in VEHICLE_PREFIXES + EQUIPMENT_PREFIXES:
-        if prefix in label:
-            # Extract the part with the prefix and any numbers that follow
-            match = re.search(f'{prefix}\\d+', label)
-            if match:
-                return match.group(0)
-    
-    # Look for common vehicle patterns like "RAM-2500" or "F-150"
-    vehicle_patterns = [
-        r'RAM-\d+',
-        r'F-\d+',
-        r'FORD\s+F\d+',
-        r'CHEVY\s+\w+',
-        r'GMC\s+\w+',
-        r'DODGE\s+\w+'
-    ]
-    
-    for pattern in vehicle_patterns:
-        match = re.search(pattern, label)
+    # Try to match common vehicle/equipment ID patterns
+    for pattern in config.EQUIPMENT_PATTERNS + config.VEHICLE_PATTERNS:
+        match = re.search(pattern, label, re.IGNORECASE)
         if match:
-            return match.group(0)
+            asset_id = match.group(0).strip()
+            return asset_id
     
-    # If no standard pattern found, take everything before the first space
-    # (assuming the format is "ASSET_ID DRIVER_NAME")
+    # If no pattern matched, try some heuristics
+    # Look for pattern of letters followed by digits
+    match = re.search(r'[A-Za-z]+[\-\s]?\d+', label)
+    if match:
+        return match.group(0).strip()
+    
+    # If all else fails, and there's a space, assume first part is asset
     if ' ' in label:
-        return label.split(' ', 1)[0]
+        parts = label.split(' ', 1)
+        return parts[0].strip()
     
-    # If all else fails, return the whole label as the asset ID
+    # If we couldn't extract anything, just return the original
     return label
 
 def normalize_driver_name(name):
@@ -124,34 +111,23 @@ def normalize_driver_name(name):
     Returns:
         str: Normalized driver name
     """
-    if not name or not isinstance(name, str):
+    if not name:
         return ""
     
-    # Remove excess whitespace
-    name = " ".join(name.strip().split())
+    # Convert to string and strip whitespace
+    name = str(name).strip()
     
-    # Convert to title case (first letter of each word capitalized)
+    # Remove any employee IDs in parentheses
+    name = re.sub(r'\s*\([^)]*\)\s*', ' ', name)
+    
+    # Remove any employee IDs after dash
+    name = re.sub(r'\s*-\s*[A-Z0-9]+\s*$', '', name)
+    
+    # Normalize whitespace
+    name = re.sub(r'\s+', ' ', name).strip()
+    
+    # Convert to title case
     name = name.title()
-    
-    # Fix common name formatting issues
-    
-    # Properly handle "Mc" and "Mac" prefixes in last names
-    name = re.sub(r'Mc(\w)', lambda x: f'Mc{x.group(1).upper()}', name)
-    name = re.sub(r'Mac(\w)', lambda x: f'Mac{x.group(1).upper()}', name)
-    
-    # Properly handle hyphenated names
-    name = re.sub(r'-(\w)', lambda x: f'-{x.group(1).upper()}', name)
-    
-    # Properly handle apostrophes in names like O'Brien
-    name = re.sub(r'\'(\w)', lambda x: f"'{x.group(1).lower()}", name)
-    
-    # Handle name suffixes (Jr, Sr, III)
-    suffixes = ['Jr', 'Sr', 'Ii', 'Iii', 'Iv', 'V']
-    for suffix in suffixes:
-        if f' {suffix}' in name:
-            name = name.replace(f' {suffix}', f' {suffix.upper()}')
-            if f' {suffix.upper()}.' not in name and f' {suffix.upper()}' in name:
-                name = name.replace(f' {suffix.upper()}', f' {suffix.upper()}.')
     
     return name
 
@@ -167,17 +143,16 @@ def format_driver_display(driver_name, asset_id=None):
         str: Formatted driver display string
     """
     if not driver_name:
-        if asset_id:
-            return f"{asset_id} (No Driver)"
-        else:
-            return "Unknown Driver"
+        return ""
     
+    # Normalize the driver name
     driver_name = normalize_driver_name(driver_name)
     
+    # If asset ID is provided, include it
     if asset_id:
         return f"{driver_name} ({asset_id})"
-    else:
-        return driver_name
+    
+    return driver_name
 
 def is_vehicle_id(text):
     """
@@ -189,26 +164,12 @@ def is_vehicle_id(text):
     Returns:
         bool: True if text matches vehicle ID pattern, False otherwise
     """
-    if not text or not isinstance(text, str):
+    if not text:
         return False
     
-    text = text.strip().upper()
-    
-    # Check for standard vehicle prefixes
-    for prefix in VEHICLE_PREFIXES:
-        if text.startswith(prefix) and len(text) > len(prefix) and text[len(prefix):].strip().isdigit():
-            return True
-    
-    # Check for common vehicle patterns
-    vehicle_patterns = [
-        r'^RAM-\d+$',
-        r'^F-\d+$',
-        r'^FORD\s+F\d+$',
-        r'^[A-Z]+-\d+$',  # Generic pattern for things like "CT-01"
-    ]
-    
-    for pattern in vehicle_patterns:
-        if re.match(pattern, text):
+    # Check against vehicle patterns
+    for pattern in config.VEHICLE_PATTERNS:
+        if re.search(pattern, text, re.IGNORECASE):
             return True
     
     return False
@@ -227,22 +188,10 @@ def match_asset_pattern(asset_id, pattern):
     if not asset_id or not pattern:
         return False
     
-    # Clean and normalize
-    asset_id = asset_id.strip().upper()
-    pattern = pattern.strip().upper()
-    
-    # Exact match
-    if asset_id == pattern:
-        return True
-    
-    # Prefix match (e.g., "ET-" matches all ET vehicles)
-    if pattern.endswith('-') and asset_id.startswith(pattern):
-        return True
-    
-    # Pattern with wildcard (e.g., "ET-*" matches all ET vehicles)
+    # If pattern ends with a wildcard, do a prefix match
     if pattern.endswith('*'):
-        base_pattern = pattern[:-1]
-        return asset_id.startswith(base_pattern)
+        prefix = pattern[:-1]
+        return asset_id.upper().startswith(prefix.upper())
     
-    # Check if asset ID contains the pattern
-    return pattern in asset_id
+    # Otherwise, do an exact match
+    return asset_id.upper() == pattern.upper()

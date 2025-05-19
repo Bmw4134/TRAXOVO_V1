@@ -1,1285 +1,465 @@
 """
 Attendance Data Pipeline
 
-This module handles the automated ingestion, processing, and storage of attendance data
-from raw source files (DailyUsage.csv, Timecards, etc.) into structured daily attendance records.
+This module processes raw attendance data from various sources,
+normalizes it, and prepares it for consumption by the UI and reporting tools.
 """
 
-import csv
+import os
+import pandas as pd
 import json
 import logging
-import os
-import sqlite3
 from datetime import datetime, timedelta
+import re
 from pathlib import Path
 
-import pandas as pd
+# Import structured logger
+from utils.structured_logger import get_pipeline_logger
 
-from utils.attendance_audit import log_file_processing, setup_audit_database
+# Get pipeline-specific logger
+logger = get_pipeline_logger()
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Constants and configuration
+DEFAULT_START_TIME = "07:00"
+LATE_THRESHOLD_MINUTES = 15
+TIMEZONE_UTC_OFFSET = -5  # CDT/CST timezone (UTC-5)
 
-# Define path constants
-DATA_DIR = Path("data")
-RAW_DATA_DIR = Path("attached_assets")
-PROCESSED_DIR = DATA_DIR / "processed"
-ATTENDANCE_DB = DATA_DIR / "attendance.db"
+def find_latest_activity_file():
+    """Find the latest activity detail file in the attached_assets directory"""
+    activity_files = []
+    
+    # Check attached_assets directory for files
+    assets_dir = Path("attached_assets")
+    if not assets_dir.exists():
+        logger.warning(f"Directory not found: {assets_dir}")
+        return None
+    
+    # Look for ActivityDetail files
+    for file in assets_dir.glob("ActivityDetail*.csv"):
+        activity_files.append(str(file))
+    
+    if not activity_files:
+        logger.warning("No ActivityDetail files found")
+        return None
+    
+    # Return the latest file based on modification time
+    latest_file = max(activity_files, key=os.path.getmtime)
+    logger.info(f"Found latest activity file: {latest_file}")
+    return latest_file
 
-# Ensure directories exist
-DATA_DIR.mkdir(exist_ok=True)
-PROCESSED_DIR.mkdir(exist_ok=True)
 
-def setup_database():
-    """Create attendance database and tables if they don't exist"""
-    conn = sqlite3.connect(ATTENDANCE_DB)
-    cursor = conn.cursor()
+def find_latest_driving_history_file():
+    """Find the latest driving history file in the attached_assets directory"""
+    driving_files = []
     
-    # Create daily_attendance table
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS daily_attendance (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        date TEXT,
-        driver_name TEXT,
-        asset_id TEXT,
-        scheduled_start TEXT,
-        actual_start TEXT,
-        scheduled_end TEXT,
-        actual_end TEXT,
-        location TEXT,
-        is_late INTEGER,
-        is_early_end INTEGER,
-        late_minutes INTEGER,
-        early_minutes INTEGER,
-        job_site TEXT,
-        company TEXT,
-        status TEXT,
-        UNIQUE(date, driver_name, asset_id)
-    )
-    ''')
+    # Check attached_assets directory for files
+    assets_dir = Path("attached_assets")
+    if not assets_dir.exists():
+        logger.warning(f"Directory not found: {assets_dir}")
+        return None
     
-    # Create attendance_trends table
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS attendance_trends (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        driver_name TEXT,
-        date_range_start TEXT,
-        date_range_end TEXT,
-        days_analyzed INTEGER,
-        late_count INTEGER,
-        absence_count INTEGER,
-        early_end_count INTEGER,
-        chronic_late INTEGER,
-        repeated_absence INTEGER,
-        unstable_shift INTEGER,
-        UNIQUE(driver_name, date_range_start, date_range_end)
-    )
-    ''')
+    # Look for DrivingHistory files
+    for file in assets_dir.glob("DrivingHistory*.csv"):
+        driving_files.append(str(file))
     
-    conn.commit()
-    conn.close()
+    if not driving_files:
+        logger.warning("No DrivingHistory files found")
+        return None
     
-    # Also setup the audit database tables
-    setup_audit_database()
-    
-    logger.info("Attendance database setup complete")
+    # Return the latest file based on modification time
+    latest_file = max(driving_files, key=os.path.getmtime)
+    logger.info(f"Found latest driving history file: {latest_file}")
+    return latest_file
 
-def find_source_files():
-    """Find all relevant source files for attendance data processing"""
-    source_files = {
-        'daily_usage': [],
-        'timecards': [],
-        'tracking': [],
-        'driving_history': [],
-        'activity_detail': []
-    }
-    
-    # Walk through raw data directory to find relevant files
-    for file_path in RAW_DATA_DIR.glob('**/*'):
-        if file_path.is_file():
-            file_name = file_path.name.lower()
-            
-            # Categorize files based on name patterns
-            if 'dailyusage' in file_name and file_name.endswith('.csv'):
-                source_files['daily_usage'].append(file_path)
-            elif 'timecard' in file_name and file_name.endswith(('.xlsx', '.csv')):
-                source_files['timecards'].append(file_path)
-            elif 'tracking' in file_name and file_name.endswith('.csv'):
-                source_files['tracking'].append(file_path)
-            elif 'drivinghistory' in file_name and file_name.endswith('.csv'):
-                source_files['driving_history'].append(file_path)
-            elif 'activitydetail' in file_name and file_name.endswith(('.csv', '.xlsx')):
-                source_files['activity_detail'].append(file_path)
-    
-    # Sort files by modification time (newest first)
-    for category in source_files:
-        source_files[category].sort(key=lambda f: os.path.getmtime(f), reverse=True)
-    
-    return source_files
 
-def extract_date_from_file(file_path):
+def find_latest_fleet_utilization_file():
+    """Find the latest fleet utilization file in the attached_assets directory"""
+    fleet_files = []
+    
+    # Check attached_assets directory for files
+    assets_dir = Path("attached_assets")
+    if not assets_dir.exists():
+        logger.warning(f"Directory not found: {assets_dir}")
+        return None
+    
+    # Look for FleetUtilization files
+    for file in assets_dir.glob("FleetUtilization*.xlsx"):
+        fleet_files.append(str(file))
+    
+    if not fleet_files:
+        logger.warning("No FleetUtilization files found")
+        return None
+    
+    # Return the latest file based on modification time
+    latest_file = max(fleet_files, key=os.path.getmtime)
+    logger.info(f"Found latest fleet utilization file: {latest_file}")
+    return latest_file
+
+
+def normalize_time(time_str):
     """
-    Extract date information from filename or file content
-    Returns date in YYYY-MM-DD format
-    """
-    file_name = file_path.name
+    Normalize time string to HH:MM format.
     
-    # Try to extract date from filename
-    date_formats = [
-        # Format: YYYY-MM-DD
-        r'(\d{4}-\d{2}-\d{2})',
-        # Format: MM.DD.YYYY
-        r'(\d{2}\.\d{2}\.\d{4})',
-        # Format: YYYY_MM_DD
-        r'(\d{4}_\d{2}_\d{2})'
+    Args:
+        time_str (str): Time string in various formats
+        
+    Returns:
+        str: Normalized time string in HH:MM format or None if invalid
+    """
+    if not time_str or pd.isna(time_str):
+        return None
+    
+    # Convert to string explicitly for safety
+    time_str = str(time_str).strip()
+    
+    # Try various formats
+    formats = [
+        '%H:%M',         # 13:45
+        '%H:%M:%S',      # 13:45:30
+        '%I:%M %p',      # 1:45 PM
+        '%I:%M:%S %p',   # 1:45:30 PM
+        '%I:%M%p',       # 1:45PM
+        '%I:%M:%S%p',    # 1:45:30PM
+        '%I %p',         # 1 PM
+        '%I%p'           # 1PM
     ]
     
-    import re
-    for pattern in date_formats:
-        match = re.search(pattern, file_name)
-        if match:
-            date_str = match.group(1)
-            # Convert to standard format if needed
-            if '-' not in date_str:
-                if '.' in date_str:
-                    month, day, year = date_str.split('.')
-                    date_str = f"{year}-{month}-{day}"
-                elif '_' in date_str:
-                    year, month, day = date_str.split('_')
-                    date_str = f"{year}-{month}-{day}"
-            return date_str
-    
-    # If we can't extract from filename, try to get from file content
-    if file_path.suffix.lower() == '.xlsx':
+    # Try each format
+    for fmt in formats:
         try:
-            df = pd.read_excel(file_path, nrows=5)
-            # Look for date in headers or first few rows
-            date_cols = [col for col in df.columns if 'date' in str(col).lower()]
-            if date_cols:
-                date_val = df[date_cols[0]].iloc[0]
-                if isinstance(date_val, datetime):
-                    return date_val.strftime('%Y-%m-%d')
-        except Exception as e:
-            logger.warning(f"Could not extract date from Excel file {file_path}: {e}")
+            # Parse time string
+            dt = datetime.strptime(time_str, fmt)
+            # Return normalized format
+            return dt.strftime('%H:%M')
+        except ValueError:
+            continue
     
-    elif file_path.suffix.lower() == '.csv':
-        try:
-            with open(file_path, 'r', encoding='utf-8') as file:
-                reader = csv.reader(file)
-                # Check first few rows for date
-                for _ in range(5):
-                    try:
-                        row = next(reader)
-                        for cell in row:
-                            # Check if cell contains date-like string
-                            if re.search(r'\d{1,4}[-/\.]\d{1,2}[-/\.]\d{2,4}', cell):
-                                # Try to parse as date
-                                try:
-                                    for fmt in ['%Y-%m-%d', '%m/%d/%Y', '%m-%d-%Y', '%d/%m/%Y']:
-                                        try:
-                                            dt = datetime.strptime(cell, fmt)
-                                            return dt.strftime('%Y-%m-%d')
-                                        except ValueError:
-                                            continue
-                                except:
-                                    pass
-                    except StopIteration:
-                        break
-        except Exception as e:
-            logger.warning(f"Could not extract date from CSV file {file_path}: {e}")
-    
-    # If we can't determine the date, fall back to file modification date
-    mod_time = datetime.fromtimestamp(os.path.getmtime(file_path))
-    return mod_time.strftime('%Y-%m-%d')
+    # If we got here, none of the formats matched
+    logger.warning(f"Could not normalize time string: {time_str}")
+    return None
 
-def process_daily_usage_file(file_path):
+
+def parse_activity_detail(file_path):
     """
-    Process a DailyUsage.csv file and convert to structured attendance records
-    Returns a list of attendance records
+    Parse activity detail file to extract driver activity data.
     
-    This function specifically handles the GaugeSmart DailyUsage.csv format which has:
-    - Custom header section with metadata (dates, company info)
-    - Actual data starts several rows down
-    - Specific column formats for driver/asset/time information
+    Args:
+        file_path (str): Path to the ActivityDetail CSV file
+        
+    Returns:
+        list: List of driver activity records
     """
-    records = []
-    
     try:
-        # Read the raw CSV file first to extract the date range and other metadata
-        with open(file_path, 'r') as f:
-            lines = f.readlines()
+        if not file_path or not os.path.exists(file_path):
+            logger.error(f"Activity detail file not found: {file_path}")
+            return []
         
-        # Extract company info (usually in the header)
-        company_name = "Unknown"
-        for i in range(min(10, len(lines))):
-            if "Company:" in lines[i]:
-                parts = lines[i].strip().split(',')
-                if len(parts) >= 3:
-                    company_name = parts[2].strip()
-                break
+        # Read the CSV file
+        logger.info(f"Reading activity detail file: {file_path}")
+        df = pd.read_csv(file_path)
         
-        # Extract date information
-        start_date = None
-        end_date = None
-        for i in range(min(10, len(lines))):
-            if "StartDate" in lines[i]:
-                if i+1 < len(lines) and len(lines[i+1].split(',')) >= 1:
-                    date_str = lines[i+1].split(',')[0].strip()
-                    try:
-                        start_date = datetime.strptime(date_str, '%m/%d/%Y')
-                    except:
-                        pass
-            if "EndDate" in lines[i]:
-                if i+1 < len(lines) and len(lines[i+1].split(',')) >= 1:
-                    date_str = lines[i+1].split(',')[0].strip()
-                    try:
-                        end_date = datetime.strptime(date_str, '%m/%d/%Y')
-                    except:
-                        pass
+        # Check if the file has required columns
+        required_columns = ['Operator', 'Job Site', 'Time On Site']
+        if not all(col in df.columns for col in required_columns):
+            logger.error(f"Activity detail file missing required columns: {file_path}")
+            return []
         
-        # Skip metadata lines and read the actual data part of the CSV
-        # The actual data usually starts after a blank line following the header metadata
-        data_start_line = 0
-        for i in range(min(20, len(lines))):
-            if "AssetLabel" in lines[i] or "Asset" in lines[i]:
-                data_start_line = i
-                break
+        # Convert to records
+        records = []
+        for _, row in df.iterrows():
+            # Extract driver name and job site
+            driver_name = row.get('Operator', '').strip()
+            job_site = row.get('Job Site', '').strip()
+            
+            # Skip empty records
+            if not driver_name or not job_site:
+                continue
+            
+            # Parse time on site
+            time_on_site = normalize_time(row.get('Time On Site'))
+            
+            # Create record
+            record = {
+                'driver_name': driver_name,
+                'job_site': job_site,
+                'actual_start': time_on_site,
+                'data_source': 'activity_detail'
+            }
+            
+            records.append(record)
         
-        if data_start_line > 0:
-            # Use pandas to read the CSV data, skipping the metadata header
-            df = pd.read_csv(file_path, skiprows=data_start_line)
-            
-            # Try to find key columns
-            time_start_col = None
-            time_end_col = None
-            driver_col = None
-            asset_col = None
-            date_col = None
-            location_col = None
-            
-            # Look for column names that match expected patterns
-            for col in df.columns:
-                col_lower = str(col).lower()
-                if 'start' in col_lower or 'started' in col_lower:
-                    time_start_col = col
-                elif 'stop' in col_lower or 'end' in col_lower or 'stopped' in col_lower:
-                    time_end_col = col
-                elif 'name' in col_lower or 'driver' in col_lower:
-                    driver_col = col
-                elif 'asset' in col_lower and ('id' in col_lower or 'label' in col_lower or 'identifier' in col_lower):
-                    asset_col = col
-                elif 'date' in col_lower:
-                    date_col = col
-                elif 'location' in col_lower:
-                    location_col = col
-            
-            # Handle alternative asset/driver info
-            if not driver_col and 'AssetLabel' in df.columns:
-                driver_col = 'AssetLabel'  # Often contains driver name in the format "ASSET - DRIVER NAME"
-            
-            if not asset_col and 'AssetIdentifier' in df.columns:
-                asset_col = 'AssetIdentifier'
-            
-            # Process each row in the data
-            for _, row in df.iterrows():
-                try:
-                    # Extract date
-                    record_date = None
-                    if date_col and not pd.isna(row[date_col]):
-                        date_str = str(row[date_col]).strip()
-                        try:
-                            record_date = datetime.strptime(date_str, '%m/%d/%Y')
-                        except:
-                            try:
-                                record_date = datetime.strptime(date_str, '%Y-%m-%d')
-                            except:
-                                pass
-                    
-                    # If we couldn't get a date from the row, use the file's start date
-                    if not record_date and start_date:
-                        record_date = start_date
-                    
-                    # Skip if we still don't have a date
-                    if not record_date:
-                        continue
-                    
-                    date_str = record_date.strftime('%Y-%m-%d')
-                    
-                    # Extract driver name
-                    driver_name = "Unknown"
-                    if driver_col and not pd.isna(row[driver_col]):
-                        driver_raw = str(row[driver_col]).strip()
-                        # Handle format "#123456 - DRIVER NAME VEHICLE INFO"
-                        if '-' in driver_raw and driver_raw.strip().startswith('#'):
-                            parts = driver_raw.split('-', 1)
-                            if len(parts) >= 2:
-                                driver_name = parts[1].strip()
-                                # Further clean up if there's vehicle info
-                                if 'FORD' in driver_name or 'CHEVY' in driver_name or 'RAM' in driver_name:
-                                    driver_parts = driver_name.split()
-                                    # Keep only the name part before the vehicle info
-                                    for i, part in enumerate(driver_parts):
-                                        if part in ['FORD', 'CHEVY', 'RAM', 'TOYOTA', 'GMC']:
-                                            driver_name = ' '.join(driver_parts[:i])
-                                            break
-                        else:
-                            driver_name = driver_raw
-                    
-                    # Extract asset ID
-                    asset_id = "Unknown"
-                    if asset_col and not pd.isna(row[asset_col]):
-                        asset_id = str(row[asset_col]).strip()
-                    
-                    # Extract location
-                    location = "Unknown"
-                    if location_col and not pd.isna(row[location_col]):
-                        location = str(row[location_col]).strip()
-                    
-                    # Extract time information
-                    time_start = None
-                    time_end = None
-                    
-                    if time_start_col and not pd.isna(row[time_start_col]):
-                        time_start_raw = str(row[time_start_col]).strip()
-                        # Handle format like "06:00 AM CT"
-                        if 'AM' in time_start_raw or 'PM' in time_start_raw:
-                            time_parts = time_start_raw.split()
-                            if len(time_parts) >= 2:
-                                time_str = time_parts[0] + ' ' + time_parts[1]
-                                try:
-                                    start_dt = datetime.strptime(time_str, '%I:%M %p')
-                                    time_start = start_dt.strftime('%H:%M:%S')
-                                except:
-                                    pass
-                    
-                    if time_end_col and not pd.isna(row[time_end_col]):
-                        time_end_raw = str(row[time_end_col]).strip()
-                        # Handle format like "06:07 PM CT"
-                        if 'AM' in time_end_raw or 'PM' in time_end_raw:
-                            time_parts = time_end_raw.split()
-                            if len(time_parts) >= 2:
-                                time_str = time_parts[0] + ' ' + time_parts[1]
-                                try:
-                                    end_dt = datetime.strptime(time_str, '%I:%M %p')
-                                    time_end = end_dt.strftime('%H:%M:%S')
-                                except:
-                                    pass
-                    
-                    # Skip if we don't have enough data
-                    if not time_start:
-                        continue
-                    
-                    # Default scheduled times 
-                    scheduled_start = '07:00:00'
-                    scheduled_end = '16:00:00'
-                    
-                    # Calculate lateness and early departure
-                    is_late = 0
-                    is_early_end = 0
-                    late_minutes = 0
-                    early_minutes = 0
-                    
-                    # Calculate lateness
-                    actual_start_time = datetime.strptime(time_start, '%H:%M:%S')
-                    scheduled_start_time = datetime.strptime(scheduled_start, '%H:%M:%S')
-                    
-                    if actual_start_time > scheduled_start_time:
-                        is_late = 1
-                        late_minutes = int((actual_start_time - scheduled_start_time).total_seconds() / 60)
-                    
-                    # Calculate early departure if end time exists
-                    if time_end:
-                        actual_end_time = datetime.strptime(time_end, '%H:%M:%S')
-                        scheduled_end_time = datetime.strptime(scheduled_end, '%H:%M:%S')
-                        
-                        if actual_end_time < scheduled_end_time:
-                            is_early_end = 1
-                            early_minutes = int((scheduled_end_time - actual_end_time).total_seconds() / 60)
-                    
-                    # Create and add the record
-                    record = {
-                        'date': date_str,
-                        'driver_name': driver_name,
-                        'asset_id': asset_id,
-                        'scheduled_start': scheduled_start,
-                        'actual_start': time_start,
-                        'scheduled_end': scheduled_end,
-                        'actual_end': time_end,
-                        'location': location,
-                        'is_late': is_late,
-                        'is_early_end': is_early_end,
-                        'late_minutes': late_minutes,
-                        'early_minutes': early_minutes,
-                        'job_site': location,
-                        'company': company_name,
-                        'status': 'Active'
-                    }
-                    
-                    records.append(record)
-                    
-                except Exception as e:
-                    logger.warning(f"Error processing row in {file_path}: {e}")
-                    continue
-    
+        logger.info(f"Parsed {len(records)} records from activity detail file")
+        return records
     except Exception as e:
-        logger.error(f"Failed to process DailyUsage file {file_path}: {e}")
-    
-    return records
+        logger.error(f"Error parsing activity detail file: {e}", exc_info=True)
+        return []
 
-def process_timecard_file(file_path):
+
+def parse_driving_history(file_path):
     """
-    Process a Timecard Excel file and convert to structured attendance records
-    Returns a list of attendance records
-    """
-    records = []
+    Parse driving history file to extract driver movement data.
     
+    Args:
+        file_path (str): Path to the DrivingHistory CSV file
+        
+    Returns:
+        list: List of driver movement records
+    """
     try:
-        # Extract date range from filename
-        file_name = file_path.name
-        date_range = None
-        import re
+        if not file_path or not os.path.exists(file_path):
+            logger.error(f"Driving history file not found: {file_path}")
+            return []
         
-        # Look for date range pattern in filename (e.g., "2025-05-11 - 2025-05-17")
-        match = re.search(r'(\d{4}-\d{2}-\d{2})\s*-\s*(\d{4}-\d{2}-\d{2})', file_name)
-        if match:
-            start_date = datetime.strptime(match.group(1), '%Y-%m-%d')
-            end_date = datetime.strptime(match.group(2), '%Y-%m-%d')
-            date_range = (start_date, end_date)
+        # Read the CSV file
+        logger.info(f"Reading driving history file: {file_path}")
+        df = pd.read_csv(file_path)
         
-        # Read Excel file
+        # Check if the file has required columns
+        required_columns = ['Driver', 'Start Location', 'Start Time', 'End Time']
+        if not all(col in df.columns for col in required_columns):
+            logger.error(f"Driving history file missing required columns: {file_path}")
+            return []
+        
+        # Convert to records
+        records = []
+        for _, row in df.iterrows():
+            # Extract driver name and location
+            driver_name = row.get('Driver', '').strip()
+            start_location = row.get('Start Location', '').strip()
+            
+            # Skip empty records
+            if not driver_name or not start_location:
+                continue
+            
+            # Parse times
+            start_time = normalize_time(row.get('Start Time'))
+            end_time = normalize_time(row.get('End Time'))
+            
+            # Create record
+            record = {
+                'driver_name': driver_name,
+                'job_site': start_location,
+                'actual_start': start_time,
+                'actual_end': end_time,
+                'data_source': 'driving_history'
+            }
+            
+            records.append(record)
+        
+        logger.info(f"Parsed {len(records)} records from driving history file")
+        return records
+    except Exception as e:
+        logger.error(f"Error parsing driving history file: {e}", exc_info=True)
+        return []
+
+
+def parse_fleet_utilization(file_path):
+    """
+    Parse fleet utilization file to extract scheduled times.
+    
+    Args:
+        file_path (str): Path to the FleetUtilization Excel file
+        
+    Returns:
+        list: List of scheduled time records
+    """
+    try:
+        if not file_path or not os.path.exists(file_path):
+            logger.error(f"Fleet utilization file not found: {file_path}")
+            return []
+        
+        # Read the Excel file
+        logger.info(f"Reading fleet utilization file: {file_path}")
         df = pd.read_excel(file_path)
         
-        # Try to find key columns for timecard data
-        name_col = None
-        date_col = None
-        time_in_col = None
-        time_out_col = None
-        location_col = None
+        # Check if the file has required columns
+        required_columns = ['Asset', 'Operator', 'Scheduled Start', 'Scheduled End']
+        if not all(col in df.columns for col in required_columns):
+            logger.error(f"Fleet utilization file missing required columns: {file_path}")
+            return []
         
-        # Look for column names (case-insensitive)
-        for col in df.columns:
-            col_lower = str(col).lower()
-            if 'name' in col_lower or 'employee' in col_lower:
-                name_col = col
-            elif 'date' in col_lower:
-                date_col = col
-            elif ('time' in col_lower and 'in' in col_lower) or 'start' in col_lower:
-                time_in_col = col
-            elif ('time' in col_lower and 'out' in col_lower) or 'end' in col_lower:
-                time_out_col = col
-            elif 'location' in col_lower or 'job' in col_lower or 'site' in col_lower:
-                location_col = col
-        
-        # If we don't have the essential columns, try another approach
-        if not (name_col and (date_col or date_range) and (time_in_col or time_out_col)):
-            # Try to infer structure from typical timecard layout
-            # This is a fallback for complex or unusual timecard formats
-            logger.warning(f"Could not identify standard columns in {file_path}, using inference")
-            
-            # Approach 2: Use first row as header and try again
-            df = pd.read_excel(file_path, header=0)
-            
-            for col in df.columns:
-                col_lower = str(col).lower()
-                if 'name' in col_lower or 'employee' in col_lower:
-                    name_col = col
-                elif 'date' in col_lower:
-                    date_col = col
-                elif ('time' in col_lower and 'in' in col_lower) or 'start' in col_lower:
-                    time_in_col = col
-                elif ('time' in col_lower and 'out' in col_lower) or 'end' in col_lower:
-                    time_out_col = col
-                elif 'location' in col_lower or 'job' in col_lower or 'site' in col_lower:
-                    location_col = col
-        
-        # Process each row in the timecard
+        # Convert to records
+        records = []
         for _, row in df.iterrows():
-            try:
-                # Skip rows with no name (likely header rows or blank rows)
-                if name_col and (pd.isna(row[name_col]) or not row[name_col]):
-                    continue
-                
-                # Extract driver name
-                driver_name = row[name_col] if name_col else "Unknown"
-                
-                # Determine date
-                if date_col and not pd.isna(row[date_col]):
-                    if isinstance(row[date_col], datetime):
-                        date = row[date_col].strftime('%Y-%m-%d')
-                    elif isinstance(row[date_col], str):
-                        try:
-                            date = datetime.strptime(row[date_col], '%Y-%m-%d').strftime('%Y-%m-%d')
-                        except ValueError:
-                            try:
-                                date = datetime.strptime(row[date_col], '%m/%d/%Y').strftime('%Y-%m-%d')
-                            except ValueError:
-                                # Extract date if it's in the format "MM/DD" with assumed year
-                                if '/' in row[date_col] and len(row[date_col].split('/')) == 2:
-                                    month, day = row[date_col].split('/')
-                                    if date_range:  # Use year from date range
-                                        year = date_range[0].year
-                                        try:
-                                            date = datetime(year, int(month), int(day)).strftime('%Y-%m-%d')
-                                        except ValueError:
-                                            continue
-                                    else:
-                                        continue
-                                else:
-                                    continue
-                elif date_range:
-                    # If we have a date range but no explicit date column,
-                    # try to determine date from context or use the start date
-                    date = date_range[0].strftime('%Y-%m-%d')
-                else:
-                    # Last resort: use file modification date
-                    date = datetime.fromtimestamp(os.path.getmtime(file_path)).strftime('%Y-%m-%d')
-                
-                # Extract time in/out
-                time_in = row[time_in_col] if time_in_col and not pd.isna(row[time_in_col]) else None
-                time_out = row[time_out_col] if time_out_col and not pd.isna(row[time_out_col]) else None
-                
-                # Format times for consistency
-                if time_in:
-                    if isinstance(time_in, datetime):
-                        time_in = time_in.strftime('%H:%M:%S')
-                    elif isinstance(time_in, str):
-                        if ':' not in time_in:  # Handle numeric time format (e.g. 730 for 7:30)
-                            if len(time_in) <= 4 and time_in.isdigit():
-                                if len(time_in) <= 2:
-                                    time_in = f"{time_in}:00:00"
-                                else:
-                                    hours = time_in[:-2] or '0'
-                                    minutes = time_in[-2:]
-                                    time_in = f"{hours}:{minutes}:00"
-                
-                if time_out:
-                    if isinstance(time_out, datetime):
-                        time_out = time_out.strftime('%H:%M:%S')
-                    elif isinstance(time_out, str):
-                        if ':' not in time_out:  # Handle numeric time format
-                            if len(time_out) <= 4 and time_out.isdigit():
-                                if len(time_out) <= 2:
-                                    time_out = f"{time_out}:00:00"
-                                else:
-                                    hours = time_out[:-2] or '0'
-                                    minutes = time_out[-2:]
-                                    time_out = f"{hours}:{minutes}:00"
-                
-                # Skip rows with no time data
-                if not time_in and not time_out:
-                    continue
-                
-                # Get location/job site
-                location = row[location_col] if location_col and not pd.isna(row[location_col]) else "Unknown"
-                
-                # Set default scheduled times
-                scheduled_start = '07:00:00'
-                scheduled_end = '16:00:00'
-                
-                # Calculate lateness and early departure
-                is_late = 0
-                is_early_end = 0
-                late_minutes = 0
-                early_minutes = 0
-                
-                if time_in:
-                    try:
-                        if ':' in time_in:
-                            actual_start_time = datetime.strptime(time_in, '%H:%M:%S')
-                            scheduled_start_time = datetime.strptime(scheduled_start, '%H:%M:%S')
-                            
-                            # Calculate lateness
-                            if actual_start_time > scheduled_start_time:
-                                is_late = 1
-                                late_minutes = int((actual_start_time - scheduled_start_time).total_seconds() / 60)
-                    except ValueError:
-                        pass
-                
-                if time_out:
-                    try:
-                        if ':' in time_out:
-                            actual_end_time = datetime.strptime(time_out, '%H:%M:%S')
-                            scheduled_end_time = datetime.strptime(scheduled_end, '%H:%M:%S')
-                            
-                            # Calculate early departure
-                            if actual_end_time < scheduled_end_time:
-                                is_early_end = 1
-                                early_minutes = int((scheduled_end_time - actual_end_time).total_seconds() / 60)
-                    except ValueError:
-                        pass
-                
-                # Create attendance record
-                record = {
-                    'date': date,
-                    'driver_name': driver_name,
-                    'asset_id': "Unknown",  # Timecards often don't include asset info
-                    'scheduled_start': scheduled_start,
-                    'actual_start': time_in,
-                    'scheduled_end': scheduled_end,
-                    'actual_end': time_out,
-                    'location': location,
-                    'is_late': is_late,
-                    'is_early_end': is_early_end,
-                    'late_minutes': late_minutes,
-                    'early_minutes': early_minutes,
-                    'job_site': location,
-                    'company': 'Unknown',
-                    'status': 'Active'
-                }
-                
-                records.append(record)
-                
-            except Exception as e:
-                logger.warning(f"Error processing row in {file_path}: {e}")
+            # Extract driver name and asset
+            driver_name = row.get('Operator', '').strip()
+            asset = row.get('Asset', '').strip()
+            
+            # Skip empty records
+            if not driver_name or not asset:
                 continue
-    
+            
+            # Parse times
+            scheduled_start = normalize_time(row.get('Scheduled Start'))
+            scheduled_end = normalize_time(row.get('Scheduled End'))
+            
+            # Create record
+            record = {
+                'driver_name': driver_name,
+                'asset_id': asset,
+                'scheduled_start': scheduled_start,
+                'scheduled_end': scheduled_end,
+                'data_source': 'fleet_utilization'
+            }
+            
+            records.append(record)
+        
+        logger.info(f"Parsed {len(records)} records from fleet utilization file")
+        return records
     except Exception as e:
-        logger.error(f"Failed to process Timecard file {file_path}: {e}")
-    
-    return records
+        logger.error(f"Error parsing fleet utilization file: {e}", exc_info=True)
+        return []
 
-def process_activity_detail_file(file_path):
-    """
-    Process an ActivityDetail file with attendance information
-    Returns a list of attendance records
-    """
-    records = []
-    
-    try:
-        # Determine if file is CSV or Excel
-        if file_path.suffix.lower() == '.csv':
-            df = pd.read_csv(file_path)
-        else:
-            df = pd.read_excel(file_path)
-        
-        # Try to identify key columns
-        driver_col = None
-        asset_col = None
-        date_col = None
-        time_in_col = None
-        time_out_col = None
-        location_col = None
-        
-        # Look for column names (case-insensitive)
-        for col in df.columns:
-            col_lower = str(col).lower()
-            if 'driver' in col_lower or 'employee' in col_lower or 'name' in col_lower:
-                driver_col = col
-            elif 'asset' in col_lower or 'vehicle' in col_lower or 'equipment' in col_lower:
-                asset_col = col
-            elif 'date' in col_lower:
-                date_col = col
-            elif ('time' in col_lower and 'in' in col_lower) or 'start' in col_lower:
-                time_in_col = col
-            elif ('time' in col_lower and 'out' in col_lower) or 'end' in col_lower or 'stop' in col_lower:
-                time_out_col = col
-            elif 'location' in col_lower or 'job' in col_lower or 'site' in col_lower:
-                location_col = col
-        
-        # Process each row
-        for _, row in df.iterrows():
-            try:
-                # Extract driver name
-                driver_name = row[driver_col] if driver_col and not pd.isna(row[driver_col]) else "Unknown"
-                
-                # Skip rows with no driver name
-                if driver_name == "Unknown":
-                    continue
-                
-                # Extract asset ID
-                asset_id = row[asset_col] if asset_col and not pd.isna(row[asset_col]) else "Unknown"
-                
-                # Determine date
-                if date_col and not pd.isna(row[date_col]):
-                    if isinstance(row[date_col], datetime):
-                        date = row[date_col].strftime('%Y-%m-%d')
-                    elif isinstance(row[date_col], str):
-                        try:
-                            date = datetime.strptime(row[date_col], '%Y-%m-%d').strftime('%Y-%m-%d')
-                        except ValueError:
-                            try:
-                                date = datetime.strptime(row[date_col], '%m/%d/%Y').strftime('%Y-%m-%d')
-                            except ValueError:
-                                # Try to extract date from file name
-                                date = extract_date_from_file(file_path)
-                else:
-                    # Use file date as fallback
-                    date = extract_date_from_file(file_path)
-                
-                # Extract time in/out
-                time_in = row[time_in_col] if time_in_col and not pd.isna(row[time_in_col]) else None
-                time_out = row[time_out_col] if time_out_col and not pd.isna(row[time_out_col]) else None
-                
-                # Format times
-                if time_in:
-                    if isinstance(time_in, datetime):
-                        time_in = time_in.strftime('%H:%M:%S')
-                    elif isinstance(time_in, str) and ':' not in time_in:
-                        # Handle numeric format
-                        if len(time_in) <= 4 and time_in.isdigit():
-                            hours = time_in[:-2] or '0'
-                            minutes = time_in[-2:]
-                            time_in = f"{hours}:{minutes}:00"
-                
-                if time_out:
-                    if isinstance(time_out, datetime):
-                        time_out = time_out.strftime('%H:%M:%S')
-                    elif isinstance(time_out, str) and ':' not in time_out:
-                        # Handle numeric format
-                        if len(time_out) <= 4 and time_out.isdigit():
-                            hours = time_out[:-2] or '0'
-                            minutes = time_out[-2:]
-                            time_out = f"{hours}:{minutes}:00"
-                
-                # Get location
-                location = row[location_col] if location_col and not pd.isna(row[location_col]) else "Unknown"
-                
-                # Set scheduled times
-                scheduled_start = '07:00:00'
-                scheduled_end = '16:00:00'
-                
-                # Calculate lateness and early departure
-                is_late = 0
-                is_early_end = 0
-                late_minutes = 0
-                early_minutes = 0
-                
-                if time_in and ':' in time_in:
-                    try:
-                        actual_start_time = datetime.strptime(time_in, '%H:%M:%S')
-                        scheduled_start_time = datetime.strptime(scheduled_start, '%H:%M:%S')
-                        
-                        # Calculate lateness
-                        if actual_start_time > scheduled_start_time:
-                            is_late = 1
-                            late_minutes = int((actual_start_time - scheduled_start_time).total_seconds() / 60)
-                    except ValueError:
-                        pass
-                
-                if time_out and ':' in time_out:
-                    try:
-                        actual_end_time = datetime.strptime(time_out, '%H:%M:%S')
-                        scheduled_end_time = datetime.strptime(scheduled_end, '%H:%M:%S')
-                        
-                        # Calculate early departure
-                        if actual_end_time < scheduled_end_time:
-                            is_early_end = 1
-                            early_minutes = int((scheduled_end_time - actual_end_time).total_seconds() / 60)
-                    except ValueError:
-                        pass
-                
-                # Create attendance record
-                record = {
-                    'date': date,
-                    'driver_name': driver_name,
-                    'asset_id': asset_id,
-                    'scheduled_start': scheduled_start,
-                    'actual_start': time_in,
-                    'scheduled_end': scheduled_end,
-                    'actual_end': time_out,
-                    'location': location,
-                    'is_late': is_late,
-                    'is_early_end': is_early_end,
-                    'late_minutes': late_minutes,
-                    'early_minutes': early_minutes,
-                    'job_site': location,
-                    'company': 'Unknown',
-                    'status': 'Active'
-                }
-                
-                records.append(record)
-                
-            except Exception as e:
-                logger.warning(f"Error processing row in {file_path}: {e}")
-                continue
-    
-    except Exception as e:
-        logger.error(f"Failed to process ActivityDetail file {file_path}: {e}")
-    
-    return records
 
-def store_attendance_records(records):
-    """Store attendance records in the database"""
-    if not records:
-        logger.info("No records to store")
-        return 0
-    
-    conn = sqlite3.connect(ATTENDANCE_DB)
-    cursor = conn.cursor()
-    
-    records_added = 0
-    
-    for record in records:
-        try:
-            # Insert or replace record
-            cursor.execute('''
-            INSERT OR REPLACE INTO daily_attendance
-            (date, driver_name, asset_id, scheduled_start, actual_start, 
-             scheduled_end, actual_end, location, is_late, is_early_end,
-             late_minutes, early_minutes, job_site, company, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (
-                record['date'],
-                record['driver_name'],
-                record['asset_id'],
-                record['scheduled_start'],
-                record['actual_start'],
-                record['scheduled_end'],
-                record['actual_end'],
-                record['location'],
-                record['is_late'],
-                record['is_early_end'],
-                record['late_minutes'],
-                record['early_minutes'],
-                record['job_site'],
-                record['company'],
-                record['status']
-            ))
-            records_added += 1
-        except Exception as e:
-            logger.error(f"Error storing record: {e}")
-    
-    conn.commit()
-    conn.close()
-    
-    return records_added
-
-def generate_daily_report(date):
+def merge_attendance_records(activity_records, driving_records, schedule_records):
     """
-    Generate a "DAILY LATE START-EARLY END & NOJ REPORT" style report for a specific date
-    Returns report data structure
+    Merge attendance records from different sources.
+    
+    Args:
+        activity_records (list): Records from activity detail file
+        driving_records (list): Records from driving history file
+        schedule_records (list): Records from fleet utilization file
+        
+    Returns:
+        list: Merged attendance records
     """
-    conn = sqlite3.connect(ATTENDANCE_DB)
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
+    # Create a dictionary to store merged records by driver name
+    merged_records = {}
     
-    # Get attendance records for specified date
-    cursor.execute('''
-    SELECT * FROM daily_attendance WHERE date = ?
-    ''', (date,))
-    
-    records = cursor.fetchall()
-    conn.close()
-    
-    # Convert to dictionary format
-    drivers = []
-    late_count = 0
-    early_count = 0
-    
-    for record in records:
-        record_dict = dict(record)
-        
-        # Count stats
-        if record_dict['is_late']:
-            late_count += 1
-        if record_dict['is_early_end']:
-            early_count += 1
-        
-        # Format the record for the report
-        driver_record = {
-            'driver_name': record_dict['driver_name'],
-            'asset_id': record_dict['asset_id'],
-            'start_time': record_dict['actual_start'],
-            'end_time': record_dict['actual_end'],
-            'location': record_dict['location'],
-            'is_late': record_dict['is_late'],
-            'left_early': record_dict['is_early_end'],
-            'late_minutes': record_dict['late_minutes'],
-            'early_minutes': record_dict['early_minutes'],
-            'expected_start': record_dict['scheduled_start'],
-            'expected_end': record_dict['scheduled_end'],
-            'job_site': record_dict['job_site'],
-            'company': record_dict['company']
-        }
-        
-        drivers.append(driver_record)
-    
-    # Construct report structure
-    report = {
-        'date': date,
-        'formatted_date': datetime.strptime(date, '%Y-%m-%d').strftime('%B %d, %Y'),
-        'drivers': drivers,
-        'stats': {
-            'total_count': len(drivers),
-            'late_count': late_count,
-            'early_count': early_count,
-            # Add bracket counts for charts
-            'late_brackets': [
-                sum(1 for d in drivers if d['is_late'] and d['late_minutes'] <= 15),
-                sum(1 for d in drivers if d['is_late'] and 15 < d['late_minutes'] <= 30),
-                sum(1 for d in drivers if d['is_late'] and 30 < d['late_minutes'] <= 60),
-                sum(1 for d in drivers if d['is_late'] and d['late_minutes'] > 60)
-            ],
-            'early_brackets': [
-                sum(1 for d in drivers if d['left_early'] and d['early_minutes'] <= 15),
-                sum(1 for d in drivers if d['left_early'] and 15 < d['early_minutes'] <= 30),
-                sum(1 for d in drivers if d['left_early'] and 30 < d['early_minutes'] <= 60),
-                sum(1 for d in drivers if d['left_early'] and d['early_minutes'] > 60)
-            ]
-        }
-    }
-    
-    return report
-
-def generate_attendance_trends(start_date, end_date):
-    """
-    Generate attendance trends for the specified date range
-    Stores results in the attendance_trends table
-    """
-    conn = sqlite3.connect(ATTENDANCE_DB)
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
-    
-    # Get all unique driver names in the date range
-    cursor.execute('''
-    SELECT DISTINCT driver_name FROM daily_attendance 
-    WHERE date BETWEEN ? AND ?
-    ''', (start_date, end_date))
-    
-    drivers = [row['driver_name'] for row in cursor.fetchall()]
-    
-    for driver_name in drivers:
-        # Get attendance records for this driver in date range
-        cursor.execute('''
-        SELECT * FROM daily_attendance 
-        WHERE driver_name = ? AND date BETWEEN ? AND ?
-        ORDER BY date
-        ''', (driver_name, start_date, end_date))
-        
-        records = cursor.fetchall()
-        
-        # Skip if not enough records
-        if len(records) < 2:
+    # Process schedule records first (they contain the expected times)
+    for record in schedule_records:
+        driver_name = record.get('driver_name')
+        if not driver_name:
             continue
         
-        # Count late and early days
-        late_count = sum(1 for r in records if r['is_late'])
-        early_end_count = sum(1 for r in records if r['is_early_end'])
-        
-        # Determine absence count (we don't have direct absence data)
-        # This would need to be refined based on how absences are tracked
-        absence_count = 0
-        
-        # Calculate shift stability
-        shift_start_times = []
-        for record in records:
-            if record['actual_start']:
-                try:
-                    start_time = datetime.strptime(record['actual_start'], '%H:%M:%S')
-                    shift_start_times.append(start_time.hour * 60 + start_time.minute)
-                except (ValueError, TypeError):
-                    shift_start_times.append(None)
-        
-        # Filter out None values
-        valid_start_times = [t for t in shift_start_times if t is not None]
-        
-        # Determine trend flags
-        chronic_late = 1 if late_count >= 3 and len(records) >= 5 else 0
-        repeated_absence = 1 if absence_count >= 2 else 0
-        
-        # Calculate shift stability (max variance > 3 hours)
-        unstable_shift = 0
-        if len(valid_start_times) >= 3:
-            start_time_range = max(valid_start_times) - min(valid_start_times)
-            unstable_shift = 1 if start_time_range >= 180 else 0  # 3 hours = 180 minutes
-        
-        # Store trend data
-        cursor.execute('''
-        INSERT OR REPLACE INTO attendance_trends
-        (driver_name, date_range_start, date_range_end, days_analyzed,
-         late_count, absence_count, early_end_count,
-         chronic_late, repeated_absence, unstable_shift)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (
-            driver_name,
-            start_date,
-            end_date,
-            len(records),
-            late_count,
-            absence_count,
-            early_end_count,
-            chronic_late,
-            repeated_absence,
-            unstable_shift
-        ))
-    
-    conn.commit()
-    conn.close()
-    
-    logger.info(f"Generated attendance trends for {len(drivers)} drivers ({start_date} to {end_date})")
-
-def get_attendance_trends(end_date, days=5):
-    """
-    Get attendance trends data for the specified end date and number of days
-    Returns the driver trends data structure
-    """
-    # Calculate start date
-    end_date_obj = datetime.strptime(end_date, '%Y-%m-%d')
-    start_date_obj = end_date_obj - timedelta(days=days-1)
-    start_date = start_date_obj.strftime('%Y-%m-%d')
-    
-    conn = sqlite3.connect(ATTENDANCE_DB)
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
-    
-    # Get trend data
-    cursor.execute('''
-    SELECT * FROM attendance_trends 
-    WHERE date_range_start = ? AND date_range_end = ?
-    ''', (start_date, end_date))
-    
-    trend_records = cursor.fetchall()
-    conn.close()
-    
-    # Convert to driver_trends structure
-    driver_trends = {}
-    chronic_late_count = 0
-    repeated_absence_count = 0
-    unstable_shift_count = 0
-    
-    for record in trend_records:
-        flags = []
-        
-        if record['chronic_late']:
-            flags.append('CHRONIC_LATE')
-            chronic_late_count += 1
-        
-        if record['repeated_absence']:
-            flags.append('REPEATED_ABSENCE')
-            repeated_absence_count += 1
-        
-        if record['unstable_shift']:
-            flags.append('UNSTABLE_SHIFT')
-            unstable_shift_count += 1
-        
-        driver_trends[record['driver_name']] = {
-            'flags': flags,
-            'days_analyzed': record['days_analyzed'],
-            'late_count': record['late_count'],
-            'absence_count': record['absence_count'],
-            'early_end_count': record['early_end_count']
+        merged_records[driver_name] = {
+            'driver_name': driver_name,
+            'asset_id': record.get('asset_id'),
+            'scheduled_start': record.get('scheduled_start'),
+            'scheduled_end': record.get('scheduled_end'),
+            'data_sources': ['fleet_utilization']
         }
     
-    # Create trend data structure
-    trend_data = {
-        'driver_trends': driver_trends,
-        'summary': {
-            'total_drivers': len(driver_trends),
-            'chronic_late_count': chronic_late_count,
-            'repeated_absence_count': repeated_absence_count,
-            'unstable_shift_count': unstable_shift_count,
-            'date_range': {
-                'start': start_date,
-                'end': end_date
-            },
-            'days_analyzed': days
-        }
-    }
-    
-    return trend_data
-
-def run_attendance_pipeline():
-    """
-    Main function to run the complete attendance pipeline
-    1. Finds all source files
-    2. Processes each file type
-    3. Stores attendance records in database
-    4. Generates daily reports
-    5. Generates attendance trends
-    """
-    # Ensure database setup
-    setup_database()
-    
-    # Find source files
-    source_files = find_source_files()
-    
-    # Track processed dates for trend generation
-    processed_dates = set()
-    
-    # Process DailyUsage files
-    for file_path in source_files['daily_usage']:
-        logger.info(f"Processing DailyUsage file: {file_path}")
-        try:
-            records = process_daily_usage_file(file_path)
-            
-            # Skip if no records were extracted
-            if not records:
-                logger.warning(f"No records extracted from {file_path}")
-                continue
-            
-            # Group records by date for audit logging
-            date_groups = {}
-            for record in records:
-                date = record['date']
-                if date not in date_groups:
-                    date_groups[date] = []
-                date_groups[date].append(record)
-            
-            # Process each date's records
-            for date, date_records in date_groups.items():
-                driver_count = len(set(r['driver_name'] for r in date_records))
-                records_added = store_attendance_records(date_records)
-                
-                # Log processing to audit trail
-                log_file_processing(
-                    date=date,
-                    file_path=str(file_path),
-                    file_type='daily_usage',
-                    driver_count=driver_count,
-                    records_added=records_added,
-                    status='success' if records_added > 0 else 'partial'
-                )
-                
-                logger.info(f"Added {records_added} attendance records from {file_path} for date {date}")
-                processed_dates.add(date)
-                
-        except Exception as e:
-            logger.error(f"Failed to process DailyUsage file {file_path}: {e}")
-            # Log error to audit trail
-            log_file_processing(
-                date=extract_date_from_file(file_path),
-                file_path=str(file_path),
-                file_type='daily_usage',
-                driver_count=0,
-                records_added=0,
-                status='failed',
-                error_message=str(e)
-            )
-    
-    # Process Timecard files
-    for file_path in source_files['timecards']:
-        logger.info(f"Processing Timecard file: {file_path}")
-        try:
-            records = process_timecard_file(file_path)
-            
-            # Skip if no records were extracted
-            if not records:
-                logger.warning(f"No records extracted from {file_path}")
-                continue
-            
-            # Group records by date for audit logging
-            date_groups = {}
-            for record in records:
-                date = record['date']
-                if date not in date_groups:
-                    date_groups[date] = []
-                date_groups[date].append(record)
-            
-            # Process each date's records
-            for date, date_records in date_groups.items():
-                driver_count = len(set(r['driver_name'] for r in date_records))
-                records_added = store_attendance_records(date_records)
-                
-                # Log processing to audit trail
-                log_file_processing(
-                    date=date,
-                    file_path=str(file_path),
-                    file_type='timecard',
-                    driver_count=driver_count,
-                    records_added=records_added,
-                    status='success' if records_added > 0 else 'partial'
-                )
-                
-                logger.info(f"Added {records_added} attendance records from {file_path} for date {date}")
-                processed_dates.add(date)
-                
-        except Exception as e:
-            logger.error(f"Failed to process Timecard file {file_path}: {e}")
-            # Log error to audit trail
-            log_file_processing(
-                date=extract_date_from_file(file_path),
-                file_path=str(file_path),
-                file_type='timecard',
-                driver_count=0,
-                records_added=0,
-                status='failed',
-                error_message=str(e)
-            )
-    
-    # Process ActivityDetail files
-    for file_path in source_files['activity_detail']:
-        logger.info(f"Processing ActivityDetail file: {file_path}")
-        try:
-            records = process_activity_detail_file(file_path)
-            
-            # Skip if no records were extracted
-            if not records:
-                logger.warning(f"No records extracted from {file_path}")
-                continue
-            
-            # Group records by date for audit logging
-            date_groups = {}
-            for record in records:
-                date = record['date']
-                if date not in date_groups:
-                    date_groups[date] = []
-                date_groups[date].append(record)
-            
-            # Process each date's records
-            for date, date_records in date_groups.items():
-                driver_count = len(set(r['driver_name'] for r in date_records))
-                records_added = store_attendance_records(date_records)
-                
-                # Log processing to audit trail
-                log_file_processing(
-                    date=date,
-                    file_path=str(file_path),
-                    file_type='activity_detail',
-                    driver_count=driver_count,
-                    records_added=records_added,
-                    status='success' if records_added > 0 else 'partial'
-                )
-                
-                logger.info(f"Added {records_added} attendance records from {file_path} for date {date}")
-                processed_dates.add(date)
-                
-        except Exception as e:
-            logger.error(f"Failed to process ActivityDetail file {file_path}: {e}")
-            # Log error to audit trail
-            log_file_processing(
-                date=extract_date_from_file(file_path),
-                file_path=str(file_path),
-                file_type='activity_detail',
-                driver_count=0,
-                records_added=0,
-                status='failed',
-                error_message=str(e)
-            )
-    
-    # Generate trends for date ranges
-    if processed_dates:
-        # Sort dates
-        sorted_dates = sorted(processed_dates)
+    # Process activity records (they contain actual start times)
+    for record in activity_records:
+        driver_name = record.get('driver_name')
+        if not driver_name:
+            continue
         
-        # Generate trends for each potential 5-day window
-        for i in range(len(sorted_dates)):
-            end_date = sorted_dates[i]
-            end_date_obj = datetime.strptime(end_date, '%Y-%m-%d')
-            
-            # Define window start (up to 5 days before)
-            window_start_obj = end_date_obj - timedelta(days=4)
-            window_start = window_start_obj.strftime('%Y-%m-%d')
-            
-            # Filter dates in window
-            window_dates = [d for d in sorted_dates if window_start <= d <= end_date]
-            
-            # Only generate trends if we have enough days
-            if len(window_dates) >= 2:
-                logger.info(f"Generating attendance trends for {window_start} to {end_date}")
-                generate_attendance_trends(window_start, end_date)
+        if driver_name in merged_records:
+            # Update existing record
+            merged_records[driver_name]['actual_start'] = record.get('actual_start')
+            merged_records[driver_name]['job_site'] = record.get('job_site')
+            if 'activity_detail' not in merged_records[driver_name].get('data_sources', []):
+                merged_records[driver_name]['data_sources'].append('activity_detail')
+        else:
+            # Create new record
+            merged_records[driver_name] = {
+                'driver_name': driver_name,
+                'job_site': record.get('job_site'),
+                'actual_start': record.get('actual_start'),
+                'data_sources': ['activity_detail']
+            }
     
-    logger.info("Attendance pipeline completed successfully")
+    # Process driving records (they contain both start and end times)
+    for record in driving_records:
+        driver_name = record.get('driver_name')
+        if not driver_name:
+            continue
+        
+        if driver_name in merged_records:
+            # Update existing record
+            if not merged_records[driver_name].get('actual_start'):
+                merged_records[driver_name]['actual_start'] = record.get('actual_start')
+            if not merged_records[driver_name].get('actual_end'):
+                merged_records[driver_name]['actual_end'] = record.get('actual_end')
+            if not merged_records[driver_name].get('job_site'):
+                merged_records[driver_name]['job_site'] = record.get('job_site')
+            if 'driving_history' not in merged_records[driver_name].get('data_sources', []):
+                merged_records[driver_name]['data_sources'].append('driving_history')
+        else:
+            # Create new record
+            merged_records[driver_name] = {
+                'driver_name': driver_name,
+                'job_site': record.get('job_site'),
+                'actual_start': record.get('actual_start'),
+                'actual_end': record.get('actual_end'),
+                'data_sources': ['driving_history']
+            }
     
-    # Return processed dates
-    return sorted(processed_dates) if processed_dates else []
+    # Calculate lateness and early departure
+    for driver_name, record in merged_records.items():
+        # Default scheduled start if not available
+        if not record.get('scheduled_start'):
+            record['scheduled_start'] = DEFAULT_START_TIME
+        
+        # Calculate lateness
+        if record.get('scheduled_start') and record.get('actual_start'):
+            # Convert to datetime objects
+            try:
+                scheduled = datetime.strptime(record['scheduled_start'], '%H:%M')
+                actual = datetime.strptime(record['actual_start'], '%H:%M')
+                
+                # Calculate minutes late
+                delta = actual - scheduled
+                minutes_late = delta.total_seconds() / 60
+                
+                # Only positive values (late arrivals)
+                if minutes_late > 0:
+                    record['late_minutes'] = round(minutes_late)
+            except (ValueError, TypeError):
+                logger.warning(f"Could not calculate lateness for driver {driver_name}")
+        
+        # Calculate early departure
+        if record.get('scheduled_end') and record.get('actual_end'):
+            # Convert to datetime objects
+            try:
+                scheduled = datetime.strptime(record['scheduled_end'], '%H:%M')
+                actual = datetime.strptime(record['actual_end'], '%H:%M')
+                
+                # Calculate minutes early
+                delta = scheduled - actual
+                minutes_early = delta.total_seconds() / 60
+                
+                # Only positive values (early departures)
+                if minutes_early > 0:
+                    record['early_minutes'] = round(minutes_early)
+            except (ValueError, TypeError):
+                logger.warning(f"Could not calculate early departure for driver {driver_name}")
+    
+    # Convert to list
+    merged_list = list(merged_records.values())
+    logger.info(f"Merged {len(merged_list)} attendance records")
+    
+    return merged_list
 
-if __name__ == "__main__":
-    # Run the attendance pipeline
-    processed_dates = run_attendance_pipeline()
+
+def process_attendance_data(date_str=None):
+    """
+    Process attendance data for a specific date.
     
-    # Log results
-    if processed_dates:
-        logger.info(f"Processed attendance data for dates: {', '.join(processed_dates)}")
-    else:
-        logger.info("No attendance data processed")
+    Args:
+        date_str (str): Date string in format YYYY-MM-DD, defaults to today
+        
+    Returns:
+        list: Processed attendance records
+    """
+    logger.info(f"Processing attendance data for date: {date_str or 'today'}")
+    
+    # Find the latest input files
+    activity_file = find_latest_activity_file()
+    driving_file = find_latest_driving_history_file()
+    fleet_file = find_latest_fleet_utilization_file()
+    
+    # Parse the input files
+    activity_records = parse_activity_detail(activity_file)
+    driving_records = parse_driving_history(driving_file)
+    schedule_records = parse_fleet_utilization(fleet_file)
+    
+    # Merge the records
+    merged_records = merge_attendance_records(activity_records, driving_records, schedule_records)
+    
+    # Log processing summary
+    logger.info(f"Processed attendance data: {len(merged_records)} total records")
+    
+    return merged_records

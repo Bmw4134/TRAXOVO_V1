@@ -1,0 +1,229 @@
+{% extends "layout.html" %}
+
+{% block title %}Driver List{% endblock %}
+
+{% block content %}
+<div class="container-fluid my-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h1 class="display-5 mb-2">
+                <i class="bi bi-people me-2"></i>Driver List
+            </h1>
+            <p class="lead text-muted">
+                View all drivers with attendance history
+            </p>
+        </div>
+        <div class="col-md-6 text-md-end">
+            <div class="btn-group">
+                <a href="{{ url_for('driver_module.daily_report') }}" class="btn btn-primary">
+                    <i class="bi bi-calendar-day me-1"></i> Daily Report
+                </a>
+                <a href="{{ url_for('driver_module.attendance_dashboard') }}" class="btn btn-info text-white">
+                    <i class="bi bi-graph-up me-1"></i> Attendance Dashboard
+                </a>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-file-earmark-arrow-down me-1"></i> Export
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_driver_report') }}?type=drivers&format=pdf">PDF Report</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_driver_report') }}?type=drivers&format=csv">CSV Data</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_driver_report') }}?type=drivers&format=xlsx">Excel Spreadsheet</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Date Range Selection -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card bg-body-tertiary border-0 shadow-sm">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-5">
+                            <label for="start_date" class="form-label">Start Date</label>
+                            <input type="date" class="form-control" id="start_date" name="start_date" value="{{ start_date }}">
+                        </div>
+                        <div class="col-md-5">
+                            <label for="end_date" class="form-label">End Date</label>
+                            <input type="date" class="form-control" id="end_date" name="end_date" value="{{ end_date }}">
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-search me-1"></i> Filter
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100 bg-body-tertiary border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <div class="text-body-secondary">
+                            <i class="bi bi-people"></i> Total Drivers: <strong>{{ drivers|length }}</strong>
+                        </div>
+                        <div class="text-body-secondary">
+                            <i class="bi bi-calendar-range"></i> Date Range: <strong>{{ start_date }}</strong> to <strong>{{ end_date }}</strong>
+                        </div>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: 65%;" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" data-bs-toggle="tooltip" title="On-time: 65%"></div>
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" data-bs-toggle="tooltip" title="Late: 25%"></div>
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: 10%;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" data-bs-toggle="tooltip" title="Absent: 10%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Driver List Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-body-tertiary d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-table me-1"></i> Driver Attendance Summary</h5>
+                    <div class="input-group" style="max-width: 300px;">
+                        <span class="input-group-text" id="search-addon"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control" id="driverSearch" placeholder="Search drivers..." aria-label="Search" aria-describedby="search-addon">
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">Driver Name</th>
+                                    <th scope="col">Total Days</th>
+                                    <th scope="col">On-time %</th>
+                                    <th scope="col">Late Days</th>
+                                    <th scope="col">Avg. Late</th>
+                                    <th scope="col">Early End Days</th>
+                                    <th scope="col">Avg. Early</th>
+                                    <th scope="col">Absent Days</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for driver in drivers %}
+                                <tr>
+                                    <td><strong>{{ driver.name }}</strong></td>
+                                    <td>{{ driver.total_days }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="me-2">{{ driver.on_time_percent }}%</div>
+                                            <div class="progress flex-grow-1" style="height: 6px;">
+                                                <div class="progress-bar bg-success" role="progressbar" 
+                                                     style="width: {{ driver.on_time_percent }}%;" 
+                                                     aria-valuenow="{{ driver.on_time_percent }}" aria-valuemin="0" aria-valuemax="100">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ driver.late_days }}</td>
+                                    <td>{{ driver.avg_late_minutes|round|int }} min</td>
+                                    <td>{{ driver.early_end_days }}</td>
+                                    <td>{{ driver.avg_early_minutes|round|int }} min</td>
+                                    <td>{{ driver.not_on_job_days }}</td>
+                                    <td>
+                                        {% if driver.late_days >= 3 %}
+                                        <span class="badge bg-danger">Chronic Late</span>
+                                        {% elif driver.not_on_job_days >= 2 %}
+                                        <span class="badge bg-danger">Attendance Issue</span>
+                                        {% elif driver.late_days > 0 %}
+                                        <span class="badge bg-warning">Occasional Late</span>
+                                        {% else %}
+                                        <span class="badge bg-success">Good Standing</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-info" data-bs-toggle="tooltip" title="View Driver Details">
+                                            <i class="bi bi-info-circle"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer bg-body-secondary">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center mb-0">
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                            </li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Legends -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="mb-3">Status Legend</h6>
+                    <div class="d-flex flex-wrap gap-3">
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-success me-2">Good Standing</span>
+                            <small class="text-body-secondary">No late arrivals or absences</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-warning me-2">Occasional Late</span>
+                            <small class="text-body-secondary">1-2 late arrivals in period</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-danger me-2">Chronic Late</span>
+                            <small class="text-body-secondary">3+ late arrivals in period</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-danger me-2">Attendance Issue</span>
+                            <small class="text-body-secondary">2+ absences in period</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Initialize tooltips -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+    
+    // Driver search functionality
+    const searchInput = document.getElementById('driverSearch');
+    searchInput.addEventListener('keyup', function() {
+        const searchText = this.value.toLowerCase();
+        const rows = document.querySelectorAll('tbody tr');
+        
+        rows.forEach(function(row) {
+            const driverName = row.querySelector('td:first-child').textContent.toLowerCase();
+            if (driverName.includes(searchText)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

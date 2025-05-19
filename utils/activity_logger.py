@@ -1,281 +1,231 @@
 """
-Activity Logger Utility
+Activity Logger Module
 
-This module provides functions for logging user activities and system events
-to maintain an audit trail of actions within the application.
+This module provides functions for logging user activities
+to help with auditing and troubleshooting.
 """
 
 import logging
-from datetime import datetime
-from flask import session, request, g
-import os
 import json
+from datetime import datetime
+from flask import current_app, request, session
+from flask_login import current_user
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger('utils.activity_logger')
+# Configure logger
+logger = logging.getLogger(__name__)
 
-# Constants
-LOG_FOLDER = os.path.join(os.getcwd(), 'logs')
-ACTIVITY_LOG_FILE = os.path.join(LOG_FOLDER, 'activity.log')
+def _get_user_info():
+    """
+    Get user information for logging
+    
+    Returns:
+        dict: User information
+    """
+    user_info = {
+        'user_id': None,
+        'username': 'anonymous',
+        'ip_address': request.remote_addr,
+        'user_agent': request.user_agent.string if request.user_agent else 'unknown'
+    }
+    
+    try:
+        if current_user and current_user.is_authenticated:
+            user_info['user_id'] = current_user.id
+            user_info['username'] = current_user.username
+    except:
+        pass
+        
+    return user_info
 
-# Create logs directory if it doesn't exist
-if not os.path.exists(LOG_FOLDER):
-    os.makedirs(LOG_FOLDER)
+def log_activity(activity_type, description, details=None):
+    """
+    Log a user activity
+    
+    Args:
+        activity_type (str): Type of activity (e.g., 'login', 'export', 'search')
+        description (str): Brief description of the activity
+        details (dict): Additional details about the activity
+    """
+    try:
+        user_info = _get_user_info()
+        
+        activity_data = {
+            'timestamp': datetime.now().isoformat(),
+            'activity_type': activity_type,
+            'description': description,
+            'details': details or {},
+            'user_info': user_info,
+            'session_id': session.get('_id', None)
+        }
+        
+        # Log in JSON format for easier parsing
+        logger.info(f"ACTIVITY: {json.dumps(activity_data)}")
+        
+        # In a more advanced implementation, we would also store in database
+        
+    except Exception as e:
+        logger.warning(f"Failed to log activity: {e}")
 
-def log_navigation(from_page, to_page, user_id=None, metadata=None):
+def log_navigation(page_name, params=None):
     """
     Log a page navigation event
     
     Args:
-        from_page (str): Page user navigated from
-        to_page (str): Page user navigated to
-        user_id (str, optional): ID of the user performing the action
-        metadata (dict, optional): Additional metadata
-        
-    Returns:
-        bool: Success status
+        page_name (str): Name of the page being viewed
+        params (dict): URL parameters or other context
     """
-    description = f"Navigation from {from_page} to {to_page}"
-    return log_activity('navigation', description, user_id, metadata)
+    log_activity('navigation', f"Viewed {page_name}", params)
 
-def log_document_upload(document_type, filename, user_id=None, metadata=None):
+def log_login(success, username, reason=None):
     """
-    Log a document upload event
+    Log a login attempt
     
     Args:
-        document_type (str): Type of document being uploaded
-        filename (str): Name of the uploaded file
-        user_id (str, optional): ID of the user performing the action
-        metadata (dict, optional): Additional metadata
+        success (bool): Whether the login was successful
+        username (str): Username attempting to log in
+        reason (str): Reason for failure if not successful
+    """
+    details = {'username': username, 'success': success}
+    if reason:
+        details['reason'] = reason
         
-    Returns:
-        bool: Success status
-    """
-    description = f"Uploaded {document_type} document: {filename}"
-    return log_activity('document_upload', description, user_id, metadata)
+    log_activity('login', 
+                 f"{'Successful' if success else 'Failed'} login for {username}", 
+                 details)
 
-def log_report_export(report_type=None, export_format=None, user_id=None, metadata=None):
+def log_document_upload(file_name, file_size, file_type, module):
     """
-    Log a report export event
+    Log a document upload
     
     Args:
-        report_type (str, optional): Type of report being exported
-        export_format (str, optional): Format of the export (PDF, CSV, etc.)
-        user_id (str, optional): ID of the user performing the action
-        metadata (dict, optional): Additional metadata
-        
-    Returns:
-        bool: Success status
+        file_name (str): Name of the uploaded file
+        file_size (int): Size of the file in bytes
+        file_type (str): MIME type or extension of the file
+        module (str): Module where the file was uploaded
     """
-    report_info = f"{report_type} report" if report_type else "report" 
-    format_info = f"in {export_format.upper()} format" if export_format else ""
-    description = f"Exported {report_info} {format_info}".strip()
-    return log_activity('report_export', description, user_id, metadata)
+    log_activity('upload', 
+                 f"Uploaded {file_name} to {module}", 
+                 {
+                     'file_name': file_name,
+                     'file_size': file_size,
+                     'file_type': file_type,
+                     'module': module
+                 })
 
-def log_pm_process(original_file, updated_file, user_id=None, metadata=None):
+def log_report_export(report_type, format_type, filters=None):
+    """
+    Log a report export
+    
+    Args:
+        report_type (str): Type of report exported
+        format_type (str): Format of the export (e.g., 'excel', 'pdf')
+        filters (dict): Filters applied to the report
+    """
+    log_activity('export', 
+                 f"Exported {report_type} report in {format_type} format", 
+                 {
+                     'report_type': report_type,
+                     'format': format_type,
+                     'filters': filters or {}
+                 })
+
+def log_data_change(entity_type, entity_id, change_type, old_values=None, new_values=None):
+    """
+    Log a data change event
+    
+    Args:
+        entity_type (str): Type of entity being changed (e.g., 'driver', 'asset')
+        entity_id (str): ID of the entity
+        change_type (str): Type of change ('create', 'update', 'delete')
+        old_values (dict): Previous values for the entity's fields
+        new_values (dict): New values for the entity's fields
+    """
+    log_activity('data_change', 
+                 f"{change_type.capitalize()} {entity_type} {entity_id}", 
+                 {
+                     'entity_type': entity_type,
+                     'entity_id': entity_id,
+                     'change_type': change_type,
+                     'old_values': old_values or {},
+                     'new_values': new_values or {}
+                 })
+
+def log_error(error_type, message, context=None):
+    """
+    Log an application error
+    
+    Args:
+        error_type (str): Type of error
+        message (str): Error message
+        context (dict): Contextual information about the error
+    """
+    user_info = _get_user_info()
+    
+    error_data = {
+        'timestamp': datetime.now().isoformat(),
+        'error_type': error_type,
+        'message': message,
+        'context': context or {},
+        'user_info': user_info,
+        'url': request.url if request else None,
+        'method': request.method if request else None,
+        'session_id': session.get('_id', None)
+    }
+    
+    # Log error details
+    logger.error(f"APPLICATION ERROR: {json.dumps(error_data)}")
+
+def log_pm_process(process_type, file_name, result_stats=None):
     """
     Log a PM allocation processing event
     
     Args:
-        original_file (str): Name of the original PM allocation file
-        updated_file (str): Name of the updated PM allocation file
-        user_id (str, optional): ID of the user performing the action
-        metadata (dict, optional): Additional metadata
-        
-    Returns:
-        bool: Success status
+        process_type (str): Type of process ('import', 'export', 'reconcile')
+        file_name (str): Name of the file being processed
+        result_stats (dict): Statistics about the processing result
     """
-    description = f"Processed PM allocation files: {original_file} and {updated_file}"
-    return log_activity('pm_allocation_process', description, user_id, metadata)
+    log_activity('pm_process', 
+                 f"{process_type.capitalize()} PM allocation file: {file_name}", 
+                 {
+                     'process_type': process_type,
+                     'file_name': file_name,
+                     'stats': result_stats or {}
+                 })
 
-def log_feature_usage(feature_name, action=None, user_id=None, metadata=None):
+def log_invoice_generation(invoice_type, invoice_number, amount, details=None):
     """
-    Log usage of a specific feature
+    Log an invoice generation event
     
     Args:
-        feature_name (str): Name of the feature being used
-        action (str, optional): Specific action being performed
-        user_id (str, optional): ID of the user performing the action
-        metadata (dict, optional): Additional metadata
-        
-    Returns:
-        bool: Success status
-    """
-    action_info = f" - {action}" if action else ""
-    description = f"Used feature: {feature_name}{action_info}"
-    return log_activity('feature_usage', description, user_id, metadata)
-
-def log_invoice_generation(invoice_id, amount, client=None, user_id=None, metadata=None):
-    """
-    Log generation of an invoice
-    
-    Args:
-        invoice_id (str): ID of the generated invoice
+        invoice_type (str): Type of invoice ('monthly', 'corrected', 'supplemental')
+        invoice_number (str): Invoice reference number
         amount (float): Total amount of the invoice
-        client (str, optional): Client name or ID
-        user_id (str, optional): ID of the user performing the action
-        metadata (dict, optional): Additional metadata
-        
-    Returns:
-        bool: Success status
+        details (dict): Additional details about the invoice
     """
-    client_info = f" for {client}" if client else ""
-    amount_formatted = f"${amount:,.2f}" if amount else ""
-    description = f"Generated invoice #{invoice_id}{client_info} - {amount_formatted}"
-    return log_activity('invoice_generation', description, user_id, metadata)
-
-def log_payment_record(invoice_id, amount, payment_method=None, user_id=None, metadata=None):
+    log_activity('invoice_generation', 
+                 f"Generated {invoice_type} invoice #{invoice_number} for ${amount:.2f}", 
+                 {
+                     'invoice_type': invoice_type,
+                     'invoice_number': invoice_number,
+                     'amount': amount,
+                     'details': details or {}
+                 })
+                 
+def log_payment_record(payment_type, amount, reference_number, details=None):
     """
-    Log recording of a payment
+    Log a payment record event
     
     Args:
-        invoice_id (str): ID of the invoice being paid
+        payment_type (str): Type of payment ('check', 'credit', 'wire', 'cash')
         amount (float): Amount of the payment
-        payment_method (str, optional): Method of payment
-        user_id (str, optional): ID of the user performing the action
-        metadata (dict, optional): Additional metadata
-        
-    Returns:
-        bool: Success status
+        reference_number (str): Reference or transaction number
+        details (dict): Additional details about the payment
     """
-    method_info = f" via {payment_method}" if payment_method else ""
-    amount_formatted = f"${amount:,.2f}" if amount else ""
-    description = f"Recorded payment of {amount_formatted}{method_info} for invoice #{invoice_id}"
-    return log_activity('payment_record', description, user_id, metadata)
-
-def log_search(query, results_count=None, module=None, user_id=None, metadata=None):
-    """
-    Log a search operation
-    
-    Args:
-        query (str): Search query
-        results_count (int, optional): Number of results found
-        module (str, optional): Module where search was performed
-        user_id (str, optional): ID of the user performing the action
-        metadata (dict, optional): Additional metadata
-        
-    Returns:
-        bool: Success status
-    """
-    count_info = f" - {results_count} results" if results_count is not None else ""
-    module_info = f" in {module}" if module else ""
-    description = f"Searched{module_info}: '{query}'{count_info}"
-    return log_activity('search', description, user_id, metadata)
-
-def get_recent_activities(limit=20):
-    """
-    Get recent activities from the activity log
-    
-    Args:
-        limit (int): Maximum number of activities to return
-        
-    Returns:
-        list: List of activity dictionaries
-    """
-    try:
-        # Get database connection
-        from app import db
-        from models import ActivityLog
-        
-        # Query recent activities ordered by timestamp (newest first)
-        activities = (ActivityLog.query
-                     .order_by(ActivityLog.timestamp.desc())
-                     .limit(limit)
-                     .all())
-        
-        # Convert to dictionaries for template rendering
-        return [activity.to_dict() for activity in activities]
-    except Exception as e:
-        print(f"Error getting recent activities: {e}")
-        return []
-
-def log_activity(activity_type, description=None, user_id=None, metadata=None):
-    """
-    Log a user activity or system event
-    
-    Args:
-        activity_type (str): Type of activity (e.g., 'login', 'report_generation')
-        description (str, optional): Description of the activity
-        user_id (str, optional): ID of the user performing the activity
-        metadata (dict, optional): Additional metadata about the activity
-        
-    Returns:
-        bool: Success status
-    """
-    try:
-        # Get current user from session if available
-        if user_id is None:
-            if hasattr(g, 'user') and g.user:
-                user_id = g.user.id
-            elif session.get('user_id'):
-                user_id = session.get('user_id')
-            else:
-                user_id = 'admin'  # Default for system events or anonymous users
-        
-        # Create activity record
-        activity = {
-            'timestamp': datetime.now().isoformat(),
-            'activity_type': activity_type,
-            'description': description,
-            'user_id': user_id,
-            'ip_address': request.remote_addr if request else None,
-            'user_agent': request.user_agent.string if request and request.user_agent else None,
-            'endpoint': request.endpoint if request else None,
-            'metadata': metadata or {}
-        }
-        
-        # Log to application logger
-        logger.info(f"ACTIVITY: {activity_type} by {user_id}")
-        
-        # Write to activity log file
-        with open(ACTIVITY_LOG_FILE, 'a') as log_file:
-            log_file.write(f"{json.dumps(activity)}\n")
-            
-        return True
-    except Exception as e:
-        logger.error(f"Error logging activity: {str(e)}")
-        return False
-
-def get_recent_activities(limit=100, activity_type=None, user_id=None):
-    """
-    Get recent activity logs
-    
-    Args:
-        limit (int): Maximum number of activities to return
-        activity_type (str, optional): Filter by activity type
-        user_id (str, optional): Filter by user ID
-        
-    Returns:
-        list: List of activity records
-    """
-    try:
-        if not os.path.exists(ACTIVITY_LOG_FILE):
-            return []
-            
-        activities = []
-        with open(ACTIVITY_LOG_FILE, 'r') as log_file:
-            # Start from the end and read the file backwards to get the most recent entries
-            lines = log_file.readlines()
-            for line in reversed(lines):
-                try:
-                    activity = json.loads(line.strip())
-                    
-                    # Apply filters
-                    if activity_type and activity['activity_type'] != activity_type:
-                        continue
-                        
-                    if user_id and activity['user_id'] != user_id:
-                        continue
-                        
-                    activities.append(activity)
-                    
-                    if len(activities) >= limit:
-                        break
-                except json.JSONDecodeError:
-                    continue
-                    
-        return activities
-    except Exception as e:
-        logger.error(f"Error getting recent activities: {str(e)}")
-        return []
+    log_activity('payment_record', 
+                 f"Recorded {payment_type} payment of ${amount:.2f} (Ref: {reference_number})", 
+                 {
+                     'payment_type': payment_type,
+                     'amount': amount,
+                     'reference_number': reference_number,
+                     'details': details or {}
+                 })

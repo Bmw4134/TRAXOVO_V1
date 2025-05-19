@@ -4,8 +4,9 @@ Email Configuration Model
 This module provides the database model for storing email lists
 and system-wide email configurations.
 """
-from app import db
 from datetime import datetime
+from app import db
+
 
 class EmailRecipientList(db.Model):
     """
@@ -40,9 +41,9 @@ class EmailRecipientList(db.Model):
         Adds an email to the recipient list if not already present
         """
         current_recipients = self.get_recipients_list()
-        if email.strip() not in current_recipients:
-            current_recipients.append(email.strip())
-            self.recipients = ', '.join(current_recipients)
+        if email not in current_recipients:
+            current_recipients.append(email)
+            self.recipients = ','.join(current_recipients)
             return True
         return False
     
@@ -51,8 +52,8 @@ class EmailRecipientList(db.Model):
         Removes an email from the recipient list if present
         """
         current_recipients = self.get_recipients_list()
-        if email.strip() in current_recipients:
-            current_recipients.remove(email.strip())
-            self.recipients = ', '.join(current_recipients)
+        if email in current_recipients:
+            current_recipients.remove(email)
+            self.recipients = ','.join(current_recipients)
             return True
         return False

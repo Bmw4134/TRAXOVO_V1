@@ -4,8 +4,9 @@ User Settings Model
 This module provides the database model for storing user preferences
 and settings, including email configurations.
 """
-from app import db
 from datetime import datetime
+from app import db
+
 
 class UserSettings(db.Model):
     """
@@ -22,8 +23,7 @@ class UserSettings(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
     
-    # Define a unique constraint on user_id and setting_key
     __table_args__ = (db.UniqueConstraint('user_id', 'setting_key', name='uq_user_setting'),)
     
     def __repr__(self):
-        return f'<UserSetting {self.setting_key}>'
+        return f'<UserSetting {self.user_id}:{self.setting_key}>'

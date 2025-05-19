@@ -917,48 +917,167 @@ def job_site_detail(site_id):
 @login_required
 def region_detail(region_id):
     """Region detail page with attendance metrics"""
-    log_navigation(current_user.id, f'driver_module.region_detail.{region_id}')
-    
-    # Look up region from our sample data
-    stats = get_sample_attendance_stats()
-    region = next((r for r in stats['regions'] if r['id'] == region_id), None)
-    
-    if not region:
-        flash('Region not found', 'danger')
+    try:
+        log_navigation(current_user.id, f'driver_module.region_detail.{region_id}')
+        
+        # Import required models
+        from models.driver_attendance import DriverAttendance, AttendanceRecord, JobSite, Region
+        
+        # Get the region from the database
+        region_record = Region.query.get(region_id)
+        
+        if not region_record:
+            flash('Region not found', 'danger')
+            return redirect(url_for('driver_module.attendance_dashboard'))
+        
+        # Format for template
+        region = {
+            'id': str(region_record.id),
+            'name': region_record.name,
+            'code': region_record.code or '',
+            'status': 'Active' if getattr(region_record, 'is_active', True) else 'Inactive',
+            'on_time_count': 0,
+            'late_count': 0,
+            'not_on_job_count': 0,
+            'attendance_score': 0
+        }
+        
+        # Get all drivers in this region
+        driver_records = DriverAttendance.query.filter(
+            DriverAttendance.division == region_id
+        ).all()
+        
+        drivers = []
+        driver_ids = []
+        
+        for driver_record in driver_records:
+            drivers.append({
+                'id': str(driver_record.id),
+                'name': driver_record.full_name,
+                'employee_id': driver_record.employee_id,
+                'status': 'Active' if getattr(driver_record, 'is_active', True) else 'Inactive',
+                'region': region_record.name,
+                'attendance_score': 0,  # Will be calculated below
+                'late_count': 0,  # Will be calculated below
+                'early_end_count': 0,  # Will be calculated below
+                'not_on_job_count': 0  # Will be calculated below
+            })
+            driver_ids.append(driver_record.id)
+        
+        # Get attendance records for these drivers in the last 180 days (6 months)
+        today = datetime.now().date()
+        six_months_ago = today - timedelta(days=180)
+        
+        attendance_records = AttendanceRecord.query.filter(
+            AttendanceRecord.driver_id.in_(driver_ids),
+            AttendanceRecord.date.between(six_months_ago, today)
+        ).all()
+        
+        # Calculate region metrics
+        total_records = len(attendance_records)
+        late_count = sum(1 for r in attendance_records if r.late_start)
+        early_end_count = sum(1 for r in attendance_records if r.early_end)
+        not_on_job_count = sum(1 for r in attendance_records if r.not_on_job)
+        on_time_count = total_records - (late_count + early_end_count + not_on_job_count)
+        
+        region['on_time_count'] = on_time_count
+        region['late_count'] = late_count
+        region['not_on_job_count'] = not_on_job_count
+        region['attendance_score'] = int((on_time_count / total_records) * 100) if total_records > 0 else 0
+        
+        # Calculate metrics for each driver
+        for driver in drivers:
+            driver_id = driver['id']
+            driver_records = [r for r in attendance_records if str(r.driver_id) == driver_id]
+            
+            driver_total = len(driver_records)
+            if driver_total > 0:
+                driver_late_count = sum(1 for r in driver_records if r.late_start)
+                driver_early_end_count = sum(1 for r in driver_records if r.early_end)
+                driver_not_on_job_count = sum(1 for r in driver_records if r.not_on_job)
+                driver_on_time_count = driver_total - (driver_late_count + driver_early_end_count + driver_not_on_job_count)
+                
+                driver['late_count'] = driver_late_count
+                driver['early_end_count'] = driver_early_end_count
+                driver['not_on_job_count'] = driver_not_on_job_count
+                driver['attendance_score'] = int((driver_on_time_count / driver_total) * 100)
+        
+        # Get all job sites associated with these drivers
+        job_site_ids = set(r.job_site_id for r in attendance_records if r.job_site_id)
+        job_site_records = JobSite.query.filter(JobSite.id.in_(job_site_ids)).all()
+        
+        job_sites = []
+        for site in job_site_records:
+            site_records = [r for r in attendance_records if r.job_site_id == site.id]
+            total_site_records = len(site_records)
+            
+            if total_site_records > 0:
+                site_late_count = sum(1 for r in site_records if r.late_start)
+                site_early_end_count = sum(1 for r in site_records if r.early_end)
+                site_not_on_job_count = sum(1 for r in site_records if r.not_on_job)
+                site_on_time_count = total_site_records - (site_late_count + site_early_end_count + site_not_on_job_count)
+                
+                job_sites.append({
+                    'id': str(site.id),
+                    'name': site.name,
+                    'location': site.location or 'N/A',
+                    'attendance_score': int((site_on_time_count / total_site_records) * 100)
+                })
+        
+        # Generate monthly metrics for the last 6 months
+        monthly_metrics = []
+        
+        # Create a function to get the first day of the month
+        def get_first_day_of_month(date):
+            return date.replace(day=1)
+        
+        # Create a function to get the last day of the month
+        def get_last_day_of_month(date):
+            next_month = date.replace(day=28) + timedelta(days=4)
+            return (next_month - timedelta(days=next_month.day)).replace(day=next_month.day - 1)
+        
+        # Group records by month
+        for i in range(6):
+            current_month = today.replace(day=1) - timedelta(days=i * 30)
+            first_day = get_first_day_of_month(current_month)
+            last_day = get_last_day_of_month(current_month)
+            month_str = first_day.strftime('%B %Y')
+            
+            # Filter records for this month
+            month_records = [r for r in attendance_records 
+                            if first_day <= r.date <= last_day]
+            
+            driver_count = len(set(r.driver_id for r in month_records))
+            total_records = len(month_records)
+            
+            if total_records > 0:
+                on_time_count = sum(1 for r in month_records 
+                                   if not (r.late_start or r.early_end or r.not_on_job))
+                late_count = sum(1 for r in month_records if r.late_start)
+                on_time_pct = int((on_time_count / total_records) * 100)
+            else:
+                on_time_count = 0
+                late_count = 0
+                on_time_pct = 0
+            
+            monthly_metrics.append({
+                'month': month_str,
+                'driver_count': driver_count,
+                'on_time_count': on_time_count,
+                'late_count': late_count,
+                'on_time_percentage': on_time_pct
+            })
+        
+        return render_template('drivers/region_detail.html',
+                              region=region,
+                              drivers=drivers,
+                              job_sites=job_sites,
+                              monthly_metrics=monthly_metrics)
+                              
+    except Exception as e:
+        logger.error(f"Error loading region detail: {str(e)}")
+        flash(f"Error loading region details: {str(e)}", "danger")
         return redirect(url_for('driver_module.attendance_dashboard'))
-    
-    # Get drivers for this region
-    drivers = [d for d in get_sample_drivers() if d['region'] == region_id]
-    
-    # Get job sites in this region
-    job_sites = [s for s in stats['job_sites'] if any(d['job_site'] == s['name'] for d in drivers)]
-    
-    # Generate sample monthly metrics for the last 6 months
-    today = datetime.now()
-    monthly_metrics = []
-    
-    for i in range(6):
-        month_date = today.replace(day=1) - timedelta(days=i*30)
-        month_str = month_date.strftime('%B %Y')
-        
-        import random
-        on_time_pct = random.randint(80, 95)
-        driver_count = random.randint(15, 25)
-        on_time_count = int((on_time_pct / 100) * driver_count)
-        
-        monthly_metrics.append({
-            'month': month_str,
-            'driver_count': driver_count,
-            'on_time_count': on_time_count,
-            'late_count': driver_count - on_time_count,
-            'on_time_percentage': on_time_pct
-        })
-    
-    return render_template('drivers/region_detail.html',
-                          region=region,
-                          drivers=drivers,
-                          job_sites=job_sites,
-                          monthly_metrics=monthly_metrics)
 
 @driver_module_bp.route('/upload_attendance', methods=['GET', 'POST'])
 @login_required

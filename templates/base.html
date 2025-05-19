@@ -34,7 +34,7 @@
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="assetsDropdown">
                             <li><a class="dropdown-item" href="{{ url_for('main.assets') }}"><i class="bi bi-list-ul me-1"></i> View All Assets</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('main.assets') }}"><i class="bi bi-geo-alt me-1"></i> Asset Map</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('geo_tracking_basic.simple_map_view') }}"><i class="bi bi-geo-alt me-1"></i> Asset Map</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="#"><i class="bi bi-person-badge me-1"></i> Driver Assignments</a></li>
                         </ul>
@@ -42,7 +42,7 @@
                     
                     <!-- Geolocation Tracking -->
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('geo_tracking.index') }}">
+                        <a class="nav-link" href="{{ url_for('geo_tracking_basic.simple_map_view') }}">
                             <i class="bi bi-geo-alt-fill me-1"></i> Real-Time Tracking
                         </a>
                     </li>
@@ -79,9 +79,9 @@
                             <i class="bi bi-calendar-check me-1"></i> Attendance
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="attendanceDropdown">
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-calendar-day me-1"></i> Daily View</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-graph-up me-1"></i> Dashboard</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-file-earmark-text me-1"></i> Reports</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('daily_report') }}"><i class="bi bi-calendar-day me-1"></i> Daily Report</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('drivers.index') }}"><i class="bi bi-graph-up me-1"></i> Driver Dashboard</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('drivers.report_viewer') }}"><i class="bi bi-file-earmark-text me-1"></i> Reports</a></li>
                         </ul>
                     </li>
                     

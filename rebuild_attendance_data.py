@@ -57,13 +57,40 @@ def load_employee_job_data():
             logger.warning(f"Consolidated employee/job file not found: {employee_job_file}")
             return None, None
         
-        # Load employee data from first sheet
-        employee_data = pd.read_excel(employee_job_file, sheet_name="Employees")
-        logger.info(f"Loaded {len(employee_data)} employee records")
+        # Load employee data from Employee_Contacts sheet
+        employee_data = pd.read_excel(employee_job_file, sheet_name="Employee_Contacts")
         
-        # Load job data from second sheet
-        job_data = pd.read_excel(employee_job_file, sheet_name="Jobs")
-        logger.info(f"Loaded {len(job_data)} job records")
+        # Create a combined Employee Name field for matching with driver names
+        employee_data['Employee Name'] = employee_data['First Name'] + ' ' + employee_data['Last Name']
+        
+        # Add employee_id field for join operations
+        employee_data['employee_id'] = employee_data['Employee No']
+        
+        logger.info(f"Loaded {len(employee_data)} employee records from Employee_Contacts")
+        
+        # Load employee metadata if needed for additional details
+        try:
+            employee_metadata = pd.read_excel(employee_job_file, sheet_name="Employee_Metadata")
+            logger.info(f"Loaded {len(employee_metadata)} employee metadata records")
+            
+            # Merge metadata with contacts if needed
+            # employee_data = pd.merge(employee_data, employee_metadata, on='Employee No', how='left')
+        except Exception as e:
+            logger.warning(f"Could not load employee metadata: {e}")
+        
+        # Load job data from Job_Lists sheet
+        job_data = pd.read_excel(employee_job_file, sheet_name="Job_Lists")
+        
+        # Create a Job Number field for matching with driver job assignments
+        job_data['Job Number'] = job_data['Job No']
+        
+        # Add Division field from Geographic Area
+        job_data['Division'] = job_data['Geographic Area']
+        
+        # Add Region field (can be extracted from Geographic Area if needed)
+        job_data['Region'] = job_data['Geographic Area']
+        
+        logger.info(f"Loaded {len(job_data)} job records from Job_Lists")
         
         return employee_data, job_data
     

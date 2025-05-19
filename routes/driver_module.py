@@ -9,6 +9,7 @@ import os
 import json
 import logging
 from datetime import datetime, timedelta
+import random
 from models.user_settings import UserSettings
 from models.email_configuration import EmailRecipientList
 from flask_login import current_user
@@ -38,6 +39,10 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 EXPORTS_FOLDER = os.path.join('exports', 'driver_reports')
 os.makedirs(EXPORTS_FOLDER, exist_ok=True)
+
+# Create audit history folder for reports
+AUDIT_EXPORTS_FOLDER = os.path.join('exports', 'audit_reports')
+os.makedirs(AUDIT_EXPORTS_FOLDER, exist_ok=True)
 
 ALLOWED_EXTENSIONS = {'csv', 'xlsx', 'pdf'}
 
@@ -467,8 +472,206 @@ def get_attendance_stats(days=30):
 @login_required
 def index():
     """Driver module home page"""
-    log_navigation('Driver Module Home')
+    log_navigation(current_user.id if current_user.is_authenticated else None, 'Driver Module Home')
     return render_template('drivers/index.html')
+
+def get_mock_audit_results(search_type, search_term, start_date, end_date):
+    """
+    Generate mock audit results for a vehicle or driver
+    This is temporary until we set up the actual database queries
+    
+    Args:
+        search_type (str): Type of search ('vehicle' or 'driver')
+        search_term (str): Search term
+        start_date (str): Start date in YYYY-MM-DD format
+        end_date (str): End date in YYYY-MM-DD format
+        
+    Returns:
+        list: List of audit result dictionaries
+    """
+    # Parse dates
+    start = datetime.strptime(start_date, '%Y-%m-%d')
+    end = datetime.strptime(end_date, '%Y-%m-%d')
+    
+    # Create date range
+    date_range = []
+    current = start
+    while current <= end:
+        date_range.append(current)
+        current += timedelta(days=1)
+    
+    # Build sample data
+    results = []
+    
+    # Vehicles with their associated drivers
+    vehicle_data = {
+        'TRK-1001': {'driver': 'John Smith', 'employee_id': 'E1001'},
+        'TRK-1002': {'driver': 'Maria Rodriguez', 'employee_id': 'E1002'},
+        'TRK-1003': {'driver': 'David Williams', 'employee_id': 'E1003'},
+        'TRK-1004': {'driver': 'Sarah Johnson', 'employee_id': 'E1004'},
+        'EXCV-2001': {'driver': 'Michael Brown', 'employee_id': 'E2001'},
+        'EXCV-2002': {'driver': 'Lisa Chen', 'employee_id': 'E2002'},
+        'EXCV-2003': {'driver': 'Robert Davis', 'employee_id': 'E2003'},
+        'BLD-3001': {'driver': 'James Wilson', 'employee_id': 'E3001'},
+        'BLD-3002': {'driver': 'Jennifer Lee', 'employee_id': 'E3002'},
+        'BLD-3003': {'driver': 'Thomas Martinez', 'employee_id': 'E3003'},
+    }
+    
+    # Job sites
+    job_sites = [
+        'Project Alpha', 'Project Beta', 'Project Gamma',
+        'Project Delta', 'Project Epsilon', 'Project Zeta'
+    ]
+    
+    # If searching by vehicle, filter to just that vehicle if it exists
+    target_vehicles = []
+    if search_type == 'vehicle' and search_term:
+        for vehicle_id in vehicle_data.keys():
+            if search_term.lower() in vehicle_id.lower():
+                target_vehicles.append(vehicle_id)
+    else:
+        target_vehicles = list(vehicle_data.keys())
+    
+    # If searching by driver, filter to just vehicles driven by that driver
+    if search_type == 'driver' and search_term:
+        search_term_lower = search_term.lower()
+        target_vehicles = [
+            v_id for v_id, data in vehicle_data.items() 
+            if search_term_lower in data['driver'].lower() or search_term_lower in data['employee_id'].lower()
+        ]
+    
+    # Create records for each vehicle and date
+    for vehicle_id in target_vehicles:
+        driver_info = vehicle_data[vehicle_id]
+        
+        # Create 3-5 random dates in the range for each vehicle
+        num_dates = random.randint(3, min(5, len(date_range)))
+        random_dates = random.sample(date_range, num_dates)
+        
+        for date in random_dates:
+            # Randomize job site
+            assigned_job = random.choice(job_sites)
+            
+            # 20% chance of being on a different job than assigned
+            actual_job = assigned_job
+            not_on_job = False
+            if random.random() < 0.2:
+                while actual_job == assigned_job:
+                    actual_job = random.choice(job_sites)
+                not_on_job = True
+            
+            # Generate times
+            expected_start = date.replace(hour=7, minute=0)
+            expected_end = date.replace(hour=17, minute=0)
+            
+            # 30% chance of late start
+            late_start = random.random() < 0.3
+            actual_start = expected_start
+            if late_start:
+                # Late by 5-45 minutes
+                late_by = random.randint(5, 45)
+                actual_start = expected_start + timedelta(minutes=late_by)
+            
+            # 20% chance of early end
+            early_end = random.random() < 0.2
+            actual_end = expected_end
+            if early_end:
+                # Early by 10-60 minutes
+                early_by = random.randint(10, 60)
+                actual_end = expected_end - timedelta(minutes=early_by)
+            
+            # Determine status
+            if late_start:
+                status = 'Late Start'
+            elif early_end:
+                status = 'Early End'
+            elif not_on_job:
+                status = 'Not on Job'
+            else:
+                status = 'Normal'
+            
+            # Add notes for exceptions
+            notes = ''
+            if status != 'Normal':
+                note_options = [
+                    'Traffic delay reported',
+                    'Equipment issue reported',
+                    'Weather conditions',
+                    'Approved early departure',
+                    'Reassigned to different site',
+                    'Meeting at office',
+                    'Training session',
+                    'Vehicle maintenance',
+                    'Family emergency'
+                ]
+                notes = random.choice(note_options)
+            
+            # Create the record
+            record = {
+                'date': date.strftime('%Y-%m-%d'),
+                'driver_name': driver_info['driver'],
+                'employee_id': driver_info['employee_id'],
+                'assigned_job': assigned_job,
+                'actual_job': actual_job,
+                'asset_id': vehicle_id,
+                'expected_start': expected_start.strftime('%I:%M %p'),
+                'actual_start': actual_start.strftime('%I:%M %p'),
+                'expected_end': expected_end.strftime('%I:%M %p'),
+                'actual_end': actual_end.strftime('%I:%M %p'),
+                'status': status,
+                'notes': notes
+            }
+            
+            results.append(record)
+    
+    # Sort by date (newest first)
+    results = sorted(results, key=lambda x: x['date'], reverse=True)
+    
+    return results
+
+@driver_module_bp.route('/vehicle-audit')
+@login_required
+def vehicle_audit():
+    """
+    Display the vehicle history audit page
+    Allows searching and displaying history for a specific vehicle or driver
+    """
+    # Log navigation activity
+    log_navigation(current_user.id if current_user.is_authenticated else None, "Vehicle Audit")
+    
+    # Get search parameters
+    search_type = request.args.get('type', 'vehicle')
+    search_term = request.args.get('term', '')
+    start_date = request.args.get('start_date', (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d'))
+    end_date = request.args.get('end_date', datetime.now().strftime('%Y-%m-%d'))
+    
+    # Initialize audit results
+    audit_results = []
+    
+    # If search term is provided, perform search
+    if search_term:
+        try:
+            # For now, use mock data until we create the tables
+            # This will be replaced with actual database queries
+            audit_results = get_mock_audit_results(search_type, search_term, start_date, end_date)
+            
+            # Log search activity
+            log_search(current_user.id if current_user.is_authenticated else None, 
+                      f"Vehicle Audit - {search_type}: {search_term}")
+        
+        except Exception as e:
+            logger.error(f"Error searching audit records: {e}")
+            flash(f"An error occurred while searching: {str(e)}", "danger")
+    
+    return render_template(
+        'drivers/vehicle_audit.html', 
+        search_type=search_type,
+        search_term=search_term,
+        start_date=start_date,
+        end_date=end_date,
+        audit_results=audit_results,
+        title="Vehicle & Driver History Audit"
+    )
 
 @driver_module_bp.route('/daily-report', methods=['GET', 'POST'])
 @login_required

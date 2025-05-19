@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title | default('Vehicle & Driver History Audit') }}{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">
+            <i class="bi bi-truck me-2"></i>Vehicle & Driver History Audit
+        </h1>
+        <div>
+            <a href="{{ url_for('driver_module.index') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary bg-opacity-10">
+            <i class="bi bi-search me-2"></i>Search Criteria
+        </div>
+        <div class="card-body">
+            <form action="{{ url_for('driver_module.vehicle_audit') }}" method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Search By</label>
+                    <div class="btn-group w-100" role="group">
+                        <input type="radio" class="btn-check" name="type" id="vehicle-type" value="vehicle" 
+                            {% if search_type == 'vehicle' %}checked{% endif %}>
+                        <label class="btn btn-outline-primary" for="vehicle-type">
+                            <i class="bi bi-truck me-1"></i>Vehicle
+                        </label>
+                        
+                        <input type="radio" class="btn-check" name="type" id="driver-type" value="driver" 
+                            {% if search_type == 'driver' %}checked{% endif %}>
+                        <label class="btn btn-outline-primary" for="driver-type">
+                            <i class="bi bi-person me-1"></i>Driver
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="col-md-8">
+                    <label for="search-term" class="form-label">Search Term</label>
+                    <input type="text" class="form-control" id="search-term" name="term" 
+                        value="{{ search_term }}" placeholder="Enter vehicle ID or driver name">
+                </div>
+                
+                <div class="col-md-6">
+                    <label for="start-date" class="form-label">From Date</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
+                        <input type="date" class="form-control" id="start-date" name="start_date" 
+                            value="{{ start_date }}">
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <label for="end-date" class="form-label">To Date</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
+                        <input type="date" class="form-control" id="end-date" name="end_date" 
+                            value="{{ end_date }}">
+                    </div>
+                </div>
+                
+                <div class="col-12 text-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search me-1"></i>Search
+                    </button>
+                    <button type="reset" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle me-1"></i>Clear
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if search_term %}
+        {% if audit_results %}
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary bg-opacity-10 d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="bi bi-list-check me-2"></i>Audit Results
+                        <span class="badge bg-primary ms-2">{{ audit_results | length }}</span>
+                    </div>
+                    <div>
+                        <a href="{{ url_for('driver_module.export_audit', type=search_type, term=search_term, start_date=start_date, end_date=end_date) }}" 
+                            class="btn btn-sm btn-success">
+                            <i class="bi bi-file-excel me-1"></i>Export
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Employee ID</th>
+                                    <th>Driver Name</th>
+                                    <th>Asset ID</th>
+                                    <th>Assigned Job</th>
+                                    <th>Actual Job</th>
+                                    <th>Expected Start</th>
+                                    <th>Actual Start</th>
+                                    <th>Status</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in audit_results %}
+                                    <tr {% if record.status != 'Normal' %}class="table-warning"{% endif %}>
+                                        <td>{{ record.date }}</td>
+                                        <td>{{ record.employee_id }}</td>
+                                        <td>
+                                            <a href="{{ url_for('driver_module.driver_detail', driver_id=1) }}">
+                                                {{ record.driver_name }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary">{{ record.asset_id }}</span>
+                                        </td>
+                                        <td>{{ record.assigned_job }}</td>
+                                        <td>
+                                            {% if record.assigned_job != record.actual_job %}
+                                                <span class="text-danger">{{ record.actual_job }}</span>
+                                            {% else %}
+                                                {{ record.actual_job }}
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ record.expected_start }}</td>
+                                        <td>
+                                            {% if record.status == 'Late Start' %}
+                                                <span class="text-danger">{{ record.actual_start }}</span>
+                                            {% else %}
+                                                {{ record.actual_start }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if record.status == 'Normal' %}
+                                                <span class="badge bg-success">{{ record.status }}</span>
+                                            {% else %}
+                                                <span class="badge bg-warning text-dark">{{ record.status }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ record.notes }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle-fill me-2"></i>No results found for your search criteria.
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle-fill me-2"></i>Enter search criteria and click "Search" to find vehicle or driver history.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set the correct date format for the date inputs
+        const today = new Date();
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(today.getDate() - 30);
+        
+        // Format dates to YYYY-MM-DD
+        const formatDate = (date) => {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        };
+        
+        // Set default dates if not already set
+        const startDateInput = document.getElementById('start-date');
+        const endDateInput = document.getElementById('end-date');
+        
+        if (!startDateInput.value) {
+            startDateInput.value = formatDate(thirtyDaysAgo);
+        }
+        
+        if (!endDateInput.value) {
+            endDateInput.value = formatDate(today);
+        }
+        
+        // Reset button functionality
+        document.querySelector('button[type="reset"]').addEventListener('click', function() {
+            setTimeout(() => {
+                startDateInput.value = formatDate(thirtyDaysAgo);
+                endDateInput.value = formatDate(today);
+            }, 10);
+        });
+    });
+</script>
+{% endblock %}

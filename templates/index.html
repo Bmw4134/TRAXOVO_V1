@@ -50,7 +50,7 @@
                         <a href="{{ url_for('main.assets') }}" class="btn btn-sm btn-primary">
                             <i class="bi bi-search me-1"></i> Browse Assets
                         </a>
-                        <a href="{{ url_for('main.assets') }}" class="btn btn-sm btn-outline-secondary ms-2">
+                        <a href="{{ url_for('geo_tracking_basic.map_simple') }}" class="btn btn-sm btn-outline-secondary ms-2">
                             <i class="bi bi-geo-alt me-1"></i> Asset Map
                         </a>
                     </div>
@@ -233,7 +233,7 @@
                     <!-- Quick Actions -->
                     <label class="form-label fw-bold"><i class="bi bi-list-task me-1"></i> Actions:</label>
                     <div class="d-grid gap-2">
-                        <a href="{{ url_for('geo_tracking.index') }}" class="btn btn-primary">
+                        <a href="{{ url_for('geo_tracking_basic.map_simple') }}" class="btn btn-primary">
                             <i class="bi bi-geo-alt-fill me-2"></i> Real-Time Tracking
                         </a>
                         <a href="{{ url_for('daily_report') }}" class="btn btn-outline-primary">

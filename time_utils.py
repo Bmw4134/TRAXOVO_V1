@@ -7,6 +7,7 @@ particularly for parsing and comparing times in attendance records.
 
 import re
 import logging
+import pytz
 from datetime import datetime, timedelta, time
 
 # Configure logging
@@ -24,6 +25,32 @@ TIME_FORMATS = [
 
 # Time zone abbreviations (for stripping from input)
 TIME_ZONE_ABBREVS = ['CT', 'ET', 'MT', 'PT', 'CST', 'EST', 'MST', 'PST']
+
+# Time zone mapping to pytz timezones
+TZ_MAPPING = {
+    'CT': 'America/Chicago',
+    'CST': 'America/Chicago',
+    'ET': 'America/New_York',
+    'EST': 'America/New_York',
+    'MT': 'America/Denver',
+    'MST': 'America/Denver',
+    'PT': 'America/Los_Angeles',
+    'PST': 'America/Los_Angeles',
+}
+
+# Default timezone (Central Time)
+DEFAULT_TIMEZONE = 'America/Chicago'
+
+# Next-day markers for overnight shifts
+NEXT_DAY_MARKERS = [
+    r'\(\+1\)',           # (+1)
+    r'\(Next Day\)',      # (Next Day)
+    r'\(next day\)',      # (next day)
+    r'\+1d',              # +1d
+    r'\+1',               # +1
+    r'Next Day',          # Next Day without parentheses
+    r'next day'           # next day without parentheses
+]
 
 def parse_time(time_str):
     """
@@ -54,6 +81,83 @@ def parse_time(time_str):
     # If all formats fail, log and return None
     logger.warning(f"Could not parse time: {time_str}")
     return None
+
+def parse_time_with_day_marker(time_str):
+    """
+    Parse a time string and detect next-day markers
+    
+    Handles overnight shifts with indicators like (+1), (Next Day)
+    
+    Args:
+        time_str (str): Time string to parse
+        
+    Returns:
+        tuple: (datetime.time object, is_next_day boolean) or (None, False) if parsing fails
+    """
+    if not time_str:
+        return None, False
+    
+    # Check for next-day markers
+    is_next_day = False
+    clean_time = time_str
+    
+    for marker in NEXT_DAY_MARKERS:
+        if re.search(marker, clean_time, re.IGNORECASE):
+            is_next_day = True
+            clean_time = re.sub(marker, '', clean_time, flags=re.IGNORECASE)
+    
+    # Remove any parentheses or brackets left behind
+    clean_time = re.sub(r'[\(\[\)\]]\s*$', '', clean_time).strip()
+    
+    # Clean and parse the time
+    time_obj = parse_time(clean_time)
+    
+    return time_obj, is_next_day
+
+def parse_time_with_tz(time_str, default_tz=DEFAULT_TIMEZONE):
+    """
+    Parse a time string with timezone awareness and next-day detection
+    
+    Handles various time formats, removes timezone abbreviations, 
+    detects next-day markers, and applies timezone information.
+    
+    Args:
+        time_str (str): Time string to parse
+        default_tz (str): Default timezone to use if none detected in the string
+        
+    Returns:
+        tuple: (datetime.time object, is_next_day boolean, timezone string)
+    """
+    if not time_str:
+        return None, False, default_tz
+    
+    # Convert to string if needed
+    time_str = str(time_str).strip()
+    
+    # Check for next-day markers
+    is_next_day = False
+    for marker in NEXT_DAY_MARKERS:
+        if re.search(marker, time_str, re.IGNORECASE):
+            is_next_day = True
+            time_str = re.sub(marker, '', time_str, flags=re.IGNORECASE)
+    
+    # Detect timezone abbreviation
+    detected_tz = default_tz
+    for tz in TIME_ZONE_ABBREVS:
+        if re.search(rf'\s*{tz}\s*$', time_str, re.IGNORECASE):
+            # Map the abbreviation to a pytz timezone
+            detected_tz = TZ_MAPPING.get(tz.upper(), default_tz)
+            # Remove the timezone abbreviation
+            time_str = re.sub(rf'\s*{tz}\s*$', '', time_str, flags=re.IGNORECASE)
+            break
+    
+    # Clean the time string
+    clean_time = clean_time_string(time_str)
+    
+    # Parse the time
+    time_obj = parse_time(clean_time)
+    
+    return time_obj, is_next_day, detected_tz
 
 def clean_time_string(time_str):
     """
@@ -88,16 +192,18 @@ def clean_time_string(time_str):
     
     return time_str
 
-def calculate_time_difference(time1, time2):
+def calculate_time_difference(time1, time2, time2_is_next_day=False):
     """
     Calculate the difference in minutes between two time objects
     
     For attendance calculations, if time2 is earlier than time1, it's
-    considered to be on the same day (not the next day).
+    considered to be on the same day (not the next day) unless explicitly
+    marked as next day.
     
     Args:
         time1 (datetime.time): First time
         time2 (datetime.time): Second time
+        time2_is_next_day (bool): Whether time2 is explicitly marked as being on the next day
         
     Returns:
         int: Difference in minutes (positive if time2 > time1, negative if time1 > time2)
@@ -108,19 +214,24 @@ def calculate_time_difference(time1, time2):
     # Convert to datetime objects with a base date
     base_date = datetime.now().date()
     dt1 = datetime.combine(base_date, time1)
-    dt2 = datetime.combine(base_date, time2)
     
-    # Calculate difference in minutes
-    diff = (dt2 - dt1).total_seconds() / 60
-    
-    # Handle crossing midnight (assume same day for attendance)
-    if diff < -720:  # More than 12 hours negative = crossing midnight forward
+    # If time2 is explicitly marked as next day, add a day to its base date
+    if time2_is_next_day:
         dt2 = datetime.combine(base_date + timedelta(days=1), time2)
+    else:
+        dt2 = datetime.combine(base_date, time2)
+        
+        # Auto-detect overnight shifts not explicitly marked
         diff = (dt2 - dt1).total_seconds() / 60
-    elif diff > 720:  # More than 12 hours positive = crossing midnight backward
-        dt1 = datetime.combine(base_date + timedelta(days=1), time1)
-        diff = (dt2 - dt1).total_seconds() / 60
+        
+        # Handle crossing midnight (assume same day for attendance)
+        if diff < -720:  # More than 12 hours negative = crossing midnight forward
+            dt2 = datetime.combine(base_date + timedelta(days=1), time2)
+        elif diff > 720:  # More than 12 hours positive = crossing midnight backward
+            dt1 = datetime.combine(base_date + timedelta(days=1), time1)
     
+    # Calculate final difference in minutes
+    diff = (dt2 - dt1).total_seconds() / 60
     return round(diff)
 
 def in_allowed_range(actual_time, expected_time, grace_period_minutes):
@@ -179,6 +290,36 @@ def format_duration(minutes):
         return f"{hours}h {mins}m"
     else:
         return f"{mins}m"
+
+def calculate_lateness(actual_time, expected_time, threshold_minutes, actual_is_next_day=False):
+    """
+    Calculate lateness in minutes based on actual and expected times
+    
+    Args:
+        actual_time (datetime.time): Actual time recorded
+        expected_time (datetime.time): Expected time (scheduled time)
+        threshold_minutes (int): Threshold in minutes for what counts as "late"
+        actual_is_next_day (bool): Whether the actual time is on the next day
+        
+    Returns:
+        tuple: (is_late (bool), minutes_late (int), formatted_lateness (str))
+    """
+    if not actual_time or not expected_time:
+        return True, 0, "Missing time data"
+    
+    # Calculate minutes difference, accounting for next-day markers
+    minutes_diff = calculate_time_difference(expected_time, actual_time, actual_is_next_day)
+    
+    # If arrival is after expected time (positive diff) by more than threshold, it's late
+    is_late = minutes_diff > threshold_minutes
+    
+    # Format the lateness as a string
+    if is_late:
+        formatted_lateness = format_duration(minutes_diff)
+    else:
+        formatted_lateness = "On time"
+    
+    return is_late, minutes_diff if is_late else 0, formatted_lateness
 
 def get_business_days_in_month(year, month):
     """

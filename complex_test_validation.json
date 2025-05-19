@@ -1,0 +1,25 @@
+{
+  "is_valid": true,
+  "errors": [],
+  "warnings": [
+    {
+      "type": "total_drivers_mismatch",
+      "message": "Total drivers count may be inaccurate: Summary shows 83, but there are 40 unique drivers with issues"
+    }
+  ],
+  "statistics": {
+    "report_date": "2025-05-17",
+    "total_unique_drivers": 40,
+    "total_issues": 43,
+    "late_drivers": 5,
+    "early_end_drivers": 23,
+    "not_on_job_drivers": 15,
+    "exception_drivers": 0,
+    "drivers_with_multiple_issues": 3,
+    "multiple_issue_details": [
+      "Roberto Hernandez: late_drivers, early_end_drivers",
+      "Joseph Wright (E83814) [WT]: late_drivers, early_end_drivers",
+      "Teresa Thomas [HOU]: early_end_drivers, not_on_job_drivers"
+    ]
+  }
+}

@@ -51,97 +51,97 @@ def create_test_data_with_overnight_shifts():
             'Date': today,
             'Time Start': '07:15 AM', 
             'Time Stop': '03:15 PM',
-            'Duration': '8.0',
-            'Status': 'Active'
+            'duration': '8.0',
+            'status': 'Active'
         },
         
         # Overnight shifts with (+1) format
         {
-            'Asset': 'PT-03 ROBERT JOHNSON', 
-            'Driver': 'ROBERT JOHNSON',
-            'Company': 'NIGHT CONSTRUCTION', 
-            'Job Site': 'Site C', 
-            'Date': today,
-            'Time Start': '10:00 PM', 
-            'Time Stop': '06:00 AM (+1)',
-            'Duration': '8.0',
-            'Status': 'Active'
+            'asset': 'PT-03 ROBERT JOHNSON', 
+            'driver': 'ROBERT JOHNSON',
+            'company': 'NIGHT CONSTRUCTION', 
+            'job_site': 'Site C', 
+            'date': today,
+            'time_start': '10:00 PM', 
+            'time_stop': '06:00 AM (+1)',
+            'duration': '8.0',
+            'status': 'Active'
         },
         {
-            'Asset': 'CT-04 MARIA GARCIA', 
-            'Driver': 'MARIA GARCIA',
-            'Company': 'NIGHT CONSTRUCTION', 
-            'Job Site': 'Site D', 
-            'Date': today,
-            'Time Start': '11:30 PM', 
-            'Time Stop': '07:30 AM (+1)',
-            'Duration': '8.0',
-            'Status': 'Active'
+            'asset': 'CT-04 MARIA GARCIA', 
+            'driver': 'MARIA GARCIA',
+            'company': 'NIGHT CONSTRUCTION', 
+            'job_site': 'Site D', 
+            'date': today,
+            'time_start': '11:30 PM', 
+            'time_stop': '07:30 AM (+1)',
+            'duration': '8.0',
+            'status': 'Active'
         },
         
         # Overnight shifts with (Next Day) format
         {
-            'Asset': 'ET-05 JAMES WILSON', 
-            'Driver': 'JAMES WILSON',
-            'Company': 'NIGHT CONSTRUCTION', 
-            'Job Site': 'Site E', 
-            'Date': today,
-            'Time Start': '09:00 PM', 
-            'Time Stop': '05:00 AM (Next Day)',
-            'Duration': '8.0',
-            'Status': 'Active'
+            'asset': 'ET-05 JAMES WILSON', 
+            'driver': 'JAMES WILSON',
+            'company': 'NIGHT CONSTRUCTION', 
+            'job_site': 'Site E', 
+            'date': today,
+            'time_start': '09:00 PM', 
+            'time_stop': '05:00 AM (Next Day)',
+            'duration': '8.0',
+            'status': 'Active'
         },
         
         # Overnight shift starting late
         {
-            'Asset': 'PT-06 JENNIFER BROWN', 
-            'Driver': 'JENNIFER BROWN',
-            'Company': 'NIGHT CONSTRUCTION', 
-            'Job Site': 'Site F', 
-            'Date': today,
-            'Time Start': '11:15 PM', 
-            'Time Stop': '06:00 AM (+1)',
-            'Duration': '6.75',
-            'Status': 'Active'
+            'asset': 'PT-06 JENNIFER BROWN', 
+            'driver': 'JENNIFER BROWN',
+            'company': 'NIGHT CONSTRUCTION', 
+            'job_site': 'Site F', 
+            'date': today,
+            'time_start': '11:15 PM', 
+            'time_stop': '06:00 AM (+1)',
+            'duration': '6.75',
+            'status': 'Active'
         },
         
         # Overnight shift ending early
         {
-            'Asset': 'CT-07 DAVID MILLER', 
-            'Driver': 'DAVID MILLER',
-            'Company': 'NIGHT CONSTRUCTION', 
-            'Job Site': 'Site G', 
-            'Date': today,
-            'Time Start': '10:00 PM', 
-            'Time Stop': '04:30 AM (+1)',
-            'Duration': '6.5',
-            'Status': 'Active'
+            'asset': 'CT-07 DAVID MILLER', 
+            'driver': 'DAVID MILLER',
+            'company': 'NIGHT CONSTRUCTION', 
+            'job_site': 'Site G', 
+            'date': today,
+            'time_start': '10:00 PM', 
+            'time_stop': '04:30 AM (+1)',
+            'duration': '6.5',
+            'status': 'Active'
         },
         
         # Mixed format with time zone
         {
-            'Asset': 'ET-08 SARAH JACKSON [HOU]', 
-            'Driver': 'SARAH JACKSON',
-            'Company': 'HOUSTON DIVISION', 
-            'Job Site': 'Site H', 
-            'Date': today,
-            'Time Start': '10:30 PM CT', 
-            'Time Stop': '06:30 AM CST (+1)',
-            'Duration': '8.0',
-            'Status': 'Active'
+            'asset': 'ET-08 SARAH JACKSON [HOU]', 
+            'driver': 'SARAH JACKSON',
+            'company': 'HOUSTON DIVISION', 
+            'job_site': 'Site H', 
+            'date': today,
+            'time_start': '10:30 PM CT', 
+            'time_stop': '06:30 AM CST (+1)',
+            'duration': '8.0',
+            'status': 'Active'
         },
         
         # With both start and end next day markers (unusual but possible edge case)
         {
-            'Asset': 'PT-09 MICHAEL DAVIS', 
-            'Driver': 'MICHAEL DAVIS',
-            'Company': 'SPECIAL OPS', 
-            'Job Site': 'Site I', 
-            'Date': today,
-            'Time Start': '12:15 AM (+1)', 
-            'Time Stop': '08:15 AM (+1)',
-            'Duration': '8.0',
-            'Status': 'Active'
+            'asset': 'PT-09 MICHAEL DAVIS', 
+            'driver': 'MICHAEL DAVIS',
+            'company': 'SPECIAL OPS', 
+            'job_site': 'Site I', 
+            'date': today,
+            'time_start': '12:15 AM (+1)', 
+            'time_stop': '08:15 AM (+1)',
+            'duration': '8.0',
+            'status': 'Active'
         }
     ]
     

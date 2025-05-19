@@ -15,7 +15,13 @@ from datetime import datetime, timedelta
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import config
 from driver_utils import extract_driver_from_label, clean_asset_info, is_vehicle_id
-from time_utils import parse_time, calculate_time_difference, in_allowed_range
+from time_utils import (
+    parse_time, 
+    parse_time_with_day_marker,
+    calculate_time_difference, 
+    calculate_lateness, 
+    in_allowed_range
+)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -185,28 +191,66 @@ def process_attendance_data_from_raw(raw_data):
             results['not_on_job_drivers'].append(driver_record)
             continue
         
-        # Check for late start
-        parsed_start = parse_time(time_start)
+        # Check for late start - with next-day marker detection
+        parsed_start, start_is_next_day = parse_time_with_day_marker(time_start)
         parsed_expected_start = parse_time(expected_start)
         
         if parsed_start and parsed_expected_start:
-            minutes_late = calculate_time_difference(parsed_expected_start, parsed_start)
+            # Use the improved lateness calculation that handles next-day markers
+            is_late, minutes_late, lateness_text = calculate_lateness(
+                parsed_start, parsed_expected_start, late_grace_period, start_is_next_day
+            )
             
-            if minutes_late > late_grace_period:
+            if is_late:
                 # Add late start info
                 driver_record['minutes_late'] = minutes_late
+                driver_record['lateness_text'] = lateness_text
+                driver_record['start_is_overnight'] = start_is_next_day
                 results['late_drivers'].append(driver_record)
         
-        # Check for early end
-        parsed_end = parse_time(time_stop)
+        # Check for early end - with next-day marker detection
+        parsed_end, end_is_next_day = parse_time_with_day_marker(time_stop)
         parsed_expected_end = parse_time(expected_end)
         
         if parsed_end and parsed_expected_end:
-            minutes_early = calculate_time_difference(parsed_end, parsed_expected_end)
+            # For early end, we're checking if they left before expected end time
+            # For overnight shifts, we need special handling
             
+            if end_is_next_day:
+                # For overnight shifts with next-day markers, compare based on hours/minutes within a day
+                # rather than absolute datetime difference
+                expected_minutes = parsed_expected_end.hour * 60 + parsed_expected_end.minute
+                actual_minutes = parsed_end.hour * 60 + parsed_end.minute
+                
+                # If the expected end time is PM (afternoon) and actual end time is AM (morning next day)
+                # then this is not an early end, it's actually working longer
+                if parsed_expected_end.hour >= 12 and parsed_end.hour < 12:
+                    # They worked past midnight when they were expected to end in the afternoon
+                    # This is not an early end
+                    minutes_early = 0
+                else:
+                    # Normal comparison of minutes within the day
+                    minutes_early = expected_minutes - actual_minutes
+            else:
+                # Standard calculation for same-day shifts
+                # For early end, we need expected_end - actual_end
+                minutes_early = calculate_time_difference(parsed_end, parsed_expected_end)
+            
+            # Only flag as early end if they actually left early
             if minutes_early > early_end_grace_period:
+                # Format human-readable time text
+                hours = minutes_early // 60
+                remaining_minutes = minutes_early % 60
+                
+                if hours > 0:
+                    early_text = f"{hours}h {remaining_minutes}m early"
+                else:
+                    early_text = f"{minutes_early} minutes early"
+                
                 # Add early end info
                 driver_record['minutes_early'] = minutes_early
+                driver_record['early_text'] = early_text
+                driver_record['end_is_overnight'] = end_is_next_day
                 results['early_end_drivers'].append(driver_record)
     
     # Update summary statistics

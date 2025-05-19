@@ -29,6 +29,11 @@ EXPECTED_END_TIME = "03:30 PM"
 LATE_GRACE_PERIOD = 15  # Minutes
 EARLY_END_GRACE_PERIOD = 15  # Minutes
 
+# For driver module routes
+DEFAULT_START_TIME = "07:00 AM"  # Default expected start time
+DEFAULT_THRESHOLD_MINUTES = 15  # Default threshold for late/early calculations
+SKIPROWS_DAILY_USAGE = 7  # Number of header rows to skip in DailyUsage.csv
+
 # Vehicle ID Patterns
 EQUIPMENT_PATTERNS = [
     r'^ET-\d+',  # Excavation equipment

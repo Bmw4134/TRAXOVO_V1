@@ -232,6 +232,16 @@ def calculate_time_difference(time1, time2, time2_is_next_day=False):
     
     # Calculate final difference in minutes
     diff = (dt2 - dt1).total_seconds() / 60
+    
+    # For early end detection with overnight shifts, use a more reasonable window
+    # If comparing end time to expected end time and the difference is over 1000 minutes,
+    # it's likely because we're comparing to the next day when we should be comparing to same day
+    if not time2_is_next_day and diff > 1000:
+        # Recalculate with time1, time2 on the same day
+        dt1 = datetime.combine(base_date, time1)
+        dt2 = datetime.combine(base_date, time2)
+        diff = (dt2 - dt1).total_seconds() / 60
+    
     return round(diff)
 
 def in_allowed_range(actual_time, expected_time, grace_period_minutes):

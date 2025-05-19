@@ -1184,33 +1184,757 @@ def upload_attendance():
 @driver_module_bp.route('/export_report', methods=['GET'])
 @login_required
 def export_report():
-    """Export report in specified format"""
+    """Export a driver report using real database data"""
+    # Get request parameters
     report_type = request.args.get('type', 'daily')
-    export_format = request.args.get('format', 'pdf')
+    export_format = request.args.get('format', 'xlsx')
+    date_param = request.args.get('date', datetime.now().strftime('%Y-%m-%d'))
+    region_id = request.args.get('region')
     direct_download = request.args.get('direct', 'false') == 'true'
     
-    # Generate a filename with timestamp for uniqueness
-    timestamp = datetime.now()
-    date_str = timestamp.strftime('%Y%m%d_%H%M%S')
-    filename = f"{report_type}_report_{date_str}.{export_format}"
-    
-    # Create the output file based on requested format
-    file_path = os.path.join(EXPORTS_FOLDER, filename)
-    
-    # Get the sample data that would be in the report
-    report_data = get_sample_daily_report()
-    
-    if export_format == 'csv':
-        # Generate CSV file with proper formatting
-        import csv
-        with open(file_path, 'w', newline='') as csvfile:
-            writer = csv.writer(csvfile)
-            # Write header
-            writer.writerow(['Driver Report', f'Date: {timestamp.strftime("%m/%d/%Y")}'])
-            writer.writerow(['Generated:', timestamp.strftime('%m/%d/%Y %I:%M:%S %p')])
-            writer.writerow([])
+    # Try to generate the report
+    try:
+        # Parse the date for filtering records
+        try:
+            report_date = datetime.strptime(date_param, '%Y-%m-%d').date()
+        except ValueError:
+            report_date = datetime.now().date()
             
-            # Summary data
+        # Generate a filename with timestamp for uniqueness
+        timestamp = datetime.now()
+        formatted_date = report_date.strftime('%m_%d_%Y')
+        filename_base = f"{report_type}_report_{formatted_date}"
+        if region_id:
+            filename_base += f"_region_{region_id}"
+        
+        # Add timestamp to ensure uniqueness
+        date_str = timestamp.strftime('%H%M%S')
+        filename = f"{filename_base}_{date_str}.{export_format}"
+        
+        # Create exports directory if it doesn't exist
+        if not os.path.exists(EXPORTS_FOLDER):
+            os.makedirs(EXPORTS_FOLDER)
+        
+        # Create the output file path
+        file_path = os.path.join(EXPORTS_FOLDER, filename)
+        
+        # Import database models
+        from models.driver_attendance import AttendanceRecord, DriverAttendance, JobSiteAttendance
+        
+        # Query the database to get attendance records
+        if report_type == 'daily':
+            # Get attendance records for the selected date
+            query = db.session.query(
+                AttendanceRecord, DriverAttendance, JobSiteAttendance
+            ).join(
+                DriverAttendance, AttendanceRecord.driver_id == DriverAttendance.id
+            ).join(
+                JobSiteAttendance, AttendanceRecord.assigned_job_id == JobSiteAttendance.id, isouter=True
+            ).filter(
+                AttendanceRecord.date == report_date
+            )
+            
+            # Apply region filter if specified
+            if region_id:
+                query = query.filter(DriverAttendance.division == region_id)
+                
+            # Execute the query
+            results = query.all()
+            
+            # Prepare data for the report
+            total_drivers = len(results)
+            on_time_count = 0
+            late_start_count = 0
+            early_end_count = 0
+            not_on_job_count = 0
+            
+            late_drivers = []
+            early_end_drivers = []
+            not_on_job_drivers = []
+            
+            # Process all driver records
+            for record, driver, job_site in results:
+                if record.late_start:
+                    late_start_count += 1
+                    
+                    # Calculate minutes late
+                    minutes_late = 0
+                    if record.expected_start_time and record.actual_start_time:
+                        time_diff = record.actual_start_time - record.expected_start_time
+                        minutes_late = int(time_diff.total_seconds() / 60)
+                    
+                    # Format time strings
+                    scheduled_start = record.expected_start_time.strftime('%I:%M %p') if record.expected_start_time else 'N/A'
+                    actual_start = record.actual_start_time.strftime('%I:%M %p') if record.actual_start_time else 'N/A'
+                    
+                    # Add to late drivers list
+                    late_drivers.append({
+                        'employee_id': driver.employee_id,
+                        'name': driver.full_name,
+                        'region': driver.division or 'Unknown',
+                        'job_site': job_site.name if job_site else 'Unknown',
+                        'scheduled_start': scheduled_start,
+                        'actual_start': actual_start,
+                        'minutes_late': minutes_late,
+                        'vehicle': record.asset_id or 'N/A'
+                    })
+                elif record.early_end:
+                    early_end_count += 1
+                    
+                    # Calculate minutes early
+                    minutes_early = 0
+                    if record.expected_end_time and record.actual_end_time:
+                        time_diff = record.expected_end_time - record.actual_end_time
+                        minutes_early = int(time_diff.total_seconds() / 60)
+                    
+                    # Format time strings
+                    scheduled_end = record.expected_end_time.strftime('%I:%M %p') if record.expected_end_time else 'N/A'
+                    actual_end = record.actual_end_time.strftime('%I:%M %p') if record.actual_end_time else 'N/A'
+                    
+                    # Add to early end drivers list
+                    early_end_drivers.append({
+                        'employee_id': driver.employee_id,
+                        'name': driver.full_name,
+                        'region': driver.division or 'Unknown',
+                        'job_site': job_site.name if job_site else 'Unknown',
+                        'scheduled_end': scheduled_end,
+                        'actual_end': actual_end,
+                        'minutes_early': minutes_early,
+                        'vehicle': record.asset_id or 'N/A'
+                    })
+                elif record.not_on_job:
+                    not_on_job_count += 1
+                    
+                    # Format time strings
+                    scheduled_start = record.expected_start_time.strftime('%I:%M %p') if record.expected_start_time else 'N/A'
+                    
+                    # Add to not on job drivers list
+                    not_on_job_drivers.append({
+                        'employee_id': driver.employee_id,
+                        'name': driver.full_name,
+                        'region': driver.division or 'Unknown',
+                        'job_site': job_site.name if job_site else 'Unknown',
+                        'scheduled_start': scheduled_start,
+                        'reason': record.notes or 'Unknown',
+                        'vehicle': record.asset_id or 'N/A'
+                    })
+                else:
+                    on_time_count += 1
+            
+            # Generate the export file based on format
+            if export_format == 'csv':
+                import csv
+                with open(file_path, 'w', newline='') as csvfile:
+                    writer = csv.writer(csvfile)
+                    # Write header
+                    writer.writerow(['TRAXORA FLEET MANAGEMENT'])
+                    writer.writerow(['Daily Driver Report', f'Date: {report_date.strftime("%m/%d/%Y")}'])
+                    writer.writerow(['Generated:', timestamp.strftime('%m/%d/%Y %I:%M:%S %p')])
+                    writer.writerow([])
+                    
+                    # Summary data
+                    writer.writerow(['Summary', ''])
+                    writer.writerow(['Total Drivers', total_drivers])
+                    writer.writerow(['On Time', on_time_count])
+                    writer.writerow(['Late Start', late_start_count])
+                    writer.writerow(['Early End', early_end_count])
+                    writer.writerow(['Not on Job', not_on_job_count])
+                    writer.writerow([])
+                    
+                    # Late drivers
+                    writer.writerow(['Late Drivers', ''])
+                    writer.writerow(['Employee ID', 'Driver Name', 'Region', 'Job Site', 'Scheduled Start', 'Actual Start', 'Minutes Late', 'Vehicle'])
+                    for driver in late_drivers:
+                        writer.writerow([
+                            driver['employee_id'],
+                            driver['name'],
+                            driver['region'],
+                            driver['job_site'],
+                            driver['scheduled_start'],
+                            driver['actual_start'],
+                            driver['minutes_late'],
+                            driver['vehicle']
+                        ])
+                    writer.writerow([])
+                    
+                    # Early end drivers
+                    writer.writerow(['Early End Drivers', ''])
+                    writer.writerow(['Employee ID', 'Driver Name', 'Region', 'Job Site', 'Scheduled End', 'Actual End', 'Minutes Early', 'Vehicle'])
+                    for driver in early_end_drivers:
+                        writer.writerow([
+                            driver['employee_id'],
+                            driver['name'],
+                            driver['region'],
+                            driver['job_site'],
+                            driver['scheduled_end'],
+                            driver['actual_end'],
+                            driver['minutes_early'],
+                            driver['vehicle']
+                        ])
+                    writer.writerow([])
+                    
+                    # Not on job drivers
+                    writer.writerow(['Not On Job Drivers', ''])
+                    writer.writerow(['Employee ID', 'Driver Name', 'Region', 'Job Site', 'Scheduled Start', 'Status', 'Reason', 'Vehicle'])
+                    for driver in not_on_job_drivers:
+                        writer.writerow([
+                            driver['employee_id'],
+                            driver['name'],
+                            driver['region'],
+                            driver['job_site'],
+                            driver['scheduled_start'],
+                            'Not on Job',
+                            driver['reason'],
+                            driver['vehicle']
+                        ])
+            elif export_format == 'xlsx':
+                import openpyxl
+                from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+                
+                wb = openpyxl.Workbook()
+                ws = wb.active
+                ws.title = "Driver Daily Report"
+                
+                # Define styles
+                header_font = Font(bold=True, size=14)
+                subheader_font = Font(bold=True, size=12)
+                bold_font = Font(bold=True)
+                center_align = Alignment(horizontal='center')
+                header_fill = PatternFill(start_color="007BFF", end_color="007BFF", fill_type="solid")
+                header_text_color = Font(bold=True, color="FFFFFF")
+                
+                # Add report header
+                ws['A1'] = "TRAXORA FLEET MANAGEMENT"
+                ws.merge_cells('A1:H1')
+                ws['A1'].font = header_font
+                ws['A1'].alignment = center_align
+                
+                ws['A2'] = f"Daily Driver Report - {report_date.strftime('%m/%d/%Y')}"
+                ws.merge_cells('A2:H2')
+                ws['A2'].font = subheader_font
+                ws['A2'].alignment = center_align
+                
+                ws['A3'] = f"Generated: {timestamp.strftime('%m/%d/%Y %I:%M:%S %p')}"
+                ws.merge_cells('A3:H3')
+                ws['A3'].alignment = center_align
+                
+                # Summary section
+                row = 5
+                ws[f'A{row}'] = "Summary"
+                ws[f'A{row}'].font = bold_font
+                
+                row += 1
+                ws[f'A{row}'] = "Total Drivers"
+                ws[f'B{row}'] = total_drivers
+                
+                row += 1
+                ws[f'A{row}'] = "On Time"
+                ws[f'B{row}'] = on_time_count
+                
+                row += 1
+                ws[f'A{row}'] = "Late Start"
+                ws[f'B{row}'] = late_start_count
+                
+                row += 1
+                ws[f'A{row}'] = "Early End"
+                ws[f'B{row}'] = early_end_count
+                
+                row += 1
+                ws[f'A{row}'] = "Not on Job"
+                ws[f'B{row}'] = not_on_job_count
+                
+                # Late drivers section
+                row += 2
+                ws[f'A{row}'] = "Late Drivers"
+                ws[f'A{row}'].font = bold_font
+                row += 1
+                
+                # Add table headers with styling
+                headers = ['Employee ID', 'Driver Name', 'Region', 'Job Site', 'Scheduled Start', 'Actual Start', 'Minutes Late', 'Vehicle']
+                for col, header in enumerate(headers, 1):
+                    cell = ws.cell(row=row, column=col, value=header)
+                    cell.font = header_text_color
+                    cell.fill = header_fill
+                    cell.alignment = center_align
+                
+                # Add data rows
+                row += 1
+                for driver in late_drivers:
+                    ws.cell(row=row, column=1, value=driver['employee_id'])
+                    ws.cell(row=row, column=2, value=driver['name'])
+                    ws.cell(row=row, column=3, value=driver['region'])
+                    ws.cell(row=row, column=4, value=driver['job_site'])
+                    ws.cell(row=row, column=5, value=driver['scheduled_start'])
+                    ws.cell(row=row, column=6, value=driver['actual_start'])
+                    ws.cell(row=row, column=7, value=driver['minutes_late'])
+                    ws.cell(row=row, column=8, value=driver['vehicle'])
+                    row += 1
+                
+                # Early end drivers section
+                row += 2
+                ws[f'A{row}'] = "Early End Drivers"
+                ws[f'A{row}'].font = bold_font
+                row += 1
+                
+                headers = ['Employee ID', 'Driver Name', 'Region', 'Job Site', 'Scheduled End', 'Actual End', 'Minutes Early', 'Vehicle']
+                for col, header in enumerate(headers, 1):
+                    cell = ws.cell(row=row, column=col, value=header)
+                    cell.font = header_text_color
+                    cell.fill = header_fill
+                    cell.alignment = center_align
+                
+                row += 1
+                for driver in early_end_drivers:
+                    ws.cell(row=row, column=1, value=driver['employee_id'])
+                    ws.cell(row=row, column=2, value=driver['name'])
+                    ws.cell(row=row, column=3, value=driver['region'])
+                    ws.cell(row=row, column=4, value=driver['job_site'])
+                    ws.cell(row=row, column=5, value=driver['scheduled_end'])
+                    ws.cell(row=row, column=6, value=driver['actual_end'])
+                    ws.cell(row=row, column=7, value=driver['minutes_early'])
+                    ws.cell(row=row, column=8, value=driver['vehicle'])
+                    row += 1
+                
+                # Not on job drivers section
+                row += 2
+                ws[f'A{row}'] = "Not On Job Drivers"
+                ws[f'A{row}'].font = bold_font
+                row += 1
+                
+                headers = ['Employee ID', 'Driver Name', 'Region', 'Job Site', 'Scheduled Start', 'Status', 'Reason', 'Vehicle']
+                for col, header in enumerate(headers, 1):
+                    cell = ws.cell(row=row, column=col, value=header)
+                    cell.font = header_text_color
+                    cell.fill = header_fill
+                    cell.alignment = center_align
+                
+                row += 1
+                for driver in not_on_job_drivers:
+                    ws.cell(row=row, column=1, value=driver['employee_id'])
+                    ws.cell(row=row, column=2, value=driver['name'])
+                    ws.cell(row=row, column=3, value=driver['region'])
+                    ws.cell(row=row, column=4, value=driver['job_site'])
+                    ws.cell(row=row, column=5, value=driver['scheduled_start'])
+                    ws.cell(row=row, column=6, value='Not on Job')
+                    ws.cell(row=row, column=7, value=driver['reason'])
+                    ws.cell(row=row, column=8, value=driver['vehicle'])
+                    row += 1
+                
+                # Auto-size columns
+                for column in ws.columns:
+                    max_length = 0
+                    column_letter = column[0].column_letter
+                    for cell in column:
+                        if cell.value:
+                            max_length = max(max_length, len(str(cell.value)))
+                    adjusted_width = (max_length + 2) * 1.2
+                    ws.column_dimensions[column_letter].width = adjusted_width
+                
+                # Save the Excel file
+                wb.save(file_path)
+            else:
+                flash(f'Unsupported export format: {export_format}', 'danger')
+                return redirect(url_for('driver_module.daily_report'))
+            
+        elif report_type == 'summary':
+            # Define date range for summary report (last 7 days by default)
+            end_date = report_date
+            start_date = end_date - timedelta(days=6)  # 7 days including end date
+            
+            # Query for attendance summary by driver
+            summary_query = db.session.query(
+                DriverAttendance,
+                db.func.count(AttendanceRecord.id).label('total_records'),
+                db.func.sum(db.case((AttendanceRecord.late_start == True, 1), else_=0)).label('late_count'),
+                db.func.sum(db.case((AttendanceRecord.early_end == True, 1), else_=0)).label('early_end_count'),
+                db.func.sum(db.case((AttendanceRecord.not_on_job == True, 1), else_=0)).label('not_on_job_count')
+            ).join(
+                AttendanceRecord, DriverAttendance.id == AttendanceRecord.driver_id
+            ).filter(
+                AttendanceRecord.date.between(start_date, end_date)
+            )
+            
+            # Apply region filter if specified
+            if region_id:
+                summary_query = summary_query.filter(DriverAttendance.division == region_id)
+            
+            # Group and order by driver
+            summary_results = summary_query.group_by(DriverAttendance.id).order_by(DriverAttendance.last_name).all()
+            
+            # Process the summary results
+            summary_data = []
+            for driver, total, late_count, early_end_count, not_on_job_count in summary_results:
+                # Calculate on-time count and attendance score
+                late_count = late_count or 0
+                early_end_count = early_end_count or 0
+                not_on_job_count = not_on_job_count or 0
+                problem_count = late_count + early_end_count + not_on_job_count
+                on_time_count = total - problem_count
+                attendance_score = int((on_time_count / total) * 100) if total > 0 else 0
+                
+                summary_data.append({
+                    'employee_id': driver.employee_id,
+                    'name': driver.full_name,
+                    'division': driver.division or 'Unknown',
+                    'total_days': total,
+                    'on_time_count': on_time_count,
+                    'late_count': late_count,
+                    'early_end_count': early_end_count,
+                    'not_on_job_count': not_on_job_count,
+                    'attendance_score': attendance_score
+                })
+            
+            # Generate the export file based on format
+            if export_format == 'csv':
+                import csv
+                with open(file_path, 'w', newline='') as csvfile:
+                    writer = csv.writer(csvfile)
+                    # Write header
+                    writer.writerow(['TRAXORA FLEET MANAGEMENT'])
+                    writer.writerow(['Driver Attendance Summary', f'Date Range: {start_date.strftime("%m/%d/%Y")} to {end_date.strftime("%m/%d/%Y")}'])
+                    writer.writerow(['Generated:', timestamp.strftime('%m/%d/%Y %I:%M:%S %p')])
+                    writer.writerow([])
+                    
+                    # Write column headers
+                    writer.writerow([
+                        'Employee ID', 'Driver Name', 'Division', 'Total Days',
+                        'On Time', 'Late Start', 'Early End', 'Not on Job', 'Attendance Score'
+                    ])
+                    
+                    # Write data rows
+                    for data in summary_data:
+                        writer.writerow([
+                            data['employee_id'],
+                            data['name'],
+                            data['division'],
+                            data['total_days'],
+                            data['on_time_count'],
+                            data['late_count'],
+                            data['early_end_count'],
+                            data['not_on_job_count'],
+                            f"{data['attendance_score']}%"
+                        ])
+            elif export_format == 'xlsx':
+                import openpyxl
+                from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+                
+                wb = openpyxl.Workbook()
+                ws = wb.active
+                ws.title = "Attendance Summary"
+                
+                # Define styles
+                header_font = Font(bold=True, size=14)
+                subheader_font = Font(bold=True, size=12)
+                bold_font = Font(bold=True)
+                center_align = Alignment(horizontal='center')
+                header_fill = PatternFill(start_color="007BFF", end_color="007BFF", fill_type="solid")
+                header_text_color = Font(bold=True, color="FFFFFF")
+                
+                # Add report header
+                ws['A1'] = "TRAXORA FLEET MANAGEMENT"
+                ws.merge_cells('A1:I1')
+                ws['A1'].font = header_font
+                ws['A1'].alignment = center_align
+                
+                ws['A2'] = f"Driver Attendance Summary - {start_date.strftime('%m/%d/%Y')} to {end_date.strftime('%m/%d/%Y')}"
+                ws.merge_cells('A2:I2')
+                ws['A2'].font = subheader_font
+                ws['A2'].alignment = center_align
+                
+                row = 4
+                
+                # Add table headers with styling
+                headers = [
+                    'Employee ID', 'Driver Name', 'Division', 'Total Days',
+                    'On Time', 'Late Start', 'Early End', 'Not on Job', 'Attendance Score'
+                ]
+                
+                for col, header in enumerate(headers, 1):
+                    cell = ws.cell(row=row, column=col, value=header)
+                    cell.font = header_text_color
+                    cell.fill = header_fill
+                    cell.alignment = center_align
+                
+                # Add data rows
+                row += 1
+                for data in summary_data:
+                    # Add regular cells
+                    ws.cell(row=row, column=1, value=data['employee_id'])
+                    ws.cell(row=row, column=2, value=data['name'])
+                    ws.cell(row=row, column=3, value=data['division'])
+                    ws.cell(row=row, column=4, value=data['total_days'])
+                    ws.cell(row=row, column=5, value=data['on_time_count'])
+                    ws.cell(row=row, column=6, value=data['late_count'])
+                    ws.cell(row=row, column=7, value=data['early_end_count'])
+                    ws.cell(row=row, column=8, value=data['not_on_job_count'])
+                    
+                    # Add score with color coding
+                    score_cell = ws.cell(row=row, column=9, value=f"{data['attendance_score']}%")
+                    score_cell.alignment = center_align
+                    
+                    # Color coding based on score
+                    score = data['attendance_score']
+                    if score >= 95:
+                        score_cell.fill = PatternFill(start_color="CCFFCC", end_color="CCFFCC", fill_type="solid")
+                    elif score >= 90:
+                        score_cell.fill = PatternFill(start_color="FFFFCC", end_color="FFFFCC", fill_type="solid")
+                    elif score >= 80:
+                        score_cell.fill = PatternFill(start_color="FFDDCC", end_color="FFDDCC", fill_type="solid")
+                    else:
+                        score_cell.fill = PatternFill(start_color="FFCCCC", end_color="FFCCCC", fill_type="solid")
+                    
+                    row += 1
+                
+                # Auto-size columns
+                for column in ws.columns:
+                    max_length = 0
+                    column_letter = column[0].column_letter
+                    for cell in column:
+                        if cell.value:
+                            max_length = max(max_length, len(str(cell.value)))
+                    adjusted_width = (max_length + 2) * 1.2
+                    ws.column_dimensions[column_letter].width = adjusted_width
+                
+                # Save the Excel file
+                wb.save(file_path)
+            else:
+                flash(f'Unsupported export format: {export_format}', 'danger')
+                return redirect(url_for('driver_module.attendance_dashboard'))
+        else:
+            flash(f'Unsupported report type: {report_type}', 'danger')
+            return redirect(url_for('driver_module.index'))
+        
+        # Log the export to the database
+        log_report_export(
+            filename=filename,
+            report_type=report_type,
+            export_format=export_format,
+            document_type='driver_report'
+        )
+        
+        # Show success message
+        flash(f'Report has been exported successfully as {filename}', 'success')
+        
+        # Return appropriate response based on direct_download flag
+        if direct_download:
+            return send_file(file_path, as_attachment=True)
+        
+        # Redirect to appropriate page based on report type
+        if report_type == 'daily':
+            return redirect(url_for('driver_module.daily_report', date=date_param))
+        elif report_type == 'summary':
+            return redirect(url_for('driver_module.attendance_dashboard'))
+        else:
+            return redirect(url_for('driver_module.index'))
+    
+    except Exception as e:
+        # Log the error
+        logger.error(f"Error generating report: {str(e)}", exc_info=True)
+        flash(f"Error generating report: {str(e)}", "danger")
+        return redirect(url_for('driver_module.index'))
+        
+        # Generate base filename
+        formatted_date = report_date.strftime('%m_%d_%Y')
+        filename_base = f"{report_type}_report_{formatted_date}"
+        if region_id:
+            filename_base += f"_region_{region_id}"
+        
+        # Add timestamp to ensure uniqueness
+        date_str = timestamp.strftime('%H%M%S')
+        filename = f"{filename_base}_{date_str}.{export_format}"
+        
+        # Create the output file based on requested format
+        file_path = os.path.join(EXPORTS_FOLDER, filename)
+        
+        # Get real data from the database
+        # Import database models
+        from models.driver_attendance import AttendanceRecord, DriverAttendance, JobSiteAttendance
+        
+        # Initialize report_data
+        report_data = {}
+        
+        # Generate report based on type
+        if report_type == 'daily':
+            # Query to get all attendance records for the specified date
+            query = db.session.query(
+                AttendanceRecord, DriverAttendance, JobSiteAttendance
+            ).join(
+                DriverAttendance, AttendanceRecord.driver_id == DriverAttendance.id
+            ).join(
+                JobSiteAttendance, AttendanceRecord.assigned_job_id == JobSiteAttendance.id, isouter=True
+            ).filter(
+                AttendanceRecord.date == report_date
+            )
+            
+            # Add region filter if specified
+            if region_id:
+                query = query.filter(DriverAttendance.division == region_id)
+            
+            # Execute the query
+            results = query.all()
+            
+            # Initialize counters and data containers
+            total_drivers = len(results)
+            on_time_count = 0
+            late_start_count = 0
+            early_end_count = 0
+            not_on_job_count = 0
+            
+            late_drivers = []
+            early_end_drivers = []
+            not_on_job_drivers = []
+            
+            # Process the results
+            for record, driver, job_site in results:
+                # Determine driver status
+                if record.late_start:
+                    late_start_count += 1
+                    
+                    # Calculate late minutes
+                    minutes_late = 0
+                    if record.expected_start_time and record.actual_start_time:
+                        time_diff = record.actual_start_time - record.expected_start_time
+                        minutes_late = int(time_diff.total_seconds() / 60)
+                    
+                    # Format times
+                    scheduled_start = record.expected_start_time.strftime('%I:%M %p') if record.expected_start_time else 'N/A'
+                    actual_start = record.actual_start_time.strftime('%I:%M %p') if record.actual_start_time else 'N/A'
+                    
+                    # Add to late drivers list
+                    late_drivers.append({
+                        'employee_id': driver.employee_id,
+                        'name': driver.full_name,
+                        'region': driver.division or 'Unknown',
+                        'job_site': job_site.name if job_site else 'Unknown',
+                        'scheduled_start': scheduled_start,
+                        'actual_start': actual_start,
+                        'minutes_late': minutes_late,
+                        'vehicle': record.asset_id or 'N/A'
+                    })
+                    
+                elif record.early_end:
+                    early_end_count += 1
+                    
+                    # Calculate early minutes
+                    minutes_early = 0
+                    if record.expected_end_time and record.actual_end_time:
+                        time_diff = record.expected_end_time - record.actual_end_time
+                        minutes_early = int(time_diff.total_seconds() / 60)
+                    
+                    # Format times
+                    scheduled_end = record.expected_end_time.strftime('%I:%M %p') if record.expected_end_time else 'N/A'
+                    actual_end = record.actual_end_time.strftime('%I:%M %p') if record.actual_end_time else 'N/A'
+                    
+                    # Add to early end drivers list
+                    early_end_drivers.append({
+                        'employee_id': driver.employee_id,
+                        'name': driver.full_name,
+                        'region': driver.division or 'Unknown',
+                        'job_site': job_site.name if job_site else 'Unknown',
+                        'scheduled_end': scheduled_end,
+                        'actual_end': actual_end,
+                        'minutes_early': minutes_early,
+                        'vehicle': record.asset_id or 'N/A'
+                    })
+                    
+                elif record.not_on_job:
+                    not_on_job_count += 1
+                    
+                    # Format times
+                    scheduled_start = record.expected_start_time.strftime('%I:%M %p') if record.expected_start_time else 'N/A'
+                    
+                    # Add to not on job drivers list
+                    not_on_job_drivers.append({
+                        'employee_id': driver.employee_id,
+                        'name': driver.full_name,
+                        'region': driver.division or 'Unknown',
+                        'job_site': job_site.name if job_site else 'Unknown',
+                        'scheduled_start': scheduled_start,
+                        'reason': record.notes or 'Unknown',
+                        'vehicle': record.asset_id or 'N/A'
+                    })
+                    
+                else:
+                    on_time_count += 1
+            
+            # Prepare the report data
+            report_data = {
+                'total_drivers': total_drivers,
+                'on_time': on_time_count,
+                'late_start': late_start_count,
+                'early_end': early_end_count,
+                'not_on_job': not_on_job_count,
+                'late_drivers': late_drivers,
+                'early_end_drivers': early_end_drivers,
+                'not_on_job_drivers': not_on_job_drivers
+            }
+            
+        elif report_type == 'summary':
+            # Generate summary report data with attendance trends
+            # Determine date range (last 7 days by default)
+            end_date = report_date
+            start_date = end_date - timedelta(days=6)  # 7 days total including end_date
+            
+            # Query for attendance summary by driver
+            driver_summary = db.session.query(
+                DriverAttendance,
+                db.func.count(AttendanceRecord.id).label('total_records'),
+                db.func.sum(db.case((AttendanceRecord.late_start == True, 1), else_=0)).label('late_count'),
+                db.func.sum(db.case((AttendanceRecord.early_end == True, 1), else_=0)).label('early_end_count'),
+                db.func.sum(db.case((AttendanceRecord.not_on_job == True, 1), else_=0)).label('not_on_job_count')
+            ).join(
+                AttendanceRecord, DriverAttendance.id == AttendanceRecord.driver_id
+            ).filter(
+                AttendanceRecord.date.between(start_date, end_date)
+            )
+            
+            # Add region filter if specified
+            if region_id:
+                driver_summary = driver_summary.filter(DriverAttendance.division == region_id)
+            
+            # Group and order by driver
+            driver_summary = driver_summary.group_by(DriverAttendance.id).order_by(DriverAttendance.last_name).all()
+            
+            # Format the data for export
+            summary_data = []
+            
+            for driver, total, late_count, early_end_count, not_on_job_count in driver_summary:
+                # Calculate on-time count and attendance score
+                problem_count = (late_count or 0) + (early_end_count or 0) + (not_on_job_count or 0)
+                on_time_count = total - problem_count
+                attendance_score = int((on_time_count / total) * 100) if total > 0 else 0
+                
+                summary_data.append({
+                    'employee_id': driver.employee_id,
+                    'name': driver.full_name,
+                    'division': driver.division or 'Unknown',
+                    'total_days': total,
+                    'on_time_count': on_time_count,
+                    'late_count': late_count or 0,
+                    'early_end_count': early_end_count or 0,
+                    'not_on_job_count': not_on_job_count or 0,
+                    'attendance_score': attendance_score
+                })
+            
+            # Prepare the report data
+            report_data = {
+                'summary_data': summary_data,
+                'start_date': start_date,
+                'end_date': end_date
+            }
+        
+        # Generate the appropriate report format
+        if export_format == 'csv':
+            # Generate CSV file with proper formatting
+            import csv
+            with open(file_path, 'w', newline='') as csvfile:
+                writer = csv.writer(csvfile)
+                # Write header
+                writer.writerow(['Driver Report', f'Date: {report_date.strftime("%m/%d/%Y")}'])
+                writer.writerow(['Generated:', timestamp.strftime('%m/%d/%Y %I:%M:%S %p')])
+                writer.writerow([])
+                
+                # Summary data
             writer.writerow(['Summary', ''])
             writer.writerow(['Total Drivers', report_data['total_drivers']])
             writer.writerow(['On Time', report_data['on_time']])

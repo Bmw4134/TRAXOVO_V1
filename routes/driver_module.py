@@ -526,8 +526,24 @@ def get_mock_audit_results(search_type, search_term, start_date, end_date):
     # If searching by vehicle, filter to just that vehicle if it exists
     target_vehicles = []
     if search_type == 'vehicle' and search_term:
+        # Make search more flexible - add some test vehicles that match common patterns
+        # This will help with testing while we build out the real database
+        test_vehicles = list(vehicle_data.keys())
+        # Add some PT series vehicles that aren't in the basic list
+        additional_vehicles = [
+            'PT-252', 'PT-253', 'PT-254', 'PT-255', 'PT-237', 'PT-160',
+            'PT-241', 'PT-173', 'PT-09S', 'PT-19S', 'PT-227', 'PT-245',
+            'PT-13S', 'PT-244', 'ET-41', 'ET-14', 'ET-01'
+        ]
+        for v in additional_vehicles:
+            if v not in vehicle_data:
+                vehicle_data[v] = {'driver': 'Assigned Driver', 'employee_id': 'E' + v[3:6]}
+        
         for vehicle_id in vehicle_data.keys():
-            if search_term.lower() in vehicle_id.lower():
+            # More flexible matching - match prefix, contains, or suffix
+            if (vehicle_id.lower().startswith(search_term.lower()) or
+                search_term.lower() in vehicle_id.lower() or
+                vehicle_id.lower().endswith(search_term.lower())):
                 target_vehicles.append(vehicle_id)
     else:
         target_vehicles = list(vehicle_data.keys())

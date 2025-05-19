@@ -14,6 +14,9 @@ from models.user_settings import UserSettings
 from models.email_configuration import EmailRecipientList
 from flask_login import current_user
 from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash, session, current_app, send_file
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill
+from openpyxl.utils import get_column_letter
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 
@@ -687,6 +690,146 @@ def vehicle_audit():
         end_date=end_date,
         audit_results=audit_results,
         title="Vehicle & Driver History Audit"
+    )
+
+@driver_module_bp.route('/export-audit')
+@login_required
+def export_audit():
+    """
+    Export audit results to Excel
+    
+    Query parameters:
+        type: 'vehicle' or 'driver'
+        term: search term
+        start_date: Start date in YYYY-MM-DD format
+        end_date: End date in YYYY-MM-DD format
+    """
+    # Get search parameters
+    search_type = request.args.get('type', 'vehicle')
+    search_term = request.args.get('term', '')
+    start_date = request.args.get('start_date', '')
+    end_date = request.args.get('end_date', '')
+    
+    # Validate parameters
+    if not search_term or not start_date or not end_date:
+        flash('Missing required parameters for export', 'error')
+        return redirect(url_for('driver_module.vehicle_audit'))
+    
+    # Get results
+    results = get_mock_audit_results(search_type, search_term, start_date, end_date)
+    
+    if not results:
+        flash('No data found to export', 'warning')
+        return redirect(url_for('driver_module.vehicle_audit', 
+                               type=search_type, 
+                               term=search_term,
+                               start_date=start_date,
+                               end_date=end_date))
+    
+    # Create Excel workbook
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Vehicle History Audit"
+    
+    # Add title
+    title_text = f"{'Vehicle' if search_type == 'vehicle' else 'Driver'} History Audit: {search_term}"
+    ws['A1'] = title_text
+    ws['A1'].font = Font(bold=True, size=14)
+    ws.merge_cells('A1:L1')
+    
+    # Add date range subtitle
+    date_range_text = f"Date Range: {start_date} to {end_date}"
+    ws['A2'] = date_range_text
+    ws['A2'].font = Font(italic=True)
+    ws.merge_cells('A2:L2')
+    
+    # Add export time
+    export_time_text = f"Exported on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+    ws['A3'] = export_time_text
+    ws['A3'].font = Font(italic=True, size=8)
+    ws.merge_cells('A3:L3')
+    
+    # Headers with styling
+    headers = [
+        "Date", "Asset ID", "Driver", "Employee ID", 
+        "Assigned Job", "Actual Job", "Expected Start", 
+        "Actual Start", "Expected End", "Actual End", 
+        "Status", "Notes"
+    ]
+    
+    header_fill = PatternFill(start_color="1F4E78", end_color="1F4E78", fill_type="solid")
+    header_font = Font(bold=True, color="FFFFFF")
+    
+    for col_idx, header in enumerate(headers, 1):
+        cell = ws.cell(row=4, column=col_idx, value=header)
+        cell.fill = header_fill
+        cell.font = header_font
+    
+    # Add data
+    for row_idx, result in enumerate(results, 5):
+        ws.cell(row=row_idx, column=1, value=result['date'])
+        ws.cell(row=row_idx, column=2, value=result['asset_id'])
+        ws.cell(row=row_idx, column=3, value=result['driver_name'])
+        ws.cell(row=row_idx, column=4, value=result['employee_id'])
+        ws.cell(row=row_idx, column=5, value=result['assigned_job'])
+        ws.cell(row=row_idx, column=6, value=result['actual_job'])
+        ws.cell(row=row_idx, column=7, value=result['expected_start'])
+        ws.cell(row=row_idx, column=8, value=result['actual_start'])
+        ws.cell(row=row_idx, column=9, value=result['expected_end'])
+        ws.cell(row=row_idx, column=10, value=result['actual_end'])
+        
+        # Apply conditional formatting to status
+        status_cell = ws.cell(row=row_idx, column=11, value=result['status'])
+        if result['status'] == 'Late Start':
+            status_cell.fill = PatternFill(start_color="FFC7CE", end_color="FFC7CE", fill_type="solid")
+        elif result['status'] == 'Early End':
+            status_cell.fill = PatternFill(start_color="FFEB9C", end_color="FFEB9C", fill_type="solid")
+        elif result['status'] == 'Not on Job':
+            status_cell.fill = PatternFill(start_color="EBF1DE", end_color="EBF1DE", fill_type="solid")
+            
+        ws.cell(row=row_idx, column=12, value=result['notes'])
+    
+    # Format column widths
+    column_widths = {
+        1: 12,  # Date
+        2: 12,  # Asset ID
+        3: 20,  # Driver
+        4: 12,  # Employee ID
+        5: 20,  # Assigned Job
+        6: 20,  # Actual Job
+        7: 15,  # Expected Start
+        8: 15,  # Actual Start
+        9: 15,  # Expected End
+        10: 15,  # Actual End
+        11: 15,  # Status
+        12: 25,  # Notes
+    }
+    
+    for col, width in column_widths.items():
+        ws.column_dimensions[get_column_letter(col)].width = width
+    
+    # Save to a temporary file
+    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+    entity = search_term.replace(' ', '_').replace('/', '-')
+    filename = f"vehicle_audit_{entity}_{timestamp}.xlsx"
+    
+    # Create exports folder if it doesn't exist
+    if not os.path.exists(current_app.config.get('EXPORTS_FOLDER', 'exports')):
+        os.makedirs(current_app.config.get('EXPORTS_FOLDER', 'exports'))
+        
+    temp_path = os.path.join(current_app.config.get('EXPORTS_FOLDER', 'exports'), filename)
+    
+    wb.save(temp_path)
+    
+    # Log export activity
+    logger.info(f"User {current_user.username} exported vehicle audit for {search_term}")
+    
+    # Send the file to the user
+    return send_file(
+        temp_path,
+        as_attachment=True,
+        download_name=filename,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
 
 @driver_module_bp.route('/daily-report', methods=['GET', 'POST'])

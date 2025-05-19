@@ -198,6 +198,14 @@ def format_summary_sheet(sheet, date_str, attendance_data):
     sheet.cell(row=row, column=1).value = "Generated"
     sheet.cell(row=row, column=2).value = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
+def clean_placeholder_value(value):
+    """Clean up placeholder values like '-' or 'N/A'"""
+    if pd.isna(value) or value is None:
+        return ''
+    if isinstance(value, str) and value.strip() in ['-', 'N/A', 'NA', '']:
+        return ''
+    return value
+
 def format_late_sheet(sheet, late_drivers, employee_data, job_data):
     """Format the late arrivals sheet"""
     # Add headers

@@ -304,33 +304,195 @@ def get_daily_report(date_str=None):
             'not_on_job_drivers': []
         }
 
-def get_sample_attendance_stats():
+def get_attendance_stats(days=30):
     """
-    Get sample attendance statistics for dashboard
-    In a real application, this would be calculated from database records
-    """
-    today = datetime.now()
-    dates = [(today - timedelta(days=i)).strftime('%Y-%m-%d') for i in range(30, 0, -1)]
+    Get attendance statistics from the database for dashboard
     
-    return {
-        'dates': dates,
-        'on_time_percentages': [82, 85, 88, 91, 87, 89, 90, 88, 86, 89, 90, 92, 91, 93, 92, 90, 88, 91, 92, 93, 95, 94, 93, 91, 90, 92, 91, 89, 90, 92],
-        'late_start_counts': [7, 6, 5, 3, 5, 4, 4, 5, 6, 4, 4, 3, 4, 3, 3, 4, 5, 4, 3, 3, 2, 2, 3, 4, 4, 3, 4, 4, 4, 3],
-        'early_end_counts': [5, 4, 3, 2, 3, 3, 2, 3, 3, 3, 2, 2, 2, 1, 2, 2, 3, 1, 2, 1, 1, 2, 1, 2, 2, 2, 1, 3, 2, 2],
-        'not_on_job_counts': [2, 2, 1, 1, 2, 1, 1, 1, 2, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0],
-        'job_sites': [
-            {'id': '101', 'name': 'NTTA Eastern Extension', 'on_time_percentage': 89, 'driver_count': 12},
-            {'id': '102', 'name': 'DFW Connector', 'on_time_percentage': 92, 'driver_count': 8},
-            {'id': '103', 'name': 'Harbor Bridge', 'on_time_percentage': 86, 'driver_count': 6},
-            {'id': '104', 'name': 'Loop 88', 'on_time_percentage': 95, 'driver_count': 5},
-            {'id': '105', 'name': 'I-45 Expansion', 'on_time_percentage': 91, 'driver_count': 11}
-        ],
-        'regions': [
-            {'id': 'DFW', 'name': 'Dallas-Fort Worth', 'on_time_percentage': 91, 'driver_count': 20},
-            {'id': 'HOU', 'name': 'Houston', 'on_time_percentage': 88, 'driver_count': 15},
-            {'id': 'WTX', 'name': 'West Texas', 'on_time_percentage': 94, 'driver_count': 7}
-        ]
-    }
+    Args:
+        days (int): Number of days to include in statistics
+        
+    Returns:
+        dict: Attendance statistics
+    """
+    try:
+        # Import models
+        from models.driver_attendance import DriverAttendance, AttendanceRecord, JobSiteAttendance
+        from sqlalchemy import func, desc
+        
+        # Calculate date range
+        today = datetime.now().date()
+        start_date = today - timedelta(days=days-1)
+        
+        # Get all dates in range for consistent x-axis even if no data for some days
+        dates = [(today - timedelta(days=i)).strftime('%Y-%m-%d') for i in range(days-1, -1, -1)]
+        
+        # Query to get attendance data grouped by date
+        date_stats = {}
+        for date_str in dates:
+            # Initialize with zeros
+            date_stats[date_str] = {
+                'total': 0, 
+                'on_time': 0, 
+                'late_start': 0, 
+                'early_end': 0, 
+                'not_on_job': 0
+            }
+        
+        # Get actual records from database
+        records = AttendanceRecord.query.filter(
+            AttendanceRecord.date.between(start_date, today)
+        ).all()
+        
+        # Process records to build statistics
+        for record in records:
+            date_str = record.date.strftime('%Y-%m-%d')
+            if date_str in date_stats:
+                date_stats[date_str]['total'] += 1
+                
+                if record.late_start:
+                    date_stats[date_str]['late_start'] += 1
+                
+                if record.early_end:
+                    date_stats[date_str]['early_end'] += 1
+                
+                if record.not_on_job:
+                    date_stats[date_str]['not_on_job'] += 1
+                
+                # Count on-time as those without any flags
+                if not (record.late_start or record.early_end or record.not_on_job):
+                    date_stats[date_str]['on_time'] += 1
+        
+        # Calculate on-time percentages and count arrays
+        on_time_percentages = []
+        late_start_counts = []
+        early_end_counts = []
+        not_on_job_counts = []
+        
+        for date_str in dates:
+            stats = date_stats[date_str]
+            total = stats['total']
+            if total > 0:
+                on_time_pct = round((stats['on_time'] / total) * 100)
+            else:
+                on_time_pct = 100  # Default to 100% if no data
+            
+            on_time_percentages.append(on_time_pct)
+            late_start_counts.append(stats['late_start'])
+            early_end_counts.append(stats['early_end'])
+            not_on_job_counts.append(stats['not_on_job'])
+        
+        # Get job site statistics
+        job_sites = []
+        job_site_query = db.session.query(
+            JobSiteAttendance.id,
+            JobSiteAttendance.name,
+            func.count(AttendanceRecord.id).label('total_count')
+        ).join(
+            AttendanceRecord, 
+            AttendanceRecord.assigned_job_id == JobSiteAttendance.id
+        ).filter(
+            AttendanceRecord.date.between(start_date, today)
+        ).group_by(
+            JobSiteAttendance.id
+        ).order_by(
+            desc('total_count')
+        ).limit(5).all()
+        
+        for site_id, site_name, driver_count in job_site_query:
+            # Calculate on-time percentage for this job site
+            on_time_records = db.session.query(func.count(AttendanceRecord.id)).filter(
+                AttendanceRecord.assigned_job_id == site_id,
+                AttendanceRecord.date.between(start_date, today),
+                ~(AttendanceRecord.late_start | AttendanceRecord.early_end | AttendanceRecord.not_on_job)
+            ).scalar() or 0
+            
+            on_time_percentage = round((on_time_records / driver_count) * 100) if driver_count > 0 else 100
+            
+            job_sites.append({
+                'id': str(site_id),
+                'name': site_name,
+                'on_time_percentage': on_time_percentage,
+                'driver_count': driver_count
+            })
+        
+        # Get region statistics
+        regions = []
+        region_query = db.session.query(
+            DriverAttendance.division,
+            func.count(DriverAttendance.id.distinct()).label('driver_count')
+        ).join(
+            AttendanceRecord,
+            AttendanceRecord.driver_id == DriverAttendance.id
+        ).filter(
+            AttendanceRecord.date.between(start_date, today),
+            DriverAttendance.division.isnot(None)
+        ).group_by(
+            DriverAttendance.division
+        ).all()
+        
+        for division, driver_count in region_query:
+            # Calculate on-time percentage for this region
+            total_records = db.session.query(func.count(AttendanceRecord.id)).join(
+                DriverAttendance,
+                AttendanceRecord.driver_id == DriverAttendance.id
+            ).filter(
+                DriverAttendance.division == division,
+                AttendanceRecord.date.between(start_date, today)
+            ).scalar() or 0
+            
+            on_time_records = db.session.query(func.count(AttendanceRecord.id)).join(
+                DriverAttendance,
+                AttendanceRecord.driver_id == DriverAttendance.id
+            ).filter(
+                DriverAttendance.division == division,
+                AttendanceRecord.date.between(start_date, today),
+                ~(AttendanceRecord.late_start | AttendanceRecord.early_end | AttendanceRecord.not_on_job)
+            ).scalar() or 0
+            
+            on_time_percentage = round((on_time_records / total_records) * 100) if total_records > 0 else 100
+            
+            region_name = division
+            if division == 'DFW':
+                region_name = 'Dallas-Fort Worth'
+            elif division == 'HOU':
+                region_name = 'Houston'
+            elif division == 'WTX':
+                region_name = 'West Texas'
+            
+            regions.append({
+                'id': division,
+                'name': region_name,
+                'on_time_percentage': on_time_percentage,
+                'driver_count': driver_count
+            })
+        
+        # Return the complete stats package
+        return {
+            'dates': dates,
+            'on_time_percentages': on_time_percentages,
+            'late_start_counts': late_start_counts,
+            'early_end_counts': early_end_counts,
+            'not_on_job_counts': not_on_job_counts,
+            'job_sites': job_sites,
+            'regions': regions
+        }
+        
+    except Exception as e:
+        logger.error(f"Error fetching attendance statistics: {str(e)}")
+        # Return empty datasets if error occurs
+        today = datetime.now()
+        dates = [(today - timedelta(days=i)).strftime('%Y-%m-%d') for i in range(days-1, -1, -1)]
+        
+        # Return empty arrays matching the date range
+        return {
+            'dates': dates,
+            'on_time_percentages': [0] * len(dates),
+            'late_start_counts': [0] * len(dates),
+            'early_end_counts': [0] * len(dates),
+            'not_on_job_counts': [0] * len(dates),
+            'job_sites': [],
+            'regions': []
+        }
 
 # Routes
 @driver_module_bp.route('/')
@@ -382,9 +544,23 @@ def attendance_dashboard():
     """Attendance dashboard with trends and metrics"""
     log_navigation(current_user.id, 'driver_module.attendance_dashboard')
     
-    stats = get_sample_attendance_stats()
+    # Get filter parameters
+    days = request.args.get('days', 30, type=int)
+    region = request.args.get('region', 'all')
     
-    return render_template('drivers/attendance_dashboard.html', stats=stats)
+    # Get data for the dashboard from the database
+    stats = get_attendance_stats(days)
+    drivers = get_drivers()
+    
+    active_drivers = len([d for d in drivers if d['status'] == 'Active'])
+    attendance_score = stats['on_time_percentages'][-1] if stats['on_time_percentages'] else 0
+    
+    return render_template('drivers/attendance_dashboard.html',
+                          stats=stats,
+                          driver_count=active_drivers,
+                          attendance_score=attendance_score,
+                          selected_days=days,
+                          selected_region=region)
 
 @driver_module_bp.route('/driver_list')
 @login_required

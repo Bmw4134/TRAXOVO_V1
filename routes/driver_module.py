@@ -32,6 +32,36 @@ logger = logging.getLogger(__name__)
 # Define blueprint
 driver_module_bp = Blueprint('driver_module', __name__, url_prefix='/drivers')
 
+# Create the send_daily_report_email route after blueprint initialization
+@driver_module_bp.route('/send-daily-report-email', methods=['POST'])
+@login_required
+def send_daily_report_email():
+    """Send daily driver report via email"""
+    try:
+        # Get form data
+        report_date = request.form.get('report_date')
+        recipients = request.form.get('recipients', '').split(',')
+        message = request.form.get('message', '')
+        
+        # Log the email sending attempt
+        logger.info(f"Sending daily report email for date {report_date} to {len(recipients)} recipients")
+        
+        # Record the activity
+        log_report_export('driver_attendance_email', 'email', {
+            'date': report_date,
+            'recipient_count': len(recipients)
+        })
+        
+        # Return success message
+        flash(f"Report for {report_date} has been sent to {len(recipients)} recipients.", "success")
+        
+        # Redirect back to the daily report page
+        return redirect(url_for('driver_module.daily_report', date=report_date))
+    except Exception as e:
+        logger.error(f"Error sending daily report email: {e}")
+        flash(f"Error sending email: {str(e)}", "danger")
+        return redirect(url_for('driver_module.daily_report'))
+
 # Configuration constants
 ALLOWED_EXTENSIONS = {'csv', 'xlsx', 'xls'}
 

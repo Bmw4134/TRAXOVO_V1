@@ -96,13 +96,13 @@ def process_daily_usage_data(file_path, date_str=None):
         'formatted_date': formatted_date,
         'divisions': set(),
         'summary': {
-            'total_drivers': 0,
-            'total_morning_drivers': 0,
-            'on_time_drivers': 0,
-            'late_drivers': 0,
-            'early_end_drivers': 0,
-            'not_on_job_drivers': 0,
-            'exception_drivers': 0
+            'total_drivers': 0,            # Total unique drivers
+            'on_time_drivers': 0,          # Drivers who arrived on time
+            'total_issues': 0,             # Total of all issue categories combined
+            'late_drivers': 0,             # Drivers who were late
+            'early_end_drivers': 0,        # Drivers who left early
+            'not_on_job_drivers': 0,       # Drivers not on job
+            'exception_drivers': 0         # Drivers with exceptions/missing data
         },
         'late_drivers': [],
         'early_end_drivers': [],

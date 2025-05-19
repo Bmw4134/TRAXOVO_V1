@@ -1083,40 +1083,103 @@ def region_detail(region_id):
 @login_required
 def upload_attendance():
     """Upload attendance file for processing"""
-    if request.method == 'POST':
-        if 'file' not in request.files:
-            flash('No file part', 'danger')
-            return redirect(request.url)
+    try:
+        # Import required models
+        from models.driver_attendance import AttendanceImportLog
         
-        file = request.files['file']
+        # Ensure the upload directory exists
+        upload_dir = os.path.join(os.getcwd(), 'uploads', 'attendance')
+        os.makedirs(upload_dir, exist_ok=True)
         
-        if file.filename == '':
-            flash('No selected file', 'danger')
-            return redirect(request.url)
-        
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file_path = os.path.join(UPLOAD_FOLDER, filename)
+        if request.method == 'POST':
+            if 'file' not in request.files:
+                flash('No file part', 'danger')
+                return redirect(request.url)
+            
+            file = request.files['file']
+            
+            if file.filename == '':
+                flash('No selected file', 'danger')
+                return redirect(request.url)
+            
+            # Check file extension
+            allowed_extensions = {'csv', 'xlsx', 'xls'}
+            file_ext = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
+            
+            if file_ext not in allowed_extensions:
+                flash(f'File type not allowed. Please upload {", ".join(allowed_extensions)} files.', 'danger')
+                return redirect(request.url)
+            
+            # Create a timestamped filename to prevent overwrites
+            timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+            original_filename = file.filename
+            safe_filename = secure_filename(original_filename)
+            timestamped_filename = f"{timestamp}_{safe_filename}"
+            file_path = os.path.join(upload_dir, timestamped_filename)
+            
+            # Save the file
             file.save(file_path)
             
             # Get file size
             file_size = os.path.getsize(file_path)
+            file_size_kb = file_size / 1024
             
-            # Log the upload
-            log_document_upload(
-                filename=filename,
-                file_type=filename.rsplit('.', 1)[1].lower(),
-                file_size=file_size
+            # Log the upload in the database
+            import_log = AttendanceImportLog(
+                file_name=original_filename,
+                file_type=file_ext,
+                imported_by=current_user.id if current_user.is_authenticated else None,
+                record_count=0,  # Will be updated after processing
+                success=True
             )
+            db.session.add(import_log)
+            db.session.commit()
             
-            # In a real application, this would trigger processing
-            # For demonstration, we'll just show success
-            flash(f'File {filename} uploaded successfully and queued for processing', 'success')
-            return redirect(url_for('driver_module.daily_report'))
-        else:
-            flash(f'File type not allowed. Please upload {", ".join(ALLOWED_EXTENSIONS)} files.', 'danger')
-            
-    return render_template('drivers/upload_attendance.html')
+            # Process the attendance file based on file type
+            try:
+                # Process the file and import data
+                if file_ext in ['xlsx', 'xls']:
+                    from utils.attendance_import import process_excel_attendance
+                    records_processed = process_excel_attendance(file_path)
+                elif file_ext == 'csv':
+                    from utils.attendance_import import process_csv_attendance
+                    records_processed = process_csv_attendance(file_path)
+                else:
+                    records_processed = 0
+                
+                # Update the import log with the count of processed records
+                import_log.record_count = records_processed
+                db.session.commit()
+                
+                flash(f'File {original_filename} uploaded and processed successfully. {records_processed} records imported.', 'success')
+                logger.info(f'Successfully processed {records_processed} records from {original_filename}')
+                
+                # Redirect to the daily report page to see the results
+                return redirect(url_for('driver_module.daily_report'))
+                
+            except Exception as e:
+                # Log the error and update the import record
+                error_msg = str(e)
+                logger.error(f"Error processing attendance file: {error_msg}")
+                import_log.success = False
+                import_log.error_message = error_msg
+                db.session.commit()
+                
+                flash(f'Error processing file: {error_msg}', 'danger')
+                return redirect(request.url)
+                
+        # GET request - display the upload form
+        import_history = AttendanceImportLog.query.order_by(
+            AttendanceImportLog.import_date.desc()
+        ).limit(10).all()
+        
+        return render_template('drivers/upload_attendance.html', 
+                               import_history=import_history)
+                               
+    except Exception as e:
+        logger.error(f"Error in upload_attendance route: {str(e)}")
+        flash(f"An unexpected error occurred: {str(e)}", "danger")
+        return redirect(url_for('driver_module.index'))
 
 @driver_module_bp.route('/export_report', methods=['GET'])
 @login_required

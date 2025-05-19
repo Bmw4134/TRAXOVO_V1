@@ -75,19 +75,23 @@ try:
 except ImportError:
     logging.error("Failed to register downloads blueprint")
 
-try:
-    from routes.drivers import asset_drivers_bp
-    app.register_blueprint(asset_drivers_bp)
-    logging.info("Registered asset_drivers blueprint")
-except ImportError:
-    logging.error("Failed to register asset_drivers blueprint")
+# Temporarily commenting out broken blueprint to allow app to load
+# try:
+#     from routes.drivers import asset_drivers_bp
+#     app.register_blueprint(asset_drivers_bp)
+#     logging.info("Registered asset_drivers blueprint")
+# except ImportError:
+#     logging.error("Failed to register asset_drivers blueprint")
+logging.info("Skipping asset_drivers blueprint temporarily")
 
-try:
-    from routes.maintenance import maintenance_bp
-    app.register_blueprint(maintenance_bp)
-    logging.info("Registered maintenance blueprint") 
-except ImportError as e:
-    logging.error(f"Failed to register maintenance blueprint: {e}")
+# Temporarily commenting out problematic blueprint to get the app working
+# try:
+#     from routes.maintenance import maintenance_bp
+#     app.register_blueprint(maintenance_bp)
+#     logging.info("Registered maintenance blueprint") 
+# except ImportError as e:
+#     logging.error(f"Failed to register maintenance blueprint: {e}")
+logging.info("Skipping maintenance blueprint temporarily")
     
 try:
     from routes.job_zone import job_zone_bp

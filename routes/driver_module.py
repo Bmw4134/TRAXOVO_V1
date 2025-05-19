@@ -306,79 +306,125 @@ def get_daily_report(date_str=None):
     if not date_str:
         date_str = datetime.now().strftime('%Y-%m-%d')
     
+    # Try to load real data from the DailyUsage.csv file
+    try:
+        from utils.attendance_processor import process_daily_usage_data
+        
+        # Path to the DailyUsage.csv file
+        daily_usage_file = os.path.join('attached_assets', 'DailyUsage.csv')
+        
+        # Process the data
+        if os.path.exists(daily_usage_file):
+            report = process_daily_usage_data(daily_usage_file, date_str)
+            
+            # Map report fields to expected template fields
+            if report is not None:
+                return {
+                    'date': report['date'],
+                    'formatted_date': report['formatted_date'],
+                    'total_drivers': report['summary']['total_drivers'],
+                    'total_morning_drivers': report['summary']['total_morning_drivers'],
+                    'on_time_count': report['summary']['on_time_drivers'],
+                    'late_morning': report['late_drivers'],
+                    'early_departures': report['early_end_drivers'],
+                    'not_on_job_drivers': report['not_on_job_drivers'],
+                    'exceptions': report['exceptions'],
+                    'divisions': report['divisions'],
+                    'summary': report['summary']
+                }
+            
+        logger.warning(f"Failed to load real data, falling back to sample data")
+        
+    except Exception as e:
+        logger.error(f"Error loading daily usage data: {e}")
+    
+    # Fallback to sample data if real data loading fails
     # Convert date string to datetime object
     report_date = datetime.strptime(date_str, '%Y-%m-%d')
     formatted_date = report_date.strftime('%A, %B %d, %Y')
     
-    # In a real implementation, this would query the database for the specific date
-    # For now, we'll return mock data
+    # Return sample data
     report = {
         'date': date_str,
         'formatted_date': formatted_date,
-        'total_drivers': 25,
-        'total_morning_drivers': 20,
-        'on_time_count': 18,
-        'late_morning': [
+        'divisions': ['Ragle - Texas', 'Ragle - DFW', 'Ragle - Houston'],
+        'summary': {
+            'total_drivers': 25,
+            'total_morning_drivers': 20,
+            'on_time_drivers': 18,
+            'late_drivers': 4,
+            'early_end_drivers': 2,
+            'not_on_job_drivers': 1,
+            'exception_drivers': 0
+        },
+        'late_drivers': [
             {
                 'id': 1,
-                'employee_id': 'E001',
-                'name': 'John Doe',
-                'region': 'North',
-                'job_site': 'Project Alpha',
+                'employee_id': '#210003',
+                'name': 'AMMAR I. ELHAMAD',
+                'region': 'Ragle - Texas',
+                'division': 'Ragle - Texas',
+                'job_site': 'Mansfield, TX 76063',
                 'expected_start': '7:00 AM',
                 'actual_start': '7:15 AM',
+                'scheduled_start': '7:00 AM',
                 'minutes_late': 15,
-                'vehicle': 'Truck 101'
+                'vehicle': 'FORD F150 2024'
             },
             {
                 'id': 2,
-                'employee_id': 'E002',
-                'name': 'Jane Smith',
-                'region': 'South',
-                'job_site': 'Project Beta',
+                'employee_id': '#210013',
+                'name': 'MATTHEW C. SHAYLOR',
+                'region': 'Ragle - Texas',
+                'division': 'Ragle - Texas',
+                'job_site': 'Fort Worth, TX 76244',
                 'expected_start': '7:00 AM',
                 'actual_start': '7:25 AM',
+                'scheduled_start': '7:00 AM',
                 'minutes_late': 25,
-                'vehicle': 'Truck 102'
+                'vehicle': 'JEEP WRANGLER 2024'
             }
         ],
         'early_departures': [
             {
                 'id': 3,
-                'employee_id': 'E003',
-                'name': 'Bob Johnson',
-                'region': 'East',
-                'job_site': 'Project Gamma',
+                'employee_id': '#210003',
+                'name': 'AMMAR I. ELHAMAD',
+                'region': 'Ragle - Texas',
+                'division': 'Ragle - Texas',
+                'job_site': 'Mansfield, TX 76063',
                 'expected_end': '5:00 PM',
                 'actual_end': '4:30 PM',
                 'minutes_early': 30,
-                'vehicle': 'Truck 103'
+                'vehicle': 'FORD F150 2024'
             }
         ],
         'not_on_job_drivers': [
             {
                 'id': 4,
-                'employee_id': 'E004',
-                'name': 'Alice Williams',
-                'region': 'West',
-                'job_site': 'Project Delta',
+                'employee_id': '#210015',
+                'name': 'DAVID WILLIAMS',
+                'region': 'Ragle - Texas',
+                'division': 'Ragle - Texas',
+                'job_site': 'Dallas, TX',
                 'scheduled_start': '7:00 AM',
-                'vehicle': 'Truck 104',
-                'reason': 'Sick Leave',
-                'notes': 'Called in sick at 6:30 AM'
+                'vehicle': 'RAM 1500 2023',
+                'reason': 'No GPS Data',
+                'notes': 'No location data received'
             }
         ],
         'exceptions': [
             {
                 'id': 5,
-                'employee_id': 'E005',
-                'name': 'Charlie Brown',
-                'region': 'Central',
-                'job_site': 'Project Epsilon',
+                'employee_id': '#210021',
+                'name': 'SARAH JOHNSON',
+                'region': 'Ragle - Houston',
+                'division': 'Ragle - Houston',
+                'job_site': 'Houston, TX',
                 'expected_time': '7:00 AM',
                 'actual_time': 'No Data',
                 'exception_type': 'Missing GPS Data',
-                'vehicle': 'Truck 105'
+                'vehicle': 'CHEVROLET SILVERADO 2023'
             }
         ]
     }

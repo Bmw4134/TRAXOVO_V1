@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 def parse_time(time_str, default=None):
     """Parse time string in various formats and return a datetime object"""
-    if not time_str or time_str == 'N/A':
+    if not time_str or time_str == 'N/A' or time_str == ':':
         return default
         
     try:
@@ -27,8 +27,12 @@ def parse_time(time_str, default=None):
         # Parse time in 12-hour format
         return datetime.strptime(time_str, '%I:%M %p')
     except Exception as e:
-        logger.error(f"Error parsing time '{time_str}': {e}")
-        return default
+        try:
+            # Try 24-hour format as fallback
+            return datetime.strptime(time_str, '%H:%M')
+        except Exception:
+            logger.error(f"Error parsing time '{time_str}': {e}")
+            return default
 
 def calculate_minutes_late(scheduled_time, actual_time, threshold_minutes=5):
     """
@@ -97,6 +101,7 @@ def process_daily_usage_data(file_path, date_str=None):
         'divisions': set(),
         'summary': {
             'total_drivers': 0,            # Total unique drivers
+            'total_morning_drivers': 0,    # Total drivers with morning check-in
             'on_time_drivers': 0,          # Drivers who arrived on time
             'total_issues': 0,             # Total of all issue categories combined
             'late_drivers': 0,             # Drivers who were late

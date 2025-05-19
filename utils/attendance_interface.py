@@ -17,6 +17,65 @@ logger = logging.getLogger(__name__)
 # Constants
 ATTENDANCE_DB_PATH = 'data/attendance.db'
 
+# Initialize database if needed
+def ensure_attendance_db_setup():
+    """
+    Ensure the attendance database is properly set up with required tables
+    """
+    # Create directory if needed
+    os.makedirs(os.path.dirname(ATTENDANCE_DB_PATH), exist_ok=True)
+    
+    # Connect to database
+    conn = sqlite3.connect(ATTENDANCE_DB_PATH)
+    cursor = conn.cursor()
+    
+    # Create tables if they don't exist
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS attendance_records (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        date TEXT NOT NULL,
+        driver_name TEXT NOT NULL,
+        asset_id TEXT,
+        scheduled_start TEXT,
+        actual_start TEXT,
+        scheduled_end TEXT,
+        actual_end TEXT,
+        location TEXT,
+        job_site TEXT,
+        is_late INTEGER DEFAULT 0,
+        is_early_end INTEGER DEFAULT 0,
+        late_minutes INTEGER DEFAULT 0,
+        early_minutes INTEGER DEFAULT 0,
+        company TEXT,
+        status TEXT,
+        region TEXT
+    )
+    ''')
+    
+    # Create index on date and driver_name
+    cursor.execute('CREATE INDEX IF NOT EXISTS idx_date_driver ON attendance_records(date, driver_name)')
+    
+    # Create audit log table
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS attendance_audit (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        date TEXT NOT NULL,
+        file_path TEXT,
+        file_type TEXT,
+        driver_count INTEGER,
+        record_count INTEGER,
+        timestamp TEXT,
+        status TEXT
+    )
+    ''')
+    
+    # Save changes and close connection
+    conn.commit()
+    conn.close()
+
+# Ensure the database is set up when the module is loaded
+ensure_attendance_db_setup()
+
 
 def get_attendance_records_for_date(date_str):
     """

@@ -181,10 +181,10 @@ def daily_driver_report():
             report_date = datetime.now().date()
             
         # Set time threshold based on export_time parameter
-        if export_time == '10am':
-            time_threshold = time(10, 0)  # 10:00 AM
-            report_title = "10 AM Daily Driver Report"
-            filename_prefix = "10am_driver_report"
+        if export_time == '9am':
+            time_threshold = time(9, 0)  # 9:00 AM
+            report_title = "9 AM Daily Driver Report"
+            filename_prefix = "9am_driver_report"
         else:
             time_threshold = time(8, 0)  # 8:00 AM
             report_title = "8 AM Daily Driver Report"
@@ -266,7 +266,7 @@ def daily_driver_report():
                     else:
                         # Skip records that don't need to start before 8am
                         include_in_report = False
-                else:  # 10am report
+                else:  # 9am report
                     # Include all records for the day
                     if record.late_start:
                         status = "Late Start"

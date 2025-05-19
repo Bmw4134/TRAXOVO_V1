@@ -138,8 +138,44 @@ def normalize_time_string(time_str, detect_next_day=True):
             # Remove the next-day indicator
             time_str = NEXT_DAY_PATTERN.sub('', time_str).strip()
     
-    # Try various formats
-    formats = [
+    # Handle full datetime strings with timezone indicators
+    # Extract just the time part if it contains a date
+    if re.search(r'\d+/\d+/\d+', time_str):
+        # Check if contains CT, CST, CDT timezone indicators
+        has_ct = re.search(r'\b(CT|CST|CDT)\b', time_str, re.IGNORECASE) is not None
+        
+        # Try to parse date+time formats
+        date_formats = [
+            '%m/%d/%Y %I:%M:%S %p',     # 5/19/2025 12:56:29 PM
+            '%m/%d/%Y %I:%M:%S %p CT',  # 5/19/2025 12:56:29 PM CT
+            '%m/%d/%Y %H:%M:%S',        # 5/19/2025 13:56:29
+            '%m/%d/%Y %I:%M %p',        # 5/19/2025 12:56 PM
+            '%m/%d/%Y %I:%M %p CT',     # 5/19/2025 12:56 PM CT
+            '%m/%d/%Y %H:%M',           # 5/19/2025 13:56
+            '%Y-%m-%d %H:%M:%S',        # 2025-05-19 13:56:29
+            '%Y-%m-%d %H:%M',           # 2025-05-19 13:56
+        ]
+        
+        for fmt in date_formats:
+            try:
+                # Special handling for timezone indicators
+                fmt_to_use = fmt
+                str_to_parse = time_str
+                
+                # Handle CT timezone indicator
+                if "CT" in fmt and "CT" not in time_str:
+                    continue
+                if "CT" not in fmt and has_ct:
+                    continue
+                    
+                dt = datetime.strptime(str_to_parse, fmt_to_use)
+                # Return just the time part
+                return dt.strftime(TIME_FORMAT_HH_MM), is_next_day
+            except ValueError:
+                continue
+    
+    # Try various time-only formats
+    time_formats = [
         TIME_FORMAT_HH_MM,         # 13:45
         TIME_FORMAT_HH_MM_SS,      # 13:45:30
         TIME_FORMAT_12H,           # 1:45 PM
@@ -147,11 +183,14 @@ def normalize_time_string(time_str, detect_next_day=True):
         '%I:%M%p',       # 1:45PM
         '%I:%M:%S%p',    # 1:45:30PM
         '%I %p',         # 1 PM
-        '%I%p'           # 1PM
+        '%I%p',          # 1PM
+        '%H%M',          # 1345 (military time without colon)
+        '%I:%M %p %Z',   # 1:45 PM CT
+        '%I:%M:%S %p %Z' # 1:45:30 PM CT
     ]
     
     # Try each format
-    for fmt in formats:
+    for fmt in time_formats:
         try:
             # Parse time string
             dt = datetime.strptime(time_str, fmt)
@@ -159,6 +198,26 @@ def normalize_time_string(time_str, detect_next_day=True):
             return dt.strftime(TIME_FORMAT_HH_MM), is_next_day
         except ValueError:
             continue
+    
+    # Try to extract the time portion from a messy string
+    time_pattern = re.compile(r'(\d{1,2})[:.:](\d{2})(?:[:.:](\d{2}))?\s*(am|pm|AM|PM)?')
+    match = time_pattern.search(time_str)
+    if match:
+        hour = int(match.group(1))
+        minute = int(match.group(2))
+        am_pm = match.group(4)
+        
+        # Adjust hour for PM if needed
+        if am_pm and am_pm.lower() == 'pm' and hour < 12:
+            hour += 12
+        elif am_pm and am_pm.lower() == 'am' and hour == 12:
+            hour = 0
+        
+        # Ensure valid range
+        hour = min(23, max(0, hour))
+        minute = min(59, max(0, minute))
+        
+        return f"{hour:02d}:{minute:02d}", is_next_day
     
     # If we got here, none of the formats matched
     logger.warning(f"Could not normalize time string: {time_str}")

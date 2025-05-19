@@ -394,8 +394,49 @@ def daily_report():
     # Get date parameter, default to today
     date_str = request.args.get('date', datetime.now().strftime('%Y-%m-%d'))
     
-    # Get report data
-    report = get_daily_report(date_str)
+    # Import attendance pipeline connector for modern data processing
+    try:
+        from utils.attendance_pipeline_connector import get_attendance_data as get_pipeline_attendance_data
+        
+        # Try to get data from the new attendance pipeline
+        attendance_data = get_pipeline_attendance_data(date_str, force_refresh=False)
+        
+        if attendance_data and attendance_data.get('date') == date_str:
+            # Successfully retrieved data from the pipeline
+            logger.info(f"Using data from attendance pipeline for {date_str}")
+            
+            # Map pipeline fields to report format
+            report = {
+                'date': attendance_data['date'],
+                'formatted_date': datetime.strptime(attendance_data['date'], '%Y-%m-%d').strftime('%A, %B %d, %Y'),
+                'total_drivers': attendance_data['total_drivers'],
+                'total_morning_drivers': attendance_data['total_drivers'],  # All drivers count as morning drivers in new system
+                'on_time_count': attendance_data['total_drivers'] - attendance_data['late_count'] - attendance_data['missing_count'],
+                'late_morning': attendance_data['late_start_records'],
+                'early_departures': attendance_data['early_end_records'],
+                'not_on_job_drivers': attendance_data['not_on_job_records'],
+                'exceptions': [],  # Not tracked in new system yet
+                'divisions': [],   # Not tracked in new system yet
+                'summary': {
+                    'total_drivers': attendance_data['total_drivers'],
+                    'total_morning_drivers': attendance_data['total_drivers'],
+                    'on_time_drivers': attendance_data['total_drivers'] - attendance_data['late_count'] - attendance_data['missing_count'],
+                    'late_drivers': attendance_data['late_count'],
+                    'early_end_drivers': attendance_data['early_count'],
+                    'not_on_job_drivers': attendance_data['missing_count'],
+                    'exception_drivers': 0,
+                    'total_issues': attendance_data['late_count'] + attendance_data['early_count'] + attendance_data['missing_count'],
+                    'on_time_percent': attendance_data.get('on_time_percent', 0)
+                }
+            }
+        else:
+            # Fall back to legacy method
+            logger.warning(f"No data from attendance pipeline for {date_str}, using legacy method")
+            report = get_daily_report(date_str)
+    except Exception as e:
+        logger.error(f"Error using attendance pipeline: {e}")
+        # Fall back to legacy method
+        report = get_daily_report(date_str)
     
     # Handle form submission for email configuration
     if request.method == 'POST' and request.form.get('action') == 'save_email_config':

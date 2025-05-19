@@ -68,39 +68,137 @@
             attribution: '© OpenStreetMap'
         }).addTo(map);
         
-        // Asset data (hardcoded sample data)
-        var assets = [
-            // Dallas area
-            { id: "EX1001", type: "excavator", lat: 32.78, lng: -96.80, name: "Excavator 1001" },
-            { id: "LD2002", type: "loader", lat: 32.75, lng: -96.77, name: "Loader 2002" },
-            { id: "DZ3003", type: "dozer", lat: 32.73, lng: -96.85, name: "Dozer 3003" },
-            { id: "TK4004", type: "truck", lat: 32.80, lng: -96.81, name: "Truck 4004" },
-            
-            // Houston area
-            { id: "EX1005", type: "excavator", lat: 29.76, lng: -95.37, name: "Excavator 1005" },
-            { id: "LD2006", type: "loader", lat: 29.75, lng: -95.40, name: "Loader 2006" },
-            { id: "TK4007", type: "truck", lat: 29.72, lng: -95.35, name: "Truck 4007" },
-            
-            // West Texas
-            { id: "DZ3008", type: "dozer", lat: 31.84, lng: -102.36, name: "Dozer 3008" },
-            { id: "PU5009", type: "pickup", lat: 31.82, lng: -102.32, name: "Pickup 5009" }
-        ];
+        // Status indicator
+        var statusDiv = document.createElement('div');
+        statusDiv.className = 'title';
+        statusDiv.style.right = '10px';
+        statusDiv.style.left = 'auto';
+        statusDiv.style.backgroundColor = 'rgba(0,0,0,0.7)';
+        statusDiv.style.fontSize = '14px';
+        statusDiv.innerHTML = 'Loading assets...';
+        document.body.appendChild(statusDiv);
         
-        // Add markers for each asset
-        assets.forEach(function(asset) {
-            // Create marker with custom icon
-            var marker = L.marker([asset.lat, asset.lng], {
-                icon: L.divIcon({
-                    className: '',
-                    html: '<div class="asset-marker ' + asset.type + '">' + asset.id.substr(0, 2) + '</div>',
-                    iconSize: [32, 32],
-                    iconAnchor: [16, 16]
-                })
-            }).addTo(map);
+        // Fetch real assets from API
+        fetch('/map-view/api/sample-assets')
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.status === 'success' && data.assets && data.assets.length > 0) {
+                    // Update status
+                    statusDiv.innerHTML = data.source === 'gauge_api' ? 'Live Data' : 'Sample Data';
+                    statusDiv.style.backgroundColor = data.source === 'gauge_api' ? 'rgba(40, 167, 69, 0.8)' : 'rgba(255, 193, 7, 0.8)';
+                    
+                    // Process assets
+                    processAssets(data.assets);
+                } else {
+                    // Show error
+                    statusDiv.innerHTML = 'No asset data';
+                    statusDiv.style.backgroundColor = 'rgba(220, 53, 69, 0.8)';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching assets:', error);
+                statusDiv.innerHTML = 'Error loading data';
+                statusDiv.style.backgroundColor = 'rgba(220, 53, 69, 0.8)';
+            });
+        
+        // Process assets and add to map
+        function processAssets(assets) {
+            // Remove any existing markers
+            map.eachLayer(function(layer) {
+                if (layer instanceof L.Marker) {
+                    map.removeLayer(layer);
+                }
+            });
             
-            // Add popup with asset info
-            marker.bindPopup("<b>" + asset.id + "</b><br>" + asset.name);
-        });
+            // Valid asset locations to track
+            var validAssets = [];
+            
+            // Process each asset
+            assets.forEach(function(asset) {
+                // Extract location info
+                var lat = asset.latitude || asset.lat;
+                var lng = asset.longitude || asset.lng;
+                
+                // Skip assets without location
+                if (!lat || !lng || lat === 0 || lng === 0) return;
+                
+                // Determine asset type
+                var type = getAssetType(asset);
+                
+                // Get ID or create one
+                var id = asset.id || asset.assetID || 'Asset';
+                
+                // Get asset name
+                var name = asset.name || asset.assetName || id;
+                
+                // Determine division/region
+                var division = asset.division || 'Unknown';
+                
+                // Add to valid assets
+                validAssets.push({
+                    id: id,
+                    type: type,
+                    name: name,
+                    lat: lat,
+                    lng: lng,
+                    division: division,
+                    status: asset.status || 'active'
+                });
+                
+                // Create marker with custom icon
+                var marker = L.marker([lat, lng], {
+                    icon: L.divIcon({
+                        className: '',
+                        html: '<div class="asset-marker ' + type + '">' + id.substr(0, 2) + '</div>',
+                        iconSize: [32, 32],
+                        iconAnchor: [16, 16]
+                    })
+                }).addTo(map);
+                
+                // Create popup content
+                var popupContent = "<div>";
+                popupContent += "<b>" + id + "</b><br>" + name;
+                if (division) popupContent += "<br>Division: " + division;
+                if (asset.status) popupContent += "<br>Status: " + asset.status;
+                if (asset.driver) popupContent += "<br>Driver: " + asset.driver;
+                if (asset.jobSite) popupContent += "<br>Job: " + asset.jobSite;
+                popupContent += "</div>";
+                
+                // Add popup with asset info
+                marker.bindPopup(popupContent);
+            });
+            
+            // Fit map to asset bounds if we have any
+            if (validAssets.length > 0) {
+                var bounds = validAssets.map(asset => [asset.lat, asset.lng]);
+                map.fitBounds(bounds);
+            }
+            
+            // Update status with count
+            statusDiv.innerHTML += ' (' + validAssets.length + ' assets)';
+        }
+        
+        // Determine asset type from various properties
+        function getAssetType(asset) {
+            var type = (asset.assetType || asset.type || '').toLowerCase();
+            
+            if (type.includes('excavator')) return 'excavator';
+            if (type.includes('loader')) return 'loader';
+            if (type.includes('dozer')) return 'dozer';
+            if (type.includes('truck')) return 'truck';
+            if (type.includes('pickup')) return 'pickup';
+            
+            // Try to determine from ID
+            var id = (asset.id || '').toUpperCase();
+            
+            if (id.startsWith('EX')) return 'excavator';
+            if (id.startsWith('LD')) return 'loader';
+            if (id.startsWith('DZ')) return 'dozer';
+            if (id.startsWith('TK')) return 'truck';
+            if (id.startsWith('PU')) return 'pickup';
+            
+            return 'truck'; // Default
+        }
     </script>
 </body>
 </html>

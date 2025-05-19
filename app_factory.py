@@ -70,13 +70,45 @@ def create_app():
     from blueprints.reports import reports_bp
     app.register_blueprint(reports_bp)
     
-    # Register error handlers
+    # Register error handlers with improved fault tolerance
+    from flask import request, jsonify
+    
     @app.errorhandler(404)
     def page_not_found(e):
-        return "Page not found", 404
-    
+        logger.warning(f"404 Error: {request.url} not found. Continuing pipeline execution.")
+        
+        # If the request is for an API endpoint, return a JSON response
+        if request.path.startswith('/api/'):
+            return jsonify({
+                'error': 'Resource not found',
+                'status': 404,
+                'path': request.path,
+                'message': 'The requested resource could not be found but the application continues to function.'
+            }), 404
+        
+        # For regular page requests, show a friendly message
+        # This is a fallback - we would normally use a template
+        return "Page not found - The system is still functioning and other modules are available.", 404
+
     @app.errorhandler(500)
     def server_error(e):
-        return "Server error", 500
+        logger.error(f"500 Error: {str(e)} at {request.url}. Continuing pipeline execution.")
+        
+        # If the request is for an API endpoint, return a JSON response
+        if request.path.startswith('/api/'):
+            return jsonify({
+                'error': 'Server error',
+                'status': 500,
+                'path': request.path,
+                'message': 'The server encountered an error but the application continues to function.'
+            }), 500
+        
+        # Log details for troubleshooting
+        import traceback
+        logger.error(f"Exception details: {traceback.format_exc()}")
+        
+        # For regular page requests, show a friendly message
+        # This is a fallback - we would normally use a template
+        return "Server error - The system is still functioning and other modules are available.", 500
     
     return app

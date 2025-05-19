@@ -423,28 +423,60 @@ def health_check():
     Simple health check route with no authentication required
     This helps validate that routing is working correctly
     """
-    report_date = datetime.now().strftime('%Y-%m-%d')
-    attendance_files = {
-        'activity_file': find_latest_activity_file(),
-        'driving_file': find_latest_driving_history_file(),
-        'utilization_file': find_latest_fleet_utilization_file()
-    }
-    
-    response = {
-        'status': 'ok',
-        'timestamp': datetime.now().isoformat(),
-        'report_date': report_date,
-        'attendance_files': attendance_files,
-        'routes_available': [
-            '/drivers/daily-report',
-            '/drivers/send-daily-report-email',
-            '/drivers/test-daily-report',
-            '/drivers/attendance-dashboard',
-            '/drivers/driver-list'
-        ]
-    }
-    
-    return jsonify(response)
+    try:
+        # Import only needed functions here to avoid circular imports
+        from utils.attendance_pipeline import (
+            find_latest_activity_file, 
+            find_latest_driving_history_file,
+            find_latest_fleet_utilization_file
+        )
+        
+        report_date = datetime.now().strftime('%Y-%m-%d')
+        
+        # Try to get file paths but handle errors
+        try:
+            activity_file = find_latest_activity_file()
+        except Exception as e:
+            activity_file = f"Error: {str(e)}"
+            
+        try:
+            driving_file = find_latest_driving_history_file()
+        except Exception as e:
+            driving_file = f"Error: {str(e)}"
+            
+        try:
+            utilization_file = find_latest_fleet_utilization_file()
+        except Exception as e:
+            utilization_file = f"Error: {str(e)}"
+        
+        attendance_files = {
+            'activity_file': activity_file,
+            'driving_file': driving_file,
+            'utilization_file': utilization_file
+        }
+        
+        response = {
+            'status': 'ok',
+            'timestamp': datetime.now().isoformat(),
+            'report_date': report_date,
+            'attendance_files': attendance_files,
+            'routes_available': [
+                '/drivers/daily-report',
+                '/drivers/send-daily-report-email',
+                '/drivers/test-daily-report',
+                '/drivers/attendance-dashboard',
+                '/drivers/driver-list'
+            ]
+        }
+        
+        return jsonify(response)
+    except Exception as e:
+        # Provide a simple response even if there's an error
+        return jsonify({
+            'status': 'error',
+            'message': f"Health check encountered an error: {str(e)}",
+            'timestamp': datetime.now().isoformat()
+        })
 
 @driver_module_bp.route('/daily-report', methods=['GET', 'POST'])
 @login_required

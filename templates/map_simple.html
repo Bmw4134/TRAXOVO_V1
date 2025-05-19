@@ -55,6 +55,22 @@
 <body>
     <div id="map"></div>
     <div class="title">TRAXORA Assets</div>
+    
+    <!-- Filter controls -->
+    <div style="position: absolute; bottom: 20px; left: 10px; right: 10px; z-index: 999; 
+                background-color: rgba(0,0,0,0.7); padding: 10px; border-radius: 5px; display: flex; justify-content: space-between;">
+        <select id="divisionFilter" style="flex: 1; margin-right: 10px; padding: 5px; border-radius: 4px;">
+            <option value="all">All Divisions</option>
+        </select>
+        <select id="typeFilter" style="flex: 1; padding: 5px; border-radius: 4px;">
+            <option value="all">All Types</option>
+            <option value="excavator">Excavators</option>
+            <option value="loader">Loaders</option>
+            <option value="dozer">Dozers</option>
+            <option value="truck">Trucks</option>
+            <option value="pickup">Pickups</option>
+        </select>
+    </div>
 
     <!-- Leaflet JavaScript -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -68,10 +84,27 @@
             attribution: '© OpenStreetMap'
         }).addTo(map);
         
+        // Add refresh button
+        var refreshButton = document.createElement('div');
+        refreshButton.style.position = 'absolute';
+        refreshButton.style.top = '10px';
+        refreshButton.style.right = '10px';
+        refreshButton.style.zIndex = '999';
+        refreshButton.style.backgroundColor = 'rgba(0,0,0,0.7)';
+        refreshButton.style.color = 'white';
+        refreshButton.style.padding = '8px';
+        refreshButton.style.borderRadius = '4px';
+        refreshButton.style.cursor = 'pointer';
+        refreshButton.innerHTML = '↻ Refresh';
+        refreshButton.onclick = function() {
+            location.reload();
+        };
+        document.body.appendChild(refreshButton);
+        
         // Status indicator
         var statusDiv = document.createElement('div');
         statusDiv.className = 'title';
-        statusDiv.style.right = '10px';
+        statusDiv.style.right = '80px'; // Make room for refresh button
         statusDiv.style.left = 'auto';
         statusDiv.style.backgroundColor = 'rgba(0,0,0,0.7)';
         statusDiv.style.fontSize = '14px';
@@ -152,7 +185,10 @@
                         html: '<div class="asset-marker ' + type + '">' + id.substr(0, 2) + '</div>',
                         iconSize: [32, 32],
                         iconAnchor: [16, 16]
-                    })
+                    }),
+                    // Add properties for filtering
+                    assetType: type,
+                    assetDivision: division
                 }).addTo(map);
                 
                 // Create popup content
@@ -176,6 +212,71 @@
             
             // Update status with count
             statusDiv.innerHTML += ' (' + validAssets.length + ' assets)';
+            
+            // Populate division filter with unique divisions
+            var divisionFilter = document.getElementById('divisionFilter');
+            var divisions = new Set();
+            
+            validAssets.forEach(function(asset) {
+                if (asset.division && asset.division !== 'Unknown') {
+                    divisions.add(asset.division);
+                }
+            });
+            
+            // Clear existing options except first
+            while (divisionFilter.options.length > 1) {
+                divisionFilter.remove(1);
+            }
+            
+            // Add division options
+            divisions.forEach(function(division) {
+                var option = document.createElement('option');
+                option.value = division;
+                option.textContent = division;
+                divisionFilter.appendChild(option);
+            });
+            
+            // Set up filter event handlers
+            document.getElementById('divisionFilter').addEventListener('change', filterMarkers);
+            document.getElementById('typeFilter').addEventListener('change', filterMarkers);
+        }
+        
+        // Filter markers based on selected division and type
+        function filterMarkers() {
+            var selectedDivision = document.getElementById('divisionFilter').value;
+            var selectedType = document.getElementById('typeFilter').value;
+            
+            // Count visible markers
+            var visibleCount = 0;
+            
+            // Apply filters
+            map.eachLayer(function(layer) {
+                if (layer instanceof L.Marker) {
+                    var showMarker = true;
+                    
+                    // Check division filter
+                    if (selectedDivision !== 'all' && layer.options.assetDivision !== selectedDivision) {
+                        showMarker = false;
+                    }
+                    
+                    // Check type filter
+                    if (selectedType !== 'all' && layer.options.assetType !== selectedType) {
+                        showMarker = false;
+                    }
+                    
+                    // Show or hide marker
+                    if (showMarker) {
+                        layer.getElement().style.display = '';
+                        visibleCount++;
+                    } else {
+                        layer.getElement().style.display = 'none';
+                    }
+                }
+            });
+            
+            // Update status
+            var statusText = statusDiv.innerHTML.split('(')[0];
+            statusDiv.innerHTML = statusText + '(' + visibleCount + ' assets)';
         }
         
         // Determine asset type from various properties

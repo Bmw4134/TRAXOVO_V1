@@ -370,7 +370,7 @@ def format_all_drivers_sheet(sheet, all_drivers, employee_data, job_data):
     """Format the all drivers sheet"""
     # Add headers
     headers = ['Driver', 'Asset ID', 'Start Time', 'End Time', 
-              'Total Hours', 'Job Site', 'Division', 'Contact Info']
+              'Total Hours', 'Job Site', 'Division', 'Contact Info', 'Email']
     
     for col, header in enumerate(headers, start=1):
         cell = sheet.cell(row=1, column=col)
@@ -380,7 +380,7 @@ def format_all_drivers_sheet(sheet, all_drivers, employee_data, job_data):
         cell.fill = PatternFill(start_color="DDDDDD", end_color="DDDDDD", fill_type="solid")
         
         # Set column width
-        sheet.column_dimensions[get_column_letter(col)].width = 15
+        sheet.column_dimensions[get_column_letter(col)].width = 20 if header == 'Email' else 15
     
     # Add data rows
     for i, driver in enumerate(all_drivers, start=2):
@@ -420,17 +420,42 @@ def format_all_drivers_sheet(sheet, all_drivers, employee_data, job_data):
         # Add contact info from employee data if available
         driver_name = driver.get('driver_name', '')
         contact_info = ''
+        email = ''
+        
         if employee_data is not None and driver_name:
-            # Try exact match first
+            # Try exact match first on full name
             employee_match = employee_data[employee_data['Employee Name'] == driver_name]
-            # If no exact match, try contains match
+            
+            # If no exact match, try contains match on full name
             if employee_match.empty:
-                employee_match = employee_data[employee_data['Employee Name'].str.contains(driver_name, na=False)]
+                employee_match = employee_data[employee_data['Employee Name'].str.contains(driver_name, na=False, case=False)]
+            
+            # Try matching on last name if still no match
+            if employee_match.empty:
+                # Extract last name from driver name (assume last part is last name)
+                name_parts = driver_name.split()
+                if len(name_parts) > 1:
+                    last_name = name_parts[-1]
+                    employee_match = employee_data[employee_data['Last Name'].str.contains(last_name, na=False, case=False)]
             
             if not employee_match.empty:
-                contact_info = employee_match.iloc[0].get('Phone', '')
+                # Use cell phone if available, otherwise use regular phone
+                cell_phone = employee_match.iloc[0].get('Cell Phone', '')
+                regular_phone = employee_match.iloc[0].get('Phone', '')
+                contact_info = cell_phone if cell_phone and pd.notna(cell_phone) else regular_phone
+                
+                # Get email if available
+                email = employee_match.iloc[0].get('E-Mail', '')
+                
+                # Log the matched employee for verification
+                logger.debug(f"Matched driver {driver_name} with employee {employee_match.iloc[0]['Employee Name']}")
+            else:
+                # Log unmatched driver for troubleshooting
+                logger.warning(f"No employee match found for driver: {driver_name}")
         
+        # Add contact info to the sheet
         sheet.cell(row=i, column=8).value = contact_info
+        sheet.cell(row=i, column=9).value = email
 
 def export_daily_report_pdf(date_str, output_path, attendance_data=None):
     """Export daily report to PDF format"""

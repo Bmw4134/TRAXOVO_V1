@@ -31,4 +31,6 @@ dependencies = [
     "fpdf>=1.7.2",
     "reportlab>=4.4.1",
     "pillow>=11.2.1",
+    "xlrd>=2.0.1",
+    "pytz>=2025.2",
 ]

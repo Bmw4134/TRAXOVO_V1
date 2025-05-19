@@ -1,153 +1,169 @@
+#!/usr/bin/env python3
 """
-Full System Test for TRAXORA Attendance System
+System Test Runner
 
-This script performs an end-to-end test of the attendance data processing pipeline:
-1. Generates mock test data
-2. Processes the data through the attendance processor
-3. Validates the generated report for integrity
+This script automates end-to-end testing of the attendance reporting system.
+It generates test data, processes it through the attendance processor,
+and validates the resulting report with comprehensive checks.
 """
 
 import os
 import sys
 import json
 import argparse
-from datetime import datetime
+import random
+from datetime import datetime, timedelta
 
-# Import the test data generator and other modules
-import test_data_generator
-from utils.attendance_processor import read_daily_usage_file, process_attendance_data
-from report_validator import validate_report
-
-def generate_test_data(date, count=100, output_file='temp_test_data.csv'):
-    """Generate test data for the given date"""
-    print(f"\n=== GENERATING TEST DATA FOR {date} ===")
-    test_data = test_data_generator.generate_test_data(date, count)
-    if not test_data:
-        print("Error generating test data!")
-        return False
+def run_test(date=None, count=50, include_all_edge_cases=False, 
+            include_duplicates=False, include_null_divisions=False,
+            include_overnight_shifts=False, include_null_assets=False):
+    """
+    Run a complete system test with the specified options
     
-    success = test_data_generator.write_csv(test_data, output_file)
-    if success:
-        print(f"Successfully generated {len(test_data)} test records in {output_file}")
-        return output_file
-    return False
-
-def process_data(file_path, date=None):
-    """Process the test data file using the attendance processor"""
-    print(f"\n=== PROCESSING TEST DATA ===")
-    print(f"Input file: {file_path}")
-    
-    # Process the data file
-    result = read_daily_usage_file(file_path, date)
-    
-    if 'error' in result:
-        print(f"Error processing data: {result['error']}")
-        return None
-    
-    # Print summary
-    print("\nReport Summary:")
-    print(f"Date: {result.get('date')}")
-    print(f"Total drivers with issues: {result.get('summary', {}).get('total_drivers', 0)}")
-    print(f"Total issues: {result.get('summary', {}).get('total_issues', 0)}")
-    print(f"Late drivers: {len(result.get('late_drivers', []))}")
-    print(f"Early end drivers: {len(result.get('early_end_drivers', []))}")
-    print(f"Not on job drivers: {len(result.get('not_on_job_drivers', []))}")
-    print(f"Exception drivers: {len(result.get('exception_drivers', []))}")
-    
-    # Write the complete report to a JSON file for reference
-    output_file = f"report_{result.get('date')}.json"
-    with open(output_file, 'w') as f:
-        json.dump(result, f, indent=2, default=str)
-    print(f"\nComplete report saved to {output_file}")
-    
-    return result
-
-def validate_data(report_data):
-    """Validate the processed report data for integrity"""
-    print(f"\n=== VALIDATING REPORT DATA ===")
-    
-    if not report_data:
-        print("No report data to validate!")
-        return False
-    
-    validation_results = validate_report(report_data)
-    
-    print("\nValidation Results:")
-    print(f"Is valid: {validation_results['is_valid']}")
-    
-    # Print statistics
-    print("\nSTATISTICS:")
-    for key, value in validation_results.get('statistics', {}).items():
-        print(f"  • {key.replace('_', ' ').title()}: {value}")
-    
-    # Print any errors
-    if validation_results.get('errors'):
-        print("\nERRORS:")
-        for i, error in enumerate(validation_results['errors'], 1):
-            print(f"  {i}. {error.get('message', '')}")
-    
-    # Print any warnings
-    if validation_results.get('warnings'):
-        print("\nWARNINGS:")
-        for i, warning in enumerate(validation_results['warnings'], 1):
-            print(f"  {i}. {warning.get('message', '')}")
-    
-    print("\n" + "="*80)
-    if validation_results['is_valid']:
-        print("✅ SYSTEM TEST PASSED: Report data is valid and consistent!")
-    else:
-        print("❌ SYSTEM TEST FAILED: Report data has validation issues!")
-    print("="*80)
-    
-    # Save validation results to a JSON file
-    output_file = f"validation_{report_data.get('date')}.json"
-    with open(output_file, 'w') as f:
-        json.dump(validation_results, f, indent=2, default=str)
-    print(f"\nDetailed validation results saved to {output_file}")
-    
-    return validation_results['is_valid']
-
-def run_full_test(date=None, count=100):
-    """Run the full end-to-end test pipeline"""
-    # Use the specified date or today's date
+    Args:
+        date (str): Date for the test (YYYY-MM-DD format)
+        count (int): Number of records to generate
+        include_all_edge_cases (bool): Whether to enable all edge cases
+        include_duplicates (bool): Whether to include duplicate employee IDs
+        include_null_divisions (bool): Whether to include missing division data
+        include_overnight_shifts (bool): Whether to include overnight shifts
+        include_null_assets (bool): Whether to include missing asset data
+    """
+    # Set a default date if none provided
     if not date:
         date = datetime.now().strftime('%Y-%m-%d')
     
-    print("\n" + "="*80)
-    print(f"STARTING FULL SYSTEM TEST FOR DATE: {date}")
-    print("="*80)
+    # Create test data file path
+    test_file = 'mock_system_test.csv'
     
-    # Step 1: Generate test data
-    test_file = generate_test_data(date, count)
-    if not test_file:
-        print("System test failed at data generation step!")
+    # If include_all_edge_cases is True, enable all edge cases
+    if include_all_edge_cases:
+        include_duplicates = True
+        include_null_divisions = True
+        include_overnight_shifts = True
+        include_null_assets = True
+    
+    # Build the command to generate test data
+    command = f'python test_data_generator.py -d {date} -c {count} -o {test_file}'
+    
+    # Add edge case flags
+    if include_duplicates:
+        command += ' --include-duplicates'
+    if include_null_divisions:
+        command += ' --include-null-divisions'
+    if include_overnight_shifts:
+        command += ' --include-overnight-shifts'
+    if include_null_assets:
+        command += ' --include-null-assets'
+    
+    # Generate the test data
+    print(f"Generating test data with command: {command}")
+    os.system(command)
+    
+    # Process the test data and validate it
+    print("\nProcessing and validating test data...")
+    
+    try:
+        # Import necessary components
+        sys.path.append('.')
+        from utils.attendance_processor import read_daily_usage_file
+        from report_validator import validate_report
+        
+        # Process the test data
+        result = read_daily_usage_file(test_file)
+        
+        # Save the report data for reference
+        with open('system_test_report.json', 'w') as f:
+            json.dump(result, f, default=str, indent=2)
+        
+        print(f"Report data saved to system_test_report.json")
+        
+        # Validate the report
+        print("\nValidating generated report...")
+        validation_result = validate_report(result)
+        
+        # Save validation results
+        with open('system_test_validation.json', 'w') as f:
+            json.dump(validation_result, f, default=str, indent=2)
+        
+        # Display results
+        print("\nSystem Test Results:")
+        print(f"Test date: {date}")
+        print(f"Records generated: {count}")
+        print(f"Edge cases included: {include_all_edge_cases}")
+        
+        if include_duplicates or include_all_edge_cases:
+            print("- Duplicate employee IDs across assets")
+        if include_null_divisions or include_all_edge_cases:
+            print("- Missing division/region data")
+        if include_overnight_shifts or include_all_edge_cases:
+            print("- Overnight shifts spanning midnight")
+        if include_null_assets or include_all_edge_cases:
+            print("- Missing/malformed asset labels")
+        
+        print(f"\nValidation result: {'PASSED' if validation_result['is_valid'] else 'FAILED'}")
+        
+        # Display statistics
+        if validation_result.get('statistics'):
+            stats = validation_result['statistics']
+            print("\nReport Statistics:")
+            print(f"Total drivers: {stats.get('total_unique_drivers', 0)}")
+            print(f"Total issues: {stats.get('total_issues', 0)}")
+            print(f"Late drivers: {stats.get('late_drivers', 0)}")
+            print(f"Early end drivers: {stats.get('early_end_drivers', 0)}")
+            print(f"Not on job drivers: {stats.get('not_on_job_drivers', 0)}")
+            print(f"Drivers with multiple issues: {stats.get('drivers_with_multiple_issues', 0)}")
+        
+        # Display any warnings
+        if validation_result.get('warnings'):
+            print("\nWarnings:")
+            for i, warning in enumerate(validation_result['warnings'], 1):
+                print(f"  {i}. {warning.get('message', '')}")
+        
+        # Display any errors
+        if validation_result.get('errors'):
+            print("\nErrors:")
+            for i, error in enumerate(validation_result['errors'], 1):
+                print(f"  {i}. {error.get('message', '')}")
+        
+        # Final result
+        if validation_result['is_valid']:
+            print("\n✅ SYSTEM TEST PASSED: All validation checks successful!")
+        else:
+            print("\n❌ SYSTEM TEST FAILED: Validation identified issues that need fixing.")
+        
+        return validation_result['is_valid']
+    
+    except Exception as e:
+        print(f"\n❌ SYSTEM TEST ERROR: {str(e)}")
         return False
-    
-    # Step 2: Process the data
-    report_data = process_data(test_file, date)
-    if not report_data:
-        print("System test failed at data processing step!")
-        return False
-    
-    # Step 3: Validate the report
-    validation_passed = validate_data(report_data)
-    
-    # Print end-of-test summary
-    print("\nTEST SUMMARY:")
-    print(f"Date tested: {date}")
-    print(f"Records generated: {count}")
-    print(f"Validation result: {'Passed' if validation_passed else 'Failed'}")
-    
-    return validation_passed
 
 def main():
     """Main function to handle command line arguments"""
-    parser = argparse.ArgumentParser(description='Run a full system test for the attendance reporting system.')
-    parser.add_argument('-d', '--date', help='Date to test in YYYY-MM-DD format (default: today)')
-    parser.add_argument('-c', '--count', type=int, default=100, help='Number of test records to generate (default: 100)')
+    parser = argparse.ArgumentParser(description='Run an end-to-end system test of the attendance reporting system.')
+    parser.add_argument('-d', '--date', help='Date to use for test records (YYYY-MM-DD format)')
+    parser.add_argument('-c', '--count', type=int, default=50, help='Number of records to generate (default: 50)')
+    parser.add_argument('--all-edge-cases', action='store_true', help='Enable all edge cases')
+    parser.add_argument('--duplicates', action='store_true', help='Include duplicate employee IDs')
+    parser.add_argument('--null-divisions', action='store_true', help='Include missing division data')
+    parser.add_argument('--overnight-shifts', action='store_true', help='Include overnight shifts')
+    parser.add_argument('--null-assets', action='store_true', help='Include missing asset data')
     
     args = parser.parse_args()
-    run_full_test(args.date, args.count)
+    
+    # Run the system test
+    success = run_test(
+        args.date,
+        args.count,
+        args.all_edge_cases,
+        args.duplicates,
+        args.null_divisions,
+        args.overnight_shifts,
+        args.null_assets
+    )
+    
+    # Exit with appropriate code
+    sys.exit(0 if success else 1)
 
 if __name__ == "__main__":
     main()

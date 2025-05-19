@@ -36,6 +36,41 @@ logger = logging.getLogger(__name__)
 # Initialize blueprint
 driver_module_bp = Blueprint('driver_module', __name__, url_prefix='/drivers')
 
+# Temporary test route to verify attendance statistics calculation
+@driver_module_bp.route('/test-report')
+def test_daily_report():
+    """
+    Test route to verify the daily driver report without authentication
+    This is for debugging the statistics calculation issue
+    """
+    from utils.attendance_processor import process_daily_usage_data
+    
+    # Process test data
+    try:
+        date_str = request.args.get('date', datetime.now().strftime('%Y-%m-%d'))
+        report = process_daily_usage_data('attached_assets/DailyUsage.csv', date_str)
+        if isinstance(report, dict) and 'summary' in report:
+            return jsonify({
+                'success': True,
+                'summary': report['summary'],
+                'late_count': len(report.get('late_drivers', [])),
+                'early_end_count': len(report.get('early_end_drivers', [])),
+                'exception_count': len(report.get('exceptions', [])),
+                'not_on_job_count': len(report.get('not_on_job_drivers', []))
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Invalid report format',
+                'report': report
+            })
+    except Exception as e:
+        logging.error(f"Error in test report: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        })
+
 # Constants
 UPLOAD_FOLDER = os.path.join('uploads', 'driver_files')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)

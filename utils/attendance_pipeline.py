@@ -138,39 +138,79 @@ def parse_activity_detail(file_path):
             logger.error(f"Activity detail file not found: {file_path}")
             return []
         
-        # Read the CSV file
-        logger.info(f"Reading activity detail file: {file_path}")
-        df = pd.read_csv(file_path)
+        # First, find the actual header row
+        with open(file_path, 'r') as f:
+            header_row = None
+            for i, line in enumerate(f):
+                if 'AssetLabel' in line or 'EventDateTime' in line:
+                    header_row = i
+                    break
         
-        # Check if the file has required columns
-        required_columns = ['Operator', 'Job Site', 'Time On Site']
-        if not all(col in df.columns for col in required_columns):
-            logger.error(f"Activity detail file missing required columns: {file_path}")
+        if header_row is None:
+            logger.error(f"Could not find header row in activity detail file: {file_path}")
             return []
+        
+        # Read the CSV file with the correct header row
+        logger.info(f"Reading activity detail file: {file_path}")
+        df = pd.read_csv(file_path, skiprows=header_row)
+        
+        # Log the columns we found
+        logger.info(f"Found columns in activity detail file: {', '.join(df.columns)}")
         
         # Convert to records
         records = []
+        current_asset = None
+        current_driver = None
+        
         for _, row in df.iterrows():
-            # Extract driver name and job site
-            driver_name = row.get('Operator', '').strip()
-            job_site = row.get('Job Site', '').strip()
+            # Get asset label which contains driver info
+            asset_label = row.get('AssetLabel', '')
+            if pd.notna(asset_label) and asset_label:
+                current_asset = asset_label
+                # Try to extract driver name from asset label
+                if ' - ' in asset_label and '+' in asset_label:
+                    parts = asset_label.split(' - ', 1)
+                    if len(parts) > 1:
+                        driver_part = parts[1].split('+')[0].strip()
+                        # Assume the first two words are the driver's first and last name
+                        name_parts = driver_part.split()
+                        if len(name_parts) >= 2:
+                            current_driver = f"{name_parts[0]} {name_parts[1]}"
             
-            # Skip empty records
-            if not driver_name or not job_site:
+            # Skip rows without event data
+            event_time = row.get('EventDateTimex', '')
+            if not pd.notna(event_time) or not event_time:
                 continue
+                
+            # Get event reason and location
+            reason = row.get('Reasonx', '')
+            location = row.get('Locationx', '')
             
-            # Parse time on site
-            time_on_site = normalize_time(row.get('Time On Site'))
+            # Skip if no location or reason
+            if not pd.notna(location) or not location or not pd.notna(reason) or not reason:
+                continue
+                
+            # Only process relevant events
+            if not (pd.notna(reason) and reason in ['Key On', 'Key Off', 'Heartbeat', 'Idle Ended', 'Idling']):
+                continue
+                
+            # Skip rows without a driver
+            if not current_driver:
+                continue
             
             # Create record
             record = {
-                'driver_name': driver_name,
-                'job_site': job_site,
-                'actual_start': time_on_site,
+                'driver_name': current_driver,
+                'asset_id': current_asset,
+                'job_site': location,
+                'actual_start': normalize_time(event_time) if reason in ['Key On', 'Heartbeat'] else None,
+                'actual_end': normalize_time(event_time) if reason == 'Key Off' else None,
                 'data_source': 'activity_detail'
             }
             
-            records.append(record)
+            # Only add records with at least one time value
+            if record['actual_start'] or record['actual_end']:
+                records.append(record)
         
         logger.info(f"Parsed {len(records)} records from activity detail file")
         return records
@@ -194,44 +234,93 @@ def parse_driving_history(file_path):
             logger.error(f"Driving history file not found: {file_path}")
             return []
         
-        # Read the CSV file
+        # Read the CSV file with custom format handling
         logger.info(f"Reading driving history file: {file_path}")
-        df = pd.read_csv(file_path)
         
-        # Check if the file has required columns
-        required_columns = ['Driver', 'Start Location', 'Start Time', 'End Time']
-        if not all(col in df.columns for col in required_columns):
-            logger.error(f"Driving history file missing required columns: {file_path}")
+        # First, try to determine the actual header row
+        with open(file_path, 'r') as f:
+            header_row = None
+            for i, line in enumerate(f):
+                if 'Textbox53' in line or 'Contact' in line or 'EventDateTime' in line:
+                    header_row = i
+                    break
+        
+        if header_row is None:
+            logger.error(f"Could not find header row in driving history file: {file_path}")
             return []
         
-        # Convert to records
+        # Now read the file with the correct header row
+        df = pd.read_csv(file_path, skiprows=header_row)
+        
+        # Log the columns we found
+        logger.info(f"Found columns in driving history file: {', '.join(df.columns)}")
+        
+        # Process the data
         records = []
+        current_vehicle = None
+        current_driver = None
+        
         for _, row in df.iterrows():
-            # Extract driver name and location
-            driver_name = row.get('Driver', '').strip()
-            start_location = row.get('Start Location', '').strip()
-            
-            # Skip empty records
-            if not driver_name or not start_location:
+            # Check if this is a vehicle/driver header row
+            if pd.notna(row.get('Textbox53')) and isinstance(row.get('Textbox53'), str) and '+' in row.get('Textbox53'):
+                current_vehicle = row.get('Textbox53', '').strip()
+                # Try to extract driver name from vehicle
+                if ' - ' in current_vehicle:
+                    driver_part = current_vehicle.split(' - ', 1)[1]
+                    if ' ' in driver_part:
+                        # Assumes format like "#210073 - BIKHYAT ADHIKARI TOYOTA 4 RUNNER 2022 Personal Vehicle +"
+                        name_parts = driver_part.split(' ')
+                        if len(name_parts) >= 2:
+                            current_driver = f"{name_parts[0]} {name_parts[1]}"
                 continue
             
-            # Parse times
-            start_time = normalize_time(row.get('Start Time'))
-            end_time = normalize_time(row.get('End Time'))
+            # Get contact info which contains driver name
+            contact = row.get('Contact', '')
+            if pd.notna(contact) and contact:
+                # Extract driver name from contact format "Ammar Elhamad (210003)"
+                if '(' in contact:
+                    current_driver = contact.split('(')[0].strip()
             
-            # Create record
-            record = {
-                'driver_name': driver_name,
-                'job_site': start_location,
-                'actual_start': start_time,
-                'actual_end': end_time,
-                'data_source': 'driving_history'
-            }
+            # Skip rows without event data
+            event_time = row.get('EventDateTime', '')
+            if not pd.notna(event_time) or not event_time:
+                continue
+                
+            msg_type = row.get('MsgType', '')
+            location = row.get('Location', '')
             
-            records.append(record)
+            # Only process key events
+            if not (pd.notna(msg_type) and msg_type in ['Key On', 'Key Off', 'Arrived', 'Departed']):
+                continue
+                
+            # Skip rows without driver or location
+            if not current_driver or not location:
+                continue
+            
+            # Create a record based on event type
+            if msg_type == 'Key On' or msg_type == 'Arrived':
+                record = {
+                    'driver_name': current_driver,
+                    'asset_id': current_vehicle if current_vehicle else '',
+                    'job_site': location,
+                    'actual_start': normalize_time(event_time),
+                    'data_source': 'driving_history'
+                }
+                records.append(record)
+                
+            elif msg_type == 'Key Off' or msg_type == 'Departed':
+                record = {
+                    'driver_name': current_driver,
+                    'asset_id': current_vehicle if current_vehicle else '',
+                    'job_site': location,
+                    'actual_end': normalize_time(event_time),
+                    'data_source': 'driving_history'
+                }
+                records.append(record)
         
         logger.info(f"Parsed {len(records)} records from driving history file")
         return records
+    
     except Exception as e:
         logger.error(f"Error parsing driving history file: {e}", exc_info=True)
         return []

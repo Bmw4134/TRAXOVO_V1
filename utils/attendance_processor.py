@@ -111,8 +111,9 @@ def process_daily_usage_data(file_path, date_str=None):
     }
     
     try:
-        # Read CSV file using pandas to handle various formats
-        df = pd.read_csv(file_path, low_memory=False)
+        # Read CSV file using pandas to handle complex format with header rows
+        # Skip the header section (first 6 rows) and use row 7 as header
+        df = pd.read_csv(file_path, skiprows=6, low_memory=False)
         
         # Normalize column names (remove spaces, lowercase)
         df.columns = [col.strip().lower().replace(' ', '_') for col in df.columns]

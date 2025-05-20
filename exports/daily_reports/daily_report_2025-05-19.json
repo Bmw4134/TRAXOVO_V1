@@ -55,17 +55,143 @@
       "status": "On Time",
       "division": "TEXDIST",
       "job_title": "Site Supervisor"
+    },
+    {
+      "name": "Adam Goode",
+      "employee_id": "210055",
+      "asset": "F-250",
+      "arrival": "04:45 AM",
+      "status": "On Time",
+      "division": "TEXDIST",
+      "job_title": "Superintendent"
+    },
+    {
+      "name": "VICK ADHIKARI",
+      "employee_id": "210073",
+      "asset": "RAM-3500",
+      "arrival": "05:10 AM",
+      "status": "On Time",
+      "division": "TEXDIST",
+      "job_title": "Project Manager"
+    },
+    {
+      "name": "Hector Bonilla",
+      "employee_id": "410009",
+      "asset": "F-150",
+      "arrival": "04:50 AM",
+      "status": "On Time",
+      "division": "TEXDIST",
+      "job_title": "Foreman"
+    },
+    {
+      "name": "SAUL MARTINEZ ALVAREZ",
+      "employee_id": "210074",
+      "asset": "RAM-1500",
+      "arrival": "04:45 AM",
+      "status": "On Time",
+      "division": "TEXDIST",
+      "job_title": "Heavy Equipment Operator"
+    },
+    {
+      "name": "JORGE MARTINEZ",
+      "employee_id": "210068",
+      "asset": "RAM-1500",
+      "arrival": "05:05 AM",
+      "status": "On Time",
+      "division": "TEXDIST",
+      "job_title": "Heavy Equipment Operator"
+    },
+    {
+      "name": "ERIK GARCIA",
+      "employee_id": "210082",
+      "asset": "F-350",
+      "arrival": "04:45 AM",
+      "status": "On Time",
+      "division": "TEXDIST",
+      "job_title": "Heavy Equipment Operator"
+    },
+    {
+      "name": "JUAN CARLOS ROMERO",
+      "employee_id": "210097",
+      "asset": "RAM-2500",
+      "arrival": "04:50 AM",
+      "status": "On Time",
+      "division": "TEXDIST",
+      "job_title": "Loader Operator"
+    },
+    {
+      "name": "ALBERTO RUBIO",
+      "employee_id": "210104",
+      "asset": "F-150",
+      "arrival": "05:05 AM",
+      "status": "On Time",
+      "division": "TEXDIST",
+      "job_title": "Excavator Operator"
+    },
+    {
+      "name": "CARLOS MENDEZ",
+      "employee_id": "210118",
+      "asset": "RAM-1500",
+      "arrival": "04:40 AM",
+      "status": "On Time",
+      "division": "TEXDIST",
+      "job_title": "Heavy Equipment Operator"
+    },
+    {
+      "name": "PEDRO VELASQUEZ",
+      "employee_id": "210121",
+      "asset": "RAM-3500",
+      "arrival": "04:45 AM",
+      "status": "On Time",
+      "division": "TEXDIST",
+      "job_title": "Heavy Equipment Operator"
+    },
+    {
+      "name": "EDUARDO GARZA",
+      "employee_id": "210126",
+      "asset": "F-250",
+      "arrival": "04:45 AM",
+      "status": "On Time",
+      "division": "TEXDIST",
+      "job_title": "Heavy Equipment Operator"
+    },
+    {
+      "name": "MARIO LOPEZ",
+      "employee_id": "210131",
+      "asset": "F-150",
+      "arrival": "04:50 AM",
+      "status": "On Time",
+      "division": "TEXDIST",
+      "job_title": "Heavy Equipment Operator"
+    },
+    {
+      "name": "ERNESTO NUNEZ",
+      "employee_id": "210139",
+      "asset": "RAM-2500",
+      "arrival": "04:50 AM",
+      "status": "On Time",
+      "division": "TEXDIST",
+      "job_title": "Heavy Equipment Operator"
+    },
+    {
+      "name": "JOSE DIAZ",
+      "employee_id": "210147",
+      "asset": "F-350",
+      "arrival": "04:55 AM",
+      "status": "On Time",
+      "division": "TEXDIST",
+      "job_title": "Heavy Equipment Operator"
     }
   ],
-  "total_drivers": 6,
-  "total_morning_drivers": 6,
-  "on_time_count": 6,
+  "total_drivers": 20,
+  "total_morning_drivers": 20,
+  "on_time_count": 20,
   "late_morning": [],
   "early_departures": [],
   "summary": {
-    "total_drivers": 6,
-    "total_morning_drivers": 6,
-    "on_time_drivers": 6,
+    "total_drivers": 20,
+    "total_morning_drivers": 20,
+    "on_time_drivers": 20,
     "late_drivers": 0,
     "early_end_drivers": 0,
     "not_on_job_drivers": 0,

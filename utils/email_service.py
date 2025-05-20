@@ -6,6 +6,7 @@ This module provides email sending functionality using SendGrid.
 import os
 import base64
 import logging
+import sys
 from typing import List, Optional, Dict, Any, Union
 
 from sendgrid import SendGridAPIClient
@@ -18,17 +19,27 @@ from sendgrid.helpers.mail import (
 logger = logging.getLogger(__name__)
 
 # Get environment variables
-SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY")
-if SENDGRID_API_KEY:
-    # Remove any spaces in the API key that might have been introduced
-    SENDGRID_API_KEY = SENDGRID_API_KEY.replace(" ", "")
-FROM_EMAIL = os.environ.get("FROM_EMAIL", "bwatson@ragleinc.com")
+def get_sendgrid_api_key():
+    """Get SendGrid API key from environment, with validation and debugging"""
+    api_key = os.environ.get("SENDGRID_API_KEY")
+    
+    if not api_key:
+        logger.warning("SENDGRID_API_KEY environment variable is not set")
+        return None
+        
+    # Remove any spaces or newlines that might have been introduced
+    api_key = api_key.strip().replace(" ", "").replace("\n", "").replace("\r", "")
+    
+    # Basic validation - ensure key starts with SG.
+    if not api_key.startswith("SG."):
+        logger.warning("SendGrid API key appears to be invalid (doesn't start with SG.)")
+        return None
+        
+    logger.info(f"SendGrid API key is configured (length: {len(api_key)})")
+    return api_key
 
-# Debug info
-if not SENDGRID_API_KEY:
-    logger.warning("SENDGRID_API_KEY environment variable is not set")
-else:
-    logger.info("SendGrid API key is configured (length: {})".format(len(SENDGRID_API_KEY)))
+SENDGRID_API_KEY = get_sendgrid_api_key()
+FROM_EMAIL = os.environ.get("FROM_EMAIL", "bwatson@ragleinc.com")
 
 def send_email(
     subject: str,

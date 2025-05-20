@@ -99,10 +99,16 @@ class EmployeeValidator:
                             division = None
                             job_title = None
                             
+                            # Normalize field names - convert all keys to uppercase for case-insensitive matching
+                            normalized_row = {k.upper(): v for k, v in row.items()}
+                            
                             # Try all possible field names for employee ID
-                            for field in ['EMPLOYEE ID', 'EMPLOYEEID', 'EMP ID', 'EMPID', 'ID']:
-                                if field in row and row[field]:
-                                    employee_id = row[field].strip()
+                            for field in ['EMPLOYEE ID', 'EMPLOYEEID', 'EMP ID', 'EMPID', 'ID', 'EMPLOYEE NO']:
+                                field_upper = field.upper()
+                                if field_upper in normalized_row and normalized_row[field_upper]:
+                                    employee_id = normalized_row[field_upper].strip()
+                                    # Remove quotes if present
+                                    employee_id = employee_id.strip('"\'')
                                     break
                             
                             if not employee_id:
@@ -110,39 +116,46 @@ class EmployeeValidator:
                             
                             # Name fields
                             for field in ['NAME', 'EMPLOYEE NAME', 'FULL NAME']:
-                                if field in row and row[field]:
-                                    name = row[field].strip()
+                                field_upper = field.upper()
+                                if field_upper in normalized_row and normalized_row[field_upper]:
+                                    name = normalized_row[field_upper].strip('"\'')
                                     break
                             
                             for field in ['FIRST NAME', 'FIRSTNAME', 'FNAME']:
-                                if field in row and row[field]:
-                                    first_name = row[field].strip()
+                                field_upper = field.upper()
+                                if field_upper in normalized_row and normalized_row[field_upper]:
+                                    first_name = normalized_row[field_upper].strip('"\'')
                                     break
                             
                             for field in ['LAST NAME', 'LASTNAME', 'LNAME']:
-                                if field in row and row[field]:
-                                    last_name = row[field].strip()
+                                field_upper = field.upper()
+                                if field_upper in normalized_row and normalized_row[field_upper]:
+                                    last_name = normalized_row[field_upper].strip('"\'')
                                     break
                             
                             # Other fields
-                            for field in ['EMAIL', 'E-MAIL', 'EMAIL ADDRESS']:
-                                if field in row and row[field]:
-                                    email = row[field].strip().lower()
+                            for field in ['EMAIL', 'E-MAIL', 'EMAIL ADDRESS', 'E-MAIL']:
+                                field_upper = field.upper()
+                                if field_upper in normalized_row and normalized_row[field_upper]:
+                                    email = normalized_row[field_upper].strip('"\'').lower()
                                     break
                             
-                            for field in ['PHONE', 'TELEPHONE', 'PHONE NUMBER', 'CONTACT']:
-                                if field in row and row[field]:
-                                    phone = row[field].strip()
+                            for field in ['PHONE', 'TELEPHONE', 'PHONE NUMBER', 'CONTACT', 'CELL PHONE']:
+                                field_upper = field.upper()
+                                if field_upper in normalized_row and normalized_row[field_upper]:
+                                    phone = normalized_row[field_upper].strip('"\'')
                                     break
                             
                             for field in ['DIVISION', 'DIV', 'DEPT', 'DEPARTMENT']:
-                                if field in row and row[field]:
-                                    division = row[field].strip()
+                                field_upper = field.upper()
+                                if field_upper in normalized_row and normalized_row[field_upper]:
+                                    division = normalized_row[field_upper].strip('"\'')
                                     break
                             
                             for field in ['JOB TITLE', 'TITLE', 'POSITION']:
-                                if field in row and row[field]:
-                                    job_title = row[field].strip()
+                                field_upper = field.upper()
+                                if field_upper in normalized_row and normalized_row[field_upper]:
+                                    job_title = normalized_row[field_upper].strip('"\'')
                                     break
                             
                             # If name is missing but we have first and last, construct it

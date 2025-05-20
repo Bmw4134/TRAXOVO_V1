@@ -19,7 +19,16 @@ logger = logging.getLogger(__name__)
 
 # Get environment variables
 SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY")
+if SENDGRID_API_KEY:
+    # Remove any spaces in the API key that might have been introduced
+    SENDGRID_API_KEY = SENDGRID_API_KEY.replace(" ", "")
 FROM_EMAIL = os.environ.get("FROM_EMAIL", "bwatson@ragleinc.com")
+
+# Debug info
+if not SENDGRID_API_KEY:
+    logger.warning("SENDGRID_API_KEY environment variable is not set")
+else:
+    logger.info("SendGrid API key is configured (length: {})".format(len(SENDGRID_API_KEY)))
 
 def send_email(
     subject: str,

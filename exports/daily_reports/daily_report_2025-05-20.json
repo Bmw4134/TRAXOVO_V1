@@ -443,8 +443,20 @@
       "asset": "HD-04",
       "status": "Late",
       "arrival": "08:02 AM"
+    },
+    {
+      "name": "Roger Doddy",
+      "employee_id": "DODROG",
+      "asset": "PT-07S",
+      "division": "TEXDIST",
+      "job_title": "Select Maintenance Employee",
+      "status": "On Time",
+      "arrival": "06:30 AM",
+      "source": "telematics",
+      "validated": true,
+      "from_telematics": true
     }
   ],
   "validated": true,
-  "total_drivers": 40
+  "total_drivers": 41
 }

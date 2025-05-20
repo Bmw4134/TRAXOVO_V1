@@ -1,7 +1,20 @@
 {
   "date": "2025-05-15",
   "report_date": "Thursday, May 15, 2025",
-  "drivers": [],
+  "drivers": [
+    {
+      "name": "Roger Doddy",
+      "employee_id": "DODROG",
+      "asset": "PT-07S",
+      "division": "TEXDIST",
+      "job_title": "Select Maintenance Employee",
+      "status": "On Time",
+      "arrival": "06:45 AM",
+      "source": "telematics",
+      "validated": true,
+      "from_telematics": true
+    }
+  ],
   "validated": true,
-  "total_drivers": 0
+  "total_drivers": 1
 }

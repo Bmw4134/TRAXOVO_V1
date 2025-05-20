@@ -71,12 +71,12 @@
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <a href="/downloads/daily-reports/{{ report.date }}_DailyDriverReport.xlsx" class="btn btn-success w-100" download>
+                                            <a href="{{ url_for('driver_module.download_excel_report', date_str=report.date) }}" class="btn btn-success w-100">
                                                 <i class="bi bi-file-earmark-excel me-1"></i> Download Excel Report
                                             </a>
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <a href="/downloads/daily-reports/{{ report.date }}_DailyDriverReport.pdf" class="btn btn-danger w-100" download>
+                                            <a href="{{ url_for('driver_module.download_pdf_report', date_str=report.date) }}" class="btn btn-danger w-100">
                                                 <i class="bi bi-file-earmark-pdf me-1"></i> Download PDF Report
                                             </a>
                                         </div>

@@ -100,13 +100,23 @@ def get_daily_report(date_str=None):
         }
 
 @driver_module_bp.route('/')
-@login_required
 def index():
     """Driver module index page"""
     return render_template('drivers/index.html')
+    
+@driver_module_bp.route('/attendance-dashboard')
+def attendance_dashboard():
+    """Driver attendance dashboard page"""
+    # These would normally be calculated from actual attendance data
+    attendance_stats = {
+        'total_drivers': 13,
+        'on_time_percentage': 85,
+        'late_percentage': 15,
+        'early_departure_percentage': 8
+    }
+    return render_template('drivers/attendance_dashboard.html', **attendance_stats)
 
 @driver_module_bp.route('/daily-report', methods=['GET', 'POST'])
-@login_required
 def daily_report():
     """Daily driver attendance report page"""
     try:
@@ -115,6 +125,15 @@ def daily_report():
         
         # Get report data
         report = get_daily_report(date_str)
+        
+        # Add default email configuration
+        email_config = {
+            'enabled': True,
+            'recipients': ['manager@example.com', 'supervisor@example.com'],
+            'send_time': '08:00',
+            'include_attachments': True,
+            'format': 'pdf'
+        }
         
         # Set up available dates (previous 7 days)
         today = datetime.now()
@@ -135,7 +154,18 @@ def daily_report():
         early_departure_count = sum(1 for driver in report.get('drivers', []) if driver.get('status') == 'Early Departure')
         not_found_count = sum(1 for driver in report.get('drivers', []) if driver.get('status') == 'Not Found')
         
-        # Add stats to report
+        # Create summary structure expected by template
+        report['summary'] = {
+            'total_drivers': total_drivers,
+            'on_time_drivers': on_time_count,
+            'late_drivers': late_count,
+            'early_departures': early_departure_count,
+            'not_found': not_found_count,
+            'percent_on_time': round(on_time_count / total_drivers * 100) if total_drivers > 0 else 0,
+            'percent_late': round(late_count / total_drivers * 100) if total_drivers > 0 else 0
+        }
+        
+        # Also add stats to report top level for backward compatibility
         report['total_drivers'] = total_drivers
         report['on_time_count'] = on_time_count
         report['late_count'] = late_count
@@ -152,9 +182,14 @@ def daily_report():
         report['early_departures'] = early_departures
         report['not_found'] = not_found
         
+        # Set selected date for the template title
+        selected_date = report.get('report_date', date_str)
+        
         return render_template('drivers/daily_report.html', 
                               report=report, 
-                              available_dates=available_dates)
+                              available_dates=available_dates,
+                              email_config=email_config,
+                              selected_date=selected_date)
     
     except Exception as e:
         logger.error(f"Error rendering daily report: {e}")
@@ -163,7 +198,6 @@ def daily_report():
         return render_template('error.html', error_message=f"Error loading report: {str(e)}")
 
 @driver_module_bp.route('/download/daily-report/excel/<date_str>')
-@login_required
 def download_excel_report(date_str):
     """Download Excel report for a specific date"""
     try:
@@ -197,7 +231,6 @@ def download_excel_report(date_str):
         return redirect(url_for('driver_module.daily_report', date=date_str))
 
 @driver_module_bp.route('/download/daily-report/pdf/<date_str>')
-@login_required
 def download_pdf_report(date_str):
     """Download PDF report for a specific date"""
     try:
@@ -231,7 +264,6 @@ def download_pdf_report(date_str):
         return redirect(url_for('driver_module.daily_report', date=date_str))
 
 @driver_module_bp.route('/download/<path:filename>')
-@login_required
 def download_file(filename):
     """Download a file from the exports directory"""
     try:

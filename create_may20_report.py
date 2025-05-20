@@ -70,19 +70,26 @@ def main():
                     }
                     report_data['late_start_records'].append(late_record)
             
-            # Check for early end
-            if last_activity and last_activity < work_end:
-                early_minutes = int((work_end - last_activity).total_seconds() / 60)
-                if early_minutes > 10:  # Only count if more than 10 minutes early
-                    early_record = {
-                        'driver_name': driver['driver_name'],
-                        'asset_id': driver.get('asset_id', ''),
-                        'early_minutes': early_minutes,
-                        'scheduled_end': '17:00',
-                        'actual_end': last_activity.strftime('%H:%M'),
-                        'job_site': driver.get('locations', '').split(';')[0] if driver.get('locations') else 'Unknown'
-                    }
-                    report_data['early_end_records'].append(early_record)
+            # Check for early end - normalize for consistent comparison
+            # Most data shown is from morning hours, actual work day hasn't ended yet
+            # Only count as early end if they've worked at least 2 hours
+            if first_activity and last_activity and first_activity < last_activity:
+                # Calculate work duration
+                work_duration = int((last_activity - first_activity).total_seconds() / 60)
+                
+                # Check if they worked at least 2 hours (120 minutes)
+                if work_duration >= 120 and last_activity < work_end:
+                    early_minutes = int((work_end - last_activity).total_seconds() / 60)
+                    if early_minutes > 10:  # Only count if more than 10 minutes early
+                        early_record = {
+                            'driver_name': driver['driver_name'],
+                            'asset_id': driver.get('asset_id', ''),
+                            'early_minutes': early_minutes,
+                            'scheduled_end': '17:00',
+                            'actual_end': last_activity.strftime('%H:%M'),
+                            'job_site': driver.get('locations', '').split(';')[0] if driver.get('locations') else 'Unknown'
+                        }
+                        report_data['early_end_records'].append(early_record)
         
         # Sort records
         report_data['late_start_records'] = sorted(
@@ -174,7 +181,7 @@ def main():
                     pdf.cell(75, 7, (late['job_site'] or 'Unknown')[:35], 1)
                     pdf.ln()
             
-            pdf.save(pdf_path)
+            pdf.output(pdf_path)
             logger.info(f"Saved PDF report to {pdf_path}")
         except Exception as e:
             logger.error(f"Error creating PDF: {e}")

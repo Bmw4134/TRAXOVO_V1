@@ -230,6 +230,72 @@ def download_excel_report(date_str):
         flash(f"Error downloading report: {str(e)}", "danger")
         return redirect(url_for('driver_module.daily_report', date=date_str))
 
+@driver_module_bp.route('/view/daily-report/pdf/<date_str>')
+def view_pdf_report(date_str):
+    """View PDF report in embedded viewer with navigation controls"""
+    try:
+        # Set up file paths with multiple fallback options
+        filename = f"{date_str}_DailyDriverReport.pdf"
+        alt_filename = f"daily_report_{date_str}.pdf"
+        
+        # Define search directories from most specific to most general
+        search_dirs = [
+            os.path.join(current_app.root_path, 'exports', 'daily_reports'),
+            os.path.join(current_app.root_path, 'static', 'exports', 'daily_reports')
+        ]
+        
+        # First check if file exists in any directory
+        pdf_path = None
+        for directory in search_dirs:
+            if os.path.exists(os.path.join(directory, filename)):
+                pdf_path = os.path.join(directory, filename)
+                break
+            
+            if os.path.exists(os.path.join(directory, alt_filename)):
+                pdf_path = os.path.join(directory, alt_filename)
+                break
+        
+        if not pdf_path:
+            # File not found
+            flash("PDF report not found", "danger")
+            return redirect(url_for('driver_module.daily_report', date=date_str))
+        
+        # File exists, return PDF viewer page
+        relative_path = None
+        
+        if 'static' in pdf_path:
+            # Create a relative URL for static files
+            static_index = pdf_path.find('static')
+            relative_path = '/' + pdf_path[static_index:]
+        else:
+            # For non-static files, serve through a direct route
+            # Copy to static if needed for viewing
+            static_dir = os.path.join(current_app.root_path, 'static', 'exports', 'daily_reports')
+            if not os.path.exists(static_dir):
+                os.makedirs(static_dir)
+            
+            static_pdf_path = os.path.join(static_dir, os.path.basename(pdf_path))
+            import shutil
+            shutil.copy2(pdf_path, static_pdf_path)
+            relative_path = '/static/exports/daily_reports/' + os.path.basename(pdf_path)
+        
+        # Format date for display
+        try:
+            date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+            formatted_date = date_obj.strftime('%A, %B %d, %Y')
+        except:
+            formatted_date = date_str
+            
+        return render_template('drivers/pdf_viewer.html', 
+                              pdf_url=relative_path, 
+                              date_str=date_str,
+                              formatted_date=formatted_date)
+    
+    except Exception as e:
+        logger.error(f"Error viewing PDF report: {e}")
+        flash(f"Error viewing report: {str(e)}", "danger")
+        return redirect(url_for('driver_module.daily_report', date=date_str))
+
 @driver_module_bp.route('/download/daily-report/pdf/<date_str>')
 def download_pdf_report(date_str):
     """Download PDF report for a specific date"""

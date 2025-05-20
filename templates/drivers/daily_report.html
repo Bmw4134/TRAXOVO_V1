@@ -76,6 +76,11 @@
                                             </a>
                                         </div>
                                         <div class="col-md-6 mb-3">
+                                            <a href="{{ url_for('driver_module.view_pdf_report', date_str=report.date) }}" class="btn btn-secondary w-100">
+                                                <i class="bi bi-eye me-1"></i> View PDF Report
+                                            </a>
+                                        </div>
+                                        <div class="col-md-12 mb-3">
                                             <a href="{{ url_for('driver_module.download_pdf_report', date_str=report.date) }}" class="btn btn-danger w-100">
                                                 <i class="bi bi-file-earmark-pdf me-1"></i> Download PDF Report
                                             </a>

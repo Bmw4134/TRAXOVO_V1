@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}PDF Report Viewer{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Daily Driver Report PDF - {{ date_str }}</h5>
+            <a href="{{ url_for('driver_module.daily_report', date=date_str) }}" class="btn btn-light btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Back to Report
+            </a>
+        </div>
+        <div class="card-body p-0">
+            <div class="ratio ratio-1x1">
+                <iframe src="{{ pdf_url }}" title="PDF Report" style="height: 800px;"></iframe>
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="d-flex justify-content-between">
+                <a href="{{ url_for('driver_module.download_pdf_report', date_str=date_str) }}" class="btn btn-danger">
+                    <i class="bi bi-download me-1"></i> Download PDF
+                </a>
+                <a href="{{ url_for('driver_module.daily_report', date=date_str) }}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left me-1"></i> Return to Report
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

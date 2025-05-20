@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 # Get environment variables
 SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY")
-FROM_EMAIL = os.environ.get("FROM_EMAIL", "noreply@ragleinc.com")
+FROM_EMAIL = os.environ.get("FROM_EMAIL", "bwatson@ragleinc.com")
 
 def send_email(
     subject: str,

@@ -3,460 +3,386 @@
   "report_date": "Friday, May 16, 2025",
   "drivers": [
     {
-      "name": "Carlos Flores",
-      "employee_id": "240163",
-      "email": "",
-      "phone": "(817) 655-0366",
-      "division": "",
-      "job_title": "",
-      "asset": "F-03",
-      "status": "Late",
-      "arrival": "08:02 AM"
+      "name": "Ammar Elhamad",
+      "employee_id": "210003",
+      "asset": "TX-76063",
+      "arrival": "10:28:56 PM",
+      "status": "On Time"
     },
     {
-      "name": "Miguel Perez Ramirez",
-      "employee_id": "240421",
-      "email": "",
-      "phone": "(682) 386-9790",
-      "division": "",
-      "job_title": "",
-      "asset": "F-65",
-      "status": "Early Departure",
-      "arrival": "07:15 AM",
-      "departure": "15:10 PM"
+      "name": "Adam Goode",
+      "employee_id": "210055",
+      "asset": "TX-75077",
+      "arrival": "10:04:04 AM",
+      "status": "On Time"
     },
     {
-      "name": "Daniel Farias",
-      "employee_id": "440317",
-      "email": "",
-      "phone": "-",
-      "division": "",
-      "job_title": "",
-      "asset": "RAM-68",
-      "status": "On Time",
-      "arrival": "06:52 AM"
+      "name": "VICK ADHIKARI",
+      "employee_id": "210073",
+      "asset": "TX-76180",
+      "arrival": "10:42:17 AM",
+      "status": "On Time"
     },
     {
-      "name": "Salvador Hernandez-Espinoza",
-      "employee_id": "240264",
-      "email": "",
-      "phone": "(817) 566-5847",
-      "division": "",
-      "job_title": "",
-      "asset": "HD-15",
-      "status": "On Time",
-      "arrival": "06:55 AM"
+      "name": "Hector Bonilla",
+      "employee_id": "410009",
+      "asset": "TX-77545",
+      "arrival": "5:57:46 PM",
+      "status": "On Time"
     },
     {
-      "name": "Joshua Smith",
-      "employee_id": "440114",
-      "email": "jsmith@ragleinc.com",
-      "phone": "(832) 576-0854",
-      "division": "",
-      "job_title": "",
-      "asset": "HD-76",
-      "status": "Late",
-      "arrival": "08:03 AM"
+      "name": "",
+      "employee_id": "1",
+      "asset": "I-35E",
+      "arrival": "07:00 AM",
+      "status": "On Time"
     },
     {
-      "name": "Juan Reyes Ibarra",
-      "employee_id": "440365",
-      "email": "",
-      "phone": "(832) 677-5615",
-      "division": "",
-      "job_title": "",
-      "asset": "HD-07",
-      "status": "On Time",
-      "arrival": "06:56 AM"
+      "name": "",
+      "employee_id": "YARD",
+      "asset": "TX-75208",
+      "arrival": "07:00 AM",
+      "status": "On Time"
     },
     {
-      "name": "Faustino Mendoza",
-      "employee_id": "240770",
-      "email": "emanuelmartinez0707@gmail.com",
-      "phone": "(469) 818-3418",
-      "division": "",
-      "job_title": "",
-      "asset": "ET-19",
-      "status": "On Time",
-      "arrival": "06:58 AM"
+      "name": "",
+      "employee_id": "11",
+      "asset": "TX-146",
+      "arrival": "07:00 AM",
+      "status": "On Time"
     },
     {
-      "name": "Norberto Lopez",
-      "employee_id": "240642",
-      "email": "",
-      "phone": "(214) 315-6046",
-      "division": "",
-      "job_title": "",
-      "asset": "RAM-09",
-      "status": "On Time",
-      "arrival": "06:51 AM"
+      "name": "SAUL MARTINEZ ALVAREZ",
+      "employee_id": "210074",
+      "asset": "SE-12",
+      "arrival": "10:42:09 AM",
+      "status": "On Time"
     },
     {
-      "name": "Jonathan Salinas",
-      "employee_id": "440187",
-      "email": "jonathansalinas1029@gmail.com",
-      "phone": "(979) 525-9184",
-      "division": "",
-      "job_title": "",
-      "asset": "F-11",
-      "status": "On Time",
-      "arrival": "06:59 AM"
+      "name": "",
+      "employee_id": "OFFICE",
+      "asset": "SH-183",
+      "arrival": "07:00 AM",
+      "status": "On Time"
     },
     {
-      "name": "Stephanie Santos-Gonzalez",
-      "employee_id": "440243",
-      "email": "",
-      "phone": "(346) 357-4014",
-      "division": "",
-      "job_title": "",
-      "asset": "TRK-22",
-      "status": "On Time",
-      "arrival": "06:46 AM"
+      "name": "",
+      "employee_id": "17",
+      "asset": "I-30",
+      "arrival": "07:00 AM",
+      "status": "On Time"
     },
     {
-      "name": "Karla Reyes",
-      "employee_id": "200008",
-      "email": "kreyes@ragleinc.com",
-      "phone": "(682) 701-4439",
-      "division": "",
-      "job_title": "",
-      "asset": "F-35",
-      "status": "On Time",
-      "arrival": "06:58 AM"
+      "name": "",
+      "employee_id": "21",
+      "asset": "TX-76087",
+      "arrival": "07:00 AM",
+      "status": "On Time"
     },
     {
-      "name": "Argelio Padilla",
-      "employee_id": "440113",
-      "email": "",
-      "phone": "(832) 461-7833",
-      "division": "",
-      "job_title": "",
-      "asset": "ET-61",
-      "status": "On Time",
-      "arrival": "07:03 AM"
+      "name": "",
+      "employee_id": "19",
+      "asset": "I-20",
+      "arrival": "07:00 AM",
+      "status": "On Time"
     },
     {
-      "name": "Jose Garcia",
-      "employee_id": "240733",
-      "email": "joseluisg254@icloud.com",
-      "phone": "(469) 439-7316",
-      "division": "",
-      "job_title": "",
-      "asset": "HD-28",
-      "status": "On Time",
-      "arrival": "06:56 AM"
+      "name": "",
+      "employee_id": "2",
+      "asset": "NE-28",
+      "arrival": "07:00 AM",
+      "status": "On Time"
     },
     {
-      "name": "Jesus Alvarez",
-      "employee_id": "240472",
-      "email": "jesusalvarez1724@gmail.co",
-      "phone": "(682) 715-5097",
-      "division": "",
-      "job_title": "",
-      "asset": "HD-54",
-      "status": "On Time",
-      "arrival": "07:02 AM"
+      "name": "JORGE MARTINEZ",
+      "employee_id": "210068",
+      "asset": "TX-76110",
+      "arrival": "11:39:15 AM",
+      "status": "On Time"
     },
     {
-      "name": "Roy Ramirez-Rodriguez",
-      "employee_id": "440075",
-      "email": "",
-      "phone": "(956) 400-0837",
-      "division": "",
-      "job_title": "",
-      "asset": "RAM-63",
-      "status": "On Time",
-      "arrival": "06:56 AM"
+      "name": "JOSE C. RAMIREZ",
+      "employee_id": "210036",
+      "asset": "TX-75043",
+      "arrival": "1:01:42 PM",
+      "status": "On Time"
     },
     {
-      "name": "Audrey Saldana",
-      "employee_id": "210063",
-      "email": "asaldana@ragleinc.com",
-      "phone": "(972) 816-9867",
-      "division": "",
-      "job_title": "",
-      "asset": "TRK-24",
-      "status": "On Time",
-      "arrival": "06:55 AM"
+      "name": "LUIS MURCIA ORELLANA",
+      "employee_id": "240165",
+      "asset": "TX-77414",
+      "arrival": "10:16:51 AM",
+      "status": "On Time"
     },
     {
-      "name": "Juan Beltran",
-      "employee_id": "440392",
-      "email": "",
-      "phone": "(346) 283-3609",
-      "division": "",
-      "job_title": "",
-      "asset": "ET-72",
-      "status": "On Time",
-      "arrival": "06:45 AM"
+      "name": "ROBERTO GUERRERO JR",
+      "employee_id": "210089",
+      "asset": "TX-76112",
+      "arrival": "10:25:31 AM",
+      "status": "On Time"
     },
     {
-      "name": "Arturo Ramirez Vazquez",
-      "employee_id": "440376",
-      "email": "",
-      "phone": "(346) 772-7938",
-      "division": "",
-      "job_title": "",
-      "asset": "RAM-92",
-      "status": "On Time",
-      "arrival": "06:58 AM"
+      "name": "ALBERTO ZUNIGA",
+      "employee_id": "210031",
+      "asset": "TX-77048",
+      "arrival": "11:38:23 AM",
+      "status": "On Time"
     },
     {
-      "name": "Armando Valdez-Reivera",
-      "employee_id": "240312",
-      "email": "",
-      "phone": "(817) 300-8296",
-      "division": "",
-      "job_title": "",
-      "asset": "RAM-20",
-      "status": "On Time",
-      "arrival": "06:58 AM"
+      "name": "",
+      "employee_id": "5",
+      "asset": "TX-77013",
+      "arrival": "07:00 AM",
+      "status": "On Time"
     },
     {
-      "name": "Jose Salazar Moreno",
-      "employee_id": "240706",
-      "email": "mauriciosalazar1019@gmail.com",
-      "phone": "(418) 117-3166",
-      "division": "",
-      "job_title": "",
-      "asset": "F-77",
-      "status": "On Time",
-      "arrival": "07:01 AM"
+      "name": "Cooper Link",
+      "employee_id": "820003",
+      "asset": "TX-76137",
+      "arrival": "12:07:02 PM",
+      "status": "On Time"
     },
     {
-      "name": "Alejandro Castaneda",
-      "employee_id": "240803",
-      "email": "alejandrocastaneda04@icloud.com",
-      "phone": "(817) 262-1850",
-      "division": "",
-      "job_title": "",
-      "asset": "ET-81",
-      "status": "On Time",
-      "arrival": "06:53 AM"
+      "name": "LEROY ARNOLD",
+      "employee_id": "240679",
+      "asset": "TX-76179",
+      "arrival": "2:19:17 PM",
+      "status": "On Time"
     },
     {
-      "name": "Howard Wright",
-      "employee_id": "240591",
-      "email": "",
-      "phone": "(214) 325-3072",
-      "division": "",
-      "job_title": "",
-      "asset": "RAM-37",
-      "status": "On Time",
-      "arrival": "07:01 AM"
+      "name": "JUAN LOPEZ-VAZQUEZ",
+      "employee_id": "410028",
+      "asset": "TX-77026",
+      "arrival": "5:35:53 PM",
+      "status": "On Time"
     },
     {
-      "name": "Pablo Flores",
-      "employee_id": "440412",
-      "email": "",
-      "phone": "(936) 257-2704",
-      "division": "",
-      "job_title": "",
-      "asset": "HD-56",
-      "status": "On Time",
-      "arrival": "06:58 AM"
+      "name": "JOSE J RIVERA",
+      "employee_id": "240072",
+      "asset": "TX-75090",
+      "arrival": "10:03:42 PM",
+      "status": "On Time"
     },
     {
-      "name": "Domingo Hernandez-Santos",
-      "employee_id": "240425",
-      "email": "domingoh865@gmail.com",
-      "phone": "-",
-      "division": "",
-      "job_title": "",
-      "asset": "RAM-21",
-      "status": "On Time",
-      "arrival": "07:15 AM"
+      "name": "TROY MALETTE",
+      "employee_id": "240696",
+      "asset": "TX-76244",
+      "arrival": "10:48:47 AM",
+      "status": "On Time"
     },
     {
-      "name": "Vaibhav Dhamangaonkar",
-      "employee_id": "410007",
-      "email": "vdhamangaonkar@ragleinc.com",
-      "phone": "(469) 740-1645",
-      "division": "",
-      "job_title": "",
-      "asset": "F-72",
-      "status": "Early Departure",
-      "arrival": "06:54 AM",
-      "departure": "15:46 PM"
+      "name": "ALEJANDRO LOZANO ACOSTA",
+      "employee_id": "240448",
+      "asset": "TX-75180",
+      "arrival": "10:28:40 PM",
+      "status": "On Time"
     },
     {
-      "name": "Gregorio Sanchez-Leal",
-      "employee_id": "440184",
-      "email": "",
-      "phone": "(346) 255-1094",
-      "division": "",
-      "job_title": "",
-      "asset": "F-96",
-      "status": "Late",
-      "arrival": "07:59 AM"
+      "name": "JUAN P RODRIGUEZ",
+      "employee_id": "240075",
+      "asset": "SH-345",
+      "arrival": "11:45:02 PM",
+      "status": "On Time"
     },
     {
-      "name": "Ramiro Vazquez De La Cruz",
-      "employee_id": "240624",
-      "email": "rvazquez@ragleinc.com",
-      "phone": "(469) 684-0787",
-      "division": "",
-      "job_title": "",
-      "asset": "F-81",
-      "status": "On Time",
-      "arrival": "06:45 AM"
+      "name": "",
+      "employee_id": "3",
+      "asset": "SL-12",
+      "arrival": "07:00 AM",
+      "status": "On Time"
     },
     {
-      "name": "Terry Franklin",
-      "employee_id": "210017",
-      "email": "tfranklin@ragleinc.com",
-      "phone": "(903) 754-9572",
-      "division": "",
-      "job_title": "",
-      "asset": "ET-25",
-      "status": "Late",
-      "arrival": "08:07 AM"
+      "name": "JUAN RUIZ",
+      "employee_id": "240080",
+      "asset": "SH-345",
+      "arrival": "07:00 AM",
+      "status": "On Time"
     },
     {
-      "name": "Juan Gonzalez",
-      "employee_id": "440058",
-      "email": "",
-      "phone": "(713) 791-3143",
-      "division": "",
-      "job_title": "",
-      "asset": "TRK-71",
-      "status": "On Time",
-      "arrival": "06:46 AM"
+      "name": "URIEL GARCIA-ANDRADE",
+      "employee_id": "440061",
+      "asset": "TX-77414",
+      "arrival": "11:17:19 AM",
+      "status": "On Time"
     },
     {
-      "name": "Jose Hernandez",
-      "employee_id": "440275",
-      "email": "",
-      "phone": "(346) 243-2013",
-      "division": "",
-      "job_title": "",
-      "asset": "ET-06",
-      "status": "Late",
-      "arrival": "08:02 AM"
+      "name": "SABINO IBARRA",
+      "employee_id": "240348",
+      "asset": "TX-79765",
+      "arrival": "10:03:13 AM",
+      "status": "On Time"
     },
     {
-      "name": "Seyedalireza Taghavi",
-      "employee_id": "800074",
-      "email": "staghavi@ragleinc.com",
-      "phone": "(210) 741-2348",
-      "division": "",
-      "job_title": "",
-      "asset": "F-21",
-      "status": "Late",
-      "arrival": "07:35 AM"
+      "name": "",
+      "employee_id": "15",
+      "asset": "US-67",
+      "arrival": "10:07:30 AM",
+      "status": "On Time"
     },
     {
-      "name": "Alejandro Abarca Paramo",
-      "employee_id": "310000",
-      "email": "aabarca@ragleinc.com",
-      "phone": "(210) 396-9739",
-      "division": "",
-      "job_title": "",
-      "asset": "TRK-36",
-      "status": "On Time",
-      "arrival": "06:57 AM"
-    },
-    {
-      "name": "Lisandro Alvarado Alvarado",
-      "employee_id": "240766",
-      "email": "maxilisandro12345@gmail.com",
-      "phone": "(469) 956-0159",
-      "division": "",
-      "job_title": "",
-      "asset": "RAM-51",
-      "status": "On Time",
-      "arrival": "06:47 AM"
-    },
-    {
-      "name": "Christopher Belflower",
-      "employee_id": "800033",
-      "email": "cbelflower@ragleinc.com",
-      "phone": "(651) 402-1777",
-      "division": "",
-      "job_title": "",
-      "asset": "RAM-61",
-      "status": "On Time",
-      "arrival": "07:03 AM"
-    },
-    {
-      "name": "Zabih Kocer",
-      "employee_id": "210005",
-      "email": "zkocer@ragleinc.com",
-      "phone": "(202) 999-0555",
-      "division": "",
-      "job_title": "",
-      "asset": "TRK-52",
-      "status": "On Time",
-      "arrival": "06:55 AM"
-    },
-    {
-      "name": "Ramon Reyes",
-      "employee_id": "240070",
-      "email": "rr193652@gmail.com",
-      "phone": "(410) 493-7614",
-      "division": "",
-      "job_title": "",
-      "asset": "HD-55",
-      "status": "On Time",
-      "arrival": "07:05 AM"
-    },
-    {
-      "name": "Cruz Talamantes",
-      "employee_id": "440349",
-      "email": "",
-      "phone": "(832) 759-1419",
-      "division": "",
-      "job_title": "",
-      "asset": "HD-83",
-      "status": "On Time",
-      "arrival": "06:47 AM"
-    },
-    {
-      "name": "Miguel Flores Amezquita",
-      "employee_id": "240620",
-      "email": "",
-      "phone": "(214) 447-5459",
-      "division": "",
-      "job_title": "",
-      "asset": "TRK-29",
-      "status": "On Time",
-      "arrival": "06:47 AM"
-    },
-    {
-      "name": "Jaime Salas Balleza",
-      "employee_id": "340040",
-      "email": "",
-      "phone": "(432) 260-9052",
-      "division": "",
-      "job_title": "",
-      "asset": "F-49",
-      "status": "On Time",
-      "arrival": "06:59 AM"
-    },
-    {
-      "name": "Graciela Villa Fraga",
-      "employee_id": "800046",
-      "email": "vvilla@ragleinc.com",
-      "phone": "(817) 680-0754",
-      "division": "",
-      "job_title": "",
-      "asset": "ET-85",
-      "status": "On Time",
-      "arrival": "06:53 AM"
+      "name": "LORENZO APARICIO",
+      "employee_id": "230017",
+      "asset": "TX-76110",
+      "arrival": "8:55:36 PM",
+      "status": "On Time"
     },
     {
       "name": "Roger Doddy",
       "employee_id": "DODROG",
-      "asset": "PT-07S",
-      "division": "TEXDIST",
-      "job_title": "Select Maintenance Employee",
-      "status": "On Time",
+      "asset": "TX-75093",
+      "arrival": "07:00 AM",
+      "status": "On Time"
+    },
+    {
+      "name": "Roger Doddy",
+      "employee_id": "DODROG",
+      "asset": "TX-75093",
       "arrival": "04:45 AM",
-      "source": "telematics",
-      "validated": true,
-      "from_telematics": true
+      "status": "On Time",
+      "division": "TEXDIST",
+      "job_title": "Select Maintenance Employee"
+    },
+    {
+      "name": "JOVAN ESPINOZA-CASILLAS",
+      "employee_id": "ESPJOV",
+      "asset": "SH-310",
+      "arrival": "07:00 AM",
+      "status": "On Time"
+    },
+    {
+      "name": "Martin Escobedo",
+      "employee_id": "210051",
+      "asset": "TX-75006",
+      "arrival": "11:07:27 AM",
+      "status": "On Time"
+    },
+    {
+      "name": "ROBERT BERRYHILL",
+      "employee_id": "BERROB",
+      "asset": "TX-77086",
+      "arrival": "6:29:18 AM",
+      "status": "On Time"
+    },
+    {
+      "name": "RAFAEL MURATALLA",
+      "employee_id": "MURRAF",
+      "asset": "SH-310",
+      "arrival": "2:29:08 AM",
+      "status": "On Time"
+    },
+    {
+      "name": "SEYMORE HUNT",
+      "employee_id": "440443",
+      "asset": "TX-77086",
+      "arrival": "4:58:23 AM",
+      "status": "On Time"
+    },
+    {
+      "name": "JAVIER MAGALLANES",
+      "employee_id": "MAGJAV",
+      "asset": "SH-310",
+      "arrival": "07:00 AM",
+      "status": "On Time"
+    },
+    {
+      "name": "",
+      "employee_id": "8",
+      "asset": "I-69",
+      "arrival": "07:00 AM",
+      "status": "On Time"
+    },
+    {
+      "name": "ISAAC ROMERO",
+      "employee_id": "ROMISA",
+      "asset": "TX-75287",
+      "arrival": "07:00 AM",
+      "status": "On Time"
+    },
+    {
+      "name": "FRANCISCO DIAZ SERNA",
+      "employee_id": "340036",
+      "asset": "TX-75207",
+      "arrival": "12:01:05 PM",
+      "status": "On Time"
+    },
+    {
+      "name": "JOSE BAUTISTA",
+      "employee_id": "240131",
+      "asset": "TX-79707",
+      "arrival": "10:53:37 AM",
+      "status": "On Time"
+    },
+    {
+      "name": "",
+      "employee_id": "7",
+      "asset": "TX-77532",
+      "arrival": "07:00 AM",
+      "status": "On Time"
+    },
+    {
+      "name": "Nagesh Kumar",
+      "employee_id": "210012",
+      "asset": "SH-345",
+      "arrival": "10:13:59 PM",
+      "status": "On Time"
+    },
+    {
+      "name": "Luis Morales",
+      "employee_id": "410002",
+      "asset": "TX-77004",
+      "arrival": "12:38:47 PM",
+      "status": "On Time"
+    },
+    {
+      "name": "CHASE JONES",
+      "employee_id": "240671",
+      "asset": "TX-77535",
+      "arrival": "11:57:21 AM",
+      "status": "On Time"
+    },
+    {
+      "name": "Johnny Pereira-Viera",
+      "employee_id": "240409",
+      "asset": "TX-75048",
+      "arrival": "10:04:13 AM",
+      "status": "On Time"
+    },
+    {
+      "name": "Ramesh Bobba",
+      "employee_id": "210010",
+      "asset": "TX-75010",
+      "arrival": "3:04:37 PM",
+      "status": "On Time"
+    },
+    {
+      "name": "Sam Abunemeh",
+      "employee_id": "410012",
+      "asset": "TX-75039",
+      "arrival": "10:08:11 PM",
+      "status": "On Time"
+    },
+    {
+      "name": "Jared Ruhrup",
+      "employee_id": "210053",
+      "asset": "TX-76008",
+      "arrival": "11:42:18 AM",
+      "status": "On Time"
     }
   ],
-  "validated": true,
-  "total_drivers": 41
+  "total_drivers": 52,
+  "total_morning_drivers": 52,
+  "on_time_count": 52,
+  "late_morning": [],
+  "early_departures": [],
+  "summary": {
+    "total_drivers": 52,
+    "total_morning_drivers": 52,
+    "on_time_drivers": 52,
+    "late_drivers": 0,
+    "early_end_drivers": 0,
+    "not_on_job_drivers": 0,
+    "exception_drivers": 0,
+    "total_issues": 0,
+    "on_time_percent": 100
+  }
 }

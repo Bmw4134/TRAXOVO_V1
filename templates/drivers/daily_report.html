@@ -1,303 +1,251 @@
-{% extends "layout.html" %}
+{% extends "base.html" %}
 
-{% block title %}Daily Driver Reports | TRAXORA{% endblock %}
+{% block title %}Daily Driver Report - {{ selected_date }}{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="container-fluid mt-4">
     <div class="row">
         <div class="col-12">
-            <h1 class="mb-4">Daily Driver Reports</h1>
-            
             <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">Select Date and Parameters</h5>
-                    <div class="date-display">
-                        <span id="day-display" class="me-2">{{ selected_day_display }}</span>
-                        <span id="date-display">{{ selected_date_display }}</span>
-                    </div>
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Daily Driver Report - {{ selected_date }}</h5>
+                    <form method="GET" action="{{ url_for('driver_module.daily_report') }}" class="d-flex">
+                        <input type="date" name="date" class="form-control form-control-sm me-2" value="{{ report.date }}" required>
+                        <button type="submit" class="btn btn-sm btn-light">View Report</button>
+                    </form>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="{{ url_for('driver_module.daily_report') }}" id="report-form">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <label for="report_date" class="form-label">Report Date</label>
-                                    <input type="date" class="form-control" id="report_date" name="report_date" 
-                                           value="{{ selected_date or today }}" required>
+                    {% if report.get('error') %}
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i> {{ report.error }}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Summary</h6>
                                 </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <label for="company" class="form-label">Company</label>
-                                    <select class="form-select" id="company" name="company">
-                                        <option value="all" {% if company == 'all' %}selected{% endif %}>All Companies</option>
-                                        <option value="ragle" {% if company == 'ragle' %}selected{% endif %}>Ragle</option>
-                                        <option value="select" {% if company == 'select' %}selected{% endif %}>Select</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <label for="driver_pattern" class="form-label">Filter by Driver</label>
-                                    <input type="text" class="form-control" id="driver_pattern" name="driver_pattern" 
-                                           placeholder="Enter driver name" value="{{ driver_pattern }}">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <label for="asset_pattern" class="form-label">Filter by Asset ID</label>
-                                    <input type="text" class="form-control" id="asset_pattern" name="asset_pattern" 
-                                           placeholder="ET-01, PT-" value="{{ asset_pattern }}">
-                                    <div class="form-text">Enter asset ID or prefix (e.g., ET-, PT-)</div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <label for="location_pattern" class="form-label">Filter by Location</label>
-                                    <input type="text" class="form-control" id="location_pattern" name="location_pattern" 
-                                           placeholder="Enter location" value="{{ location_pattern }}">
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <label for="exceptions_only" class="form-label">Show Exceptions Only</label>
-                                    <div class="form-check form-switch mt-2">
-                                        <input class="form-check-input" type="checkbox" id="exceptions_only" name="exceptions_only" 
-                                              {% if exceptions_only %}checked{% endif %}>
-                                        <label class="form-check-label" for="exceptions_only">Show only late starts & early ends</label>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="mb-3">
+                                                <label class="form-label text-muted">Total Drivers</label>
+                                                <h3>{{ report.summary.total_drivers }}</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="mb-3">
+                                                <label class="form-label text-muted">On Time</label>
+                                                <h3>{{ report.summary.on_time_drivers }}</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="mb-3">
+                                                <label class="form-label text-muted">Late</label>
+                                                <h4 class="text-warning">{{ report.summary.late_drivers }}</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="mb-3">
+                                                <label class="form-label text-muted">Early End</label>
+                                                <h4 class="text-info">{{ report.summary.early_end_drivers }}</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="mb-3">
+                                                <label class="form-label text-muted">Not On Job</label>
+                                                <h4 class="text-danger">{{ report.summary.not_on_job_drivers }}</h4>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="row">
-                            <div class="col-12">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="bi bi-search"></i> Generate Report
-                                </button>
-                                {% if driver_data %}
-                                <div class="btn-group ms-2">
-                                    <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="bi bi-file-earmark-spreadsheet"></i> Export
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_daily_report', date=selected_date, format='excel') }}">
-                                            <i class="bi bi-file-excel"></i> Excel
-                                        </a></li>
-                                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_daily_report', date=selected_date, format='pdf') }}">
-                                            <i class="bi bi-file-pdf"></i> PDF
-                                        </a></li>
-                                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_daily_report', date=selected_date, format='csv') }}">
-                                            <i class="bi bi-file-text"></i> CSV
-                                        </a></li>
-                                    </ul>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Export Options</h6>
                                 </div>
-                                <div class="btn-group ms-2">
-                                    <button type="button" class="btn btn-info dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="bi bi-envelope"></i> Email Report
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#emailModal" data-report-time="8am">
-                                            <i class="bi bi-clock"></i> Send 8:00 AM Report
-                                        </a></li>
-                                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#emailModal" data-report-time="9am">
-                                            <i class="bi bi-clock"></i> Send 9:00 AM Report
-                                        </a></li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item" href="{{ url_for('driver_module.email_settings') }}">
-                                            <i class="bi bi-gear"></i> Email Settings
-                                        </a></li>
-                                    </ul>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <a href="/exports/daily_reports/{{ report.date }}_DailyDriverReport.xlsx" class="btn btn-success w-100" download>
+                                                <i class="bi bi-file-earmark-excel me-1"></i> Download Excel Report
+                                            </a>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <a href="/exports/daily_reports/{{ report.date }}_DailyDriverReport.pdf" class="btn btn-danger w-100" download>
+                                                <i class="bi bi-file-earmark-pdf me-1"></i> Download PDF Report
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#emailConfigModal">
+                                            <i class="bi bi-envelope me-1"></i> Configure Email Settings
+                                        </button>
+                                    </div>
                                 </div>
-                                {% endif %}
                             </div>
                         </div>
-                    </form>
-                </div>
-            </div>
-            
-            {% if driver_data %}
-            <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">Driver Activity Report</h5>
-                    <div>
-                        <span class="badge bg-danger me-2">Late: {{ stats.late_count }}</span>
-                        <span class="badge bg-warning me-2">Early: {{ stats.early_count }}</span>
-                        <span class="badge bg-info">Total: {{ stats.total_count }}</span>
                     </div>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Asset ID</th>
-                                    <th>Driver</th>
-                                    <th>Start Time</th>
-                                    <th>End Time</th>
-                                    <th>Location</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for driver in driver_data %}
-                                <tr class="{% if driver.is_late %}table-danger{% elif driver.left_early %}table-warning{% endif %}">
-                                    <td>{{ driver.asset_id }}</td>
-                                    <td>{{ driver.driver_name }}</td>
-                                    <td>
-                                        {{ driver.start_time }}
-                                        {% if driver.is_late %}
-                                        <span class="badge bg-danger ms-2" title="Expected start: {{ driver.expected_start }}">
-                                            <i class="bi bi-exclamation-triangle"></i>
-                                            {{ driver.late_minutes }} min
-                                        </span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {{ driver.end_time }}
-                                        {% if driver.left_early %}
-                                        <span class="badge bg-warning ms-2" title="Expected end: {{ driver.expected_end }}">
-                                            <i class="bi bi-exclamation-triangle"></i>
-                                            {{ driver.early_minutes }} min
-                                        </span>
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ driver.location }}</td>
-                                    <td>
-                                        {% if driver.is_late and driver.left_early %}
-                                        <span class="badge bg-danger">Late & Early</span>
-                                        {% elif driver.is_late %}
-                                        <span class="badge bg-danger">Late Start</span>
-                                        {% elif driver.left_early %}
-                                        <span class="badge bg-warning">Early End</span>
-                                        {% else %}
-                                        <span class="badge bg-success">Normal</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <a href="{{ url_for('driver_module.vehicle_audit', search=driver.asset_id) }}" class="btn btn-sm btn-secondary">
-                                            <i class="bi bi-search"></i> History
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Attendance Trends Section -->
-            <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">Attendance Trends (Last 5 Days)</h5>
-                    <div>
-                        <span class="badge bg-danger me-2">Chronic Late: <span id="chronic-late-count">0</span></span>
-                        <span class="badge bg-warning me-2">Repeated Absences: <span id="repeated-absence-count">0</span></span>
-                        <span class="badge bg-info me-2">Unstable Shifts: <span id="unstable-shift-count">0</span></span>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover" id="trend-table">
-                            <thead>
-                                <tr>
-                                    <th>Driver</th>
-                                    <th>Late Days</th>
-                                    <th>Absent Days</th>
-                                    <th>Trend Flags</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="trend-table-body">
-                                <!-- Trend data will be populated via JavaScript -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="row">
-                <div class="col-md-6">
+                    
+                    <!-- Late Arrivals Section -->
+                    {% if report.late_morning %}
                     <div class="card mb-4">
-                        <div class="card-header">
-                            <h5 class="card-title">Late Starts Summary</h5>
+                        <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">Late Arrivals ({{ report.late_morning|length }})</h6>
+                            <span class="badge bg-dark">{{ report.summary.late_drivers }} Drivers</span>
                         </div>
-                        <div class="card-body">
-                            <canvas id="lateStartsChart" width="400" height="300"></canvas>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Driver</th>
+                                            <th>Asset ID</th>
+                                            <th>Scheduled Start</th>
+                                            <th>Actual Start</th>
+                                            <th>Minutes Late</th>
+                                            <th>Job Site</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for record in report.late_morning %}
+                                        <tr>
+                                            <td>{{ record.driver_name }}</td>
+                                            <td>{{ record.asset_id }}</td>
+                                            <td>{{ record.scheduled_start }}</td>
+                                            <td>{{ record.actual_start }}</td>
+                                            <td>{{ record.minutes_late }}</td>
+                                            <td>{{ record.job_site }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-md-6">
+                    {% endif %}
+                    
+                    <!-- Early Departures Section -->
+                    {% if report.early_departures %}
                     <div class="card mb-4">
-                        <div class="card-header">
-                            <h5 class="card-title">Early Ends Summary</h5>
+                        <div class="card-header bg-info text-dark d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">Early Departures ({{ report.early_departures|length }})</h6>
+                            <span class="badge bg-dark">{{ report.summary.early_end_drivers }} Drivers</span>
                         </div>
-                        <div class="card-body">
-                            <canvas id="earlyEndsChart" width="400" height="300"></canvas>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Driver</th>
+                                            <th>Asset ID</th>
+                                            <th>Scheduled End</th>
+                                            <th>Actual End</th>
+                                            <th>Minutes Early</th>
+                                            <th>Job Site</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for record in report.early_departures %}
+                                        <tr>
+                                            <td>{{ record.driver_name }}</td>
+                                            <td>{{ record.asset_id }}</td>
+                                            <td>{{ record.scheduled_end }}</td>
+                                            <td>{{ record.actual_end }}</td>
+                                            <td>{{ record.minutes_early }}</td>
+                                            <td>{{ record.job_site }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
+                    {% endif %}
+                    
+                    <!-- Not On Job Section -->
+                    {% if report.not_on_job_drivers %}
+                    <div class="card mb-4">
+                        <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">Not On Job ({{ report.not_on_job_drivers|length }})</h6>
+                            <span class="badge bg-light text-dark">{{ report.summary.not_on_job_drivers }} Drivers</span>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Driver</th>
+                                            <th>Asset ID</th>
+                                            <th>Scheduled Job</th>
+                                            <th>Current Location</th>
+                                            <th>Distance (miles)</th>
+                                            <th>Last Update</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for record in report.not_on_job_drivers %}
+                                        <tr>
+                                            <td>{{ record.driver_name }}</td>
+                                            <td>{{ record.asset_id }}</td>
+                                            <td>{{ record.job_site }}</td>
+                                            <td>{{ record.current_location }}</td>
+                                            <td>{{ record.distance_from_job }}</td>
+                                            <td>{{ record.last_update }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
-            {% elif submitted %}
-            <div class="alert alert-info">
-                <i class="bi bi-info-circle"></i> No driver data found for the selected criteria.
-            </div>
-            {% endif %}
         </div>
     </div>
 </div>
 
-<!-- Email Modal -->
-<div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+<!-- Email Configuration Modal -->
+<div class="modal fade" id="emailConfigModal" tabindex="-1" aria-labelledby="emailConfigModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <form action="{{ url_for('driver_module.send_daily_report_email') }}" method="POST">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="emailModalLabel">Send Report via Email</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
+            <div class="modal-header">
+                <h5 class="modal-title" id="emailConfigModalLabel">Email Configuration</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('driver_module.daily_report', date=report.date) }}">
+                <input type="hidden" name="action" value="update_email">
                 <div class="modal-body">
-                    <input type="hidden" name="report_date" value="{{ selected_date }}">
-                    <input type="hidden" name="report_time" id="report_time">
-                    
                     <div class="mb-3">
                         <label for="recipients" class="form-label">Recipients</label>
-                        <textarea class="form-control" id="recipients" name="recipients" rows="3" 
-                                  placeholder="Enter email addresses, separated by commas">{{ email_config.recipients if email_config and email_config.recipients else "" }}</textarea>
+                        <input type="text" class="form-control" id="recipients" name="recipients" value="{{ email_config.recipients }}">
+                        <div class="form-text">Separate multiple email addresses with commas</div>
                     </div>
-                    
                     <div class="mb-3">
-                        <label for="email_subject" class="form-label">Subject</label>
-                        <input type="text" class="form-control" id="email_subject" name="email_subject" 
-                               value="Daily Driver Report - {{ selected_date }}">
+                        <label for="cc" class="form-label">CC</label>
+                        <input type="text" class="form-control" id="cc" name="cc" value="{{ email_config.cc }}">
                     </div>
-                    
                     <div class="mb-3">
-                        <label for="email_message" class="form-label">Message</label>
-                        <textarea class="form-control" id="email_message" name="email_message" rows="4">Please find attached the daily driver activity report for {{ selected_date }}.
-
-Total Drivers: {{ report.stats.total_count if report and report.stats else 0 }}
-Late Starts: {{ report.stats.late_count if report and report.stats else 0 }}
-Early Ends: {{ report.stats.early_count if report and report.stats else 0 }}</textarea>
+                        <label for="bcc" class="form-label">BCC</label>
+                        <input type="text" class="form-control" id="bcc" name="bcc" value="{{ email_config.bcc }}">
                     </div>
-                    
-                    <div class="mb-3">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="save_recipients" name="save_recipients" checked>
-                            <label class="form-check-label" for="save_recipients">
-                                Save recipients list for future use
-                            </label>
-                        </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="auto_send" name="auto_send" {% if email_config.auto_send %}checked{% endif %}>
+                        <label class="form-check-label" for="auto_send">Automatically send daily report</label>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="include_user" name="include_user" {% if email_config.include_user %}checked{% endif %}>
+                        <label class="form-check-label" for="include_user">Include my email address</label>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Send Email</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
                 </div>
             </form>
         </div>
@@ -306,240 +254,15 @@ Early Ends: {{ report.stats.early_count if report and report.stats else 0 }}</te
 {% endblock %}
 
 {% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Update day display dynamically based on selected date
-    const reportDateInput = document.getElementById('report_date');
-    const dayDisplay = document.getElementById('day-display');
-    const dateDisplay = document.getElementById('date-display');
-    
-    // Function to update the day display
-    function updateDayDisplay() {
-        const selectedDate = new Date(reportDateInput.value);
-        const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        const dayOfWeek = daysOfWeek[selectedDate.getDay()];
-        const formattedDate = selectedDate.toLocaleDateString('en-US', { 
-            month: 'long', 
-            day: 'numeric',
-            year: 'numeric'
-        });
-        
-        dayDisplay.textContent = dayOfWeek;
-        dateDisplay.textContent = formattedDate;
-    }
-    
-    // Update on initial load
-    updateDayDisplay();
-    
-    // Update when date changes
-    reportDateInput.addEventListener('change', updateDayDisplay);
-    
-    // Set report time in modal
-    const emailModalLinks = document.querySelectorAll('[data-bs-target="#emailModal"]');
-    const reportTimeInput = document.getElementById('report_time');
-    
-    emailModalLinks.forEach(link => {
-        link.addEventListener('click', function() {
-            reportTimeInput.value = this.getAttribute('data-report-time');
-        });
-    });
-    
-    // Load attendance trend data
-    loadAttendanceTrends();
-    
-    // Function to load and display attendance trend data
-    function loadAttendanceTrends() {
-        const reportDate = reportDateInput.value || '{{ selected_date or today }}';
-        const apiUrl = `/api/driver-trends?end=${reportDate}&days=5`;
-        
-        fetch(apiUrl)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Network response was not ok: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Update summary counts
-                const summary = data.summary || {};
-                document.getElementById('chronic-late-count').textContent = summary.chronic_late_count || 0;
-                document.getElementById('repeated-absence-count').textContent = summary.repeated_absence_count || 0;
-                document.getElementById('unstable-shift-count').textContent = summary.unstable_shift_count || 0;
-                
-                // Populate trend table
-                const trends = data.driver_trends || {};
-                const tableBody = document.getElementById('trend-table-body');
-                tableBody.innerHTML = '';
-                
-                let driverCount = 0;
-                
-                Object.keys(trends).forEach(driverName => {
-                    driverCount++;
-                    const driver = trends[driverName];
-                    const flags = driver.flags || [];
-                    const flagBadges = flags.map(flag => {
-                        let badgeClass = 'bg-secondary';
-                        if (flag === 'CHRONIC_LATE') badgeClass = 'bg-danger';
-                        if (flag === 'REPEATED_ABSENCE') badgeClass = 'bg-warning';
-                        if (flag === 'UNSTABLE_SHIFT') badgeClass = 'bg-info';
-                        
-                        return `<span class="badge ${badgeClass} me-1">${formatFlag(flag)}</span>`;
-                    }).join('');
-                    
-                    const row = document.createElement('tr');
-                    
-                    // Highlight rows with flags
-                    if (flags.includes('CHRONIC_LATE')) {
-                        row.className = 'table-danger';
-                    } else if (flags.includes('REPEATED_ABSENCE')) {
-                        row.className = 'table-warning';
-                    } else if (flags.includes('UNSTABLE_SHIFT')) {
-                        row.className = 'table-info';
-                    }
-                    
-                    row.innerHTML = `
-                        <td>${driverName}</td>
-                        <td>${driver.late_count || 0}</td>
-                        <td>${driver.absence_count || 0}</td>
-                        <td>${flagBadges || '<span class="text-muted">None</span>'}</td>
-                        <td>
-                            <a href="/drivers/vehicle-audit?search=${encodeURIComponent(driverName)}" class="btn btn-sm btn-secondary">
-                                <i class="bi bi-search"></i> View History
-                            </a>
-                        </td>
-                    `;
-                    
-                    tableBody.appendChild(row);
-                });
-                
-                // Show message if no trends found
-                if (driverCount === 0) {
-                    const emptyRow = document.createElement('tr');
-                    emptyRow.innerHTML = `
-                        <td colspan="5" class="text-center text-muted">
-                            No attendance trends found for the selected date range
-                        </td>
-                    `;
-                    tableBody.appendChild(emptyRow);
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching attendance trends:', error);
-                document.getElementById('trend-table-body').innerHTML = `
-                    <tr>
-                        <td colspan="5" class="text-center text-danger">
-                            <i class="bi bi-exclamation-triangle"></i> Error loading attendance trends
-                        </td>
-                    </tr>
-                `;
-            });
-    }
-    
-    // Helper function to format flag names for display
-    function formatFlag(flag) {
-        switch (flag) {
-            case 'CHRONIC_LATE':
-                return 'Chronic Late';
-            case 'REPEATED_ABSENCE':
-                return 'Repeated Absence'; 
-            case 'UNSTABLE_SHIFT':
-                return 'Unstable Shift';
-            default:
-                return flag.replace(/_/g, ' ').toLowerCase()
-                    .replace(/\b\w/g, c => c.toUpperCase());
+    // Format the date input with the current report date
+    document.addEventListener('DOMContentLoaded', function() {
+        const dateInput = document.querySelector('input[name="date"]');
+        if (dateInput) {
+            // Make sure the date is in yyyy-MM-dd format
+            const reportDate = "{{ report.date }}";
+            dateInput.value = reportDate;
         }
-    }
-    
-    // Update trends when date changes
-    reportDateInput.addEventListener('change', loadAttendanceTrends);
-    
-    // Initialize charts if we have data
-    {% if driver_data %}
-        // Late starts chart
-        const lateStartsCtx = document.getElementById('lateStartsChart').getContext('2d');
-        const lateStartsChart = new Chart(lateStartsCtx, {
-            type: 'bar',
-            data: {
-                labels: ['0-15 min', '16-30 min', '31-60 min', '60+ min'],
-                datasets: [{
-                    label: 'Late Starts by Duration',
-                    data: [
-                        {{ stats.late_brackets[0] }}, 
-                        {{ stats.late_brackets[1] }}, 
-                        {{ stats.late_brackets[2] }}, 
-                        {{ stats.late_brackets[3] }}
-                    ],
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.6)',
-                        'rgba(255, 159, 64, 0.6)',
-                        'rgba(255, 205, 86, 0.6)',
-                        'rgba(255, 40, 40, 0.6)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(255, 159, 64, 1)',
-                        'rgba(255, 205, 86, 1)',
-                        'rgba(255, 40, 40, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 1
-                        }
-                    }
-                }
-            }
-        });
-        
-        // Early ends chart
-        const earlyEndsCtx = document.getElementById('earlyEndsChart').getContext('2d');
-        const earlyEndsChart = new Chart(earlyEndsCtx, {
-            type: 'bar',
-            data: {
-                labels: ['0-15 min', '16-30 min', '31-60 min', '60+ min'],
-                datasets: [{
-                    label: 'Early Ends by Duration',
-                    data: [
-                        {{ stats.early_brackets[0] }}, 
-                        {{ stats.early_brackets[1] }}, 
-                        {{ stats.early_brackets[2] }}, 
-                        {{ stats.early_brackets[3] }}
-                    ],
-                    backgroundColor: [
-                        'rgba(54, 162, 235, 0.6)',
-                        'rgba(75, 192, 192, 0.6)',
-                        'rgba(153, 102, 255, 0.6)',
-                        'rgba(40, 80, 255, 0.6)'
-                    ],
-                    borderColor: [
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(40, 80, 255, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 1
-                        }
-                    }
-                }
-            }
-        });
-    {% endif %}
-});
+    });
 </script>
 {% endblock %}

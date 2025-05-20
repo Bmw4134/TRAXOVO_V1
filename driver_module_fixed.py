@@ -34,57 +34,150 @@ if not error_logger.handlers:
     error_logger.addHandler(file_handler)
     error_logger.setLevel(logging.ERROR)
 
-# Attendence Report Helper Functions
+# Attendance Report Helper Functions
 def get_daily_report(date_str=None):
-    """Legacy method to get daily attendance report"""
-    # Fall back to legacy method
+    """Get daily attendance report with verified employee data only"""
+    if date_str is None:
+        # Default to current date
+        date_str = datetime.now().strftime('%Y-%m-%d')
+    
+    # Check if report JSON file exists
+    json_path = f"exports/daily_reports/daily_report_{date_str}.json"
+    
     try:
-        # Legacy data structure
-        report = {
-            'date': date_str or datetime.now().strftime('%Y-%m-%d'),
-            'formatted_date': datetime.strptime(date_str or datetime.now().strftime('%Y-%m-%d'), '%Y-%m-%d').strftime('%A, %B %d, %Y'),
-            'total_drivers': 0,
-            'total_morning_drivers': 0,
-            'on_time_count': 0,
-            'late_morning': [],
-            'early_departures': [],
-            'not_on_job_drivers': [],
-            'exceptions': [],
-            'divisions': [],
-            'summary': {
-                'total_drivers': 0,
-                'total_morning_drivers': 0,
-                'on_time_drivers': 0,
-                'late_drivers': 0,
-                'early_end_drivers': 0,
-                'not_on_job_drivers': 0,
-                'exception_drivers': 0,
-                'total_issues': 0,
-                'on_time_percent': 0
-            },
-            'error': "Legacy data source unavailable"
-        }
-        return report
+        # First try to load from existing report file
+        if os.path.exists(json_path):
+            with open(json_path, 'r') as f:
+                report_data = json.load(f)
+            
+            if report_data.get('drivers') and len(report_data.get('drivers', [])) > 0:
+                logger.info(f"Loaded report data from JSON for date {date_str}")
+                
+                # Create summary data for display
+                summary = {
+                    'total_drivers': len(report_data.get('drivers', [])),
+                    'total_morning_drivers': len(report_data.get('drivers', [])),
+                    'on_time_drivers': sum(1 for d in report_data.get('drivers', []) if d.get('status') == 'On Time'),
+                    'late_drivers': sum(1 for d in report_data.get('drivers', []) if d.get('status') == 'Late'),
+                    'early_end_drivers': sum(1 for d in report_data.get('drivers', []) if d.get('status') == 'Early Departure'),
+                    'not_on_job_drivers': sum(1 for d in report_data.get('drivers', []) if d.get('status') == 'Not On Job'),
+                    'exception_drivers': 0,
+                    'total_issues': 0,
+                    'on_time_percent': 0
+                }
+                
+                # Calculate total issues and on-time percentage
+                summary['total_issues'] = (summary['late_drivers'] + 
+                                          summary['early_end_drivers'] + 
+                                          summary['not_on_job_drivers'])
+                
+                if summary['total_drivers'] > 0:
+                    summary['on_time_percent'] = int((summary['on_time_drivers'] / summary['total_drivers']) * 100)
+                
+                # Create categorized lists
+                late_morning = [d for d in report_data.get('drivers', []) if d.get('status') == 'Late']
+                early_departures = [d for d in report_data.get('drivers', []) if d.get('status') == 'Early Departure']
+                not_on_job = [d for d in report_data.get('drivers', []) if d.get('status') == 'Not On Job']
+                
+                # Build the enhanced report structure
+                return {
+                    'date': date_str,
+                    'formatted_date': report_data.get('report_date'),
+                    'total_drivers': len(report_data.get('drivers', [])),
+                    'total_morning_drivers': len(report_data.get('drivers', [])),
+                    'on_time_count': summary['on_time_drivers'],
+                    'drivers': report_data.get('drivers', []),
+                    'late_morning': late_morning,
+                    'early_departures': early_departures,
+                    'not_on_job_drivers': not_on_job,
+                    'summary': summary
+                }
+        
+        # If we get here, either file doesn't exist or it has no drivers
+        # Generate the report with authentic employee data
+        logger.info(f"Generating new report with authentic employee data for {date_str}")
+        
+        # Import here to avoid circular imports
+        from reports_processor import process_report_for_date
+        
+        # Process the report with verified employee data
+        if process_report_for_date(date_str):
+            # Load the newly generated report
+            with open(json_path, 'r') as f:
+                report_data = json.load(f)
+            
+            # Return with the same structure as above
+            if report_data.get('drivers'):
+                summary = {
+                    'total_drivers': len(report_data.get('drivers', [])),
+                    'total_morning_drivers': len(report_data.get('drivers', [])),
+                    'on_time_drivers': sum(1 for d in report_data.get('drivers', []) if d.get('status') == 'On Time'),
+                    'late_drivers': sum(1 for d in report_data.get('drivers', []) if d.get('status') == 'Late'),
+                    'early_end_drivers': sum(1 for d in report_data.get('drivers', []) if d.get('status') == 'Early Departure'),
+                    'not_on_job_drivers': sum(1 for d in report_data.get('drivers', []) if d.get('status') == 'Not On Job'),
+                    'exception_drivers': 0,
+                    'total_issues': 0,
+                    'on_time_percent': 0
+                }
+                
+                summary['total_issues'] = (summary['late_drivers'] + 
+                                          summary['early_end_drivers'] + 
+                                          summary['not_on_job_drivers'])
+                
+                if summary['total_drivers'] > 0:
+                    summary['on_time_percent'] = int((summary['on_time_drivers'] / summary['total_drivers']) * 100)
+                
+                late_morning = [d for d in report_data.get('drivers', []) if d.get('status') == 'Late']
+                early_departures = [d for d in report_data.get('drivers', []) if d.get('status') == 'Early Departure']
+                not_on_job = [d for d in report_data.get('drivers', []) if d.get('status') == 'Not On Job']
+                
+                return {
+                    'date': date_str,
+                    'formatted_date': report_data.get('report_date'),
+                    'total_drivers': len(report_data.get('drivers', [])),
+                    'total_morning_drivers': len(report_data.get('drivers', [])),
+                    'on_time_count': summary['on_time_drivers'],
+                    'drivers': report_data.get('drivers', []),
+                    'late_morning': late_morning,
+                    'early_departures': early_departures,
+                    'not_on_job_drivers': not_on_job,
+                    'summary': summary
+                }
+    
     except Exception as e:
-        error_msg = f"Error in legacy report generation: {e}"
+        error_msg = f"Error loading or generating report for {date_str}: {str(e)}"
         logger.error(error_msg)
         error_logger.error(error_msg)
-        # Return minimal structure
-        return {
-            'date': date_str or datetime.now().strftime('%Y-%m-%d'),
-            'formatted_date': datetime.strptime(date_str or datetime.now().strftime('%Y-%m-%d'), '%Y-%m-%d').strftime('%A, %B %d, %Y'),
+        traceback.print_exc()
+    
+    # If we reach here, return an empty report structure
+    # No synthetic data, just empty placeholders
+    date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+    formatted_date = date_obj.strftime('%A, %B %d, %Y')
+    
+    return {
+        'date': date_str,
+        'formatted_date': formatted_date,
+        'total_drivers': 0,
+        'total_morning_drivers': 0,
+        'on_time_count': 0,
+        'drivers': [],
+        'late_morning': [],
+        'early_departures': [],
+        'not_on_job_drivers': [],
+        'summary': {
             'total_drivers': 0,
-            'late_morning': [],
-            'early_departures': [],
-            'not_on_job_drivers': [],
-            'summary': {
-                'total_drivers': 0,
-                'late_drivers': 0,
-                'early_end_drivers': 0,
-                'not_on_job_drivers': 0
-            },
-            'error': "System error occurred"
-        }
+            'total_morning_drivers': 0,
+            'on_time_drivers': 0,
+            'late_drivers': 0,
+            'early_end_drivers': 0,
+            'not_on_job_drivers': 0,
+            'exception_drivers': 0,
+            'total_issues': 0,
+            'on_time_percent': 0
+        },
+        'error': "Could not generate report with authentic employee data"
+    }
         
 def get_user_email_config():
     """Get user's email configuration"""

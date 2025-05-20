@@ -307,32 +307,137 @@ def daily_report():
     """Daily driver attendance report with email configuration"""
     try:
         # Get date parameter with safe fallback
-        date_str = request.args.get('date', datetime.now().strftime('%Y-%m-%d'))
+        date_str = request.args.get('date')
         
-        # Process form submission if applicable
-        if request.method == 'POST' and request.form.get('action') == 'update_email':
-            try:
-                # Update email settings
-                config = {
-                    'recipients': request.form.get('recipients', ''),
-                    'cc': request.form.get('cc', ''),
-                    'bcc': request.form.get('bcc', ''),
-                    'auto_send': request.form.get('auto_send') == 'on',
-                    'include_user': request.form.get('include_user') == 'on'
-                }
+        # If no date provided, find the most recent report
+        if not date_str:
+            # Check exports directory for the latest report
+            reports_dir = "exports/daily_reports"
+            json_files = [f for f in os.listdir(reports_dir) if f.startswith('attendance_data_') and f.endswith('.json')]
+            
+            if json_files:
+                # Sort by date (newest first)
+                json_files.sort(reverse=True)
+                # Extract date from filename
+                date_str = json_files[0].replace('attendance_data_', '').replace('.json', '')
+            else:
+                # Default to current date if no reports found
+                date_str = datetime.now().strftime('%Y-%m-%d')
                 
-                if save_user_email_config(config):
-                    flash('Email configuration updated successfully', 'success')
-                else:
-                    flash('Failed to update email configuration', 'error')
+        logger.info(f"Using report date: {date_str}")
+        
+        # Check if export files exist
+        excel_path = f"exports/daily_reports/{date_str}_DailyDriverReport.xlsx"
+        pdf_path = f"exports/daily_reports/{date_str}_DailyDriverReport.pdf"
+        json_path = f"exports/daily_reports/attendance_data_{date_str}.json"
+        
+        # Verify file existence for exports
+        excel_exists = os.path.exists(excel_path)
+        pdf_exists = os.path.exists(pdf_path)
+        json_exists = os.path.exists(json_path)
+        
+        if not json_exists:
+            # Try legacy path
+            legacy_json = f"exports/daily_reports/daily_report_{date_str}.json"
+            if os.path.exists(legacy_json):
+                json_exists = True
+                json_path = legacy_json
+                
+        # Process form submission for email settings
+        if request.method == 'POST':
+            if request.form.get('action') == 'update_email':
+                try:
+                    # Update email settings
+                    config = {
+                        'recipients': request.form.get('recipients', ''),
+                        'cc': request.form.get('cc', ''),
+                        'bcc': request.form.get('bcc', ''),
+                        'auto_send': request.form.get('auto_send') == 'on',
+                        'include_user': request.form.get('include_user') == 'on'
+                    }
                     
-                # Redirect to avoid form resubmission
-                return redirect(url_for('driver_module.daily_report', date=date_str))
-            except Exception as e:
-                error_msg = f"Error processing form: {e}"
-                logger.error(error_msg)
-                error_logger.error(error_msg)
-                flash('An error occurred while updating email configuration', 'error')
+                    if save_user_email_config(config):
+                        flash('Email configuration updated successfully', 'success')
+                    else:
+                        flash('Failed to update email configuration', 'error')
+                        
+                    # Redirect to avoid form resubmission
+                    return redirect(url_for('driver_module.daily_report', date=date_str))
+                except Exception as e:
+                    error_msg = f"Error processing email form: {e}"
+                    logger.error(error_msg)
+                    error_logger.error(error_msg)
+                    flash('An error occurred while updating email configuration', 'error')
+            
+            elif request.form.get('action') == 'send_email':
+                try:
+                    # Get email recipients
+                    recipients = request.form.get('recipients', '').split(',')
+                    recipients = [email.strip() for email in recipients if email.strip()]
+                    
+                    cc = request.form.get('cc', '').split(',')
+                    cc = [email.strip() for email in cc if email.strip()]
+                    
+                    bcc = request.form.get('bcc', '').split(',')
+                    bcc = [email.strip() for email in bcc if email.strip()]
+                    
+                    if not recipients:
+                        flash('Please provide at least one recipient email address', 'warning')
+                        return redirect(url_for('driver_module.daily_report', date=date_str))
+                    
+                    # Get report data
+                    report = get_daily_report(date_str)
+                    
+                    # Format date for display
+                    date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+                    formatted_date = date_obj.strftime('%A, %B %d, %Y')
+                    
+                    # Create email content
+                    subject = f"Daily Driver Report - {formatted_date}"
+                    
+                    # Generate HTML content
+                    from utils.email_service import send_report_email
+                    
+                    # Simple HTML template
+                    html_content = f"""
+                    <h2>Daily Driver Report - {formatted_date}</h2>
+                    <p>Please find attached the Daily Driver Report for {formatted_date}.</p>
+                    <p>Summary:</p>
+                    <ul>
+                        <li>Total Drivers: {report['summary']['total_drivers']}</li>
+                        <li>On Time: {report['summary']['on_time_drivers']}</li>
+                        <li>Late Start: {report['summary']['late_drivers']}</li>
+                        <li>Early End: {report['summary']['early_end_drivers']}</li>
+                        <li>Not On Job: {report['summary']['not_on_job_drivers']}</li>
+                    </ul>
+                    <p>This report was automatically generated by the TRAXORA Fleet Management System.</p>
+                    """
+                    
+                    # Send email with attachments
+                    result = send_report_email(
+                        subject=subject,
+                        report_content=html_content,
+                        recipients=recipients,
+                        cc=cc,
+                        bcc=bcc,
+                        report_date=date_str,
+                        report_data=report,
+                        excel_path=excel_path if excel_exists else "",
+                        pdf_path=pdf_path if pdf_exists else ""
+                    )
+                    
+                    if result['status'] == 'success':
+                        flash('Report email sent successfully', 'success')
+                    else:
+                        flash(f"Failed to send email: {result.get('error', 'Unknown error')}", 'error')
+                    
+                    return redirect(url_for('driver_module.daily_report', date=date_str))
+                    
+                except Exception as e:
+                    error_msg = f"Error sending email: {e}"
+                    logger.error(error_msg)
+                    error_logger.error(error_msg)
+                    flash(f"An error occurred while sending email: {str(e)}", 'error')
         
         # Get email configuration for the current user
         email_config = get_user_email_config()
@@ -340,8 +445,20 @@ def daily_report():
         # Get report data with authentic employee information
         report = get_daily_report(date_str)
         
+        # Add file existence information to the report
+        report['files'] = {
+            'excel_exists': excel_exists,
+            'pdf_exists': pdf_exists,
+            'excel_path': f"/drivers/download-excel/{date_str}" if excel_exists else None,
+            'pdf_path': f"/drivers/download-pdf/{date_str}" if pdf_exists else None
+        }
+        
         # Log navigation with relevant details
         log_navigation('Daily Driver Report', {'date': date_str})
+        
+        # Check if request is for JSON
+        if request.headers.get('Accept') == 'application/json':
+            return jsonify(report)
         
         # Render template with report data
         return render_template(
@@ -357,10 +474,16 @@ def daily_report():
         error_logger.error(error_msg)
         logger.error(traceback.format_exc())
         
-        # Create fallback report for error case
-        date_obj = datetime.strptime(date_str, '%Y-%m-%d')
-        formatted_date = date_obj.strftime('%A, %B %d, %Y')
+        # Get date parameter, safely handling potential errors
+        try:
+            date_str = request.args.get('date', datetime.now().strftime('%Y-%m-%d'))
+            date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+            formatted_date = date_obj.strftime('%A, %B %d, %Y')
+        except:
+            date_str = datetime.now().strftime('%Y-%m-%d')
+            formatted_date = datetime.now().strftime('%A, %B %d, %Y')
         
+        # Create fallback report for error case
         report = {
             'date': date_str,
             'formatted_date': formatted_date,
@@ -378,6 +501,12 @@ def daily_report():
                 'total_issues': 0,
                 'on_time_percent': 0
             },
+            'files': {
+                'excel_exists': False,
+                'pdf_exists': False,
+                'excel_path': None,
+                'pdf_path': None
+            },
             'error': f"An error occurred: {str(e)}"
         }
         
@@ -390,6 +519,10 @@ def daily_report():
         }
         
         flash('An error occurred while loading the report. See details in the report.', 'error')
+        
+        # Check if request is for JSON
+        if request.headers.get('Accept') == 'application/json':
+            return jsonify({'error': str(e), 'status': 'error'})
         
         return render_template(
             'drivers/daily_report.html',

@@ -586,6 +586,27 @@ def download_pdf_report(date_str):
 def view_pdf_report(date_str):
     """View PDF report"""
     try:
+        # Log the view
+        log_navigation('PDF Report View', {'date': date_str})
+        
+        # Render the PDF viewer template
+        return render_template(
+            'drivers/pdf_viewer.html',
+            date_str=date_str
+        )
+        
+    except Exception as e:
+        error_msg = f"Error viewing PDF report: {e}"
+        logger.error(error_msg)
+        logger.error(traceback.format_exc())
+        
+        flash('An error occurred while viewing the PDF report', 'error')
+        return redirect(url_for('driver_module.daily_report', date=date_str))
+
+@driver_module_bp.route('/embed-pdf/<date_str>')
+def embed_pdf_report(date_str):
+    """Embedded PDF report for iframe"""
+    try:
         # Determine file path based on the standardized naming convention
         file_path = f"exports/daily_reports/{date_str}_DailyDriverReport.pdf"
         legacy_path = f"exports/daily_reports/daily_report_{date_str}.pdf"
@@ -648,12 +669,23 @@ def view_pdf_report(date_str):
                 mimetype='application/pdf'
             )
         else:
-            # If all attempts failed, redirect to the report page
-            flash('Unable to generate PDF report', 'error')
-            return redirect(url_for('driver_module.daily_report', date=date_str))
-        
-        # Log view
-        log_navigation('PDF Report View', {'date': date_str})
+            # If all attempts failed, generate a simple error PDF
+            error_pdf = FPDF()
+            error_pdf.add_page()
+            error_pdf.set_font('Arial', 'B', 16)
+            error_pdf.cell(0, 10, 'Error: Report Not Available', 0, 1, 'C')
+            error_pdf.ln(10)
+            error_pdf.set_font('Arial', '', 12)
+            error_pdf.multi_cell(0, 10, f"The report for {date_str} could not be generated. Please try regenerating the report.")
+            
+            # Create a temporary file and send it
+            temp_file = f"exports/daily_reports/error_{date_str}.pdf"
+            error_pdf.output(temp_file)
+            
+            return send_file(
+                temp_file,
+                mimetype='application/pdf'
+            )
     
     except Exception as e:
         error_msg = f"Error viewing PDF report: {e}"

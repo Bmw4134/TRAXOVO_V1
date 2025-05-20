@@ -914,7 +914,7 @@ class UnifiedDataProcessor:
             
     def export_excel_report(self):
         """
-        Export attendance report to Excel
+        Export attendance report to Excel with improved formatting
         
         Returns:
             bool: Success status
@@ -924,6 +924,8 @@ class UnifiedDataProcessor:
             
             # Load attendance data
             reports_dir = Path('exports/daily_reports')
+            reports_dir.mkdir(exist_ok=True, parents=True)
+            
             report_file = reports_dir / f"attendance_data_{self.date_str}.json"
             
             if not os.path.exists(report_file):
@@ -937,35 +939,335 @@ class UnifiedDataProcessor:
             report_path = reports_dir / f"daily_report_{self.date_str}.xlsx"
             standard_path = reports_dir / f"{self.date_str}_DailyDriverReport.xlsx"
             
-            # Create DataFrames for each section
-            drivers_df = pd.DataFrame(attendance_data['drivers'])
-            late_df = pd.DataFrame(attendance_data['late_start_records']) if attendance_data['late_start_records'] else pd.DataFrame()
-            early_df = pd.DataFrame(attendance_data['early_end_records']) if attendance_data['early_end_records'] else pd.DataFrame()
+            # Import required libraries for formatting
+            import openpyxl
+            from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+            from openpyxl.utils.dataframe import dataframe_to_rows
             
-            # Add summary sheet data
-            summary_data = {
-                'Metric': [
-                    'Date', 'Total Drivers', 'On-Time Drivers', 'Late Drivers',
-                    'Early End Drivers', 'Not on Job Drivers', 'On-Time Percentage'
-                ],
-                'Value': [
-                    self.date_str,
-                    attendance_data['total_drivers'],
-                    attendance_data['total_drivers'] - attendance_data['late_count'] - attendance_data['missing_count'],
-                    attendance_data['late_count'],
-                    attendance_data['early_count'],
-                    attendance_data['missing_count'],
-                    f"{attendance_data['on_time_percent']}%"
+            # Create a workbook and remove default sheet
+            wb = openpyxl.Workbook()
+            default_sheet = wb.active
+            wb.remove(default_sheet)
+            
+            # Create summary sheet
+            summary_sheet = wb.create_sheet("Summary")
+            
+            # Add title
+            summary_sheet.merge_cells('A1:C1')
+            title_cell = summary_sheet['A1']
+            title_cell.value = f"Daily Driver Report - {self.date_str}"
+            title_cell.font = Font(size=14, bold=True)
+            title_cell.alignment = Alignment(horizontal='center')
+            
+            # Add summary data
+            summary_headers = ['Metric', 'Value']
+            summary_sheet.append(summary_headers)
+            
+            # Format headers
+            for col in range(1, 3):
+                cell = summary_sheet.cell(row=2, column=col)
+                cell.font = Font(bold=True)
+                cell.fill = PatternFill(start_color="DDDDDD", end_color="DDDDDD", fill_type="solid")
+                cell.border = Border(
+                    bottom=Side(style='thin'),
+                    top=Side(style='thin'),
+                    left=Side(style='thin'),
+                    right=Side(style='thin')
+                )
+            
+            # Add summary rows
+            summary_data = [
+                ['Date', self.date_str],
+                ['Total Drivers', attendance_data['total_drivers']],
+                ['On-Time Drivers', attendance_data['total_drivers'] - attendance_data['late_count'] - attendance_data['missing_count']],
+                ['Late Drivers', attendance_data['late_count']],
+                ['Early End Drivers', attendance_data['early_count']],
+                ['Not on Job Drivers', attendance_data['missing_count']],
+                ['On-Time Percentage', f"{attendance_data['on_time_percent']}%"]
+            ]
+            
+            # Add and format data rows
+            for row_idx, row_data in enumerate(summary_data, 3):
+                summary_sheet.append(row_data)
+                
+                # Format cells
+                for col in range(1, 3):
+                    cell = summary_sheet.cell(row=row_idx, column=col)
+                    cell.border = Border(
+                        bottom=Side(style='thin'),
+                        left=Side(style='thin'),
+                        right=Side(style='thin')
+                    )
+                    
+                    # Highlight important metrics
+                    if row_data[0] == 'On-Time Percentage':
+                        cell.font = Font(bold=True)
+                        if col == 2 and attendance_data['on_time_percent'] < 80:
+                            cell.fill = PatternFill(start_color="FFDDDD", end_color="FFDDDD", fill_type="solid")
+                        elif col == 2 and attendance_data['on_time_percent'] >= 90:
+                            cell.fill = PatternFill(start_color="DDFFDD", end_color="DDFFDD", fill_type="solid")
+            
+            # Set column widths for summary sheet
+            summary_sheet.column_dimensions['A'].width = 25
+            summary_sheet.column_dimensions['B'].width = 15
+            
+            # Create All Drivers sheet with complete formatting
+            if attendance_data['drivers']:
+                all_drivers_sheet = wb.create_sheet("All Drivers")
+                
+                # Add title
+                all_drivers_sheet.merge_cells('A1:H1')
+                title_cell = all_drivers_sheet['A1']
+                title_cell.value = f"All Drivers - {self.date_str}"
+                title_cell.font = Font(size=14, bold=True)
+                title_cell.alignment = Alignment(horizontal='center')
+                
+                # Get driver data
+                drivers_df = pd.DataFrame(attendance_data['drivers'])
+                
+                # Sort by name
+                if 'name' in drivers_df.columns:
+                    drivers_df = drivers_df.sort_values('name')
+                
+                # Rename columns for better readability
+                column_mapping = {
+                    'name': 'Driver Name',
+                    'employee_id': 'Employee ID',
+                    'asset_id': 'Vehicle ID',
+                    'job_number': 'Job Number',
+                    'job_name': 'Job Name',
+                    'status': 'Status',
+                    'expected_start': 'Expected Start',
+                    'actual_start': 'Actual Start',
+                    'start_exception': 'Minutes Late',
+                    'expected_end': 'Expected End',
+                    'actual_end': 'Actual End',
+                    'end_exception': 'Minutes Early',
+                    'source': 'Data Source'
+                }
+                drivers_df = drivers_df.rename(columns={k: v for k, v in column_mapping.items() if k in drivers_df.columns})
+                
+                # Define column order
+                preferred_columns = [
+                    'Employee ID', 'Driver Name', 'Vehicle ID', 'Job Number', 'Job Name',
+                    'Status', 'Expected Start', 'Actual Start', 'Minutes Late',
+                    'Expected End', 'Actual End', 'Minutes Early', 'Data Source'
                 ]
-            }
-            summary_df = pd.DataFrame(summary_data)
+                
+                # Reorder columns (include only those that exist)
+                existing_preferred_columns = [col for col in preferred_columns if col in drivers_df.columns]
+                other_columns = [col for col in drivers_df.columns if col not in preferred_columns]
+                drivers_df = drivers_df[existing_preferred_columns + other_columns]
+                
+                # Add headers row
+                headers = list(drivers_df.columns)
+                all_drivers_sheet.append(headers)
+                
+                # Format headers
+                for col, _ in enumerate(headers, 1):
+                    cell = all_drivers_sheet.cell(row=2, column=col)
+                    cell.font = Font(bold=True)
+                    cell.fill = PatternFill(start_color="DDDDDD", end_color="DDDDDD", fill_type="solid")
+                    cell.border = Border(
+                        bottom=Side(style='thin'),
+                        top=Side(style='thin'),
+                        left=Side(style='thin'),
+                        right=Side(style='thin')
+                    )
+                    cell.alignment = Alignment(horizontal='center')
+                
+                # Add data rows
+                for row_idx, row_data in enumerate(dataframe_to_rows(drivers_df, index=False, header=False), 3):
+                    formatted_row = [
+                        str(val) if val is not None and not pd.isna(val) else '' 
+                        for val in row_data
+                    ]
+                    all_drivers_sheet.append(formatted_row)
+                    
+                    # Format data cells and add status colors
+                    status_idx = None
+                    if 'Status' in drivers_df.columns:
+                        status_idx = list(drivers_df.columns).index('Status')
+                    
+                    for col_idx, _ in enumerate(headers, 1):
+                        cell = all_drivers_sheet.cell(row=row_idx, column=col_idx)
+                        cell.border = Border(
+                            bottom=Side(style='thin'),
+                            left=Side(style='thin'),
+                            right=Side(style='thin')
+                        )
+                        
+                        # Add status colors
+                        if status_idx is not None and col_idx - 1 == status_idx:
+                            status = cell.value.lower() if cell.value else ''
+                            if 'late' in status:
+                                cell.fill = PatternFill(start_color="FFEEEE", end_color="FFEEEE", fill_type="solid")
+                            elif 'early' in status:
+                                cell.fill = PatternFill(start_color="FFFFEE", end_color="FFFFEE", fill_type="solid")
+                            elif 'not on job' in status:
+                                cell.fill = PatternFill(start_color="FFDDDD", end_color="FFDDDD", fill_type="solid")
+                            elif 'on time' in status or 'ontime' in status:
+                                cell.fill = PatternFill(start_color="EEFFEE", end_color="EEFFEE", fill_type="solid")
+                
+                # Auto-size columns for better readability
+                for col, _ in enumerate(headers, 1):
+                    column_letter = openpyxl.utils.get_column_letter(col)
+                    max_length = 0
+                    for row in range(2, all_drivers_sheet.max_row + 1):
+                        cell = all_drivers_sheet.cell(row=row, column=col)
+                        if cell.value:
+                            max_length = max(max_length, len(str(cell.value)))
+                    adjusted_width = max(max_length + 2, 12)  # Minimum 12 characters wide
+                    all_drivers_sheet.column_dimensions[column_letter].width = adjusted_width
             
-            # Write to Excel
-            with pd.ExcelWriter(report_path) as writer:
-                summary_df.to_excel(writer, sheet_name='Summary', index=False)
-                drivers_df.to_excel(writer, sheet_name='All Drivers', index=False)
-                late_df.to_excel(writer, sheet_name='Late Drivers', index=False)
-                early_df.to_excel(writer, sheet_name='Early End', index=False)
+            # Create Late Drivers sheet
+            if attendance_data['late_start_records']:
+                late_df = pd.DataFrame(attendance_data['late_start_records'])
+                late_sheet = wb.create_sheet("Late Drivers")
+                
+                # Add title
+                late_sheet.merge_cells('A1:H1')
+                title_cell = late_sheet['A1']
+                title_cell.value = f"Late Start Drivers - {self.date_str}"
+                title_cell.font = Font(size=14, bold=True)
+                title_cell.alignment = Alignment(horizontal='center')
+                
+                # Rename columns
+                column_mapping = {
+                    'name': 'Driver Name',
+                    'employee_id': 'Employee ID',
+                    'expected_start': 'Expected Start',
+                    'actual_start': 'Actual Start',
+                    'minutes_late': 'Minutes Late',
+                    'asset_id': 'Vehicle ID',
+                    'job_number': 'Job Number'
+                }
+                late_df = late_df.rename(columns={k: v for k, v in column_mapping.items() if k in late_df.columns})
+                
+                # Sort by minutes late (descending)
+                if 'Minutes Late' in late_df.columns:
+                    late_df = late_df.sort_values('Minutes Late', ascending=False)
+                
+                # Add headers
+                headers = list(late_df.columns)
+                late_sheet.append(headers)
+                
+                # Format headers
+                for col, _ in enumerate(headers, 1):
+                    cell = late_sheet.cell(row=2, column=col)
+                    cell.font = Font(bold=True)
+                    cell.fill = PatternFill(start_color="FFDDDD", end_color="FFDDDD", fill_type="solid")
+                    cell.border = Border(
+                        bottom=Side(style='thin'),
+                        top=Side(style='thin'),
+                        left=Side(style='thin'),
+                        right=Side(style='thin')
+                    )
+                    cell.alignment = Alignment(horizontal='center')
+                
+                # Add and format data
+                for row_idx, row_data in enumerate(dataframe_to_rows(late_df, index=False, header=False), 3):
+                    formatted_row = [
+                        str(val) if val is not None and not pd.isna(val) else '' 
+                        for val in row_data
+                    ]
+                    late_sheet.append(formatted_row)
+                    
+                    # Format all cells with borders
+                    for col_idx, _ in enumerate(headers, 1):
+                        cell = late_sheet.cell(row=row_idx, column=col_idx)
+                        cell.border = Border(
+                            bottom=Side(style='thin'),
+                            left=Side(style='thin'),
+                            right=Side(style='thin')
+                        )
+                
+                # Auto-size columns
+                for col, _ in enumerate(headers, 1):
+                    column_letter = openpyxl.utils.get_column_letter(col)
+                    max_length = 0
+                    for row in range(2, late_sheet.max_row + 1):
+                        cell = late_sheet.cell(row=row, column=col)
+                        if cell.value:
+                            max_length = max(max_length, len(str(cell.value)))
+                    adjusted_width = max(max_length + 2, 12)
+                    late_sheet.column_dimensions[column_letter].width = adjusted_width
+            
+            # Create Early End sheet
+            if attendance_data['early_end_records']:
+                early_df = pd.DataFrame(attendance_data['early_end_records'])
+                early_sheet = wb.create_sheet("Early End")
+                
+                # Add title
+                early_sheet.merge_cells('A1:H1')
+                title_cell = early_sheet['A1']
+                title_cell.value = f"Early End Drivers - {self.date_str}"
+                title_cell.font = Font(size=14, bold=True)
+                title_cell.alignment = Alignment(horizontal='center')
+                
+                # Rename columns
+                column_mapping = {
+                    'name': 'Driver Name',
+                    'employee_id': 'Employee ID',
+                    'expected_end': 'Expected End',
+                    'actual_end': 'Actual End',
+                    'minutes_early': 'Minutes Early',
+                    'asset_id': 'Vehicle ID',
+                    'job_number': 'Job Number'
+                }
+                early_df = early_df.rename(columns={k: v for k, v in column_mapping.items() if k in early_df.columns})
+                
+                # Sort by minutes early (descending)
+                if 'Minutes Early' in early_df.columns:
+                    early_df = early_df.sort_values('Minutes Early', ascending=False)
+                
+                # Add headers
+                headers = list(early_df.columns)
+                early_sheet.append(headers)
+                
+                # Format headers
+                for col, _ in enumerate(headers, 1):
+                    cell = early_sheet.cell(row=2, column=col)
+                    cell.font = Font(bold=True)
+                    cell.fill = PatternFill(start_color="FFFFEE", end_color="FFFFEE", fill_type="solid")
+                    cell.border = Border(
+                        bottom=Side(style='thin'),
+                        top=Side(style='thin'),
+                        left=Side(style='thin'),
+                        right=Side(style='thin')
+                    )
+                    cell.alignment = Alignment(horizontal='center')
+                
+                # Add and format data
+                for row_idx, row_data in enumerate(dataframe_to_rows(early_df, index=False, header=False), 3):
+                    formatted_row = [
+                        str(val) if val is not None and not pd.isna(val) else '' 
+                        for val in row_data
+                    ]
+                    early_sheet.append(formatted_row)
+                    
+                    # Format all cells with borders
+                    for col_idx, _ in enumerate(headers, 1):
+                        cell = early_sheet.cell(row=row_idx, column=col_idx)
+                        cell.border = Border(
+                            bottom=Side(style='thin'),
+                            left=Side(style='thin'),
+                            right=Side(style='thin')
+                        )
+                
+                # Auto-size columns
+                for col, _ in enumerate(headers, 1):
+                    column_letter = openpyxl.utils.get_column_letter(col)
+                    max_length = 0
+                    for row in range(2, early_sheet.max_row + 1):
+                        cell = early_sheet.cell(row=row, column=col)
+                        if cell.value:
+                            max_length = max(max_length, len(str(cell.value)))
+                    adjusted_width = max(max_length + 2, 12)
+                    early_sheet.column_dimensions[column_letter].width = adjusted_width
+            
+            # Save workbook
+            wb.save(str(report_path))
             
             # Copy to standardized name
             import shutil

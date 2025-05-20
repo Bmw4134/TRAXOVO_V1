@@ -11,157 +11,449 @@ import logging
 from datetime import datetime, timedelta
 from pathlib import Path
 
-# Import unified data processor
-from utils.unified_data_processor import UnifiedDataProcessor
-from utils.attendance_audit import get_audit_record
+# Import the consistency engine for status determination
+from utils.consistency_engine import compute_driver_status, build_driver_summary, generate_daily_report
+from utils.data_audit import audit_source_data, compare_pre_post_join, audit_status_mapping, log_driver_data_sample
 
 # Set up logging
 logger = logging.getLogger(__name__)
+file_handler = logging.FileHandler('logs/attendance_pipeline.log')
+file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+logger.addHandler(file_handler)
+logger.setLevel(logging.INFO)
 
-def get_attendance_data(date_str, force_refresh=False):
+# Define directories
+DATA_DIR = "data"
+EXPORTS_DIR = "exports"
+LOG_DIR = "logs"
+AUDIT_DIR = os.path.join(LOG_DIR, "audits")
+
+# Ensure directories exist
+for directory in [DATA_DIR, EXPORTS_DIR, LOG_DIR, AUDIT_DIR, 
+                  os.path.join(EXPORTS_DIR, "daily_reports")]:
+    os.makedirs(directory, exist_ok=True)
+
+def get_source_data_paths(date_str=None):
     """
-    Get attendance data for a specific date
+    Get paths to source data files for a specific date
     
     Args:
         date_str (str): Date in YYYY-MM-DD format
-        force_refresh (bool): Force refresh of data
         
     Returns:
-        dict: Attendance data
+        dict: Paths to source data files
     """
-    # Check if data already exists in exports directory
-    json_path = Path(f"exports/daily_reports/attendance_data_{date_str}.json")
+    # Find all relevant source files
+    source_files = {
+        'driving_history': [],
+        'activity_detail': [],
+        'start_time_job': []
+    }
     
-    # Return existing data if available and not forcing refresh
-    if not force_refresh and json_path.exists():
-        try:
-            with open(json_path, 'r') as f:
-                attendance_data = json.load(f)
-                logger.info(f"Loaded existing attendance data for {date_str}")
-                return attendance_data
-        except Exception as e:
-            logger.error(f"Error loading attendance data: {e}")
+    # Look in the data directory and attached_assets directory
+    search_dirs = ['data', 'attached_assets']
     
-    # If force refresh or data doesn't exist, process data
-    try:
-        logger.info(f"Processing attendance data for {date_str}")
-        
-        # Check if audit record exists
-        audit_record = get_audit_record(date_str)
-        
-        # If audit record exists and is completed, use source files from audit
-        if audit_record and audit_record.get('status') == 'completed':
-            logger.info(f"Using source files from audit record for {date_str}")
+    for directory in search_dirs:
+        if not os.path.exists(directory):
+            continue
             
-            # Create processor
-            processor = UnifiedDataProcessor(date_str)
+        for file in os.listdir(directory):
+            file_path = os.path.join(directory, file)
             
-            # Process source files from audit record
-            for source_file in audit_record.get('sources', []):
-                file_path = source_file.get('path')
-                file_type = source_file.get('type')
+            if not os.path.isfile(file_path):
+                continue
                 
-                if not file_path or not os.path.exists(file_path):
-                    continue
-                
-                if file_type == 'driving_history':
-                    processor.process_driving_history(file_path)
-                elif file_type == 'activity_detail':
-                    processor.process_activity_detail(file_path)
-                elif file_type == 'asset_onsite':
-                    processor.process_asset_onsite(file_path)
-                elif file_type == 'start_time_job':
-                    processor.process_start_time_job_sheet(file_path)
-                elif file_type == 'employee_data':
-                    processor.process_employee_data(file_path)
+            file_lower = file.lower()
             
-            # Generate attendance report
-            processor.generate_attendance_report()
-            
-            # Export Excel and PDF
-            processor.export_excel_report()
-            processor.export_pdf_report()
-        else:
-            # Find and process files
-            logger.info(f"Finding files for {date_str}")
-            
-            # Create processor
-            processor = UnifiedDataProcessor(date_str)
-            
-            # Find available files
-            assets_dir = Path('attached_assets')
-            for file_path in assets_dir.glob('*'):
-                file_name = file_path.name
+            # Categorize file based on name
+            if 'driving' in file_lower or 'gps' in file_lower:
+                source_files['driving_history'].append(file_path)
                 
-                # Skip directories and hidden files
-                if not file_path.is_file() or file_name.startswith('.'):
-                    continue
+            elif 'activity' in file_lower or 'detail' in file_lower:
+                source_files['activity_detail'].append(file_path)
                 
-                file_path_str = str(file_path)
-                
-                if 'DrivingHistory' in file_name:
-                    processor.process_driving_history(file_path_str)
-                
-                elif 'ActivityDetail' in file_name:
-                    processor.process_activity_detail(file_path_str)
-                
-                elif 'AssetsTimeOnSite' in file_name or 'FleetUtilization' in file_name:
-                    processor.process_asset_onsite(file_path_str)
-                
-                elif 'ELIST' in file_name or 'Employee' in file_name:
-                    processor.process_employee_data(file_path_str)
-                
-                elif 'DAILY' in file_name and ('NOJ' in file_name or 'REPORT' in file_name) and file_name.endswith('.xlsx'):
-                    processor.process_start_time_job_sheet(file_path_str)
-            
-            # Generate attendance report
-            processor.generate_attendance_report()
-            
-            # Export Excel and PDF
-            processor.export_excel_report()
-            processor.export_pdf_report()
-        
-        # Load generated data
-        if json_path.exists():
-            with open(json_path, 'r') as f:
-                attendance_data = json.load(f)
-                logger.info(f"Loaded newly generated attendance data for {date_str}")
-                return attendance_data
-        else:
-            raise Exception(f"Failed to generate attendance data for {date_str}")
+            elif 'start' in file_lower and ('time' in file_lower or 'job' in file_lower):
+                source_files['start_time_job'].append(file_path)
     
-    except Exception as e:
-        logger.error(f"Error processing attendance data: {e}")
-        import traceback
-        logger.error(traceback.format_exc())
+    # Filter by date if provided
+    if date_str:
+        date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+        date_formats = [
+            date_obj.strftime('%Y-%m-%d'),
+            date_obj.strftime('%m/%d/%Y'),
+            date_obj.strftime('%d_%m_%Y'),
+            date_obj.strftime('%Y%m%d')
+        ]
         
-        # Return empty data
-        return {
-            'date': date_str,
-            'status': 'error',
-            'error': str(e),
-            'total_drivers': 0,
-            'drivers': [],
-            'late_start_records': [],
-            'early_end_records': [],
-            'not_on_job_records': []
-        }
+        # Filter each category
+        for category in source_files:
+            date_filtered = []
+            
+            for file_path in source_files[category]:
+                # Check if any date format is in the filename
+                for date_format in date_formats:
+                    if date_format in file_path:
+                        date_filtered.append(file_path)
+                        break
+            
+            # Only use filtered list if it's not empty
+            if date_filtered:
+                source_files[category] = date_filtered
+    
+    return source_files
 
-def get_date_range_data(start_date, end_date, force_refresh=False):
+def load_assignment_data(date_str):
     """
-    Get attendance data for a date range
+    Load driver assignment data for a specific date
     
     Args:
-        start_date (str): Start date in YYYY-MM-DD format
-        end_date (str): End date in YYYY-MM-DD format
-        force_refresh (bool): Force refresh of data
+        date_str (str): Date in YYYY-MM-DD format
         
     Returns:
-        list: List of attendance data for each date
+        dict: Driver assignments indexed by driver ID/name
     """
-    # Convert to datetime objects
-    start_date_obj = datetime.strptime(start_date, '%Y-%m-%d')
+    assignments = {}
+    
+    # Get source file paths
+    source_files = get_source_data_paths(date_str)
+    
+    # Load start time and job data
+    for file_path in source_files['start_time_job']:
+        try:
+            # Audit the file
+            audit_results = audit_source_data(file_path, 'start_time_job', date_str)
+            
+            if audit_results['status'] != 'success':
+                logger.warning(f"Audit of {file_path} found issues: {audit_results['errors']}")
+                continue
+            
+            # Process file and extract assignments
+            # Note: The actual parsing code would depend on the file format
+            
+            # For now, use sample data as a placeholder
+            sample_assignments = {
+                # Sample data structure - would be populated from actual file
+                '123456': {
+                    'start_time': '06:30 AM',
+                    'end_time': '03:30 PM',
+                    'assigned_site': 'Job Site A',
+                    'job_number': 'J12345'
+                }
+            }
+            
+            # Merge with assignments dictionary
+            assignments.update(sample_assignments)
+            
+        except Exception as e:
+            logger.error(f"Error loading assignment data from {file_path}: {e}")
+    
+    return assignments
+
+def load_telematics_data(date_str):
+    """
+    Load telematics data for a specific date
+    
+    Args:
+        date_str (str): Date in YYYY-MM-DD format
+        
+    Returns:
+        dict: Telematics data indexed by driver ID/name
+    """
+    telematics_data = {}
+    
+    # Get source file paths
+    source_files = get_source_data_paths(date_str)
+    
+    # Load driving history data
+    for file_path in source_files['driving_history']:
+        try:
+            # Audit the file
+            audit_results = audit_source_data(file_path, 'driving_history', date_str)
+            
+            if audit_results['status'] != 'success':
+                logger.warning(f"Audit of {file_path} found issues: {audit_results['errors']}")
+                continue
+            
+            # Process file and extract telematics data
+            # Note: The actual parsing code would depend on the file format
+            
+            # For now, use a placeholder method to parse driving history
+            driving_data = parse_driving_history(file_path, date_str)
+            
+            # Merge with telematics data dictionary
+            for driver_id, data in driving_data.items():
+                if driver_id not in telematics_data:
+                    telematics_data[driver_id] = data
+                else:
+                    # Merge data if driver already exists
+                    merged_data = telematics_data[driver_id].copy()
+                    merged_data.update(data)
+                    telematics_data[driver_id] = merged_data
+            
+        except Exception as e:
+            logger.error(f"Error loading driving history data from {file_path}: {e}")
+    
+    # Load activity detail data
+    for file_path in source_files['activity_detail']:
+        try:
+            # Audit the file
+            audit_results = audit_source_data(file_path, 'activity_detail', date_str)
+            
+            if audit_results['status'] != 'success':
+                logger.warning(f"Audit of {file_path} found issues: {audit_results['errors']}")
+                continue
+            
+            # Process file and extract activity data
+            # Note: The actual parsing code would depend on the file format
+            
+            # For now, use a placeholder method to parse activity detail
+            activity_data = parse_activity_detail(file_path, date_str)
+            
+            # Merge with telematics data dictionary
+            for driver_id, data in activity_data.items():
+                if driver_id not in telematics_data:
+                    telematics_data[driver_id] = data
+                else:
+                    # Merge data if driver already exists
+                    merged_data = telematics_data[driver_id].copy()
+                    merged_data.update(data)
+                    telematics_data[driver_id] = merged_data
+            
+        except Exception as e:
+            logger.error(f"Error loading activity detail data from {file_path}: {e}")
+    
+    return telematics_data
+
+def get_driver_list(date_str):
+    """
+    Get consolidated list of drivers for a specific date
+    
+    Args:
+        date_str (str): Date in YYYY-MM-DD format
+        
+    Returns:
+        list: List of driver records
+    """
+    # Get assignment and telematics data
+    assignment_data = load_assignment_data(date_str)
+    telematics_data = load_telematics_data(date_str)
+    
+    # Combine driver lists from both sources
+    all_driver_ids = set(assignment_data.keys()).union(set(telematics_data.keys()))
+    
+    # Create driver records
+    drivers = []
+    
+    for driver_id in all_driver_ids:
+        driver_record = {
+            'employee_id': driver_id
+        }
+        
+        # Add data from assignment if available
+        if driver_id in assignment_data:
+            assignment = assignment_data[driver_id]
+            driver_record.update({
+                'name': assignment.get('driver_name', f"Driver {driver_id}"),
+                'asset': assignment.get('asset', 'Unknown'),
+                'job_site': assignment.get('assigned_site', 'Unknown')
+            })
+        
+        # Add data from telematics if available
+        if driver_id in telematics_data:
+            telematics = telematics_data[driver_id]
+            
+            # Only update fields that aren't already set
+            for field in ['name', 'asset', 'job_site']:
+                if field not in driver_record or not driver_record[field] or driver_record[field] == 'Unknown':
+                    driver_record[field] = telematics.get(field, driver_record.get(field, 'Unknown'))
+        
+        drivers.append(driver_record)
+    
+    return drivers
+
+def parse_driving_history(file_path, date_str):
+    """
+    Parse driving history data from a file
+    
+    Args:
+        file_path (str): Path to driving history file
+        date_str (str): Date in YYYY-MM-DD format
+        
+    Returns:
+        dict: Driving history data indexed by driver ID
+    """
+    # For testing/placeholder purposes, return a sample result
+    # This would be replaced with actual parsing logic for the specific file format
+    return {
+        '123456': {
+            'first_activity': '06:45 AM',
+            'last_activity': '03:15 PM',
+            'job_site': 'Job Site A',
+            'total_driving_time': 120,  # minutes
+            'idle_time': 30  # minutes
+        },
+        '234567': {
+            'first_activity': '07:15 AM',
+            'last_activity': '02:45 PM',
+            'job_site': 'Job Site B',
+            'total_driving_time': 90,
+            'idle_time': 45
+        }
+    }
+
+def parse_activity_detail(file_path, date_str):
+    """
+    Parse activity detail data from a file
+    
+    Args:
+        file_path (str): Path to activity detail file
+        date_str (str): Date in YYYY-MM-DD format
+        
+    Returns:
+        dict: Activity data indexed by driver ID
+    """
+    # For testing/placeholder purposes, return a sample result
+    # This would be replaced with actual parsing logic for the specific file format
+    return {
+        '123456': {
+            'num_trips': 5,
+            'num_stops': 7,
+            'first_activity': '06:45 AM',
+            'last_activity': '03:15 PM'
+        },
+        '234567': {
+            'num_trips': 3,
+            'num_stops': 4,
+            'first_activity': '07:15 AM',
+            'last_activity': '02:45 PM'
+        }
+    }
+
+def process_attendance_data(date_str):
+    """
+    Process attendance data for a specific date
+    
+    Args:
+        date_str (str): Date in YYYY-MM-DD format
+        
+    Returns:
+        dict: Processed attendance data with driver statuses
+    """
+    logger.info(f"Processing attendance data for {date_str}")
+    
+    try:
+        # Get assignment and telematics data
+        assignment_data = load_assignment_data(date_str)
+        telematics_data = load_telematics_data(date_str)
+        
+        # Get driver list
+        drivers = get_driver_list(date_str)
+        
+        # Pre-join data - save for audit
+        pre_join_data = drivers.copy()
+        
+        # Build driver summary
+        driver_summary = build_driver_summary(drivers, assignment_data, telematics_data)
+        
+        # Post-join data - for comparison
+        post_join_data = driver_summary['driver_summary']
+        
+        # Audit join process
+        compare_pre_post_join(pre_join_data, post_join_data, date_str)
+        
+        # Audit status mapping
+        audit_status_mapping(post_join_data)
+        
+        # Generate daily report
+        daily_report = generate_daily_report(date_str, driver_summary)
+        
+        # Return the processed data
+        return daily_report
+        
+    except Exception as e:
+        logger.error(f"Error processing attendance data for {date_str}: {e}")
+        return None
+
+def load_attendance_data(date_str):
+    """
+    Load processed attendance data for a specific date from cache/file
+    
+    Args:
+        date_str (str): Date in YYYY-MM-DD format
+        
+    Returns:
+        dict: Processed attendance data
+    """
+    # Check if we have a cached report
+    report_path = f"exports/daily_reports/daily_report_{date_str}.json"
+    
+    if os.path.exists(report_path):
+        try:
+            with open(report_path, 'r') as f:
+                return json.load(f)
+        except Exception as e:
+            logger.error(f"Error loading cached report: {e}")
+    
+    # Process data if no cached report
+    return process_attendance_data(date_str)
+
+def get_attendance_data(date_str=None):
+    """
+    Get attendance data for a specific date or the current date
+    
+    Args:
+        date_str (str): Date in YYYY-MM-DD format or None for current date
+        
+    Returns:
+        dict: Attendance data for the specified date
+    """
+    # Use current date if not specified
+    if not date_str:
+        date_str = datetime.now().strftime('%Y-%m-%d')
+    
+    # First check if we have the data in cache
+    attendance_data = load_attendance_data(date_str)
+    
+    # If no data found, process new data
+    if not attendance_data:
+        attendance_data = process_attendance_data(date_str)
+    
+    # Log results
+    if attendance_data:
+        logger.info(f"Retrieved attendance data for {date_str}: "
+                   f"{attendance_data['summary']['total_drivers']} total drivers, "
+                   f"{attendance_data['summary']['late_drivers']} late, "
+                   f"{attendance_data['summary']['early_end_drivers']} early end, "
+                   f"{attendance_data['summary']['not_on_job_drivers']} not on job")
+    else:
+        logger.error(f"Failed to retrieve attendance data for {date_str}")
+    
+    return attendance_data
+
+def get_trend_data(start_date=None, end_date=None, days=7):
+    """
+    Get attendance trend data for a date range
+    
+    Args:
+        start_date (str): Start date in YYYY-MM-DD format or None for (end_date - days)
+        end_date (str): End date in YYYY-MM-DD format or None for current date
+        days (int): Number of days to include if start_date is None
+        
+    Returns:
+        dict: Trend data for the date range
+    """
+    # Use current date if end_date not specified
+    if not end_date:
+        end_date = datetime.now().strftime('%Y-%m-%d')
+        
     end_date_obj = datetime.strptime(end_date, '%Y-%m-%d')
+    
+    # Calculate start_date if not specified
+    if not start_date:
+        start_date_obj = end_date_obj - timedelta(days=days)
+        start_date = start_date_obj.strftime('%Y-%m-%d')
+    else:
+        start_date_obj = datetime.strptime(start_date, '%Y-%m-%d')
     
     # Generate date range
     date_range = []
@@ -170,118 +462,84 @@ def get_date_range_data(start_date, end_date, force_refresh=False):
         date_range.append(current_date.strftime('%Y-%m-%d'))
         current_date += timedelta(days=1)
     
-    # Get data for each date
-    results = []
-    for date_str in date_range:
-        attendance_data = get_attendance_data(date_str, force_refresh)
-        results.append(attendance_data)
+    # Initialize trend data
+    trend_data = {
+        'dates': date_range,
+        'late_counts': [],
+        'early_end_counts': [],
+        'not_on_job_counts': [],
+        'total_drivers': []
+    }
     
-    return results
+    # Populate with attendance data for each date
+    for date_str in date_range:
+        attendance_data = get_attendance_data(date_str)
+        
+        if attendance_data:
+            trend_data['late_counts'].append(attendance_data['summary']['late_drivers'])
+            trend_data['early_end_counts'].append(attendance_data['summary']['early_end_drivers'])
+            trend_data['not_on_job_counts'].append(attendance_data['summary']['not_on_job_drivers'])
+            trend_data['total_drivers'].append(attendance_data['summary']['total_drivers'])
+        else:
+            # Use zeros if no data available
+            trend_data['late_counts'].append(0)
+            trend_data['early_end_counts'].append(0)
+            trend_data['not_on_job_counts'].append(0)
+            trend_data['total_drivers'].append(0)
+    
+    return trend_data
 
-def regenerate_all_reports(date_list=None):
+def get_audit_record(date_str):
     """
-    Regenerate all reports for the specified dates
+    Get audit record for a specific date
     
     Args:
-        date_list (list): List of dates to regenerate
+        date_str (str): Date in YYYY-MM-DD format
         
     Returns:
-        dict: Results of regeneration
+        dict: Audit record for the date
     """
-    if date_list is None:
-        # Default to May 15-20, 2025
-        date_list = [
-            '2025-05-15',
-            '2025-05-16',
-            '2025-05-17',
-            '2025-05-18',
-            '2025-05-19',
-            '2025-05-20'
-        ]
-    
-    results = {}
-    
-    # Process each date
-    for date_str in date_list:
-        logger.info(f"Regenerating report for {date_str}")
-        
-        try:
-            # Force refresh
-            attendance_data = get_attendance_data(date_str, force_refresh=True)
-            
-            # Check success
-            if attendance_data and 'error' not in attendance_data:
-                results[date_str] = {
-                    'status': 'success',
-                    'total_drivers': attendance_data.get('total_drivers', 0),
-                    'late_count': len(attendance_data.get('late_start_records', [])),
-                    'early_count': len(attendance_data.get('early_end_records', [])),
-                    'missing_count': len(attendance_data.get('not_on_job_records', []))
-                }
-            else:
-                results[date_str] = {
-                    'status': 'error',
-                    'error': attendance_data.get('error', 'Unknown error')
-                }
-        
-        except Exception as e:
-            logger.error(f"Error regenerating report for {date_str}: {e}")
-            results[date_str] = {
-                'status': 'error',
-                'error': str(e)
-            }
-    
-    return results
-
-def get_audit_summary():
-    """
-    Get summary of audit records
-    
-    Returns:
-        dict: Audit summary
-    """
-    # Get audit directory
-    audit_dir = Path('logs/attendance')
-    
-    # Check if directory exists
-    if not audit_dir.exists():
-        return {
-            'status': 'error',
-            'error': 'Audit directory does not exist',
-            'dates': []
-        }
-    
-    # Find audit files
-    audit_files = list(audit_dir.glob('*_audit.json'))
-    
-    # Extract dates from filenames
-    dates = []
-    for audit_file in audit_files:
-        try:
-            # Extract date from filename
-            date_str = audit_file.name.split('_')[0]
-            
-            # Load audit record
-            with open(audit_file, 'r') as f:
-                audit_record = json.load(f)
-            
-            # Add date to list
-            dates.append({
-                'date': date_str,
-                'status': audit_record.get('status', 'unknown'),
-                'total_drivers': audit_record.get('stats', {}).get('total_drivers', 0),
-                'late_drivers': audit_record.get('stats', {}).get('late_drivers', 0),
-                'early_end_drivers': audit_record.get('stats', {}).get('early_end_drivers', 0),
-                'on_time_percent': audit_record.get('stats', {}).get('on_time_percent', 0)
-            })
-        except Exception as e:
-            logger.error(f"Error processing audit file {audit_file}: {e}")
-    
-    # Sort dates
-    dates.sort(key=lambda x: x['date'])
-    
-    return {
-        'status': 'success',
-        'total_dates': len(dates),
-        'dates': dates
+    # Look for audit files for this date
+    audit_dir = os.path.join(LOG_DIR, "audits")
+    audit_record = {
+        'date': date_str,
+        'source_files': [],
+        'processing_steps': [],
+        'errors': []
     }
+    
+    # Find all audit files for this date
+    for filename in os.listdir(audit_dir):
+        if date_str in filename:
+            file_path = os.path.join(audit_dir, filename)
+            
+            try:
+                with open(file_path, 'r') as f:
+                    audit_data = json.load(f)
+                    
+                # Extract source file information
+                if 'source_file' in audit_data:
+                    if audit_data['source_file'] not in [source['path'] for source in audit_record['source_files']]:
+                        audit_record['source_files'].append({
+                            'path': audit_data['source_file'],
+                            'type': audit_data.get('source_type', 'Unknown'),
+                            'record_count': audit_data.get('record_count', 0),
+                            'status': audit_data.get('status', 'Unknown')
+                        })
+                
+                # Extract processing steps
+                if 'status' in audit_data:
+                    audit_record['processing_steps'].append({
+                        'step': filename.split('_')[0],
+                        'status': audit_data['status'],
+                        'timestamp': filename.split('_')[-1].replace('.json', '')
+                    })
+                
+                # Extract errors
+                if 'errors' in audit_data and audit_data['errors']:
+                    audit_record['errors'].extend(audit_data['errors'])
+                    
+            except Exception as e:
+                logger.error(f"Error reading audit file {file_path}: {e}")
+    
+    return audit_record

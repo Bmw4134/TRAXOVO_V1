@@ -1,0 +1,269 @@
+{
+  "date": "2025-05-13",
+  "status": "processing",
+  "last_updated": "2025-05-20 23:49:02",
+  "sources": [
+    {
+      "path": "attached_assets/FleetUtilization.xlsx",
+      "type": "asset_onsite",
+      "added": "2025-05-20 23:49:02",
+      "size": 52630
+    },
+    {
+      "path": "attached_assets/ActivityDetail (6).csv",
+      "type": "activity_detail",
+      "added": "2025-05-20 23:49:02",
+      "size": 47118064
+    },
+    {
+      "path": "attached_assets/ActivityDetail.csv",
+      "type": "activity_detail",
+      "added": "2025-05-20 23:49:02",
+      "size": 47118064
+    },
+    {
+      "path": "attached_assets/AssetsTimeOnSite (3).csv",
+      "type": "asset_onsite",
+      "added": "2025-05-20 23:49:02",
+      "size": 3146050
+    },
+    {
+      "path": "attached_assets/FleetUtilization (1).xlsx",
+      "type": "asset_onsite",
+      "added": "2025-05-20 23:49:02",
+      "size": 140105
+    },
+    {
+      "path": "attached_assets/ActivityDetail (7).csv",
+      "type": "activity_detail",
+      "added": "2025-05-20 23:49:02",
+      "size": 2158835
+    },
+    {
+      "path": "attached_assets/ActivityDetail (2).xlsx",
+      "type": "activity_detail",
+      "added": "2025-05-20 23:49:02",
+      "size": 5421921
+    },
+    {
+      "path": "attached_assets/AssetsTimeOnSite (4).csv",
+      "type": "asset_onsite",
+      "added": "2025-05-20 23:48:32",
+      "size": 6446684
+    },
+    {
+      "path": "attached_assets/DrivingHistory.csv",
+      "type": "driving_history",
+      "added": "2025-05-20 23:48:32",
+      "size": 10630939
+    }
+  ],
+  "stats": {
+    "total_drivers": 0,
+    "matched_drivers": 0,
+    "unmatched_drivers": 0,
+    "late_drivers": 0,
+    "early_end_drivers": 0,
+    "not_on_job_drivers": 0,
+    "assets_count": 0,
+    "asset_onsite_records": 2,
+    "activity_detail_records": 6
+  },
+  "errors": [
+    {
+      "message": "Could not read file with any encoding",
+      "source": "activity_detail:attached_assets/ActivityDetail (6).csv",
+      "timestamp": "2025-05-20 23:40:57"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "activity_detail:attached_assets/ActivityDetail.csv",
+      "timestamp": "2025-05-20 23:40:57"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "asset_onsite:attached_assets/AssetsTimeOnSite (3).csv",
+      "timestamp": "2025-05-20 23:40:57"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "activity_detail:attached_assets/ActivityDetail (7).csv",
+      "timestamp": "2025-05-20 23:40:57"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "asset_onsite:attached_assets/AssetsTimeOnSite (4).csv",
+      "timestamp": "2025-05-20 23:41:00"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "activity_detail:attached_assets/ActivityDetail (6).csv",
+      "timestamp": "2025-05-20 23:42:58"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "activity_detail:attached_assets/ActivityDetail.csv",
+      "timestamp": "2025-05-20 23:42:58"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "asset_onsite:attached_assets/AssetsTimeOnSite (3).csv",
+      "timestamp": "2025-05-20 23:42:58"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "activity_detail:attached_assets/ActivityDetail (7).csv",
+      "timestamp": "2025-05-20 23:42:58"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "asset_onsite:attached_assets/AssetsTimeOnSite (4).csv",
+      "timestamp": "2025-05-20 23:43:01"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "activity_detail:attached_assets/ActivityDetail (6).csv",
+      "timestamp": "2025-05-20 23:43:33"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "activity_detail:attached_assets/ActivityDetail.csv",
+      "timestamp": "2025-05-20 23:43:33"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "asset_onsite:attached_assets/AssetsTimeOnSite (3).csv",
+      "timestamp": "2025-05-20 23:43:33"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "activity_detail:attached_assets/ActivityDetail (7).csv",
+      "timestamp": "2025-05-20 23:43:33"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "asset_onsite:attached_assets/AssetsTimeOnSite (4).csv",
+      "timestamp": "2025-05-20 23:43:36"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "activity_detail:attached_assets/ActivityDetail (6).csv",
+      "timestamp": "2025-05-20 23:46:46"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "activity_detail:attached_assets/ActivityDetail.csv",
+      "timestamp": "2025-05-20 23:46:46"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "asset_onsite:attached_assets/AssetsTimeOnSite (3).csv",
+      "timestamp": "2025-05-20 23:46:46"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "activity_detail:attached_assets/ActivityDetail (7).csv",
+      "timestamp": "2025-05-20 23:46:47"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "asset_onsite:attached_assets/AssetsTimeOnSite (4).csv",
+      "timestamp": "2025-05-20 23:46:50"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "activity_detail:attached_assets/ActivityDetail (6).csv",
+      "timestamp": "2025-05-20 23:47:22"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "activity_detail:attached_assets/ActivityDetail.csv",
+      "timestamp": "2025-05-20 23:47:22"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "asset_onsite:attached_assets/AssetsTimeOnSite (3).csv",
+      "timestamp": "2025-05-20 23:47:22"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "activity_detail:attached_assets/ActivityDetail (7).csv",
+      "timestamp": "2025-05-20 23:47:22"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "asset_onsite:attached_assets/AssetsTimeOnSite (4).csv",
+      "timestamp": "2025-05-20 23:47:25"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "activity_detail:attached_assets/ActivityDetail (6).csv",
+      "timestamp": "2025-05-20 23:47:57"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "activity_detail:attached_assets/ActivityDetail.csv",
+      "timestamp": "2025-05-20 23:47:57"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "asset_onsite:attached_assets/AssetsTimeOnSite (3).csv",
+      "timestamp": "2025-05-20 23:47:57"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "activity_detail:attached_assets/ActivityDetail (7).csv",
+      "timestamp": "2025-05-20 23:47:57"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "asset_onsite:attached_assets/AssetsTimeOnSite (4).csv",
+      "timestamp": "2025-05-20 23:48:00"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "activity_detail:attached_assets/ActivityDetail (6).csv",
+      "timestamp": "2025-05-20 23:48:29"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "activity_detail:attached_assets/ActivityDetail.csv",
+      "timestamp": "2025-05-20 23:48:29"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "asset_onsite:attached_assets/AssetsTimeOnSite (3).csv",
+      "timestamp": "2025-05-20 23:48:29"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "activity_detail:attached_assets/ActivityDetail (7).csv",
+      "timestamp": "2025-05-20 23:48:30"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "asset_onsite:attached_assets/AssetsTimeOnSite (4).csv",
+      "timestamp": "2025-05-20 23:48:32"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "activity_detail:attached_assets/ActivityDetail (6).csv",
+      "timestamp": "2025-05-20 23:49:02"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "activity_detail:attached_assets/ActivityDetail.csv",
+      "timestamp": "2025-05-20 23:49:02"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "asset_onsite:attached_assets/AssetsTimeOnSite (3).csv",
+      "timestamp": "2025-05-20 23:49:02"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "activity_detail:attached_assets/ActivityDetail (7).csv",
+      "timestamp": "2025-05-20 23:49:02"
+    }
+  ]
+}

@@ -1,60 +1,60 @@
 {
   "date": "2025-05-13",
   "status": "processing",
-  "last_updated": "2025-05-20 23:49:02",
+  "last_updated": "2025-05-20 23:50:11",
   "sources": [
     {
       "path": "attached_assets/FleetUtilization.xlsx",
       "type": "asset_onsite",
-      "added": "2025-05-20 23:49:02",
+      "added": "2025-05-20 23:50:08",
       "size": 52630
     },
     {
       "path": "attached_assets/ActivityDetail (6).csv",
       "type": "activity_detail",
-      "added": "2025-05-20 23:49:02",
+      "added": "2025-05-20 23:50:08",
       "size": 47118064
     },
     {
       "path": "attached_assets/ActivityDetail.csv",
       "type": "activity_detail",
-      "added": "2025-05-20 23:49:02",
+      "added": "2025-05-20 23:50:08",
       "size": 47118064
     },
     {
       "path": "attached_assets/AssetsTimeOnSite (3).csv",
       "type": "asset_onsite",
-      "added": "2025-05-20 23:49:02",
+      "added": "2025-05-20 23:50:08",
       "size": 3146050
     },
     {
       "path": "attached_assets/FleetUtilization (1).xlsx",
       "type": "asset_onsite",
-      "added": "2025-05-20 23:49:02",
+      "added": "2025-05-20 23:50:08",
       "size": 140105
     },
     {
       "path": "attached_assets/ActivityDetail (7).csv",
       "type": "activity_detail",
-      "added": "2025-05-20 23:49:02",
+      "added": "2025-05-20 23:50:08",
       "size": 2158835
     },
     {
       "path": "attached_assets/ActivityDetail (2).xlsx",
       "type": "activity_detail",
-      "added": "2025-05-20 23:49:02",
+      "added": "2025-05-20 23:50:08",
       "size": 5421921
     },
     {
       "path": "attached_assets/AssetsTimeOnSite (4).csv",
       "type": "asset_onsite",
-      "added": "2025-05-20 23:48:32",
+      "added": "2025-05-20 23:50:11",
       "size": 6446684
     },
     {
       "path": "attached_assets/DrivingHistory.csv",
       "type": "driving_history",
-      "added": "2025-05-20 23:48:32",
+      "added": "2025-05-20 23:50:11",
       "size": 10630939
     }
   ],
@@ -264,6 +264,61 @@
       "message": "Could not read file with any encoding",
       "source": "activity_detail:attached_assets/ActivityDetail (7).csv",
       "timestamp": "2025-05-20 23:49:02"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "asset_onsite:attached_assets/AssetsTimeOnSite (4).csv",
+      "timestamp": "2025-05-20 23:49:05"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "activity_detail:attached_assets/ActivityDetail (6).csv",
+      "timestamp": "2025-05-20 23:49:35"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "activity_detail:attached_assets/ActivityDetail.csv",
+      "timestamp": "2025-05-20 23:49:35"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "asset_onsite:attached_assets/AssetsTimeOnSite (3).csv",
+      "timestamp": "2025-05-20 23:49:35"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "activity_detail:attached_assets/ActivityDetail (7).csv",
+      "timestamp": "2025-05-20 23:49:35"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "asset_onsite:attached_assets/AssetsTimeOnSite (4).csv",
+      "timestamp": "2025-05-20 23:49:38"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "activity_detail:attached_assets/ActivityDetail (6).csv",
+      "timestamp": "2025-05-20 23:50:08"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "activity_detail:attached_assets/ActivityDetail.csv",
+      "timestamp": "2025-05-20 23:50:08"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "asset_onsite:attached_assets/AssetsTimeOnSite (3).csv",
+      "timestamp": "2025-05-20 23:50:08"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "activity_detail:attached_assets/ActivityDetail (7).csv",
+      "timestamp": "2025-05-20 23:50:08"
+    },
+    {
+      "message": "Could not read file with any encoding",
+      "source": "asset_onsite:attached_assets/AssetsTimeOnSite (4).csv",
+      "timestamp": "2025-05-20 23:50:11"
     }
   ]
 }

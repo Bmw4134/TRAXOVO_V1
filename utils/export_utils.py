@@ -18,6 +18,7 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter, landscape
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -39,6 +40,7 @@ def format_contact_info(contact_info):
     contact_info = str(contact_info)
     contact_info = contact_info.replace('N/A', '').replace('None', '').replace('none', '')
     contact_info = contact_info.replace('null', '').replace('NULL', '')
+    contact_info = contact_info.replace('-', '').replace('_', '')
     
     # Clean up formatting
     contact_info = contact_info.strip()
@@ -50,7 +52,7 @@ def format_contact_info(contact_info):
     phone_pattern = re.compile(r'(\d{3})[^\d]*(\d{3})[^\d]*(\d{4})')
     
     def phone_format(match):
-        return f"({match.group(1)}) {match.group(2)}-{match.group(3)}"
+        return f"{match.group(1)}-{match.group(2)}-{match.group(3)}"
         
     contact_info = phone_pattern.sub(phone_format, contact_info)
     
@@ -69,8 +71,9 @@ def apply_contact_formatting(sheet, row_idx, contact_col, email_col, contact_val
         email_value (str): Email value
     """
     # Format and set contact information
-    sheet.cell(row=row_idx, column=contact_col).value = format_contact_info(contact_value)
-    sheet.cell(row=row_idx, column=email_col).value = email_value
+    formatted_contact = format_contact_info(contact_value)
+    sheet.cell(row=row_idx, column=contact_col).value = formatted_contact
+    sheet.cell(row=row_idx, column=email_col).value = email_value if email_value else ""
     
     # Apply styling
     contact_cell = sheet.cell(row=row_idx, column=contact_col)
@@ -78,6 +81,18 @@ def apply_contact_formatting(sheet, row_idx, contact_col, email_col, contact_val
     
     contact_cell.alignment = Alignment(horizontal='left')
     email_cell.alignment = Alignment(horizontal='left')
+    
+    # Set border styling for better readability
+    border_style = Side(border_style="thin", color="000000")
+    border = Border(
+        left=border_style,
+        right=border_style,
+        top=border_style,
+        bottom=border_style
+    )
+    
+    contact_cell.border = border
+    email_cell.border = border
 
 def export_daily_report(date_str, output_path, attendance_data=None, employee_data=None, job_data=None):
     """

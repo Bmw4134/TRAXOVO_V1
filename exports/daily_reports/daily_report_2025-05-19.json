@@ -10,17 +10,62 @@
       "status": "On Time",
       "division": "TEXDIST",
       "job_title": "Select Maintenance Employee"
+    },
+    {
+      "name": "Ammar Elhamad",
+      "employee_id": "210003",
+      "asset": "ET-104",
+      "arrival": "04:40 AM",
+      "status": "On Time",
+      "division": "TEXDIST",
+      "job_title": "Heavy Equipment Operator"
+    },
+    {
+      "name": "Matt Shaylor",
+      "employee_id": "210015",
+      "asset": "ET-01",
+      "arrival": "04:40 AM",
+      "status": "On Time",
+      "division": "TEXDIST",
+      "job_title": "Foreman"
+    },
+    {
+      "name": "Michael Torres",
+      "employee_id": "210022",
+      "asset": "ET-77",
+      "arrival": "04:40 AM",
+      "status": "On Time",
+      "division": "TEXDIST",
+      "job_title": "Heavy Equipment Operator"
+    },
+    {
+      "name": "David Ramirez",
+      "employee_id": "210033",
+      "asset": "ET-91",
+      "arrival": "05:00 AM",
+      "status": "On Time",
+      "division": "TEXDIST",
+      "job_title": "Heavy Equipment Operator"
+    },
+    {
+      "name": "James Johnson",
+      "employee_id": "210042",
+      "asset": "RAM-2500",
+      "arrival": "04:40 AM",
+      "status": "On Time",
+      "division": "TEXDIST",
+      "job_title": "Site Supervisor"
     }
   ],
-  "total_drivers": 1,
-  "total_morning_drivers": 1,
-  "on_time_count": 1,
+  "total_drivers": 6,
+  "total_morning_drivers": 6,
+  "on_time_count": 6,
   "late_morning": [],
   "early_departures": [],
   "summary": {
-    "total_drivers": 1,
-    "total_morning_drivers": 1,
-    "on_time_drivers": 1,
+    "total_drivers": 6,
+    "total_morning_drivers": 6,
+    "on_time_drivers": 6,
     "late_drivers": 0,
     "early_end_drivers": 0,
     "not_on_job_drivers": 0,

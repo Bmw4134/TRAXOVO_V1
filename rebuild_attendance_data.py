@@ -212,7 +212,14 @@ def rebuild_attendance_data(date_list=None):
                                          days=days,
                                          force_refresh=True)
             
-            total_drivers = len(driver_list.get('drivers', []))
+            # Handle different types of return values from get_driver_list
+            if isinstance(driver_list, dict):
+                total_drivers = len(driver_list.get('drivers', []))
+            elif isinstance(driver_list, list):
+                total_drivers = len(driver_list)
+            else:
+                total_drivers = 0
+                
             logger.info(f"Rebuilt driver list with {total_drivers} drivers")
     except Exception as e:
         logger.error(f"Error rebuilding driver list: {e}")

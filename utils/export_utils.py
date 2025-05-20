@@ -22,6 +22,63 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 # Configure logging
 logger = logging.getLogger(__name__)
 
+def format_contact_info(contact_info):
+    """
+    Format contact information to ensure consistent display
+    
+    Args:
+        contact_info (str): Raw contact information
+        
+    Returns:
+        str: Formatted contact information
+    """
+    if not contact_info:
+        return ""
+        
+    # Remove unnecessary placeholders
+    contact_info = str(contact_info)
+    contact_info = contact_info.replace('N/A', '').replace('None', '').replace('none', '')
+    contact_info = contact_info.replace('null', '').replace('NULL', '')
+    
+    # Clean up formatting
+    contact_info = contact_info.strip()
+    if not contact_info:
+        return ""
+    
+    # Format phone numbers consistently
+    import re
+    phone_pattern = re.compile(r'(\d{3})[^\d]*(\d{3})[^\d]*(\d{4})')
+    
+    def phone_format(match):
+        return f"({match.group(1)}) {match.group(2)}-{match.group(3)}"
+        
+    contact_info = phone_pattern.sub(phone_format, contact_info)
+    
+    return contact_info
+
+def apply_contact_formatting(sheet, row_idx, contact_col, email_col, contact_value, email_value):
+    """
+    Apply contact formatting to the Excel sheet
+    
+    Args:
+        sheet: Excel worksheet
+        row_idx (int): Row index
+        contact_col (int): Contact column index
+        email_col (int): Email column index
+        contact_value (str): Contact value
+        email_value (str): Email value
+    """
+    # Format and set contact information
+    sheet.cell(row=row_idx, column=contact_col).value = format_contact_info(contact_value)
+    sheet.cell(row=row_idx, column=email_col).value = email_value
+    
+    # Apply styling
+    contact_cell = sheet.cell(row=row_idx, column=contact_col)
+    email_cell = sheet.cell(row=row_idx, column=email_col)
+    
+    contact_cell.alignment = Alignment(horizontal='left')
+    email_cell.alignment = Alignment(horizontal='left')
+
 def export_daily_report(date_str, output_path, attendance_data=None, employee_data=None, job_data=None):
     """
     Export daily report to Excel with enriched employee and job information

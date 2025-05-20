@@ -145,12 +145,14 @@ def rebuild_attendance_data(date_list=None):
                 early_count = attendance_data.get('early_count', 0)
                 missing_count = attendance_data.get('missing_count', 0)
                 total_drivers = attendance_data.get('total_drivers', 0)
+                start_time_integrated = attendance_data.get('start_time_data_integrated', False)
                 
                 logger.info(f"Processed attendance data for {date_str}: "
                            f"{total_drivers} total drivers, "
                            f"{late_count} late, "
                            f"{early_count} early end, "
-                           f"{missing_count} not on job")
+                           f"{missing_count} not on job, "
+                           f"Start Time & Job data integrated: {start_time_integrated}")
                 
                 # Export the data to Excel
                 try:

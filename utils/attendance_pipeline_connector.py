@@ -18,6 +18,9 @@ from utils.structured_logger import get_pipeline_logger
 # Import pipeline processor
 from utils.attendance_pipeline import process_attendance_data
 
+# Import Start Time & Job parser
+from utils.start_time_parser import extract_start_time_data, merge_start_time_with_attendance
+
 # Get logger
 logger = get_pipeline_logger()
 
@@ -75,6 +78,13 @@ def _get_or_create_attendance_data(date_str=None, force_refresh=False):
     logger.info(f"Processing attendance data for {date_str}")
     attendance_records = process_attendance_data(date_str)
     
+    # Try to get additional data from Start Time & Job sheet
+    start_time_data = extract_start_time_data(date_str)
+    if start_time_data is not None:
+        logger.info(f"Found Start Time & Job data for {date_str} with {len(start_time_data)} records")
+    else:
+        logger.info(f"No Start Time & Job data found for {date_str}")
+    
     # Categorize records
     late_start_records = []
     early_end_records = []
@@ -123,8 +133,14 @@ def _get_or_create_attendance_data(date_str=None, force_refresh=False):
         'early_count': len(early_end_records),
         'missing_count': len(not_on_job_records),
         'on_time_percent': round(100 * (len(attendance_records) - len(late_start_records) - len(not_on_job_records)) / 
-                                max(1, len(attendance_records)), 1)
+                                max(1, len(attendance_records)), 1),
+        'drivers': attendance_records  # Include the full driver records for merging
     }
+    
+    # Merge with Start Time & Job data if available
+    if start_time_data is not None:
+        structured_data = merge_start_time_with_attendance(structured_data, start_time_data)
+        logger.info(f"Merged Start Time & Job data with attendance records")
     
     # Cache the data
     _attendance_cache[date_str] = {
@@ -138,7 +154,8 @@ def _get_or_create_attendance_data(date_str=None, force_refresh=False):
         'total_records': len(attendance_records),
         'late_count': len(late_start_records),
         'early_count': len(early_end_records),
-        'missing_count': len(not_on_job_records)
+        'missing_count': len(not_on_job_records),
+        'start_time_data_integrated': start_time_data is not None
     })
     
     return structured_data

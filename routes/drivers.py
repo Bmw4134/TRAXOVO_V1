@@ -774,7 +774,7 @@ def email_report(date_str):
                 return redirect(url_for('driver_module.daily_report', date=date_str))
         
         # Send email with attachments
-        from utils.email_sender import send_report_email
+        from utils.email_service import send_report_email
         
         subject = f"Daily Driver Report - {date_str}"
         
@@ -783,21 +783,93 @@ def email_report(date_str):
         formatted_date = date_obj.strftime('%A, %B %d, %Y')
         
         # Get report data for email body
-        report = get_daily_report(date_str)
+        report_data = get_daily_report(date_str)
+        
+        # Create HTML content for email
+        html_content = f"""
+        <html>
+            <head>
+                <style>
+                    body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+                    .container {{ max-width: 800px; margin: 0 auto; padding: 20px; }}
+                    h1 {{ color: #2c3e50; }}
+                    h2 {{ color: #3498db; margin-top: 20px; }}
+                    table {{ border-collapse: collapse; width: 100%; margin: 20px 0; }}
+                    th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
+                    th {{ background-color: #f2f2f2; }}
+                    .summary {{ background-color: #f9f9f9; padding: 15px; border-radius: 5px; }}
+                    .highlight {{ font-weight: bold; color: #c0392b; }}
+                    .footer {{ font-size: 12px; color: #7f8c8d; margin-top: 30px; border-top: 1px solid #eee; padding-top: 10px; }}
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h1>Daily Driver Report - {formatted_date}</h1>
+                    <p>Please find attached the Daily Driver Report for <strong>{formatted_date}</strong>.</p>
+                    
+                    <div class="summary">
+                        <h2>Report Summary</h2>
+                        <table>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Value</th>
+                            </tr>
+                            <tr>
+                                <td>Total Drivers</td>
+                                <td>{report_data.get('total_drivers', 0)}</td>
+                            </tr>
+                            <tr>
+                                <td>On-Time Drivers</td>
+                                <td>{report_data.get('total_drivers', 0) - report_data.get('late_count', 0) - report_data.get('missing_count', 0)}</td>
+                            </tr>
+                            <tr>
+                                <td>Late Drivers</td>
+                                <td class="highlight">{report_data.get('late_count', 0)}</td>
+                            </tr>
+                            <tr>
+                                <td>Early End Drivers</td>
+                                <td class="highlight">{report_data.get('early_count', 0)}</td>
+                            </tr>
+                            <tr>
+                                <td>Not on Job Drivers</td>
+                                <td class="highlight">{report_data.get('missing_count', 0)}</td>
+                            </tr>
+                            <tr>
+                                <td>On-Time Percentage</td>
+                                <td>{report_data.get('on_time_percent', 0)}%</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <p>The complete report is attached in Excel and/or PDF format for your review.</p>
+                    
+                    <div class="footer">
+                        <p>This is an automated report from the TRAXORA Fleet Management System.</p>
+                        <p>Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+                    </div>
+                </div>
+            </body>
+        </html>
+        """
+        
+        # Process recipient lists
+        recipient_list = [r.strip() for r in recipients.split(',') if r.strip()]
+        cc_list = [r.strip() for r in email_config.get('cc', '').split(',') if r.strip()]
+        bcc_list = [r.strip() for r in email_config.get('bcc', '').split(',') if r.strip()]
         
         # Call email sending function
-        success, message = send_report_email(
-            recipients=recipients.split(','),
-            cc=email_config.get('cc', '').split(',') if email_config.get('cc') else [],
-            bcc=email_config.get('bcc', '').split(',') if email_config.get('bcc') else [],
+        result = send_report_email(
             subject=subject,
-            report_data=report,
+            report_content=html_content,
+            recipients=recipient_list,
+            cc=cc_list,
+            bcc=bcc_list,
+            report_date=date_str,
             excel_path=excel_path,
-            pdf_path=pdf_path,
-            include_user=email_config.get('include_user', True)
+            pdf_path=pdf_path
         )
         
-        if success:
+        if result.get('status') == 'success':
             flash('Report emailed successfully', 'success')
             log_navigation('Report Email', {'date': date_str, 'recipients': recipients})
         else:

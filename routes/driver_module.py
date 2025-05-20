@@ -545,6 +545,9 @@ def daily_report():
     # Get attendance trend data for the last 5 days
     try:
         from utils.attendance_trends_api import get_driver_trends
+        from datetime import datetime
+        # Parse date string into date_obj
+        date_obj = datetime.strptime(date_str, '%Y-%m-%d')
         end_date = date_obj.strftime('%Y-%m-%d')
         trend_data = get_driver_trends(end_date=end_date, days=5)
         

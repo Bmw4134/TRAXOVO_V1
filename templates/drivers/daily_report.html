@@ -268,22 +268,22 @@
                     <div class="mb-3">
                         <label for="recipients" class="form-label">Recipients</label>
                         <textarea class="form-control" id="recipients" name="recipients" rows="3" 
-                                  placeholder="Enter email addresses, separated by commas">{{ email_settings.recipients }}</textarea>
+                                  placeholder="Enter email addresses, separated by commas">{{ email_config.recipients if email_config and email_config.recipients else "" }}</textarea>
                     </div>
                     
                     <div class="mb-3">
                         <label for="email_subject" class="form-label">Subject</label>
                         <input type="text" class="form-control" id="email_subject" name="email_subject" 
-                               value="Daily Driver Report - {{ selected_date_display }}">
+                               value="Daily Driver Report - {{ selected_date }}">
                     </div>
                     
                     <div class="mb-3">
                         <label for="email_message" class="form-label">Message</label>
-                        <textarea class="form-control" id="email_message" name="email_message" rows="4">Please find attached the daily driver activity report for {{ selected_date_display }}.
+                        <textarea class="form-control" id="email_message" name="email_message" rows="4">Please find attached the daily driver activity report for {{ selected_date }}.
 
-Total Drivers: {{ stats.total_count if stats else 0 }}
-Late Starts: {{ stats.late_count if stats else 0 }}
-Early Ends: {{ stats.early_count if stats else 0 }}</textarea>
+Total Drivers: {{ report.stats.total_count if report and report.stats else 0 }}
+Late Starts: {{ report.stats.late_count if report and report.stats else 0 }}
+Early Ends: {{ report.stats.early_count if report and report.stats else 0 }}</textarea>
                     </div>
                     
                     <div class="mb-3">

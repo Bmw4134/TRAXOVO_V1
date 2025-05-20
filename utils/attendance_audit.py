@@ -1,285 +1,252 @@
 """
 Attendance Audit Module
 
-This module provides audit logging and reporting capabilities for the attendance data pipeline,
-tracking which files were processed for each date and how many drivers were included.
+This module provides functions for auditing and tracking attendance data processing,
+including source file tracking, error logging, and report generation status.
 """
 
+import os
 import json
 import logging
-import os
-import sqlite3
 from datetime import datetime
 from pathlib import Path
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+# Set up logging
 logger = logging.getLogger(__name__)
 
-# Define path constants
-DATA_DIR = Path("data")
-AUDIT_DIR = DATA_DIR / "audit"
-ATTENDANCE_DB = DATA_DIR / "attendance.db"
+# Constants
+AUDIT_DIR = Path('logs/attendance')
+AUDIT_DIR.mkdir(exist_ok=True, parents=True)
 
-# Ensure directories exist
-DATA_DIR.mkdir(exist_ok=True)
-AUDIT_DIR.mkdir(exist_ok=True)
-
-def setup_audit_database():
-    """Create audit database tables if they don't exist"""
-    conn = sqlite3.connect(ATTENDANCE_DB)
-    cursor = conn.cursor()
-    
-    # Create attendance_audit table
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS attendance_audit (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        date TEXT,
-        timestamp TEXT,
-        file_path TEXT,
-        file_type TEXT,
-        driver_count INTEGER,
-        records_added INTEGER,
-        status TEXT,
-        error_message TEXT
-    )
-    ''')
-    
-    # Create attendance_summary table for quick access to processed data completeness
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS attendance_summary (
-        date TEXT PRIMARY KEY,
-        last_updated TEXT,
-        total_drivers INTEGER,
-        total_files_processed INTEGER,
-        file_types TEXT,
-        completeness_score REAL,
-        status TEXT
-    )
-    ''')
-    
-    conn.commit()
-    conn.close()
-    logger.info("Audit database setup complete")
-
-def log_file_processing(date, file_path, file_type, driver_count, records_added, status="success", error_message=None):
+def create_audit_record(date_str, status="processing"):
     """
-    Log the processing of a file for a specific date
+    Create or update an audit record for a specific date
     
     Args:
-        date (str): Date in YYYY-MM-DD format
-        file_path (str): Path to the processed file
-        file_type (str): Type of file (e.g., 'daily_usage', 'timecard', 'activity_detail')
-        driver_count (int): Number of drivers in the file
-        records_added (int): Number of records successfully added to the database
-        status (str): Processing status ('success', 'partial', 'failed')
-        error_message (str): Error message if processing failed
+        date_str (str): Date in YYYY-MM-DD format
+        status (str): Status of processing (processing, completed, error)
+        
+    Returns:
+        dict: Audit record
     """
-    timestamp = datetime.now().isoformat()
+    audit_file = AUDIT_DIR / f"{date_str}_audit.json"
     
-    conn = sqlite3.connect(ATTENDANCE_DB)
-    cursor = conn.cursor()
-    
-    # Add to audit log
-    cursor.execute('''
-    INSERT INTO attendance_audit
-    (date, timestamp, file_path, file_type, driver_count, records_added, status, error_message)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (
-        date,
-        timestamp,
-        str(file_path),
-        file_type,
-        driver_count,
-        records_added,
-        status,
-        error_message
-    ))
-    
-    # Update summary for this date
-    cursor.execute('''
-    SELECT * FROM attendance_summary WHERE date = ?
-    ''', (date,))
-    
-    existing_summary = cursor.fetchone()
-    
-    if existing_summary:
-        # Update existing summary
-        cursor.execute('''
-        SELECT SUM(driver_count), SUM(records_added), COUNT(*), GROUP_CONCAT(DISTINCT file_type)
-        FROM attendance_audit
-        WHERE date = ?
-        ''', (date,))
-        
-        total_drivers, total_records, total_files, file_types = cursor.fetchone()
-        
-        # Calculate completeness score (simplified version)
-        completeness_score = min(1.0, total_records / max(1, total_drivers))
-        
-        cursor.execute('''
-        UPDATE attendance_summary
-        SET last_updated = ?, total_drivers = ?, total_files_processed = ?,
-            file_types = ?, completeness_score = ?, status = ?
-        WHERE date = ?
-        ''', (
-            timestamp,
-            total_drivers,
-            total_files,
-            file_types,
-            completeness_score,
-            'complete' if completeness_score >= 0.9 else 'partial',
-            date
-        ))
+    # Initialize or load existing audit record
+    if os.path.exists(audit_file):
+        try:
+            with open(audit_file, 'r') as f:
+                audit_record = json.load(f)
+        except Exception as e:
+            logger.error(f"Error loading audit record: {e}")
+            audit_record = {}
     else:
-        # Create new summary
-        cursor.execute('''
-        INSERT INTO attendance_summary
-        (date, last_updated, total_drivers, total_files_processed, file_types, completeness_score, status)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-        ''', (
-            date,
-            timestamp,
-            driver_count,
-            1,
-            file_type,
-            records_added / max(1, driver_count),
-            'complete' if driver_count > 0 and records_added >= driver_count * 0.9 else 'partial'
-        ))
+        audit_record = {}
     
-    conn.commit()
-    conn.close()
-
-def get_processed_dates(min_completeness=0.0):
-    """
-    Get a list of all processed dates and their completeness status
+    # Update audit record
+    audit_record.update({
+        'date': date_str,
+        'status': status,
+        'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+    })
     
-    Args:
-        min_completeness (float): Minimum completeness score (0.0-1.0) to include
-        
-    Returns:
-        list: List of dictionaries with date info
-    """
-    conn = sqlite3.connect(ATTENDANCE_DB)
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
+    # Initialize sections if they don't exist
+    if 'sources' not in audit_record:
+        audit_record['sources'] = []
     
-    cursor.execute('''
-    SELECT * FROM attendance_summary
-    WHERE completeness_score >= ?
-    ORDER BY date DESC
-    ''', (min_completeness,))
-    
-    rows = cursor.fetchall()
-    date_info = []
-    
-    for row in rows:
-        date_info.append(dict(row))
-    
-    conn.close()
-    return date_info
-
-def get_date_audit_details(date):
-    """
-    Get detailed audit information for a specific date
-    
-    Args:
-        date (str): Date in YYYY-MM-DD format
-        
-    Returns:
-        dict: Dictionary with detailed audit information
-    """
-    conn = sqlite3.connect(ATTENDANCE_DB)
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
-    
-    # Get summary
-    cursor.execute('''
-    SELECT * FROM attendance_summary WHERE date = ?
-    ''', (date,))
-    
-    summary = cursor.fetchone()
-    
-    if not summary:
-        conn.close()
-        return {"error": f"No data available for date {date}"}
-    
-    # Get file processing details
-    cursor.execute('''
-    SELECT * FROM attendance_audit WHERE date = ? ORDER BY timestamp
-    ''', (date,))
-    
-    audit_rows = cursor.fetchall()
-    file_details = [dict(row) for row in audit_rows]
-    
-    # Get driver counts
-    cursor.execute('''
-    SELECT COUNT(DISTINCT driver_name) FROM daily_attendance WHERE date = ?
-    ''', (date,))
-    
-    unique_drivers_count = cursor.fetchone()[0]
-    
-    # Get status breakdown 
-    cursor.execute('''
-    SELECT 
-        SUM(CASE WHEN is_late = 1 THEN 1 ELSE 0 END) as late_count,
-        SUM(CASE WHEN is_early_end = 1 THEN 1 ELSE 0 END) as early_count,
-        COUNT(*) as total_count
-    FROM daily_attendance WHERE date = ?
-    ''', (date,))
-    
-    status_counts = cursor.fetchone()
-    late_count = status_counts[0] or 0
-    early_count = status_counts[1] or 0
-    total_count = status_counts[2] or 0
-    
-    conn.close()
-    
-    return {
-        "date": date,
-        "summary": dict(summary),
-        "file_details": file_details,
-        "driver_stats": {
-            "unique_drivers": unique_drivers_count,
-            "late_count": late_count,
-            "early_count": early_count,
-            "total_records": total_count
+    if 'stats' not in audit_record:
+        audit_record['stats'] = {
+            'total_drivers': 0,
+            'matched_drivers': 0,
+            'unmatched_drivers': 0,
+            'late_drivers': 0,
+            'early_end_drivers': 0,
+            'not_on_job_drivers': 0
         }
-    }
+    
+    if 'errors' not in audit_record:
+        audit_record['errors'] = []
+    
+    # Save audit record
+    try:
+        with open(audit_file, 'w') as f:
+            json.dump(audit_record, f, indent=2)
+    except Exception as e:
+        logger.error(f"Error saving audit record: {e}")
+    
+    return audit_record
 
-def generate_audit_report(output_path=None):
+def add_source_file(date_str, file_path, file_type):
     """
-    Generate a comprehensive audit report for all processed dates
+    Add a source file to the audit record
     
     Args:
-        output_path (str): Path to save the JSON report
+        date_str (str): Date in YYYY-MM-DD format
+        file_path (str): Path to the source file
+        file_type (str): Type of source file (e.g., driving_history, activity_detail)
         
     Returns:
-        dict: Audit report data
+        dict: Updated audit record
     """
-    # Get all processed dates
-    all_dates = get_processed_dates()
+    audit_record = create_audit_record(date_str)
     
-    # Get detailed information for each date
-    date_details = {}
-    for date_info in all_dates:
-        date = date_info['date']
-        date_details[date] = get_date_audit_details(date)
-    
-    # Create report structure
-    report = {
-        "generated_at": datetime.now().isoformat(),
-        "total_dates_processed": len(all_dates),
-        "dates_by_completeness": {
-            "complete": sum(1 for d in all_dates if d['status'] == 'complete'),
-            "partial": sum(1 for d in all_dates if d['status'] == 'partial')
-        },
-        "date_details": date_details
+    # Add source file if not already present
+    source_files = audit_record.get('sources', [])
+    file_entry = {
+        'path': file_path,
+        'type': file_type,
+        'added': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        'size': os.path.getsize(file_path) if os.path.exists(file_path) else 0
     }
     
-    # Save report if output_path is provided
-    if output_path:
-        os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(report, f, indent=2)
+    # Check if file already exists
+    for existing in source_files:
+        if existing.get('path') == file_path and existing.get('type') == file_type:
+            # Update existing entry
+            existing.update(file_entry)
+            break
+    else:
+        # Add new entry
+        source_files.append(file_entry)
     
-    return report
+    audit_record['sources'] = source_files
+    
+    # Save updated audit record
+    audit_file = AUDIT_DIR / f"{date_str}_audit.json"
+    try:
+        with open(audit_file, 'w') as f:
+            json.dump(audit_record, f, indent=2)
+    except Exception as e:
+        logger.error(f"Error saving audit record: {e}")
+    
+    return audit_record
+
+def update_stats(date_str, stats):
+    """
+    Update statistics in the audit record
+    
+    Args:
+        date_str (str): Date in YYYY-MM-DD format
+        stats (dict): Statistics to update
+        
+    Returns:
+        dict: Updated audit record
+    """
+    audit_record = create_audit_record(date_str)
+    
+    # Update statistics
+    audit_record['stats'].update(stats)
+    
+    # Save updated audit record
+    audit_file = AUDIT_DIR / f"{date_str}_audit.json"
+    try:
+        with open(audit_file, 'w') as f:
+            json.dump(audit_record, f, indent=2)
+    except Exception as e:
+        logger.error(f"Error saving audit record: {e}")
+    
+    return audit_record
+
+def log_error(date_str, error_message, error_source=None):
+    """
+    Log an error in the audit record
+    
+    Args:
+        date_str (str): Date in YYYY-MM-DD format
+        error_message (str): Error message
+        error_source (str): Source of the error (e.g., file path, function name)
+        
+    Returns:
+        dict: Updated audit record
+    """
+    audit_record = create_audit_record(date_str, status="error")
+    
+    # Add error
+    errors = audit_record.get('errors', [])
+    error_entry = {
+        'message': error_message,
+        'source': error_source,
+        'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    }
+    errors.append(error_entry)
+    audit_record['errors'] = errors
+    
+    # Save updated audit record
+    audit_file = AUDIT_DIR / f"{date_str}_audit.json"
+    try:
+        with open(audit_file, 'w') as f:
+            json.dump(audit_record, f, indent=2)
+    except Exception as e:
+        logger.error(f"Error saving audit record: {e}")
+    
+    return audit_record
+
+def complete_audit(date_str, success=True):
+    """
+    Mark audit record as completed
+    
+    Args:
+        date_str (str): Date in YYYY-MM-DD format
+        success (bool): Whether processing was successful
+        
+    Returns:
+        dict: Updated audit record
+    """
+    status = "completed" if success else "error"
+    audit_record = create_audit_record(date_str, status=status)
+    
+    # Add completion timestamp
+    audit_record['completed_at'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
+    # Save updated audit record
+    audit_file = AUDIT_DIR / f"{date_str}_audit.json"
+    try:
+        with open(audit_file, 'w') as f:
+            json.dump(audit_record, f, indent=2)
+    except Exception as e:
+        logger.error(f"Error saving audit record: {e}")
+    
+    return audit_record
+
+def get_audit_record(date_str):
+    """
+    Get audit record for a specific date
+    
+    Args:
+        date_str (str): Date in YYYY-MM-DD format
+        
+    Returns:
+        dict: Audit record or None if not found
+    """
+    audit_file = AUDIT_DIR / f"{date_str}_audit.json"
+    
+    if os.path.exists(audit_file):
+        try:
+            with open(audit_file, 'r') as f:
+                return json.load(f)
+        except Exception as e:
+            logger.error(f"Error loading audit record: {e}")
+    
+    return None
+
+def list_audit_records():
+    """
+    List all audit records
+    
+    Returns:
+        list: List of audit records
+    """
+    audit_files = list(AUDIT_DIR.glob('*_audit.json'))
+    
+    records = []
+    for audit_file in audit_files:
+        try:
+            with open(audit_file, 'r') as f:
+                record = json.load(f)
+                records.append(record)
+        except Exception as e:
+            logger.error(f"Error loading audit record {audit_file}: {e}")
+    
+    # Sort by date
+    records.sort(key=lambda x: x.get('date', ''))
+    
+    return records

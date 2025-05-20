@@ -540,7 +540,17 @@ def daily_report():
         return redirect(url_for('driver_module.daily_report', date=date_str))
     
     # Get email configuration for the current user
-    email_config = get_user_email_config()
+    try:
+        email_config = get_user_email_config()
+    except Exception as e:
+        logger.warning(f"Error loading email config: {e}")
+        email_config = {
+            'recipients': '',
+            'cc': '',
+            'bcc': '',
+            'auto_send': False,
+            'include_user': True
+        }
     
     # Get attendance trend data for the last 5 days
     try:

@@ -146,6 +146,26 @@ def export_daily_report(date_str, output_path, attendance_data=None, employee_da
                 cell.alignment = Alignment(horizontal='center')
                 cell.fill = PatternFill(start_color="DDDDDD", end_color="DDDDDD", fill_type="solid")
                 late_sheet.column_dimensions[get_column_letter(col)].width = 20 if header == 'Email' else 15
+                
+        # Add nice formatting to all sheets
+        border_style = Side(border_style="thin", color="000000")
+        border = Border(
+            left=border_style,
+            right=border_style,
+            top=border_style,
+            bottom=border_style
+        )
+                
+        # Apply consistent formatting to all sheets
+        for sheet in wb.worksheets:
+            # Skip summary sheet
+            if sheet.title == "Summary":
+                continue
+                
+            # Add borders to all cells
+            for row in sheet.iter_rows(min_row=2):
+                for cell in row:
+                    cell.border = border
         
         if 'early_end_records' in attendance_data:
             format_early_sheet(early_sheet, attendance_data['early_end_records'], employee_data, job_data)
@@ -204,6 +224,15 @@ def export_daily_report(date_str, output_path, attendance_data=None, employee_da
         # Save the workbook
         wb.save(output_path)
         logger.info(f"Successfully exported daily report to {output_path}")
+        
+        # Create PDF version as well
+        pdf_output_path = str(output_path).replace('.xlsx', '.pdf')
+        try:
+            export_pdf_report(date_str, pdf_output_path, attendance_data, employee_data, job_data)
+            logger.info(f"Successfully created PDF report at {pdf_output_path}")
+        except Exception as e:
+            logger.error(f"Error creating PDF report: {e}")
+            
         return True
         
     except Exception as e:

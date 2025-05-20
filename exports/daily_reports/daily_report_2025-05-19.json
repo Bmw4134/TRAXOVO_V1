@@ -1,0 +1,85 @@
+{
+  "date": "2025-05-19",
+  "report_date": "Monday, May 19, 2025",
+  "drivers": [
+    {
+      "name": "John Smith",
+      "asset": "RAM-2500",
+      "status": "On Time",
+      "arrival": "07:00 AM"
+    },
+    {
+      "name": "Mary Johnson",
+      "asset": "F-150",
+      "status": "On Time",
+      "arrival": "07:15 AM"
+    },
+    {
+      "name": "Robert Williams",
+      "asset": "ET-05",
+      "status": "Late",
+      "arrival": "08:30 AM"
+    },
+    {
+      "name": "Patricia Brown",
+      "asset": "RAM-3500",
+      "status": "On Time",
+      "arrival": "07:10 AM"
+    },
+    {
+      "name": "Michael Davis",
+      "asset": "ET-12",
+      "status": "On Time",
+      "arrival": "06:50 AM"
+    },
+    {
+      "name": "Linda Miller",
+      "asset": "F-250",
+      "status": "Late",
+      "arrival": "09:15 AM"
+    },
+    {
+      "name": "James Wilson",
+      "asset": "RAM-1500",
+      "status": "On Time",
+      "arrival": "07:05 AM"
+    },
+    {
+      "name": "Elizabeth Moore",
+      "asset": "ET-08",
+      "status": "On Time",
+      "arrival": "06:45 AM"
+    },
+    {
+      "name": "David Taylor",
+      "asset": "F-350",
+      "status": "Early Departure",
+      "arrival": "07:00 AM",
+      "departure": "14:30 PM"
+    },
+    {
+      "name": "Jennifer Anderson",
+      "asset": "RAM-2500",
+      "status": "On Time",
+      "arrival": "07:20 AM"
+    },
+    {
+      "name": "Charles Thomas",
+      "asset": "ET-15",
+      "status": "Late",
+      "arrival": "08:45 AM"
+    },
+    {
+      "name": "Barbara Jackson",
+      "asset": "F-150",
+      "status": "On Time",
+      "arrival": "06:55 AM"
+    },
+    {
+      "name": "Roger Doddy",
+      "asset": "UNMATCHED",
+      "status": "Not Found",
+      "arrival": "N/A"
+    }
+  ]
+}

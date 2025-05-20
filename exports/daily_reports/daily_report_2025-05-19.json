@@ -236,9 +236,14 @@
       "employee_id": "210033",
       "asset": "ET-91",
       "arrival": "06:15 AM",
+      "departure": "04:30 PM", 
       "status": "Late",
       "division": "TEXDIST",
       "job_title": "Heavy Equipment Operator",
+      "job_site": "2024-019 - NORTH OPERATIONS",
+      "time_on_site": "10:15 hrs",
+      "key_on_time": "06:15 AM",
+      "key_off_time": "04:30 PM",
       "late_reason": "Traffic accident on I-35W"
     },
     {
@@ -249,6 +254,10 @@
       "status": "Late",
       "division": "TEXDIST",
       "job_title": "Heavy Equipment Operator",
+      "job_site": "2023-034 - WEST SIDE OPERATIONS",
+      "time_on_site": "9:00 hrs",
+      "key_on_time": "07:10 AM",
+      "key_off_time": "04:10 PM",
       "late_reason": "Vehicle not starting"
     }
   ],
@@ -257,22 +266,30 @@
       "name": "JORGE MARTINEZ",
       "employee_id": "210068",
       "asset": "RAM-1500",
-      "departure": "01:30 PM",
       "arrival": "05:05 AM",
+      "departure": "01:30 PM",
       "status": "Early End",
       "division": "TEXDIST",
       "job_title": "Heavy Equipment Operator",
+      "job_site": "2023-006 - TARRANT SH 183 BRIDGE",
+      "time_on_site": "08:25 hrs",
+      "key_on_time": "05:05 AM",
+      "key_off_time": "01:30 PM",
       "early_reason": "Medical appointment"
     },
     {
       "name": "PEDRO VELASQUEZ",
       "employee_id": "210121",
       "asset": "RAM-3500",
-      "departure": "02:15 PM",
       "arrival": "04:45 AM",
+      "departure": "02:15 PM",
       "status": "Early End",
       "division": "TEXDIST",
       "job_title": "Heavy Equipment Operator",
+      "job_site": "2024-025 - CENTRAL EQUIPMENT YARD",
+      "time_on_site": "09:30 hrs",
+      "key_on_time": "04:45 AM",
+      "key_off_time": "02:15 PM",
       "early_reason": "Equipment breakdown"
     }
   ],
@@ -282,12 +299,17 @@
       "employee_id": "210131",
       "asset": "F-150",
       "arrival": "04:50 AM",
+      "departure": "03:50 PM",
       "status": "NOJ",
       "division": "TEXDIST",
       "job_title": "Heavy Equipment Operator",
+      "job_site": "2024-016 - CENTRAL TX MAINTENANCE",
+      "time_on_site": "11:00 hrs",
+      "key_on_time": "04:50 AM",
+      "key_off_time": "03:50 PM",
       "noj_reason": "At incorrect job site",
-      "assigned_site": "2024-016",
-      "actual_site": "2024-015"
+      "assigned_site": "2024-016 - CENTRAL TX MAINTENANCE",
+      "actual_site": "2024-015 - EAST SIDE OPERATIONS"
     }
   ],
   "summary": {

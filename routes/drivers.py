@@ -1,1333 +1,856 @@
 """
-Driver Reports Routes
+Driver Module Routes
 
-This module provides routes for the driver reports module,
-which handles driver attendance, job site performance, and related analytics.
+This module contains routes for the driver module, handling driver attendance reports,
+driver lists, and related functionality with improved navigation and error handling.
 """
-from datetime import datetime, timedelta
-from flask import Blueprint, render_template, jsonify, request, send_file, abort
-import pandas as pd
-import json
+
 import os
+import sys
+import json
 import logging
-import io
-from sqlalchemy import func, desc, and_, or_
-from app import db
-from models.driver_attendance import DriverAttendance as Driver, JobSiteAttendance, AttendanceRecord, AttendanceImportLog
+import traceback
+import pandas as pd
+from datetime import datetime, timedelta
+from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash, current_app, send_file
+from flask_login import login_required, current_user
+from werkzeug.utils import secure_filename
 
-# Alias DriverAttendance as Driver to maintain compatibility with existing code
-# We've standardized on the DriverAttendance model but kept Driver as an alias
-# to minimize code changes while maintaining functionality
-
-# Set up logger
-logging.basicConfig(level=logging.INFO)
+# Logger setup
 logger = logging.getLogger(__name__)
 
-# Create blueprint
-drivers_bp = Blueprint('drivers', __name__, url_prefix='/drivers')
+# Blueprint definition
+driver_module_bp = Blueprint('driver_module', __name__, url_prefix='/drivers')
 
+# Create error log directory
+os.makedirs('logs', exist_ok=True)
+error_log_path = 'logs/driver_errors.log'
 
-# Main routes
-@drivers_bp.route('/')
+# Configure error logging
+error_logger = logging.getLogger('driver_error_logger')
+if not error_logger.handlers:
+    file_handler = logging.FileHandler(error_log_path)
+    file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+    error_logger.addHandler(file_handler)
+    error_logger.setLevel(logging.ERROR)
+
+# Attendance Report Helper Functions
+def get_daily_report(date_str=None):
+    """Get daily attendance report with verified employee data only"""
+    if date_str is None:
+        # Default to current date
+        date_str = datetime.now().strftime('%Y-%m-%d')
+    
+    # Check if report JSON file exists
+    json_path = f"exports/daily_reports/attendance_data_{date_str}.json"
+    standard_json_path = f"exports/daily_reports/daily_report_{date_str}.json"
+    
+    try:
+        # First try to load from the new attendance data format
+        if os.path.exists(json_path):
+            with open(json_path, 'r') as f:
+                attendance_data = json.load(f)
+            
+            logger.info(f"Loaded attendance data from JSON for date {date_str}")
+            
+            # Convert attendance data format to report format
+            late_records = attendance_data.get('late_start_records', [])
+            early_records = attendance_data.get('early_end_records', [])
+            not_on_job_records = attendance_data.get('not_on_job_records', [])
+            drivers = attendance_data.get('drivers', [])
+            
+            # Create summary data for display
+            summary = {
+                'total_drivers': attendance_data.get('total_drivers', 0),
+                'total_morning_drivers': attendance_data.get('total_drivers', 0),
+                'on_time_drivers': max(0, attendance_data.get('total_drivers', 0) - len(late_records) - len(not_on_job_records)),
+                'late_drivers': len(late_records),
+                'early_end_drivers': len(early_records),
+                'not_on_job_drivers': len(not_on_job_records),
+                'exception_drivers': 0,
+                'total_issues': len(late_records) + len(early_records) + len(not_on_job_records),
+                'on_time_percent': attendance_data.get('on_time_percent', 0)
+            }
+            
+            # Format date for display
+            date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+            formatted_date = date_obj.strftime('%A, %B %d, %Y')
+            
+            return {
+                'date': date_str,
+                'formatted_date': formatted_date,
+                'total_drivers': attendance_data.get('total_drivers', 0),
+                'total_morning_drivers': attendance_data.get('total_drivers', 0),
+                'on_time_count': summary['on_time_drivers'],
+                'drivers': drivers,
+                'late_morning': late_records,
+                'early_departures': early_records,
+                'not_on_job_drivers': not_on_job_records,
+                'summary': summary
+            }
+        
+        # Fall back to legacy format
+        elif os.path.exists(standard_json_path):
+            with open(standard_json_path, 'r') as f:
+                report_data = json.load(f)
+            
+            if report_data.get('drivers') and len(report_data.get('drivers', [])) > 0:
+                logger.info(f"Loaded report data from legacy JSON for date {date_str}")
+                
+                # Create summary data for display
+                summary = {
+                    'total_drivers': len(report_data.get('drivers', [])),
+                    'total_morning_drivers': len(report_data.get('drivers', [])),
+                    'on_time_drivers': sum(1 for d in report_data.get('drivers', []) if d.get('status') == 'On Time'),
+                    'late_drivers': sum(1 for d in report_data.get('drivers', []) if d.get('status') == 'Late'),
+                    'early_end_drivers': sum(1 for d in report_data.get('drivers', []) if d.get('status') == 'Early Departure'),
+                    'not_on_job_drivers': sum(1 for d in report_data.get('drivers', []) if d.get('status') == 'Not On Job'),
+                    'exception_drivers': 0,
+                    'total_issues': 0,
+                    'on_time_percent': 0
+                }
+                
+                # Calculate total issues and on-time percentage
+                summary['total_issues'] = (summary['late_drivers'] + 
+                                          summary['early_end_drivers'] + 
+                                          summary['not_on_job_drivers'])
+                
+                if summary['total_drivers'] > 0:
+                    summary['on_time_percent'] = int((summary['on_time_drivers'] / summary['total_drivers']) * 100)
+                
+                # Create categorized lists
+                late_morning = [d for d in report_data.get('drivers', []) if d.get('status') == 'Late']
+                early_departures = [d for d in report_data.get('drivers', []) if d.get('status') == 'Early Departure']
+                not_on_job = [d for d in report_data.get('drivers', []) if d.get('status') == 'Not On Job']
+                
+                # Build the enhanced report structure
+                return {
+                    'date': date_str,
+                    'formatted_date': report_data.get('report_date'),
+                    'total_drivers': len(report_data.get('drivers', [])),
+                    'total_morning_drivers': len(report_data.get('drivers', [])),
+                    'on_time_count': summary['on_time_drivers'],
+                    'drivers': report_data.get('drivers', []),
+                    'late_morning': late_morning,
+                    'early_departures': early_departures,
+                    'not_on_job_drivers': not_on_job,
+                    'summary': summary
+                }
+        
+        # If we need to regenerate the report, use the unified data processor
+        logger.info(f"Generating new report with unified data processor for {date_str}")
+        try:
+            from utils.unified_data_processor import UnifiedDataProcessor
+            
+            # Create the processor and process available files
+            processor = UnifiedDataProcessor(date_str)
+            
+            # Find available files
+            assets_dir = 'attached_assets'
+            for file in os.listdir(assets_dir):
+                file_path = os.path.join(assets_dir, file)
+                
+                if 'DrivingHistory' in file:
+                    processor.process_driving_history(file_path)
+                
+                elif 'ActivityDetail' in file:
+                    processor.process_activity_detail(file_path)
+                
+                elif 'AssetsTimeOnSite' in file or 'FleetUtilization' in file:
+                    processor.process_asset_onsite(file_path)
+                
+                elif 'ELIST' in file or 'Employee' in file:
+                    processor.process_employee_data(file_path)
+                
+                elif 'DAILY' in file and ('NOJ' in file or 'REPORT' in file) and file.endswith('.xlsx'):
+                    processor.process_start_time_job_sheet(file_path)
+            
+            # Generate reports
+            processor.generate_attendance_report()
+            processor.export_excel_report()
+            processor.export_pdf_report()
+            
+            # Try to load the newly generated report
+            if os.path.exists(json_path):
+                with open(json_path, 'r') as f:
+                    attendance_data = json.load(f)
+                
+                # Convert attendance data to report format
+                late_records = attendance_data.get('late_start_records', [])
+                early_records = attendance_data.get('early_end_records', [])
+                not_on_job_records = attendance_data.get('not_on_job_records', [])
+                drivers = attendance_data.get('drivers', [])
+                
+                # Create summary data for display
+                summary = {
+                    'total_drivers': attendance_data.get('total_drivers', 0),
+                    'total_morning_drivers': attendance_data.get('total_drivers', 0),
+                    'on_time_drivers': max(0, attendance_data.get('total_drivers', 0) - len(late_records) - len(not_on_job_records)),
+                    'late_drivers': len(late_records),
+                    'early_end_drivers': len(early_records),
+                    'not_on_job_drivers': len(not_on_job_records),
+                    'exception_drivers': 0,
+                    'total_issues': len(late_records) + len(early_records) + len(not_on_job_records),
+                    'on_time_percent': attendance_data.get('on_time_percent', 0)
+                }
+                
+                # Format date for display
+                date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+                formatted_date = date_obj.strftime('%A, %B %d, %Y')
+                
+                return {
+                    'date': date_str,
+                    'formatted_date': formatted_date,
+                    'total_drivers': attendance_data.get('total_drivers', 0),
+                    'total_morning_drivers': attendance_data.get('total_drivers', 0),
+                    'on_time_count': summary['on_time_drivers'],
+                    'drivers': drivers,
+                    'late_morning': late_records,
+                    'early_departures': early_records,
+                    'not_on_job_drivers': not_on_job_records,
+                    'summary': summary
+                }
+        except Exception as regen_error:
+            logger.error(f"Error generating report with unified processor: {regen_error}")
+    
+    except Exception as e:
+        error_msg = f"Error loading or generating report for {date_str}: {str(e)}"
+        logger.error(error_msg)
+        error_logger.error(error_msg)
+        logger.error(traceback.format_exc())
+    
+    # If we reach here, return an empty report structure
+    # No synthetic data, just empty placeholders
+    date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+    formatted_date = date_obj.strftime('%A, %B %d, %Y')
+    
+    return {
+        'date': date_str,
+        'formatted_date': formatted_date,
+        'total_drivers': 0,
+        'total_morning_drivers': 0,
+        'on_time_count': 0,
+        'drivers': [],
+        'late_morning': [],
+        'early_departures': [],
+        'not_on_job_drivers': [],
+        'summary': {
+            'total_drivers': 0,
+            'total_morning_drivers': 0,
+            'on_time_drivers': 0,
+            'late_drivers': 0,
+            'early_end_drivers': 0,
+            'not_on_job_drivers': 0,
+            'exception_drivers': 0,
+            'total_issues': 0,
+            'on_time_percent': 0
+        },
+        'error': "Could not generate report with authentic employee data. Please check logs for details."
+    }
+
+def get_user_email_config():
+    """Get user's email configuration"""
+    try:
+        # Default configuration
+        config = {
+            'recipients': '',
+            'cc': '',
+            'bcc': '',
+            'auto_send': False,
+            'include_user': True
+        }
+        
+        # Get from database if user is authenticated
+        if current_user and current_user.is_authenticated:
+            from models.user_settings import get_user_setting
+            
+            try:
+                config['recipients'] = get_user_setting(current_user.id, 'email_recipients', '')
+            except:
+                pass
+                
+            try:
+                config['cc'] = get_user_setting(current_user.id, 'email_cc', '')
+            except:
+                pass
+                
+            try:
+                config['bcc'] = get_user_setting(current_user.id, 'email_bcc', '')
+            except:
+                pass
+                
+            try:
+                config['auto_send'] = get_user_setting(current_user.id, 'email_auto_send', 'false').lower() == 'true'
+            except:
+                pass
+                
+            try:
+                config['include_user'] = get_user_setting(current_user.id, 'email_include_user', 'true').lower() == 'true'
+            except:
+                pass
+            
+        return config
+    except Exception as e:
+        logger.error(f"Error getting user email config: {e}")
+        return {
+            'recipients': '',
+            'cc': '',
+            'bcc': '',
+            'auto_send': False,
+            'include_user': True
+        }
+
+def save_user_email_config(config):
+    """Save user's email configuration"""
+    try:
+        if current_user and current_user.is_authenticated:
+            from models.user_settings import set_user_setting
+            
+            set_user_setting(current_user.id, 'email_recipients', config.get('recipients', ''))
+            set_user_setting(current_user.id, 'email_cc', config.get('cc', ''))
+            set_user_setting(current_user.id, 'email_bcc', config.get('bcc', ''))
+            set_user_setting(current_user.id, 'email_auto_send', 'true' if config.get('auto_send', False) else 'false')
+            set_user_setting(current_user.id, 'email_include_user', 'true' if config.get('include_user', True) else 'false')
+            
+            return True
+    except Exception as e:
+        logger.error(f"Error saving user email config: {e}")
+    
+    return False
+
+# Activity logging
+def log_navigation(action, details=None):
+    """Log navigation to activity log"""
+    try:
+        from utils.activity_logger import log_activity
+        log_activity('navigation', f'Viewed {action}', details or {})
+    except Exception as e:
+        logger.error(f"Error logging navigation: {e}")
+
+# Routes
+@driver_module_bp.route('/')
 def index():
-    """Display the driver reports dashboard"""
+    """Driver module index page"""
+    log_navigation('Driver Module')
     return render_template('drivers/index.html')
 
-
-@drivers_bp.route('/dashboard/kpi-data')
-def kpi_data():
-    """Get KPI data for the dashboard"""
+@driver_module_bp.route('/daily-report', methods=['GET', 'POST'])
+def daily_report():
+    """Daily driver attendance report with email configuration"""
     try:
-        # Parse filter parameters
-        date_range = request.args.get('date_range', 'last_7_days')
-        division = request.args.get('division', 'all_divisions')
-        department = request.args.get('department', 'all_departments')
-        issue_type = request.args.get('issue_type', 'all_issues')
-        
-        # Calculate date filter based on date_range
-        end_date = datetime.now().date()
-        start_date = None
-        
-        if date_range == 'today':
-            start_date = end_date
-        elif date_range == 'yesterday':
-            start_date = end_date - timedelta(days=1)
-            end_date = start_date
-        elif date_range == 'last_7_days':
-            start_date = end_date - timedelta(days=6)
-        elif date_range == 'this_month':
-            start_date = end_date.replace(day=1)
-        elif date_range == 'last_month':
-            last_month = end_date.month - 1
-            year = end_date.year
-            if last_month == 0:
-                last_month = 12
-                year -= 1
-            start_date = datetime(year, last_month, 1).date()
-            # Set end_date to the last day of last month
-            if last_month == 12:
-                end_date = datetime(year + 1, 1, 1).date() - timedelta(days=1)
-            else:
-                end_date = datetime(year, last_month + 1, 1).date() - timedelta(days=1)
-        elif date_range == 'custom_range':
-            # If a custom range is specified, it should be sent in additional parameters
-            custom_start = request.args.get('start_date')
-            custom_end = request.args.get('end_date')
-            if custom_start and custom_end:
-                try:
-                    start_date = datetime.strptime(custom_start, '%Y-%m-%d').date()
-                    end_date = datetime.strptime(custom_end, '%Y-%m-%d').date()
-                except ValueError:
-                    # If parsing fails, default to last 7 days
-                    start_date = end_date - timedelta(days=6)
-            else:
-                # Default to last 7 days if custom range is incomplete
-                start_date = end_date - timedelta(days=6)
-        else:
-            # Default to last 7 days for unrecognized values
-            start_date = end_date - timedelta(days=6)
-        
-        # Build base query with date filter
-        base_query = AttendanceRecord.query.filter(
-            AttendanceRecord.date >= start_date,
-            AttendanceRecord.date <= end_date
-        )
-        
-        # Apply division filter if specified
-        if division != 'all_divisions':
-            # Join with appropriate tables to filter by division
-            base_query = base_query.join(Driver).filter(Driver.division == division.upper())
-        
-        # Apply department filter if specified
-        if department != 'all_departments':
-            # Join with appropriate tables to filter by department
-            base_query = base_query.join(Driver, AttendanceRecord.driver_id == Driver.id).filter(Driver.department == department)
-        
-        # Count metrics
-        total_records = base_query.count()
-        late_starts = base_query.filter(AttendanceRecord.late_start == True).count()
-        early_ends = base_query.filter(AttendanceRecord.early_end == True).count()
-        not_on_job = base_query.filter(AttendanceRecord.not_on_job == True).count()
-        
-        # Calculate on-time rate
-        on_time_rate = 100
-        if total_records > 0:
-            on_time_records = total_records - (late_starts + early_ends + not_on_job)
-            on_time_rate = round((on_time_records / total_records) * 100)
-        
-        # Calculate previous period metrics for trend
-        prev_end_date = start_date - timedelta(days=1)
-        period_length = (end_date - start_date).days + 1
-        prev_start_date = prev_end_date - timedelta(days=period_length - 1)
-        
-        prev_query = AttendanceRecord.query.filter(
-            AttendanceRecord.date >= prev_start_date,
-            AttendanceRecord.date <= prev_end_date
-        )
-        
-        # Apply same filters to previous period
-        if division != 'all_divisions':
-            prev_query = prev_query.join(Driver).filter(Driver.division == division.upper())
-        
-        if department != 'all_departments':
-            prev_query = prev_query.join(Driver, AttendanceRecord.driver_id == Driver.id).filter(Driver.department == department)
-        
-        prev_total = prev_query.count()
-        prev_late_starts = prev_query.filter(AttendanceRecord.late_start == True).count()
-        prev_early_ends = prev_query.filter(AttendanceRecord.early_end == True).count()
-        prev_not_on_job = prev_query.filter(AttendanceRecord.not_on_job == True).count()
-        
-        # Calculate previous on-time rate
-        prev_on_time_rate = 100
-        if prev_total > 0:
-            prev_on_time = prev_total - (prev_late_starts + prev_early_ends + prev_not_on_job)
-            prev_on_time_rate = round((prev_on_time / prev_total) * 100)
-        
-        # Calculate trends
-        late_starts_trend = 0
-        early_ends_trend = 0
-        not_on_job_trend = 0
-        on_time_rate_trend = 0
-        
-        if prev_total > 0:
-            # Avoid division by zero
-            late_starts_trend = round((late_starts / total_records * 100) - (prev_late_starts / prev_total * 100))
-            early_ends_trend = round((early_ends / total_records * 100) - (prev_early_ends / prev_total * 100))
-            not_on_job_trend = round((not_on_job / total_records * 100) - (prev_not_on_job / prev_total * 100))
-            
-        on_time_rate_trend = on_time_rate - prev_on_time_rate
-        
-        # Determine trend directions
-        late_starts_direction = 'up' if late_starts_trend > 0 else 'down' if late_starts_trend < 0 else 'none'
-        early_ends_direction = 'up' if early_ends_trend > 0 else 'down' if early_ends_trend < 0 else 'none'
-        not_on_job_direction = 'up' if not_on_job_trend > 0 else 'down' if not_on_job_trend < 0 else 'none'
-        on_time_rate_direction = 'up' if on_time_rate_trend > 0 else 'down' if on_time_rate_trend < 0 else 'none'
-        
-        # For these metrics, up is bad, down is good (except for on-time rate)
-        response = {
-            'late_starts': {
-                'value': late_starts,
-                'trend': late_starts_trend,
-                'trend_direction': late_starts_direction
-            },
-            'early_ends': {
-                'value': early_ends,
-                'trend': early_ends_trend,
-                'trend_direction': early_ends_direction
-            },
-            'not_on_job': {
-                'value': not_on_job,
-                'trend': not_on_job_trend,
-                'trend_direction': not_on_job_direction
-            },
-            'on_time_rate': {
-                'value': on_time_rate,
-                'trend': on_time_rate_trend,
-                'trend_direction': on_time_rate_direction
-            }
-        }
-        
-        return jsonify(response)
-    
-    except Exception as e:
-        logger.error(f"Error in kpi_data: {str(e)}")
-        return jsonify({'error': str(e)}), 500
-
-
-@drivers_bp.route('/dashboard/trend-data')
-def trend_data():
-    """Get trend data for the attendance trend chart"""
-    try:
-        # Get parameters
-        days = int(request.args.get('days', 30))
-        division = request.args.get('division', 'all_divisions')
-        department = request.args.get('department', 'all_departments')
-        
-        # Calculate date range
-        end_date = datetime.now().date()
-        start_date = end_date - timedelta(days=days-1)
-        
-        # Generate list of dates
-        date_list = []
-        for i in range(days):
-            date_list.append((start_date + timedelta(days=i)).strftime('%Y-%m-%d'))
-        
-        # Query attendance data
-        query = db.session.query(
-            AttendanceRecord.date,
-            func.count(AttendanceRecord.id).label('total_records'),
-            func.sum(AttendanceRecord.late_start.cast(db.Integer)).label('late_starts'),
-            func.sum(AttendanceRecord.early_end.cast(db.Integer)).label('early_ends'),
-            func.sum(AttendanceRecord.not_on_job.cast(db.Integer)).label('not_on_job')
-        ).filter(
-            AttendanceRecord.date >= start_date,
-            AttendanceRecord.date <= end_date
-        ).group_by(
-            AttendanceRecord.date
-        )
-        
-        # Apply division filter if specified
-        if division != 'all_divisions':
-            query = query.join(Driver).filter(Driver.division == division.upper())
-        
-        # Apply department filter if specified
-        if department != 'all_departments':
-            query = query.join(Driver, AttendanceRecord.driver_id == Driver.id).filter(Driver.department == department)
-        
-        # Execute query
-        results = query.all()
-        
-        # Convert to dictionary with date as key
-        data_by_date = {}
-        for row in results:
-            date_str = row.date.strftime('%Y-%m-%d')
-            data_by_date[date_str] = {
-                'date': date_str,
-                'total_records': row.total_records,
-                'late_starts': row.late_starts or 0,
-                'early_ends': row.early_ends or 0,
-                'not_on_job': row.not_on_job or 0
-            }
-        
-        # Ensure all dates have data
-        response_data = []
-        for date_str in date_list:
-            if date_str in data_by_date:
-                response_data.append(data_by_date[date_str])
-            else:
-                response_data.append({
-                    'date': date_str,
-                    'total_records': 0,
-                    'late_starts': 0,
-                    'early_ends': 0,
-                    'not_on_job': 0
-                })
-        
-        return jsonify(response_data)
-    
-    except Exception as e:
-        logger.error(f"Error in trend_data: {str(e)}")
-        return jsonify({'error': str(e)}), 500
-
-
-@drivers_bp.route('/dashboard/recent-issues')
-def recent_issues():
-    """Get recent attendance issues for the dashboard"""
-    try:
-        # Parse filter parameters
-        date_range = request.args.get('date_range', 'last_7_days')
-        division = request.args.get('division', 'all_divisions')
-        department = request.args.get('department', 'all_departments')
-        issue_type = request.args.get('issue_type', 'all_issues')
-        page = int(request.args.get('page', 1))
-        per_page = int(request.args.get('per_page', 10))
-        
-        # Calculate date filter based on date_range
-        end_date = datetime.now().date()
-        start_date = None
-        
-        if date_range == 'today':
-            start_date = end_date
-        elif date_range == 'yesterday':
-            start_date = end_date - timedelta(days=1)
-            end_date = start_date
-        elif date_range == 'last_7_days':
-            start_date = end_date - timedelta(days=6)
-        elif date_range == 'this_month':
-            start_date = end_date.replace(day=1)
-        elif date_range == 'last_month':
-            last_month = end_date.month - 1
-            year = end_date.year
-            if last_month == 0:
-                last_month = 12
-                year -= 1
-            start_date = datetime(year, last_month, 1).date()
-            # Set end_date to the last day of last month
-            if last_month == 12:
-                end_date = datetime(year + 1, 1, 1).date() - timedelta(days=1)
-            else:
-                end_date = datetime(year, last_month + 1, 1).date() - timedelta(days=1)
-        elif date_range == 'custom_range':
-            # If a custom range is specified, it should be sent in additional parameters
-            custom_start = request.args.get('start_date')
-            custom_end = request.args.get('end_date')
-            if custom_start and custom_end:
-                try:
-                    start_date = datetime.strptime(custom_start, '%Y-%m-%d').date()
-                    end_date = datetime.strptime(custom_end, '%Y-%m-%d').date()
-                except ValueError:
-                    # If parsing fails, default to last 7 days
-                    start_date = end_date - timedelta(days=6)
-            else:
-                # Default to last 7 days if custom range is incomplete
-                start_date = end_date - timedelta(days=6)
-        else:
-            # Default to last 7 days for unrecognized values
-            start_date = end_date - timedelta(days=6)
-        
-        # Build base query with date filter
-        base_query = AttendanceRecord.query.filter(
-            AttendanceRecord.date >= start_date,
-            AttendanceRecord.date <= end_date
-        )
-        
-        # Apply division filter if specified
-        if division != 'all_divisions':
-            base_query = base_query.join(Driver).filter(Driver.division == division.upper())
-        
-        # Apply department filter if specified
-        if department != 'all_departments':
-            base_query = base_query.join(Driver, AttendanceRecord.driver_id == Driver.id).filter(Driver.department == department)
-        
-        # Apply issue type filter if specified
-        if issue_type == 'late_start':
-            base_query = base_query.filter(AttendanceRecord.late_start == True)
-        elif issue_type == 'early_end':
-            base_query = base_query.filter(AttendanceRecord.early_end == True)
-        elif issue_type == 'not_on_job':
-            base_query = base_query.filter(AttendanceRecord.not_on_job == True)
-        else:
-            # If all issues, filter for any issue
-            base_query = base_query.filter(or_(
-                AttendanceRecord.late_start == True,
-                AttendanceRecord.early_end == True,
-                AttendanceRecord.not_on_job == True
-            ))
-        
-        # Join with related models for data retrieval
-        base_query = base_query.join(Driver)
-        base_query = base_query.join(JobSite, AttendanceRecord.assigned_job_id == JobSite.id)
-        
-        # Order by date (most recent first)
-        base_query = base_query.order_by(desc(AttendanceRecord.date))
-        
-        # Get total count for pagination
-        total_records = base_query.count()
-        total_pages = (total_records + per_page - 1) // per_page  # Ceiling division
-        
-        # Apply pagination
-        records = base_query.offset((page - 1) * per_page).limit(per_page).all()
-        
-        # Format the response
-        result_data = []
-        for record in records:
-            # Determine issue type (prioritize not_on_job, then late_start, then early_end)
-            issue_type_label = None
-            if record.not_on_job:
-                issue_type_label = "Not On Job"
-            elif record.late_start:
-                issue_type_label = "Late Start"
-            elif record.early_end:
-                issue_type_label = "Early End"
-            else:
-                issue_type_label = "Unknown Issue"
-            
-            # Format times for display
-            expected_time = record.expected_start_time.strftime("%H:%M") if record.expected_start_time else "--:--"
-            actual_time = record.actual_start_time.strftime("%H:%M") if record.actual_start_time else "--:--"
-            
-            # Calculate time difference in minutes
-            time_diff = None
-            if record.expected_start_time and record.actual_start_time and issue_type_label == "Late Start":
-                diff = record.actual_start_time - record.expected_start_time
-                time_diff = f"{int(diff.total_seconds() / 60)} min late"
-            elif record.expected_end_time and record.actual_end_time and issue_type_label == "Early End":
-                diff = record.expected_end_time - record.actual_end_time
-                time_diff = f"{int(diff.total_seconds() / 60)} min early"
-            else:
-                time_diff = "N/A"
-            
-            result_data.append({
-                'id': record.id,
-                'date': record.date.strftime("%m/%d/%Y"),
-                'driver': record.driver.full_name,
-                'asset_id': record.asset_id or "N/A",
-                'job_site': record.assigned_job.job_number,
-                'issue_type': issue_type_label,
-                'expected': expected_time,
-                'actual': actual_time,
-                'difference': time_diff
-            })
-        
-        response = {
-            'data': result_data,
-            'page': page,
-            'per_page': per_page,
-            'total': total_records,
-            'pages': total_pages
-        }
-        
-        return jsonify(response)
-    
-    except Exception as e:
-        logger.error(f"Error in recent_issues: {str(e)}")
-        return jsonify({'error': str(e)}), 500
-
-
-@drivers_bp.route('/api/drivers')
-def get_drivers():
-    """Get list of drivers with filters and pagination"""
-    try:
-        # Parse filter parameters
-        division = request.args.get('division', 'all_divisions')
-        department = request.args.get('department', 'all_departments')
-        search = request.args.get('search', '')
-        page = int(request.args.get('page', 1))
-        per_page = int(request.args.get('per_page', 10))
-        
-        # Build base query
-        base_query = Driver.query
-        
-        # Apply division filter if specified
-        if division != 'all_divisions':
-            base_query = base_query.filter(Driver.division == division.upper())
-        
-        # Apply department filter if specified
-        if department != 'all_departments':
-            base_query = base_query.filter(Driver.department == department)
-        
-        # Apply search filter if specified
-        if search:
-            base_query = base_query.filter(or_(
-                Driver.first_name.ilike(f'%{search}%'),
-                Driver.last_name.ilike(f'%{search}%'),
-                Driver.employee_id.ilike(f'%{search}%')
-            ))
-        
-        # Get total count for pagination
-        total_records = base_query.count()
-        total_pages = (total_records + per_page - 1) // per_page  # Ceiling division
-        
-        # Apply pagination and ordering
-        drivers = base_query.order_by(Driver.last_name).offset((page - 1) * per_page).limit(per_page).all()
-        
-        # Get latest records for each driver to find current asset and job
-        driver_data = []
-        for driver in drivers:
-            # Get latest attendance record for this driver
-            latest_record = AttendanceRecord.query.filter(
-                AttendanceRecord.driver_id == driver.id
-            ).order_by(desc(AttendanceRecord.date)).first()
-            
-            # Calculate attendance score (simple version)
-            last_30_days_records = AttendanceRecord.query.filter(
-                AttendanceRecord.driver_id == driver.id,
-                AttendanceRecord.date >= (datetime.now().date() - timedelta(days=30))
-            ).all()
-            
-            attendance_score = 100
-            if last_30_days_records:
-                total_issues = sum(1 for r in last_30_days_records if r.late_start or r.early_end or r.not_on_job)
-                attendance_score = 100 - (total_issues / len(last_30_days_records) * 100)
-                attendance_score = max(0, min(100, round(attendance_score)))
-            
-            # Get current job site name
-            current_job = None
-            if latest_record and latest_record.assigned_job:
-                current_job = latest_record.assigned_job.job_number
-            
-            driver_data.append({
-                'id': driver.id,
-                'employee_id': driver.employee_id,
-                'name': driver.full_name,
-                'division': driver.division,
-                'department': driver.department,
-                'current_asset': latest_record.asset_id if latest_record else None,
-                'current_job': current_job,
-                'attendance_score': attendance_score,
-                'is_active': driver.is_active
-            })
-        
-        response = {
-            'data': driver_data,
-            'page': page,
-            'per_page': per_page,
-            'total': total_records,
-            'pages': total_pages
-        }
-        
-        return jsonify(response)
-    
-    except Exception as e:
-        logger.error(f"Error in get_drivers: {str(e)}")
-        return jsonify({'error': str(e)}), 500
-
-
-@drivers_bp.route('/api/driver/<int:driver_id>/metrics')
-def driver_metrics(driver_id):
-    """Get performance metrics for a specific driver"""
-    try:
-        # Get the driver
-        driver = Driver.query.get_or_404(driver_id)
-        
-        # Get the latest record for current assignment
-        latest_record = AttendanceRecord.query.filter(
-            AttendanceRecord.driver_id == driver.id
-        ).order_by(desc(AttendanceRecord.date)).first()
-        
-        # Current job site
-        current_job = None
-        if latest_record and latest_record.assigned_job:
-            current_job = latest_record.assigned_job.job_number
-        
-        # Get attendance metrics for last 30 days
-        end_date = datetime.now().date()
-        start_date = end_date - timedelta(days=29)
-        
-        current_records = AttendanceRecord.query.filter(
-            AttendanceRecord.driver_id == driver.id,
-            AttendanceRecord.date >= start_date,
-            AttendanceRecord.date <= end_date
-        ).all()
-        
-        # Calculate metrics for current period
-        current_total = len(current_records)
-        current_late_starts = sum(1 for r in current_records if r.late_start)
-        current_early_ends = sum(1 for r in current_records if r.early_end)
-        current_not_on_job = sum(1 for r in current_records if r.not_on_job)
-        
-        # Calculate attendance score
-        attendance_score = 100
-        if current_total > 0:
-            total_issues = current_late_starts + current_early_ends + current_not_on_job
-            attendance_score = 100 - (total_issues / current_total * 100)
-            attendance_score = max(0, min(100, round(attendance_score)))
-        
-        # Get metrics for previous 30 days for trend calculation
-        prev_end_date = start_date - timedelta(days=1)
-        prev_start_date = prev_end_date - timedelta(days=29)
-        
-        prev_records = AttendanceRecord.query.filter(
-            AttendanceRecord.driver_id == driver.id,
-            AttendanceRecord.date >= prev_start_date,
-            AttendanceRecord.date <= prev_end_date
-        ).all()
-        
-        # Calculate metrics for previous period
-        prev_total = len(prev_records)
-        prev_late_starts = sum(1 for r in prev_records if r.late_start)
-        prev_early_ends = sum(1 for r in prev_records if r.early_end)
-        prev_not_on_job = sum(1 for r in prev_records if r.not_on_job)
-        
-        # Calculate previous attendance score
-        prev_attendance_score = 100
-        if prev_total > 0:
-            prev_total_issues = prev_late_starts + prev_early_ends + prev_not_on_job
-            prev_attendance_score = 100 - (prev_total_issues / prev_total * 100)
-            prev_attendance_score = max(0, min(100, round(prev_attendance_score)))
-        
-        # Calculate trends
-        late_starts_trend = 0
-        early_ends_trend = 0
-        not_on_job_trend = 0
-        attendance_score_trend = 0
-        
-        if prev_total > 0 and current_total > 0:
-            late_starts_trend = round((current_late_starts / current_total * 100) - (prev_late_starts / prev_total * 100))
-            early_ends_trend = round((current_early_ends / current_total * 100) - (prev_early_ends / prev_total * 100))
-            not_on_job_trend = round((current_not_on_job / current_total * 100) - (prev_not_on_job / prev_total * 100))
-        
-        attendance_score_trend = attendance_score - prev_attendance_score
-        
-        # Determine trend directions
-        late_starts_direction = 'up' if late_starts_trend > 0 else 'down' if late_starts_trend < 0 else 'none'
-        early_ends_direction = 'up' if early_ends_trend > 0 else 'down' if early_ends_trend < 0 else 'none'
-        not_on_job_direction = 'up' if not_on_job_trend > 0 else 'down' if not_on_job_trend < 0 else 'none'
-        attendance_score_direction = 'up' if attendance_score_trend > 0 else 'down' if attendance_score_trend < 0 else 'none'
-        
-        response = {
-            'driver': {
-                'id': driver.id,
-                'employee_id': driver.employee_id,
-                'name': driver.full_name,
-                'division': driver.division,
-                'department': driver.department,
-                'current_asset': latest_record.asset_id if latest_record else None,
-                'current_job': current_job,
-                'is_active': driver.is_active
-            },
-            'metrics': {
-                'attendance_score': {
-                    'value': attendance_score,
-                    'trend': attendance_score_trend,
-                    'trend_direction': attendance_score_direction
-                },
-                'late_starts': {
-                    'value': current_late_starts,
-                    'trend': late_starts_trend,
-                    'trend_direction': late_starts_direction
-                },
-                'early_ends': {
-                    'value': current_early_ends,
-                    'trend': early_ends_trend,
-                    'trend_direction': early_ends_direction
-                },
-                'not_on_job': {
-                    'value': current_not_on_job,
-                    'trend': not_on_job_trend,
-                    'trend_direction': not_on_job_direction
+        # Get date parameter with safe fallback
+        date_str = request.args.get('date', datetime.now().strftime('%Y-%m-%d'))
+        
+        # Process form submission if applicable
+        if request.method == 'POST' and request.form.get('action') == 'update_email':
+            try:
+                # Update email settings
+                config = {
+                    'recipients': request.form.get('recipients', ''),
+                    'cc': request.form.get('cc', ''),
+                    'bcc': request.form.get('bcc', ''),
+                    'auto_send': request.form.get('auto_send') == 'on',
+                    'include_user': request.form.get('include_user') == 'on'
                 }
-            }
-        }
+                
+                if save_user_email_config(config):
+                    flash('Email configuration updated successfully', 'success')
+                else:
+                    flash('Failed to update email configuration', 'error')
+                    
+                # Redirect to avoid form resubmission
+                return redirect(url_for('driver_module.daily_report', date=date_str))
+            except Exception as e:
+                error_msg = f"Error processing form: {e}"
+                logger.error(error_msg)
+                error_logger.error(error_msg)
+                flash('An error occurred while updating email configuration', 'error')
         
-        return jsonify(response)
-    
-    except Exception as e:
-        logger.error(f"Error in driver_metrics: {str(e)}")
-        return jsonify({'error': str(e)}), 500
-
-
-@drivers_bp.route('/api/driver/<int:driver_id>/attendance-chart')
-def driver_attendance_chart(driver_id):
-    """Get attendance chart data for a specific driver"""
-    try:
-        # Get parameters
-        days = int(request.args.get('days', 90))
+        # Get email configuration for the current user
+        email_config = get_user_email_config()
         
-        # Get the driver
-        driver = Driver.query.get_or_404(driver_id)
+        # Get report data with authentic employee information
+        report = get_daily_report(date_str)
         
-        # Calculate date range
-        end_date = datetime.now().date()
-        start_date = end_date - timedelta(days=days-1)
+        # Log navigation with relevant details
+        log_navigation('Daily Driver Report', {'date': date_str})
         
-        # Generate list of dates
-        date_list = []
-        for i in range(days):
-            date_list.append((start_date + timedelta(days=i)).strftime('%Y-%m-%d'))
-        
-        # Query attendance data
-        query = db.session.query(
-            AttendanceRecord.date,
-            func.sum(AttendanceRecord.late_start.cast(db.Integer)).label('late_starts'),
-            func.sum(AttendanceRecord.early_end.cast(db.Integer)).label('early_ends'),
-            func.sum(AttendanceRecord.not_on_job.cast(db.Integer)).label('not_on_job')
-        ).filter(
-            AttendanceRecord.driver_id == driver_id,
-            AttendanceRecord.date >= start_date,
-            AttendanceRecord.date <= end_date
-        ).group_by(
-            AttendanceRecord.date
+        # Render template with report data
+        return render_template(
+            'drivers/daily_report.html',
+            report=report,
+            selected_date=date_str,
+            email_config=email_config
         )
         
-        # Execute query
-        results = query.all()
-        
-        # Convert to dictionary with date as key
-        data_by_date = {}
-        for row in results:
-            date_str = row.date.strftime('%Y-%m-%d')
-            # Calculate score for the day (1 point for each issue type)
-            issues = (row.late_starts or 0) + (row.early_ends or 0) + (row.not_on_job or 0)
-            score = 100 if issues == 0 else max(0, 100 - (issues * 33.33))
-            
-            data_by_date[date_str] = {
-                'date': date_str,
-                'score': round(score),
-                'late_starts': row.late_starts or 0,
-                'early_ends': row.early_ends or 0,
-                'not_on_job': row.not_on_job or 0
-            }
-        
-        # Ensure all dates have data
-        response_data = []
-        for date_str in date_list:
-            if date_str in data_by_date:
-                response_data.append(data_by_date[date_str])
-            else:
-                # Assume 100% score for days with no records (no issues)
-                response_data.append({
-                    'date': date_str,
-                    'score': 100,
-                    'late_starts': 0,
-                    'early_ends': 0,
-                    'not_on_job': 0
-                })
-        
-        return jsonify(response_data)
-    
     except Exception as e:
-        logger.error(f"Error in driver_attendance_chart: {str(e)}")
-        return jsonify({'error': str(e)}), 500
-
-
-@drivers_bp.route('/api/driver/<int:driver_id>/attendance-history')
-def driver_attendance_history(driver_id):
-    """Get attendance history for a specific driver with pagination"""
-    try:
-        # Get parameters
-        days = int(request.args.get('days', 30))
-        page = int(request.args.get('page', 1))
-        per_page = int(request.args.get('per_page', 10))
+        error_msg = f"Error in daily_report route: {e}"
+        logger.error(error_msg)
+        error_logger.error(error_msg)
+        logger.error(traceback.format_exc())
         
-        # Get the driver
-        driver = Driver.query.get_or_404(driver_id)
+        # Create fallback report for error case
+        date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+        formatted_date = date_obj.strftime('%A, %B %d, %Y')
         
-        # Calculate date range
-        end_date = datetime.now().date()
-        start_date = end_date - timedelta(days=days-1)
-        
-        # Query attendance records
-        query = AttendanceRecord.query.filter(
-            AttendanceRecord.driver_id == driver_id,
-            AttendanceRecord.date >= start_date,
-            AttendanceRecord.date <= end_date
-        ).order_by(desc(AttendanceRecord.date))
-        
-        # Get total count for pagination
-        total_records = query.count()
-        total_pages = (total_records + per_page - 1) // per_page  # Ceiling division
-        
-        # Apply pagination
-        records = query.offset((page - 1) * per_page).limit(per_page).all()
-        
-        # Format records for response
-        result_data = []
-        for record in records:
-            # Determine status label
-            status = "On Time"
-            if record.not_on_job:
-                status = "Wrong Job"
-            elif record.late_start:
-                status = "Late Start"
-            elif record.early_end:
-                status = "Early End"
-            
-            # Get job site name
-            job_site = record.assigned_job.job_number if record.assigned_job else "Unknown"
-            
-            # Format start and end times
-            start_time = record.actual_start_time.strftime("%H:%M") if record.actual_start_time else None
-            end_time = record.actual_end_time.strftime("%H:%M") if record.actual_end_time else None
-            
-            result_data.append({
-                'id': record.id,
-                'date': record.date.strftime("%m/%d/%Y"),
-                'asset_id': record.asset_id,
-                'job_site': job_site,
-                'start_time': start_time,
-                'end_time': end_time,
-                'status': status,
-                'notes': record.notes
-            })
-        
-        response = {
-            'data': result_data,
-            'page': page,
-            'per_page': per_page,
-            'total': total_records,
-            'pages': total_pages
-        }
-        
-        return jsonify(response)
-    
-    except Exception as e:
-        logger.error(f"Error in driver_attendance_history: {str(e)}")
-        return jsonify({'error': str(e)}), 500
-
-
-@drivers_bp.route('/export-attendance', methods=['GET'])
-def export_attendance_records():
-    """Export driver attendance records to CSV or Excel format"""
-    try:
-        # Parse filter parameters
-        date_range = request.args.get('date_range', 'last_30_days')
-        division = request.args.get('division', 'all_divisions')
-        department = request.args.get('department', 'all_departments')
-        driver_id = request.args.get('driver_id')
-        issue_type = request.args.get('issue_type', 'all_issues')
-        export_format = request.args.get('format', 'csv')
-        
-        # Calculate date filter based on date_range
-        end_date = datetime.now().date()
-        start_date = None
-        
-        if date_range == 'today':
-            start_date = end_date
-        elif date_range == 'yesterday':
-            start_date = end_date - timedelta(days=1)
-            end_date = start_date
-        elif date_range == 'last_7_days':
-            start_date = end_date - timedelta(days=6)
-        elif date_range == 'last_30_days':
-            start_date = end_date - timedelta(days=29)
-        elif date_range == 'this_month':
-            start_date = end_date.replace(day=1)
-        elif date_range == 'last_month':
-            last_month = end_date.month - 1
-            year = end_date.year
-            if last_month == 0:
-                last_month = 12
-                year -= 1
-            start_date = datetime(year, last_month, 1).date()
-            if last_month == 12:
-                end_date = datetime(year + 1, 1, 1).date() - timedelta(days=1)
-            else:
-                end_date = datetime(year, last_month + 1, 1).date() - timedelta(days=1)
-        elif date_range == 'custom_range':
-            custom_start = request.args.get('start_date')
-            custom_end = request.args.get('end_date')
-            if custom_start and custom_end:
-                try:
-                    start_date = datetime.strptime(custom_start, '%Y-%m-%d').date()
-                    end_date = datetime.strptime(custom_end, '%Y-%m-%d').date()
-                except ValueError:
-                    start_date = end_date - timedelta(days=29)
-            else:
-                start_date = end_date - timedelta(days=29)
-        else:
-            start_date = end_date - timedelta(days=29)
-        
-        # Build base query with date filter
-        base_query = AttendanceRecord.query.filter(
-            AttendanceRecord.date >= start_date,
-            AttendanceRecord.date <= end_date
-        )
-        
-        # Apply division filter if specified
-        if division != 'all_divisions':
-            base_query = base_query.join(Driver, AttendanceRecord.driver_id == Driver.id).filter(Driver.division == division.upper())
-        
-        # Apply department filter if specified
-        if department != 'all_departments':
-            base_query = base_query.join(Driver, AttendanceRecord.driver_id == Driver.id).filter(Driver.department == department)
-        
-        # Apply driver filter if specified
-        if driver_id:
-            base_query = base_query.filter(AttendanceRecord.driver_id == driver_id)
-        
-        # Apply issue type filter if specified
-        if issue_type == 'late_start':
-            base_query = base_query.filter(AttendanceRecord.late_start == True)
-        elif issue_type == 'early_end':
-            base_query = base_query.filter(AttendanceRecord.early_end == True)
-        elif issue_type == 'not_on_job':
-            base_query = base_query.filter(AttendanceRecord.not_on_job == True)
-        elif issue_type != 'all_issues':
-            # If all issues, filter for any issue
-            base_query = base_query.filter(or_(
-                AttendanceRecord.late_start == True,
-                AttendanceRecord.early_end == True,
-                AttendanceRecord.not_on_job == True
-            ))
-        
-        # Join with related models for data retrieval
-        base_query = base_query.join(Driver)
-        base_query = base_query.outerjoin(JobSiteAttendance, AttendanceRecord.assigned_job_id == JobSiteAttendance.id)
-        
-        # Order by date (most recent first) then by driver name
-        base_query = base_query.order_by(AttendanceRecord.date.desc(), Driver.first_name)
-        
-        # Get all records for export
-        records = base_query.all()
-        
-        # Create dataframe for export
-        export_data = []
-        for record in records:
-            # Determine issue type
-            status = "On Time"
-            if record.not_on_job:
-                status = "Not On Job"
-            elif record.late_start:
-                status = "Late Start"
-            elif record.early_end:
-                status = "Early End"
-            
-            # Get driver and job site info
-            driver_name = f"{record.driver_attendance.first_name} {record.driver_attendance.last_name}"
-            job_site = record.assigned_job.job_number if record.assigned_job else "Unknown"
-            
-            # Format times for display
-            expected_start = record.expected_start_time.strftime("%H:%M") if record.expected_start_time else "N/A"
-            actual_start = record.actual_start_time.strftime("%H:%M") if record.actual_start_time else "N/A"
-            expected_end = record.expected_end_time.strftime("%H:%M") if record.expected_end_time else "N/A"
-            actual_end = record.actual_end_time.strftime("%H:%M") if record.actual_end_time else "N/A"
-            
-            export_data.append({
-                'Date': record.date.strftime("%m/%d/%Y"),
-                'Driver ID': record.driver_attendance.employee_id,
-                'Driver Name': driver_name,
-                'Department': record.driver_attendance.department,
-                'Division': record.driver_attendance.division,
-                'Job Site': job_site,
-                'Expected Start': expected_start,
-                'Actual Start': actual_start,
-                'Expected End': expected_end,
-                'Actual End': actual_end,
-                'Status': status,
-                'Asset ID': record.asset_id,
-                'Notes': record.notes
-            })
-        
-        # Convert to dataframe
-        df = pd.DataFrame(export_data)
-        
-        # Generate filename with timestamp
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        
-        # Create directory for exports if it doesn't exist
-        os.makedirs('exports/driver_reports', exist_ok=True)
-        
-        # Generate appropriate file based on format
-        if export_format.lower() == 'excel':
-            # Export to Excel
-            file_path = f'exports/driver_reports/driver_attendance_{timestamp}.xlsx'
-            df.to_excel(file_path, index=False, sheet_name='Driver Attendance')
-            return send_file(file_path, as_attachment=True, download_name=f'driver_attendance_{timestamp}.xlsx')
-        else:
-            # Default to CSV
-            file_path = f'exports/driver_reports/driver_attendance_{timestamp}.csv'
-            df.to_csv(file_path, index=False)
-            return send_file(file_path, as_attachment=True, download_name=f'driver_attendance_{timestamp}.csv')
-    
-    except Exception as e:
-        logger.error(f"Error in export_attendance_records: {str(e)}")
-        return jsonify({'error': str(e)}), 500
-
-
-@drivers_bp.route('/api/job-sites')
-def get_job_sites():
-    """Get list of job sites with filters and pagination"""
-    try:
-        # Parse filter parameters
-        date_range = request.args.get('date_range', 'last_30_days')
-        division = request.args.get('division', 'all_divisions')
-        search = request.args.get('search', '')
-        page = int(request.args.get('page', 1))
-        per_page = int(request.args.get('per_page', 10))
-        
-        # Calculate date filter based on date_range
-        end_date = datetime.now().date()
-        start_date = None
-        
-        if date_range == 'today':
-            start_date = end_date
-        elif date_range == 'yesterday':
-            start_date = end_date - timedelta(days=1)
-            end_date = start_date
-        elif date_range == 'last_7_days':
-            start_date = end_date - timedelta(days=6)
-        elif date_range == 'last_30_days':
-            start_date = end_date - timedelta(days=29)
-        elif date_range == 'this_month':
-            start_date = end_date.replace(day=1)
-        elif date_range == 'last_month':
-            last_month = end_date.month - 1
-            year = end_date.year
-            if last_month == 0:
-                last_month = 12
-                year -= 1
-            start_date = datetime(year, last_month, 1).date()
-            # Set end_date to the last day of last month
-            if last_month == 12:
-                end_date = datetime(year + 1, 1, 1).date() - timedelta(days=1)
-            else:
-                end_date = datetime(year, last_month + 1, 1).date() - timedelta(days=1)
-        elif date_range == 'custom_range':
-            # If a custom range is specified, it should be sent in additional parameters
-            custom_start = request.args.get('start_date')
-            custom_end = request.args.get('end_date')
-            if custom_start and custom_end:
-                try:
-                    start_date = datetime.strptime(custom_start, '%Y-%m-%d').date()
-                    end_date = datetime.strptime(custom_end, '%Y-%m-%d').date()
-                except ValueError:
-                    # If parsing fails, default to last 30 days
-                    start_date = end_date - timedelta(days=29)
-            else:
-                # Default to last 30 days if custom range is incomplete
-                start_date = end_date - timedelta(days=29)
-        else:
-            # Default to last 30 days for unrecognized values
-            start_date = end_date - timedelta(days=29)
-        
-        # Build base query
-        base_query = JobSite.query
-        
-        # Apply division filter if specified
-        if division != 'all_divisions':
-            base_query = base_query.filter(JobSite.division == division.upper())
-        
-        # Apply search filter if specified
-        if search:
-            base_query = base_query.filter(or_(
-                JobSite.job_number.ilike(f'%{search}%'),
-                JobSite.name.ilike(f'%{search}%'),
-                JobSite.location.ilike(f'%{search}%')
-            ))
-        
-        # Get total count for pagination
-        total_records = base_query.count()
-        total_pages = (total_records + per_page - 1) // per_page  # Ceiling division
-        
-        # Apply pagination and ordering
-        job_sites = base_query.order_by(JobSite.job_number).offset((page - 1) * per_page).limit(per_page).all()
-        
-        # Format job sites for response
-        result_data = []
-        for job_site in job_sites:
-            # Get attendance records for this job site in the date range
-            records = AttendanceRecord.query.filter(
-                AttendanceRecord.assigned_job_id == job_site.id,
-                AttendanceRecord.date >= start_date,
-                AttendanceRecord.date <= end_date
-            ).all()
-            
-            # Count metrics
-            late_starts = sum(1 for r in records if r.late_start)
-            early_ends = sum(1 for r in records if r.early_end)
-            not_on_job = sum(1 for r in records if r.not_on_job)
-            
-            # Count active drivers (unique drivers in the period)
-            active_drivers = len(set(r.driver_id for r in records))
-            
-            # Calculate attendance score
-            attendance_score = 100
-            if records:
-                total_issues = late_starts + early_ends + not_on_job
-                attendance_score = 100 - (total_issues / len(records) * 100)
-                attendance_score = max(0, min(100, round(attendance_score)))
-            
-            result_data.append({
-                'id': job_site.id,
-                'job_number': job_site.job_number,
-                'name': job_site.name,
-                'location': job_site.location,
-                'division': job_site.division,
-                'active_drivers': active_drivers,
-                'late_starts': late_starts,
-                'early_ends': early_ends,
-                'not_on_job': not_on_job,
-                'attendance_score': attendance_score,
-                'is_active': job_site.is_active
-            })
-        
-        response = {
-            'data': result_data,
-            'page': page,
-            'per_page': per_page,
-            'total': total_records,
-            'pages': total_pages
-        }
-        
-        return jsonify(response)
-    
-    except Exception as e:
-        logger.error(f"Error in get_job_sites: {str(e)}")
-        return jsonify({'error': str(e)}), 500
-
-
-@drivers_bp.route('/api/job-site/<int:job_site_id>/metrics')
-def job_site_metrics(job_site_id):
-    """Get performance metrics for a specific job site"""
-    try:
-        # Get the job site
-        job_site = JobSite.query.get_or_404(job_site_id)
-        
-        # Get attendance metrics for last 30 days
-        end_date = datetime.now().date()
-        start_date = end_date - timedelta(days=29)
-        
-        current_records = AttendanceRecord.query.filter(
-            AttendanceRecord.assigned_job_id == job_site.id,
-            AttendanceRecord.date >= start_date,
-            AttendanceRecord.date <= end_date
-        ).all()
-        
-        # Count active drivers
-        active_driver_ids = set(r.driver_id for r in current_records)
-        active_drivers = len(active_driver_ids)
-        
-        # Calculate metrics for current period
-        current_total = len(current_records)
-        current_late_starts = sum(1 for r in current_records if r.late_start)
-        current_early_ends = sum(1 for r in current_records if r.early_end)
-        current_not_on_job = sum(1 for r in current_records if r.not_on_job)
-        
-        # Calculate attendance score
-        attendance_score = 100
-        if current_total > 0:
-            total_issues = current_late_starts + current_early_ends + current_not_on_job
-            attendance_score = 100 - (total_issues / current_total * 100)
-            attendance_score = max(0, min(100, round(attendance_score)))
-        
-        # Get metrics for previous 30 days for trend calculation
-        prev_end_date = start_date - timedelta(days=1)
-        prev_start_date = prev_end_date - timedelta(days=29)
-        
-        prev_records = AttendanceRecord.query.filter(
-            AttendanceRecord.assigned_job_id == job_site.id,
-            AttendanceRecord.date >= prev_start_date,
-            AttendanceRecord.date <= prev_end_date
-        ).all()
-        
-        # Calculate metrics for previous period
-        prev_total = len(prev_records)
-        prev_late_starts = sum(1 for r in prev_records if r.late_start)
-        prev_early_ends = sum(1 for r in prev_records if r.early_end)
-        prev_not_on_job = sum(1 for r in prev_records if r.not_on_job)
-        
-        # Calculate previous attendance score
-        prev_attendance_score = 100
-        if prev_total > 0:
-            prev_total_issues = prev_late_starts + prev_early_ends + prev_not_on_job
-            prev_attendance_score = 100 - (prev_total_issues / prev_total * 100)
-            prev_attendance_score = max(0, min(100, round(prev_attendance_score)))
-        
-        # Calculate trends
-        late_starts_trend = 0
-        early_ends_trend = 0
-        not_on_job_trend = 0
-        attendance_score_trend = 0
-        
-        if prev_total > 0 and current_total > 0:
-            late_starts_trend = round((current_late_starts / current_total * 100) - (prev_late_starts / prev_total * 100))
-            early_ends_trend = round((current_early_ends / current_total * 100) - (prev_early_ends / prev_total * 100))
-            not_on_job_trend = round((current_not_on_job / current_total * 100) - (prev_not_on_job / prev_total * 100))
-        
-        attendance_score_trend = attendance_score - prev_attendance_score
-        
-        # Determine trend directions
-        late_starts_direction = 'up' if late_starts_trend > 0 else 'down' if late_starts_trend < 0 else 'none'
-        early_ends_direction = 'up' if early_ends_trend > 0 else 'down' if early_ends_trend < 0 else 'none'
-        not_on_job_direction = 'up' if not_on_job_trend > 0 else 'down' if not_on_job_trend < 0 else 'none'
-        attendance_score_direction = 'up' if attendance_score_trend > 0 else 'down' if attendance_score_trend < 0 else 'none'
-        
-        response = {
-            'job_site': {
-                'id': job_site.id,
-                'job_number': job_site.job_number,
-                'name': job_site.name,
-                'location': job_site.location,
-                'division': job_site.division,
-                'active_drivers': active_drivers,
-                'is_active': job_site.is_active
+        report = {
+            'date': date_str,
+            'formatted_date': formatted_date,
+            'total_drivers': 0,
+            'drivers': [],
+            'late_morning': [],
+            'early_departures': [],
+            'not_on_job_drivers': [],
+            'summary': {
+                'total_drivers': 0,
+                'on_time_drivers': 0,
+                'late_drivers': 0,
+                'early_end_drivers': 0,
+                'not_on_job_drivers': 0,
+                'total_issues': 0,
+                'on_time_percent': 0
             },
-            'metrics': {
-                'attendance_score': {
-                    'value': attendance_score,
-                    'trend': attendance_score_trend,
-                    'trend_direction': attendance_score_direction
-                },
-                'late_starts': {
-                    'value': current_late_starts,
-                    'trend': late_starts_trend,
-                    'trend_direction': late_starts_direction
-                },
-                'early_ends': {
-                    'value': current_early_ends,
-                    'trend': early_ends_trend,
-                    'trend_direction': early_ends_direction
-                },
-                'not_on_job': {
-                    'value': current_not_on_job,
-                    'trend': not_on_job_trend,
-                    'trend_direction': not_on_job_direction
-                }
-            }
+            'error': f"An error occurred: {str(e)}"
         }
         
-        return jsonify(response)
-    
-    except Exception as e:
-        logger.error(f"Error in job_site_metrics: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        email_config = {
+            'recipients': '',
+            'cc': '',
+            'bcc': '',
+            'auto_send': False,
+            'include_user': True
+        }
+        
+        flash('An error occurred while loading the report. See details in the report.', 'error')
+        
+        return render_template(
+            'drivers/daily_report.html',
+            report=report,
+            selected_date=date_str,
+            email_config=email_config
+        )
 
-
-@drivers_bp.route('/api/job-site/<int:job_site_id>/attendance-history')
-def job_site_attendance_history(job_site_id):
-    """Get attendance history for a specific job site with pagination"""
+@driver_module_bp.route('/download-excel/<date_str>')
+@login_required
+def download_excel_report(date_str):
+    """Download Excel report"""
     try:
-        # Get parameters
-        days = int(request.args.get('days', 30))
-        page = int(request.args.get('page', 1))
-        per_page = int(request.args.get('per_page', 10))
+        # Determine file path based on the standardized naming convention
+        file_path = f"exports/daily_reports/{date_str}_DailyDriverReport.xlsx"
+        legacy_path = f"exports/daily_reports/daily_report_{date_str}.xlsx"
         
-        # Get the job site
-        job_site = JobSite.query.get_or_404(job_site_id)
-        
-        # Calculate date range
-        end_date = datetime.now().date()
-        start_date = end_date - timedelta(days=days-1)
-        
-        # Query attendance records
-        query = AttendanceRecord.query.filter(
-            AttendanceRecord.assigned_job_id == job_site.id,
-            AttendanceRecord.date >= start_date,
-            AttendanceRecord.date <= end_date
-        ).order_by(desc(AttendanceRecord.date))
-        
-        # Get total count for pagination
-        total_records = query.count()
-        total_pages = (total_records + per_page - 1) // per_page  # Ceiling division
-        
-        # Apply pagination and join with Driver
-        records = query.join(Driver).offset((page - 1) * per_page).limit(per_page).all()
-        
-        # Format records for response
-        result_data = []
-        for record in records:
-            # Determine status label
-            status = "On Time"
-            if record.not_on_job:
-                status = "Wrong Job"
-            elif record.late_start:
-                status = "Late Start"
-            elif record.early_end:
-                status = "Early End"
+        # Check if the file exists
+        if os.path.exists(file_path):
+            # Log download
+            log_navigation('Excel Report Download', {'date': date_str})
             
-            # Format start and end times
-            start_time = record.actual_start_time.strftime("%H:%M") if record.actual_start_time else None
-            end_time = record.actual_end_time.strftime("%H:%M") if record.actual_end_time else None
+            # Send file
+            return send_file(
+                file_path,
+                as_attachment=True,
+                download_name=f"DailyDriverReport_{date_str}.xlsx",
+                mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+        elif os.path.exists(legacy_path):
+            # Log download
+            log_navigation('Excel Report Download (Legacy)', {'date': date_str})
             
-            result_data.append({
-                'id': record.id,
-                'date': record.date.strftime("%m/%d/%Y"),
-                'driver': record.driver.full_name,
-                'asset_id': record.asset_id,
-                'start_time': start_time,
-                'end_time': end_time,
-                'status': status,
-                'notes': record.notes
-            })
-        
-        response = {
-            'data': result_data,
-            'page': page,
-            'per_page': per_page,
-            'total': total_records,
-            'pages': total_pages
-        }
-        
-        return jsonify(response)
+            # Send file
+            return send_file(
+                legacy_path,
+                as_attachment=True,
+                download_name=f"DailyDriverReport_{date_str}.xlsx",
+                mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+        else:
+            # If file doesn't exist, try to generate it
+            try:
+                from utils.unified_data_processor import UnifiedDataProcessor
+                
+                # Create processor for the date
+                processor = UnifiedDataProcessor(date_str)
+                
+                # Find and process available files
+                assets_dir = 'attached_assets'
+                for file in os.listdir(assets_dir):
+                    file_path = os.path.join(assets_dir, file)
+                    
+                    if 'DrivingHistory' in file:
+                        processor.process_driving_history(file_path)
+                    
+                    elif 'ActivityDetail' in file:
+                        processor.process_activity_detail(file_path)
+                    
+                    elif 'AssetsTimeOnSite' in file or 'FleetUtilization' in file:
+                        processor.process_asset_onsite(file_path)
+                    
+                    elif 'ELIST' in file or 'Employee' in file:
+                        processor.process_employee_data(file_path)
+                    
+                    elif 'DAILY' in file and ('NOJ' in file or 'REPORT' in file) and file.endswith('.xlsx'):
+                        processor.process_start_time_job_sheet(file_path)
+                
+                # Generate reports
+                processor.generate_attendance_report()
+                processor.export_excel_report()
+                
+                # Check if file was created
+                if os.path.exists(file_path):
+                    # Log download
+                    log_navigation('Excel Report Download (Generated)', {'date': date_str})
+                    
+                    # Send file
+                    return send_file(
+                        file_path,
+                        as_attachment=True,
+                        download_name=f"DailyDriverReport_{date_str}.xlsx",
+                        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                    )
+                
+            except Exception as e:
+                logger.error(f"Error generating Excel report: {e}")
+                logger.error(traceback.format_exc())
+            
+            # If still not found, return error
+            flash('Excel report not found and could not be generated', 'error')
+            return redirect(url_for('driver_module.daily_report', date=date_str))
     
     except Exception as e:
-        logger.error(f"Error in job_site_attendance_history: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        error_msg = f"Error downloading Excel report: {e}"
+        logger.error(error_msg)
+        error_logger.error(error_msg)
+        
+        flash('An error occurred while downloading the Excel report', 'error')
+        return redirect(url_for('driver_module.daily_report', date=date_str))
 
-
-@drivers_bp.route('/api/report/generate', methods=['POST'])
-def generate_report():
-    """Generate a report based on specified parameters"""
+@driver_module_bp.route('/download-pdf/<date_str>')
+@login_required
+def download_pdf_report(date_str):
+    """Download PDF report"""
     try:
-        # Parse request parameters
-        params = request.get_json()
+        # Determine file path based on the standardized naming convention
+        file_path = f"exports/daily_reports/{date_str}_DailyDriverReport.pdf"
+        legacy_path = f"exports/daily_reports/daily_report_{date_str}.pdf"
         
-        report_type = params.get('report_type', 'daily_driver')
-        date_range = params.get('date_range', 'last_7_days')
-        division = params.get('division', 'all_divisions')
-        format = params.get('format', 'excel')
-        include_charts = params.get('include_charts', True)
-        include_raw_data = params.get('include_raw_data', True)
-        
-        # TODO: Implement actual report generation logic
-        # For now, return a mock response
-        
-        # Format current date for filename
-        current_date = datetime.now().strftime('%Y%m%d')
-        
-        # Construct filename based on parameters
-        filename = f"driver_report_{report_type}_{division}_{current_date}.{format}"
-        
-        # In a real implementation, we would:
-        # 1. Query the database for the requested data
-        # 2. Generate the report in the requested format
-        # 3. Save the report to a file
-        # 4. Return the URL to the file
-        
-        response = {
-            'success': True,
-            'file_url': f"/drivers/reports/{filename}",
-            'report_type': report_type,
-            'format': format
-        }
-        
-        return jsonify(response)
+        # Check if the file exists
+        if os.path.exists(file_path):
+            # Log download
+            log_navigation('PDF Report Download', {'date': date_str})
+            
+            # Send file
+            return send_file(
+                file_path,
+                as_attachment=True,
+                download_name=f"DailyDriverReport_{date_str}.pdf",
+                mimetype='application/pdf'
+            )
+        elif os.path.exists(legacy_path):
+            # Log download
+            log_navigation('PDF Report Download (Legacy)', {'date': date_str})
+            
+            # Send file
+            return send_file(
+                legacy_path,
+                as_attachment=True,
+                download_name=f"DailyDriverReport_{date_str}.pdf",
+                mimetype='application/pdf'
+            )
+        else:
+            # If file doesn't exist, try to generate it
+            try:
+                from utils.unified_data_processor import UnifiedDataProcessor
+                
+                # Create processor for the date
+                processor = UnifiedDataProcessor(date_str)
+                
+                # Find and process available files
+                assets_dir = 'attached_assets'
+                for file in os.listdir(assets_dir):
+                    file_path = os.path.join(assets_dir, file)
+                    
+                    if 'DrivingHistory' in file:
+                        processor.process_driving_history(file_path)
+                    
+                    elif 'ActivityDetail' in file:
+                        processor.process_activity_detail(file_path)
+                    
+                    elif 'AssetsTimeOnSite' in file or 'FleetUtilization' in file:
+                        processor.process_asset_onsite(file_path)
+                    
+                    elif 'ELIST' in file or 'Employee' in file:
+                        processor.process_employee_data(file_path)
+                    
+                    elif 'DAILY' in file and ('NOJ' in file or 'REPORT' in file) and file.endswith('.xlsx'):
+                        processor.process_start_time_job_sheet(file_path)
+                
+                # Generate reports
+                processor.generate_attendance_report()
+                processor.export_pdf_report()
+                
+                # Check if file was created
+                if os.path.exists(file_path):
+                    # Log download
+                    log_navigation('PDF Report Download (Generated)', {'date': date_str})
+                    
+                    # Send file
+                    return send_file(
+                        file_path,
+                        as_attachment=True,
+                        download_name=f"DailyDriverReport_{date_str}.pdf",
+                        mimetype='application/pdf'
+                    )
+                
+            except Exception as e:
+                logger.error(f"Error generating PDF report: {e}")
+                logger.error(traceback.format_exc())
+            
+            # If still not found, return error
+            flash('PDF report not found and could not be generated', 'error')
+            return redirect(url_for('driver_module.daily_report', date=date_str))
     
     except Exception as e:
-        logger.error(f"Error in generate_report: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
+        error_msg = f"Error downloading PDF report: {e}"
+        logger.error(error_msg)
+        error_logger.error(error_msg)
+        
+        flash('An error occurred while downloading the PDF report', 'error')
+        return redirect(url_for('driver_module.daily_report', date=date_str))
 
-
-@drivers_bp.route('/admin/import')
-def import_data():
-    """Display data import dashboard"""
-    # Get import logs
-    import_logs = AttendanceImportLog.query.order_by(desc(AttendanceImportLog.import_date)).limit(10).all()
+@driver_module_bp.route('/view-pdf/<date_str>')
+@login_required
+def view_pdf_report(date_str):
+    """View PDF report"""
+    try:
+        # Determine file path based on the standardized naming convention
+        file_path = f"exports/daily_reports/{date_str}_DailyDriverReport.pdf"
+        legacy_path = f"exports/daily_reports/daily_report_{date_str}.pdf"
+        
+        # Check if the file exists
+        pdf_exists = os.path.exists(file_path) or os.path.exists(legacy_path)
+        
+        if not pdf_exists:
+            # If file doesn't exist, try to generate it
+            try:
+                from utils.unified_data_processor import UnifiedDataProcessor
+                
+                # Create processor for the date
+                processor = UnifiedDataProcessor(date_str)
+                
+                # Find and process available files
+                assets_dir = 'attached_assets'
+                for file in os.listdir(assets_dir):
+                    file_path = os.path.join(assets_dir, file)
+                    
+                    if 'DrivingHistory' in file:
+                        processor.process_driving_history(file_path)
+                    
+                    elif 'ActivityDetail' in file:
+                        processor.process_activity_detail(file_path)
+                    
+                    elif 'AssetsTimeOnSite' in file or 'FleetUtilization' in file:
+                        processor.process_asset_onsite(file_path)
+                    
+                    elif 'ELIST' in file or 'Employee' in file:
+                        processor.process_employee_data(file_path)
+                    
+                    elif 'DAILY' in file and ('NOJ' in file or 'REPORT' in file) and file.endswith('.xlsx'):
+                        processor.process_start_time_job_sheet(file_path)
+                
+                # Generate reports
+                processor.generate_attendance_report()
+                processor.export_pdf_report()
+                
+            except Exception as e:
+                logger.error(f"Error generating PDF report: {e}")
+                logger.error(traceback.format_exc())
+        
+        # After generation attempt, check again
+        if os.path.exists(file_path):
+            pdf_url = url_for('static', filename=f'../exports/daily_reports/{date_str}_DailyDriverReport.pdf')
+        elif os.path.exists(legacy_path):
+            pdf_url = url_for('static', filename=f'../exports/daily_reports/daily_report_{date_str}.pdf')
+        else:
+            flash('PDF report not found and could not be generated', 'error')
+            return redirect(url_for('driver_module.daily_report', date=date_str))
+        
+        # Log view
+        log_navigation('PDF Report View', {'date': date_str})
+        
+        # Render PDF viewer template
+        return render_template(
+            'drivers/pdf_viewer.html',
+            date_str=date_str,
+            pdf_url=pdf_url
+        )
     
-    return render_template('drivers/import.html', import_logs=import_logs)
+    except Exception as e:
+        error_msg = f"Error viewing PDF report: {e}"
+        logger.error(error_msg)
+        error_logger.error(error_msg)
+        
+        flash('An error occurred while viewing the PDF report', 'error')
+        return redirect(url_for('driver_module.daily_report', date=date_str))
 
+@driver_module_bp.route('/regenerate/<date_str>')
+@login_required
+def regenerate_report(date_str):
+    """Regenerate report for a specific date"""
+    try:
+        # Use the unified data processor to regenerate the report
+        from utils.unified_data_processor import UnifiedDataProcessor
+        
+        # Create processor for the date
+        processor = UnifiedDataProcessor(date_str)
+        
+        # Find and process available files
+        assets_dir = 'attached_assets'
+        for file in os.listdir(assets_dir):
+            file_path = os.path.join(assets_dir, file)
+            
+            if 'DrivingHistory' in file:
+                processor.process_driving_history(file_path)
+            
+            elif 'ActivityDetail' in file:
+                processor.process_activity_detail(file_path)
+            
+            elif 'AssetsTimeOnSite' in file or 'FleetUtilization' in file:
+                processor.process_asset_onsite(file_path)
+            
+            elif 'ELIST' in file or 'Employee' in file:
+                processor.process_employee_data(file_path)
+            
+            elif 'DAILY' in file and ('NOJ' in file or 'REPORT' in file) and file.endswith('.xlsx'):
+                processor.process_start_time_job_sheet(file_path)
+        
+        # Generate reports
+        processor.generate_attendance_report()
+        processor.export_excel_report()
+        processor.export_pdf_report()
+        
+        # Log regeneration
+        log_navigation('Report Regeneration', {'date': date_str})
+        
+        flash('Report regenerated successfully', 'success')
+        
+    except Exception as e:
+        error_msg = f"Error regenerating report: {e}"
+        logger.error(error_msg)
+        error_logger.error(error_msg)
+        
+        flash(f'Error regenerating report: {str(e)}', 'error')
+    
+    # Redirect back to daily report
+    return redirect(url_for('driver_module.daily_report', date=date_str))
 
-@drivers_bp.route('/admin/import/process', methods=['POST'])
-def process_import():
-    """Process data import"""
-    # TODO: Implement actual import logic
+@driver_module_bp.route('/email-report/<date_str>', methods=['POST'])
+@login_required
+def email_report(date_str):
+    """Email report to configured recipients"""
+    try:
+        # Get email configuration
+        email_config = get_user_email_config()
+        
+        # Validate configuration
+        recipients = email_config.get('recipients', '')
+        
+        if not recipients:
+            flash('No recipients configured for email', 'error')
+            return redirect(url_for('driver_module.daily_report', date=date_str))
+        
+        # Get report files
+        excel_path = f"exports/daily_reports/{date_str}_DailyDriverReport.xlsx"
+        pdf_path = f"exports/daily_reports/{date_str}_DailyDriverReport.pdf"
+        
+        # Check if files exist
+        if not os.path.exists(excel_path) or not os.path.exists(pdf_path):
+            # Try legacy paths
+            excel_path = f"exports/daily_reports/daily_report_{date_str}.xlsx"
+            pdf_path = f"exports/daily_reports/daily_report_{date_str}.pdf"
+            
+            if not os.path.exists(excel_path) or not os.path.exists(pdf_path):
+                flash('Report files not found for emailing', 'error')
+                return redirect(url_for('driver_module.daily_report', date=date_str))
+        
+        # Send email with attachments
+        from utils.email_sender import send_report_email
+        
+        subject = f"Daily Driver Report - {date_str}"
+        
+        # Format date for email
+        date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+        formatted_date = date_obj.strftime('%A, %B %d, %Y')
+        
+        # Get report data for email body
+        report = get_daily_report(date_str)
+        
+        # Call email sending function
+        success, message = send_report_email(
+            recipients=recipients.split(','),
+            cc=email_config.get('cc', '').split(',') if email_config.get('cc') else [],
+            bcc=email_config.get('bcc', '').split(',') if email_config.get('bcc') else [],
+            subject=subject,
+            report_data=report,
+            excel_path=excel_path,
+            pdf_path=pdf_path,
+            include_user=email_config.get('include_user', True)
+        )
+        
+        if success:
+            flash('Report emailed successfully', 'success')
+            log_navigation('Report Email', {'date': date_str, 'recipients': recipients})
+        else:
+            flash(f'Error emailing report: {message}', 'error')
+        
+    except Exception as e:
+        error_msg = f"Error emailing report: {e}"
+        logger.error(error_msg)
+        error_logger.error(error_msg)
+        
+        flash(f'Error emailing report: {str(e)}', 'error')
     
-    # Mock response for now
-    response = {
-        'success': True,
-        'message': 'Import completed successfully',
-        'records_processed': 0
-    }
-    
-    return jsonify(response)
+    # Redirect back to daily report
+    return redirect(url_for('driver_module.daily_report', date=date_str))
+
+@driver_module_bp.route('/upload-source', methods=['POST'])
+@login_required
+def upload_source_file():
+    """Upload source file for report generation"""
+    try:
+        if 'file' not in request.files:
+            flash('No file part', 'error')
+            return redirect(request.referrer)
+        
+        file = request.files['file']
+        
+        if file.filename == '':
+            flash('No selected file', 'error')
+            return redirect(request.referrer)
+        
+        # Secure the filename
+        filename = secure_filename(file.filename)
+        
+        # Save the file
+        file_path = os.path.join('attached_assets', filename)
+        file.save(file_path)
+        
+        flash(f'File {filename} uploaded successfully', 'success')
+        
+        # Log upload
+        log_navigation('Source File Upload', {'filename': filename})
+        
+        # Get date from form if available, otherwise default to today
+        date_str = request.form.get('date', datetime.now().strftime('%Y-%m-%d'))
+        
+        # Redirect back to referring page or daily report
+        if request.referrer:
+            return redirect(request.referrer)
+        else:
+            return redirect(url_for('driver_module.daily_report', date=date_str))
+        
+    except Exception as e:
+        error_msg = f"Error uploading file: {e}"
+        logger.error(error_msg)
+        error_logger.error(error_msg)
+        
+        flash(f'Error uploading file: {str(e)}', 'error')
+        return redirect(request.referrer or url_for('driver_module.index'))

@@ -47,10 +47,16 @@ from routes.downloads import downloads_bp
 app.register_blueprint(downloads_bp)
 logger.info("Registered downloads blueprint")
 
-# Import the fixed driver module
-from routes.driver_module_fixed import driver_module_bp
-app.register_blueprint(driver_module_bp)
-logger.info("Registered Driver Module blueprint")
+# Import the driver module
+try:
+    from routes.drivers import driver_module_bp
+    app.register_blueprint(driver_module_bp)
+    logger.info("Registered Driver Module blueprint")
+except ImportError:
+    # Fall back to the fixed driver module if the new one isn't available
+    from driver_module_fixed import driver_module_bp
+    app.register_blueprint(driver_module_bp)
+    logger.info("Registered Driver Module blueprint (fallback)")
 
 # Temporary skip some modules
 logger.info("Skipping asset_drivers blueprint temporarily")

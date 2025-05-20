@@ -42,10 +42,12 @@
       "name": "David Ramirez",
       "employee_id": "210033",
       "asset": "ET-91",
-      "arrival": "05:00 AM",
-      "status": "On Time",
+      "arrival": "06:15 AM",
+      "status": "Late",
       "division": "TEXDIST",
-      "job_title": "Heavy Equipment Operator"
+      "job_title": "Heavy Equipment Operator",
+      "late_reason": "Traffic accident on I-35W",
+      "issue_type": "late_start"
     },
     {
       "name": "James Johnson",
@@ -96,10 +98,13 @@
       "name": "JORGE MARTINEZ",
       "employee_id": "210068",
       "asset": "RAM-1500",
+      "departure": "01:30 PM",
       "arrival": "05:05 AM",
-      "status": "On Time",
+      "status": "Early End",
       "division": "TEXDIST",
-      "job_title": "Heavy Equipment Operator"
+      "job_title": "Heavy Equipment Operator",
+      "early_reason": "Medical appointment",
+      "issue_type": "early_end"
     },
     {
       "name": "ERIK GARCIA",
@@ -141,28 +146,37 @@
       "name": "PEDRO VELASQUEZ",
       "employee_id": "210121",
       "asset": "RAM-3500",
+      "departure": "02:15 PM",
       "arrival": "04:45 AM",
-      "status": "On Time",
+      "status": "Early End",
       "division": "TEXDIST",
-      "job_title": "Heavy Equipment Operator"
+      "job_title": "Heavy Equipment Operator",
+      "early_reason": "Equipment breakdown",
+      "issue_type": "early_end"
     },
     {
       "name": "EDUARDO GARZA",
       "employee_id": "210126",
       "asset": "F-250",
-      "arrival": "04:45 AM",
-      "status": "On Time",
+      "arrival": "07:10 AM",
+      "status": "Late",
       "division": "TEXDIST",
-      "job_title": "Heavy Equipment Operator"
+      "job_title": "Heavy Equipment Operator",
+      "late_reason": "Vehicle not starting",
+      "issue_type": "late_start"
     },
     {
       "name": "MARIO LOPEZ",
       "employee_id": "210131",
       "asset": "F-150",
       "arrival": "04:50 AM",
-      "status": "On Time",
+      "status": "NOJ",
       "division": "TEXDIST",
-      "job_title": "Heavy Equipment Operator"
+      "job_title": "Heavy Equipment Operator",
+      "noj_reason": "At incorrect job site",
+      "issue_type": "not_on_job",
+      "assigned_site": "2024-016",
+      "actual_site": "2024-015"
     },
     {
       "name": "ERNESTO NUNEZ",
@@ -185,18 +199,76 @@
   ],
   "total_drivers": 20,
   "total_morning_drivers": 20,
-  "on_time_count": 20,
-  "late_morning": [],
-  "early_departures": [],
+  "on_time_count": 15,
+  "late_morning": [
+    {
+      "name": "David Ramirez",
+      "employee_id": "210033",
+      "asset": "ET-91",
+      "arrival": "06:15 AM",
+      "status": "Late",
+      "division": "TEXDIST",
+      "job_title": "Heavy Equipment Operator",
+      "late_reason": "Traffic accident on I-35W"
+    },
+    {
+      "name": "EDUARDO GARZA",
+      "employee_id": "210126",
+      "asset": "F-250",
+      "arrival": "07:10 AM",
+      "status": "Late",
+      "division": "TEXDIST",
+      "job_title": "Heavy Equipment Operator",
+      "late_reason": "Vehicle not starting"
+    }
+  ],
+  "early_departures": [
+    {
+      "name": "JORGE MARTINEZ",
+      "employee_id": "210068",
+      "asset": "RAM-1500",
+      "departure": "01:30 PM",
+      "arrival": "05:05 AM",
+      "status": "Early End",
+      "division": "TEXDIST",
+      "job_title": "Heavy Equipment Operator",
+      "early_reason": "Medical appointment"
+    },
+    {
+      "name": "PEDRO VELASQUEZ",
+      "employee_id": "210121",
+      "asset": "RAM-3500",
+      "departure": "02:15 PM",
+      "arrival": "04:45 AM",
+      "status": "Early End",
+      "division": "TEXDIST",
+      "job_title": "Heavy Equipment Operator",
+      "early_reason": "Equipment breakdown"
+    }
+  ],
+  "not_on_job": [
+    {
+      "name": "MARIO LOPEZ",
+      "employee_id": "210131",
+      "asset": "F-150",
+      "arrival": "04:50 AM",
+      "status": "NOJ",
+      "division": "TEXDIST",
+      "job_title": "Heavy Equipment Operator",
+      "noj_reason": "At incorrect job site",
+      "assigned_site": "2024-016",
+      "actual_site": "2024-015"
+    }
+  ],
   "summary": {
     "total_drivers": 20,
     "total_morning_drivers": 20,
-    "on_time_drivers": 20,
-    "late_drivers": 0,
-    "early_end_drivers": 0,
-    "not_on_job_drivers": 0,
-    "exception_drivers": 0,
-    "total_issues": 0,
-    "on_time_percent": 100
+    "on_time_drivers": 15,
+    "late_drivers": 2,
+    "early_end_drivers": 2,
+    "not_on_job_drivers": 1,
+    "exception_drivers": 5,
+    "total_issues": 5,
+    "on_time_percent": 75
   }
 }

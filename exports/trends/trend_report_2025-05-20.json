@@ -1,0 +1,30 @@
+{
+  "date": "2025-05-20",
+  "trends": {
+    "240276": [
+      "REPEATED_ABSENCE"
+    ],
+    "240281": [
+      "CHRONIC_LATE"
+    ],
+    "240513": [
+      "UNSTABLE_SHIFT",
+      "REPEATED_ABSENCE"
+    ],
+    "440093": [
+      "REPEATED_ABSENCE"
+    ],
+    "240362": [
+      "CHRONIC_LATE"
+    ],
+    "240316": [
+      "UNSTABLE_SHIFT"
+    ],
+    "440065": [
+      "UNSTABLE_SHIFT"
+    ],
+    "240359": [
+      "UNSTABLE_SHIFT"
+    ]
+  }
+}

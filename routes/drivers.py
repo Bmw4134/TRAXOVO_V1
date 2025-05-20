@@ -873,7 +873,9 @@ def email_report(date_str):
             flash('Report emailed successfully', 'success')
             log_navigation('Report Email', {'date': date_str, 'recipients': recipients})
         else:
-            flash(f'Error emailing report: {message}', 'error')
+            error_message = result.get('error', 'Unknown error')
+            flash(f'Error emailing report: {error_message}', 'error')
+            log_navigation('Report Email Error', {'date': date_str, 'recipients': recipients, 'error': error_message})
         
     except Exception as e:
         error_msg = f"Error emailing report: {e}"

@@ -25,10 +25,10 @@ def send_email(
     subject: str,
     html_content: str,
     recipients: List[str],
-    cc: List[str] = None,
-    bcc: List[str] = None,
-    attachments: List[Dict[str, str]] = None,
-    reply_to: str = None
+    cc: List[str] = [],
+    bcc: List[str] = [],
+    attachments: List[Dict[str, str]] = [],
+    reply_to: str = ""
 ) -> Dict[str, Any]:
     """
     Send email using SendGrid.
@@ -57,14 +57,16 @@ def send_email(
         message = Mail(from_email, to_emails, subject, content)
         
         # Add CC recipients if provided
-        if cc and len(cc) > 0:
+        if cc and isinstance(cc, list) and len(cc) > 0:
             for email in cc:
-                message.add_cc(Email(email))
+                if email:  # Skip empty strings
+                    message.add_cc(Email(email))
         
         # Add BCC recipients if provided
-        if bcc and len(bcc) > 0:
+        if bcc and isinstance(bcc, list) and len(bcc) > 0:
             for email in bcc:
-                message.add_bcc(Email(email))
+                if email:  # Skip empty strings
+                    message.add_bcc(Email(email))
         
         # Add reply-to if provided
         if reply_to:
@@ -103,12 +105,12 @@ def send_report_email(
     subject: str,
     report_content: str,
     recipients: List[str],
-    cc: List[str] = None,
-    bcc: List[str] = None,
-    report_date: str = None,
-    report_data: dict = None,
-    excel_path: str = None,
-    pdf_path: str = None,
+    cc: List[str] = [],
+    bcc: List[str] = [],
+    report_date: str = "",
+    report_data: dict = {},
+    excel_path: str = "",
+    pdf_path: str = "",
     include_user: bool = True
 ) -> Dict[str, Any]:
     """

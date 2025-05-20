@@ -66,36 +66,59 @@ def send_email(
         dict: status and error (if any).
     """
     try:
-        if not SENDGRID_API_KEY:
-            logger.error("SendGrid API key not found in environment variables")
-            return {"status": "error", "error": "SendGrid API key not configured"}
+        # First, we need a valid API key
+        api_key = get_sendgrid_api_key()
+        if not api_key:
+            return {
+                "status": "error", 
+                "error": "SendGrid API key not properly configured. Please check your environment variables."
+            }
         
         # Create message
         from_email = Email(FROM_EMAIL)
-        to_emails = [To(email) for email in recipients]
+        
+        # Validate recipients
+        if not recipients or not isinstance(recipients, list) or len(recipients) == 0:
+            return {"status": "error", "error": "No recipients specified"}
+        
+        # Remove any empty emails from recipients
+        recipients = [email for email in recipients if email and email.strip()]
+        if len(recipients) == 0:
+            return {"status": "error", "error": "No valid recipients specified"}
+            
+        to_emails = [To(email.strip()) for email in recipients]
         content = Content("text/html", html_content)
-        message = Mail(from_email, to_emails, subject, content)
+        message = Mail(from_email, to_emails[0], subject, content)
+        
+        # Add additional recipients if more than one
+        if len(to_emails) > 1:
+            for to_email in to_emails[1:]:
+                message.add_to(to_email)
         
         # Add CC recipients if provided
         if cc and isinstance(cc, list) and len(cc) > 0:
             for email in cc:
-                if email:  # Skip empty strings
-                    message.add_cc(Email(email))
+                if email and email.strip():  # Skip empty strings
+                    message.add_cc(Email(email.strip()))
         
         # Add BCC recipients if provided
         if bcc and isinstance(bcc, list) and len(bcc) > 0:
             for email in bcc:
-                if email:  # Skip empty strings
-                    message.add_bcc(Email(email))
+                if email and email.strip():  # Skip empty strings
+                    message.add_bcc(Email(email.strip()))
         
         # Add reply-to if provided
-        if reply_to:
-            message.reply_to = Email(reply_to)
+        if reply_to and reply_to.strip():
+            message.reply_to = Email(reply_to.strip())
         
         # Add attachments if provided
         if attachments:
             for att in attachments:
                 try:
+                    if not os.path.exists(att["file_path"]):
+                        logger.warning(f"Attachment file not found: {att['file_path']}")
+                        continue
+                        
                     with open(att["file_path"], "rb") as f:
                         data = f.read()
                     
@@ -108,14 +131,20 @@ def send_email(
                     message.add_attachment(attachment)
                 except Exception as e:
                     logger.error(f"Error adding attachment: {e}")
-                    return {"status": "error", "error": f"Attachment error: {str(e)}"}
+                    # Continue with email even if attachment fails
+                    logger.info("Continuing with email despite attachment error")
         
-        # Send email
-        sg = SendGridAPIClient(SENDGRID_API_KEY)
-        res = sg.send(message)
-        
-        logger.info(f"Email sent. Status code: {res.status_code}")
-        return {"status": "success", "code": res.status_code}
+        # Send email with debug information
+        try:
+            sg = SendGridAPIClient(api_key)
+            logger.info(f"Attempting to send email to {recipients} with subject: {subject}")
+            res = sg.send(message)
+            
+            logger.info(f"Email sent successfully. Status code: {res.status_code}")
+            return {"status": "success", "code": res.status_code}
+        except Exception as send_error:
+            logger.error(f"SendGrid API error: {str(send_error)}")
+            return {"status": "error", "error": f"SendGrid API error: {str(send_error)}"}
     
     except Exception as e:
         logger.error(f"Error sending email: {e}")

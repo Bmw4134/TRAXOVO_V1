@@ -1,278 +1,430 @@
 """
-Start Time & Job Parser
+Start Time Parser Module
 
-Utility for extracting and processing data from the "Start Time & Job" sheet
-in the Daily Late Start-Early End & NOJ Report Excel files.
+This module provides functions for parsing the "Start Time & Job" sheet
+from daily report Excel files, extracting structured job assignments,
+scheduled times, and driver information.
 """
 
-import os
-import logging
+import re
 import pandas as pd
+import logging
 from datetime import datetime
 from pathlib import Path
 
+# Set up logging
 logger = logging.getLogger(__name__)
 
-def find_daily_report_file(date_str):
+def parse_start_time_sheet(file_path, sheet_name=None):
     """
-    Find the daily report Excel file for a specific date.
+    Parse the Start Time & Job sheet from an Excel file
     
     Args:
-        date_str (str): Report date in YYYY-MM-DD format
+        file_path (str): Path to the Excel file
+        sheet_name (str): Name of the sheet to parse
         
     Returns:
-        str: Path to the daily report file, or None if not found
+        dict: Parsed data
     """
-    # Convert date string to date object for comparison
     try:
-        target_date = datetime.strptime(date_str, '%Y-%m-%d')
-    except ValueError:
-        logger.error(f"Invalid date format: {date_str}")
-        return None
-    
-    # Look for daily report files in the attached_assets directory
-    asset_dir = Path('attached_assets')
-    
-    # Patterns for potential daily report files
-    patterns = [
-        f"DAILY LATE START-EARLY END & NOJ REPORT_{target_date.strftime('%m.%d.%Y')}.xlsx",  # MM.DD.YYYY format
-        f"DAILY LATE START_{target_date.strftime('%m.%d.%Y')}.xlsx",  # Alternative format
-        f"DAILY_DRIVER_REPORT_{target_date.strftime('%m.%d.%Y')}.xlsx"  # Another alternative format
-    ]
-    
-    # Try exact matches first
-    for pattern in patterns:
-        file_path = asset_dir / pattern
-        if file_path.exists():
-            logger.info(f"Found daily report file: {file_path}")
-            return str(file_path)
-    
-    # If exact match not found, search for any daily report file with date in filename
-    daily_files = [
-        f for f in os.listdir(asset_dir) 
-        if f.endswith('.xlsx') and 
-        ('DAILY' in f.upper() or 'LATE' in f.upper() or 'START' in f.upper())
-    ]
-    
-    # Log available files for debugging
-    if daily_files:
-        logger.debug(f"Found {len(daily_files)} potential daily report files")
-        for file in daily_files:
-            logger.debug(f"  - {file}")
-    else:
-        logger.warning(f"No daily report files found in {asset_dir}")
-        return None
-    
-    # Use the most recent file if multiple are found
-    if daily_files:
-        # Sort by creation time, newest first
-        daily_files.sort(key=lambda f: os.path.getctime(os.path.join(asset_dir, f)), reverse=True)
-        file_path = asset_dir / daily_files[0]
-        logger.info(f"Using most recent daily report file: {file_path}")
-        return str(file_path)
-    
-    return None
-
-
-def extract_start_time_data(date_str):
-    """
-    Extract data from the "Start Time & Job" sheet for a specific date.
-    
-    Args:
-        date_str (str): Report date in YYYY-MM-DD format
+        # Load Excel file
+        xl = pd.ExcelFile(file_path)
         
-    Returns:
-        pandas.DataFrame: DataFrame with start time and job data, or None if not found
-    """
-    # Find the daily report file
-    report_file = find_daily_report_file(date_str)
-    if not report_file:
-        logger.warning(f"No daily report file found for date: {date_str}")
-        return None
-    
-    # Extract data from the Start Time & Job sheet
-    try:
-        logger.info(f"Extracting data from Start Time & Job sheet in {report_file}")
-        
-        # Try different possible sheet names
-        sheet_names = ['Start Time & Job', 'Start Time and Job', 'Start Time', 'Start Times']
-        
-        # List available sheets for debugging
-        try:
-            xl = pd.ExcelFile(report_file)
-            logger.info(f"Available sheets in {report_file}: {xl.sheet_names}")
+        # Find the right sheet
+        if sheet_name and sheet_name in xl.sheet_names:
+            # Use specified sheet
+            sheet = sheet_name
+        else:
+            # Try to find the right sheet
+            potential_names = [
+                'Start Time & Job', 'Start Time and Job', 
+                'START TIME & JOB', 'Start Times', 'START TIMES',
+                'Daily Report', 'DAILY REPORT'
+            ]
             
-            # Check if any of our target sheets exist
             found_sheet = None
-            for sheet in sheet_names:
-                if sheet in xl.sheet_names:
-                    found_sheet = sheet
+            for name in potential_names:
+                if name in xl.sheet_names:
+                    found_sheet = name
                     break
             
-            # Look for partial matches if exact match not found
+            # If no exact match, look for any sheet with "Start" and "Time" or "Daily" and "Report"
             if not found_sheet:
-                for sheet in xl.sheet_names:
-                    if 'START' in sheet.upper() and 'TIME' in sheet.upper():
-                        found_sheet = sheet
-                        logger.info(f"Found partial match for Start Time sheet: {sheet}")
+                for name in xl.sheet_names:
+                    if ('START' in name.upper() and 'TIME' in name.upper()) or \
+                       ('DAILY' in name.upper() and 'REPORT' in name.upper()):
+                        found_sheet = name
                         break
             
-            if not found_sheet:
-                logger.warning(f"Could not find Start Time & Job sheet in {report_file}")
-                return None
+            # If still no match, try first sheet
+            if not found_sheet and len(xl.sheet_names) > 0:
+                found_sheet = xl.sheet_names[0]
             
-            # Read the sheet
-            logger.info(f"Reading sheet: {found_sheet}")
-            df = pd.read_excel(report_file, sheet_name=found_sheet)
+            # Use found sheet or default to first sheet
+            sheet = found_sheet or xl.sheet_names[0]
+        
+        logger.info(f"Using sheet '{sheet}' from {file_path}")
+        
+        # Read the sheet
+        df = pd.read_excel(file_path, sheet_name=sheet)
+        
+        # Clean up and normalize columns
+        df.columns = [str(col).upper().strip() if col else f'UNNAMED_{i}' for i, col in enumerate(df.columns)]
+        
+        # Find key columns
+        driver_col = None
+        job_col = None
+        asset_col = None
+        start_col = None
+        
+        # Search for column names
+        for col in df.columns:
+            if 'DRIVER' in col or 'EMPLOYEE' in col or 'NAME' in col:
+                driver_col = col
+            elif 'JOB' in col or 'PROJECT' in col or 'SITE' in col:
+                job_col = col
+            elif 'ASSET' in col or 'VEHICLE' in col or 'EQUIPMENT' in col or 'UNIT' in col:
+                asset_col = col
+            elif 'START' in col and ('TIME' in col or 'HOUR' in col):
+                start_col = col
+        
+        # Create parsed data structure
+        data = {
+            'file_path': file_path,
+            'sheet_name': sheet,
+            'date': extract_date_from_filename(file_path),
+            'parsed_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'assignments': []
+        }
+        
+        # Validate required columns
+        if not driver_col or not job_col:
+            logger.warning(f"Missing required columns in {file_path}: Driver={driver_col}, Job={job_col}")
+            return data
+        
+        # Process each row
+        for _, row in df.iterrows():
+            driver_name = row.get(driver_col, '')
+            job_number = row.get(job_col, '')
             
-            # Clean up and normalize the DataFrame
-            df = df.dropna(how='all')  # Remove empty rows
+            # Skip empty rows
+            if pd.isna(driver_name) or pd.isna(job_number) or not str(driver_name).strip() or not str(job_number).strip():
+                continue
             
-            # Convert column names to strings and normalize
-            df.columns = [str(col).strip() if col is not None else f'col_{i}' 
-                         for i, col in enumerate(df.columns)]
+            # Clean up values
+            driver_name = str(driver_name).strip()
+            job_number = str(job_number).strip()
             
-            # Log the columns we found
-            logger.debug(f"Columns found: {list(df.columns)}")
+            # Extract asset ID
+            asset_id = ''
+            if asset_col and not pd.isna(row.get(asset_col, '')):
+                asset_id = str(row.get(asset_col, '')).strip()
             
-            # Find the key column names (case-insensitive)
-            asset_col = None
-            driver_col = None
-            job_col = None
+            # Extract start time
+            start_time = ''
+            if start_col and not pd.isna(row.get(start_col, '')):
+                start_time_raw = row.get(start_col, '')
+                start_time = format_time(start_time_raw)
             
-            for col in df.columns:
-                col_upper = col.upper()
-                if 'ASSET' in col_upper:
-                    asset_col = col
-                elif 'DRIVER' in col_upper:
-                    driver_col = col
-                elif 'JOB' in col_upper and 'SR' not in col_upper:
-                    job_col = col
+            # Add assignment
+            assignment = {
+                'driver_name': driver_name,
+                'job_number': format_job_number(job_number),
+                'asset_id': asset_id,
+                'start_time': start_time
+            }
             
-            # Create standardized columns
-            if asset_col:
-                df['Asset ID'] = df[asset_col]
-            if driver_col:
-                df['Driver'] = df[driver_col]
-            if job_col:
-                df['Job'] = df[job_col]
+            # Extract division from job number
+            division = extract_division_from_job(job_number)
+            if division:
+                assignment['division'] = division
             
-            # Filter out rows without asset ID or driver
-            if 'Asset ID' in df.columns:
-                df = df[df['Asset ID'].notna()]
-            if 'Driver' in df.columns:
-                df = df[df['Driver'].notna()]
-            
-            # Add report date
-            df['Report Date'] = date_str
-            
-            logger.info(f"Processed {len(df)} rows from Start Time & Job sheet")
-            return df
-            
-        except Exception as e:
-            logger.error(f"Error reading Excel file: {e}")
-            import traceback
-            logger.debug(traceback.format_exc())
-            return None
+            # Add to assignments list
+            data['assignments'].append(assignment)
+        
+        logger.info(f"Parsed {len(data['assignments'])} assignments from {file_path}")
+        return data
     
     except Exception as e:
-        logger.error(f"Error extracting start time data: {e}")
+        logger.error(f"Error parsing Start Time & Job sheet: {e}")
         import traceback
-        logger.debug(traceback.format_exc())
-        return None
+        logger.error(traceback.format_exc())
+        return {
+            'file_path': file_path,
+            'sheet_name': sheet_name,
+            'date': extract_date_from_filename(file_path),
+            'parsed_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'error': str(e),
+            'assignments': []
+        }
 
-
-def merge_start_time_with_attendance(attendance_data, start_time_data):
+def extract_date_from_filename(file_path):
     """
-    Merge attendance data with start time and job data.
+    Extract date from filename
     
     Args:
-        attendance_data (dict): Dictionary of attendance data
-        start_time_data (pandas.DataFrame): DataFrame with start time and job data
+        file_path (str): Path to the file
         
     Returns:
-        dict: Merged attendance data
+        str: Extracted date in YYYY-MM-DD format or empty string
     """
-    if attendance_data is None:
-        logger.warning("No attendance data provided for merging")
-        return attendance_data
-    
-    if start_time_data is None or start_time_data.empty:
-        logger.warning("No start time data available for merging")
-        return attendance_data
-    
     try:
-        # Get driver records from attendance data
-        drivers = attendance_data.get('drivers', [])
-        if not drivers:
-            logger.warning("No drivers found in attendance data")
-            return attendance_data
+        # Convert to Path object
+        path = Path(file_path)
         
-        # Create a lookup table from start time data
-        lookup_table = {}
-        for _, row in start_time_data.iterrows():
-            asset_id = str(row.get('Asset ID', '')).strip() if 'Asset ID' in row else ''
-            driver_name = str(row.get('Driver', '')).strip() if 'Driver' in row else ''
-            job = str(row.get('Job', '')).strip() if 'Job' in row else ''
-            
-            if asset_id:
-                lookup_table[asset_id] = {'driver': driver_name, 'job': job}
-            
-            if driver_name:
-                lookup_table[driver_name] = {'asset': asset_id, 'job': job}
+        # Extract filename
+        filename = path.name
         
-        # Update driver records with start time data
-        updated_count = 0
-        for driver in drivers:
-            asset_id = driver.get('asset_id', '')
-            driver_name = driver.get('driver_name', '')
-            
-            # Try to find a match
-            match = None
-            if asset_id and asset_id in lookup_table:
-                match = lookup_table[asset_id]
-            elif driver_name and driver_name in lookup_table:
-                match = lookup_table[driver_name]
-            
-            # Update with start time data if found
+        # Try to match date patterns
+        patterns = [
+            r'(\d{4}-\d{2}-\d{2})',  # YYYY-MM-DD
+            r'(\d{2}-\d{2}-\d{4})',  # MM-DD-YYYY
+            r'(\d{2}\.\d{2}\.\d{4})',  # MM.DD.YYYY
+            r'(\d{2}/\d{2}/\d{4})',  # MM/DD/YYYY
+            r'_(\d{2})[\._](\d{2})[\._](\d{4})',  # _MM.DD.YYYY or _MM_DD_YYYY
+            r'(\d{1,2})[\._](\d{1,2})[\._](\d{4})',  # M.D.YYYY or M_D_YYYY
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, filename)
             if match:
-                # Update job number if missing or N/A
-                if match.get('job') and (not driver.get('job_number') or driver.get('job_number') == 'N/A'):
-                    driver['job_number'] = match['job']
-                
-                # Update driver name if missing
-                if match.get('driver') and not driver.get('driver_name'):
-                    driver['driver_name'] = match['driver']
-                
-                # Update asset id if missing
-                if match.get('asset') and not driver.get('asset_id'):
-                    driver['asset_id'] = match['asset']
-                
-                updated_count += 1
+                if len(match.groups()) == 1:
+                    # Already in YYYY-MM-DD format
+                    date_str = match.group(1)
+                    try:
+                        date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+                        return date_obj.strftime('%Y-%m-%d')
+                    except ValueError:
+                        # Try MM-DD-YYYY format
+                        try:
+                            date_obj = datetime.strptime(date_str, '%m-%d-%Y')
+                            return date_obj.strftime('%Y-%m-%d')
+                        except ValueError:
+                            # Try MM.DD.YYYY format
+                            try:
+                                date_obj = datetime.strptime(date_str, '%m.%d.%Y')
+                                return date_obj.strftime('%Y-%m-%d')
+                            except ValueError:
+                                # Try MM/DD/YYYY format
+                                try:
+                                    date_obj = datetime.strptime(date_str, '%m/%d/%Y')
+                                    return date_obj.strftime('%Y-%m-%d')
+                                except ValueError:
+                                    pass
+                elif len(match.groups()) == 3:
+                    # MM.DD.YYYY or MM_DD_YYYY format
+                    month, day, year = match.groups()
+                    try:
+                        date_obj = datetime.strptime(f"{year}-{month}-{day}", '%Y-%m-%d')
+                        return date_obj.strftime('%Y-%m-%d')
+                    except ValueError:
+                        pass
         
-        logger.info(f"Updated {updated_count} driver records with start time data")
+        # If no match found, try to extract numeric parts and guess format
+        numbers = re.findall(r'\d+', filename)
+        if len(numbers) >= 3:
+            for i in range(len(numbers) - 2):
+                if len(numbers[i]) == 2 and len(numbers[i+1]) == 2 and len(numbers[i+2]) == 4:
+                    # Assume MM.DD.YYYY format
+                    try:
+                        date_obj = datetime.strptime(f"{numbers[i+2]}-{numbers[i]}-{numbers[i+1]}", '%Y-%m-%d')
+                        return date_obj.strftime('%Y-%m-%d')
+                    except ValueError:
+                        pass
         
-        # Update attendance data with the enriched drivers list
-        attendance_data['drivers'] = drivers
-        attendance_data['start_time_data_integrated'] = True
-        
-        return attendance_data
+        # If all else fails, return current date
+        return datetime.now().strftime('%Y-%m-%d')
     
     except Exception as e:
-        logger.error(f"Error merging start time data: {e}")
-        import traceback
-        logger.debug(traceback.format_exc())
-        return attendance_data
+        logger.error(f"Error extracting date from filename: {e}")
+        return datetime.now().strftime('%Y-%m-%d')
 
-
-def get_start_time_data(date_str):
+def format_time(time_value):
     """
-    Get start time and job data for a specific date.
+    Format time value to HH:MM format
     
     Args:
-        date_str (str): Report date in YYYY-MM-DD format
+        time_value: Time value to format
         
     Returns:
-        pandas.DataFrame: DataFrame with start time and job data
+        str: Formatted time
     """
-    return extract_start_time_data(date_str)
+    try:
+        if pd.isna(time_value) or time_value is None:
+            return ''
+        
+        # If already a string, try to parse it
+        if isinstance(time_value, str):
+            time_str = time_value.strip()
+            
+            # Try to match time formats
+            if re.match(r'^\d{1,2}:\d{2}(:\d{2})?$', time_str):
+                # Already in HH:MM or HH:MM:SS format
+                if len(time_str) <= 5:
+                    return time_str
+                else:
+                    # Extract HH:MM from HH:MM:SS
+                    return time_str[:5]
+            
+            elif re.match(r'^\d{1,2}$', time_str):
+                # Just hour, add :00
+                return f"{int(time_str):02d}:00"
+            
+            elif re.match(r'^\d{3,4}$', time_str):
+                # Military time without colon
+                if len(time_str) == 3:
+                    # 3-digit military time (e.g., 730)
+                    hour = int(time_str[:1])
+                    minute = int(time_str[1:])
+                    return f"{hour:02d}:{minute:02d}"
+                else:
+                    # 4-digit military time (e.g., 0730)
+                    hour = int(time_str[:2])
+                    minute = int(time_str[2:])
+                    return f"{hour:02d}:{minute:02d}"
+            
+            # If no match, try to parse as time
+            for fmt in ['%H:%M', '%H:%M:%S', '%I:%M %p', '%I:%M:%S %p']:
+                try:
+                    time_obj = datetime.strptime(time_str, fmt)
+                    return time_obj.strftime('%H:%M')
+                except ValueError:
+                    pass
+        
+        # If numeric, assume it's decimal hours
+        elif isinstance(time_value, (int, float)):
+            hours = int(time_value)
+            minutes = int((time_value - hours) * 60)
+            return f"{hours:02d}:{minutes:02d}"
+        
+        # If pandas timestamp or datetime
+        elif hasattr(time_value, 'hour') and hasattr(time_value, 'minute'):
+            return f"{time_value.hour:02d}:{time_value.minute:02d}"
+        
+        # If all else fails, return as string
+        return str(time_value)
+    
+    except Exception as e:
+        logger.error(f"Error formatting time: {e}")
+        return ''
+
+def format_job_number(job_number):
+    """
+    Format job number to standardized format
+    
+    Args:
+        job_number (str): Job number to format
+        
+    Returns:
+        str: Formatted job number
+    """
+    try:
+        if pd.isna(job_number) or not job_number:
+            return ''
+        
+        # Convert to string and strip whitespace
+        job_str = str(job_number).strip()
+        
+        # Remove common prefixes
+        job_str = re.sub(r'^(JOB|PROJECT|SITE)\s*', '', job_str, flags=re.IGNORECASE)
+        
+        # Normalize formatting
+        # If it's a 4-digit number, keep as is
+        if re.match(r'^\d{4}$', job_str):
+            return job_str
+        
+        # If it's a year-number format (e.g., 2022-101), normalize to YYYY-NNN
+        match = re.match(r'^(\d{4})[.-](\d+)$', job_str)
+        if match:
+            year, number = match.groups()
+            return f"{year}-{int(number):03d}"
+        
+        # If it has division code (e.g., DIV2-101), normalize
+        match = re.match(r'^DIV[.-]?(\d)[.-](\d+)$', job_str, re.IGNORECASE)
+        if match:
+            division, number = match.groups()
+            return f"DIV{division}-{int(number):03d}"
+        
+        # Otherwise, return as is
+        return job_str
+    
+    except Exception as e:
+        logger.error(f"Error formatting job number: {e}")
+        return str(job_number)
+
+def extract_division_from_job(job_number):
+    """
+    Extract division from job number
+    
+    Args:
+        job_number (str): Job number
+        
+    Returns:
+        str: Division code or empty string
+    """
+    try:
+        if pd.isna(job_number) or not job_number:
+            return ''
+        
+        # Convert to string and strip whitespace
+        job_str = str(job_number).strip().upper()
+        
+        # Check for explicit division codes
+        if 'DIV' in job_str:
+            match = re.search(r'DIV[.-]?(\d)', job_str, re.IGNORECASE)
+            if match:
+                return match.group(1)
+        
+        # Check for DFW prefix
+        if job_str.startswith('DFW') or 'DFW' in job_str:
+            return '2'
+        
+        # Check for HOU prefix
+        elif job_str.startswith('HOU') or 'HOU' in job_str:
+            return '4'
+        
+        # Check for WT prefix
+        elif job_str.startswith('WT') or 'WT' in job_str:
+            return '3'
+        
+        # Otherwise, try to determine from job number pattern
+        # TODO: Implement logic to detect division from job pattern
+        
+        return ''
+    
+    except Exception as e:
+        logger.error(f"Error extracting division from job: {e}")
+        return ''
+
+def find_assignment_for_driver(driver_name, assignments):
+    """
+    Find assignment for a driver in the assignments list
+    
+    Args:
+        driver_name (str): Driver name to look for
+        assignments (list): List of assignment dictionaries
+        
+    Returns:
+        dict: Assignment for the driver or None
+    """
+    if not driver_name or not assignments:
+        return None
+    
+    # Normalize driver name
+    driver_name = driver_name.upper().strip()
+    
+    # Look for exact match
+    for assignment in assignments:
+        if assignment['driver_name'].upper().strip() == driver_name:
+            return assignment
+    
+    # Look for partial match (last name)
+    driver_parts = driver_name.split()
+    if len(driver_parts) > 0:
+        last_name = driver_parts[-1]
+        for assignment in assignments:
+            if last_name in assignment['driver_name'].upper().split():
+                return assignment
+    
+    # No match found
+    return None

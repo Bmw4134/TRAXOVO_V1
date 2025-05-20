@@ -173,24 +173,6 @@ def index():
     log_navigation('Driver Module')
     return render_template('drivers/index.html')
 
-@driver_module_bp.route('/attendance-dashboard')
-@login_required
-def attendance_dashboard():
-    """Driver attendance dashboard page"""
-    log_navigation('Driver Attendance Dashboard')
-    return render_template('drivers/attendance_dashboard.html')
-
-# Added function needed by export blueprint
-def get_report_recipients():
-    """Get report recipients for email notifications"""
-    try:
-        if current_user and current_user.is_authenticated:
-            from models.user_settings import get_user_setting
-            return get_user_setting(current_user.id, 'email_recipients', '')
-    except Exception as e:
-        logger.error(f"Error getting report recipients: {e}")
-    return ''
-
 @driver_module_bp.route('/daily-report', methods=['GET', 'POST'])
 @login_required
 def daily_report():

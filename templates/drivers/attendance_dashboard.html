@@ -1,466 +1,88 @@
-{% extends "layout.html" %}
+{% extends "base.html" %}
 
-{% block title %}Attendance Dashboard{% endblock %}
+{% block title %}Driver Attendance Dashboard{% endblock %}
 
 {% block content %}
-<div class="container-fluid my-4">
-    <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <h1 class="display-5 mb-2">
-                <i class="bi bi-graph-up me-2"></i>Attendance Dashboard
-            </h1>
-            <p class="lead text-muted">
-                Analyze attendance trends and performance metrics
-            </p>
-        </div>
-        <div class="col-md-6 text-md-end">
-            <div class="btn-group">
-                <a href="{{ url_for('driver_module.daily_report') }}" class="btn btn-primary">
-                    <i class="bi bi-calendar-day me-1"></i> Daily Report
-                </a>
-                <a href="{{ url_for('driver_module.driver_list') }}" class="btn btn-info text-white">
-                    <i class="bi bi-people me-1"></i> Driver List
-                </a>
-                <div class="btn-group">
-                    <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-file-earmark-arrow-down me-1"></i> Export
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_driver_report') }}?type=attendance&format=pdf">PDF Report</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_driver_report') }}?type=attendance&format=csv">CSV Data</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('driver_module.export_driver_report') }}?type=attendance&format=xlsx">Excel Spreadsheet</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Loading Animation Container -->
-    <div class="row mb-4" id="dashboard-loading-container">
-        <div class="col-12 text-center">
-            <div id="dashboard-loading" class="loading-placeholder" 
-                 data-loader-type="progress-construction" 
-                 data-loader-message="Building attendance dashboard...">
-            </div>
-        </div>
-    </div>
-
-    <!-- Date Range Selection -->
-    <div class="row mb-4">
-        <div class="col-md-6 offset-md-3">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <form class="row g-3" id="date-range-form">
-                        <div class="col-md-5">
-                            <label for="start-date" class="form-label">Start Date</label>
-                            <input type="date" class="form-control" id="start-date" name="start_date" value="{{ (stats.dates[0] if stats and stats.dates else '') }}">
-                        </div>
-                        <div class="col-md-5">
-                            <label for="end-date" class="form-label">End Date</label>
-                            <input type="date" class="form-control" id="end-date" name="end_date" value="{{ (stats.dates[-1] if stats and stats.dates else '') }}">
-                        </div>
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary w-100 loading-button" data-loading-text="Updating...">Update</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Summary Cards -->
-    <div class="row mb-4" id="summary-cards" style="display: none;">
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card bg-primary text-white h-100">
-                <div class="card-body text-center">
-                    <h1 class="display-4 mb-0">{{ (sum(stats.on_time_percentages)/len(stats.on_time_percentages))|round|int if stats and stats.on_time_percentages else 0 }}%</h1>
-                    <h5 class="card-title">Avg. On-Time Rate</h5>
-                    <p class="mb-0">Last 30 days</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card bg-success text-white h-100">
-                <div class="card-body text-center">
-                    <h1 class="display-4 mb-0">{{ sum(stats.late_start_counts) if stats and stats.late_start_counts else 0 }}</h1>
-                    <h5 class="card-title">Late Starts</h5>
-                    <p class="mb-0">{{ (sum(stats.late_start_counts)/len(stats.late_start_counts))|round(1) if stats and stats.late_start_counts else 0 }} per day</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card bg-warning text-dark h-100">
-                <div class="card-body text-center">
-                    <h1 class="display-4 mb-0">{{ sum(stats.early_end_counts) if stats and stats.early_end_counts else 0 }}</h1>
-                    <h5 class="card-title">Early Ends</h5>
-                    <p class="mb-0">{{ (sum(stats.early_end_counts)/len(stats.early_end_counts))|round(1) if stats and stats.early_end_counts else 0 }} per day</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card bg-danger text-white h-100">
-                <div class="card-body text-center">
-                    <h1 class="display-4 mb-0">{{ sum(stats.not_on_job_counts) if stats and stats.not_on_job_counts else 0 }}</h1>
-                    <h5 class="card-title">Not On Job</h5>
-                    <p class="mb-0">{{ (sum(stats.not_on_job_counts)/len(stats.not_on_job_counts))|round(1) if stats and stats.not_on_job_counts else 0 }} per day</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Charts Section -->
-    <div class="row mb-4" id="charts-container" style="display: none;">
-        <div class="col-md-8 mb-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-light">
-                    <h5 class="card-title mb-0">Attendance Trends</h5>
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Driver Attendance Dashboard</h5>
                 </div>
                 <div class="card-body">
-                    <canvas id="attendance-chart" height="300"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-light">
-                    <h5 class="card-title mb-0">Attendance Distribution</h5>
-                </div>
-                <div class="card-body">
-                    <canvas id="attendance-distribution-chart" height="300"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Job Sites & Regions -->
-    <div class="row" id="sites-regions-container" style="display: none;">
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">Job Sites Performance</h5>
-                    <span class="badge bg-primary rounded-pill">{{ stats.job_sites|length if stats and stats.job_sites else 0 }} Sites</span>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Job Site</th>
-                                    <th>Drivers</th>
-                                    <th>On-Time %</th>
-                                    <th>Progress</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% if stats and stats.job_sites %}
-                                    {% for site in stats.job_sites|sort(attribute='on_time_percentage', reverse=true) %}
-                                        <tr>
-                                            <td>
-                                                <a href="{{ url_for('driver_module.job_site_detail', site_id=site.id) }}">
-                                                    {{ site.name }}
-                                                </a>
-                                            </td>
-                                            <td>{{ site.driver_count }}</td>
-                                            <td>{{ site.on_time_percentage }}%</td>
-                                            <td>
-                                                <div class="progress" style="height: 10px;">
-                                                    <div class="progress-bar {{ 'bg-success' if site.on_time_percentage >= 90 else 'bg-warning' if site.on_time_percentage >= 75 else 'bg-danger' }}" 
-                                                         role="progressbar" 
-                                                         style="width: {{ site.on_time_percentage }}%;" 
-                                                         aria-valuenow="{{ site.on_time_percentage }}" 
-                                                         aria-valuemin="0" 
-                                                         aria-valuemax="100">
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                {% else %}
-                                    <tr>
-                                        <td colspan="4" class="text-center">No job site data available</td>
-                                    </tr>
-                                {% endif %}
-                            </tbody>
-                        </table>
+                    <h2>Driver Attendance Analytics</h2>
+                    
+                    <div class="alert alert-info mt-4">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Full driver attendance analytics will be available in the next update.</strong>
+                        <p class="mb-0 mt-2">Please use the <a href="{{ url_for('driver_module.daily_report') }}" class="alert-link">Daily Driver Report</a> to view current attendance data.</p>
                     </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">Region Performance</h5>
-                    <span class="badge bg-primary rounded-pill">{{ stats.regions|length if stats and stats.regions else 0 }} Regions</span>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Region</th>
-                                    <th>Drivers</th>
-                                    <th>On-Time %</th>
-                                    <th>Progress</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% if stats and stats.regions %}
-                                    {% for region in stats.regions|sort(attribute='on_time_percentage', reverse=true) %}
-                                        <tr>
-                                            <td>
-                                                <a href="{{ url_for('driver_module.region_detail', region_id=region.id) }}">
-                                                    {{ region.name }}
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Recent Reports</h5>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-group">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <a href="{{ url_for('driver_module.daily_report', date='2025-05-19') }}">May 19, 2025</a>
+                                            <span class="badge bg-primary rounded-pill">Latest</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <a href="{{ url_for('driver_module.daily_report', date='2025-05-16') }}">May 16, 2025</a>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <a href="{{ url_for('driver_module.daily_report', date='2025-05-15') }}">May 15, 2025</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Report Downloads</h5>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-group">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span>May 19, 2025 Report</span>
+                                            <div>
+                                                <a href="/exports/daily_reports/2025-05-19_DailyDriverReport.xlsx" class="btn btn-sm btn-outline-success" download>
+                                                    <i class="bi bi-file-earmark-excel me-1"></i> XLSX
                                                 </a>
-                                            </td>
-                                            <td>{{ region.driver_count }}</td>
-                                            <td>{{ region.on_time_percentage }}%</td>
-                                            <td>
-                                                <div class="progress" style="height: 10px;">
-                                                    <div class="progress-bar {{ 'bg-success' if region.on_time_percentage >= 90 else 'bg-warning' if region.on_time_percentage >= 75 else 'bg-danger' }}" 
-                                                         role="progressbar" 
-                                                         style="width: {{ region.on_time_percentage }}%;" 
-                                                         aria-valuenow="{{ region.on_time_percentage }}" 
-                                                         aria-valuemin="0" 
-                                                         aria-valuemax="100">
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                {% else %}
-                                    <tr>
-                                        <td colspan="4" class="text-center">No region data available</td>
-                                    </tr>
-                                {% endif %}
-                            </tbody>
-                        </table>
+                                            </div>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span>May 16, 2025 Report</span>
+                                            <div>
+                                                <a href="/exports/daily_reports/daily_report_2025-05-16.xlsx" class="btn btn-sm btn-outline-success" download>
+                                                    <i class="bi bi-file-earmark-excel me-1"></i> XLSX
+                                                </a>
+                                            </div>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span>May 15, 2025 Report</span>
+                                            <div>
+                                                <a href="/exports/daily_reports/daily_report_2025-05-15.xlsx" class="btn btn-sm btn-outline-success" download>
+                                                    <i class="bi bi-file-earmark-excel me-1"></i> XLSX
+                                                </a>
+                                                <a href="/exports/daily_reports/daily_report_2025-05-15.pdf" class="btn btn-sm btn-outline-danger" download>
+                                                    <i class="bi bi-file-earmark-pdf me-1"></i> PDF
+                                                </a>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Show loading animation and hide content initially
-        const dashboardLoadingContainer = document.getElementById('dashboard-loading-container');
-        const summaryCardsContainer = document.getElementById('summary-cards');
-        const chartsContainer = document.getElementById('charts-container');
-        const sitesRegionsContainer = document.getElementById('sites-regions-container');
-        
-        // Simulate loading delay (remove in production and use real data loading event)
-        setTimeout(function() {
-            // Hide loader
-            dashboardLoadingContainer.style.display = 'none';
-            
-            // Show content with fade-in effect
-            summaryCardsContainer.style.display = 'flex';
-            summaryCardsContainer.classList.add('fade-in');
-            
-            chartsContainer.style.display = 'flex';
-            chartsContainer.classList.add('fade-in');
-            
-            sitesRegionsContainer.style.display = 'flex';
-            sitesRegionsContainer.classList.add('fade-in');
-            
-            // Initialize charts
-            initializeCharts();
-        }, 1500);
-        
-        function initializeCharts() {
-            // Attendance Trends Chart
-            const attendanceCtx = document.getElementById('attendance-chart').getContext('2d');
-            
-            {% if stats and stats.dates %}
-            new Chart(attendanceCtx, {
-                type: 'line',
-                data: {
-                    labels: {{ stats.dates|tojson }},
-                    datasets: [
-                        {
-                            label: 'On-Time %',
-                            data: {{ stats.on_time_percentages|tojson }},
-                            borderColor: '#0d6efd',
-                            backgroundColor: 'rgba(13, 110, 253, 0.1)',
-                            borderWidth: 2,
-                            tension: 0.1,
-                            fill: true
-                        },
-                        {
-                            label: 'Late Starts',
-                            data: {{ stats.late_start_counts|tojson }},
-                            borderColor: '#ffc107',
-                            backgroundColor: 'rgba(255, 193, 7, 0.1)',
-                            borderWidth: 2,
-                            tension: 0.1,
-                            yAxisID: 'y1'
-                        },
-                        {
-                            label: 'Early Ends',
-                            data: {{ stats.early_end_counts|tojson }},
-                            borderColor: '#fd7e14',
-                            backgroundColor: 'rgba(253, 126, 20, 0.1)',
-                            borderWidth: 2,
-                            tension: 0.1,
-                            yAxisID: 'y1'
-                        },
-                        {
-                            label: 'Not on Job',
-                            data: {{ stats.not_on_job_counts|tojson }},
-                            borderColor: '#dc3545',
-                            backgroundColor: 'rgba(220, 53, 69, 0.1)',
-                            borderWidth: 2,
-                            tension: 0.1,
-                            yAxisID: 'y1'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 100,
-                            title: {
-                                display: true,
-                                text: 'On-Time Percentage'
-                            }
-                        },
-                        y1: {
-                            beginAtZero: true,
-                            position: 'right',
-                            grid: {
-                                drawOnChartArea: false
-                            },
-                            title: {
-                                display: true,
-                                text: 'Count'
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                maxRotation: 45,
-                                minRotation: 45
-                            }
-                        }
-                    },
-                    interaction: {
-                        mode: 'index',
-                        intersect: false
-                    },
-                    plugins: {
-                        legend: {
-                            position: 'top'
-                        },
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false
-                        }
-                    }
-                }
-            });
-            {% else %}
-            // Display message if no data
-            new Chart(attendanceCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['No Data'],
-                    datasets: [{
-                        label: 'No attendance data available',
-                        data: [0],
-                        backgroundColor: '#6c757d'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    }
-                }
-            });
-            {% endif %}
-            
-            // Attendance Distribution Chart (Pie Chart)
-            const distributionCtx = document.getElementById('attendance-distribution-chart').getContext('2d');
-            
-            {% if stats and stats.on_time_percentages %}
-            // Calculate totals for pie chart
-            const totalOnTime = {{ (sum(stats.on_time_percentages)/len(stats.on_time_percentages))|round }};
-            const totalLate = {{ (sum(stats.late_start_counts)) }};
-            const totalEarlyEnd = {{ (sum(stats.early_end_counts)) }};
-            const totalNotOnJob = {{ (sum(stats.not_on_job_counts)) }};
-            
-            new Chart(distributionCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['On Time', 'Late Start', 'Early End', 'Not on Job'],
-                    datasets: [{
-                        data: [totalOnTime, totalLate, totalEarlyEnd, totalNotOnJob],
-                        backgroundColor: [
-                            '#0d6efd',
-                            '#ffc107',
-                            '#fd7e14',
-                            '#dc3545'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    }
-                }
-            });
-            {% else %}
-            // Display message if no data
-            new Chart(distributionCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['No Data'],
-                    datasets: [{
-                        data: [1],
-                        backgroundColor: ['#6c757d'],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    }
-                }
-            });
-            {% endif %}
-        }
-        
-        // Date Range Form Submission
-        const dateRangeForm = document.getElementById('date-range-form');
-        dateRangeForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const startDate = document.getElementById('start-date').value;
-            const endDate = document.getElementById('end-date').value;
-            
-            // Redirect to the dashboard with date range parameters
-            window.location.href = `{{ url_for('driver_module.attendance_dashboard') }}?start_date=${startDate}&end_date=${endDate}`;
-        });
-    });
-</script>
 {% endblock %}

@@ -293,7 +293,7 @@
       "early_reason": "Equipment breakdown"
     }
   ],
-  "not_on_job": [
+  "not_on_job_drivers": [
     {
       "name": "MARIO LOPEZ",
       "employee_id": "210131",

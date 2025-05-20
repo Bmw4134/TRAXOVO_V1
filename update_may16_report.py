@@ -17,8 +17,8 @@ import pandas as pd
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Target date
-TARGET_DATE = '2025-05-16'
+# Target date - update this to process different dates
+TARGET_DATE = '2025-05-20'
 
 def extract_date_from_timestamp(timestamp_str):
     """Extract date from timestamp string"""
@@ -257,24 +257,58 @@ def update_report():
     logger.info(f"Updated report for {TARGET_DATE} with {len(active_drivers)} active drivers")
     return True
 
-if __name__ == "__main__":
-    # Update the May 16th report
-    success = update_report()
-    print(f"Report update {'successful' if success else 'failed'}")
+def update_all_reports():
+    """Update all required reports using actual telematics data"""
+    dates = ['2025-05-15', '2025-05-16', '2025-05-19', '2025-05-20']
+    results = {}
     
-    # Display report summary
-    try:
-        with open(f"exports/daily_reports/daily_report_{TARGET_DATE}.json", 'r') as f:
-            report = json.load(f)
+    for date in dates:
+        global TARGET_DATE
+        TARGET_DATE = date
+        print(f"\nProcessing report for {date}...")
+        success = update_report()
+        results[date] = success
+    
+    print("\nReport Update Summary:")
+    print("-" * 40)
+    for date, success in results.items():
+        status = "Success" if success else "Failed"
         
-        print(f"\nReport contains {len(report.get('drivers', []))} drivers with actual telematics activity")
+        # Get driver count
+        try:
+            with open(f"exports/daily_reports/daily_report_{date}.json", 'r') as f:
+                report = json.load(f)
+            driver_count = len(report.get('drivers', []))
+            print(f"{date}: {status} - {driver_count} drivers with actual telematics activity")
+        except:
+            print(f"{date}: {status} - unable to verify driver count")
+    print("-" * 40)
+
+if __name__ == "__main__":
+    # Update all reports or just the target date
+    import sys
+    
+    if len(sys.argv) > 1 and sys.argv[1] == 'all':
+        # Update all reports
+        update_all_reports()
+    else:
+        # Update just the target date
+        success = update_report()
+        print(f"Report update {'successful' if success else 'failed'}")
         
-        roger_entries = [d for d in report.get('drivers', []) 
-                        if 'roger' in d.get('name', '').lower()]
-        print(f"Roger Doddy included: {'Yes' if roger_entries else 'No'}")
-        
-        print("\nSample of drivers in report:")
-        for i, driver in enumerate(report.get('drivers', [])[:3]):
-            print(f"- {driver.get('name')} ({driver.get('asset')}) - {driver.get('status')} - {driver.get('arrival')}")
-    except Exception as e:
-        print(f"Error displaying report summary: {e}")
+        # Display report summary
+        try:
+            with open(f"exports/daily_reports/daily_report_{TARGET_DATE}.json", 'r') as f:
+                report = json.load(f)
+            
+            print(f"\nReport contains {len(report.get('drivers', []))} drivers with actual telematics activity")
+            
+            roger_entries = [d for d in report.get('drivers', []) 
+                            if 'roger' in d.get('name', '').lower()]
+            print(f"Roger Doddy included: {'Yes' if roger_entries else 'No'}")
+            
+            print("\nSample of drivers in report:")
+            for i, driver in enumerate(report.get('drivers', [])[:3]):
+                print(f"- {driver.get('name')} ({driver.get('asset')}) - {driver.get('status')} - {driver.get('arrival')}")
+        except Exception as e:
+            print(f"Error displaying report summary: {e}")

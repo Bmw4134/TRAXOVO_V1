@@ -4,6 +4,9 @@ Organization Models for TRAXORA
 This module contains models for tracking organizations and related information.
 """
 from datetime import datetime
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, JSON
+from sqlalchemy.orm import relationship
+
 from app import db
 
 class Organization(db.Model):
@@ -12,25 +15,30 @@ class Organization(db.Model):
     """
     __tablename__ = 'organizations'
     
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(128), nullable=False)
-    code = db.Column(db.String(16), unique=True, index=True)
-    primary_contact = db.Column(db.String(128))
-    primary_email = db.Column(db.String(128))
-    primary_phone = db.Column(db.String(32))
-    address = db.Column(db.String(256))
-    city = db.Column(db.String(128))
-    state = db.Column(db.String(64))
-    zip_code = db.Column(db.String(16))
+    id = Column(Integer, primary_key=True)
+    name = Column(String(128), nullable=False)
+    code = Column(String(16), unique=True, index=True)
+    primary_contact = Column(String(128))
+    primary_email = Column(String(128))
+    primary_phone = Column(String(32))
+    address = Column(String(256))
+    city = Column(String(128))
+    state = Column(String(64))
+    zip_code = Column(String(16))
     
     # Configuration
-    active = db.Column(db.Boolean, default=True)
-    features_enabled = db.Column(db.JSON)  # JSON object containing feature flags
-    preferences = db.Column(db.JSON)  # JSON object containing organization preferences
+    active = Column(Boolean, default=True)
+    features_enabled = Column(JSON)  # JSON object containing feature flags
+    preferences = Column(JSON)  # JSON object containing organization preferences
     
     # Metadata
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # GENIUS CORE CONTINUITY MODE relationships
+    assets = relationship('Asset', back_populates='organization')
+    drivers = relationship('Driver', back_populates='organization')
+    job_sites = relationship('JobSite', back_populates='organization')
     
     def __repr__(self):
         return f'<Organization {self.name} ({self.code})>'

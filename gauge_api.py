@@ -46,7 +46,8 @@ class GaugeAPI:
                     "username": self.username,
                     "password": self.password
                 },
-                timeout=10
+                timeout=10,
+                verify=False  # Disable SSL verification for development environments
             )
             
             response.raise_for_status()
@@ -81,7 +82,8 @@ class GaugeAPI:
             response = requests.get(
                 f"{self.api_url}/assets",
                 headers=self.get_headers(),
-                timeout=30
+                timeout=30,
+                verify=False  # Disable SSL verification for development environments
             )
             
             response.raise_for_status()
@@ -97,7 +99,8 @@ class GaugeAPI:
             response = requests.get(
                 f"{self.api_url}/assets/{asset_id}/location",
                 headers=self.get_headers(),
-                timeout=30
+                timeout=30,
+                verify=False  # Disable SSL verification for development environments
             )
             
             response.raise_for_status()
@@ -117,7 +120,8 @@ class GaugeAPI:
                     "start_date": start_date.isoformat(),
                     "end_date": end_date.isoformat()
                 },
-                timeout=30
+                timeout=30,
+                verify=False  # Disable SSL verification for development environments
             )
             
             response.raise_for_status()
@@ -137,7 +141,8 @@ class GaugeAPI:
                     "start_date": start_date.isoformat(),
                     "end_date": end_date.isoformat()
                 },
-                timeout=60  # Longer timeout for reports
+                timeout=60,  # Longer timeout for reports
+                verify=False  # Disable SSL verification for development environments
             )
             
             response.raise_for_status()
@@ -157,7 +162,8 @@ class GaugeAPI:
                     "start_date": start_date.isoformat(),
                     "end_date": end_date.isoformat()
                 },
-                timeout=60  # Longer timeout for reports
+                timeout=60,  # Longer timeout for reports
+                verify=False  # Disable SSL verification for development environments
             )
             
             response.raise_for_status()
@@ -177,7 +183,8 @@ class GaugeAPI:
                     "start_date": start_date.isoformat(),
                     "end_date": end_date.isoformat()
                 },
-                timeout=60  # Longer timeout for reports
+                timeout=60,  # Longer timeout for reports
+                verify=False  # Disable SSL verification for development environments
             )
             
             response.raise_for_status()

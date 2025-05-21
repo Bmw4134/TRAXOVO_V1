@@ -41,8 +41,8 @@ def find_source_files(date_str=None):
         'start_time_job': []
     }
     
-    # Search directories
-    search_dirs = ['data', 'attached_assets']
+    # Search directories - prioritize structured data directory
+    search_dirs = ['data']
     
     for directory in search_dirs:
         if not os.path.exists(directory):
@@ -647,6 +647,17 @@ def process_start_time_job(file_path):
         # Different possible column names for job site
         ['job_site', 'jobsite', 'site', 'location', 'project', 'job', 'assignment']
     ]
+    
+    # Special case for baseline.csv which we know has specific columns
+    if os.path.basename(file_path) == 'baseline.csv':
+        column_mapping = {
+            'driver': 'driver_name',
+            'asset': 'asset_id',
+            'start_time': 'scheduled_start',
+            'end_time': 'scheduled_end',
+            'job_site': 'job_site'
+        }
+        return column_mapping
     
     # Find actual column names in the file
     column_mapping = {}

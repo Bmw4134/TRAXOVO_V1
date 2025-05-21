@@ -8,13 +8,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Shaylor, Matthew C",
@@ -23,13 +33,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Goode, Adam H",
@@ -38,13 +58,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Adhikari, Bikhyat",
@@ -53,13 +83,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "S2372507",
@@ -68,13 +108,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "R2360779",
@@ -83,13 +133,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "SHOP TRAILER",
@@ -98,13 +158,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "TRAFFIC CONTROL",
@@ -113,13 +183,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "WTX JOB TRAILER",
@@ -128,13 +208,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "HTX FLATBED TRAILER",
@@ -143,13 +233,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "HTX DUMP TRAILER",
@@ -158,13 +258,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "0153",
@@ -173,43 +283,73 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "ALLEN SCREED 22.5'",
-      "normalized_name": "allen screed 22 5'",
+      "normalized_name": "allen screed 22 5",
       "asset_id": "CFM-18",
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "ASPHALT 84\"",
-      "normalized_name": "asphalt 84\"",
+      "normalized_name": "asphalt 84",
       "asset_id": "DD-02",
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "HIGH",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "WELDING TRUCK",
@@ -218,13 +358,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "SALVADOR AGUILLON",
@@ -233,13 +383,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "HIGH",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "JUAN L. RUIZ",
@@ -248,13 +408,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "ALONSO MIRAMONTES",
@@ -263,13 +433,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "HIGH",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "14T",
@@ -278,13 +458,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "JESUS LOPEZ SOTO",
@@ -293,13 +483,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "HIGH",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "FOUNDATION",
@@ -308,13 +508,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "HECTOR J. CLAUDIO",
@@ -323,13 +533,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Rangel, Jose M",
@@ -338,13 +558,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "HIGH",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "SALVADOR",
@@ -353,13 +583,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Martinez Alvarez, Saul",
@@ -368,13 +608,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "HARDIMON, ANTHONY J",
@@ -383,13 +633,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Andrade, Manuel",
@@ -398,13 +658,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Ehimhen, Gerald A",
@@ -413,13 +683,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "HARDIMON, ANTHONY J LOANER",
@@ -428,13 +708,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Rodriguez Perez, Esteban",
@@ -443,13 +733,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "HAYS, PAXTON C",
@@ -458,13 +758,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Martinez, Jorge L",
@@ -473,13 +783,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Ramirez, Jose C",
@@ -488,13 +808,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Medina-Rodriguez, Jesus A",
@@ -503,13 +833,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Guerrero Jr, Roberto",
@@ -518,13 +858,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Open",
@@ -533,13 +883,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "HIGH",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Kocmick, Caleb S",
@@ -548,13 +908,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Eclavea, Carlos H",
@@ -563,13 +933,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Murcia Orellana, Luis E",
@@ -578,13 +958,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Link, Cooper E",
@@ -593,13 +983,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Moore, Jesse A",
@@ -608,13 +1008,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Salaices, Osiel",
@@ -623,13 +1033,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "OPEN RAM 1500",
@@ -638,13 +1058,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Lopez, Juan",
@@ -653,13 +1083,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Rivera, Jose J",
@@ -668,13 +1108,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Malette, Troy S",
@@ -683,13 +1133,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "RODARTE SERRANO, JESUS O",
@@ -698,13 +1158,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Rodriguez, Juan P",
@@ -713,13 +1183,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Miramontes, Alonso",
@@ -728,13 +1208,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Flores, Jorge L",
@@ -743,13 +1233,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Ruiz, Juan L",
@@ -758,13 +1258,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Vazquez De La Cruz, Ramiro",
@@ -773,13 +1283,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Garcia-Andrade, Uriel",
@@ -788,13 +1308,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Lopez Lira, Jose P",
@@ -803,13 +1333,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Reyes, Aureliano",
@@ -818,13 +1358,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Lopez Soto, Jesus",
@@ -833,13 +1383,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Gonzalez, Alonzo",
@@ -848,13 +1408,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Ibarra, Sabino",
@@ -863,13 +1433,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Padgett, Caleb L",
@@ -878,13 +1458,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Terrazas Melendez, Jose R",
@@ -893,13 +1483,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Hampton, Justin D",
@@ -908,13 +1508,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Berjes Ruiz, Juan C",
@@ -923,13 +1533,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Giebelhaus, Eric STX",
@@ -938,28 +1558,48 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "stolen on 6/23/24",
-      "normalized_name": "stolen on 6/23/24",
+      "normalized_name": "stolen on 6 23 24",
       "asset_id": "EX-03S",
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "ALONZO GONZALEZ",
@@ -968,13 +1608,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "P1007116",
@@ -983,13 +1633,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "P1007120",
@@ -998,13 +1658,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "411774",
@@ -1013,13 +1683,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "R1006827",
@@ -1028,13 +1708,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "R1006828",
@@ -1043,13 +1733,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Mower King",
@@ -1058,13 +1758,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "TMA",
@@ -1073,13 +1783,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Aparicio, Lorenzo",
@@ -1088,13 +1808,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "OPEN MECH TRUCK",
@@ -1103,13 +1833,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Torres, Ivan",
@@ -1118,13 +1858,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Gee, Korbin E",
@@ -1133,13 +1883,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "LUBE TRUCK",
@@ -1148,13 +1908,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "OFFICE VEHICLE",
@@ -1163,13 +1933,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "SELECT CREW TRUCK",
@@ -1178,13 +1958,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "DODDY, ROGER W",
@@ -1193,13 +1983,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "JAMES GABE",
@@ -1208,13 +2008,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Espinoza-Casillas, Jovan",
@@ -1223,13 +2033,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Escobedo Jr, Martin",
@@ -1238,13 +2058,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "DFW OFFICE TRUCK",
@@ -1253,13 +2083,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "BADILLO, GERARDO J",
@@ -1268,13 +2108,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Berryhill, Robert P",
@@ -1283,13 +2133,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "shop mech loaner",
@@ -1298,13 +2158,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Muratalla-Ceja, Rafael",
@@ -1313,13 +2183,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "PLANO JOBSITE TRUCK",
@@ -1328,13 +2208,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Magallanes, Javier",
@@ -1343,13 +2233,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Smith, Keith A",
@@ -1358,13 +2258,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Alvarado, Eduardo D",
@@ -1373,13 +2283,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Saldierna Jr, Armando",
@@ -1388,13 +2308,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "PERSINGER, WILLIAM",
@@ -1403,13 +2333,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Zuniga, Alberto",
@@ -1418,13 +2358,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Luevano, Juan M",
@@ -1433,13 +2383,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Ramirez, Omar",
@@ -1448,13 +2408,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Ramirez, Luis F",
@@ -1463,13 +2433,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "OPEN F150 STX",
@@ -1478,13 +2458,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Romero, Isaac F",
@@ -1493,13 +2483,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "OPEN TRAFFIC TRUCK",
@@ -1508,13 +2508,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Hernandez, Juan B",
@@ -1523,13 +2533,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Rodriguez Jr, Salvador",
@@ -1538,13 +2558,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "TROY RAGLE",
@@ -1553,13 +2583,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "OPEN SELECT JST",
@@ -1568,13 +2608,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Lumbreras, Roberto",
@@ -1583,13 +2633,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "HIGH",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Munoz, Leonel",
@@ -1598,13 +2658,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Bautista, Jose A",
@@ -1613,13 +2683,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "OPEN F150",
@@ -1628,13 +2708,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "JST SELECT 250",
@@ -1643,13 +2733,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Turrubiartes Jr, Jose G",
@@ -1658,13 +2758,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "OPEN DFW TC USING",
@@ -1673,13 +2783,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Albert Perry is using",
@@ -1688,13 +2808,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "WTX JST",
@@ -1703,13 +2833,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Figueroa, Bryan",
@@ -1718,13 +2858,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "2024-004 SIDEWALKS JST",
@@ -1733,13 +2883,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Vasquez, Juan C",
@@ -1748,13 +2908,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Aguillon, Salvador",
@@ -1763,13 +2933,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Chavez, Obaldo S",
@@ -1778,13 +2958,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Flores Jr, Catalino",
@@ -1793,13 +2983,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Lemon Jr, Ernest S",
@@ -1808,13 +3008,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Hammons, Michael A",
@@ -1823,13 +3033,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Lopez, Valentin",
@@ -1838,13 +3058,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "RED44664",
@@ -1853,13 +3083,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Pachipulusu Sreedhar, Nagesh Kumar",
@@ -1868,13 +3108,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Flores Sr, Catalino",
@@ -1883,13 +3133,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Lopez, Daniel",
@@ -1898,13 +3158,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Caballero, Reyneri M",
@@ -1913,13 +3183,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Mendieta, Albert A",
@@ -1928,13 +3208,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Morales, Luis A",
@@ -1943,13 +3233,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Colmenero-Garcia, Rolando",
@@ -1958,13 +3258,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "HIGH",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Miramontes Jr, Juan C",
@@ -1973,13 +3283,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Rodriguez-Ayala, Alejandro J",
@@ -1988,13 +3308,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Mize, Clint",
@@ -2003,13 +3333,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Garcia, Mark E XL",
@@ -2018,13 +3358,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Sanchez, Hector",
@@ -2033,13 +3383,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Bobba, Ramesh",
@@ -2048,13 +3408,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Abunemeh, Osama M",
@@ -2063,13 +3433,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Ruhrup, Jared K",
@@ -2078,13 +3458,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Sabaj, Phillip A",
@@ -2093,13 +3483,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "MARTIN SANCHEZ",
@@ -2108,13 +3508,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Reyes Diaz, Juan C",
@@ -2123,13 +3533,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "OEPN",
@@ -2138,13 +3558,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Claudio, Hector J",
@@ -2153,13 +3583,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "MANCHO CAMACHO, GRECIA",
@@ -2168,13 +3608,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "MOYA, MARIO",
@@ -2183,13 +3633,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "GARCIA, SAID A",
@@ -2198,13 +3658,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "CASTRO, JUAN J",
@@ -2213,13 +3683,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Concha, Aaron",
@@ -2228,13 +3708,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Blanco, Andres E",
@@ -2243,13 +3733,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Martinez Salazar, Josue",
@@ -2258,13 +3758,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "OWENS, JUSTIN W",
@@ -2273,13 +3783,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "NEFF, ROBERT S",
@@ -2288,13 +3808,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "STONIE BROWN",
@@ -2303,13 +3833,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "086733",
@@ -2318,13 +3858,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "085764",
@@ -2333,13 +3883,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "POLY SPRAYER",
@@ -2348,13 +3908,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "KB9153",
@@ -2363,13 +3933,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "shop use",
@@ -2378,13 +3958,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "HIGH",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "AARON CONCHA",
@@ -2393,13 +3983,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "JOSE RIVERA",
@@ -2408,13 +4008,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "JUAN P. RODRIGUEZ",
@@ -2423,13 +4033,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "JOSE RANGEL",
@@ -2438,13 +4058,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "SABINO IBARRA",
@@ -2453,13 +4083,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "URIEL GARCIA-ANDRADE",
@@ -2468,13 +4108,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "Josue Martinez",
@@ -2483,13 +4133,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "RIEDER, MICHAEL A",
@@ -2498,13 +4158,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "LP873",
@@ -2513,13 +4183,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "J1S02294",
@@ -2528,13 +4208,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "K03394",
@@ -2543,13 +4233,23 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
     },
     {
       "driver_name": "R08392",
@@ -2558,263 +4258,344 @@
       "job_site": null,
       "status": "Not On Job",
       "status_reason": "No telematics data",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "verification_level": "LOW",
       "sources": [
         "Asset List"
       ],
-      "identity_verified": true
-    },
+      "key_on_time": null,
+      "key_off_time": null,
+      "locations": [],
+      "identity_verified": false,
+      "classification_details": {
+        "classification_path": [
+          "Checked for telematics data: Absent",
+          "Result: Not On Job (No telematics data)"
+        ],
+        "time_checks": {},
+        "location_checks": {},
+        "has_telematics": false
+      }
+    }
+  ],
+  "unmatched_drivers": [
     {
       "driver_name": "John Smith",
       "normalized_name": "john smith",
       "asset_id": "TRK-1001",
       "job_site": null,
-      "status": "Not On Job",
-      "status_reason": "No job site assignment",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "status": "Unverified",
+      "status_reason": "Driver not found in Asset List",
+      "verification_level": "UNVERIFIED",
       "sources": [
-        "Driving History",
-        "Activity Detail"
+        "Activity Detail",
+        "Driving History"
       ],
-      "identity_verified": true
+      "key_on_time": "2025-05-16T06:25:33",
+      "key_off_time": "2025-05-16T15:35:41",
+      "locations": [
+        "North Dallas Site"
+      ],
+      "identity_verified": false,
+      "classification_details": {}
     },
     {
       "driver_name": "Michael Johnson",
       "normalized_name": "michael johnson",
       "asset_id": "TRK-1002",
       "job_site": null,
-      "status": "Not On Job",
-      "status_reason": "No job site assignment",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "status": "Unverified",
+      "status_reason": "Driver not found in Asset List",
+      "verification_level": "UNVERIFIED",
       "sources": [
-        "Driving History",
-        "Activity Detail"
+        "Activity Detail",
+        "Driving History"
       ],
-      "identity_verified": true
+      "key_on_time": "2025-05-16T06:18:22",
+      "key_off_time": "2025-05-16T15:07:15",
+      "locations": [
+        "West Plano Project"
+      ],
+      "identity_verified": false,
+      "classification_details": {}
     },
     {
       "driver_name": "Robert Williams",
       "normalized_name": "robert williams",
       "asset_id": "TRK-1003",
       "job_site": null,
-      "status": "Not On Job",
-      "status_reason": "No job site assignment",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "status": "Unverified",
+      "status_reason": "Driver not found in Asset List",
+      "verification_level": "UNVERIFIED",
       "sources": [
-        "Driving History",
-        "Activity Detail"
+        "Activity Detail",
+        "Driving History"
       ],
-      "identity_verified": true
+      "key_on_time": "2025-05-16T07:28:45",
+      "key_off_time": "2025-05-16T15:45:12",
+      "locations": [
+        "Downtown Construction"
+      ],
+      "identity_verified": false,
+      "classification_details": {}
     },
     {
       "driver_name": "William Brown",
       "normalized_name": "william brown",
       "asset_id": "TRK-1004",
       "job_site": null,
-      "status": "Not On Job",
-      "status_reason": "No job site assignment",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "status": "Unverified",
+      "status_reason": "Driver not found in Asset List",
+      "verification_level": "UNVERIFIED",
       "sources": [
-        "Driving History",
-        "Activity Detail"
+        "Activity Detail",
+        "Driving History"
       ],
-      "identity_verified": true
+      "key_on_time": "2025-05-16T06:32:15",
+      "key_off_time": "2025-05-16T14:54:36",
+      "locations": [
+        "Richardson Development"
+      ],
+      "identity_verified": false,
+      "classification_details": {}
     },
     {
       "driver_name": "James Davis",
       "normalized_name": "james davis",
       "asset_id": "TRK-1005",
       "job_site": null,
-      "status": "Not On Job",
-      "status_reason": "No job site assignment",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "status": "Unverified",
+      "status_reason": "Driver not found in Asset List",
+      "verification_level": "UNVERIFIED",
       "sources": [
-        "Driving History",
-        "Activity Detail"
+        "Activity Detail",
+        "Driving History"
       ],
-      "identity_verified": true
+      "key_on_time": "2025-05-16T07:03:21",
+      "key_off_time": "2025-05-16T15:12:40",
+      "locations": [
+        "North Richland Hills"
+      ],
+      "identity_verified": false,
+      "classification_details": {}
     },
     {
       "driver_name": "David Miller",
       "normalized_name": "david miller",
       "asset_id": "TRK-1006",
       "job_site": null,
-      "status": "Not On Job",
-      "status_reason": "No job site assignment",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "status": "Unverified",
+      "status_reason": "Driver not found in Asset List",
+      "verification_level": "UNVERIFIED",
       "sources": [
-        "Driving History",
-        "Activity Detail"
+        "Activity Detail",
+        "Driving History"
       ],
-      "identity_verified": true
+      "key_on_time": "2025-05-16T06:47:51",
+      "key_off_time": "2025-05-16T15:42:18",
+      "locations": [
+        "West Plano Project"
+      ],
+      "identity_verified": false,
+      "classification_details": {}
     },
     {
       "driver_name": "Richard Wilson",
       "normalized_name": "richard wilson",
       "asset_id": "TRK-1007",
       "job_site": null,
-      "status": "Not On Job",
-      "status_reason": "No job site assignment",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "status": "Unverified",
+      "status_reason": "Driver not found in Asset List",
+      "verification_level": "UNVERIFIED",
       "sources": [
-        "Driving History",
-        "Activity Detail"
+        "Activity Detail",
+        "Driving History"
       ],
-      "identity_verified": true
+      "key_on_time": "2025-05-16T06:14:42",
+      "key_off_time": "2025-05-16T15:18:27",
+      "locations": [
+        "Downtown Construction"
+      ],
+      "identity_verified": false,
+      "classification_details": {}
     },
     {
       "driver_name": "Joseph Moore",
       "normalized_name": "joseph moore",
       "asset_id": "TRK-1008",
       "job_site": null,
-      "status": "Not On Job",
-      "status_reason": "No job site assignment",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "status": "Unverified",
+      "status_reason": "Driver not found in Asset List",
+      "verification_level": "UNVERIFIED",
       "sources": [
-        "Driving History",
-        "Activity Detail"
+        "Activity Detail",
+        "Driving History"
       ],
-      "identity_verified": true
+      "key_on_time": "2025-05-16T06:55:23",
+      "key_off_time": "2025-05-16T15:25:11",
+      "locations": [
+        "Richardson Development"
+      ],
+      "identity_verified": false,
+      "classification_details": {}
     },
     {
       "driver_name": "Thomas Taylor",
       "normalized_name": "thomas taylor",
       "asset_id": "TRK-1009",
       "job_site": null,
-      "status": "Not On Job",
-      "status_reason": "No job site assignment",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "status": "Unverified",
+      "status_reason": "Driver not found in Asset List",
+      "verification_level": "UNVERIFIED",
       "sources": [
-        "Driving History",
-        "Activity Detail"
+        "Activity Detail",
+        "Driving History"
       ],
-      "identity_verified": true
+      "key_on_time": "2025-05-16T06:43:38",
+      "key_off_time": "2025-05-16T15:52:44",
+      "locations": [
+        "North Dallas Site"
+      ],
+      "identity_verified": false,
+      "classification_details": {}
     },
     {
       "driver_name": "Charles Anderson",
       "normalized_name": "charles anderson",
       "asset_id": "TRK-1010",
       "job_site": null,
-      "status": "Not On Job",
-      "status_reason": "No job site assignment",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "status": "Unverified",
+      "status_reason": "Driver not found in Asset List",
+      "verification_level": "UNVERIFIED",
       "sources": [
-        "Driving History",
-        "Activity Detail"
+        "Activity Detail",
+        "Driving History"
       ],
-      "identity_verified": true
+      "key_on_time": "2025-05-16T06:05:19",
+      "key_off_time": "2025-05-16T14:48:31",
+      "locations": [
+        "West Plano Project"
+      ],
+      "identity_verified": false,
+      "classification_details": {}
     },
     {
       "driver_name": "Christopher Thomas",
       "normalized_name": "christopher thomas",
       "asset_id": "TRK-1011",
       "job_site": null,
-      "status": "Not On Job",
-      "status_reason": "No job site assignment",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "status": "Unverified",
+      "status_reason": "Driver not found in Asset List",
+      "verification_level": "UNVERIFIED",
       "sources": [
-        "Driving History",
-        "Activity Detail"
+        "Activity Detail",
+        "Driving History"
       ],
-      "identity_verified": true
+      "key_on_time": "2025-05-16T06:29:57",
+      "key_off_time": "2025-05-16T15:33:29",
+      "locations": [
+        "Downtown Construction"
+      ],
+      "identity_verified": false,
+      "classification_details": {}
     },
     {
       "driver_name": "Daniel Jackson",
       "normalized_name": "daniel jackson",
       "asset_id": "TRK-1012",
       "job_site": null,
-      "status": "Not On Job",
-      "status_reason": "No job site assignment",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "status": "Unverified",
+      "status_reason": "Driver not found in Asset List",
+      "verification_level": "UNVERIFIED",
       "sources": [
-        "Driving History",
-        "Activity Detail"
+        "Activity Detail",
+        "Driving History"
       ],
-      "identity_verified": true
+      "key_on_time": "2025-05-16T06:16:33",
+      "key_off_time": "2025-05-16T15:12:48",
+      "locations": [
+        "Richardson Development"
+      ],
+      "identity_verified": false,
+      "classification_details": {}
     },
     {
       "driver_name": "Matthew Harris",
       "normalized_name": "matthew harris",
       "asset_id": "TRK-1013",
       "job_site": null,
-      "status": "Not On Job",
-      "status_reason": "No job site assignment",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "status": "Unverified",
+      "status_reason": "Driver not found in Asset List",
+      "verification_level": "UNVERIFIED",
       "sources": [
-        "Driving History",
-        "Activity Detail"
+        "Activity Detail",
+        "Driving History"
       ],
-      "identity_verified": true
+      "key_on_time": "2025-05-16T06:52:44",
+      "key_off_time": "2025-05-16T15:37:51",
+      "locations": [
+        "North Dallas Site"
+      ],
+      "identity_verified": false,
+      "classification_details": {}
     },
     {
       "driver_name": "Anthony Martin",
       "normalized_name": "anthony martin",
       "asset_id": "TRK-1014",
       "job_site": null,
-      "status": "Not On Job",
-      "status_reason": "No job site assignment",
-      "key_on_time": null,
-      "key_off_time": null,
-      "verification_level": "MEDIUM",
+      "status": "Unverified",
+      "status_reason": "Driver not found in Asset List",
+      "verification_level": "UNVERIFIED",
       "sources": [
-        "Driving History",
-        "Activity Detail"
+        "Activity Detail",
+        "Driving History"
       ],
-      "identity_verified": true
+      "key_on_time": "2025-05-16T07:16:29",
+      "key_off_time": "2025-05-16T15:58:12",
+      "locations": [
+        "West Plano Project"
+      ],
+      "identity_verified": false,
+      "classification_details": {}
     }
   ],
   "summary": {
-    "total": 185,
+    "total": 171,
     "on_time": 0,
     "late": 0,
     "early_end": 0,
-    "not_on_job": 185
+    "not_on_job": 171,
+    "unmatched": 14
   },
-  "excluded_drivers": [],
   "metadata": {
-    "generated": "2025-05-21T01:55:58.753301",
+    "generated": "2025-05-21T03:07:55.845709",
     "verification_mode": "GENIUS CORE ULTRA BLOCK HARDLINE MODE",
     "workbook_logic": {
       "hierarchy": [
-        "Asset List (relational hub)",
+        "Asset List (primary source of truth)",
         "Drivers Sheet (employee registry)",
-        "DrivingHistory (telematics data)",
-        "ActivityDetail (location validation)"
+        "Jobs Sheet (job assignments)",
+        "Driving History (telematics)",
+        "Activity Detail (location validation)"
       ],
-      "note": "Start Time & Job sheet is derived, not authoritative"
+      "derived_sources": [
+        "Start Time & Job (derived from other workbook tabs)"
+      ]
     },
-    "verification_summary": {
-      "verified_drivers": 185,
-      "excluded_drivers": 0,
-      "workbook_logic_enforced": true
+    "processing_stats": {
+      "total_drivers_parsed": 185,
+      "total_matched_to_asset_list": 171,
+      "total_excluded": 14,
+      "exclusion_reasons": {
+        "Not in Asset List": 14
+      },
+      "classification_counts": {
+        "On Time": 0,
+        "Late": 0,
+        "Early End": 0,
+        "Not On Job": 171,
+        "Unverified": 14
+      }
     }
   }
 }

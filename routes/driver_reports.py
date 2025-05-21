@@ -316,29 +316,52 @@ def process_driver_files(driving_history_path, activity_detail_path, asset_list_
         return {'error': str(e)}
 
 def load_file(file_path):
-    """Load a file into a pandas DataFrame"""
+    """
+    Load a file into a pandas DataFrame using robust parsing methods.
+    
+    Args:
+        file_path: Path to the file
+        
+    Returns:
+        DataFrame: Loaded DataFrame or empty DataFrame if failed
+    """
     if file_path is None:
-        return None
+        logger.warning("No file path provided to load_file")
+        return pd.DataFrame()
+    
+    if not os.path.exists(file_path):
+        logger.warning(f"File does not exist: {file_path}")
+        return pd.DataFrame()
     
     try:
-        # Determine file type from extension
-        file_ext = file_path.rsplit('.', 1)[1].lower()
+        logger.info(f"Loading file: {file_path}")
+        # Determine file type from extension and name
+        file_ext = file_path.rsplit('.', 1)[1].lower() if '.' in file_path else ''
+        filename = os.path.basename(file_path).lower()
         
         if file_ext == 'csv':
-            # Try different encodings and delimiters for CSV
-            try:
-                return pd.read_csv(file_path)
-            except:
-                try:
-                    return pd.read_csv(file_path, encoding='latin1')
-                except:
-                    return pd.read_csv(file_path, delimiter=';')
-        else:
-            # Excel file
+            # Use our robust CSV parsing utilities based on file type
+            if 'drivinghistory' in filename.replace(' ', '') or 'driving' in filename.lower():
+                logger.info(f"Detected driving history file, using specialized parser: {filename}")
+                return parse_driving_history(file_path)
+            elif 'activitydetail' in filename.replace(' ', '') or 'activity' in filename.lower():
+                logger.info(f"Detected activity detail file, using specialized parser: {filename}")
+                return parse_activity_detail(file_path)
+            else:
+                # Use the generic smart parser for other CSV files
+                logger.info(f"Using generic robust CSV parser for: {filename}")
+                return smart_parse_csv(file_path)
+        elif file_ext in ['xls', 'xlsx']:
+            # Excel files
+            logger.info(f"Loading Excel file: {filename}")
             return pd.read_excel(file_path)
+        else:
+            logger.warning(f"Unsupported file format: {file_ext} for {filename}")
+            return pd.DataFrame()
     except Exception as e:
         logger.error(f"Error loading file {file_path}: {str(e)}")
-        return None
+        # Return empty DataFrame to ensure consistent return type
+        return pd.DataFrame()
 
 def simulate_daily_report(date_obj):
     """

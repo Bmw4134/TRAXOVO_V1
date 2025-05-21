@@ -94,59 +94,59 @@ class GaugeAPI:
             # Log more details for debugging
             logger.info(f"Attempting to authenticate with Gauge API at {self.api_url}")
             
-            # Try the correct endpoint first
-            auth_url = f"{self.api_url}/api/v1/auth/token"
+            # List of possible endpoint formats to try
+            endpoint_formats = [
+                "/api/v1/auth/token",
+                "/auth/token",
+                "/api/auth/token",
+                "/api/v2/auth/token",
+                "/v1/auth/token"
+            ]
             
-            response = requests.post(
-                auth_url,
-                json={
-                    "username": self.username,
-                    "password": self.password
-                },
-                timeout=10,
-                verify=False  # SSL verification disabled with warning suppression
-            )
+            # Try each endpoint format until one works
+            for endpoint in endpoint_formats:
+                auth_url = f"{self.api_url.rstrip('/')}{endpoint}"
+                
+                try:
+                    logger.info(f"Trying authentication endpoint: {auth_url}")
+                    response = requests.post(
+                        auth_url,
+                        json={
+                            "username": self.username,
+                            "password": self.password
+                        },
+                        timeout=15,  # Increased timeout for more reliability
+                        verify=False  # SSL verification disabled with warning suppression
+                    )
+                    
+                    # If we get a successful response, process it
+                    if response.status_code == 200:
+                        try:
+                            data = response.json()
+                            if 'token' in data:
+                                self.token = data['token']
+                                # Token typically expires in 24 hours
+                                self.token_expiry = datetime.now() + timedelta(hours=23)
+                                logger.info(f"Successfully authenticated with Gauge API using endpoint: {endpoint}")
+                                return
+                            else:
+                                logger.warning(f"Response from {auth_url} does not contain a token")
+                        except ValueError:
+                            logger.warning(f"Invalid JSON response from {auth_url}: {response.text[:100]}...")
+                    else:
+                        logger.warning(f"Authentication attempt to {auth_url} failed with status code {response.status_code}")
+                        
+                except requests.exceptions.RequestException as req_err:
+                    logger.warning(f"Request failed for {auth_url}: {str(req_err)}")
+                    continue
             
-            # If first attempt fails, try alternative endpoint format
-            if response.status_code == 404:
-                logger.info("First auth attempt returned 404, trying alternative endpoint")
-                auth_url = f"{self.api_url}/auth/token"
-                response = requests.post(
-                    auth_url,
-                    json={
-                        "username": self.username,
-                        "password": self.password
-                    },
-                    timeout=10,
-                    verify=False
-                )
-            
-            # Check for non-200 status code specifically to provide better error handling
-            if response.status_code != 200:
-                logger.error(f"Authentication failed with status code {response.status_code} at {auth_url}: {response.text[:200]}...")
-                self.token = None
-                self.token_expiry = None
-                return
+            # If we get here, all authentication attempts failed
+            logger.error("All authentication attempts failed. Please check API URL and credentials.")
+            self.token = None
+            self.token_expiry = None
                 
-            # Try to parse JSON response 
-            try:
-                data = response.json()
-            except ValueError:
-                logger.error(f"Invalid JSON response from API: {response.text[:100]}...")
-                self.token = None
-                self.token_expiry = None
-                return
-                
-            if 'token' in data:
-                self.token = data['token']
-                # Token typically expires in 24 hours
-                self.token_expiry = datetime.now() + timedelta(hours=23)
-                logger.info("Successfully authenticated with Gauge API")
-            else:
-                logger.error("Failed to get token from API response")
-                
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Failed to authenticate with Gauge API: {str(e)}")
+        except Exception as e:
+            logger.error(f"Unexpected error during authentication: {str(e)}")
             self.token = None
             self.token_expiry = None
     
@@ -160,118 +160,258 @@ class GaugeAPI:
     
     def get_assets(self):
         """Get a list of all assets from the Gauge API"""
-        try:
-            response = requests.get(
-                f"{self.api_url}/assets",
-                headers=self.get_headers(),
-                timeout=30,
-                verify=False  # Disable SSL verification for development environments
-            )
-            
-            response.raise_for_status()
-            return response.json()
-            
-        except Exception as e:
-            logger.error(f"Failed to get assets from Gauge API: {str(e)}")
-            raise
+        if not self.token:
+            self.authenticate()
+            if not self.token:
+                logger.error("Not authenticated with Gauge API, cannot get assets")
+                return []
+                
+        # List of possible endpoint formats to try
+        endpoint_formats = [
+            "/assets",
+            "/api/v1/assets",
+            "/api/assets"
+        ]
+        
+        for endpoint in endpoint_formats:
+            try:
+                url = f"{self.api_url.rstrip('/')}{endpoint}"
+                logger.info(f"Trying to get assets from: {url}")
+                
+                response = requests.get(
+                    url,
+                    headers=self.get_headers(),
+                    timeout=30,
+                    verify=False  # Disable SSL verification for development environments
+                )
+                
+                if response.status_code == 200:
+                    return response.json()
+                else:
+                    logger.warning(f"Failed to get assets from {url}: {response.status_code}")
+                    
+            except Exception as e:
+                logger.warning(f"Error getting assets from {endpoint}: {str(e)}")
+                continue
+        
+        logger.error("All attempts to get assets failed")
+        return []
     
     def get_asset_location(self, asset_id):
         """Get the current location of an asset"""
-        try:
-            response = requests.get(
-                f"{self.api_url}/assets/{asset_id}/location",
-                headers=self.get_headers(),
-                timeout=30,
-                verify=False  # Disable SSL verification for development environments
-            )
-            
-            response.raise_for_status()
-            return response.json()
-            
-        except Exception as e:
-            logger.error(f"Failed to get asset location from Gauge API: {str(e)}")
-            raise
+        if not self.token:
+            self.authenticate()
+            if not self.token:
+                logger.error("Not authenticated with Gauge API, cannot get asset location")
+                return {}
+                
+        # List of possible endpoint formats to try
+        endpoint_formats = [
+            f"/assets/{asset_id}/location",
+            f"/api/v1/assets/{asset_id}/location",
+            f"/api/assets/{asset_id}/location"
+        ]
+        
+        for endpoint in endpoint_formats:
+            try:
+                url = f"{self.api_url.rstrip('/')}{endpoint}"
+                logger.info(f"Trying to get asset location from: {url}")
+                
+                response = requests.get(
+                    url,
+                    headers=self.get_headers(),
+                    timeout=30,
+                    verify=False  # Disable SSL verification for development environments
+                )
+                
+                if response.status_code == 200:
+                    return response.json()
+                else:
+                    logger.warning(f"Failed to get asset location from {url}: {response.status_code}")
+                    
+            except Exception as e:
+                logger.warning(f"Error getting asset location from {endpoint}: {str(e)}")
+                continue
+        
+        logger.error(f"All attempts to get location for asset {asset_id} failed")
+        return {}
     
     def get_asset_locations(self, asset_id, start_date, end_date):
         """Get location history for an asset in a date range"""
-        try:
-            response = requests.get(
-                f"{self.api_url}/assets/{asset_id}/locations",
-                headers=self.get_headers(),
-                params={
-                    "start_date": start_date.isoformat(),
-                    "end_date": end_date.isoformat()
-                },
-                timeout=30,
-                verify=False  # Disable SSL verification for development environments
-            )
-            
-            response.raise_for_status()
-            return response.json()
-            
-        except Exception as e:
-            logger.error(f"Failed to get asset locations from Gauge API: {str(e)}")
-            raise
+        if not self.token:
+            self.authenticate()
+            if not self.token:
+                logger.error("Not authenticated with Gauge API, cannot get asset location history")
+                return []
+                
+        # List of possible endpoint formats to try
+        endpoint_formats = [
+            f"/assets/{asset_id}/locations",
+            f"/api/v1/assets/{asset_id}/locations",
+            f"/api/assets/{asset_id}/locations",
+            f"/assets/{asset_id}/location/history"
+        ]
+        
+        for endpoint in endpoint_formats:
+            try:
+                url = f"{self.api_url.rstrip('/')}{endpoint}"
+                logger.info(f"Trying to get asset location history from: {url}")
+                
+                response = requests.get(
+                    url,
+                    headers=self.get_headers(),
+                    params={
+                        "start_date": start_date.isoformat(),
+                        "end_date": end_date.isoformat()
+                    },
+                    timeout=30,
+                    verify=False  # Disable SSL verification for development environments
+                )
+                
+                if response.status_code == 200:
+                    return response.json()
+                else:
+                    logger.warning(f"Failed to get asset location history from {url}: {response.status_code}")
+                    
+            except Exception as e:
+                logger.warning(f"Error getting asset location history from {endpoint}: {str(e)}")
+                continue
+        
+        logger.error(f"All attempts to get location history for asset {asset_id} failed")
+        return []
     
     def get_driving_history(self, start_date, end_date):
         """Get driving history for all assets in a date range"""
-        try:
-            response = requests.get(
-                f"{self.api_url}/reports/driving-history",
-                headers=self.get_headers(),
-                params={
-                    "start_date": start_date.isoformat(),
-                    "end_date": end_date.isoformat()
-                },
-                timeout=60,  # Longer timeout for reports
-                verify=False  # Disable SSL verification for development environments
-            )
-            
-            response.raise_for_status()
-            return response.json()
-            
-        except Exception as e:
-            logger.error(f"Failed to get driving history from Gauge API: {str(e)}")
-            raise
+        if not self.token:
+            self.authenticate()
+            if not self.token:
+                logger.error("Not authenticated with Gauge API, cannot get driving history")
+                return []
+                
+        # List of possible endpoint formats to try
+        endpoint_formats = [
+            "/reports/driving-history",
+            "/api/v1/reports/driving-history",
+            "/api/reports/driving-history",
+            "/api/v1/reports/driving_history",
+            "/reports/driving_history"
+        ]
+        
+        for endpoint in endpoint_formats:
+            try:
+                url = f"{self.api_url.rstrip('/')}{endpoint}"
+                logger.info(f"Trying to get driving history from: {url}")
+                
+                response = requests.get(
+                    url,
+                    headers=self.get_headers(),
+                    params={
+                        "start_date": start_date.isoformat(),
+                        "end_date": end_date.isoformat()
+                    },
+                    timeout=60,  # Longer timeout for reports
+                    verify=False  # Disable SSL verification for development environments
+                )
+                
+                if response.status_code == 200:
+                    return response.json()
+                else:
+                    logger.warning(f"Failed to get driving history from {url}: {response.status_code}")
+                    
+            except Exception as e:
+                logger.warning(f"Error getting driving history from {endpoint}: {str(e)}")
+                continue
+        
+        logger.error("All attempts to get driving history failed")
+        return []
     
     def get_activity_detail(self, start_date, end_date):
         """Get activity detail for all assets in a date range"""
-        try:
-            response = requests.get(
-                f"{self.api_url}/reports/activity-detail",
-                headers=self.get_headers(),
-                params={
-                    "start_date": start_date.isoformat(),
-                    "end_date": end_date.isoformat()
-                },
-                timeout=60,  # Longer timeout for reports
-                verify=False  # Disable SSL verification for development environments
-            )
-            
-            response.raise_for_status()
-            return response.json()
-            
-        except Exception as e:
-            logger.error(f"Failed to get activity detail from Gauge API: {str(e)}")
-            raise
+        if not self.token:
+            self.authenticate()
+            if not self.token:
+                logger.error("Not authenticated with Gauge API, cannot get activity detail")
+                return []
+                
+        # List of possible endpoint formats to try
+        endpoint_formats = [
+            "/reports/activity-detail",
+            "/api/v1/reports/activity-detail",
+            "/api/reports/activity-detail",
+            "/api/v1/reports/activity_detail",
+            "/reports/activity_detail"
+        ]
+        
+        for endpoint in endpoint_formats:
+            try:
+                url = f"{self.api_url.rstrip('/')}{endpoint}"
+                logger.info(f"Trying to get activity detail from: {url}")
+                
+                response = requests.get(
+                    url,
+                    headers=self.get_headers(),
+                    params={
+                        "start_date": start_date.isoformat(),
+                        "end_date": end_date.isoformat()
+                    },
+                    timeout=60,  # Longer timeout for reports
+                    verify=False  # Disable SSL verification for development environments
+                )
+                
+                if response.status_code == 200:
+                    return response.json()
+                else:
+                    logger.warning(f"Failed to get activity detail from {url}: {response.status_code}")
+                    
+            except Exception as e:
+                logger.warning(f"Error getting activity detail from {endpoint}: {str(e)}")
+                continue
+        
+        logger.error("All attempts to get activity detail failed")
+        return []
     
     def get_asset_time_on_site(self, start_date, end_date):
         """Get asset time on site report for all assets in a date range"""
-        try:
-            response = requests.get(
-                f"{self.api_url}/reports/asset-time-on-site",
-                headers=self.get_headers(),
-                params={
-                    "start_date": start_date.isoformat(),
-                    "end_date": end_date.isoformat()
-                },
-                timeout=60,  # Longer timeout for reports
-                verify=False  # Disable SSL verification for development environments
-            )
-            
-            response.raise_for_status()
-            return response.json()
-            
-        except Exception as e:
-            logger.error(f"Failed to get asset time on site from Gauge API: {str(e)}")
-            raise
+        if not self.token:
+            self.authenticate()
+            if not self.token:
+                logger.error("Not authenticated with Gauge API, cannot get asset time on site report")
+                return []
+                
+        # List of possible endpoint formats to try
+        endpoint_formats = [
+            "/reports/asset-time-on-site",
+            "/api/v1/reports/asset-time-on-site",
+            "/api/reports/asset-time-on-site",
+            "/reports/assets/time-on-site",
+            "/api/v1/reports/asset_time_on_site",
+            "/reports/asset_time_on_site"
+        ]
+        
+        for endpoint in endpoint_formats:
+            try:
+                url = f"{self.api_url.rstrip('/')}{endpoint}"
+                logger.info(f"Trying to get asset time on site report from: {url}")
+                
+                response = requests.get(
+                    url,
+                    headers=self.get_headers(),
+                    params={
+                        "start_date": start_date.isoformat(),
+                        "end_date": end_date.isoformat()
+                    },
+                    timeout=60,  # Longer timeout for reports
+                    verify=False  # Disable SSL verification for development environments
+                )
+                
+                if response.status_code == 200:
+                    return response.json()
+                else:
+                    logger.warning(f"Failed to get asset time on site report from {url}: {response.status_code}")
+                    
+            except Exception as e:
+                logger.warning(f"Error getting asset time on site report from {endpoint}: {str(e)}")
+                continue
+        
+        logger.error("All attempts to get asset time on site report failed")
+        return []

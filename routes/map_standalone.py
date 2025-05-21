@@ -116,6 +116,36 @@ def api_assets():
             if api_data and len(api_data) > 0:
                 logger.info(f"Sample asset data: {json.dumps(api_data[0], indent=2)}")
             
+            # First, fetch job sites to use for proximity detection
+            job_sites = []
+            try:
+                # Use the same auth for job sites API call
+                job_sites_response = requests.get(
+                    f"{request.url_root.rstrip('/')}/api/job-sites", 
+                    timeout=10
+                )
+                if job_sites_response.status_code == 200:
+                    job_sites = job_sites_response.json()
+            except Exception as e:
+                logger.warning(f"Could not fetch job sites for proximity detection: {str(e)}")
+            
+            # Function to calculate distance between two points (haversine formula)
+            def calculate_distance(lat1, lon1, lat2, lon2):
+                """Calculate distance between two points in meters"""
+                from math import radians, sin, cos, sqrt, atan2
+                
+                # Convert latitude and longitude from degrees to radians
+                lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+                
+                # Haversine formula
+                dlon = lon2 - lon1
+                dlat = lat2 - lat1
+                a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+                c = 2 * atan2(sqrt(a), sqrt(1-a))
+                distance = 6371000 * c  # Earth radius in meters
+                
+                return distance
+
             # Transform API data to our format
             assets_data = []
             assets_with_location = 0
@@ -143,6 +173,47 @@ def api_assets():
                         except (ValueError, TypeError):
                             pass
                 
+                # Check if asset is near a job site
+                asset_location = item.get('Location') or item.get('Site') or ''
+                
+                # Only try to find a nearby job site if:
+                # 1. We have coordinate data for the asset
+                # 2. The current location isn't already a job site
+                # 3. We have job sites data to check against
+                if lat and lon and job_sites:
+                    is_known_job_site = False
+                    
+                    # Check if current location is already a known job site
+                    for site in job_sites:
+                        if site.get('name') == asset_location:
+                            is_known_job_site = True
+                            break
+                    
+                    # If not at a known job site, check proximity to all job sites
+                    if not is_known_job_site:
+                        nearest_site = None
+                        nearest_distance = float('inf')
+                        
+                        for site in job_sites:
+                            site_lat = site.get('latitude')
+                            site_lon = site.get('longitude')
+                            site_radius = site.get('radius', 1000)
+                            
+                            if site_lat and site_lon:
+                                distance = calculate_distance(lat, lon, site_lat, site_lon)
+                                
+                                # Consider the asset to be at this site if:
+                                # - Within the site's radius plus a small buffer (50m)
+                                # - Or very close to the site (within 150m)
+                                # - Choose the nearest site if multiple matches
+                                if (distance <= site_radius + 50 or distance <= 150) and distance < nearest_distance:
+                                    nearest_site = site
+                                    nearest_distance = distance
+                        
+                        # Override location if asset is near a job site
+                        if nearest_site:
+                            asset_location = nearest_site.get('name', asset_location)
+                
                 # Map API fields to our data structure with Gauge API field names
                 asset = {
                     'id': item.get('AssetIdentifier') or item.get('id') or '',
@@ -154,7 +225,7 @@ def api_assets():
                     'longitude': lon,
                     'driver': item.get('driver') or item.get('driverName') or '',
                     'last_update': item.get('EventDateTimeString') or item.get('lastUpdate') or item.get('timestamp') or datetime.now().isoformat(),
-                    'location': item.get('Location') or item.get('Site') or '',
+                    'location': asset_location,  # Use potentially overridden location
                     'serial': item.get('SerialNumber') or '',
                     'make': item.get('AssetMake') or '',
                     'model': item.get('AssetModel') or ''

@@ -348,11 +348,11 @@ def api_job_sites():
     """API endpoint to get job sites for map display"""
     try:
         # Use real job sites detected from the Gauge API data
-        # We'll only use verified construction job sites
+        # We'll only use verified construction job sites with project numbers in names
         job_sites = [
             {
                 'id': 1,
-                'name': 'SH 345 Bridge Rehabilitation',
+                'name': '2023-032 SH 345 Bridge Rehabilitation',
                 'job_number': '2023-032',
                 'latitude': 32.7807,
                 'longitude': -96.7835,
@@ -374,7 +374,7 @@ def api_job_sites():
             },
             {
                 'id': 3,
-                'name': 'Ector BI 20E Rehab Roadway',
+                'name': '2023-007 Ector BI 20E Rehab Roadway',
                 'job_number': '2023-007',
                 'latitude': 31.9158,
                 'longitude': -102.2303,
@@ -396,7 +396,7 @@ def api_job_sites():
             },
             {
                 'id': 5,
-                'name': 'Dal IH635 U-Turn Bridge',
+                'name': '2024-012 Dal IH635 U-Turn Bridge',
                 'job_number': '2024-012',
                 'latitude': 32.9241,
                 'longitude': -96.9933,
@@ -407,7 +407,7 @@ def api_job_sites():
             },
             {
                 'id': 6,
-                'name': 'Dallas SH 310 Intersection Improvements',
+                'name': '24-04 Dallas SH 310 Intersection Improvements',
                 'job_number': '24-04',
                 'latitude': 32.6866,
                 'longitude': -96.7371, 

@@ -97,7 +97,7 @@ logger.info("Skipping maintenance blueprint temporarily")
 @app.route('/')
 def index():
     """Application home page"""
-    return redirect(url_for('driver_module.daily_report'))
+    return redirect(url_for('reports.index'))
 
 @app.route('/asset-map')
 def asset_map_redirect():

@@ -18,7 +18,6 @@ logger = logging.getLogger(__name__)
 reports_bp = Blueprint('reports', __name__, url_prefix='/reports')
 
 @reports_bp.route('/')
-@login_required
 def index():
     """Reports landing page with links to all available reports."""
     return render_template('reports/index.html', title='Reports', datetime=datetime)

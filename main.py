@@ -14,6 +14,7 @@ from routes.asset_map import asset_map_bp
 from routes.billing import billing_bp
 from routes.system_health import system_health_bp
 from routes.map_standalone import map_standalone_bp
+from routes.direct_map_route import direct_map
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -25,6 +26,7 @@ app.register_blueprint(asset_map_bp)
 app.register_blueprint(billing_bp)
 app.register_blueprint(system_health_bp)
 app.register_blueprint(map_standalone_bp)
+app.register_blueprint(direct_map)
 
 @app.route('/')
 def dashboard():
@@ -90,7 +92,8 @@ def check_database_status():
     """Check status of the database connection"""
     try:
         # Simple query to check if the database is responding
-        db.session.execute("SELECT 1")
+        from sqlalchemy import text
+        db.session.execute(text("SELECT 1"))
         return 'connected'
     except Exception as e:
         logger.error(f"Error checking database status: {str(e)}")

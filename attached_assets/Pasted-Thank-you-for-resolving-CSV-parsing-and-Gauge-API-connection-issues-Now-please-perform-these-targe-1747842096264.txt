@@ -1,0 +1,31 @@
+Thank you for resolving CSV parsing and Gauge API connection issues. Now, please perform these targeted, high-priority tasks for system stabilization and verification:
+
+1. **Database Connectivity & Health Check**
+   - Perform an explicit, deep-dive database health check.  
+   - Verify connection pooling, session handling, and query responsiveness.
+   - Confirm ORM model relationships correctly map to tables with no circular or orphaned references.
+   - Return specific diagnostics/logs, highlighting any lingering issues or confirming full operational status.
+
+2. **Storage System Comprehensive Audit**
+   - Verify file storage read/write/delete permissions explicitly.
+   - Confirm storage system connectivity and responsiveness across .xlsx, .csv, .json file uploads.
+   - Provide a status log showing successful file system operations or precise errors if encountered.
+
+3. **Full End-to-End Module Verification**
+   - Run a full validation on each primary system module (Driver Reports, Asset Map, PM Allocations, Dashboard).
+   - Confirm each module pulls from correct workbook lineage (Asset List, DrivingHistory.csv, ActivityDetail.csv, AssetTimeOnSite.csv, timecards .xlsx).
+   - Specifically verify:
+     - Accurate derived field calculations (Start Time, End Time, Job).
+     - No presence of ghost/fake entities or test drivers.
+     - Consistent cross-module data alignment.
+
+4. **Gauge API Endpoint Confirmation**
+   - Confirm each Gauge API endpoint explicitly returns expected data.
+   - Provide a complete endpoint status summary, clearly marking successful responses and detailing reasons for any remaining failures.
+
+5. **System Stability Logs**
+   - Run a stability test on GENIUS CORE CONTINUITY MODE for recent changes.
+   - Generate and share logs for the past 24 hours, identifying any potential system instability or background errors.
+
+**Final Deliverable from Replit:**  
+Provide a structured, clearly formatted status report covering each numbered point, including logs, diagnostic outputs, endpoint health, and explicit recommendations for any required further action.

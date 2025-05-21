@@ -577,24 +577,67 @@ def api_job_sites():
                         elif 'INTERSTATE' in name.upper() or 'I-' in name.upper():
                             # Interstate number pattern to determine orientation
                             # Even numbers generally run East-West, odd numbers North-South
-                            import re
-                            interstate_match = re.search(r'I-(\d+)', name.upper())
-                            if interstate_match:
-                                interstate_num = int(interstate_match.group(1))
-                                orientation = 'EW' if interstate_num % 2 == 0 else 'NS'
+                            # Use regex to extract interstate number
+                            interstate_pattern = r'I-(\d+)'
+                            interstate_match = None
+                            
+                            if 'I-' in name.upper():
+                                interstate_parts = name.upper().split('I-')
+                                if len(interstate_parts) > 1 and interstate_parts[1]:
+                                    # Extract digits from the part after "I-"
+                                    interstate_digits = ''
+                                    for char in interstate_parts[1]:
+                                        if char.isdigit():
+                                            interstate_digits += char
+                                        else:
+                                            break
+                                    
+                                    if interstate_digits:
+                                        interstate_num = int(interstate_digits)
+                                        orientation = 'EW' if interstate_num % 2 == 0 else 'NS'
                         elif 'SH' in name.upper() or 'FM' in name.upper() or 'STATE HIGHWAY' in name.upper():
                             # Texas state highway numbering doesn't follow the same even/odd pattern
-                            # Check if highway number is provided
-                            highway_match = re.search(r'(SH|FM)\s*(\d+)', name.upper())
-                            if highway_match:
-                                # For major state highways like SH 35, determine by location
-                                highway_num = highway_match.group(2)
-                                
+                            # Check if highway number is provided using string operations instead of regex
+                            highway_prefix = None
+                            highway_num = None
+                            
+                            # Look for SH pattern
+                            if 'SH' in name.upper():
+                                parts = name.upper().split('SH')
+                                if len(parts) > 1:
+                                    highway_prefix = 'SH'
+                                    # Extract digits after SH
+                                    digits = ''
+                                    for char in parts[1].strip():
+                                        if char.isdigit():
+                                            digits += char
+                                        elif digits:  # Stop at first non-digit after finding digits
+                                            break
+                                    if digits:
+                                        highway_num = digits
+                            
+                            # Look for FM pattern
+                            elif 'FM' in name.upper():
+                                parts = name.upper().split('FM')
+                                if len(parts) > 1:
+                                    highway_prefix = 'FM'
+                                    # Extract digits after FM
+                                    digits = ''
+                                    for char in parts[1].strip():
+                                        if char.isdigit():
+                                            digits += char
+                                        elif digits:  # Stop at first non-digit after finding digits
+                                            break
+                                    if digits:
+                                        highway_num = digits
+                            
+                            # Apply rules for known highways
+                            if highway_prefix == 'SH' and highway_num:
                                 # SH 35 runs North-South along the coast
-                                if highway_match.group(1) == 'SH' and highway_num == '35':
+                                if highway_num == '35':
                                     orientation = 'NS'
                                 # Other major East-West highways
-                                elif highway_match.group(1) == 'SH' and highway_num in ['114', '183', '121']:
+                                elif highway_num in ['114', '183', '121']:
                                     orientation = 'EW'
                         
                         lat = loc_data['latitude']

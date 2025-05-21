@@ -406,9 +406,18 @@ def api_job_sites():
                     
                     # Known yards and official sites
                     if any(site_keyword in name.upper() for site_keyword in 
-                          ['YARD', 'SHOP', 'PROJECT', 'REHAB', 'IMPROVEMENT', 'REPLACEMENT',
-                           'BRIDGE', 'HIGHWAY', 'SIDEWALK', 'MAINTENANCE']):
+                          ['YARD', 'SHOP', 'PROJECT', 'REHAB', 'IMPROVEMENT']):
                         is_official_site = True
+                    
+                    # Highway/Bridge/Road sites ONLY if they have job numbers
+                    # (avoid random street addresses and highways)
+                    if any(site_keyword in name.upper() for site_keyword in 
+                          ['BRIDGE', 'HIGHWAY', 'SIDEWALK', 'ROAD', 'REPLACEMENT', 'MAINTENANCE']):
+                        # Only count as an official site if it ALSO has a job number or yard keyword
+                        if (name.startswith('20') and '-' in name[:10]) or 'YARD' in name.upper():
+                            is_official_site = True
+                        else:
+                            is_official_site = False
                         
                     # Skip if this isn't an official site (just a street address)
                     if not is_official_site:

@@ -40,6 +40,10 @@ class GaugeAPI:
             raise ValueError("Gauge API credentials are not configured")
         
         try:
+            # Suppress just the InsecureRequestWarning specifically
+            import urllib3
+            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+            
             response = requests.post(
                 f"{self.api_url}/auth/token",
                 json={
@@ -47,12 +51,25 @@ class GaugeAPI:
                     "password": self.password
                 },
                 timeout=10,
-                verify=False  # Disable SSL verification for development environments
+                verify=False  # SSL verification disabled with warning suppression
             )
             
-            response.raise_for_status()
-            data = response.json()
-            
+            # Check for non-200 status code specifically to provide better error handling
+            if response.status_code != 200:
+                logger.error(f"Authentication failed with status code {response.status_code}: {response.text}")
+                self.token = None
+                self.token_expiry = None
+                return
+                
+            # Try to parse JSON response 
+            try:
+                data = response.json()
+            except ValueError:
+                logger.error(f"Invalid JSON response from API: {response.text[:100]}...")
+                self.token = None
+                self.token_expiry = None
+                return
+                
             if 'token' in data:
                 self.token = data['token']
                 # Token typically expires in 24 hours
@@ -60,13 +77,11 @@ class GaugeAPI:
                 logger.info("Successfully authenticated with Gauge API")
             else:
                 logger.error("Failed to get token from Gauge API")
-                raise ValueError("Authentication failed - no token in response")
                 
         except requests.exceptions.RequestException as e:
             logger.error(f"Failed to authenticate with Gauge API: {str(e)}")
             self.token = None
             self.token_expiry = None
-            raise
     
     def get_headers(self):
         """Get the API request headers with authentication token"""

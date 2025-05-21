@@ -1,388 +1,208 @@
 {
   "date": "2025-05-16",
-  "report_date": "Friday, May 16, 2025",
   "drivers": [
     {
-      "name": "Ammar Elhamad",
-      "employee_id": "210003",
-      "asset": "TX-76063",
-      "arrival": "10:28:56 PM",
-      "status": "On Time"
-    },
-    {
-      "name": "Adam Goode",
-      "employee_id": "210055",
-      "asset": "TX-75077",
-      "arrival": "10:04:04 AM",
-      "status": "On Time"
-    },
-    {
-      "name": "VICK ADHIKARI",
-      "employee_id": "210073",
-      "asset": "TX-76180",
-      "arrival": "10:42:17 AM",
-      "status": "On Time"
-    },
-    {
-      "name": "Hector Bonilla",
-      "employee_id": "410009",
-      "asset": "TX-77545",
-      "arrival": "5:57:46 PM",
-      "status": "On Time"
-    },
-    {
-      "name": "",
-      "employee_id": "1",
-      "asset": "I-35E",
-      "arrival": "07:00 AM",
-      "status": "On Time"
-    },
-    {
-      "name": "",
-      "employee_id": "YARD",
-      "asset": "TX-75208",
-      "arrival": "07:00 AM",
-      "status": "On Time"
-    },
-    {
-      "name": "",
-      "employee_id": "11",
-      "asset": "TX-146",
-      "arrival": "07:00 AM",
-      "status": "On Time"
-    },
-    {
-      "name": "SAUL MARTINEZ ALVAREZ",
-      "employee_id": "210074",
-      "asset": "SE-12",
-      "arrival": "10:42:09 AM",
-      "status": "On Time"
-    },
-    {
-      "name": "",
-      "employee_id": "OFFICE",
-      "asset": "SH-183",
-      "arrival": "07:00 AM",
-      "status": "On Time"
-    },
-    {
-      "name": "",
-      "employee_id": "17",
-      "asset": "I-30",
-      "arrival": "07:00 AM",
-      "status": "On Time"
-    },
-    {
-      "name": "",
-      "employee_id": "21",
-      "asset": "TX-76087",
-      "arrival": "07:00 AM",
-      "status": "On Time"
-    },
-    {
-      "name": "",
-      "employee_id": "19",
-      "asset": "I-20",
-      "arrival": "07:00 AM",
-      "status": "On Time"
-    },
-    {
-      "name": "",
-      "employee_id": "2",
-      "asset": "NE-28",
-      "arrival": "07:00 AM",
-      "status": "On Time"
-    },
-    {
-      "name": "JORGE MARTINEZ",
-      "employee_id": "210068",
-      "asset": "TX-76110",
-      "arrival": "11:39:15 AM",
-      "status": "On Time"
-    },
-    {
-      "name": "JOSE C. RAMIREZ",
-      "employee_id": "210036",
-      "asset": "TX-75043",
-      "arrival": "1:01:42 PM",
-      "status": "On Time"
-    },
-    {
-      "name": "LUIS MURCIA ORELLANA",
-      "employee_id": "240165",
-      "asset": "TX-77414",
-      "arrival": "10:16:51 AM",
-      "status": "On Time"
-    },
-    {
-      "name": "ROBERTO GUERRERO JR",
-      "employee_id": "210089",
-      "asset": "TX-76112",
-      "arrival": "10:25:31 AM",
-      "status": "On Time"
-    },
-    {
-      "name": "ALBERTO ZUNIGA",
-      "employee_id": "210031",
-      "asset": "TX-77048",
-      "arrival": "11:38:23 AM",
-      "status": "On Time"
-    },
-    {
-      "name": "",
-      "employee_id": "5",
-      "asset": "TX-77013",
-      "arrival": "07:00 AM",
-      "status": "On Time"
-    },
-    {
-      "name": "Cooper Link",
-      "employee_id": "820003",
-      "asset": "TX-76137",
-      "arrival": "12:07:02 PM",
-      "status": "On Time"
-    },
-    {
-      "name": "LEROY ARNOLD",
-      "employee_id": "240679",
-      "asset": "TX-76179",
-      "arrival": "2:19:17 PM",
-      "status": "On Time"
-    },
-    {
-      "name": "JUAN LOPEZ-VAZQUEZ",
-      "employee_id": "410028",
-      "asset": "TX-77026",
-      "arrival": "5:35:53 PM",
-      "status": "On Time"
-    },
-    {
-      "name": "JOSE J RIVERA",
-      "employee_id": "240072",
-      "asset": "TX-75090",
-      "arrival": "10:03:42 PM",
-      "status": "On Time"
-    },
-    {
-      "name": "TROY MALETTE",
-      "employee_id": "240696",
-      "asset": "TX-76244",
-      "arrival": "10:48:47 AM",
-      "status": "On Time"
-    },
-    {
-      "name": "ALEJANDRO LOZANO ACOSTA",
-      "employee_id": "240448",
-      "asset": "TX-75180",
-      "arrival": "10:28:40 PM",
-      "status": "On Time"
-    },
-    {
-      "name": "JUAN P RODRIGUEZ",
-      "employee_id": "240075",
-      "asset": "SH-345",
-      "arrival": "11:45:02 PM",
-      "status": "On Time"
-    },
-    {
-      "name": "",
-      "employee_id": "3",
-      "asset": "SL-12",
-      "arrival": "07:00 AM",
-      "status": "On Time"
-    },
-    {
-      "name": "JUAN RUIZ",
-      "employee_id": "240080",
-      "asset": "SH-345",
-      "arrival": "07:00 AM",
-      "status": "On Time"
-    },
-    {
-      "name": "URIEL GARCIA-ANDRADE",
-      "employee_id": "440061",
-      "asset": "TX-77414",
-      "arrival": "11:17:19 AM",
-      "status": "On Time"
-    },
-    {
-      "name": "SABINO IBARRA",
-      "employee_id": "240348",
-      "asset": "TX-79765",
-      "arrival": "10:03:13 AM",
-      "status": "On Time"
-    },
-    {
-      "name": "",
-      "employee_id": "15",
-      "asset": "US-67",
-      "arrival": "10:07:30 AM",
-      "status": "On Time"
-    },
-    {
-      "name": "LORENZO APARICIO",
-      "employee_id": "230017",
-      "asset": "TX-76110",
-      "arrival": "8:55:36 PM",
-      "status": "On Time"
-    },
-    {
-      "name": "Roger Doddy",
-      "employee_id": "DODROG",
-      "asset": "TX-75093",
-      "arrival": "07:00 AM",
-      "status": "On Time"
-    },
-    {
-      "name": "Roger Doddy",
-      "employee_id": "DODROG",
-      "asset": "TX-75093",
-      "arrival": "04:45 AM",
+      "driver_name": "Christopher Thomas",
+      "asset_id": "TRK-1011",
+      "job_site": "Downtown Construction",
+      "scheduled_start": "06:30 AM",
+      "scheduled_end": "03:30 PM",
+      "actual_start": "06:29 AM",
+      "actual_end": "03:33 PM",
       "status": "On Time",
-      "division": "TEXDIST",
-      "job_title": "Select Maintenance Employee"
+      "status_reason": ""
     },
     {
-      "name": "JOVAN ESPINOZA-CASILLAS",
-      "employee_id": "ESPJOV",
-      "asset": "SH-310",
-      "arrival": "07:00 AM",
-      "status": "On Time"
+      "driver_name": "Matthew Harris",
+      "asset_id": "TRK-1013",
+      "job_site": "North Dallas Site",
+      "scheduled_start": "06:45 AM",
+      "scheduled_end": "03:45 PM",
+      "actual_start": "06:52 AM",
+      "actual_end": "03:37 PM",
+      "status": "On Time",
+      "status_reason": ""
     },
     {
-      "name": "Martin Escobedo",
-      "employee_id": "210051",
-      "asset": "TX-75006",
-      "arrival": "11:07:27 AM",
-      "status": "On Time"
+      "driver_name": "Mark Thompson",
+      "asset_id": "TRK-1015",
+      "job_site": "Downtown Construction",
+      "scheduled_start": "06:00 AM",
+      "scheduled_end": "03:00 PM",
+      "actual_start": "N/A",
+      "actual_end": "N/A",
+      "status": "On Time",
+      "status_reason": ""
     },
     {
-      "name": "ROBERT BERRYHILL",
-      "employee_id": "BERROB",
-      "asset": "TX-77086",
-      "arrival": "6:29:18 AM",
-      "status": "On Time"
+      "driver_name": "William Brown",
+      "asset_id": "TRK-1004",
+      "job_site": "Richardson Development",
+      "scheduled_start": "06:30 AM",
+      "scheduled_end": "03:30 PM",
+      "actual_start": "06:32 AM",
+      "actual_end": "02:54 PM",
+      "status": "Early End",
+      "status_reason": "36 minutes early"
     },
     {
-      "name": "RAFAEL MURATALLA",
-      "employee_id": "MURRAF",
-      "asset": "SH-310",
-      "arrival": "2:29:08 AM",
-      "status": "On Time"
+      "driver_name": "Richard Wilson",
+      "asset_id": "TRK-1007",
+      "job_site": "Downtown Construction",
+      "scheduled_start": "06:15 AM",
+      "scheduled_end": "03:15 PM",
+      "actual_start": "06:14 AM",
+      "actual_end": "03:18 PM",
+      "status": "On Time",
+      "status_reason": ""
     },
     {
-      "name": "SEYMORE HUNT",
-      "employee_id": "440443",
-      "asset": "TX-77086",
-      "arrival": "4:58:23 AM",
-      "status": "On Time"
+      "driver_name": "Anthony Martin",
+      "asset_id": "TRK-1014",
+      "job_site": "West Plano Project",
+      "scheduled_start": "07:00 AM",
+      "scheduled_end": "04:00 PM",
+      "actual_start": "07:16 AM",
+      "actual_end": "03:58 PM",
+      "status": "Late",
+      "status_reason": "16 minutes late"
     },
     {
-      "name": "JAVIER MAGALLANES",
-      "employee_id": "MAGJAV",
-      "asset": "SH-310",
-      "arrival": "07:00 AM",
-      "status": "On Time"
+      "driver_name": "James Davis",
+      "asset_id": "TRK-1005",
+      "job_site": "North Dallas Site",
+      "scheduled_start": "06:00 AM",
+      "scheduled_end": "03:00 PM",
+      "actual_start": "07:03 AM",
+      "actual_end": "03:12 PM",
+      "status": "Not On Job",
+      "status_reason": "At incorrect location: North Richland Hills"
     },
     {
-      "name": "",
-      "employee_id": "8",
-      "asset": "I-69",
-      "arrival": "07:00 AM",
-      "status": "On Time"
+      "driver_name": "Charles Anderson",
+      "asset_id": "TRK-1010",
+      "job_site": "West Plano Project",
+      "scheduled_start": "06:00 AM",
+      "scheduled_end": "03:00 PM",
+      "actual_start": "06:05 AM",
+      "actual_end": "02:48 PM",
+      "status": "On Time",
+      "status_reason": ""
     },
     {
-      "name": "ISAAC ROMERO",
-      "employee_id": "ROMISA",
-      "asset": "TX-75287",
-      "arrival": "07:00 AM",
-      "status": "On Time"
+      "driver_name": "Michael Johnson",
+      "asset_id": "TRK-1002",
+      "job_site": "West Plano Project",
+      "scheduled_start": "06:00 AM",
+      "scheduled_end": "03:00 PM",
+      "actual_start": "06:18 AM",
+      "actual_end": "03:07 PM",
+      "status": "Late",
+      "status_reason": "18 minutes late"
     },
     {
-      "name": "FRANCISCO DIAZ SERNA",
-      "employee_id": "340036",
-      "asset": "TX-75207",
-      "arrival": "12:01:05 PM",
-      "status": "On Time"
+      "driver_name": "Robert Williams",
+      "asset_id": "TRK-1003",
+      "job_site": "Downtown Construction",
+      "scheduled_start": "07:00 AM",
+      "scheduled_end": "04:00 PM",
+      "actual_start": "07:28 AM",
+      "actual_end": "03:45 PM",
+      "status": "Late",
+      "status_reason": "28 minutes late"
     },
     {
-      "name": "JOSE BAUTISTA",
-      "employee_id": "240131",
-      "asset": "TX-79707",
-      "arrival": "10:53:37 AM",
-      "status": "On Time"
+      "driver_name": "David Miller",
+      "asset_id": "TRK-1006",
+      "job_site": "West Plano Project",
+      "scheduled_start": "06:45 AM",
+      "scheduled_end": "03:45 PM",
+      "actual_start": "06:47 AM",
+      "actual_end": "03:42 PM",
+      "status": "On Time",
+      "status_reason": ""
     },
     {
-      "name": "",
-      "employee_id": "7",
-      "asset": "TX-77532",
-      "arrival": "07:00 AM",
-      "status": "On Time"
+      "driver_name": "Joseph Moore",
+      "asset_id": "TRK-1008",
+      "job_site": "Richardson Development",
+      "scheduled_start": "06:30 AM",
+      "scheduled_end": "03:30 PM",
+      "actual_start": "06:55 AM",
+      "actual_end": "03:25 PM",
+      "status": "Late",
+      "status_reason": "25 minutes late"
     },
     {
-      "name": "Nagesh Kumar",
-      "employee_id": "210012",
-      "asset": "SH-345",
-      "arrival": "10:13:59 PM",
-      "status": "On Time"
+      "driver_name": "Thomas Taylor",
+      "asset_id": "TRK-1009",
+      "job_site": "North Dallas Site",
+      "scheduled_start": "07:00 AM",
+      "scheduled_end": "04:00 PM",
+      "actual_start": "06:43 AM",
+      "actual_end": "03:52 PM",
+      "status": "On Time",
+      "status_reason": ""
     },
     {
-      "name": "Luis Morales",
-      "employee_id": "410002",
-      "asset": "TX-77004",
-      "arrival": "12:38:47 PM",
-      "status": "On Time"
+      "driver_name": "Daniel Jackson",
+      "asset_id": "TRK-1012",
+      "job_site": "Richardson Development",
+      "scheduled_start": "06:15 AM",
+      "scheduled_end": "03:15 PM",
+      "actual_start": "06:16 AM",
+      "actual_end": "03:12 PM",
+      "status": "On Time",
+      "status_reason": ""
     },
     {
-      "name": "CHASE JONES",
-      "employee_id": "240671",
-      "asset": "TX-77535",
-      "arrival": "11:57:21 AM",
-      "status": "On Time"
-    },
-    {
-      "name": "Johnny Pereira-Viera",
-      "employee_id": "240409",
-      "asset": "TX-75048",
-      "arrival": "10:04:13 AM",
-      "status": "On Time"
-    },
-    {
-      "name": "Ramesh Bobba",
-      "employee_id": "210010",
-      "asset": "TX-75010",
-      "arrival": "3:04:37 PM",
-      "status": "On Time"
-    },
-    {
-      "name": "Sam Abunemeh",
-      "employee_id": "410012",
-      "asset": "TX-75039",
-      "arrival": "10:08:11 PM",
-      "status": "On Time"
-    },
-    {
-      "name": "Jared Ruhrup",
-      "employee_id": "210053",
-      "asset": "TX-76008",
-      "arrival": "11:42:18 AM",
-      "status": "On Time"
+      "driver_name": "John Smith",
+      "asset_id": "TRK-1001",
+      "job_site": "North Dallas Site",
+      "scheduled_start": "06:30 AM",
+      "scheduled_end": "03:30 PM",
+      "actual_start": "06:25 AM",
+      "actual_end": "03:35 PM",
+      "status": "On Time",
+      "status_reason": ""
     }
   ],
-  "total_drivers": 52,
-  "total_morning_drivers": 52,
-  "on_time_count": 52,
-  "late_morning": [],
-  "early_departures": [],
   "summary": {
-    "total_drivers": 52,
-    "total_morning_drivers": 52,
-    "on_time_drivers": 52,
-    "late_drivers": 0,
-    "early_end_drivers": 0,
-    "not_on_job_drivers": 0,
-    "exception_drivers": 0,
-    "total_issues": 0,
-    "on_time_percent": 100
+    "date": "2025-05-16",
+    "total": 15,
+    "late": 4,
+    "early_end": 1,
+    "not_on_job": 1,
+    "on_time": 9
+  },
+  "metadata": {
+    "processed_at": "2025-05-21T00:25:06.247201",
+    "source_files": {
+      "driving_history": [
+        "driving_history_2025-05-16.csv",
+        "DrivingHistory_20250516.csv"
+      ],
+      "activity_detail": [
+        "activity_detail_2025-05-16.csv",
+        "ActivityDetail_20250516.csv"
+      ],
+      "assets_time_on_site": [
+        "assets_onsite_2025-05-16.csv",
+        "AssetsTimeOnSite_20250516.csv"
+      ],
+      "start_time_job": [
+        "baseline.csv"
+      ]
+    },
+    "row_counts": {
+      "driving_history_2025-05-16.csv": 20,
+      "DrivingHistory_20250516.csv": 28,
+      "activity_detail_2025-05-16.csv": 20,
+      "ActivityDetail_20250516.csv": 52,
+      "assets_onsite_2025-05-16.csv": 10,
+      "AssetsTimeOnSite_20250516.csv": 15,
+      "baseline.csv": 15
+    },
+    "validation_status": "PASSED"
   }
 }

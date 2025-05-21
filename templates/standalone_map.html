@@ -400,6 +400,14 @@
                         data.forEach(function(site) {
                             if (!site.latitude || !site.longitude) return;
                             
+                            // Skip if there's already a marker at this exact location (avoid duplicates)
+                            var locationKey = site.latitude.toFixed(5) + ',' + site.longitude.toFixed(5);
+                            if (window.usedLocations && window.usedLocations.has(locationKey)) return;
+                            
+                            // Track used locations to avoid duplicate markers
+                            if (!window.usedLocations) window.usedLocations = new Set();
+                            window.usedLocations.add(locationKey);
+                            
                             // Create marker for job site location
                             var marker = L.marker([site.latitude, site.longitude], {
                                 icon: createJobSiteIcon()

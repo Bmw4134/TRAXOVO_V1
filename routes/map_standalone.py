@@ -393,8 +393,31 @@ def api_job_sites():
                                 'count': 1
                             }
                         
-                # Add job site locations from the real API data
-                for idx, (name, loc_data) in enumerate(unique_locations.items(), start=len(job_sites)+1):
+                # Add only official job sites from the real API data
+                # Filter locations to only include those that appear to be job sites
+                official_job_sites = {}
+                for name, loc_data in unique_locations.items():
+                    # Check if this is likely an official job site (not just a street address)
+                    is_official_site = False
+                    
+                    # Sites with job numbers (2022-001, 2023-034, etc)
+                    if name.startswith('20') and '-' in name[:10]:
+                        is_official_site = True
+                    
+                    # Known yards and official sites
+                    if any(site_keyword in name.upper() for site_keyword in 
+                          ['YARD', 'SHOP', 'PROJECT', 'REHAB', 'IMPROVEMENT', 'REPLACEMENT',
+                           'BRIDGE', 'HIGHWAY', 'SIDEWALK', 'MAINTENANCE']):
+                        is_official_site = True
+                        
+                    # Skip if this isn't an official site (just a street address)
+                    if not is_official_site:
+                        continue
+                        
+                    official_job_sites[name] = loc_data
+                
+                # Now add only the official job sites to the map
+                for idx, (name, loc_data) in enumerate(official_job_sites.items(), start=len(job_sites)+1):
                     # Extract job number if available in the name
                     job_number = ''
                     if name.startswith('20'):
@@ -406,6 +429,15 @@ def api_job_sites():
                     hue = (idx * 30) % 360
                     color = f'hsl({hue}, 70%, 50%)'
                     
+                    # Determine appropriate radius based on site type
+                    radius = 500  # default radius
+                    if 'YARD' in name.upper():
+                        radius = 800  # yards are larger
+                    elif 'BRIDGE' in name.upper():
+                        radius = 600  # bridge projects
+                    elif 'HIGHWAY' in name.upper() or 'ROAD' in name.upper():
+                        radius = 1200  # highway projects are longer
+                    
                     # Add to job sites list
                     job_sites.append({
                         'id': idx,
@@ -414,7 +446,7 @@ def api_job_sites():
                         'latitude': loc_data['latitude'],
                         'longitude': loc_data['longitude'],
                         'address': name,
-                        'radius': 500,  # default radius
+                        'radius': radius,
                         'color': color,
                         'asset_count': loc_data['count']
                     })

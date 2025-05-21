@@ -7,7 +7,7 @@
       "asset_id": "#210003 - AMMAR I. ELHAMAD",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -24,7 +24,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Shaylor, Matthew C",
@@ -32,7 +37,7 @@
       "asset_id": "#210013 - MATTHEW C. SHAYLOR",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -49,7 +54,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Goode, Adam H",
@@ -57,7 +67,7 @@
       "asset_id": "#210055 - ADAM H. GOODE",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -74,7 +84,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Adhikari, Bikhyat",
@@ -82,7 +97,7 @@
       "asset_id": "#210073 - BIKHYAT ADHIKARI",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -99,7 +114,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "S2372507",
@@ -107,7 +127,7 @@
       "asset_id": "14FT-03S",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -124,7 +144,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "R2360779",
@@ -132,7 +157,7 @@
       "asset_id": "14FT-04S",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -149,7 +174,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "SHOP TRAILER",
@@ -157,7 +187,7 @@
       "asset_id": "14T-21",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -174,7 +204,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "TRAFFIC CONTROL",
@@ -182,7 +217,7 @@
       "asset_id": "14T-38",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -199,7 +234,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "WTX JOB TRAILER",
@@ -207,7 +247,7 @@
       "asset_id": "14T-39",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -224,7 +264,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "HTX FLATBED TRAILER",
@@ -232,7 +277,7 @@
       "asset_id": "14T-44",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -249,7 +294,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "HTX DUMP TRAILER",
@@ -257,7 +307,7 @@
       "asset_id": "14T-45",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -274,7 +324,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "0153",
@@ -282,7 +337,7 @@
       "asset_id": "AC-25",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -299,7 +354,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "ALLEN SCREED 22.5'",
@@ -307,7 +367,7 @@
       "asset_id": "CFM-18",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -324,7 +384,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "ASPHALT 84\"",
@@ -332,7 +397,7 @@
       "asset_id": "DD-02",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -349,7 +414,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "WELDING TRUCK",
@@ -357,7 +427,7 @@
       "asset_id": "DT-08",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -374,7 +444,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "SALVADOR AGUILLON",
@@ -382,7 +457,7 @@
       "asset_id": "SS-36",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -399,7 +474,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "JUAN L. RUIZ",
@@ -407,7 +487,7 @@
       "asset_id": "DTC-12",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -424,7 +504,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "ALONSO MIRAMONTES",
@@ -432,7 +517,7 @@
       "asset_id": "SS-45",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -449,7 +534,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "14T",
@@ -457,7 +547,7 @@
       "asset_id": "DTF-03S",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -474,7 +564,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "JESUS LOPEZ SOTO",
@@ -482,7 +577,7 @@
       "asset_id": "SS-38",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -499,7 +594,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "FOUNDATION",
@@ -507,7 +607,7 @@
       "asset_id": "DTF-09",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -524,7 +624,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "HECTOR J. CLAUDIO",
@@ -532,7 +637,7 @@
       "asset_id": "DTF-11",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -549,7 +654,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Rangel, Jose M",
@@ -557,7 +667,7 @@
       "asset_id": "PT-227",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -574,7 +684,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "SALVADOR",
@@ -582,7 +697,7 @@
       "asset_id": "DTF-17",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -599,7 +714,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Martinez Alvarez, Saul",
@@ -607,7 +727,7 @@
       "asset_id": "ET-01",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -624,7 +744,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "HARDIMON, ANTHONY J",
@@ -632,7 +757,7 @@
       "asset_id": "ET-02",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -649,7 +774,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Andrade, Manuel",
@@ -657,7 +787,7 @@
       "asset_id": "ET-03",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -674,7 +804,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Ehimhen, Gerald A",
@@ -682,7 +817,7 @@
       "asset_id": "ET-04",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -699,7 +834,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "HARDIMON, ANTHONY J LOANER",
@@ -707,7 +847,7 @@
       "asset_id": "ET-05",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -724,7 +864,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Rodriguez Perez, Esteban",
@@ -732,7 +877,7 @@
       "asset_id": "ET-06",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -749,7 +894,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "HAYS, PAXTON C",
@@ -757,7 +907,7 @@
       "asset_id": "ET-07",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -774,7 +924,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Martinez, Jorge L",
@@ -782,7 +937,7 @@
       "asset_id": "ET-08",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -799,7 +954,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Ramirez, Jose C",
@@ -807,7 +967,7 @@
       "asset_id": "ET-09",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -824,7 +984,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Medina-Rodriguez, Jesus A",
@@ -832,7 +997,7 @@
       "asset_id": "ET-10",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -849,7 +1014,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Guerrero Jr, Roberto",
@@ -857,7 +1027,7 @@
       "asset_id": "ET-11",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -874,7 +1044,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Open",
@@ -882,7 +1057,7 @@
       "asset_id": "PT-284",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -899,7 +1074,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Kocmick, Caleb S",
@@ -907,7 +1087,7 @@
       "asset_id": "ET-14",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -924,7 +1104,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Eclavea, Carlos H",
@@ -932,7 +1117,7 @@
       "asset_id": "ET-15",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -949,7 +1134,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Murcia Orellana, Luis E",
@@ -957,7 +1147,7 @@
       "asset_id": "ET-16",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -974,7 +1164,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Link, Cooper E",
@@ -982,7 +1177,7 @@
       "asset_id": "ET-17",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -999,7 +1194,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Moore, Jesse A",
@@ -1007,7 +1207,7 @@
       "asset_id": "ET-18",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1024,7 +1224,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Salaices, Osiel",
@@ -1032,7 +1237,7 @@
       "asset_id": "ET-19",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1049,7 +1254,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "OPEN RAM 1500",
@@ -1057,7 +1267,7 @@
       "asset_id": "ET-20",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1074,7 +1284,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Lopez, Juan",
@@ -1082,7 +1297,7 @@
       "asset_id": "ET-22",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1099,7 +1314,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Rivera, Jose J",
@@ -1107,7 +1327,7 @@
       "asset_id": "ET-23",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1124,7 +1344,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Malette, Troy S",
@@ -1132,7 +1357,7 @@
       "asset_id": "ET-24",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1149,7 +1374,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "RODARTE SERRANO, JESUS O",
@@ -1157,7 +1387,7 @@
       "asset_id": "ET-25",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1174,7 +1404,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Rodriguez, Juan P",
@@ -1182,7 +1417,7 @@
       "asset_id": "ET-26",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1199,7 +1434,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Miramontes, Alonso",
@@ -1207,7 +1447,7 @@
       "asset_id": "ET-27",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1224,7 +1464,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Flores, Jorge L",
@@ -1232,7 +1477,7 @@
       "asset_id": "ET-28",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1249,7 +1494,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Ruiz, Juan L",
@@ -1257,7 +1507,7 @@
       "asset_id": "ET-30",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1274,7 +1524,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Vazquez De La Cruz, Ramiro",
@@ -1282,7 +1537,7 @@
       "asset_id": "ET-31",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1299,7 +1554,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Garcia-Andrade, Uriel",
@@ -1307,7 +1567,7 @@
       "asset_id": "ET-32",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1324,7 +1584,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Lopez Lira, Jose P",
@@ -1332,7 +1597,7 @@
       "asset_id": "ET-33",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1349,7 +1614,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Reyes, Aureliano",
@@ -1357,7 +1627,7 @@
       "asset_id": "ET-34",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1374,7 +1644,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Lopez Soto, Jesus",
@@ -1382,7 +1657,7 @@
       "asset_id": "ET-35",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1399,7 +1674,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Gonzalez, Alonzo",
@@ -1407,7 +1687,7 @@
       "asset_id": "ET-36",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1424,7 +1704,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Ibarra, Sabino",
@@ -1432,7 +1717,7 @@
       "asset_id": "ET-37",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1449,7 +1734,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Padgett, Caleb L",
@@ -1457,7 +1747,7 @@
       "asset_id": "ET-38",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1474,7 +1764,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Terrazas Melendez, Jose R",
@@ -1482,7 +1777,7 @@
       "asset_id": "ET-39",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1499,7 +1794,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Hampton, Justin D",
@@ -1507,7 +1807,7 @@
       "asset_id": "ET-41",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1524,7 +1824,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Berjes Ruiz, Juan C",
@@ -1532,7 +1837,7 @@
       "asset_id": "ET-42",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1549,7 +1854,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Giebelhaus, Eric STX",
@@ -1557,7 +1867,7 @@
       "asset_id": "ET-43",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1574,7 +1884,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "stolen on 6/23/24",
@@ -1582,7 +1897,7 @@
       "asset_id": "EX-03S",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1599,7 +1914,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "ALONZO GONZALEZ",
@@ -1607,7 +1927,7 @@
       "asset_id": "HTC-07",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1624,7 +1944,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "P1007116",
@@ -1632,7 +1957,7 @@
       "asset_id": "LP-114",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1649,7 +1974,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "P1007120",
@@ -1657,7 +1987,7 @@
       "asset_id": "LP-115",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1674,7 +2004,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "411774",
@@ -1682,7 +2017,7 @@
       "asset_id": "MB-05S",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1699,7 +2034,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "R1006827",
@@ -1707,7 +2047,7 @@
       "asset_id": "ME-60",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1724,7 +2064,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "R1006828",
@@ -1732,7 +2077,7 @@
       "asset_id": "ME-61",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1749,7 +2094,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Mower King",
@@ -1757,7 +2107,7 @@
       "asset_id": "MOWER ATTACHMENT",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1774,7 +2124,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "TMA",
@@ -1782,7 +2137,7 @@
       "asset_id": "MT-07",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1799,7 +2154,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Aparicio, Lorenzo",
@@ -1807,7 +2167,7 @@
       "asset_id": "MT-09",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1824,7 +2184,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "OPEN MECH TRUCK",
@@ -1832,7 +2197,7 @@
       "asset_id": "MT-13",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1849,7 +2214,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Torres, Ivan",
@@ -1857,7 +2227,7 @@
       "asset_id": "MT-14",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1874,7 +2244,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Gee, Korbin E",
@@ -1882,7 +2257,7 @@
       "asset_id": "MT-15",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1899,7 +2274,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "LUBE TRUCK",
@@ -1907,7 +2287,7 @@
       "asset_id": "MT-16",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1924,7 +2304,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "OFFICE VEHICLE",
@@ -1932,7 +2317,7 @@
       "asset_id": "OV-01",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1949,7 +2334,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "SELECT CREW TRUCK",
@@ -1957,7 +2347,7 @@
       "asset_id": "PT-06S",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1974,7 +2364,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "DODDY, ROGER W",
@@ -1982,7 +2377,7 @@
       "asset_id": "PT-07S",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -1999,7 +2394,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "JAMES GABE",
@@ -2007,7 +2407,7 @@
       "asset_id": "PT-08S",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2024,7 +2424,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Espinoza-Casillas, Jovan",
@@ -2032,7 +2437,7 @@
       "asset_id": "PT-09S",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2049,7 +2454,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Escobedo Jr, Martin",
@@ -2057,7 +2467,7 @@
       "asset_id": "PT-104",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2074,7 +2484,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "DFW OFFICE TRUCK",
@@ -2082,7 +2497,7 @@
       "asset_id": "PT-107",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2099,7 +2514,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "BADILLO, GERARDO J",
@@ -2107,7 +2527,7 @@
       "asset_id": "PT-108",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2124,7 +2544,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Berryhill, Robert P",
@@ -2132,7 +2557,7 @@
       "asset_id": "PT-10S",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2149,7 +2574,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "shop mech loaner",
@@ -2157,7 +2587,7 @@
       "asset_id": "PT-111",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2174,7 +2604,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Muratalla-Ceja, Rafael",
@@ -2182,7 +2617,7 @@
       "asset_id": "PT-11S",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2199,7 +2634,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "PLANO JOBSITE TRUCK",
@@ -2207,7 +2647,7 @@
       "asset_id": "PT-125",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2224,7 +2664,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Magallanes, Javier",
@@ -2232,7 +2677,7 @@
       "asset_id": "PT-13S",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2249,7 +2694,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Smith, Keith A",
@@ -2257,7 +2707,7 @@
       "asset_id": "PT-14S",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2274,7 +2724,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Alvarado, Eduardo D",
@@ -2282,7 +2737,7 @@
       "asset_id": "PT-156",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2299,7 +2754,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Saldierna Jr, Armando",
@@ -2307,7 +2767,7 @@
       "asset_id": "PT-160",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2324,7 +2784,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "PERSINGER, WILLIAM",
@@ -2332,7 +2797,7 @@
       "asset_id": "PT-163",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2349,7 +2814,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Zuniga, Alberto",
@@ -2357,7 +2827,7 @@
       "asset_id": "PT-165",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2374,7 +2844,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Luevano, Juan M",
@@ -2382,7 +2857,7 @@
       "asset_id": "PT-166",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2399,7 +2874,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Ramirez, Omar",
@@ -2407,7 +2887,7 @@
       "asset_id": "PT-167",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2424,7 +2904,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Ramirez, Luis F",
@@ -2432,7 +2917,7 @@
       "asset_id": "PT-168",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2449,7 +2934,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "OPEN F150 STX",
@@ -2457,7 +2947,7 @@
       "asset_id": "PT-169",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2474,7 +2964,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Romero, Isaac F",
@@ -2482,7 +2977,7 @@
       "asset_id": "PT-16S",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2499,7 +2994,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "OPEN TRAFFIC TRUCK",
@@ -2507,7 +3007,7 @@
       "asset_id": "PT-172",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2524,7 +3024,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Hernandez, Juan B",
@@ -2532,7 +3037,7 @@
       "asset_id": "PT-173",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2549,7 +3054,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Rodriguez Jr, Salvador",
@@ -2557,7 +3067,7 @@
       "asset_id": "PT-177",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2574,7 +3084,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "TROY RAGLE",
@@ -2582,7 +3097,7 @@
       "asset_id": "PT-179",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2599,7 +3114,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "OPEN SELECT JST",
@@ -2607,7 +3127,7 @@
       "asset_id": "PT-17S",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2624,7 +3144,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Lumbreras, Roberto",
@@ -2632,7 +3157,7 @@
       "asset_id": "PT-187",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2649,7 +3174,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Munoz, Leonel",
@@ -2657,7 +3187,7 @@
       "asset_id": "PT-182",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2674,7 +3204,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Bautista, Jose A",
@@ -2682,7 +3217,7 @@
       "asset_id": "PT-185",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2699,7 +3234,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "OPEN F150",
@@ -2707,7 +3247,7 @@
       "asset_id": "PT-188",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2724,7 +3264,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "JST SELECT 250",
@@ -2732,7 +3277,7 @@
       "asset_id": "PT-18S",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2749,7 +3294,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Turrubiartes Jr, Jose G",
@@ -2757,7 +3307,7 @@
       "asset_id": "PT-190",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2774,7 +3324,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "OPEN DFW TC USING",
@@ -2782,7 +3337,7 @@
       "asset_id": "PT-193",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2799,7 +3354,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Albert Perry is using",
@@ -2807,7 +3367,7 @@
       "asset_id": "PT-194",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2824,7 +3384,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "WTX JST",
@@ -2832,7 +3397,7 @@
       "asset_id": "PT-199",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2849,7 +3414,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Figueroa, Bryan",
@@ -2857,7 +3427,7 @@
       "asset_id": "PT-19S",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2874,7 +3444,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "2024-004 SIDEWALKS JST",
@@ -2882,7 +3457,7 @@
       "asset_id": "PT-202",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2899,7 +3474,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Vasquez, Juan C",
@@ -2907,7 +3487,7 @@
       "asset_id": "PT-207",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2924,7 +3504,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Aguillon, Salvador",
@@ -2932,7 +3517,7 @@
       "asset_id": "PT-208",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2949,7 +3534,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Chavez, Obaldo S",
@@ -2957,7 +3547,7 @@
       "asset_id": "PT-20S",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2974,7 +3564,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Flores Jr, Catalino",
@@ -2982,7 +3577,7 @@
       "asset_id": "PT-213",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -2999,7 +3594,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Lemon Jr, Ernest S",
@@ -3007,7 +3607,7 @@
       "asset_id": "PT-215",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3024,7 +3624,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Hammons, Michael A",
@@ -3032,7 +3637,7 @@
       "asset_id": "PT-218",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3049,7 +3654,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Lopez, Valentin",
@@ -3057,7 +3667,7 @@
       "asset_id": "PT-219",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3074,7 +3684,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "RED44664",
@@ -3082,7 +3697,7 @@
       "asset_id": "PT-21S",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3099,7 +3714,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Pachipulusu Sreedhar, Nagesh Kumar",
@@ -3107,7 +3727,7 @@
       "asset_id": "PT-224",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3124,7 +3744,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Flores Sr, Catalino",
@@ -3132,7 +3757,7 @@
       "asset_id": "PT-226",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3149,7 +3774,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Lopez, Daniel",
@@ -3157,7 +3787,7 @@
       "asset_id": "PT-228",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3174,7 +3804,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Caballero, Reyneri M",
@@ -3182,7 +3817,7 @@
       "asset_id": "PT-229",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3199,7 +3834,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Mendieta, Albert A",
@@ -3207,7 +3847,7 @@
       "asset_id": "PT-22S",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3224,7 +3864,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Morales, Luis A",
@@ -3232,7 +3877,7 @@
       "asset_id": "PT-235",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3249,7 +3894,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Colmenero-Garcia, Rolando",
@@ -3257,7 +3907,7 @@
       "asset_id": "SS-44",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3274,7 +3924,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Miramontes Jr, Juan C",
@@ -3282,7 +3937,7 @@
       "asset_id": "PT-237",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3299,7 +3954,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Rodriguez-Ayala, Alejandro J",
@@ -3307,7 +3967,7 @@
       "asset_id": "PT-239",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3324,7 +3984,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Mize, Clint",
@@ -3332,7 +3997,7 @@
       "asset_id": "PT-240",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3349,7 +4014,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Garcia, Mark E XL",
@@ -3357,7 +4027,7 @@
       "asset_id": "PT-241",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3374,7 +4044,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Sanchez, Hector",
@@ -3382,7 +4057,7 @@
       "asset_id": "PT-242",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3399,7 +4074,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Bobba, Ramesh",
@@ -3407,7 +4087,7 @@
       "asset_id": "PT-243",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3424,7 +4104,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Abunemeh, Osama M",
@@ -3432,7 +4117,7 @@
       "asset_id": "PT-244",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3449,7 +4134,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Ruhrup, Jared K",
@@ -3457,7 +4147,7 @@
       "asset_id": "PT-260",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3474,7 +4164,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Sabaj, Phillip A",
@@ -3482,7 +4177,7 @@
       "asset_id": "PT-246",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3499,7 +4194,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "MARTIN SANCHEZ",
@@ -3507,7 +4207,7 @@
       "asset_id": "PT-247",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3524,7 +4224,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Reyes Diaz, Juan C",
@@ -3532,7 +4237,7 @@
       "asset_id": "PT-252",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3549,7 +4254,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "OEPN",
@@ -3557,7 +4267,7 @@
       "asset_id": "PT-268",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3574,7 +4284,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Claudio, Hector J",
@@ -3582,7 +4297,7 @@
       "asset_id": "PT-269",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3599,7 +4314,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "MANCHO CAMACHO, GRECIA",
@@ -3607,7 +4327,7 @@
       "asset_id": "PT-274",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3624,7 +4344,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "MOYA, MARIO",
@@ -3632,7 +4357,7 @@
       "asset_id": "PT-276",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3649,7 +4374,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "GARCIA, SAID A",
@@ -3657,7 +4387,7 @@
       "asset_id": "PT-277",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3674,7 +4404,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "CASTRO, JUAN J",
@@ -3682,7 +4417,7 @@
       "asset_id": "PT-278",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3699,7 +4434,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Concha, Aaron",
@@ -3707,7 +4447,7 @@
       "asset_id": "PT-279",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3724,7 +4464,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Blanco, Andres E",
@@ -3732,7 +4477,7 @@
       "asset_id": "PT-280",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3749,7 +4494,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Martinez Salazar, Josue",
@@ -3757,7 +4507,7 @@
       "asset_id": "PT-281",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3774,7 +4524,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "OWENS, JUSTIN W",
@@ -3782,7 +4537,7 @@
       "asset_id": "PT-282",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3799,7 +4554,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "NEFF, ROBERT S",
@@ -3807,7 +4567,7 @@
       "asset_id": "PT-89",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3824,7 +4584,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "STONIE BROWN",
@@ -3832,7 +4597,7 @@
       "asset_id": "PT-92",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3849,7 +4614,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "086733",
@@ -3857,7 +4627,7 @@
       "asset_id": "S-13",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3874,7 +4644,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "085764",
@@ -3882,7 +4657,7 @@
       "asset_id": "S-14",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3899,7 +4674,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "POLY SPRAYER",
@@ -3907,7 +4687,7 @@
       "asset_id": "SFB-04",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3924,7 +4704,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "KB9153",
@@ -3932,7 +4717,7 @@
       "asset_id": "SFB-23",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3949,7 +4734,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "shop use",
@@ -3957,7 +4747,7 @@
       "asset_id": "TH-04",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3974,7 +4764,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "AARON CONCHA",
@@ -3982,7 +4777,7 @@
       "asset_id": "SS-33",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -3999,7 +4794,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "JOSE RIVERA",
@@ -4007,7 +4807,7 @@
       "asset_id": "SS-34",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -4024,7 +4824,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "JUAN P. RODRIGUEZ",
@@ -4032,7 +4837,7 @@
       "asset_id": "SS-35",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -4049,7 +4854,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "JOSE RANGEL",
@@ -4057,7 +4867,7 @@
       "asset_id": "SS-37",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -4074,7 +4884,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "SABINO IBARRA",
@@ -4082,7 +4897,7 @@
       "asset_id": "SS-39",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -4099,7 +4914,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "URIEL GARCIA-ANDRADE",
@@ -4107,7 +4927,7 @@
       "asset_id": "SS-41",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -4124,7 +4944,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "Josue Martinez",
@@ -4132,7 +4957,7 @@
       "asset_id": "SS-46",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -4149,7 +4974,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "RIEDER, MICHAEL A",
@@ -4157,7 +4987,7 @@
       "asset_id": "SV-08",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -4174,7 +5004,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "LP873",
@@ -4182,7 +5017,7 @@
       "asset_id": "VT-01",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -4199,7 +5034,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "J1S02294",
@@ -4207,7 +5047,7 @@
       "asset_id": "WL-11",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -4224,7 +5064,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "K03394",
@@ -4232,7 +5077,7 @@
       "asset_id": "WL-12",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -4249,7 +5094,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     },
     {
       "driver_name": "R08392",
@@ -4257,7 +5107,7 @@
       "asset_id": "WL-13",
       "job_site": null,
       "status": "Not On Job",
-      "status_reason": "No telematics data",
+      "status_reason": "Not in driving history report",
       "verification_level": "LOW",
       "sources": [
         "Asset List"
@@ -4274,7 +5124,12 @@
         "time_checks": {},
         "location_checks": {},
         "has_telematics": false
-      }
+      },
+      "classification_trace": [
+        "Not present in driving history report -> Not On Job"
+      ],
+      "original_status": "Not On Job",
+      "site_match": null
     }
   ],
   "unmatched_drivers": [
@@ -4596,6 +5451,25 @@
         "Not On Job": 171,
         "Unverified": 14
       }
+    },
+    "classification_audit": {
+      "timestamp": "2025-05-21T11:55:33.099450",
+      "original_counts": {
+        "On Time": 0,
+        "Late": 0,
+        "Early End": 0,
+        "Not On Job": 171,
+        "Unverified": 14
+      },
+      "corrected_counts": {
+        "On Time": 0,
+        "Late": 0,
+        "Early End": 0,
+        "Not On Job": 171,
+        "Unverified": 0
+      },
+      "audit_reason": "ENHANCED STRICT CLASSIFICATION AUDIT",
+      "audit_detail": "Applied strict classification rules: On Time = on time (no buffer), Early End = not working full shift, Not On Job = not in driving history"
     }
   }
 }

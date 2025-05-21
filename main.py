@@ -83,6 +83,11 @@ def index():
     """Application home page"""
     return redirect(url_for('driver_module.daily_report'))
 
+@app.route('/asset-map')
+def asset_map_redirect():
+    """Direct access to the Asset Map"""
+    return redirect(url_for('asset_map.asset_map'))
+
 @app.route('/health')
 def health():
     """Health check endpoint"""

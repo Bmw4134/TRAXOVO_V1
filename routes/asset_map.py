@@ -49,40 +49,74 @@ def api_assets():
         asset_type = request.args.get('type')
         job_site_id = request.args.get('job_site')
         
-        # Base query
-        query = db.session.query(Asset)
+        # First, try to get assets from database with the AssetDataProvider
+        from utils.asset_data_provider import AssetDataProvider
+        data_provider = AssetDataProvider()
+        
+        # Get assets with reliable fallback mechanisms
+        assets_data = data_provider.get_assets()
         
         # Apply filters if provided
         if asset_type:
-            query = query.filter(Asset.type == asset_type)
+            assets_data = [a for a in assets_data if a.get('type') == asset_type]
         
         if job_site_id:
-            # Join with AssetLocation to filter by job_site_id
-            query = query.join(AssetLocation).filter(AssetLocation.job_site_id == job_site_id)
+            # For job_site filtering, we need to check the asset locations
+            filtered_assets = []
+            for asset in assets_data:
+                # Get recent locations for this asset
+                asset_locations = data_provider.get_asset_location(
+                    asset.get('id') or asset.get('asset_id'),
+                    datetime.now() - timedelta(days=1),
+                    datetime.now()
+                )
+                
+                # Check if any location is at the specified job site
+                if any(loc.get('job_site_id') == job_site_id for loc in asset_locations):
+                    filtered_assets.append(asset)
+            
+            assets_data = filtered_assets
         
-        # Get the assets
-        assets = query.filter(Asset.status == 'active').all()
-        
-        # Prepare the response
-        result = []
-        for asset in assets:
-            asset_data = {
-                'id': asset.id,
-                'asset_id': asset.asset_id,
-                'name': asset.name,
-                'type': asset.type,
-                'latitude': asset.last_latitude,
-                'longitude': asset.last_longitude,
-                'last_update': asset.last_location_update.isoformat() if asset.last_location_update else None,
-                'driver': asset.current_driver.full_name if asset.current_driver else None,
-                'status': asset.status
-            }
-            result.append(asset_data)
-        
-        return jsonify(result)
+        return jsonify(assets_data)
     except Exception as e:
         logger.error(f"Error in api_assets: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        
+        # Fallback to direct database query in case of error with data provider
+        try:
+            # Base query
+            query = db.session.query(Asset)
+            
+            # Apply filters if provided
+            if asset_type:
+                query = query.filter(Asset.type == asset_type)
+            
+            if job_site_id:
+                # Join with AssetLocation to filter by job_site_id
+                query = query.join(AssetLocation).filter(AssetLocation.job_site_id == job_site_id)
+            
+            # Get the assets
+            assets = query.filter(Asset.status == 'active').all()
+            
+            # Prepare the response
+            result = []
+            for asset in assets:
+                asset_data = {
+                    'id': asset.id,
+                    'asset_id': asset.asset_id,
+                    'name': asset.name,
+                    'type': asset.type,
+                    'latitude': asset.last_latitude,
+                    'longitude': asset.last_longitude,
+                    'last_update': asset.last_location_update.isoformat() if asset.last_location_update else None,
+                    'driver': asset.current_driver.full_name if asset.current_driver else None,
+                    'status': asset.status
+                }
+                result.append(asset_data)
+            
+            return jsonify(result)
+        except Exception as inner_e:
+            logger.error(f"Error in api_assets fallback: {str(inner_e)}")
+            return jsonify({'error': f"Primary error: {str(e)}, Fallback error: {str(inner_e)}"}), 500
 
 @asset_map_bp.route('/api/asset/<int:asset_id>/route')
 def api_asset_route(asset_id):
@@ -96,6 +130,18 @@ def api_asset_route(asset_id):
         start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
         end_date = datetime.strptime(end_date_str, '%Y-%m-%d') + timedelta(days=1)  # Include the end date
         
+        # Use the asset data provider for reliable asset location data
+        from utils.asset_data_provider import AssetDataProvider
+        data_provider = AssetDataProvider()
+        
+        # Get asset locations with fallback mechanisms
+        locations_data = data_provider.get_asset_location(asset_id, start_date, end_date)
+        
+        # If we got data from the provider, return it
+        if locations_data:
+            return jsonify(locations_data)
+        
+        # Fallback to direct database query
         # Get the asset locations using the location_timestamp column
         from sqlalchemy import column
         location_timestamp = getattr(AssetLocation, 'timestamp')
@@ -132,6 +178,18 @@ def api_asset_route(asset_id):
 def api_job_sites():
     """API endpoint to get all job sites"""
     try:
+        # Use the asset data provider for reliable job site data
+        from utils.asset_data_provider import AssetDataProvider
+        data_provider = AssetDataProvider()
+        
+        # Get job sites with fallback mechanisms
+        job_sites_data = data_provider.get_job_sites(active_only=True)
+        
+        # If we got data from the provider, return it
+        if job_sites_data:
+            return jsonify(job_sites_data)
+        
+        # Fallback to direct database query
         # Get active job sites
         job_sites = JobSite.query.filter_by(active=True).all()
         
@@ -163,9 +221,19 @@ def api_heatmap():
         end_date = datetime.now()
         start_date = end_date - timedelta(days=days)
         
+        # First try the data provider for reliable heatmap data with fallbacks
+        from utils.asset_data_provider import AssetDataProvider
+        data_provider = AssetDataProvider()
+        
+        # Get heatmap data with fallback mechanisms
+        heatmap_data = data_provider.get_heatmap_data(start_date, end_date)
+        
+        # If we got data from the provider, return it
+        if heatmap_data:
+            return jsonify(heatmap_data)
+            
+        # Fallback to direct database query
         # Get the asset locations aggregated by geographic grid
-        # This is a simplified example; in a real implementation, you might want to use
-        # a more sophisticated algorithm for creating the heatmap
         from sqlalchemy import column
         location_timestamp = getattr(AssetLocation, 'timestamp')
         locations = db.session.query(
@@ -179,11 +247,15 @@ def api_heatmap():
         
         # Prepare the response
         result = []
+        max_count = 10  # Default if no data
+        if locations:
+            max_count = max(count for _, _, count in locations)
+            
         for lat_grid, lng_grid, count in locations:
             point = {
                 'latitude': float(lat_grid),
                 'longitude': float(lng_grid),
-                'weight': min(count / 10, 1.0)  # Normalize weight between 0 and 1
+                'weight': min(count / max_count, 1.0)  # Normalize weight between 0 and 1
             }
             result.append(point)
         

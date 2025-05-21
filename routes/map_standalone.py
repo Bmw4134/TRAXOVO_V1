@@ -5,6 +5,7 @@ This module provides a simplified, standalone implementation of the asset map
 without dependencies on other routes or complex template inheritance.
 """
 import os
+import re
 import logging
 import json
 import requests
@@ -393,31 +394,31 @@ def api_job_sites():
                                 'count': 1
                             }
                         
-                # Add only official job sites from the real API data
-                # Filter locations to only include those that appear to be job sites
+                # Add ONLY sites that match the GaugeSmart "Sites" list
+                # Only include actual job sites, not random street addresses
                 official_job_sites = {}
                 for name, loc_data in unique_locations.items():
-                    # Check if this is likely an official job site (not just a street address)
+                    # STRICT FILTERING: Skip anything that looks like a street address
+                    # Street address patterns (123 Main St, etc.)
+                    if any(pattern in name for pattern in [' - ', 'Rd,', 'Dr,', 'St,', 'Ave,', 'Ln,', 'Blvd,', 'Pkwy,', 'Hwy,']):
+                        continue
+                    
+                    # Skip numbered addresses (likely street addresses)
+                    if bool(re.match(r'^\d+\s', name.strip())):
+                        continue
+                    
+                    # Now check for valid site types
                     is_official_site = False
                     
-                    # Sites with job numbers (2022-001, 2023-034, etc)
+                    # Always include Sites with job numbers (2022-001, 2023-034, etc)
                     if name.startswith('20') and '-' in name[:10]:
                         is_official_site = True
                     
-                    # Known yards and official sites
-                    if any(site_keyword in name.upper() for site_keyword in 
-                          ['YARD', 'SHOP', 'PROJECT', 'REHAB', 'IMPROVEMENT']):
+                    # Always include known yards and official sites
+                    elif any(site_keyword in name.upper() for site_keyword in ['YARD', 'SHOP']):
                         is_official_site = True
-                    
-                    # Highway/Bridge/Road sites ONLY if they have job numbers
-                    # (avoid random street addresses and highways)
-                    if any(site_keyword in name.upper() for site_keyword in 
-                          ['BRIDGE', 'HIGHWAY', 'SIDEWALK', 'ROAD', 'REPLACEMENT', 'MAINTENANCE']):
-                        # Only count as an official site if it ALSO has a job number or yard keyword
-                        if (name.startswith('20') and '-' in name[:10]) or 'YARD' in name.upper():
-                            is_official_site = True
-                        else:
-                            is_official_site = False
+                        
+                    # Skip everything else - we only want actual job sites or yards
                         
                     # Skip if this isn't an official site (just a street address)
                     if not is_official_site:

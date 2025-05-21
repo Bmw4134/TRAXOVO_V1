@@ -30,6 +30,9 @@ class GaugeAPI:
         self.password = os.environ.get('GAUGE_API_PASSWORD')
         self.token = None
         self.token_expiry = None
+        self.authenticated = False
+        self.last_auth_attempt = None
+        self.fallback_endpoints_tried = []
         
         logger.info(f"Gauge API initialized with URL: {self.api_url} (Asset List ID: {self.asset_list_id})")
     
@@ -76,14 +79,20 @@ class GaugeAPI:
     
     def authenticate(self):
         """Authenticate with the Gauge API and get an access token"""
+        # Record authentication attempt time
+        self.last_auth_attempt = datetime.now()
+        self.fallback_endpoints_tried = []
+        
         # Check if we have a valid token already
         if self.token and self.token_expiry and datetime.now() < self.token_expiry:
+            self.authenticated = True
             return
         
         if not self.api_url or not self.username or not self.password:
             logger.error("Gauge API credentials are not fully configured")
             self.token = None
             self.token_expiry = None
+            self.authenticated = False
             return
         
         try:
@@ -106,6 +115,7 @@ class GaugeAPI:
             # Try each endpoint format until one works
             for endpoint in endpoint_formats:
                 auth_url = f"{self.api_url.rstrip('/')}{endpoint}"
+                self.fallback_endpoints_tried.append(endpoint)
                 
                 try:
                     logger.info(f"Trying authentication endpoint: {auth_url}")
@@ -127,6 +137,7 @@ class GaugeAPI:
                                 self.token = data['token']
                                 # Token typically expires in 24 hours
                                 self.token_expiry = datetime.now() + timedelta(hours=23)
+                                self.authenticated = True
                                 logger.info(f"Successfully authenticated with Gauge API using endpoint: {endpoint}")
                                 return
                             else:
@@ -144,11 +155,13 @@ class GaugeAPI:
             logger.error("All authentication attempts failed. Please check API URL and credentials.")
             self.token = None
             self.token_expiry = None
+            self.authenticated = False
                 
         except Exception as e:
             logger.error(f"Unexpected error during authentication: {str(e)}")
             self.token = None
             self.token_expiry = None
+            self.authenticated = False
     
     def get_headers(self):
         """Get the API request headers with authentication token"""

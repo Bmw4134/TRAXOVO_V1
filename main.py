@@ -12,6 +12,7 @@ from app import app, db
 from routes.driver_reports import driver_reports_bp
 from routes.asset_map import asset_map_bp  
 from routes.billing import billing_bp
+from routes.system_health import system_health_bp
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -21,6 +22,7 @@ logger = logging.getLogger(__name__)
 app.register_blueprint(driver_reports_bp)
 app.register_blueprint(asset_map_bp)
 app.register_blueprint(billing_bp)
+app.register_blueprint(system_health_bp)
 
 @app.route('/')
 def dashboard():

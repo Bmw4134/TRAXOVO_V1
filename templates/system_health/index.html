@@ -1,0 +1,449 @@
+{% extends 'base.html' %}
+
+{% block title %}TRAXORA System Health{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">System Health Dashboard</h1>
+    
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Database Health</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="health-status" id="database-status-indicator">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                        <h5 class="mb-0 ms-2" id="database-status-text">Checking...</h5>
+                    </div>
+                    <div id="database-details">
+                        <p><strong>Connection Time:</strong> <span id="database-connection-time">--</span>ms</p>
+                        <p><strong>Schema Integrity:</strong> <span id="database-schema-integrity">--</span></p>
+                        <p><strong>Tables Verified:</strong> <span id="database-tables-count">--</span></p>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-sm btn-primary" id="refresh-database">Refresh</button>
+                    <button class="btn btn-sm btn-secondary" id="show-db-details">Show Details</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Gauge API Connection</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="health-status" id="gauge-api-status-indicator">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                        <h5 class="mb-0 ms-2" id="gauge-api-status-text">Checking...</h5>
+                    </div>
+                    <div id="gauge-api-details">
+                        <p><strong>Authentication:</strong> <span id="gauge-api-auth-status">--</span></p>
+                        <p><strong>Last Attempt:</strong> <span id="gauge-api-last-attempt">--</span></p>
+                        <p><strong>Asset List ID:</strong> <span id="gauge-api-asset-list-id">--</span></p>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-sm btn-primary" id="refresh-gauge-api">Refresh</button>
+                    <button class="btn btn-sm btn-secondary" id="show-api-details">Show Details</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">System Resources</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="health-status" id="system-status-indicator">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                        <h5 class="mb-0 ms-2" id="system-status-text">Checking...</h5>
+                    </div>
+                    <div id="system-details">
+                        <p><strong>Filesystem:</strong> <span id="filesystem-status">--</span></p>
+                        <p><strong>API Client:</strong> <span id="api-client-status">--</span></p>
+                        <p><strong>Last Check:</strong> <span id="system-last-check">--</span></p>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-sm btn-primary" id="refresh-system">Refresh</button>
+                    <button class="btn btn-sm btn-secondary" id="show-system-details">Show Details</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Data Stats</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="stat-card">
+                                <h3 id="asset-count">--</h3>
+                                <p>Assets</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="stat-card">
+                                <h3 id="driver-count">--</h3>
+                                <p>Drivers</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="stat-card">
+                                <h3 id="job-site-count">--</h3>
+                                <p>Job Sites</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="stat-card">
+                                <h3 id="location-count">--</h3>
+                                <p>Location Records</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-sm btn-primary" id="refresh-stats">Refresh</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">System Messages</h5>
+                    <div class="badge bg-primary" id="message-count">0</div>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group" id="system-messages">
+                        <li class="list-group-item text-center">Loading messages...</li>
+                    </ul>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-sm btn-primary" id="refresh-messages">Refresh</button>
+                    <button class="btn btn-sm btn-danger" id="clear-messages">Clear All</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Health Check Report</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <button class="btn btn-primary" id="run-health-check">Run Full Health Check</button>
+                    </div>
+                    <div class="health-report-container mt-3">
+                        <pre id="health-check-report" class="bg-dark text-light p-3 rounded">Run a full health check to see the detailed report.</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for detailed information -->
+<div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailsModalLabel">Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <pre id="details-content" class="bg-dark text-light p-3 rounded"></pre>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initial data load
+        fetchDatabaseHealth();
+        fetchGaugeApiStatus();
+        fetchSystemStatus();
+        fetchDataStats();
+        
+        // Set up refresh button handlers
+        document.getElementById('refresh-database').addEventListener('click', fetchDatabaseHealth);
+        document.getElementById('refresh-gauge-api').addEventListener('click', fetchGaugeApiStatus);
+        document.getElementById('refresh-system').addEventListener('click', fetchSystemStatus);
+        document.getElementById('refresh-stats').addEventListener('click', fetchDataStats);
+        document.getElementById('run-health-check').addEventListener('click', runFullHealthCheck);
+        
+        // Set up details button handlers
+        document.getElementById('show-db-details').addEventListener('click', function() {
+            showDetailsModal('Database Details', JSON.stringify(window.dbHealthData || {}, null, 2));
+        });
+        
+        document.getElementById('show-api-details').addEventListener('click', function() {
+            showDetailsModal('Gauge API Details', JSON.stringify(window.gaugeApiData || {}, null, 2));
+        });
+        
+        document.getElementById('show-system-details').addEventListener('click', function() {
+            showDetailsModal('System Details', JSON.stringify(window.systemStatusData || {}, null, 2));
+        });
+    });
+    
+    function fetchDatabaseHealth() {
+        // Reset the UI
+        document.getElementById('database-status-indicator').innerHTML = 
+            '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>';
+        document.getElementById('database-status-text').textContent = 'Checking...';
+        
+        // Fetch the data
+        fetch('/system-health/api/database-health')
+            .then(response => response.json())
+            .then(data => {
+                // Store the data for modal display
+                window.dbHealthData = data;
+                
+                // Update the UI
+                const statusIndicator = document.getElementById('database-status-indicator');
+                const statusText = document.getElementById('database-status-text');
+                
+                if (data.health_check.overall_health) {
+                    statusIndicator.innerHTML = '<i class="bi bi-check-circle-fill text-success fs-3"></i>';
+                    statusText.textContent = 'Healthy';
+                    statusText.className = 'mb-0 ms-2 text-success';
+                } else {
+                    statusIndicator.innerHTML = '<i class="bi bi-x-circle-fill text-danger fs-3"></i>';
+                    statusText.textContent = 'Issues Detected';
+                    statusText.className = 'mb-0 ms-2 text-danger';
+                }
+                
+                // Update details
+                document.getElementById('database-connection-time').textContent = 
+                    ((data.health_check.connection_time || 0) * 1000).toFixed(2);
+                document.getElementById('database-schema-integrity').textContent = 
+                    data.health_check.schema_integrity ? 'OK' : 'Issues Detected';
+                
+                const tablesCount = Object.keys(data.health_check.model_column_mapping || {}).length;
+                document.getElementById('database-tables-count').textContent = tablesCount;
+            })
+            .catch(error => {
+                console.error('Error fetching database health:', error);
+                document.getElementById('database-status-indicator').innerHTML = 
+                    '<i class="bi bi-exclamation-triangle-fill text-warning fs-3"></i>';
+                document.getElementById('database-status-text').textContent = 'Check Failed';
+                document.getElementById('database-status-text').className = 'mb-0 ms-2 text-warning';
+            });
+    }
+    
+    function fetchGaugeApiStatus() {
+        // Reset the UI
+        document.getElementById('gauge-api-status-indicator').innerHTML = 
+            '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>';
+        document.getElementById('gauge-api-status-text').textContent = 'Checking...';
+        
+        // Fetch the data
+        fetch('/system-health/api/gauge-api-status')
+            .then(response => response.json())
+            .then(data => {
+                // Store the data for modal display
+                window.gaugeApiData = data;
+                
+                // Update the UI
+                const statusIndicator = document.getElementById('gauge-api-status-indicator');
+                const statusText = document.getElementById('gauge-api-status-text');
+                
+                if (data.gauge_api_status) {
+                    statusIndicator.innerHTML = '<i class="bi bi-check-circle-fill text-success fs-3"></i>';
+                    statusText.textContent = 'Connected';
+                    statusText.className = 'mb-0 ms-2 text-success';
+                } else {
+                    statusIndicator.innerHTML = '<i class="bi bi-x-circle-fill text-danger fs-3"></i>';
+                    statusText.textContent = 'Connection Failed';
+                    statusText.className = 'mb-0 ms-2 text-danger';
+                }
+                
+                // Update details
+                document.getElementById('gauge-api-auth-status').textContent = 
+                    data.authenticated ? 'Authenticated' : 'Not Authenticated';
+                document.getElementById('gauge-api-last-attempt').textContent = 
+                    data.last_authentication_attempt ? new Date(data.last_authentication_attempt).toLocaleString() : 'N/A';
+                document.getElementById('gauge-api-asset-list-id').textContent = 
+                    data.asset_list_id || 'Not Configured';
+            })
+            .catch(error => {
+                console.error('Error fetching Gauge API status:', error);
+                document.getElementById('gauge-api-status-indicator').innerHTML = 
+                    '<i class="bi bi-exclamation-triangle-fill text-warning fs-3"></i>';
+                document.getElementById('gauge-api-status-text').textContent = 'Check Failed';
+                document.getElementById('gauge-api-status-text').className = 'mb-0 ms-2 text-warning';
+            });
+    }
+    
+    function fetchSystemStatus() {
+        // Reset the UI
+        document.getElementById('system-status-indicator').innerHTML = 
+            '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>';
+        document.getElementById('system-status-text').textContent = 'Checking...';
+        
+        // Fetch the data
+        fetch('/system-health/api/system-status')
+            .then(response => response.json())
+            .then(data => {
+                // Store the data for modal display
+                window.systemStatusData = data;
+                
+                // Update the UI
+                const statusIndicator = document.getElementById('system-status-indicator');
+                const statusText = document.getElementById('system-status-text');
+                
+                if (data.status === 'success') {
+                    statusIndicator.innerHTML = '<i class="bi bi-check-circle-fill text-success fs-3"></i>';
+                    statusText.textContent = 'Operational';
+                    statusText.className = 'mb-0 ms-2 text-success';
+                } else {
+                    statusIndicator.innerHTML = '<i class="bi bi-x-circle-fill text-danger fs-3"></i>';
+                    statusText.textContent = 'Issues Detected';
+                    statusText.className = 'mb-0 ms-2 text-danger';
+                }
+                
+                // Update details
+                document.getElementById('filesystem-status').textContent = 
+                    data.filesystem_health ? 'OK' : 'Issues Detected';
+                document.getElementById('api-client-status').textContent = 
+                    data.gauge_api_health ? 'OK' : 'Issues Detected';
+                document.getElementById('system-last-check').textContent = 
+                    new Date(data.timestamp).toLocaleString();
+                
+                // Update stats as well
+                if (data.stats) {
+                    document.getElementById('asset-count').textContent = data.stats.asset_count || 0;
+                    document.getElementById('driver-count').textContent = data.stats.driver_count || 0;
+                    document.getElementById('job-site-count').textContent = data.stats.job_site_count || 0;
+                    document.getElementById('location-count').textContent = data.stats.asset_location_count || 0;
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching system status:', error);
+                document.getElementById('system-status-indicator').innerHTML = 
+                    '<i class="bi bi-exclamation-triangle-fill text-warning fs-3"></i>';
+                document.getElementById('system-status-text').textContent = 'Check Failed';
+                document.getElementById('system-status-text').className = 'mb-0 ms-2 text-warning';
+            });
+    }
+    
+    function fetchDataStats() {
+        // Fetch the data
+        fetch('/system-health/api/system-status')
+            .then(response => response.json())
+            .then(data => {
+                if (data.stats) {
+                    document.getElementById('asset-count').textContent = data.stats.asset_count || 0;
+                    document.getElementById('driver-count').textContent = data.stats.driver_count || 0;
+                    document.getElementById('job-site-count').textContent = data.stats.job_site_count || 0;
+                    document.getElementById('location-count').textContent = data.stats.asset_location_count || 0;
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching data stats:', error);
+            });
+    }
+    
+    function runFullHealthCheck() {
+        // Show loading state
+        const reportElement = document.getElementById('health-check-report');
+        reportElement.textContent = 'Running health check, please wait...';
+        
+        // Disable the button
+        const button = document.getElementById('run-health-check');
+        button.disabled = true;
+        button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Running...';
+        
+        // Run the health check
+        fetch('/system-health/api/database-health')
+            .then(response => response.json())
+            .then(data => {
+                // Display the report
+                reportElement.textContent = data.report;
+                
+                // Re-enable the button
+                button.disabled = false;
+                button.innerHTML = 'Run Full Health Check';
+            })
+            .catch(error => {
+                console.error('Error running health check:', error);
+                reportElement.textContent = 'Error running health check: ' + error.message;
+                
+                // Re-enable the button
+                button.disabled = false;
+                button.innerHTML = 'Run Full Health Check';
+            });
+    }
+    
+    function showDetailsModal(title, content) {
+        document.getElementById('detailsModalLabel').textContent = title;
+        document.getElementById('details-content').textContent = content;
+        
+        const modal = new bootstrap.Modal(document.getElementById('detailsModal'));
+        modal.show();
+    }
+</script>
+
+<style>
+    .health-status {
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .stat-card {
+        text-align: center;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 6px;
+    }
+    
+    .stat-card h3 {
+        font-size: 24px;
+        margin-bottom: 5px;
+        font-weight: 600;
+    }
+    
+    .stat-card p {
+        margin-bottom: 0;
+        color: #6c757d;
+    }
+    
+    .health-report-container {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+</style>
+{% endblock %}

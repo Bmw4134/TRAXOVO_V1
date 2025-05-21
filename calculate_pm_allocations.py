@@ -1,346 +1,284 @@
 """
 Calculate PM Allocations
 
-This script locates all PM allocation sheets, applies their changes to the base RAGLE file,
-and generates the final deliverables with the updated totals.
+This module provides functions for processing PM allocation files,
+comparing changes between the base file and PM allocation files,
+and generating reconciliation reports.
 """
-import os
-import pandas as pd
-import glob
-import logging
-import re
 
-# Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+import os
+import json
+import logging
+import pandas as pd
+from datetime import datetime
+
+# Set up logging
 logger = logging.getLogger(__name__)
 
-# Constants
-ATTACHED_ASSETS_DIR = 'attached_assets'
-EXPORTS_DIR = 'exports'
-MONTH_NAME = 'APRIL'
-YEAR = '2025'
-
-# Output file names
-FINALIZED_MASTER_ALLOCATION = f"FINALIZED_MASTER_ALLOCATION_SHEET_{MONTH_NAME}_{YEAR}.xlsx"
-MASTER_BILLINGS = f"MASTER_EQUIP_BILLINGS_{MONTH_NAME}_{YEAR}.xlsx"
-REGION_IMPORT_PREFIX = "FINAL_REGION_IMPORT_"
-
-# Source files
-RAGLE_FILE = "RAGLE EQ BILLINGS - APRIL 2025 (JG REVIEWED 5.12).xlsm"
-PM_ALLOCATION_PATTERN = "*EQMO. BILLING ALLOCATIONS*"
-
-def find_pm_allocation_files():
-    """Find all PM allocation files"""
-    pm_files = []
-    patterns = [
-        "*EQMO. BILLING ALLOCATIONS*APRIL*2025*.xlsx", 
-        "*ALLOCATIONS*APRIL*2025*.xlsx",
-        "*ALLOCATION*APR*2025*.xlsx"
-    ]
+def process_pm_allocation_files(base_file_path, pm_file_paths):
+    """
+    Process PM allocation files and generate reconciliation report.
     
-    for pattern in patterns:
-        pattern_files = glob.glob(os.path.join(ATTACHED_ASSETS_DIR, pattern))
-        for file in pattern_files:
-            # Check if it's a PM revision file by looking for PM names or revision indicators
-            filename = os.path.basename(file).upper()
-            if any(keyword in filename for keyword in 
-                   ["HARDIMO", "KOCMICK", "MORALES", "ALVAREZ", "REVISION", "ALLOCATED", "TR-FINAL"]):
-                pm_files.append(file)
-    
-    logger.info(f"Found {len(pm_files)} PM allocation files")
-    return pm_files
-
-def load_base_file():
-    """Load the base RAGLE file"""
-    ragle_path = os.path.join(ATTACHED_ASSETS_DIR, RAGLE_FILE)
-    if not os.path.exists(ragle_path):
-        logger.error(f"Base RAGLE file not found: {ragle_path}")
-        return None
+    Args:
+        base_file_path (str): Path to the base RAGLE file
+        pm_file_paths (list): List of paths to PM allocation files
+        
+    Returns:
+        dict: Results of PM allocation processing
+    """
+    logger.info(f"Processing PM allocation files")
+    logger.info(f"Base file: {base_file_path}")
+    logger.info(f"PM files: {pm_file_paths}")
     
     try:
-        logger.info(f"Loading base RAGLE file: {ragle_path}")
-        ragle_df = pd.read_excel(ragle_path, sheet_name="Equip Billings")
-        logger.info(f"Loaded {len(ragle_df)} records from base RAGLE file")
-        return ragle_df
-    except Exception as e:
-        logger.error(f"Error loading base RAGLE file: {str(e)}")
-        return None
-
-def load_pm_allocation_file(file_path):
-    """Load a PM allocation file and extract the relevant data"""
-    try:
-        logger.info(f"Processing PM allocation file: {os.path.basename(file_path)}")
+        # Load base file
+        base_df = load_excel_file(base_file_path)
+        if base_df is None:
+            return {"error": "Failed to load base file"}
         
-        # First get all sheet names
-        xls = pd.ExcelFile(file_path)
-        sheet_names = xls.sheet_names
+        # Track all changes
+        all_changes = []
+        changed_jobs = set()
         
-        # Try to find sheets with relevant names
-        allocation_sheet = None
-        for sheet in sheet_names:
-            sheet_lower = sheet.lower()
-            if any(keyword in sheet_lower for keyword in ["allocation", "billing", "equip", "pm", "data"]):
-                try:
-                    df = pd.read_excel(file_path, sheet_name=sheet)
-                    # Check if this sheet has data and relevant columns
-                    if not df.empty and any(col for col in df.columns if isinstance(col, str) and 
-                                          any(name in col.lower() for name in ["equip", "job", "amount", "unit"])):
-                        allocation_sheet = sheet
-                        break
-                except:
-                    continue
+        # Process each PM file
+        pm_files_info = []
+        for file_path in pm_file_paths:
+            pm_df = load_excel_file(file_path)
+            if pm_df is None:
+                logger.warning(f"Failed to load PM file: {file_path}")
+                continue
+                
+            # Compare with base file and track changes
+            file_changes = compare_allocation_files(base_df, pm_df)
+            if file_changes and len(file_changes) > 0:
+                all_changes.extend(file_changes)
+                
+                # Track changed job numbers
+                for change in file_changes:
+                    if 'job_number' in change:
+                        changed_jobs.add(change['job_number'])
+            
+            # Add file info
+            pm_files_info.append({
+                "filename": os.path.basename(file_path),
+                "changes_count": len(file_changes) if file_changes else 0
+            })
         
-        # If no sheet found with those names, try the first sheet
-        if not allocation_sheet and sheet_names:
-            allocation_sheet = sheet_names[0]
-        
-        if not allocation_sheet:
-            logger.warning(f"Could not find a valid allocation sheet in {os.path.basename(file_path)}")
-            return None
-        
-        # Load the sheet
-        df = pd.read_excel(file_path, sheet_name=allocation_sheet)
-        
-        # Try to identify key columns
-        key_columns = {
-            'equip_id': ['equip', 'equipment', 'eq #', 'eq id', 'equip id'],
-            'job': ['job', 'job #', 'job number', 'job id'],
-            'cost_code': ['cost code', 'cost', 'cc', 'code'],
-            'phase': ['phase', 'ph', 'phase code'],
-            'units': ['units', 'qty', 'quantity', 'hrs', 'hours', 'unit', 'allocated'],
-            'rate': ['rate', 'unit rate', 'equip rate', 'billing rate'],
-            'amount': ['amount', 'total', 'billing amount']
+        # Generate results
+        results = {
+            "base_file": os.path.basename(base_file_path),
+            "pm_files": pm_files_info,
+            "total_changes": len(all_changes),
+            "changes": all_changes,
+            "changed_jobs": list(changed_jobs),
+            "processing_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
         
-        column_map = {}
-        for key, patterns in key_columns.items():
-            for col in df.columns:
-                if isinstance(col, str) and any(pattern in col.lower() for pattern in patterns):
-                    column_map[key] = col
-                    break
+        # Export detailed report
+        export_detailed_report(results)
         
-        # Check if we have the minimum required columns
-        if 'equip_id' not in column_map or ('units' not in column_map and 'amount' not in column_map):
-            logger.warning(f"Missing required columns in {os.path.basename(file_path)}")
-            return None
+        return results
         
-        # Create standardized dataframe
-        std_df = pd.DataFrame()
+    except Exception as e:
+        logger.error(f"Error processing PM allocation files: {str(e)}")
+        return {"error": str(e)}
+
+def load_excel_file(file_path):
+    """
+    Load an Excel file into a pandas DataFrame.
+    
+    Args:
+        file_path (str): Path to the Excel file
         
-        # Copy data from original columns to standardized columns
-        for std_col, orig_col in column_map.items():
-            std_df[std_col] = df[orig_col]
+    Returns:
+        DataFrame: Loaded DataFrame or None if failed
+    """
+    try:
+        # Skip empty sheets and text parsing errors
+        xls = pd.ExcelFile(file_path)
         
-        # Calculate missing values if possible
-        if 'units' in std_df.columns and 'rate' in std_df.columns and 'amount' not in std_df.columns:
-            std_df['units'] = pd.to_numeric(std_df['units'], errors='coerce').fillna(0)
-            std_df['rate'] = pd.to_numeric(std_df['rate'], errors='coerce').fillna(0)
-            std_df['amount'] = std_df['units'] * std_df['rate']
+        # Try to find the main sheet with allocation data
+        for sheet_name in xls.sheet_names:
+            # Look for sheets with job data
+            if 'JOB' in sheet_name.upper() or 'ALLOCATION' in sheet_name.upper():
+                df = pd.read_excel(file_path, sheet_name=sheet_name)
+                return df
         
-        # Log summary
-        logger.info(f"Extracted {len(std_df)} records from {os.path.basename(file_path)}")
-        if 'amount' in std_df.columns:
-            total = pd.to_numeric(std_df['amount'], errors='coerce').sum()
-            logger.info(f"Total amount in {os.path.basename(file_path)}: ${total:,.2f}")
+        # Fall back to first sheet if no job sheet found
+        df = pd.read_excel(file_path, sheet_name=0)
+        return df
         
-        return std_df
+    except Exception as e:
+        logger.error(f"Error loading Excel file {file_path}: {str(e)}")
+        return None
+
+def compare_allocation_files(base_df, pm_df):
+    """
+    Compare base and PM allocation DataFrames to identify changes.
+    
+    Args:
+        base_df (DataFrame): Base DataFrame
+        pm_df (DataFrame): PM DataFrame
+        
+    Returns:
+        list: List of change records
+    """
+    changes = []
+    
+    try:
+        # Identify common columns that might contain job numbers or amount data
+        numeric_columns = base_df.select_dtypes(include=['number']).columns.tolist()
+        
+        # Find job number column
+        job_number_col = None
+        for col in base_df.columns:
+            if 'JOB' in str(col).upper() or 'NUMBER' in str(col).upper():
+                job_number_col = col
+                break
+        
+        if job_number_col is None:
+            logger.warning("No job number column identified")
+            return changes
+        
+        # Iterate through rows in PM file to find changes
+        for _, row in pm_df.iterrows():
+            job_number = row.get(job_number_col)
+            if job_number is None or pd.isna(job_number):
+                continue
+                
+            # Find corresponding row in base file
+            base_row = base_df[base_df[job_number_col] == job_number]
+            if base_row.empty:
+                continue
+                
+            # Compare numeric columns for changes
+            for col in numeric_columns:
+                if col not in pm_df.columns:
+                    continue
+                    
+                pm_value = row.get(col)
+                base_value = base_row.iloc[0].get(col)
+                
+                # Check for significant changes (avoid floating point precision issues)
+                if pd.notna(pm_value) and pd.notna(base_value):
+                    if abs(pm_value - base_value) > 0.01:  # Threshold for considering a change
+                        changes.append({
+                            "job_number": str(job_number),
+                            "column": col,
+                            "base_value": float(base_value),
+                            "pm_value": float(pm_value),
+                            "difference": float(pm_value - base_value)
+                        })
     
     except Exception as e:
-        logger.error(f"Error processing {os.path.basename(file_path)}: {str(e)}")
-        return None
+        logger.error(f"Error comparing allocation files: {str(e)}")
+    
+    return changes
 
-def merge_pm_allocations(base_df, pm_allocation_dfs):
-    """Merge PM allocation data with the base data"""
-    if not base_df or base_df.empty:
-        logger.error("Base dataframe is empty")
-        return None
+def export_detailed_report(results):
+    """
+    Export detailed reconciliation report.
     
-    # Make a copy of the base dataframe
-    merged_df = base_df.copy()
-    merged_df.columns = [col.lower() if isinstance(col, str) else col for col in merged_df.columns]
-    
-    # Track base total
-    base_total = 0
-    for col in merged_df.columns:
-        if isinstance(col, str) and 'amount' in col.lower():
-            base_total = pd.to_numeric(merged_df[col], errors='coerce').sum()
-            break
-    
-    logger.info(f"Base total before PM allocations: ${base_total:,.2f}")
-    
-    # Merge each PM allocation dataframe
-    for pm_df in pm_allocation_dfs:
-        if pm_df is None or pm_df.empty:
-            continue
+    Args:
+        results (dict): Processing results
         
-        # Get the equipment IDs from this PM allocation
-        if 'equip_id' in pm_df.columns:
-            equip_ids = pm_df['equip_id'].unique()
-            logger.info(f"Processing PM changes for {len(equip_ids)} equipment IDs")
+    Returns:
+        str: Path to exported report file
+    """
+    try:
+        # Create exports directory if it doesn't exist
+        export_dir = os.path.join('exports', 'pm_allocation')
+        os.makedirs(export_dir, exist_ok=True)
+        
+        # Export as JSON
+        json_path = os.path.join(export_dir, 'detailed_reconciliation.json')
+        with open(json_path, 'w') as f:
+            json.dump(results, f, indent=2)
+        
+        # Export as Excel if there are changes
+        if results.get('total_changes', 0) > 0:
+            excel_path = os.path.join(export_dir, 'pm_reconciliation.xlsx')
             
-            # Find equipment ID column in merged_df
-            equip_col = None
-            for col in merged_df.columns:
-                if isinstance(col, str) and any(name in col.lower() for name in ['equip #', 'equipment', 'equip id']):
-                    equip_col = col
-                    break
+            # Create DataFrame from changes
+            changes_df = pd.DataFrame(results.get('changes', []))
             
-            if not equip_col:
-                logger.warning("Could not find equipment ID column in base data")
-                continue
-            
-            # Process each equipment ID
-            for equip_id in equip_ids:
-                # Find all records for this equipment in the PM allocation
-                pm_equip_records = pm_df[pm_df['equip_id'] == equip_id]
+            # Group by job number
+            if 'job_number' in changes_df.columns:
+                job_summary = changes_df.groupby('job_number').agg({
+                    'difference': 'sum',
+                    'column': 'count'
+                }).reset_index()
+                job_summary.rename(columns={'column': 'change_count'}, inplace=True)
                 
-                if not pm_equip_records.empty:
-                    # Remove existing records for this equipment from merged_df
-                    merged_df = merged_df[merged_df[equip_col] != equip_id]
-                    
-                    # Create records to add
-                    new_records = []
-                    for _, pm_row in pm_equip_records.iterrows():
-                        new_record = {}
-                        
-                        # First find corresponding columns in merged_df for each PM allocation column
-                        for pm_col in pm_row.index:
-                            if pm_col == 'equip_id':
-                                new_record[equip_col] = pm_row[pm_col]
-                            else:
-                                # Find matching column in merged_df
-                                for merged_col in merged_df.columns:
-                                    if isinstance(merged_col, str) and pm_col in merged_col.lower():
-                                        new_record[merged_col] = pm_row[pm_col]
-                                        break
-                        
-                        # Add missing columns with empty values
-                        for col in merged_df.columns:
-                            if col not in new_record:
-                                new_record[col] = None
-                        
-                        new_records.append(new_record)
-                    
-                    # Add the new records to merged_df
-                    new_records_df = pd.DataFrame(new_records)
-                    merged_df = pd.concat([merged_df, new_records_df], ignore_index=True)
-    
-    # Calculate the new total
-    merged_total = 0
-    for col in merged_df.columns:
-        if isinstance(col, str) and 'amount' in col.lower():
-            merged_total = pd.to_numeric(merged_df[col], errors='coerce').sum()
-            break
-    
-    logger.info(f"Merged total after PM allocations: ${merged_total:,.2f}")
-    logger.info(f"Change in total: ${merged_total - base_total:,.2f}")
-    
-    return merged_df
-
-def generate_deliverables(merged_df):
-    """Generate the three required deliverables from the merged data"""
-    if merged_df is None or merged_df.empty:
-        logger.error("Merged dataframe is empty, cannot generate deliverables")
-        return False
-    
-    # Ensure exports directory exists
-    os.makedirs(EXPORTS_DIR, exist_ok=True)
-    
-    # 1. Generate FINALIZED MASTER ALLOCATION SHEET
-    master_allocation_path = os.path.join(EXPORTS_DIR, FINALIZED_MASTER_ALLOCATION)
-    merged_df.to_excel(master_allocation_path, index=False, sheet_name='Master Allocation')
-    logger.info(f"Generated Finalized Master Allocation Sheet: {master_allocation_path}")
-    
-    # 2. Generate MASTER BILLINGS SHEET (same content, different filename)
-    master_billing_path = os.path.join(EXPORTS_DIR, MASTER_BILLINGS)
-    merged_df.to_excel(master_billing_path, index=False, sheet_name='Equip Billings')
-    logger.info(f"Generated Master Billings Sheet: {master_billing_path}")
-    
-    # 3. Generate FINAL REGION IMPORT FILES
-    # First identify division column
-    division_col = None
-    for col in merged_df.columns:
-        if isinstance(col, str) and 'division' in col.lower():
-            division_col = col
-            break
-    
-    if not division_col:
-        logger.warning("Could not identify division column, using backup approach for division imports")
-        # Try to identify divisions based on job numbers or other patterns
-        # This is a fallback approach
-        return False
-    
-    # Generate import files for each division
-    for division in ['DFW', 'WTX', 'HOU']:
-        # For WTX, look for both WTX and WT
-        if division == 'WTX':
-            division_data = merged_df[merged_df[division_col].isin(['WTX', 'WT'])].copy()
-        else:
-            division_data = merged_df[merged_df[division_col] == division].copy()
+                # Export to Excel with multiple sheets
+                with pd.ExcelWriter(excel_path) as writer:
+                    changes_df.to_excel(writer, sheet_name='All Changes', index=False)
+                    job_summary.to_excel(writer, sheet_name='Job Summary', index=False)
         
-        if not division_data.empty:
-            # Map columns for the export
-            column_mapping = {}
-            for target, patterns in {
-                'Equipment_Number': ['equip #', 'equipment', 'equip id'],
-                'Date': ['date', 'service date'],
-                'Job': ['job', 'job #', 'job number'],
-                'Cost_Code': ['cost code', 'cc', 'costcode'],
-                'Hours': ['units', 'qty', 'quantity', 'hours'],
-                'Rate': ['rate', 'unit rate'],
-                'Amount': ['amount', 'total']
-            }.items():
-                for col in division_data.columns:
-                    if isinstance(col, str) and any(pattern in col.lower() for pattern in patterns):
-                        column_mapping[col] = target
-                        break
-            
-            # Create export dataframe
-            export_df = pd.DataFrame()
-            for source, target in column_mapping.items():
-                export_df[target] = division_data[source]
-            
-            # Make sure all required columns exist
-            for col in ['Equipment_Number', 'Date', 'Job', 'Cost_Code', 'Hours', 'Rate', 'Amount']:
-                if col not in export_df.columns:
-                    export_df[col] = ""
-            
-            # Format date column
-            if 'Date' in export_df.columns and not export_df['Date'].empty:
-                export_df['Date'] = pd.to_datetime(export_df['Date'], errors='coerce').dt.strftime('%Y-%m-%d')
-            
-            # Write CSV
-            output_path = os.path.join(EXPORTS_DIR, f"{REGION_IMPORT_PREFIX}{division}_{MONTH_NAME}_{YEAR}.csv")
-            export_df.to_csv(output_path, index=False)
-            
-            division_total = pd.to_numeric(export_df['Amount'], errors='coerce').sum()
-            logger.info(f"Generated {division} Import File: {output_path} with {len(export_df)} records - Total: ${division_total:,.2f}")
-    
-    return True
+        return json_path
+        
+    except Exception as e:
+        logger.error(f"Error exporting detailed report: {str(e)}")
+        return None
 
-def main():
-    """Main function to process PM allocations and generate deliverables"""
-    # 1. Load the base RAGLE file
-    base_df = load_base_file()
-    if base_df is None:
-        return False
+def find_pm_allocation_files():
+    """
+    Find all PM allocation files in the designated directory.
     
-    # 2. Find and load all PM allocation files
-    pm_files = find_pm_allocation_files()
-    pm_allocation_dfs = []
-    
-    for pm_file in pm_files:
-        pm_df = load_pm_allocation_file(pm_file)
-        if pm_df is not None:
-            pm_allocation_dfs.append(pm_df)
-    
-    # 3. Merge PM allocations with base data
-    merged_df = merge_pm_allocations(base_df, pm_allocation_dfs)
-    
-    # 4. Generate the required deliverables
-    generate_deliverables(merged_df)
-    
-    return True
+    Returns:
+        tuple: (base_file_path, list of PM file paths)
+    """
+    try:
+        # Look in standard locations
+        attached_assets_dir = 'attached_assets'
+        uploads_dir = os.path.join('uploads', 'pm_allocation')
+        
+        base_file = None
+        pm_files = []
+        
+        # Check attached_assets directory
+        if os.path.exists(attached_assets_dir):
+            for filename in os.listdir(attached_assets_dir):
+                if filename.endswith('.xlsx') or filename.endswith('.xls'):
+                    file_path = os.path.join(attached_assets_dir, filename)
+                    
+                    # Identify base RAGLE file
+                    if 'RAGLE' in filename.upper() or 'BASE' in filename.upper() or 'MASTER' in filename.upper():
+                        base_file = file_path
+                    
+                    # Identify PM allocation files
+                    elif 'PM' in filename.upper() or 'ALLOCATION' in filename.upper():
+                        pm_files.append(file_path)
+        
+        # Check uploads directory
+        if os.path.exists(uploads_dir):
+            for filename in os.listdir(uploads_dir):
+                if filename.endswith('.xlsx') or filename.endswith('.xls'):
+                    file_path = os.path.join(uploads_dir, filename)
+                    
+                    # Check for explicitly marked base file
+                    if filename.startswith('base_'):
+                        base_file = file_path
+                    else:
+                        # Add to PM files if not already included
+                        if file_path not in pm_files:
+                            pm_files.append(file_path)
+        
+        return base_file, pm_files
+        
+    except Exception as e:
+        logger.error(f"Error finding PM allocation files: {str(e)}")
+        return None, []
 
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    # For testing/standalone execution
+    base_file, pm_files = find_pm_allocation_files()
+    
+    if base_file and pm_files:
+        logger.info(f"Found base file: {base_file}")
+        logger.info(f"Found {len(pm_files)} PM allocation files")
+        
+        results = process_pm_allocation_files(base_file, pm_files)
+        print(json.dumps(results, indent=2))
+    else:
+        logger.warning("Missing base file or PM allocation files")

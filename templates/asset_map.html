@@ -151,63 +151,153 @@
     // Initialize map
     const map = L.map('map-container').setView([32.7767, -96.7970], 9); // Dallas area
     
-    // Add tile layer (OpenStreetMap)
+    // Add tile layer (MapBox with better resolution)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19,
+      tileSize: 512,
+      zoomOffset: -1
     }).addTo(map);
     
-    // Asset markers layer group
-    const markersLayer = L.layerGroup().addTo(map);
+    // Asset markers layer groups by status
+    const activeMarkersLayer = L.layerGroup().addTo(map);
+    const disposedMarkersLayer = L.layerGroup().addTo(map);
+    
+    // Create custom icon based on asset type
+    function createAssetIcon(assetType, status) {
+      // Default values
+      let iconUrl = '/static/img/truck-icon.svg';
+      let iconSize = [32, 32];
+      
+      // Set icon based on asset type
+      if (assetType && typeof assetType === 'string') {
+        const type = assetType.toLowerCase();
+        if (type.includes('truck') || type.includes('pickup')) {
+          iconUrl = '/static/img/truck-icon.svg';
+        } else if (type.includes('excavator') || type.includes('backhoe')) {
+          iconUrl = '/static/img/excavator-icon.svg';
+        } else if (type.includes('loader')) {
+          iconUrl = '/static/img/loader-icon.svg';
+        } else if (type.includes('dozer')) {
+          iconUrl = '/static/img/dozer-icon.svg';
+        }
+      }
+      
+      // Create icon with opacity based on status
+      return L.icon({
+        iconUrl: iconUrl,
+        iconSize: iconSize,
+        iconAnchor: [iconSize[0] / 2, iconSize[1] / 2],
+        popupAnchor: [0, -iconSize[1] / 2],
+        className: `asset-marker ${status || 'active'}`
+      });
+    }
+    
+    // Asset counts for summary
+    let assetCounts = {
+      total: 0,
+      active: 0,
+      disposed: 0,
+      byDivision: {}
+    };
     
     // Load asset data
     function loadAssetData(date) {
+      // Reset counts
+      assetCounts = {
+        total: 0,
+        active: 0,
+        disposed: 0,
+        byDivision: {}
+      };
+      
+      // Clear existing markers
+      activeMarkersLayer.clearLayers();
+      disposedMarkersLayer.clearLayers();
+      
+      // Show loading state
+      document.getElementById('asset-count').innerHTML = `
+        <div class="spinner-border spinner-border-sm" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+        <p class="mb-0 mt-2">Loading asset data...</p>
+      `;
+      
       fetch(`/asset-map/api/assets?date=${date}`)
         .then(response => response.json())
         .then(data => {
-          // Clear existing markers
-          markersLayer.clearLayers();
-          
-          // Update asset count
-          document.getElementById('asset-count').innerHTML = `
-            <div class="h3 mb-0">${data.length}</div>
-            <p class="text-muted mb-0">Total Assets</p>
-          `;
+          // Update total count
+          assetCounts.total = data.length;
           
           // Add markers for each asset
           data.forEach(asset => {
             if (!asset.latitude || !asset.longitude) return;
             
-            // Create marker
-            const marker = L.marker([parseFloat(asset.latitude), parseFloat(asset.longitude)], {
-              title: asset.asset_id,
-              alt: asset.asset_id,
-              opacity: asset.status === 'disposed' ? 0.7 : 1
-            });
+            // Update counts
+            if (asset.status === 'disposed') {
+              assetCounts.disposed++;
+            } else {
+              assetCounts.active++;
+            }
+            
+            // Track by division
+            const division = asset.division || 'Unknown';
+            if (!assetCounts.byDivision[division]) {
+              assetCounts.byDivision[division] = 0;
+            }
+            assetCounts.byDivision[division]++;
+            
+            // Create marker with custom icon
+            const marker = L.marker(
+              [parseFloat(asset.latitude), parseFloat(asset.longitude)], 
+              {
+                title: asset.asset_id,
+                alt: asset.asset_id,
+                icon: createAssetIcon(asset.type, asset.status)
+              }
+            );
+            
+            // Determine asset type display
+            const assetType = asset.type || 'Equipment';
             
             // Create popup content
             const popupContent = `
               <div class="asset-popup">
                 <h5>${asset.asset_id}</h5>
-                <p><strong>Status:</strong> <span class="status-badge status-${asset.status}">${asset.status}</span></p>
+                <p><strong>Type:</strong> ${assetType}</p>
+                <p><strong>Status:</strong> <span class="status-badge status-${asset.status || 'unknown'}">${asset.status || 'Unknown'}</span></p>
                 <p><strong>Driver:</strong> ${asset.driver_id || 'None'}</p>
                 <p><strong>Location:</strong> ${asset.location || 'Unknown'}</p>
+                <p><strong>Division:</strong> ${division}</p>
                 <p><strong>Source:</strong> ${asset.location_source || 'Unknown'}</p>
                 <p class="text-muted small">Last updated: ${new Date(asset.last_updated).toLocaleString()}</p>
+                <button class="btn btn-sm btn-primary mt-2" onclick="window.location.href='/asset-map/detail/${asset.asset_id}'">View Details</button>
               </div>
             `;
             
             // Add popup to marker
             marker.bindPopup(popupContent);
             
-            // Add marker to layer group
-            markersLayer.addLayer(marker);
+            // Add marker to appropriate layer
+            if (asset.status === 'disposed') {
+              disposedMarkersLayer.addLayer(marker);
+            } else {
+              activeMarkersLayer.addLayer(marker);
+            }
           });
           
+          // Update asset count display
+          updateAssetCountDisplay();
+          
           // Fit map to markers if we have any
-          if (data.length > 0) {
-            const bounds = L.featureGroup(markersLayer.getLayers()).getBounds();
+          const allLayers = L.layerGroup([activeMarkersLayer, disposedMarkersLayer]);
+          if (allLayers.getLayers().length > 0) {
+            const bounds = L.featureGroup(allLayers.getLayers()).getBounds();
             map.fitBounds(bounds, { padding: [50, 50] });
           }
+          
+          // Apply filters
+          applyFilters();
         })
         .catch(error => {
           console.error('Error loading asset data:', error);
@@ -216,6 +306,44 @@
             <p class="text-muted mb-0">Could not load asset data</p>
           `;
         });
+    }
+    
+    // Update asset count display
+    function updateAssetCountDisplay() {
+      const countHtml = `
+        <div class="h3 mb-0">${assetCounts.total}</div>
+        <p class="text-muted mb-0">Total Assets</p>
+        <div class="row mt-3">
+          <div class="col-6">
+            <div class="text-success font-weight-bold">${assetCounts.active}</div>
+            <p class="text-muted small mb-0">Active</p>
+          </div>
+          <div class="col-6">
+            <div class="text-secondary font-weight-bold">${assetCounts.disposed}</div>
+            <p class="text-muted small mb-0">Disposed</p>
+          </div>
+        </div>
+      `;
+      document.getElementById('asset-count').innerHTML = countHtml;
+    }
+    
+    // Apply filters to map layers
+    function applyFilters() {
+      const division = document.getElementById('division-filter').value;
+      const showDisposed = document.getElementById('show-disposed').checked;
+      
+      // Always show/hide disposed assets based on checkbox
+      if (showDisposed) {
+        map.addLayer(disposedMarkersLayer);
+      } else {
+        map.removeLayer(disposedMarkersLayer);
+      }
+      
+      // Filter by division if needed
+      if (division !== 'all') {
+        // We would implement filtering by division here
+        // For this to work fully we would need to add division info to the assets API
+      }
     }
     
     // Initialize with current date
@@ -227,17 +355,14 @@
       loadAssetData(this.value);
     });
     
-    // Filter functionality
+    // Filter by division
     document.getElementById('division-filter').addEventListener('change', function() {
-      const division = this.value;
-      // Implementation would filter markers based on division
-      // For now, this is a placeholder
+      applyFilters();
     });
     
+    // Toggle disposed assets
     document.getElementById('show-disposed').addEventListener('change', function() {
-      const showDisposed = this.checked;
-      // Implementation would show/hide disposed assets
-      // For now, this is a placeholder
+      applyFilters();
     });
   });
 </script>

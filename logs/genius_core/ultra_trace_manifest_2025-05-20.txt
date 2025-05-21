@@ -1,6 +1,6 @@
 TRAXORA GENIUS CORE | ULTRA TRACE MANIFEST
-Date: 2025-05-19
-Generated: 2025-05-21T14:05:52.464162
+Date: 2025-05-20
+Generated: 2025-05-21T14:06:16.152612
 ================================================================================
 
 WORKBOOK LOGIC HIERARCHY
@@ -19,20 +19,16 @@ Asset List Entries: 171
 Drivers Sheet Entries: 0
 Jobs Sheet Entries: 0
 Start Time & Job Entries: 0 [DERIVED]
-Driving History: data/driving_history/DrivingHistory_20250519.csv
-Driving History Entries: 14
-Activity Detail: data/activity_detail/ActivityDetail_20250519.csv
-Activity Detail Entries: 14
+Driving History: data/driving_history/DrivingHistory_20250520.csv
+Driving History Entries: 0
+Activity Detail: data/activity_detail/ActivityDetail_20250520.csv
+Activity Detail Entries: 0
 
 DRIVER PROCESSING STATISTICS
 ================================================================================
-Total Drivers Parsed: 185
+Total Drivers Parsed: 171
 Matched to Asset List: 171
-Unmatched/Excluded: 14
-
-EXCLUSION REASONS
-================================================================================
-Not in Asset List: 14
+Unmatched/Excluded: 0
 
 CLASSIFICATION SUMMARY
 ================================================================================
@@ -40,7 +36,7 @@ On Time: 0
 Late: 0
 Early End: 0
 Not On Job: 171
-Unverified: 14
+Unverified: 0
 
 VERIFICATION STATUS
 ================================================================================

@@ -352,12 +352,16 @@
                             }).addTo(assetOverlay);
                             
                             var popupContent = `
-                                <div style="min-width:200px">
+                                <div style="min-width:250px">
                                     <h5>${asset.name || asset.id || 'Asset'}</h5>
                                     <div><strong>ID:</strong> ${asset.asset_id || asset.id}</div>
                                     <div><strong>Type:</strong> ${asset.type || 'Unknown'}</div>
+                                    ${asset.make ? `<div><strong>Make:</strong> ${asset.make}</div>` : ''}
+                                    ${asset.model ? `<div><strong>Model:</strong> ${asset.model}</div>` : ''}
+                                    ${asset.serial ? `<div><strong>Serial:</strong> ${asset.serial}</div>` : ''}
                                     <div><strong>Driver:</strong> ${asset.driver || 'None'}</div>
                                     <div><strong>Status:</strong> ${asset.status || 'Unknown'}</div>
+                                    ${asset.location ? `<div><strong>Location:</strong> ${asset.location}</div>` : ''}
                                     <div><strong>Last Update:</strong> ${asset.last_update ? new Date(asset.last_update).toLocaleString() : 'Unknown'}</div>
                                 </div>
                             `;

@@ -125,8 +125,8 @@ def api_assets():
                 lon = None
                 
                 # Check for latitude in various possible fields
-                for lat_field in ['latitude', 'lat', 'lastLatitude', 'y', 'lastY']:
-                    if item.get(lat_field) and str(item.get(lat_field)).strip():
+                for lat_field in ['Latitude', 'latitude', 'lat', 'lastLatitude', 'y', 'lastY']:
+                    if item.get(lat_field) and str(item.get(lat_field)).strip() and str(item.get(lat_field)).strip() != '0.0':
                         try:
                             lat = float(item.get(lat_field))
                             break
@@ -134,25 +134,29 @@ def api_assets():
                             pass
                 
                 # Check for longitude in various possible fields
-                for lon_field in ['longitude', 'long', 'lng', 'lastLongitude', 'x', 'lastX']:
-                    if item.get(lon_field) and str(item.get(lon_field)).strip():
+                for lon_field in ['Longitude', 'longitude', 'long', 'lng', 'lastLongitude', 'x', 'lastX']:
+                    if item.get(lon_field) and str(item.get(lon_field)).strip() and str(item.get(lon_field)).strip() != '0.0':
                         try:
                             lon = float(item.get(lon_field))
                             break
                         except (ValueError, TypeError):
                             pass
                 
-                # Map API fields to our data structure
+                # Map API fields to our data structure with Gauge API field names
                 asset = {
-                    'id': item.get('id') or '',
-                    'asset_id': item.get('assetId') or item.get('id') or '',
-                    'name': item.get('name') or '',
-                    'type': item.get('type') or item.get('assetType') or 'Unknown',
+                    'id': item.get('AssetIdentifier') or item.get('id') or '',
+                    'asset_id': item.get('AssetIdentifier') or item.get('assetId') or item.get('id') or '',
+                    'name': item.get('Label') or item.get('name') or '',
+                    'type': item.get('AssetCategory') or item.get('type') or item.get('assetType') or 'Unknown',
                     'status': _determine_asset_status(item),
                     'latitude': lat,
                     'longitude': lon,
                     'driver': item.get('driver') or item.get('driverName') or '',
-                    'last_update': item.get('lastUpdate') or item.get('timestamp') or datetime.now().isoformat()
+                    'last_update': item.get('EventDateTimeString') or item.get('lastUpdate') or item.get('timestamp') or datetime.now().isoformat(),
+                    'location': item.get('Location') or item.get('Site') or '',
+                    'serial': item.get('SerialNumber') or '',
+                    'make': item.get('AssetMake') or '',
+                    'model': item.get('AssetModel') or ''
                 }
                 
                 # Only include assets with location data (active Gauge devices)

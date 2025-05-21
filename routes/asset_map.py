@@ -346,9 +346,6 @@ def api_job_sites():
             
     except Exception as e:
         logger.error(f"Error in api_job_sites: {str(e)}")
-        return jsonify([]), 500
-    except Exception as e:
-        logger.error(f"Error in api_job_sites: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 @asset_map_bp.route('/api/heatmap')

@@ -7,6 +7,7 @@ including daily driver attendance tracking and reporting.
 import os
 import logging
 import pandas as pd
+import random
 from datetime import datetime, timedelta
 from werkzeug.utils import secure_filename
 from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for, current_app
@@ -16,6 +17,9 @@ import os
 
 # Add the parent directory to the sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Import our robust CSV parser
+from utils.robust_csv import parse_driving_history, parse_activity_detail, smart_parse_csv
 
 from app import db
 from models import Driver, JobSite, DriverReport

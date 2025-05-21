@@ -15,11 +15,23 @@ class GaugeAPI:
     
     def __init__(self):
         """Initialize the Gauge API client"""
-        self.api_url = os.environ.get('GAUGE_API_URL')
+        base_url = os.environ.get('GAUGE_API_URL', '')
+        # Clean up the URL to ensure it doesn't have trailing components
+        if '/AssetList/' in base_url:
+            # Extract just the base URL without the AssetList part
+            base_parts = base_url.split('/AssetList/')
+            self.api_url = base_parts[0]
+            self.asset_list_id = base_parts[1] if len(base_parts) > 1 else None
+        else:
+            self.api_url = base_url
+            self.asset_list_id = None
+        
         self.username = os.environ.get('GAUGE_API_USERNAME')
         self.password = os.environ.get('GAUGE_API_PASSWORD')
         self.token = None
         self.token_expiry = None
+        
+        logger.info(f"Gauge API initialized with URL: {self.api_url} (Asset List ID: {self.asset_list_id})")
     
     def check_connection(self):
         """Check if connection to the Gauge API is available"""
@@ -30,6 +42,38 @@ class GaugeAPI:
             logger.error(f"Failed to connect to Gauge API: {str(e)}")
             return False
     
+    def connection_status(self):
+        """Get a detailed connection status, useful for UI display"""
+        if not self.api_url:
+            return {
+                'status': 'not_configured',
+                'message': 'API URL not configured'
+            }
+        
+        if not self.username or not self.password:
+            return {
+                'status': 'missing_credentials',
+                'message': 'API credentials not fully configured'
+            }
+        
+        try:
+            self.authenticate()
+            if self.token:
+                return {
+                    'status': 'connected',
+                    'message': 'Successfully connected to Gauge API'
+                }
+            else:
+                return {
+                    'status': 'authentication_failed',
+                    'message': 'Failed to authenticate with Gauge API'
+                }
+        except Exception as e:
+            return {
+                'status': 'error',
+                'message': f'Error connecting to Gauge API: {str(e)}'
+            }
+    
     def authenticate(self):
         """Authenticate with the Gauge API and get an access token"""
         # Check if we have a valid token already
@@ -37,15 +81,24 @@ class GaugeAPI:
             return
         
         if not self.api_url or not self.username or not self.password:
-            raise ValueError("Gauge API credentials are not configured")
+            logger.error("Gauge API credentials are not fully configured")
+            self.token = None
+            self.token_expiry = None
+            return
         
         try:
             # Suppress just the InsecureRequestWarning specifically
             import urllib3
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
             
+            # Log more details for debugging
+            logger.info(f"Attempting to authenticate with Gauge API at {self.api_url}")
+            
+            # Try the correct endpoint first
+            auth_url = f"{self.api_url}/api/v1/auth/token"
+            
             response = requests.post(
-                f"{self.api_url}/auth/token",
+                auth_url,
                 json={
                     "username": self.username,
                     "password": self.password
@@ -54,9 +107,23 @@ class GaugeAPI:
                 verify=False  # SSL verification disabled with warning suppression
             )
             
+            # If first attempt fails, try alternative endpoint format
+            if response.status_code == 404:
+                logger.info("First auth attempt returned 404, trying alternative endpoint")
+                auth_url = f"{self.api_url}/auth/token"
+                response = requests.post(
+                    auth_url,
+                    json={
+                        "username": self.username,
+                        "password": self.password
+                    },
+                    timeout=10,
+                    verify=False
+                )
+            
             # Check for non-200 status code specifically to provide better error handling
             if response.status_code != 200:
-                logger.error(f"Authentication failed with status code {response.status_code}: {response.text}")
+                logger.error(f"Authentication failed with status code {response.status_code} at {auth_url}: {response.text[:200]}...")
                 self.token = None
                 self.token_expiry = None
                 return
@@ -76,7 +143,7 @@ class GaugeAPI:
                 self.token_expiry = datetime.now() + timedelta(hours=23)
                 logger.info("Successfully authenticated with Gauge API")
             else:
-                logger.error("Failed to get token from Gauge API")
+                logger.error("Failed to get token from API response")
                 
         except requests.exceptions.RequestException as e:
             logger.error(f"Failed to authenticate with Gauge API: {str(e)}")

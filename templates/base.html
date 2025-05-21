@@ -36,7 +36,7 @@
                             <li><a class="dropdown-item" href="{{ url_for('index') }}#assets"><i class="bi bi-list-ul me-1"></i> View All Assets</a></li>
                             <li><a class="dropdown-item" href="{{ url_for('asset_map.asset_map') }}"><i class="bi bi-geo-alt me-1"></i> Asset Map</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{{ url_for('driver_module.index') }}"><i class="bi bi-person-badge me-1"></i> Driver Assignments</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('driver_reports.daily_report') }}"><i class="bi bi-person-badge me-1"></i> Driver Assignments</a></li>
                         </ul>
                     </li>
                     
@@ -79,7 +79,7 @@
                             <i class="bi bi-calendar-check me-1"></i> Attendance
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="attendanceDropdown">
-                            <li><a class="dropdown-item" href="{{ url_for('driver_module.daily_report') }}"><i class="bi bi-calendar-day me-1"></i> Daily Report</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('driver_reports.daily_report') }}"><i class="bi bi-calendar-day me-1"></i> Daily Report</a></li>
                             <li><a class="dropdown-item" href="#"><i class="bi bi-graph-up me-1"></i> Driver Dashboard</a></li>
                             <li><a class="dropdown-item" href="/exports/daily_reports/"><i class="bi bi-file-earmark-text me-1"></i> Reports</a></li>
                         </ul>

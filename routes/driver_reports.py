@@ -1,181 +1,283 @@
 """
-Driver Reports Module
+TRAXORA Fleet Management System - Driver Reports Module
 
-This module provides routes for displaying driver-related reports including:
-- Enhanced daily driver report with attendance tracking
-- Late start/early end report
-- Job site efficiency analysis
+This module provides the routes and functionality for the Driver Reports module,
+which is responsible for processing driver attendance and activity data.
 """
-
-from flask import Blueprint, render_template, request, jsonify, current_app
-from datetime import datetime, timedelta
+import os
 import logging
-import json
-import random
+import pandas as pd
+from datetime import datetime, timedelta
+from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for, current_app
+from werkzeug.utils import secure_filename
+
+from app import db
+from models import Driver, Asset, AttendanceRecord, JobSite, ActivityLog
 
 logger = logging.getLogger(__name__)
 
 # Create blueprint
-driver_reports_bp = Blueprint('driver_reports', __name__, url_prefix='/driver-reports')
+driver_reports_bp = Blueprint('driver_reports', __name__, url_prefix='/drivers')
+
+# Allowed file extensions
+ALLOWED_EXTENSIONS = {'csv', 'xlsx'}
+
+def allowed_file(filename):
+    """Check if the file extension is allowed"""
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def load_csv(file_path):
+    """Load a CSV file into a pandas DataFrame"""
+    try:
+        return pd.read_csv(file_path)
+    except Exception as e:
+        logger.error(f"Error loading CSV file {file_path}: {str(e)}")
+        return None
+
+def derive_driver_reports(driving_history_df, activity_detail_df):
+    """
+    Derive driver reports from driving history and activity detail data
+    
+    This function implements the core logic of the Driver Reports module:
+    1. Process driving history and activity detail data
+    2. Derive Start Time, End Time, and Job fields from event timestamps
+    3. Generate structured report records
+    """
+    if driving_history_df is None or activity_detail_df is None:
+        return pd.DataFrame()
+    
+    # Normalize driver names
+    driving_history_df['NormalizedDriver'] = driving_history_df['Driver'].apply(normalize_name)
+    activity_detail_df['NormalizedDriver'] = activity_detail_df['Driver'].apply(normalize_name)
+    
+    # Process driving history to extract start and end times
+    driving_history_grouped = driving_history_df.groupby(['NormalizedDriver', 'Date'])
+    
+    # Create a new DataFrame to store the results
+    driver_reports = []
+    
+    for (driver_name, date), group in driving_history_grouped:
+        # Extract earliest and latest timestamps for each driver on each date
+        start_time = group['StartTime'].min() if 'StartTime' in group.columns else None
+        end_time = group['EndTime'].max() if 'EndTime' in group.columns else None
+        
+        # Extract job information from activity detail
+        job_info = activity_detail_df[
+            (activity_detail_df['NormalizedDriver'] == driver_name) & 
+            (activity_detail_df['Date'] == date)
+        ]
+        
+        job_site = job_info['JobSite'].iloc[0] if not job_info.empty and 'JobSite' in job_info.columns else None
+        
+        # Create a report record
+        driver_reports.append({
+            'DriverName': driver_name,
+            'Date': date,
+            'StartTime': start_time,
+            'EndTime': end_time,
+            'JobSite': job_site,
+            'Source': 'driving_history'
+        })
+    
+    # Convert to DataFrame
+    return pd.DataFrame(driver_reports)
+
+def cross_verify_with_asset_list(driver_reports, asset_list_df):
+    """
+    Cross-verify driver reports with the Asset List
+    
+    This function ensures that all drivers in the reports are present in the Asset List,
+    which is the source of truth for driver-asset mappings.
+    """
+    if driver_reports.empty or asset_list_df is None:
+        return driver_reports
+    
+    # Normalize driver names in the asset list
+    asset_list_df['NormalizedDriver'] = asset_list_df['Driver'].apply(normalize_name)
+    
+    # Filter driver reports to include only drivers in the asset list
+    verified_driver_reports = driver_reports[driver_reports['DriverName'].isin(asset_list_df['NormalizedDriver'])]
+    
+    # Add asset information from the asset list
+    verified_driver_reports = verified_driver_reports.merge(
+        asset_list_df[['NormalizedDriver', 'Asset', 'AssetType']],
+        left_on='DriverName',
+        right_on='NormalizedDriver',
+        how='left'
+    )
+    
+    return verified_driver_reports
+
+def normalize_name(name):
+    """Normalize driver name for consistent matching"""
+    if name is None:
+        return ""
+    
+    # Convert to lowercase and remove extra spaces
+    normalized = str(name).lower().strip()
+    
+    # Handle common name formats (last, first -> first last)
+    if ',' in normalized:
+        parts = normalized.split(',')
+        if len(parts) >= 2:
+            normalized = f"{parts[1].strip()} {parts[0].strip()}"
+    
+    return normalized
+
+def classify_driver_status(row):
+    """
+    Classify driver status based on scheduled and actual times
+    
+    Classification rules:
+    - On Time: Within 15 minutes of scheduled start time
+    - Late: More than 15 minutes after scheduled start time
+    - Early End: More than 30 minutes before scheduled end time
+    - Not On Job: Not present in driving history
+    """
+    if pd.isna(row['StartTime']):
+        return 'not_on_job'
+    
+    scheduled_start = row['ScheduledStartTime']
+    scheduled_end = row['ScheduledEndTime']
+    actual_start = row['StartTime']
+    actual_end = row['EndTime']
+    
+    # Convert to datetime if they are strings
+    if isinstance(scheduled_start, str):
+        scheduled_start = pd.to_datetime(scheduled_start)
+    if isinstance(scheduled_end, str):
+        scheduled_end = pd.to_datetime(scheduled_end)
+    if isinstance(actual_start, str):
+        actual_start = pd.to_datetime(actual_start)
+    if isinstance(actual_end, str):
+        actual_end = pd.to_datetime(actual_end)
+    
+    # If any of the required fields are missing, return 'unknown'
+    if pd.isna(scheduled_start) or pd.isna(actual_start):
+        return 'unknown'
+    
+    # Calculate time differences
+    start_diff = (actual_start - scheduled_start).total_seconds() / 60  # in minutes
+    
+    if start_diff > 15:
+        return 'late'
+    
+    # Check for early end if both scheduled and actual end times are available
+    if not pd.isna(scheduled_end) and not pd.isna(actual_end):
+        end_diff = (scheduled_end - actual_end).total_seconds() / 60  # in minutes
+        if end_diff > 30:
+            return 'early_end'
+    
+    return 'on_time'
 
 @driver_reports_bp.route('/')
 def index():
-    """Display the driver reports dashboard"""
-    return render_template('driver_reports/index.html')
+    """Driver Reports main page"""
+    return render_template('drivers/index.html')
 
-@driver_reports_bp.route('/enhanced-daily')
-def enhanced_daily():
-    """Display the enhanced daily driver report"""
-    # Get report date (default to today)
-    report_date_str = request.args.get('date')
-    if report_date_str:
+@driver_reports_bp.route('/daily-report')
+def daily_report():
+    """Daily Driver Report page"""
+    # Get the date parameter, default to today
+    date_str = request.args.get('date', datetime.now().strftime('%Y-%m-%d'))
+    
+    try:
+        # Convert to datetime
+        report_date = datetime.strptime(date_str, '%Y-%m-%d')
+        
+        # Get driver report for the specified date
+        driver_reports = AttendanceRecord.query.filter(
+            AttendanceRecord.date == report_date
+        ).all()
+        
+        return render_template(
+            'drivers/daily_report.html',
+            report_date=report_date,
+            driver_reports=driver_reports
+        )
+    except ValueError:
+        flash(f"Invalid date format: {date_str}", 'error')
+        return redirect(url_for('driver_reports.daily_report'))
+    except Exception as e:
+        flash(f"Error retrieving driver report: {str(e)}", 'error')
+        return redirect(url_for('driver_reports.daily_report'))
+
+@driver_reports_bp.route('/upload', methods=['GET', 'POST'])
+def upload_files():
+    """Upload driving history and activity detail files"""
+    if request.method == 'POST':
+        # Check if files were submitted
+        if 'driving_history' not in request.files or 'activity_detail' not in request.files:
+            flash('Missing required files', 'error')
+            return redirect(request.url)
+        
+        driving_history_file = request.files['driving_history']
+        activity_detail_file = request.files['activity_detail']
+        
+        # Validate file extensions
+        if not allowed_file(driving_history_file.filename) or not allowed_file(activity_detail_file.filename):
+            flash('Invalid file format. Only CSV and Excel files are allowed.', 'error')
+            return redirect(request.url)
+        
+        # Create upload directory if it doesn't exist
+        upload_dir = os.path.join(current_app.root_path, 'uploads')
+        os.makedirs(upload_dir, exist_ok=True)
+        
+        # Save the uploaded files
+        driving_history_path = os.path.join(upload_dir, secure_filename(driving_history_file.filename))
+        activity_detail_path = os.path.join(upload_dir, secure_filename(activity_detail_file.filename))
+        
+        driving_history_file.save(driving_history_path)
+        activity_detail_file.save(activity_detail_path)
+        
+        # Process the files
         try:
-            report_date = datetime.strptime(report_date_str, '%Y-%m-%d')
-        except ValueError:
-            report_date = datetime.now()
-    else:
-        report_date = datetime.now()
+            # Load the uploaded files
+            driving_history_df = load_csv(driving_history_path)
+            activity_detail_df = load_csv(activity_detail_path)
+            
+            # Derive driver reports
+            driver_reports = derive_driver_reports(driving_history_df, activity_detail_df)
+            
+            # Process and store the results
+            # (In a real implementation, we would save these to the database)
+            
+            flash('Files uploaded and processed successfully', 'success')
+            return redirect(url_for('driver_reports.daily_report'))
+        except Exception as e:
+            flash(f"Error processing files: {str(e)}", 'error')
+            return redirect(request.url)
     
-    formatted_date = report_date.strftime('%A, %B %d, %Y')
-    today_date = report_date.strftime('%Y-%m-%d')
-    
-    # In a real implementation, we would fetch this data from the database
-    # For demo purposes, we're using sample data
-    
-    # Sample driver activity data
-    driver_activities = [
-        {
-            'driver_name': 'John Smith',
-            'status': 'Late Start',
-            'status_class': 'late-start',
-            'icon_class': 'late',
-            'icon': 'bi-clock-history',
-            'badge_class': 'danger',
-            'details': 'Arrived at 8:45 AM (45 minutes late)',
-            'job_number': '2023-032',
-            'job_color': '#4e73df',
-            'timestamp': '8:45 AM'
-        },
-        {
-            'driver_name': 'Michael Johnson',
-            'status': 'On Time',
-            'status_class': 'on-time',
-            'icon_class': 'on-time',
-            'icon': 'bi-check-circle',
-            'badge_class': 'success',
-            'details': 'Arrived at 8:00 AM',
-            'job_number': '2023-034',
-            'job_color': '#1cc88a',
-            'timestamp': '8:00 AM'
-        },
-        {
-            'driver_name': 'Robert Williams',
-            'status': 'Early End',
-            'status_class': 'early-end',
-            'icon_class': 'early',
-            'icon': 'bi-clock',
-            'badge_class': 'warning',
-            'details': 'Left at 3:30 PM (30 minutes early)',
-            'job_number': '2024-016',
-            'job_color': '#36b9cc',
-            'timestamp': '3:30 PM'
-        },
-        {
-            'driver_name': 'William Davis',
-            'status': 'Not On Job',
-            'status_class': 'not-on-job',
-            'icon_class': 'not-on-job',
-            'icon': 'bi-geo-alt',
-            'badge_class': 'secondary',
-            'details': 'Located 5 miles from assigned job site',
-            'job_number': '2024-019',
-            'job_color': '#f6c23e',
-            'timestamp': '10:15 AM'
-        },
-        {
-            'driver_name': 'David Brown',
-            'status': 'On Time',
-            'status_class': 'on-time',
-            'icon_class': 'on-time',
-            'icon': 'bi-check-circle',
-            'badge_class': 'success',
-            'details': 'Arrived at 7:55 AM',
-            'job_number': '2024-025',
-            'job_color': '#e74a3b',
-            'timestamp': '7:55 AM'
-        },
-        {
-            'driver_name': 'Richard Miller',
-            'status': 'Late Start',
-            'status_class': 'late-start',
-            'icon_class': 'late',
-            'icon': 'bi-clock-history',
-            'badge_class': 'danger',
-            'details': 'Arrived at 8:20 AM (20 minutes late)',
-            'job_number': '2023-032',
-            'job_color': '#4e73df',
-            'timestamp': '8:20 AM'
-        },
-        {
-            'driver_name': 'Joseph Wilson',
-            'status': 'On Time',
-            'status_class': 'on-time',
-            'icon_class': 'on-time',
-            'icon': 'bi-check-circle',
-            'badge_class': 'success',
-            'details': 'Arrived at 8:05 AM',
-            'job_number': '2024-025',
-            'job_color': '#e74a3b',
-            'timestamp': '8:05 AM'
-        },
-        {
-            'driver_name': 'Thomas Moore',
-            'status': 'Early End',
-            'status_class': 'early-end',
-            'icon_class': 'early',
-            'icon': 'bi-clock',
-            'badge_class': 'warning',
-            'details': 'Left at 3:45 PM (15 minutes early)',
-            'job_number': '2024-019',
-            'job_color': '#f6c23e',
-            'timestamp': '3:45 PM'
-        }
-    ]
-    
-    # Count of each status
-    late_starts = sum(1 for activity in driver_activities if activity['status'] == 'Late Start')
-    early_ends = sum(1 for activity in driver_activities if activity['status'] == 'Early End')
-    not_on_job = sum(1 for activity in driver_activities if activity['status'] == 'Not On Job')
-    on_time = sum(1 for activity in driver_activities if activity['status'] == 'On Time')
-    
-    report_data = {
-        'report_date': formatted_date,
-        'today_date': today_date,
-        'late_starts': late_starts,
-        'early_ends': early_ends,
-        'not_on_job': not_on_job,
-        'on_time': on_time,
-        'driver_activities': driver_activities
-    }
-    
-    return render_template('driver_reports/enhanced_daily.html', **report_data)
+    return render_template('drivers/upload.html')
 
-@driver_reports_bp.route('/api/driver-locations')
-def driver_locations():
-    """API endpoint to get driver locations for the map"""
-    # In a real implementation, we would fetch this data from the database
-    # For demo purposes, we're using sample data
-    driver_locations = [
-        {'name': 'John Smith', 'status': 'late', 'lat': 32.7516, 'lng': -96.8339, 'job': '2023-032'},
-        {'name': 'Michael Johnson', 'status': 'on-time', 'lat': 32.7641, 'lng': -96.7596, 'job': '2023-034'},
-        {'name': 'Robert Williams', 'status': 'early', 'lat': 32.8075, 'lng': -96.8148, 'job': '2024-016'},
-        {'name': 'William Davis', 'status': 'not-on-job', 'lat': 32.7865, 'lng': -96.7986, 'job': '2024-019'},
-        {'name': 'David Brown', 'status': 'on-time', 'lat': 32.7972, 'lng': -96.8192, 'job': '2024-025'}
-    ]
-    return jsonify(driver_locations)
-
-def register_blueprint(app):
-    """Register the driver reports blueprint with the app"""
-    app.register_blueprint(driver_reports_bp)
-    logger.info('Registered Driver Reports blueprint')
-    return driver_reports_bp
+@driver_reports_bp.route('/api/daily-report/<date_str>')
+def api_daily_report(date_str):
+    """API endpoint for daily driver report data"""
+    try:
+        # Convert to datetime
+        report_date = datetime.strptime(date_str, '%Y-%m-%d')
+        
+        # Get driver report for the specified date
+        driver_reports = AttendanceRecord.query.filter(
+            AttendanceRecord.date == report_date
+        ).all()
+        
+        # Convert to JSON
+        result = []
+        for report in driver_reports:
+            result.append({
+                'id': report.id,
+                'driver_name': report.driver.full_name if report.driver else 'Unknown',
+                'job_site': report.job_site.name if report.job_site else 'Unknown',
+                'scheduled_start': report.scheduled_start_time.strftime('%H:%M') if report.scheduled_start_time else None,
+                'scheduled_end': report.scheduled_end_time.strftime('%H:%M') if report.scheduled_end_time else None,
+                'actual_start': report.actual_start_time.strftime('%H:%M') if report.actual_start_time else None,
+                'actual_end': report.actual_end_time.strftime('%H:%M') if report.actual_end_time else None,
+                'status': report.status
+            })
+        
+        return jsonify(result)
+    except ValueError:
+        return jsonify({'error': f"Invalid date format: {date_str}"}), 400
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

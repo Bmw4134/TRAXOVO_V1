@@ -1,346 +1,183 @@
-import os
-import json
-import logging
-from datetime import datetime
-from flask import Blueprint, render_template, jsonify, request
-import equipment_lifecycle as lifecycle
+"""
+TRAXORA Fleet Management System - Asset Map Module
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+This module provides routes and functionality for the Asset Map, displaying
+real-time asset locations and historical route data.
+"""
+import os
+import logging
+import json
+from datetime import datetime, timedelta
+from flask import Blueprint, render_template, request, jsonify, current_app
+from sqlalchemy import func
+
+from app import db
+from models import Asset, AssetLocation, Driver, JobSite
+
 logger = logging.getLogger(__name__)
 
 # Create blueprint
 asset_map_bp = Blueprint('asset_map', __name__, url_prefix='/asset-map')
 
-# Cache directory for asset locations
-ASSET_LOCATION_CACHE = 'data/cached/asset_locations'
-os.makedirs(ASSET_LOCATION_CACHE, exist_ok=True)
-
 @asset_map_bp.route('/')
 def asset_map():
-    """Render the asset map dashboard."""
-    current_date = datetime.now().strftime("%Y-%m-%d")
-    return render_template('asset_map.html', date=current_date)
+    """Asset Map main page"""
+    # Get job sites for filtering
+    job_sites = JobSite.query.filter_by(is_active=True).all()
+    
+    # Get asset types for filtering
+    asset_types = db.session.query(Asset.type).distinct().all()
+    asset_types = [t[0] for t in asset_types if t[0] is not None]
+    
+    return render_template(
+        'asset_map/index.html',
+        job_sites=job_sites,
+        asset_types=asset_types
+    )
 
 @asset_map_bp.route('/api/assets')
 def api_assets():
-    """API endpoint to get active assets with their locations."""
+    """API endpoint to get all assets with their current locations"""
     try:
-        # Get the date parameter or use current date
-        date_param = request.args.get('date', datetime.now().strftime("%Y-%m-%d"))
+        # Query parameters for filtering
+        asset_type = request.args.get('type')
+        job_site_id = request.args.get('job_site')
         
-        # Get active assets for the specified date
-        active_assets = lifecycle.get_active_assets(date_param)
+        # Base query
+        query = db.session.query(Asset)
         
-        # Get locations for active assets
-        asset_locations = get_asset_locations(active_assets, date_param)
+        # Apply filters if provided
+        if asset_type:
+            query = query.filter(Asset.type == asset_type)
         
-        # Ensure all values are properly formatted
-        for asset in asset_locations:
-            # Convert coordinates to float
-            if 'latitude' in asset and asset['latitude'] is not None:
-                asset['latitude'] = float(asset['latitude'])
-            if 'longitude' in asset and asset['longitude'] is not None:
-                asset['longitude'] = float(asset['longitude'])
-                
-        # For debugging
-        logger.info(f"Returning {len(asset_locations)} asset locations")
+        if job_site_id:
+            # Join with AssetLocation to filter by job_site_id
+            query = query.join(AssetLocation).filter(AssetLocation.job_site_id == job_site_id)
         
-        return jsonify(asset_locations)
+        # Get the assets
+        assets = query.filter(Asset.status == 'active').all()
+        
+        # Prepare the response
+        result = []
+        for asset in assets:
+            asset_data = {
+                'id': asset.id,
+                'asset_id': asset.asset_id,
+                'name': asset.name,
+                'type': asset.type,
+                'latitude': asset.last_latitude,
+                'longitude': asset.last_longitude,
+                'last_update': asset.last_location_update.isoformat() if asset.last_location_update else None,
+                'driver': asset.current_driver.full_name if asset.current_driver else None,
+                'status': asset.status
+            }
+            result.append(asset_data)
+        
+        return jsonify(result)
     except Exception as e:
-        logger.error(f"Error in api_assets: {e}")
-        return jsonify([])
+        logger.error(f"Error in api_assets: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 
-def get_asset_locations(asset_ids, date_str=None):
-    """
-    Get locations for the specified assets.
-    First check cached locations, then fall back to last known locations
-    from DrivingHistory or ActivityDetail.
-    """
-    if date_str is None:
-        date_str = datetime.now().strftime("%Y-%m-%d")
-    
-    asset_locations = []
-    date_formatted = date_str.replace('-', '')
-    
-    # Check cached locations first
-    cache_file = os.path.join(ASSET_LOCATION_CACHE, f"locations_{date_formatted}.json")
-    if os.path.exists(cache_file):
-        try:
-            with open(cache_file, 'r') as f:
-                cached_data = json.load(f)
-                
-            # Filter to include only active assets
-            asset_locations = [
-                asset for asset in cached_data
-                if asset.get('asset_id') in asset_ids
-            ]
-            
-            if asset_locations:
-                return asset_locations
-        except Exception as e:
-            logger.error(f"Error loading cached locations: {e}")
-    
-    # If cache doesn't exist or is empty, try to get data from DrivingHistory
+@asset_map_bp.route('/api/asset/<int:asset_id>/route')
+def api_asset_route(asset_id):
+    """API endpoint to get the route for a specific asset"""
     try:
-        driving_history_file = find_latest_driving_history(date_str)
-        if driving_history_file:
-            driving_history_locations = extract_locations_from_driving_history(
-                driving_history_file, asset_ids
-            )
-            if driving_history_locations:
-                # Cache the results for future use
-                cache_asset_locations(driving_history_locations, date_formatted)
-                return driving_history_locations
+        # Get date range from query parameters, default to today
+        start_date_str = request.args.get('start_date', datetime.now().strftime('%Y-%m-%d'))
+        end_date_str = request.args.get('end_date', datetime.now().strftime('%Y-%m-%d'))
+        
+        # Convert to datetime
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
+        end_date = datetime.strptime(end_date_str, '%Y-%m-%d') + timedelta(days=1)  # Include the end date
+        
+        # Get the asset locations
+        locations = AssetLocation.query.filter(
+            AssetLocation.asset_id == asset_id,
+            AssetLocation.timestamp >= start_date,
+            AssetLocation.timestamp < end_date
+        ).order_by(AssetLocation.timestamp).all()
+        
+        # Prepare the response
+        result = []
+        for location in locations:
+            location_data = {
+                'id': location.id,
+                'latitude': location.latitude,
+                'longitude': location.longitude,
+                'timestamp': location.timestamp.isoformat(),
+                'speed': location.speed,
+                'heading': location.heading,
+                'job_site': location.job_site.name if location.job_site else None,
+                'address': location.address,
+                'ignition_status': location.ignition_status
+            }
+            result.append(location_data)
+        
+        return jsonify(result)
+    except ValueError:
+        return jsonify({'error': f"Invalid date format"}), 400
     except Exception as e:
-        logger.error(f"Error getting locations from DrivingHistory: {e}")
-    
-    # If DrivingHistory doesn't have data, try ActivityDetail
+        logger.error(f"Error in api_asset_route: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@asset_map_bp.route('/api/job-sites')
+def api_job_sites():
+    """API endpoint to get all job sites"""
     try:
-        activity_detail_file = find_latest_activity_detail(date_str)
-        if activity_detail_file:
-            activity_detail_locations = extract_locations_from_activity_detail(
-                activity_detail_file, asset_ids
-            )
-            if activity_detail_locations:
-                # Cache the results for future use
-                cache_asset_locations(activity_detail_locations, date_formatted)
-                return activity_detail_locations
-    except Exception as e:
-        logger.error(f"Error getting locations from ActivityDetail: {e}")
-    
-    # If no location data is available, return assets with default location
-    for asset_id in asset_ids:
-        asset_detail = lifecycle.get_asset_details(asset_id)
-        driver_id = lifecycle.get_current_driver(asset_id, date_str)
+        # Get active job sites
+        job_sites = JobSite.query.filter_by(is_active=True).all()
         
-        # Create a default asset entry with centerpoint of Dallas/Fort Worth
-        asset_locations.append({
-            'asset_id': asset_id,
-            'driver_id': driver_id,
-            'latitude': 32.7767,  # DFW area default
-            'longitude': -96.7970,
-            'location_source': 'default',
-            'status': 'active',
-            'last_updated': datetime.now().isoformat()
-        })
-    
-    return asset_locations
+        # Prepare the response
+        result = []
+        for site in job_sites:
+            site_data = {
+                'id': site.id,
+                'job_number': site.job_number,
+                'name': site.name,
+                'latitude': site.latitude,
+                'longitude': site.longitude,
+                'radius': site.radius,
+                'address': site.address
+            }
+            result.append(site_data)
+        
+        return jsonify(result)
+    except Exception as e:
+        logger.error(f"Error in api_job_sites: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 
-def find_latest_driving_history(date_str):
-    """Find the latest DrivingHistory file for a given date."""
-    date_formatted = date_str.replace('-', '')
-    
-    # Search in data/driving_history directory
-    search_paths = [
-        f'data/driving_history/DrivingHistory_{date_formatted}.csv',
-        f'data/DrivingHistory_{date_formatted}.csv',
-        f'attached_assets/DrivingHistory_{date_formatted}.csv'
-    ]
-    
-    for path in search_paths:
-        if os.path.exists(path):
-            return path
-    
-    # If exact match not found, search for any file containing the date
-    for directory in ['data/driving_history', 'data', 'attached_assets']:
-        if os.path.exists(directory):
-            for filename in os.listdir(directory):
-                if filename.endswith('.csv') and ('driv' in filename.lower() or 'history' in filename.lower()) and date_formatted in filename:
-                    return os.path.join(directory, filename)
-    
-    return None
-
-def find_latest_activity_detail(date_str):
-    """Find the latest ActivityDetail file for a given date."""
-    date_formatted = date_str.replace('-', '')
-    
-    # Search in data/activity_detail directory
-    search_paths = [
-        f'data/activity_detail/ActivityDetail_{date_formatted}.csv',
-        f'data/ActivityDetail_{date_formatted}.csv',
-        f'attached_assets/ActivityDetail_{date_formatted}.csv'
-    ]
-    
-    for path in search_paths:
-        if os.path.exists(path):
-            return path
-    
-    # If exact match not found, search for any file containing the date
-    for directory in ['data/activity_detail', 'data', 'attached_assets']:
-        if os.path.exists(directory):
-            for filename in os.listdir(directory):
-                if filename.endswith('.csv') and ('activ' in filename.lower() or 'detail' in filename.lower()) and date_formatted in filename:
-                    return os.path.join(directory, filename)
-    
-    return None
-
-def extract_locations_from_driving_history(file_path, asset_ids):
-    """Extract location data from DrivingHistory file."""
-    import pandas as pd
-    import re
-    
-    asset_locations = []
-    
+@asset_map_bp.route('/api/heatmap')
+def api_heatmap():
+    """API endpoint to get heatmap data of asset activity"""
     try:
-        # Determine delimiter
-        with open(file_path, 'r') as f:
-            header = f.readline().strip()
+        # Get date range from query parameters, default to last 7 days
+        days = int(request.args.get('days', 7))
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=days)
         
-        delimiter = ',' if ',' in header else ';'
+        # Get the asset locations aggregated by geographic grid
+        # This is a simplified example; in a real implementation, you might want to use
+        # a more sophisticated algorithm for creating the heatmap
+        locations = db.session.query(
+            func.round(AssetLocation.latitude, 3).label('lat_grid'),
+            func.round(AssetLocation.longitude, 3).label('lng_grid'),
+            func.count().label('count')
+        ).filter(
+            AssetLocation.timestamp >= start_date,
+            AssetLocation.timestamp <= end_date
+        ).group_by('lat_grid', 'lng_grid').all()
         
-        # Read file
-        df = pd.read_csv(file_path, delimiter=delimiter)
+        # Prepare the response
+        result = []
+        for lat_grid, lng_grid, count in locations:
+            point = {
+                'latitude': float(lat_grid),
+                'longitude': float(lng_grid),
+                'weight': min(count / 10, 1.0)  # Normalize weight between 0 and 1
+            }
+            result.append(point)
         
-        # Normalize column names
-        df.columns = [str(col).strip().lower().replace(' ', '_') for col in df.columns]
-        
-        # Find relevant columns
-        asset_col = next((col for col in ['asset', 'asset_id', 'equipment', 'equipment_id'] if col in df.columns), None)
-        driver_col = next((col for col in ['driver', 'driver_name', 'employee', 'employee_name'] if col in df.columns), None)
-        location_col = next((col for col in ['location', 'site', 'job_site', 'place'] if col in df.columns), None)
-        datetime_col = next((col for col in ['datetime', 'date_time', 'timestamp', 'time'] if col in df.columns), None)
-        
-        if not all([asset_col, location_col]):
-            logger.warning(f"Missing required columns in {file_path}")
-            return []
-        
-        # Extract coordinates from location string
-        def extract_coordinates(location_str):
-            if pd.isna(location_str):
-                return None, None
-            
-            # Try to extract coordinates from location string
-            # Common format: "Location Name (32.7767, -96.7970)"
-            coord_match = re.search(r'\((-?\d+\.\d+),\s*(-?\d+\.\d+)\)', str(location_str))
-            if coord_match:
-                return float(coord_match.group(1)), float(coord_match.group(2))
-            
-            # If no coordinates in string, use default DFW coordinates
-            return 32.7767, -96.7970
-        
-        # Process each asset
-        for asset_id in asset_ids:
-            # Filter to get rows for this asset
-            asset_rows = df[df[asset_col].astype(str).str.upper() == asset_id.upper()]
-            
-            if not asset_rows.empty:
-                # Sort by datetime if available to get the latest record
-                if datetime_col and datetime_col in asset_rows.columns:
-                    asset_rows = asset_rows.sort_values(by=datetime_col, ascending=False)
-                
-                # Get the latest record
-                latest_row = asset_rows.iloc[0]
-                
-                # Get location data
-                location_str = latest_row[location_col] if location_col and pd.notna(latest_row[location_col]) else "Unknown"
-                latitude, longitude = extract_coordinates(location_str)
-                
-                # Get driver ID
-                driver_id = str(latest_row[driver_col]) if driver_col and pd.notna(latest_row[driver_col]) else None
-                
-                # Add to results
-                asset_locations.append({
-                    'asset_id': asset_id,
-                    'driver_id': driver_id,
-                    'latitude': latitude,
-                    'longitude': longitude,
-                    'location': str(location_str),
-                    'location_source': 'driving_history',
-                    'status': 'active',
-                    'last_updated': datetime.now().isoformat()
-                })
+        return jsonify(result)
     except Exception as e:
-        logger.error(f"Error processing DrivingHistory file: {e}")
-    
-    return asset_locations
-
-def extract_locations_from_activity_detail(file_path, asset_ids):
-    """Extract location data from ActivityDetail file."""
-    import pandas as pd
-    import re
-    
-    asset_locations = []
-    
-    try:
-        # Determine delimiter
-        with open(file_path, 'r') as f:
-            header = f.readline().strip()
-        
-        delimiter = ',' if ',' in header else ';'
-        
-        # Read file
-        df = pd.read_csv(file_path, delimiter=delimiter)
-        
-        # Normalize column names
-        df.columns = [str(col).strip().lower().replace(' ', '_') for col in df.columns]
-        
-        # Find relevant columns
-        asset_col = next((col for col in ['asset', 'asset_id', 'equipment', 'equipment_id'] if col in df.columns), None)
-        driver_col = next((col for col in ['driver', 'driver_name', 'employee', 'employee_name'] if col in df.columns), None)
-        location_col = next((col for col in ['location', 'site', 'job_site', 'place'] if col in df.columns), None)
-        datetime_col = next((col for col in ['datetime', 'date_time', 'timestamp', 'time', 'start_time'] if col in df.columns), None)
-        
-        if not all([asset_col, location_col]):
-            logger.warning(f"Missing required columns in {file_path}")
-            return []
-        
-        # Extract coordinates from location string
-        def extract_coordinates(location_str):
-            if pd.isna(location_str):
-                return None, None
-            
-            # Try to extract coordinates from location string
-            # Common format: "Location Name (32.7767, -96.7970)"
-            coord_match = re.search(r'\((-?\d+\.\d+),\s*(-?\d+\.\d+)\)', str(location_str))
-            if coord_match:
-                return float(coord_match.group(1)), float(coord_match.group(2))
-            
-            # If no coordinates in string, use default DFW coordinates
-            return 32.7767, -96.7970
-        
-        # Process each asset
-        for asset_id in asset_ids:
-            # Filter to get rows for this asset
-            asset_rows = df[df[asset_col].astype(str).str.upper() == asset_id.upper()]
-            
-            if not asset_rows.empty:
-                # Sort by datetime if available to get the latest record
-                if datetime_col and datetime_col in asset_rows.columns:
-                    asset_rows = asset_rows.sort_values(by=datetime_col, ascending=False)
-                
-                # Get the latest record
-                latest_row = asset_rows.iloc[0]
-                
-                # Get location data
-                location_str = latest_row[location_col] if location_col and pd.notna(latest_row[location_col]) else "Unknown"
-                latitude, longitude = extract_coordinates(location_str)
-                
-                # Get driver ID
-                driver_id = str(latest_row[driver_col]) if driver_col and pd.notna(latest_row[driver_col]) else None
-                
-                # Add to results
-                asset_locations.append({
-                    'asset_id': asset_id,
-                    'driver_id': driver_id,
-                    'latitude': latitude,
-                    'longitude': longitude,
-                    'location': str(location_str),
-                    'location_source': 'activity_detail',
-                    'status': 'active',
-                    'last_updated': datetime.now().isoformat()
-                })
-    except Exception as e:
-        logger.error(f"Error processing ActivityDetail file: {e}")
-    
-    return asset_locations
-
-def cache_asset_locations(locations, date_formatted):
-    """Cache asset locations for future use."""
-    cache_file = os.path.join(ASSET_LOCATION_CACHE, f"locations_{date_formatted}.json")
-    
-    try:
-        with open(cache_file, 'w') as f:
-            json.dump(locations, f, indent=2)
-    except Exception as e:
-        logger.error(f"Error caching asset locations: {e}")
+        logger.error(f"Error in api_heatmap: {str(e)}")
+        return jsonify({'error': str(e)}), 500

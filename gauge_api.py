@@ -1,24 +1,20 @@
 """
-TRAXORA Fleet Management System - Gauge API Module
+Gauge API Integration Module
 
-This module handles communication with the Gauge Telematics API.
+This module provides integration with the Gauge API for telematic data retrieval.
 """
 import os
 import logging
 import requests
-import json
-from datetime import datetime
+from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
 
 class GaugeAPI:
-    """
-    GaugeAPI class for interacting with the Gauge Telematics API.
-    This class handles authentication, data retrieval, and error handling.
-    """
+    """Gauge API client for interacting with the Gauge telematics system"""
     
     def __init__(self):
-        """Initialize the GaugeAPI with configuration from environment variables"""
+        """Initialize the Gauge API client"""
         self.api_url = os.environ.get('GAUGE_API_URL')
         self.username = os.environ.get('GAUGE_API_USERNAME')
         self.password = os.environ.get('GAUGE_API_PASSWORD')
@@ -26,180 +22,167 @@ class GaugeAPI:
         self.token_expiry = None
     
     def check_connection(self):
-        """
-        Check if the connection to the Gauge API is working.
-        
-        Returns:
-            bool: True if connection is successful, False otherwise
-        """
+        """Check if connection to the Gauge API is available"""
         try:
-            if not all([self.api_url, self.username, self.password]):
-                logger.error("Gauge API credentials are not properly configured")
-                return False
-                
-            # Try to authenticate
-            self._authenticate()
+            self.authenticate()
             return self.token is not None
         except Exception as e:
-            logger.error(f"Error connecting to Gauge API: {str(e)}")
+            logger.error(f"Failed to connect to Gauge API: {str(e)}")
             return False
     
-    def _authenticate(self):
-        """
-        Authenticate with the Gauge API and obtain a token.
-        
-        Returns:
-            bool: True if authentication was successful, False otherwise
-        """
+    def authenticate(self):
+        """Authenticate with the Gauge API and get an access token"""
+        # Check if we have a valid token already
         if self.token and self.token_expiry and datetime.now() < self.token_expiry:
-            return True
-            
+            return
+        
+        if not self.api_url or not self.username or not self.password:
+            raise ValueError("Gauge API credentials are not configured")
+        
         try:
-            auth_url = f"{self.api_url}/auth"
-            payload = {
-                "username": self.username,
-                "password": self.password
-            }
+            response = requests.post(
+                f"{self.api_url}/auth/token",
+                json={
+                    "username": self.username,
+                    "password": self.password
+                },
+                timeout=10
+            )
             
-            response = requests.post(auth_url, json=payload)
             response.raise_for_status()
-            
             data = response.json()
-            self.token = data.get('token')
             
-            # Set token expiry (typically 24 hours, but we'll use the expiry if provided)
-            expires_in = data.get('expiresIn', 86400)  # Default to 24 hours
-            self.token_expiry = datetime.now().timestamp() + expires_in
-            
-            logger.info("Successfully authenticated with Gauge API")
-            return True
+            if 'token' in data:
+                self.token = data['token']
+                # Token typically expires in 24 hours
+                self.token_expiry = datetime.now() + timedelta(hours=23)
+                logger.info("Successfully authenticated with Gauge API")
+            else:
+                logger.error("Failed to get token from Gauge API")
+                raise ValueError("Authentication failed - no token in response")
+                
         except requests.exceptions.RequestException as e:
             logger.error(f"Failed to authenticate with Gauge API: {str(e)}")
             self.token = None
             self.token_expiry = None
-            return False
+            raise
     
-    def get_asset_locations(self):
-        """
-        Get the locations of all assets.
-        
-        Returns:
-            list: A list of asset location dictionaries
-        """
-        if not self._authenticate():
-            return []
-            
-        try:
-            url = f"{self.api_url}/assets/locations"
-            headers = {
-                "Authorization": f"Bearer {self.token}",
-                "Content-Type": "application/json"
-            }
-            
-            response = requests.get(url, headers=headers)
-            response.raise_for_status()
-            
-            return response.json()
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Failed to get asset locations: {str(e)}")
-            return []
-    
-    def get_asset_details(self, asset_id):
-        """
-        Get details for a specific asset.
-        
-        Args:
-            asset_id (str): The ID of the asset
-            
-        Returns:
-            dict: Asset details or None if not found
-        """
-        if not self._authenticate():
-            return None
-            
-        try:
-            url = f"{self.api_url}/assets/{asset_id}"
-            headers = {
-                "Authorization": f"Bearer {self.token}",
-                "Content-Type": "application/json"
-            }
-            
-            response = requests.get(url, headers=headers)
-            response.raise_for_status()
-            
-            return response.json()
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Failed to get asset details for {asset_id}: {str(e)}")
-            return None
-    
-    def get_driving_history(self, start_date, end_date=None, asset_ids=None):
-        """
-        Get driving history for specified assets and date range.
-        
-        Args:
-            start_date (str): Start date in format YYYY-MM-DD
-            end_date (str, optional): End date in format YYYY-MM-DD. Default is start_date.
-            asset_ids (list, optional): List of asset IDs to get history for. Default is all assets.
-            
-        Returns:
-            dict: Driving history data or empty dict if error
-        """
-        if not self._authenticate():
-            return {}
-            
-        try:
-            end_date = end_date or start_date
-            url = f"{self.api_url}/driving-history"
-            headers = {
-                "Authorization": f"Bearer {self.token}",
-                "Content-Type": "application/json"
-            }
-            
-            payload = {
-                "startDate": start_date,
-                "endDate": end_date
-            }
-            
-            if asset_ids:
-                payload["assetIds"] = asset_ids
-            
-            response = requests.post(url, headers=headers, json=payload)
-            response.raise_for_status()
-            
-            # Save to cache file for offline access
-            cache_dir = os.path.join("data", "cache")
-            os.makedirs(cache_dir, exist_ok=True)
-            cache_file = os.path.join(cache_dir, f"driving_history_{start_date}_{end_date}.json")
-            
-            with open(cache_file, 'w') as f:
-                json.dump(response.json(), f)
-            
-            return response.json()
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Failed to get driving history: {str(e)}")
-            return {}
+    def get_headers(self):
+        """Get the API request headers with authentication token"""
+        self.authenticate()
+        return {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
     
     def get_assets(self):
-        """
-        Get a list of all assets.
-        
-        Returns:
-            list: A list of asset dictionaries
-        """
-        if not self._authenticate():
-            return []
-            
+        """Get a list of all assets from the Gauge API"""
         try:
-            url = f"{self.api_url}/assets"
-            headers = {
-                "Authorization": f"Bearer {self.token}",
-                "Content-Type": "application/json"
-            }
+            response = requests.get(
+                f"{self.api_url}/assets",
+                headers=self.get_headers(),
+                timeout=30
+            )
             
-            response = requests.get(url, headers=headers)
             response.raise_for_status()
-            
             return response.json()
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Failed to get assets: {str(e)}")
-            return []
+            
+        except Exception as e:
+            logger.error(f"Failed to get assets from Gauge API: {str(e)}")
+            raise
+    
+    def get_asset_location(self, asset_id):
+        """Get the current location of an asset"""
+        try:
+            response = requests.get(
+                f"{self.api_url}/assets/{asset_id}/location",
+                headers=self.get_headers(),
+                timeout=30
+            )
+            
+            response.raise_for_status()
+            return response.json()
+            
+        except Exception as e:
+            logger.error(f"Failed to get asset location from Gauge API: {str(e)}")
+            raise
+    
+    def get_asset_locations(self, asset_id, start_date, end_date):
+        """Get location history for an asset in a date range"""
+        try:
+            response = requests.get(
+                f"{self.api_url}/assets/{asset_id}/locations",
+                headers=self.get_headers(),
+                params={
+                    "start_date": start_date.isoformat(),
+                    "end_date": end_date.isoformat()
+                },
+                timeout=30
+            )
+            
+            response.raise_for_status()
+            return response.json()
+            
+        except Exception as e:
+            logger.error(f"Failed to get asset locations from Gauge API: {str(e)}")
+            raise
+    
+    def get_driving_history(self, start_date, end_date):
+        """Get driving history for all assets in a date range"""
+        try:
+            response = requests.get(
+                f"{self.api_url}/reports/driving-history",
+                headers=self.get_headers(),
+                params={
+                    "start_date": start_date.isoformat(),
+                    "end_date": end_date.isoformat()
+                },
+                timeout=60  # Longer timeout for reports
+            )
+            
+            response.raise_for_status()
+            return response.json()
+            
+        except Exception as e:
+            logger.error(f"Failed to get driving history from Gauge API: {str(e)}")
+            raise
+    
+    def get_activity_detail(self, start_date, end_date):
+        """Get activity detail for all assets in a date range"""
+        try:
+            response = requests.get(
+                f"{self.api_url}/reports/activity-detail",
+                headers=self.get_headers(),
+                params={
+                    "start_date": start_date.isoformat(),
+                    "end_date": end_date.isoformat()
+                },
+                timeout=60  # Longer timeout for reports
+            )
+            
+            response.raise_for_status()
+            return response.json()
+            
+        except Exception as e:
+            logger.error(f"Failed to get activity detail from Gauge API: {str(e)}")
+            raise
+    
+    def get_asset_time_on_site(self, start_date, end_date):
+        """Get asset time on site report for all assets in a date range"""
+        try:
+            response = requests.get(
+                f"{self.api_url}/reports/asset-time-on-site",
+                headers=self.get_headers(),
+                params={
+                    "start_date": start_date.isoformat(),
+                    "end_date": end_date.isoformat()
+                },
+                timeout=60  # Longer timeout for reports
+            )
+            
+            response.raise_for_status()
+            return response.json()
+            
+        except Exception as e:
+            logger.error(f"Failed to get asset time on site from Gauge API: {str(e)}")
+            raise

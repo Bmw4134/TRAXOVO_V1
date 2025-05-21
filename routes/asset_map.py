@@ -133,7 +133,7 @@ def api_job_sites():
     """API endpoint to get all job sites"""
     try:
         # Get active job sites
-        job_sites = JobSite.query.filter_by(is_active=True).all()
+        job_sites = JobSite.query.filter_by(active=True).all()
         
         # Prepare the response
         result = []
@@ -166,13 +166,15 @@ def api_heatmap():
         # Get the asset locations aggregated by geographic grid
         # This is a simplified example; in a real implementation, you might want to use
         # a more sophisticated algorithm for creating the heatmap
+        from sqlalchemy import column
+        location_timestamp = getattr(AssetLocation, 'timestamp')
         locations = db.session.query(
             func.round(AssetLocation.latitude, 3).label('lat_grid'),
             func.round(AssetLocation.longitude, 3).label('lng_grid'),
             func.count().label('count')
         ).filter(
-            AssetLocation.timestamp >= start_date,
-            AssetLocation.timestamp <= end_date
+            location_timestamp >= start_date,
+            location_timestamp <= end_date
         ).group_by('lat_grid', 'lng_grid').all()
         
         # Prepare the response

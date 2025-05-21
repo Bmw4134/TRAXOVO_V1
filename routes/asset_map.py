@@ -29,7 +29,7 @@ asset_map_bp = Blueprint('asset_map', __name__, url_prefix='/asset-map')
 def asset_map():
     """Asset Map main page"""
     # Get job sites for filtering
-    job_sites = JobSite.query.filter_by(is_active=True).all()
+    job_sites = JobSite.query.filter_by(active=True).all()
     
     # Get asset types for filtering
     asset_types = db.session.query(Asset.type).distinct().all()
@@ -96,12 +96,14 @@ def api_asset_route(asset_id):
         start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
         end_date = datetime.strptime(end_date_str, '%Y-%m-%d') + timedelta(days=1)  # Include the end date
         
-        # Get the asset locations
+        # Get the asset locations using the location_timestamp column
+        from sqlalchemy import column
+        location_timestamp = getattr(AssetLocation, 'timestamp')
         locations = AssetLocation.query.filter(
             AssetLocation.asset_id == asset_id,
-            AssetLocation.timestamp >= start_date,
-            AssetLocation.timestamp < end_date
-        ).order_by(AssetLocation.timestamp).all()
+            location_timestamp >= start_date,
+            location_timestamp < end_date
+        ).order_by(location_timestamp).all()
         
         # Prepare the response
         result = []

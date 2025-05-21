@@ -1,289 +1,334 @@
 """
-Models for the TRAXORA Fleet Management System.
+TRAXORA Fleet Management System - Database Models
+
+This module defines the SQLAlchemy ORM models for the application.
 """
+import logging
 from datetime import datetime
 from flask_login import UserMixin
-from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy import Column, Integer, String, Boolean, Float, Text, DateTime, ForeignKey, Date, JSON
+from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, ForeignKey, Text, JSON
 from sqlalchemy.orm import relationship
-from database import db
+from sqlalchemy.ext.declarative import declared_attr
+from werkzeug.security import generate_password_hash, check_password_hash
 
-class Organization(db.Model):
-    """Organizations or departments in the system"""
+from app import db
+
+logger = logging.getLogger(__name__)
+
+class TimestampMixin:
+    """Mixin that adds created_at and updated_at columns to models"""
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class User(UserMixin, TimestampMixin, db.Model):
+    """User model for authentication and authorization"""
+    __tablename__ = 'users'
+    
+    id = Column(Integer, primary_key=True)
+    username = Column(String(64), unique=True, nullable=False, index=True)
+    email = Column(String(120), unique=True, nullable=False, index=True)
+    password_hash = Column(String(256))
+    first_name = Column(String(64))
+    last_name = Column(String(64))
+    is_admin = Column(Boolean, default=False)
+    last_login = Column(DateTime)
+    
+    def set_password(self, password):
+        """Set the user's password hash"""
+        self.password_hash = generate_password_hash(password)
+    
+    def check_password(self, password):
+        """Check if the provided password matches the hash"""
+        return check_password_hash(self.password_hash, password)
+    
+    def __repr__(self):
+        return f'<User {self.username}>'
+
+
+class Organization(TimestampMixin, db.Model):
+    """Organization model for multi-tenancy support"""
     __tablename__ = 'organizations'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(128), nullable=False, unique=True)
-    code = db.Column(db.String(20), nullable=True, unique=True)
-    description = db.Column(db.Text)
-    address = db.Column(db.String(256))
-    city = db.Column(db.String(64))
-    state = db.Column(db.String(64))
-    zip_code = db.Column(db.String(20))
-    contact_name = db.Column(db.String(128))
-    contact_email = db.Column(db.String(128))
-    contact_phone = db.Column(db.String(20))
-    division = db.Column(db.String(64))  # DFW, Houston, West Texas, etc.
-    active = db.Column(db.Boolean, default=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String(128), nullable=False)
+    code = Column(String(32), unique=True)
+    address = Column(String(256))
+    city = Column(String(64))
+    state = Column(String(32))
+    zip_code = Column(String(16))
+    country = Column(String(64), default='USA')
+    phone = Column(String(32))
+    email = Column(String(120))
+    is_active = Column(Boolean, default=True)
+    
+    # Relationships
+    users = relationship('User', secondary='organization_users', backref='organizations')
+    assets = relationship('Asset', backref='organization')
+    drivers = relationship('Driver', backref='organization')
     
     def __repr__(self):
         return f'<Organization {self.name}>'
 
 
-class Role(db.Model):
-    """User roles for permission management"""
-    __tablename__ = 'roles'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(64), unique=True, nullable=False)
-    description = db.Column(db.String(256))
-    # Permissions as boolean flags
-    can_view_reports = db.Column(db.Boolean, default=True)
-    can_export_reports = db.Column(db.Boolean, default=False)
-    can_manage_assets = db.Column(db.Boolean, default=False)
-    can_manage_drivers = db.Column(db.Boolean, default=False)
-    can_process_pm = db.Column(db.Boolean, default=False)
-    can_manage_users = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+class OrganizationUser(db.Model):
+    """Join table for Organization-User many-to-many relationship"""
+    __tablename__ = 'organization_users'
     
-    def __repr__(self):
-        return f'<Role {self.name}>'
+    id = Column(Integer, primary_key=True)
+    organization_id = Column(Integer, ForeignKey('organizations.id'), nullable=False)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    role = Column(String(32), default='user')  # 'admin', 'user', 'viewer', etc.
+    is_primary = Column(Boolean, default=False)  # Whether this is the user's primary organization
 
 
-class User(UserMixin, db.Model):
-    __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(64), index=True, unique=True, nullable=False)
-    email = db.Column(db.String(120), index=True, unique=True, nullable=False)
-    password_hash = db.Column(db.String(256))
-    is_admin = db.Column(db.Boolean, default=False)
-    # Add role relationship
-    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
-    role = db.relationship('Role', backref=db.backref('users', lazy='dynamic'))
-    # Department/organization relationship
-    organization_id = db.Column(db.Integer, db.ForeignKey('organizations.id'))
-    organization = db.relationship('Organization', backref=db.backref('users', lazy='dynamic'))
-    first_name = db.Column(db.String(64))
-    last_name = db.Column(db.String(64))
-    last_login = db.Column(db.DateTime)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
-
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
-    
-    # Permission check methods
-    def can_view_reports(self):
-        # Admins always have full access
-        if self.is_admin:
-            return True
-        # Check role permission if role exists
-        return self.role.can_view_reports if self.role else False
-        
-    def can_export_reports(self):
-        if self.is_admin:
-            return True
-        return self.role.can_export_reports if self.role else False
-    
-    def can_manage_assets(self):
-        if self.is_admin:
-            return True
-        return self.role.can_manage_assets if self.role else False
-    
-    def can_manage_drivers(self):
-        if self.is_admin:
-            return True
-        return self.role.can_manage_drivers if self.role else False
-        
-    def can_process_pm(self):
-        if self.is_admin:
-            return True
-        return self.role.can_process_pm if self.role else False
-    
-    def can_manage_users(self):
-        if self.is_admin:
-            return True
-        return self.role.can_manage_users if self.role else False
-    
-    def get_display_name(self):
-        """Return user's full name or username if no name is set"""
-        if self.first_name and self.last_name:
-            return f"{self.first_name} {self.last_name}"
-        return self.username
-
-    def __repr__(self):
-        return f'<User {self.username}>'
-
-
-class Asset(db.Model):
+class Asset(TimestampMixin, db.Model):
+    """Asset model for tracking vehicles and equipment"""
     __tablename__ = 'assets'
-    id = db.Column(db.Integer, primary_key=True)
-    asset_identifier = db.Column(db.String(64), index=True, unique=True, nullable=False)
-    label = db.Column(db.String(256))
-    description = db.Column(db.Text)
-    asset_category = db.Column(db.String(64), index=True)
-    location = db.Column(db.String(256), index=True)
-    active = db.Column(db.Boolean, default=True)
     
-    # Add organization relationship
-    organization_id = db.Column(db.Integer, db.ForeignKey('organizations.id'))
-    organization = db.relationship('Organization', backref=db.backref('asset_list', lazy=True))
-    status = db.Column(db.String(64), default='Available')
-    latitude = db.Column(db.Float)
-    longitude = db.Column(db.Float)
-    last_location_update = db.Column(db.DateTime)
-    engine_hours = db.Column(db.Float)
-    vin = db.Column(db.String(128))
-    make = db.Column(db.String(64))
-    model = db.Column(db.String(64))
-    year = db.Column(db.Integer)
-    purchase_date = db.Column(db.Date)
-    purchase_price = db.Column(db.Float)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    def __repr__(self):
-        return f'<Asset {self.asset_identifier}>'
-
-
-class Driver(db.Model):
-    __tablename__ = 'drivers'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(128), nullable=False)
-    employee_id = db.Column(db.String(64), unique=True, nullable=False, index=True)
-    department = db.Column(db.String(64))
-    region = db.Column(db.String(64))
-    active = db.Column(db.Boolean, default=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    def __repr__(self):
-        return f'<Driver {self.name}>'
-
-
-class AssetDriverMapping(db.Model):
-    __tablename__ = 'asset_driver_mappings'
-    id = db.Column(db.Integer, primary_key=True)
-    asset_id = db.Column(db.Integer, db.ForeignKey('assets.id'), nullable=False, index=True)
-    driver_id = db.Column(db.Integer, db.ForeignKey('drivers.id'), nullable=False, index=True)
-    start_date = db.Column(db.Date, nullable=False)
-    end_date = db.Column(db.Date, nullable=True)
-    is_current = db.Column(db.Boolean, default=True)
-    notes = db.Column(db.Text)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    asset = db.relationship('Asset', backref=db.backref('driver_assignments', lazy='dynamic'))
-    driver = db.relationship('Driver', backref=db.backref('asset_assignments', lazy='dynamic'))
-
-    def __repr__(self):
-        return f'<AssetDriverMapping {self.asset.asset_identifier} - {self.driver.name}>'
-
-
-class DocumentExtraction(db.Model):
-    """Model for storing OCR extraction results"""
-    __tablename__ = 'document_extractions'
-    id = db.Column(db.Integer, primary_key=True)
-    filename = db.Column(db.String(255), nullable=False)
-    original_path = db.Column(db.String(512))
-    extracted_path = db.Column(db.String(512))
-    extraction_date = db.Column(db.DateTime, default=datetime.utcnow)
-    file_type = db.Column(db.String(50))
-    pages = db.Column(db.Integer, default=1)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    notes = db.Column(db.Text)
+    id = Column(Integer, primary_key=True)
+    organization_id = Column(Integer, ForeignKey('organizations.id'))
+    asset_id = Column(String(64), nullable=False, index=True)  # External identifier
+    name = Column(String(128), nullable=False)
+    type = Column(String(64))  # Vehicle type (truck, forklift, etc.)
+    model = Column(String(64))
+    vin = Column(String(64))  # Vehicle Identification Number
+    license_plate = Column(String(32))
+    status = Column(String(32), default='active')  # active, inactive, maintenance, etc.
+    acquisition_date = Column(DateTime)
+    disposal_date = Column(DateTime)
+    last_service_date = Column(DateTime)
+    next_service_date = Column(DateTime)
     
-    # Relationship with User who performed the extraction
-    user = db.relationship('User', backref=db.backref('extractions', lazy='dynamic'))
+    # GPS and location data
+    last_latitude = Column(Float)
+    last_longitude = Column(Float)
+    last_location_update = Column(DateTime)
     
-    def __repr__(self):
-        return f'<DocumentExtraction {self.filename}>'
-
-
-class Alert(db.Model):
-    """Model for storing equipment alerts and notifications"""
-    __tablename__ = 'alerts'
-    id = db.Column(db.Integer, primary_key=True)
-    asset_id = db.Column(db.String(64), index=True)
-    severity = db.Column(db.String(20), index=True)  # critical, warning, info
-    alert_type = db.Column(db.String(50), index=True)
-    description = db.Column(db.String(256))
-    location = db.Column(db.String(128))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    acknowledged = db.Column(db.Boolean, default=False)
-    acknowledged_at = db.Column(db.DateTime)
-    acknowledged_by = db.Column(db.Integer, db.ForeignKey('users.id'))
-    resolved = db.Column(db.Boolean, default=False)
-    resolved_at = db.Column(db.DateTime)
-    resolved_by = db.Column(db.Integer, db.ForeignKey('users.id'))
-    details = db.Column(db.JSON)
+    # Gauge API identifiers
+    gauge_id = Column(String(64))  # Identifier in the Gauge API
+    
+    # Additional data as JSON
+    attributes = Column(JSON)
     
     # Relationships
-    acknowledged_user = db.relationship('User', foreign_keys=[acknowledged_by], 
-                                        backref=db.backref('acknowledged_alerts', lazy='dynamic'))
-    resolved_user = db.relationship('User', foreign_keys=[resolved_by], 
-                                    backref=db.backref('resolved_alerts', lazy='dynamic'))
+    current_driver_id = Column(Integer, ForeignKey('drivers.id'))
+    current_driver = relationship('Driver', foreign_keys=[current_driver_id], 
+                                 back_populates='assigned_asset')
+    
+    locations = relationship('AssetLocation', backref='asset', 
+                           cascade='all, delete-orphan')
+                           
+    maintenance_records = relationship('MaintenanceRecord', backref='asset',
+                                      cascade='all, delete-orphan')
     
     def __repr__(self):
-        return f'<Alert {self.id}: {self.severity} - {self.alert_type}>'
+        return f'<Asset {self.asset_id} - {self.name}>'
+    
+    @property
+    def days_since_service(self):
+        """Calculate days since last service"""
+        if self.last_service_date:
+            return (datetime.utcnow() - self.last_service_date).days
+        return None
+    
+    @property
+    def is_active(self):
+        """Check if the asset is active"""
+        return self.status == 'active'
 
 
-class ActivityLog(db.Model):
-    """Model for tracking user activity and system interactions"""
+class Driver(TimestampMixin, db.Model):
+    """Driver model for tracking operators"""
+    __tablename__ = 'drivers'
+    
+    id = Column(Integer, primary_key=True)
+    organization_id = Column(Integer, ForeignKey('organizations.id'))
+    driver_id = Column(String(64), nullable=False, index=True)  # External identifier
+    first_name = Column(String(64))
+    last_name = Column(String(64))
+    email = Column(String(120))
+    phone = Column(String(32))
+    license_number = Column(String(64))
+    license_expiry = Column(DateTime)
+    status = Column(String(32), default='active')  # active, inactive, suspended, etc.
+    
+    # Driver-specific attributes (JSON for flexibility)
+    attributes = Column(JSON)
+    
+    # Relationships
+    assigned_asset = relationship('Asset', foreign_keys=[Asset.current_driver_id], 
+                                back_populates='current_driver')
+    attendance_records = relationship('AttendanceRecord', backref='driver',
+                                    cascade='all, delete-orphan')
+    
+    def __repr__(self):
+        return f'<Driver {self.driver_id} - {self.first_name} {self.last_name}>'
+    
+    @property
+    def full_name(self):
+        """Get the driver's full name"""
+        return f"{self.first_name} {self.last_name}"
+    
+    @property
+    def is_active(self):
+        """Check if the driver is active"""
+        return self.status == 'active'
+    
+    @property
+    def days_until_license_expiry(self):
+        """Calculate days until license expires"""
+        if self.license_expiry:
+            return (self.license_expiry - datetime.utcnow()).days
+        return None
+
+
+class AssetLocation(TimestampMixin, db.Model):
+    """Asset location history model"""
+    __tablename__ = 'asset_locations'
+    
+    id = Column(Integer, primary_key=True)
+    asset_id = Column(Integer, ForeignKey('assets.id'), nullable=False)
+    latitude = Column(Float, nullable=False)
+    longitude = Column(Float, nullable=False)
+    altitude = Column(Float)
+    speed = Column(Float)  # Speed in mph
+    heading = Column(Float)  # Heading in degrees
+    timestamp = Column(DateTime, default=datetime.utcnow, nullable=False)
+    
+    # Location details
+    location_name = Column(String(128))
+    address = Column(String(256))
+    job_site_id = Column(Integer, ForeignKey('job_sites.id'))
+    
+    # Status data
+    ignition_status = Column(Boolean)  # On/off
+    engine_hours = Column(Float)
+    
+    def __repr__(self):
+        return f'<AssetLocation Asset:{self.asset_id} @ {self.timestamp}>'
+
+
+class JobSite(TimestampMixin, db.Model):
+    """Job site model for tracking work locations"""
+    __tablename__ = 'job_sites'
+    
+    id = Column(Integer, primary_key=True)
+    organization_id = Column(Integer, ForeignKey('organizations.id'))
+    job_number = Column(String(64), nullable=False, index=True)
+    name = Column(String(128), nullable=False)
+    description = Column(Text)
+    address = Column(String(256))
+    city = Column(String(64))
+    state = Column(String(32))
+    zip_code = Column(String(16))
+    latitude = Column(Float)
+    longitude = Column(Float)
+    radius = Column(Float, default=100.0)  # Geofence radius in meters
+    is_active = Column(Boolean, default=True)
+    start_date = Column(DateTime)
+    end_date = Column(DateTime)
+    
+    # Relationships
+    locations = relationship('AssetLocation', backref='job_site')
+    attendance_records = relationship('AttendanceRecord', backref='job_site')
+    
+    def __repr__(self):
+        return f'<JobSite {self.job_number} - {self.name}>'
+
+
+class AttendanceRecord(TimestampMixin, db.Model):
+    """Attendance record model for tracking driver attendance"""
+    __tablename__ = 'attendance_records'
+    
+    id = Column(Integer, primary_key=True)
+    driver_id = Column(Integer, ForeignKey('drivers.id'), nullable=False)
+    job_site_id = Column(Integer, ForeignKey('job_sites.id'))
+    date = Column(DateTime, nullable=False)
+    scheduled_start_time = Column(DateTime)
+    scheduled_end_time = Column(DateTime)
+    actual_start_time = Column(DateTime)
+    actual_end_time = Column(DateTime)
+    status = Column(String(32))  # on_time, late, early_end, not_on_job
+    
+    # Additional data
+    notes = Column(Text)
+    source = Column(String(64))  # Source of the record (driving_history, activity_detail, etc.)
+    validation_status = Column(String(32), default='unverified')  # unverified, verified, rejected
+    
+    def __repr__(self):
+        return f'<AttendanceRecord Driver:{self.driver_id} Date:{self.date}>'
+
+
+class MaintenanceRecord(TimestampMixin, db.Model):
+    """Maintenance record model for tracking asset maintenance"""
+    __tablename__ = 'maintenance_records'
+    
+    id = Column(Integer, primary_key=True)
+    asset_id = Column(Integer, ForeignKey('assets.id'), nullable=False)
+    type = Column(String(64))  # preventive, corrective, etc.
+    date_performed = Column(DateTime, nullable=False)
+    description = Column(Text, nullable=False)
+    cost = Column(Float)
+    provider = Column(String(128))
+    invoice_number = Column(String(64))
+    notes = Column(Text)
+    
+    def __repr__(self):
+        return f'<MaintenanceRecord Asset:{self.asset_id} Type:{self.type}>'
+
+
+class PMAllocation(TimestampMixin, db.Model):
+    """PM Allocation model for tracking billing allocations"""
+    __tablename__ = 'pm_allocations'
+    
+    id = Column(Integer, primary_key=True)
+    organization_id = Column(Integer, ForeignKey('organizations.id'))
+    job_number = Column(String(64), nullable=False, index=True)
+    asset_id = Column(Integer, ForeignKey('assets.id'))
+    pm_name = Column(String(128))  # PM's name
+    month = Column(String(32), nullable=False)  # Format: YYYY-MM
+    original_amount = Column(Float, nullable=False)
+    allocated_amount = Column(Float, nullable=False)
+    status = Column(String(32), default='pending')  # pending, approved, rejected
+    created_by = Column(Integer, ForeignKey('users.id'))
+    approved_by = Column(Integer, ForeignKey('users.id'))
+    
+    # Relationships
+    creator = relationship('User', foreign_keys=[created_by])
+    approver = relationship('User', foreign_keys=[approved_by])
+    
+    def __repr__(self):
+        return f'<PMAllocation Job:{self.job_number} Month:{self.month}>'
+
+
+class ActivityLog(TimestampMixin, db.Model):
+    """Activity log for tracking user actions"""
     __tablename__ = 'activity_logs'
-    id = db.Column(db.Integer, primary_key=True)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow, index=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True, index=True)
-    event_type = db.Column(db.String(50), nullable=False, index=True)
-    resource_type = db.Column(db.String(50), index=True)
-    resource_id = db.Column(db.String(64), index=True)
-    action = db.Column(db.String(50))
-    description = db.Column(db.String(256))
-    details = db.Column(db.JSON)
-    ip_address = db.Column(db.String(50))
-    success = db.Column(db.Boolean, default=True)
     
-    # Relationship with the user who performed the action
-    user = db.relationship('User', backref=db.backref('activity_logs', lazy='dynamic'))
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    action = Column(String(64), nullable=False)
+    object_type = Column(String(64))  # asset, driver, job_site, etc.
+    object_id = Column(Integer)
+    details = Column(JSON)
+    ip_address = Column(String(64))
     
-    @staticmethod
-    def log_activity(user_id, event_type, resource_type=None, resource_id=None, 
-                     action=None, description=None, details=None, ip_address=None, success=True):
-        """
-        Helper method to create an activity log entry
-        
-        Args:
-            user_id (int): ID of the user performing the action
-            event_type (str): Type of event (api_pull, document_upload, report_view, report_export, asset_update, etc.)
-            resource_type (str, optional): Type of resource being accessed (asset, report, document, etc.)
-            resource_id (str, optional): Identifier for the specific resource
-            action (str, optional): Action performed (view, create, update, delete, export)
-            description (str, optional): Human-readable description of the activity
-            details (dict, optional): Additional JSON details about the activity
-            ip_address (str, optional): IP address of the user
-            success (bool, optional): Whether the action was successful
-            
-        Returns:
-            ActivityLog: The created log entry
-        """
-        log_entry = ActivityLog(
-            user_id=user_id,
-            event_type=event_type,
-            resource_type=resource_type,
-            resource_id=resource_id,
-            action=action,
-            description=description,
-            details=details,
-            ip_address=ip_address,
-            success=success
-        )
-        db.session.add(log_entry)
-        db.session.commit()
-        return log_entry
+    # Relationship
+    user = relationship('User')
     
     def __repr__(self):
-        return f'<ActivityLog {self.id}: {self.event_type} - {self.resource_type}>'
+        return f'<ActivityLog User:{self.user_id} Action:{self.action}>'
+
+
+class SystemConfiguration(TimestampMixin, db.Model):
+    """System configuration for storing application settings"""
+    __tablename__ = 'system_configurations'
+    
+    id = Column(Integer, primary_key=True)
+    key = Column(String(128), nullable=False, unique=True)
+    value = Column(Text)
+    description = Column(Text)
+    
+    def __repr__(self):
+        return f'<SystemConfiguration {self.key}>'

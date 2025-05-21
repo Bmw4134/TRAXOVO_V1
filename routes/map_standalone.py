@@ -127,8 +127,10 @@ def api_assets():
                     'last_update': item.get('lastUpdate') or item.get('timestamp') or datetime.now().isoformat()
                 }
                 
-                # Only include assets with location data
+                # Only include assets with location data (active Gauge devices)
                 if asset['latitude'] and asset['longitude']:
+                    # Only add the asset if it has current location data
+                    # This filters out disposed assets or those without Gauge devices
                     assets_data.append(asset)
             
             # Apply filtering if specified

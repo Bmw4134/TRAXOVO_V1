@@ -25,16 +25,31 @@ def asset_map():
 @asset_map_bp.route('/api/assets')
 def api_assets():
     """API endpoint to get active assets with their locations."""
-    # Get the date parameter or use current date
-    date_param = request.args.get('date', datetime.now().strftime("%Y-%m-%d"))
-    
-    # Get active assets for the specified date
-    active_assets = lifecycle.get_active_assets(date_param)
-    
-    # Get locations for active assets
-    asset_locations = get_asset_locations(active_assets, date_param)
-    
-    return jsonify(asset_locations)
+    try:
+        # Get the date parameter or use current date
+        date_param = request.args.get('date', datetime.now().strftime("%Y-%m-%d"))
+        
+        # Get active assets for the specified date
+        active_assets = lifecycle.get_active_assets(date_param)
+        
+        # Get locations for active assets
+        asset_locations = get_asset_locations(active_assets, date_param)
+        
+        # Ensure all values are properly formatted
+        for asset in asset_locations:
+            # Convert coordinates to float
+            if 'latitude' in asset and asset['latitude'] is not None:
+                asset['latitude'] = float(asset['latitude'])
+            if 'longitude' in asset and asset['longitude'] is not None:
+                asset['longitude'] = float(asset['longitude'])
+                
+        # For debugging
+        logger.info(f"Returning {len(asset_locations)} asset locations")
+        
+        return jsonify(asset_locations)
+    except Exception as e:
+        logger.error(f"Error in api_assets: {e}")
+        return jsonify([])
 
 def get_asset_locations(asset_ids, date_str=None):
     """

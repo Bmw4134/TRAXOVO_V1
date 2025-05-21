@@ -178,7 +178,7 @@
             if (!asset.latitude || !asset.longitude) return;
             
             // Create marker
-            const marker = L.marker([asset.latitude, asset.longitude], {
+            const marker = L.marker([parseFloat(asset.latitude), parseFloat(asset.longitude)], {
               title: asset.asset_id,
               alt: asset.asset_id,
               opacity: asset.status === 'disposed' ? 0.7 : 1

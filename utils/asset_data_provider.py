@@ -13,7 +13,11 @@ from datetime import datetime, timedelta
 from sqlalchemy import func
 from flask import current_app
 
-from models import Asset, AssetLocation, Driver, JobSite, db
+from app import db
+from models.asset import Asset
+from models.asset_location import AssetLocation
+from models.driver import Driver
+from models.job_site import JobSite
 from gauge_api import GaugeAPI
 
 logger = logging.getLogger(__name__)

@@ -99,9 +99,9 @@ TABLE DETAILS:
         # Check Gauge API health
         try:
             gauge_api = GaugeAPI()
-            api_status = gauge_api.check_connection()
+            api_connected = gauge_api.check_connection()
             report += "GAUGE API CONNECTION:\n"
-            report += f"- Status: {'Connected' if api_status else 'Not Connected'}\n"
+            report += f"- Status: {'Connected' if api_connected else 'Not Connected'}\n"
             report += f"- URL: {gauge_api.api_url}\n"
             report += f"- Asset List ID: {gauge_api.asset_list_id}\n"
             report += f"- Authenticated: {gauge_api.authenticated}\n"
@@ -110,6 +110,7 @@ TABLE DETAILS:
         except Exception as e:
             logger.error(f"Error checking Gauge API health: {str(e)}")
             report += f"- Error checking Gauge API: {str(e)}\n\n"
+            api_connected = False
         
         report += "RECOMMENDATION:\n"
         health_issues = []
@@ -117,7 +118,7 @@ TABLE DETAILS:
             health_issues.append("Database connection issues detected")
         if not schema_integrity:
             health_issues.append("Database schema integrity issues detected")
-        if not api_status:
+        if not api_connected:
             health_issues.append("Gauge API connection issues detected")
         
         if health_issues:

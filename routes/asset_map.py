@@ -17,8 +17,13 @@ import os
 # Add the parent directory to the sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+# Direct imports to avoid circular imports
 from app import db
-from models import Asset, AssetLocation, Driver, JobSite
+# Import models directly from their modules to avoid circular import issues
+from models.asset import Asset
+from models.asset_location import AssetLocation
+from models.driver import Driver
+from models.job_site import JobSite
 
 logger = logging.getLogger(__name__)
 

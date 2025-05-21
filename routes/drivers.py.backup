@@ -312,21 +312,32 @@ def daily_report():
                 
         logger.info(f"Using report date: {date_str}")
         
-        # Process report for boss presentation
-        try:
-            logger.info(f"Processing Daily Driver Report for date: {date_str}")
-            
-            # Import and process with standard pipeline
-            from daily_report_pipeline_revision import process_date
-            
-            # Process the report directly
-            process_date(date_str)
-            logger.info(f"Processing completed successfully for date: {date_str}")
-            flash("Daily Driver Report successfully generated for your boss presentation", "success")
-        except Exception as e:
-            logger.error(f"Error generating report: {str(e)}")
-            flash(f"Error generating report: {str(e)}", "danger")
-            traceback.print_exc()
+        # Process MTD ingestion if requested
+        if use_mtd:
+            try:
+                logger.info(f"Activating GENIUS CORE SMART MTD INGESTION MODE for date: {date_str}")
+                
+                # Import and process with standard pipeline
+                from daily_report_pipeline_revision import process_date
+                
+                try:
+                    # Process the report directly
+                    process_date(date_str)
+                    logger.info(f"Processing completed for date: {date_str}")
+                    flash("Daily Driver Report successfully generated for your boss presentation", "success")
+                except Exception as e:
+                    logger.error(f"Error generating report: {str(e)}")
+                    flash(f"Error generating report: {str(e)}", "danger")
+                    traceback.print_exc()
+                        logger.error(f"Error generating report with MTD processed data: {regen_error}")
+                
+                else:
+                    logger.warning(f"No MTD data found for date: {date_str}")
+                    flash("No MTD data found for the selected date. Using available data instead.", "warning")
+            except Exception as mtd_error:
+                logger.error(f"Error in MTD ingestion process: {mtd_error}")
+                logger.error(traceback.format_exc())
+                flash(f"Error processing MTD data: {str(mtd_error)}", "danger")
         
         # Check if export files exist
         excel_path = f"exports/daily_reports/{date_str}_DailyDriverReport.xlsx"

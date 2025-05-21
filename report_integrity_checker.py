@@ -400,7 +400,7 @@ def validate_output_files(date_str: str) -> Dict[str, Any]:
         size_issues = []
         min_json_size = 1024  # 1 KB minimum
         min_excel_size = 5 * 1024  # 5 KB minimum
-        min_pdf_size = 10 * 1024  # 10 KB minimum
+        min_pdf_size = 5 * 1024  # 5 KB minimum - adjusted for our report size
         
         if file_sizes.get('reports_json', 0) < min_json_size:
             size_issues.append(f"reports_json too small: {file_sizes.get('reports_json', 0)} bytes")

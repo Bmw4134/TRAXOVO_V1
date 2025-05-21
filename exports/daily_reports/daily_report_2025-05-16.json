@@ -2,6 +2,17 @@
   "date": "2025-05-16",
   "drivers": [
     {
+      "driver_name": "Mark Thompson",
+      "asset_id": "TRK-1015",
+      "job_site": "Downtown Construction",
+      "scheduled_start": "06:00 AM",
+      "scheduled_end": "03:00 PM",
+      "actual_start": "N/A",
+      "actual_end": "N/A",
+      "status": "On Time",
+      "status_reason": ""
+    },
+    {
       "driver_name": "Christopher Thomas",
       "asset_id": "TRK-1011",
       "job_site": "Downtown Construction",
@@ -13,24 +24,24 @@
       "status_reason": ""
     },
     {
-      "driver_name": "Matthew Harris",
-      "asset_id": "TRK-1013",
+      "driver_name": "John Smith",
+      "asset_id": "TRK-1001",
       "job_site": "North Dallas Site",
-      "scheduled_start": "06:45 AM",
-      "scheduled_end": "03:45 PM",
-      "actual_start": "06:52 AM",
-      "actual_end": "03:37 PM",
+      "scheduled_start": "06:30 AM",
+      "scheduled_end": "03:30 PM",
+      "actual_start": "06:25 AM",
+      "actual_end": "03:35 PM",
       "status": "On Time",
       "status_reason": ""
     },
     {
-      "driver_name": "Mark Thompson",
-      "asset_id": "TRK-1015",
+      "driver_name": "Richard Wilson",
+      "asset_id": "TRK-1007",
       "job_site": "Downtown Construction",
-      "scheduled_start": "06:00 AM",
-      "scheduled_end": "03:00 PM",
-      "actual_start": "N/A",
-      "actual_end": "N/A",
+      "scheduled_start": "06:15 AM",
+      "scheduled_end": "03:15 PM",
+      "actual_start": "06:14 AM",
+      "actual_end": "03:18 PM",
       "status": "On Time",
       "status_reason": ""
     },
@@ -46,26 +57,15 @@
       "status_reason": "36 minutes early"
     },
     {
-      "driver_name": "Richard Wilson",
-      "asset_id": "TRK-1007",
-      "job_site": "Downtown Construction",
-      "scheduled_start": "06:15 AM",
-      "scheduled_end": "03:15 PM",
-      "actual_start": "06:14 AM",
-      "actual_end": "03:18 PM",
-      "status": "On Time",
-      "status_reason": ""
-    },
-    {
-      "driver_name": "Anthony Martin",
-      "asset_id": "TRK-1014",
-      "job_site": "West Plano Project",
+      "driver_name": "Thomas Taylor",
+      "asset_id": "TRK-1009",
+      "job_site": "North Dallas Site",
       "scheduled_start": "07:00 AM",
       "scheduled_end": "04:00 PM",
-      "actual_start": "07:16 AM",
-      "actual_end": "03:58 PM",
-      "status": "Late",
-      "status_reason": "16 minutes late"
+      "actual_start": "06:43 AM",
+      "actual_end": "03:52 PM",
+      "status": "On Time",
+      "status_reason": ""
     },
     {
       "driver_name": "James Davis",
@@ -79,13 +79,35 @@
       "status_reason": "At incorrect location: North Richland Hills"
     },
     {
-      "driver_name": "Charles Anderson",
-      "asset_id": "TRK-1010",
+      "driver_name": "Joseph Moore",
+      "asset_id": "TRK-1008",
+      "job_site": "Richardson Development",
+      "scheduled_start": "06:30 AM",
+      "scheduled_end": "03:30 PM",
+      "actual_start": "06:55 AM",
+      "actual_end": "03:25 PM",
+      "status": "Late",
+      "status_reason": "25 minutes late"
+    },
+    {
+      "driver_name": "Matthew Harris",
+      "asset_id": "TRK-1013",
+      "job_site": "North Dallas Site",
+      "scheduled_start": "06:45 AM",
+      "scheduled_end": "03:45 PM",
+      "actual_start": "06:52 AM",
+      "actual_end": "03:37 PM",
+      "status": "On Time",
+      "status_reason": ""
+    },
+    {
+      "driver_name": "David Miller",
+      "asset_id": "TRK-1006",
       "job_site": "West Plano Project",
-      "scheduled_start": "06:00 AM",
-      "scheduled_end": "03:00 PM",
-      "actual_start": "06:05 AM",
-      "actual_end": "02:48 PM",
+      "scheduled_start": "06:45 AM",
+      "scheduled_end": "03:45 PM",
+      "actual_start": "06:47 AM",
+      "actual_end": "03:42 PM",
       "status": "On Time",
       "status_reason": ""
     },
@@ -101,50 +123,6 @@
       "status_reason": "18 minutes late"
     },
     {
-      "driver_name": "Robert Williams",
-      "asset_id": "TRK-1003",
-      "job_site": "Downtown Construction",
-      "scheduled_start": "07:00 AM",
-      "scheduled_end": "04:00 PM",
-      "actual_start": "07:28 AM",
-      "actual_end": "03:45 PM",
-      "status": "Late",
-      "status_reason": "28 minutes late"
-    },
-    {
-      "driver_name": "David Miller",
-      "asset_id": "TRK-1006",
-      "job_site": "West Plano Project",
-      "scheduled_start": "06:45 AM",
-      "scheduled_end": "03:45 PM",
-      "actual_start": "06:47 AM",
-      "actual_end": "03:42 PM",
-      "status": "On Time",
-      "status_reason": ""
-    },
-    {
-      "driver_name": "Joseph Moore",
-      "asset_id": "TRK-1008",
-      "job_site": "Richardson Development",
-      "scheduled_start": "06:30 AM",
-      "scheduled_end": "03:30 PM",
-      "actual_start": "06:55 AM",
-      "actual_end": "03:25 PM",
-      "status": "Late",
-      "status_reason": "25 minutes late"
-    },
-    {
-      "driver_name": "Thomas Taylor",
-      "asset_id": "TRK-1009",
-      "job_site": "North Dallas Site",
-      "scheduled_start": "07:00 AM",
-      "scheduled_end": "04:00 PM",
-      "actual_start": "06:43 AM",
-      "actual_end": "03:52 PM",
-      "status": "On Time",
-      "status_reason": ""
-    },
-    {
       "driver_name": "Daniel Jackson",
       "asset_id": "TRK-1012",
       "job_site": "Richardson Development",
@@ -156,13 +134,35 @@
       "status_reason": ""
     },
     {
-      "driver_name": "John Smith",
-      "asset_id": "TRK-1001",
-      "job_site": "North Dallas Site",
-      "scheduled_start": "06:30 AM",
-      "scheduled_end": "03:30 PM",
-      "actual_start": "06:25 AM",
-      "actual_end": "03:35 PM",
+      "driver_name": "Robert Williams",
+      "asset_id": "TRK-1003",
+      "job_site": "Downtown Construction",
+      "scheduled_start": "07:00 AM",
+      "scheduled_end": "04:00 PM",
+      "actual_start": "07:28 AM",
+      "actual_end": "03:45 PM",
+      "status": "Late",
+      "status_reason": "28 minutes late"
+    },
+    {
+      "driver_name": "Anthony Martin",
+      "asset_id": "TRK-1014",
+      "job_site": "West Plano Project",
+      "scheduled_start": "07:00 AM",
+      "scheduled_end": "04:00 PM",
+      "actual_start": "07:16 AM",
+      "actual_end": "03:58 PM",
+      "status": "Late",
+      "status_reason": "16 minutes late"
+    },
+    {
+      "driver_name": "Charles Anderson",
+      "asset_id": "TRK-1010",
+      "job_site": "West Plano Project",
+      "scheduled_start": "06:00 AM",
+      "scheduled_end": "03:00 PM",
+      "actual_start": "06:05 AM",
+      "actual_end": "02:48 PM",
       "status": "On Time",
       "status_reason": ""
     }
@@ -176,7 +176,7 @@
     "on_time": 9
   },
   "metadata": {
-    "processed_at": "2025-05-21T00:25:06.247201",
+    "processed_at": "2025-05-21T00:35:41.694043",
     "source_files": {
       "driving_history": [
         "driving_history_2025-05-16.csv",

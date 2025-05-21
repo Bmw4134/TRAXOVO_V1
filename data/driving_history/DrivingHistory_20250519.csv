@@ -1,0 +1,29 @@
+driver,asset,datetime,event_type,location
+John Smith,TRK-1001,2025-05-19 06:25:33,Key On,North Dallas Site
+John Smith,TRK-1001,2025-05-19 15:35:41,Key Off,North Dallas Site
+Michael Johnson,TRK-1002,2025-05-19 06:18:22,Key On,West Plano Project
+Michael Johnson,TRK-1002,2025-05-19 15:07:15,Key Off,West Plano Project
+Robert Williams,TRK-1003,2025-05-19 07:28:45,Key On,Downtown Construction
+Robert Williams,TRK-1003,2025-05-19 15:45:12,Key Off,Downtown Construction
+William Brown,TRK-1004,2025-05-19 06:32:15,Key On,Richardson Development
+William Brown,TRK-1004,2025-05-19 14:54:36,Key Off,Richardson Development
+James Davis,TRK-1005,2025-05-19 07:03:21,Key On,North Richland Hills
+James Davis,TRK-1005,2025-05-19 15:12:40,Key Off,North Richland Hills
+David Miller,TRK-1006,2025-05-19 06:47:51,Key On,West Plano Project
+David Miller,TRK-1006,2025-05-19 15:42:18,Key Off,West Plano Project
+Richard Wilson,TRK-1007,2025-05-19 06:14:42,Key On,Downtown Construction
+Richard Wilson,TRK-1007,2025-05-19 15:18:27,Key Off,Downtown Construction
+Joseph Moore,TRK-1008,2025-05-19 06:55:23,Key On,Richardson Development
+Joseph Moore,TRK-1008,2025-05-19 15:25:11,Key Off,Richardson Development
+Thomas Taylor,TRK-1009,2025-05-19 06:43:38,Key On,North Dallas Site
+Thomas Taylor,TRK-1009,2025-05-19 15:52:44,Key Off,North Dallas Site
+Charles Anderson,TRK-1010,2025-05-19 06:05:19,Key On,West Plano Project
+Charles Anderson,TRK-1010,2025-05-19 14:48:31,Key Off,West Plano Project
+Christopher Thomas,TRK-1011,2025-05-19 06:29:57,Key On,Downtown Construction
+Christopher Thomas,TRK-1011,2025-05-19 15:33:29,Key Off,Downtown Construction
+Daniel Jackson,TRK-1012,2025-05-19 06:16:33,Key On,Richardson Development
+Daniel Jackson,TRK-1012,2025-05-19 15:12:48,Key Off,Richardson Development
+Matthew Harris,TRK-1013,2025-05-19 06:52:44,Key On,North Dallas Site
+Matthew Harris,TRK-1013,2025-05-19 15:37:51,Key Off,North Dallas Site
+Anthony Martin,TRK-1014,2025-05-19 07:16:29,Key On,West Plano Project
+Anthony Martin,TRK-1014,2025-05-19 15:58:12,Key Off,West Plano Project

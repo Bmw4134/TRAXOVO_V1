@@ -14,9 +14,12 @@ from datetime import datetime
 from pathlib import Path
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter, landscape
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
+from reportlab.graphics.shapes import Drawing, Line
+from reportlab.graphics.charts.piecharts import Pie
+from reportlab.graphics.charts.legends import Legend
 
 # Set up logging
 logging.basicConfig(
@@ -124,6 +127,65 @@ def generate_pdf_report(date_str='2025-05-16'):
         elements.append(summary_table)
         elements.append(Spacer(1, 0.25*inch))
         
+        # Add pie chart for status distribution
+        elements.append(Paragraph("Status Distribution", heading_style))
+        elements.append(Spacer(1, 0.1*inch))
+        
+        # Create pie chart
+        drawing = Drawing(400, 200)
+        
+        # Define the pie chart
+        pie = Pie()
+        pie.x = 150
+        pie.y = 50
+        pie.width = 100
+        pie.height = 100
+        
+        # Add data to pie chart
+        pie.data = [late, early_end, not_on_job, on_time]
+        
+        # Set colors for slices
+        pie.slices.strokeWidth = 0.5
+        pie.slices[0].fillColor = colors.lightcoral
+        pie.slices[1].fillColor = colors.lightgoldenrodyellow
+        pie.slices[2].fillColor = colors.pink
+        pie.slices[3].fillColor = colors.lightgreen
+        
+        # Add labels and percentages
+        pie.labels = ['Late', 'Early End', 'Not On Job', 'On Time']
+        pie.slices.popout = 5
+        pie.sideLabels = True
+        
+        # Add a legend
+        legend = Legend()
+        legend.alignment = 'right'
+        legend.x = 280
+        legend.y = 75
+        legend.colorNamePairs = [
+            (colors.lightcoral, 'Late'),
+            (colors.lightgoldenrodyellow, 'Early End'),
+            (colors.pink, 'Not On Job'),
+            (colors.lightgreen, 'On Time')
+        ]
+        
+        # Add pie chart and legend to drawing
+        drawing.add(pie)
+        drawing.add(legend)
+        
+        # Add drawing to elements
+        elements.append(drawing)
+        elements.append(Spacer(1, 0.25*inch))
+        
+        # Add horizontal line
+        style = ParagraphStyle(
+            'Divider',
+            parent=normal_style,
+            textColor=colors.darkblue,
+            alignment=1  # Center alignment
+        )
+        elements.append(Paragraph("_" * 100, style))
+        elements.append(Spacer(1, 0.25*inch))
+        
         # Add driver details
         elements.append(Paragraph("Driver Details", heading_style))
         
@@ -189,8 +251,27 @@ def generate_pdf_report(date_str='2025-05-16'):
         else:
             elements.append(Paragraph("No driver data available for this date.", normal_style))
         
-        # Build the PDF
-        doc.build(elements)
+        # Add footer with metadata
+        def add_page_number(canvas, doc):
+            canvas.saveState()
+            canvas.setFont('Helvetica', 8)
+            
+            # Add footer text
+            footer_text = f"TRAXORA GENIUS CORE - Daily Driver Report for {display_date}"
+            canvas.drawString(inch, 0.5 * inch, footer_text)
+            
+            # Add page number
+            page_num = canvas.getPageNumber()
+            canvas.drawRightString(letter[0] - inch, 0.5 * inch, f"Page {page_num}")
+            
+            # Add timestamp
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            canvas.drawCentredString(letter[0]/2.0, 0.5 * inch, f"Generated: {timestamp}")
+            
+            canvas.restoreState()
+        
+        # Build the PDF with page numbering
+        doc.build(elements, onFirstPage=add_page_number, onLaterPages=add_page_number)
         logger.info(f"PDF report generated at {pdf_path}")
         
         # Create copies for web interface

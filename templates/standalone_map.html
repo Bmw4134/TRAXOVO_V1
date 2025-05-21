@@ -393,14 +393,80 @@
                                         // Base score = inverse of distance (closer = higher score)
                                         var distanceScore = 1000 / (match.distance + 10); // Add 10m to avoid division by zero
                                         
-                                        // Add job type bonus
+                                        // Add job type bonus based on equipment type and project type
                                         var jobTypeBonus = 0;
-                                        if (match.site.shape_type === 'rectangle' && (asset.type === 'Excavator' || asset.type === 'Roller')) {
-                                            // Excavators and rollers are more likely to be on linear/road projects
-                                            jobTypeBonus = 50;
-                                        } else if (match.site.shape_type === 'circle' && (asset.type === 'Backhoe' || asset.type === 'Wheel Loader')) {
-                                            // Backhoes and wheel loaders are often used at yards
-                                            jobTypeBonus = 50;
+                                        
+                                        // Equipment type bonuses for linear/rectangular projects (highways, bridges)
+                                        if (match.site.shape_type === 'rectangle') {
+                                            if (asset.type === 'Excavator') {
+                                                jobTypeBonus += 80; // Excavators are commonly used on road/bridge projects
+                                            } else if (asset.type === 'Roller') {
+                                                jobTypeBonus += 100; // Rollers are almost always on road projects
+                                            } else if (asset.type === 'Crane') {
+                                                jobTypeBonus += 90; // Cranes are often used on bridge projects
+                                            } else if (asset.type === 'Bridge Machine') {
+                                                jobTypeBonus += 120; // Bridge machines are specifically for bridge projects
+                                            } else if (asset.type === 'Grader') {
+                                                jobTypeBonus += 90; // Graders are for road projects
+                                            } else if (asset.type === 'Dozer') {
+                                                jobTypeBonus += 70; // Dozers often on road projects
+                                            }
+                                        } 
+                                        // Equipment type bonuses for yard/circular projects
+                                        else if (match.site.shape_type === 'circle') {
+                                            if (asset.type === 'Backhoe') {
+                                                jobTypeBonus += 70; // Backhoes often used at yards
+                                            } else if (asset.type === 'Wheel Loader') {
+                                                jobTypeBonus += 80; // Wheel loaders commonly at yards
+                                            } else if (asset.type === 'Skid Steer') {
+                                                jobTypeBonus += 70; // Skid steers often at yards
+                                            } else if (asset.type === 'Truck Mounted Attenuator (TMA)') {
+                                                jobTypeBonus += 60; // TMAs often return to yards
+                                            }
+                                        }
+                                        
+                                        // Check for project number patterns in job site name
+                                        if (match.site.job_number) {
+                                            // Get year from job number if available (e.g., "2023" from "2023-032")
+                                            const jobYearMatch = match.site.job_number.match(/^(\d{4})/);
+                                            if (jobYearMatch) {
+                                                const jobYear = parseInt(jobYearMatch[1]);
+                                                const currentYear = new Date().getFullYear();
+                                                
+                                                // More recent projects get higher priority (likely still active)
+                                                if (jobYear === currentYear) {
+                                                    jobTypeBonus += 40; // Current year projects are high priority
+                                                } else if (jobYear === currentYear - 1) {
+                                                    jobTypeBonus += 20; // Last year's projects still relevant
+                                                }
+                                            }
+                                        }
+                                        
+                                        // Historical pattern bonus: Equipment tends to stay at the same job site
+                                        // If asset location has project number in it, and it matches this job site
+                                        if (asset.location && match.site.job_number) {
+                                            // If the asset's current reported location contains this job's number
+                                            if (asset.location.includes(match.site.job_number)) {
+                                                jobTypeBonus += 200; // Very strong signal it belongs to this site
+                                            }
+                                            
+                                            // If the asset's last known location was this type of job site
+                                            // (e.g., bridge equipment on another bridge project)
+                                            if (asset.location.toLowerCase().includes('bridge') && 
+                                                match.site.name.toLowerCase().includes('bridge')) {
+                                                jobTypeBonus += 50; // Similar job type bonus
+                                            }
+                                        }
+                                        
+                                        // Seasonal/weather factor
+                                        const currentMonth = new Date().getMonth(); // 0-11, Jan=0, Dec=11
+                                        // Summer months: more road work
+                                        if (currentMonth >= 4 && currentMonth <= 8) { // May-Sept
+                                            if (match.site.name.toLowerCase().includes('road') || 
+                                                match.site.name.toLowerCase().includes('rehab') ||
+                                                match.site.name.toLowerCase().includes('highway')) {
+                                                jobTypeBonus += 30; // Summer road work bonus
+                                            }
                                         }
                                         
                                         // Check if asset is likely sold or inactive

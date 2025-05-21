@@ -108,19 +108,63 @@ class MTDIngestionEngine:
         # Track seen driver-key-on events to avoid duplicates
         seen_events = set()
         
-        # Process in chunks for memory efficiency
-        for chunk in pd.read_csv(file_path, chunksize=chunk_size):
-            # Ensure date column exists and is properly formatted
-            if 'Date' not in chunk.columns:
-                logger.error(f"Missing Date column in {file_path}")
-                continue
+        # Process with robust error handling
+        try:
+            # Read file with flexible parsing options
+            all_data = pd.DataFrame()
             
-            # Convert date strings to datetime objects for comparison
-            chunk['Date'] = pd.to_datetime(chunk['Date'], errors='coerce')
+            try:
+                # First try automatic format detection
+                all_data = pd.read_csv(file_path, 
+                                      dtype=str,  
+                                      sep=None,  # Auto-detect delimiter
+                                      engine='python',  # More flexible parsing
+                                      on_bad_lines='skip',
+                                      low_memory=False)
+            except Exception as e:
+                logger.warning(f"First parsing attempt failed: {e}")
+                try:
+                    # Try with more flexible options
+                    all_data = pd.read_csv(file_path, 
+                                          dtype=str, 
+                                          sep=None,
+                                          engine='python',
+                                          error_bad_lines=False, 
+                                          warn_bad_lines=True,
+                                          on_bad_lines='skip',
+                                          low_memory=False)
+                except Exception as e:
+                    logger.warning(f"Second parsing attempt failed: {e}")
+                    # Last attempt with minimal options
+                    all_data = pd.read_csv(file_path, 
+                                          dtype=str,
+                                          on_bad_lines='skip',
+                                          skipinitialspace=True)
             
-            # Filter records for target date
-            date_mask = (chunk['Date'].dt.date == self.target_date_obj.date())
-            filtered_chunk = chunk[date_mask].copy()
+            # Process in chunks for memory efficiency
+            for chunk_start in range(0, len(all_data), chunk_size):
+                chunk = all_data.iloc[chunk_start:chunk_start+chunk_size].copy()
+                
+                # Ensure required columns exist
+                if 'Date' not in chunk.columns and 'date' not in chunk.columns:
+                    possible_date_cols = [col for col in chunk.columns if 'date' in str(col).lower()]
+                    if possible_date_cols:
+                        # Use the first column that might be a date
+                        chunk['Date'] = chunk[possible_date_cols[0]]
+                    else:
+                        logger.error(f"No date column found in {file_path}")
+                        continue
+                
+                # Standardize date column name
+                if 'Date' not in chunk.columns and 'date' in chunk.columns:
+                    chunk['Date'] = chunk['date']
+                
+                # Convert date strings to datetime objects for comparison
+                chunk['Date'] = pd.to_datetime(chunk['Date'], errors='coerce')
+                
+                # Filter records for target date
+                date_mask = (chunk['Date'].dt.date == self.target_date_obj.date())
+                filtered_chunk = chunk[date_mask].copy()
             
             for idx, row in filtered_chunk.iterrows():
                 # Create a unique key for this event

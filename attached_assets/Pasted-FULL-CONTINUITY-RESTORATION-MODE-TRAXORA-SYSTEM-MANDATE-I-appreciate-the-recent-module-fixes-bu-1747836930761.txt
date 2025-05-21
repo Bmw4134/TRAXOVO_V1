@@ -1,0 +1,43 @@
+FULL CONTINUITY RESTORATION MODE: TRAXORA SYSTEM MANDATE
+
+I appreciate the recent module fixes, but we're still dealing with core regressions across the application that violate the original design logic. The platform is fragmented across daily driver logic, navigation failures, broken visuals, asset references, and critical dashboard elements missing.
+
+🔁 SYSTEM MUST RECONVERGE TO ORIGINAL DESIGN STATE:
+1. Reinstate the **Main Dashboard** with:
+   • API status indicators
+   • System diagnostics tile
+   • Quick-launch tiles to Daily Report, Billing, Asset Map, Job Zone Assignment
+   • Snapshot stats (e.g. asset count, daily driver summary, data sync time)
+
+2. Fix Broken Navigation:
+   • Top-level dropdowns (Assets, Job Zones, PM Allocation, Attendance) do not link or route correctly
+   • Return full route integrity with nested paths working in all environments
+
+3. Asset Map Failures:
+   • Icons are missing or corrupted
+   • GPS anchors seem broken or unmapped to real asset IDs
+   • Disposed/Active/Unknown filters yield broken visual states
+
+4. Daily Driver Module:
+   • Must allow **source file upload** (manual override of MTD ingestion)
+   • Must purge ghost/test drivers
+   • Must trace drivers from uploaded CSV > asset list > telematics > output
+
+5. Billing and PM Allocation:
+   • 500 errors still intermittently crash these modules
+   • Uploaded files are not being properly reconciled with master allocation sheets
+   • Need clear change logs with exportable deltas
+
+📦 Provide Me With:
+✓ Clean trace manifest of ALL fixed logic paths (data source > module > export)
+✓ Root-cause on why navigation broke and dashboard was deleted
+✓ New centralized config to toggle test mode vs real data validation
+✓ Upload panel for all data files (Drivers, Billing, Asset Assignments, Telematics)
+
+→ Treat this as a full-system resynchronization checkpoint. No further cosmetic upgrades until:
+   • Foundational logic paths are validated
+   • Navigation is reliable
+   • Reports return clean real data
+   • Dashboards are restored to intelligent overview state
+
+System is expected to operate under GENIUS CORE ULTRA BLOCK CONTINUITY MODE. Awaiting restoration manifest.

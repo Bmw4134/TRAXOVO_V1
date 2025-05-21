@@ -1,10 +1,35 @@
 """
-Models for the SYSTEMSMITH application.
+Models for the TRAXORA Fleet Management System.
 """
 from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from app import db
+from sqlalchemy import Column, Integer, String, Boolean, Float, Text, DateTime, ForeignKey, Date, JSON
+from sqlalchemy.orm import relationship
+from database import db
+
+class Organization(db.Model):
+    """Organizations or departments in the system"""
+    __tablename__ = 'organizations'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128), nullable=False, unique=True)
+    code = db.Column(db.String(20), nullable=True, unique=True)
+    description = db.Column(db.Text)
+    address = db.Column(db.String(256))
+    city = db.Column(db.String(64))
+    state = db.Column(db.String(64))
+    zip_code = db.Column(db.String(20))
+    contact_name = db.Column(db.String(128))
+    contact_email = db.Column(db.String(128))
+    contact_phone = db.Column(db.String(20))
+    division = db.Column(db.String(64))  # DFW, Houston, West Texas, etc.
+    active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def __repr__(self):
+        return f'<Organization {self.name}>'
+
 
 class Role(db.Model):
     """User roles for permission management"""

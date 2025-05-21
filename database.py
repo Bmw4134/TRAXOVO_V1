@@ -1,28 +1,40 @@
 """
-Database module for SQLAlchemy initialization
+TRAXORA Fleet Management System - Database Module
 
-This module provides a consistent way to set up the database
-connection throughout the application without circular imports.
+This module contains the database configuration and initialization.
 """
-
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
-from flask_migrate import Migrate
 
+# Create a database base class
 class Base(DeclarativeBase):
-    """Base class for SQLAlchemy models"""
     pass
 
-# Create the SQLAlchemy instance to be used throughout the application
+# Initialize SQLAlchemy with the base class
 db = SQLAlchemy(model_class=Base)
-migrate = None
 
 def init_app(app):
     """Initialize the database with the Flask app"""
-    global migrate
+    # Configure database
+    app.config["SQLALCHEMY_DATABASE_URI"] = app.config.get("SQLALCHEMY_DATABASE_URI")
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = app.config.get("SQLALCHEMY_ENGINE_OPTIONS", {
+        "pool_recycle": 300,
+        "pool_pre_ping": True,
+    })
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     
-    # Initialize the SQLAlchemy instance with the app
+    # Initialize database with app
     db.init_app(app)
     
-    # Initialize Flask-Migrate
-    migrate = Migrate(app, db)
+    # Create tables
+    with app.app_context():
+        try:
+            # Import models here to avoid circular imports
+            import models  # noqa: F401
+            db.create_all()
+            return db
+        except Exception as e:
+            import logging
+            logging.error(f"Failed to create database tables: {str(e)}")
+            # Return db even on error so the application can continue
+            return db

@@ -55,7 +55,12 @@ def load_user(user_id):
 # Initialize database
 with app.app_context():
     try:
-        import models
+        # Import all models from the modular structure
+        from models import User, Asset, Driver, JobSite, Organization
+        from models import Notification, SystemConfiguration, ActivityLog
+        from models import AssetLocation, DriverReport, PMAllocation
+        
+        # Create all tables
         db.create_all()
         logger.info("Database tables created")
     except Exception as e:

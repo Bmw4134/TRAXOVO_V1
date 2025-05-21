@@ -413,14 +413,14 @@
                                 icon: createJobSiteIcon()
                             }).addTo(jobSiteOverlay);
                             
-                            // Create the appropriate geofence shape based on site type
+                            // Create the appropriate geofence shape based on site type with precision intelligence
                             var radius = site.radius || 1000; // Default 1km radius if not specified
                             var color = site.color || '#FF5733'; // Default color if not specified
                             var shape; // Will hold the geofence shape (circle, polygon, etc.)
                             
                             // Determine which type of shape to create based on shape_type
                             if (site.shape_type === 'rectangle' && site.polygon && site.polygon.length > 0) {
-                                // Create a rectangle for highway/road projects
+                                // Create a precise rectangle for highway/road projects using polygon data
                                 shape = L.polygon(site.polygon, {
                                     color: color,
                                     fillColor: color,
@@ -431,40 +431,122 @@
                                 }).addTo(jobSiteOverlay);
                             } 
                             else if (site.shape_type === 'cross') {
-                                // Create a cross shape for intersections
-                                var lat = site.latitude;
-                                var lng = site.longitude;
-                                var halfRadius = radius / 111320; // Convert meters to degrees (approx)
-                                var thinWidth = halfRadius * 0.3;
+                                // Create a precise cross shape for intersections
+                                var layers = [];
                                 
-                                // Create the horizontal arm
-                                var horizontalArm = L.rectangle([
-                                    [lat - thinWidth, lng - halfRadius], 
-                                    [lat + thinWidth, lng + halfRadius]
-                                ], {
-                                    color: color,
-                                    fillColor: color,
-                                    fillOpacity: 0.1,
-                                    weight: 2,
-                                    dashArray: '5, 5',
-                                    interactive: true
-                                }).addTo(jobSiteOverlay);
+                                // Check if we have advanced cross data from the backend
+                                if (site.polygon && site.polygon.center && site.polygon.arm_length) {
+                                    // Use the precise dimensions from backend
+                                    var center = site.polygon.center;
+                                    var armLength = site.polygon.arm_length;
+                                    var armWidth = site.polygon.arm_width;
+                                    var intersectionSize = site.polygon.size || 'minor';
+                                    
+                                    // Create horizontal arm (East-West)
+                                    var horizontalArm = L.rectangle([
+                                        [center[0] - armWidth, center[1] - armLength], 
+                                        [center[0] + armWidth, center[1] + armLength]
+                                    ], {
+                                        color: color,
+                                        fillColor: color,
+                                        fillOpacity: 0.1,
+                                        weight: 2,
+                                        dashArray: '5, 5',
+                                        interactive: true
+                                    }).addTo(jobSiteOverlay);
+                                    
+                                    // Create vertical arm (North-South)
+                                    var verticalArm = L.rectangle([
+                                        [center[0] - armLength, center[1] - armWidth], 
+                                        [center[0] + armLength, center[1] + armWidth]
+                                    ], {
+                                        color: color,
+                                        fillColor: color,
+                                        fillOpacity: 0.1,
+                                        weight: 2,
+                                        dashArray: '5, 5',
+                                        interactive: true
+                                    }).addTo(jobSiteOverlay);
+                                    
+                                    // Add both arms to the layer group
+                                    layers.push(horizontalArm, verticalArm);
+                                    
+                                    // For major intersections, add diagonal crossing elements for more precision
+                                    if (intersectionSize === 'major') {
+                                        var diagonalLength = armLength * 0.7;
+                                        var diagonalWidth = armWidth * 0.7;
+                                        
+                                        // Calculate points for diagonal elements (NW-SE and NE-SW)
+                                        // NW to SE diagonal
+                                        var diagonalNWSE = L.polygon([
+                                            [center[0] - diagonalLength, center[1] - diagonalLength], // NW
+                                            [center[0] - diagonalLength + diagonalWidth, center[1] - diagonalLength + diagonalWidth], // NW offset
+                                            [center[0] + diagonalLength, center[1] + diagonalLength], // SE
+                                            [center[0] + diagonalLength - diagonalWidth, center[1] + diagonalLength - diagonalWidth]  // SE offset
+                                        ], {
+                                            color: color,
+                                            fillColor: color,
+                                            fillOpacity: 0.1,
+                                            weight: 2,
+                                            dashArray: '5, 5',
+                                            interactive: true
+                                        }).addTo(jobSiteOverlay);
+                                        
+                                        // NE to SW diagonal
+                                        var diagonalNESW = L.polygon([
+                                            [center[0] - diagonalLength, center[1] + diagonalLength], // NE
+                                            [center[0] - diagonalLength + diagonalWidth, center[1] + diagonalLength - diagonalWidth], // NE offset
+                                            [center[0] + diagonalLength, center[1] - diagonalLength], // SW
+                                            [center[0] + diagonalLength - diagonalWidth, center[1] - diagonalLength + diagonalWidth]  // SW offset
+                                        ], {
+                                            color: color,
+                                            fillColor: color,
+                                            fillOpacity: 0.1,
+                                            weight: 2,
+                                            dashArray: '5, 5',
+                                            interactive: true
+                                        }).addTo(jobSiteOverlay);
+                                        
+                                        layers.push(diagonalNWSE, diagonalNESW);
+                                    }
+                                } else {
+                                    // Fallback to basic cross if no advanced data
+                                    var lat = site.latitude;
+                                    var lng = site.longitude;
+                                    var halfRadius = radius / 111320; // Convert meters to degrees (approx)
+                                    var thinWidth = halfRadius * 0.3;
+                                    
+                                    // Create the horizontal arm
+                                    var horizontalArm = L.rectangle([
+                                        [lat - thinWidth, lng - halfRadius], 
+                                        [lat + thinWidth, lng + halfRadius]
+                                    ], {
+                                        color: color,
+                                        fillColor: color,
+                                        fillOpacity: 0.1,
+                                        weight: 2,
+                                        dashArray: '5, 5',
+                                        interactive: true
+                                    }).addTo(jobSiteOverlay);
+                                    
+                                    // Create the vertical arm
+                                    var verticalArm = L.rectangle([
+                                        [lat - halfRadius, lng - thinWidth], 
+                                        [lat + halfRadius, lng + thinWidth]
+                                    ], {
+                                        color: color,
+                                        fillColor: color,
+                                        fillOpacity: 0.1,
+                                        weight: 2,
+                                        dashArray: '5, 5',
+                                        interactive: true
+                                    }).addTo(jobSiteOverlay);
+                                    
+                                    layers.push(horizontalArm, verticalArm);
+                                }
                                 
-                                // Create the vertical arm
-                                var verticalArm = L.rectangle([
-                                    [lat - halfRadius, lng - thinWidth], 
-                                    [lat + halfRadius, lng + thinWidth]
-                                ], {
-                                    color: color,
-                                    fillColor: color,
-                                    fillOpacity: 0.1,
-                                    weight: 2,
-                                    dashArray: '5, 5',
-                                    interactive: true
-                                }).addTo(jobSiteOverlay);
-                                
-                                // Group both arms into one shape
-                                shape = L.layerGroup([horizontalArm, verticalArm]);
+                                // Group all elements into one shape
+                                shape = L.layerGroup(layers);
                             }
                             else {
                                 // Default to a circle for other shapes (yards, etc.)

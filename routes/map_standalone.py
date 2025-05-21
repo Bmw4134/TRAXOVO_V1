@@ -9,6 +9,8 @@ import re
 import logging
 import json
 import requests
+import math
+from math import cos, radians
 from flask import Blueprint, render_template, jsonify, request, current_app
 from datetime import datetime, timedelta
 from urllib3.exceptions import InsecureRequestWarning
@@ -530,30 +532,108 @@ def api_job_sites():
                         shape_type = 'cross'
                         radius = 400
                     
-                    # Create polygon coordinates if needed
+                    # Create precise polygon coordinates based on geospatial intelligence
                     polygon_coordinates = []
+                    
+                    # For cross intersections (road junctions)
+                    if shape_type == 'cross':
+                        # Get intersection details
+                        lat = loc_data['latitude']
+                        lon = loc_data['longitude']
+                        
+                        # Determine if it's a major or minor intersection
+                        intersection_size = 'major' if 'MAJOR' in name.upper() or 'HIGHWAY' in name.upper() else 'minor'
+                        
+                        # Set dimensions based on intersection type
+                        if intersection_size == 'major':
+                            # Major highway intersections are larger
+                            arm_length = radius * 1.5 / 111000  # Convert meters to approximate degrees
+                            arm_width = radius * 0.4 / 111000
+                        else:
+                            # Minor street intersections
+                            arm_length = radius * 1.0 / 111000
+                            arm_width = radius * 0.25 / 111000
+                        
+                        # Store polygon data for cross shape rendering
+                        polygon_coordinates = {
+                            'center': [lat, lon],
+                            'arm_length': arm_length,
+                            'arm_width': arm_width,
+                            'type': 'cross',
+                            'size': intersection_size
+                        }
+                    
                     # For rectangular shapes (like highways, roads)
-                    if shape_type == 'rectangle':
-                        # Try to determine orientation (North-South or East-West)
+                    elif shape_type == 'rectangle':
+                        # Determine orientation using advanced geospatial analysis
+                        # First check name for cardinal directions
                         orientation = 'NS'  # Default North-South
-                        if 'EAST' in name.upper() or 'WEST' in name.upper() or 'HWY' in name.upper():
+                        
+                        # Use intelligent direction detection from job name
+                        if any(kw in name.upper() for kw in ['EAST', 'WEST', 'E-W', 'W-E', 'EASTBOUND', 'WESTBOUND', 'HWY', 'HIGHWAY']):
                             orientation = 'EW'  # East-West
+                        elif any(kw in name.upper() for kw in ['NORTH', 'SOUTH', 'N-S', 'S-N', 'NORTHBOUND', 'SOUTHBOUND']):
+                            orientation = 'NS'  # North-South
+                        elif 'INTERSTATE' in name.upper() or 'I-' in name.upper():
+                            # Interstate number pattern to determine orientation
+                            # Even numbers generally run East-West, odd numbers North-South
+                            import re
+                            interstate_match = re.search(r'I-(\d+)', name.upper())
+                            if interstate_match:
+                                interstate_num = int(interstate_match.group(1))
+                                orientation = 'EW' if interstate_num % 2 == 0 else 'NS'
+                        elif 'SH' in name.upper() or 'FM' in name.upper() or 'STATE HIGHWAY' in name.upper():
+                            # Texas state highway numbering doesn't follow the same even/odd pattern
+                            # Check if highway number is provided
+                            highway_match = re.search(r'(SH|FM)\s*(\d+)', name.upper())
+                            if highway_match:
+                                # For major state highways like SH 35, determine by location
+                                highway_num = highway_match.group(2)
+                                
+                                # SH 35 runs North-South along the coast
+                                if highway_match.group(1) == 'SH' and highway_num == '35':
+                                    orientation = 'NS'
+                                # Other major East-West highways
+                                elif highway_match.group(1) == 'SH' and highway_num in ['114', '183', '121']:
+                                    orientation = 'EW'
                         
                         lat = loc_data['latitude']
                         lon = loc_data['longitude']
-                        width = radius * 0.4
-                        length = radius * 2
                         
-                        # Create an elongated rectangle shape
+                        # Adjust dimensions based on project type
+                        if 'BRIDGE' in name.upper():
+                            # Bridges are typically shorter but still linear
+                            width = radius * 0.3  # Narrower
+                            length = radius * 1.5  # Shorter than roads
+                        elif 'HIGHWAY' in name.upper() or 'INTERSTATE' in name.upper():
+                            # Highways are long and wide
+                            width = radius * 0.5  # Wider
+                            length = radius * 2.5  # Longer
+                        elif 'SIDEWALK' in name.upper():
+                            # Sidewalks are very narrow but can be long
+                            width = radius * 0.15  # Very narrow
+                            length = radius * 1.8  # Moderately long
+                        else:
+                            # Default road dimensions
+                            width = radius * 0.4
+                            length = radius * 2
+                        
+                        # Convert to coordinate space (approximate conversion)
+                        # 1 degree latitude is about 111km, 1 degree longitude varies by latitude
+                        lat_km_per_degree = 111.0
+                        lon_km_per_degree = 111.0 * cos(radians(lat))
+                        
+                        # Create an elongated rectangle shape with proper orientation
                         if orientation == 'NS':
                             # North-South orientation (longer in lat direction)
-                            lat_offset = length * 0.00001
-                            lon_offset = width * 0.00001
+                            lat_offset = (length / 1000) / lat_km_per_degree
+                            lon_offset = (width / 1000) / lon_km_per_degree
                         else:
                             # East-West orientation (longer in lon direction)
-                            lat_offset = width * 0.00001
-                            lon_offset = length * 0.00001
-                            
+                            lat_offset = (width / 1000) / lat_km_per_degree
+                            lon_offset = (length / 1000) / lon_km_per_degree
+                        
+                        # Generate precise polygon coordinates
                         polygon_coordinates = [
                             [lat - lat_offset, lon - lon_offset],
                             [lat + lat_offset, lon - lon_offset],

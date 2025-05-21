@@ -403,8 +403,30 @@
                                             jobTypeBonus = 50;
                                         }
                                         
+                                        // Check if asset is likely sold or inactive
+                                        var activeStatus = true;
+                                        var soldPenalty = 0;
+                                        
+                                        // Parse last update date to determine if asset is likely inactive
+                                        if (asset.last_update) {
+                                            var lastUpdateDate = new Date(asset.last_update);
+                                            var currentDate = new Date();
+                                            var daysDiff = Math.floor((currentDate - lastUpdateDate) / (1000 * 60 * 60 * 24));
+                                            
+                                            // If asset hasn't reported in over 180 days, it's likely sold/disposed
+                                            if (daysDiff > 180) {
+                                                activeStatus = false;
+                                                soldPenalty = 500; // Large penalty to lower score
+                                            } 
+                                            // If asset hasn't reported in over a month, it might be in maintenance
+                                            else if (daysDiff > 30) {
+                                                soldPenalty = 200; // Moderate penalty
+                                            }
+                                        }
+                                        
                                         // Calculate final recommendation score
-                                        match.recommendationScore = distanceScore + jobTypeBonus;
+                                        match.recommendationScore = distanceScore + jobTypeBonus - soldPenalty;
+                                        match.activeStatus = activeStatus;
                                     });
                                     
                                     // Sort by recommendation score (highest first) 
@@ -475,6 +497,20 @@
                                                 aria-valuenow="${match.confidencePercent}" aria-valuemin="0" aria-valuemax="100"></div>
                                         </div>`;
                                         
+                                        // Create sold/inactive warning if needed
+                                        var inactiveWarning = '';
+                                        if (asset.last_update) {
+                                            var lastUpdateDate = new Date(asset.last_update);
+                                            var currentDate = new Date();
+                                            var daysDiff = Math.floor((currentDate - lastUpdateDate) / (1000 * 60 * 60 * 24));
+                                            
+                                            if (daysDiff > 180) {
+                                                inactiveWarning = `<div class="small text-danger fw-bold">WARNING: Equipment likely sold/disposed</div>`;
+                                            } else if (daysDiff > 30) {
+                                                inactiveWarning = `<div class="small text-warning">Note: Equipment inactive ${daysDiff} days</div>`;
+                                            }
+                                        }
+                                        
                                         jobSiteSection += `<div class="${siteBoxClass}">
                                             ${siteHeader}
                                             ${confidenceBadge}
@@ -482,6 +518,7 @@
                                                 <div><span class="badge ${match.badgeClass}">${match.confidencePercent}%</span> ${match.recommendationLevel}</div>
                                                 <div class="text-muted">${distance} km</div>
                                             </div>
+                                            ${inactiveWarning}
                                         </div>`;
                                     });
                                     

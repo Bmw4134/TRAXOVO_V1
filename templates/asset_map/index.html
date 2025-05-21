@@ -1,50 +1,71 @@
-{% extends "basic_base.html" %}
+{% extends "base.html" %}
 
-{% block title %}Asset Map{% endblock %}
+{% block title %}Asset Map - TRAXORA{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 <style>
-    .map-container {
-        height: calc(100vh - 100px);
-        border-radius: 4px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+    body, html {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
     }
     
-    .asset-badge {
-        display: inline-block;
-        padding: 3px 8px;
-        font-size: 12px;
-        font-weight: 600;
-        border-radius: 3px;
-        margin-right: 5px;
+    .page-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        width: 100%;
+        overflow: hidden;
     }
     
-    .asset-info-box {
-        min-width: 220px;
+    .content-container {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
     }
     
-    .filter-card {
-        margin-bottom: 15px;
+    .sidebar {
+        width: 300px;
+        height: 100%;
+        overflow-y: auto;
+        padding: 15px;
+        background-color: var(--bs-dark);
+        color: white;
+    }
+    
+    .map-area {
+        flex: 1;
+        position: relative;
+    }
+    
+    #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        height: 100%;
+    }
+    
+    .filter-section {
+        margin-bottom: 20px;
     }
     
     .filter-label {
-        font-weight: 600;
-        margin-bottom: 5px;
-        font-size: 14px;
+        margin-bottom: 8px;
+        font-weight: 500;
     }
     
-    .filter-btn {
-        width: 100%;
-    }
-    
-    /* Status indicators */
     .status-indicator {
         display: inline-block;
-        width: 12px;
-        height: 12px;
+        width: 16px;
+        height: 16px;
         border-radius: 50%;
-        margin-right: 5px;
+        margin-right: 10px;
+        vertical-align: middle;
     }
     
     .status-active {
@@ -62,86 +83,97 @@
     .status-inactive {
         background-color: #6c757d;
     }
+    
+    .system-status {
+        margin-top: 30px;
+    }
+    
+    .footer {
+        padding: 10px 15px;
+        background-color: var(--bs-dark);
+        color: white;
+        text-align: center;
+        font-size: 0.8rem;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+        margin-left: 5px;
+    }
+    
+    .refresh-btn {
+        width: 100%;
+        margin: 15px 0;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid py-3">
-    <div class="row mb-3">
-        <div class="col-12">
-            <h2>Asset Map <small class="text-muted">Real-time Fleet Tracking</small></h2>
-        </div>
-    </div>
-
-    <div class="row">
-        <!-- Sidebar with filters -->
-        <div class="col-md-3 mb-3">
-            <!-- Filters -->
-            <div class="card filter-card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Filters</h5>
+<div class="page-container">
+    <div class="content-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h3>Asset Map <small>Real-time Fleet Tracking</small></h3>
+            
+            <div class="filter-section">
+                <h5>Filters</h5>
+                <div class="mb-3">
+                    <label class="filter-label">Asset Type</label>
+                    <select id="type-filter" class="form-select form-select-sm">
+                        <option value="">All Types</option>
+                        {% for type in asset_types %}
+                        <option value="{{ type }}">{{ type }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label class="filter-label">Asset Type</label>
-                        <select id="type-filter" class="form-select form-select-sm">
-                            <option value="">All Types</option>
-                            {% for type in asset_types %}
-                            <option value="{{ type }}">{{ type }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="filter-label">Job Site</label>
-                        <select id="job-site-filter" class="form-select form-select-sm">
-                            <option value="">All Job Sites</option>
-                            {% for site in job_sites %}
-                            <option value="{{ site.id }}">{{ site.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    
-                    <button id="refresh-map" class="btn btn-primary btn-sm filter-btn">
-                        <i class="fas fa-sync-alt me-1"></i> Refresh Map
-                    </button>
+                
+                <div class="mb-3">
+                    <label class="filter-label">Job Site</label>
+                    <select id="job-site-filter" class="form-select form-select-sm">
+                        <option value="">All Job Sites</option>
+                        {% for site in job_sites %}
+                        <option value="{{ site.id }}">{{ site.name }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
+                
+                <button id="refresh-map" class="btn btn-primary refresh-btn">
+                    Refresh Map
+                </button>
             </div>
             
-            <!-- Legend -->
-            <div class="card filter-card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Map Legend</h5>
-                </div>
-                <div class="card-body">
-                    <div class="mb-2"><span class="status-indicator status-active"></span> Active</div>
-                    <div class="mb-2"><span class="status-indicator status-idle"></span> Idle</div>
-                    <div class="mb-2"><span class="status-indicator status-maintenance"></span> Maintenance</div>
-                    <div class="mb-2"><span class="status-indicator status-inactive"></span> Inactive</div>
-                </div>
+            <div class="filter-section">
+                <h5>Map Legend</h5>
+                <div class="mb-2"><span class="status-indicator status-active"></span> Active</div>
+                <div class="mb-2"><span class="status-indicator status-idle"></span> Idle</div>
+                <div class="mb-2"><span class="status-indicator status-maintenance"></span> Maintenance</div>
+                <div class="mb-2"><span class="status-indicator status-inactive"></span> Inactive</div>
             </div>
             
-            <!-- System Status -->
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">System Status</h5>
+            <div class="system-status">
+                <h5>System Status</h5>
+                <div id="api-status" class="mb-2">
+                    API Connection
+                    <span class="status-badge bg-success float-end">Connected</span>
                 </div>
-                <div class="card-body">
-                    <div id="api-status" class="mb-2">
-                        <span class="badge bg-primary">API Connection</span>
-                        <span class="badge bg-success float-end">Connected</span>
-                    </div>
-                    <div id="update-time" class="small text-muted">
-                        Last update: <span id="last-update-time">Just now</span>
-                    </div>
+                <div id="update-time" class="small text-muted">
+                    Last update: <span id="last-update-time">Just now</span>
                 </div>
             </div>
         </div>
         
         <!-- Map Area -->
-        <div class="col-md-9">
-            <div id="map" class="map-container"></div>
+        <div class="map-area">
+            <div id="map"></div>
         </div>
+    </div>
+    
+    <div class="footer">
+        © 2025 TRAXORA Fleet Management System | GENIUS CORE CONTINUITY MODE ACTIVE
     </div>
 </div>
 {% endblock %}
@@ -149,174 +181,147 @@
 {% block extra_js %}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
-    // Initialize the map when the document is ready
     document.addEventListener('DOMContentLoaded', function() {
-        // Create the map centered on Dallas, TX
-        var map = L.map('map').setView([32.7767, -96.7970], 8);
+        console.log("DOM loaded, initializing map...");
         
-        // Add OpenStreetMap tile layer
+        // Initialize map
+        var map = L.map('map', {
+            zoomControl: true,
+            attributionControl: true
+        }).setView([32.7767, -96.7970], 9); // Dallas, TX
+        
+        // Add the base map layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
             maxZoom: 19
         }).addTo(map);
         
-        // Asset markers collection
+        // Force a layout recalculation
+        setTimeout(function() {
+            map.invalidateSize();
+            console.log("Map size invalidated for refresh");
+        }, 100);
+        
+        // Collections for markers
         var assetMarkers = {};
         var jobSiteMarkers = {};
         
-        // Create asset marker icon based on type and status
-        function createAssetIcon(type, status) {
-            // Default color is green (active)
-            var color = '#28a745';
+        // Create icon based on asset status
+        function createAssetIcon(status) {
+            var color = "#28a745"; // Default - active
             
-            // Set color based on status
-            if (status === 'idle') {
-                color = '#ffc107';
-            } else if (status === 'maintenance') {
-                color = '#dc3545';
-            } else if (status === 'inactive') {
-                color = '#6c757d';
+            if (status === "idle") {
+                color = "#ffc107";
+            } else if (status === "maintenance") {
+                color = "#dc3545";
+            } else if (status === "inactive") {
+                color = "#6c757d";
             }
             
-            // Create a custom icon
-            var icon = L.divIcon({
-                className: 'custom-asset-icon',
-                html: `<div style="background-color: ${color}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white;"></div>`,
+            return L.divIcon({
+                className: 'asset-marker-icon',
+                html: `<div style="background-color:${color};width:12px;height:12px;border-radius:50%;border:2px solid white;"></div>`,
                 iconSize: [16, 16],
                 iconAnchor: [8, 8]
             });
-            
-            return icon;
         }
         
-        // Load assets from API
+        // Load assets
         function loadAssets() {
             // Update status to loading
             document.getElementById('api-status').innerHTML = 
-                '<span class="badge bg-primary">API Connection</span>' + 
-                '<span class="badge bg-info float-end">Loading...</span>';
+                'API Connection <span class="status-badge bg-info float-end">Loading...</span>';
             
             // Get filter values
             var typeFilter = document.getElementById('type-filter').value;
             var jobSiteFilter = document.getElementById('job-site-filter').value;
             
-            // Build query parameters
+            // Build query string
             var params = [];
             if (typeFilter) params.push('type=' + encodeURIComponent(typeFilter));
             if (jobSiteFilter) params.push('job_site=' + encodeURIComponent(jobSiteFilter));
             var queryString = params.length > 0 ? '?' + params.join('&') : '';
             
-            // Fetch assets from API
+            // Fetch assets
             fetch('/asset-map/api/assets' + queryString)
-                .then(function(response) {
+                .then(response => {
                     if (!response.ok) {
-                        throw new Error('API response error: ' + response.status);
+                        throw new Error('Network response was not ok');
                     }
                     return response.json();
                 })
-                .then(function(assets) {
-                    console.log('Loaded assets:', assets);
+                .then(data => {
+                    console.log("Assets loaded:", data);
                     
                     // Clear existing markers
-                    for (var id in assetMarkers) {
-                        map.removeLayer(assetMarkers[id]);
-                        delete assetMarkers[id];
-                    }
+                    Object.values(assetMarkers).forEach(marker => map.removeLayer(marker));
+                    assetMarkers = {};
                     
-                    // Add markers for assets
-                    assets.forEach(function(asset) {
-                        // Skip assets without location data
-                        if (!asset.latitude || !asset.longitude) {
-                            return;
-                        }
+                    // Add asset markers
+                    data.forEach(asset => {
+                        if (!asset.latitude || !asset.longitude) return;
                         
-                        // Create marker with custom icon
                         var marker = L.marker([asset.latitude, asset.longitude], {
-                            icon: createAssetIcon(asset.type, asset.status)
+                            icon: createAssetIcon(asset.status)
                         }).addTo(map);
                         
-                        // Create popup content
                         var popupContent = `
-                            <div class="asset-info-box">
-                                <h5>${asset.name || asset.asset_id || 'Unnamed Asset'}</h5>
-                                <span class="badge bg-secondary asset-badge">${asset.type || 'Unknown'}</span>
-                                <div class="mt-2">
-                                    <div><strong>ID:</strong> ${asset.asset_id || asset.id || 'Unknown'}</div>
-                                    <div><strong>Driver:</strong> ${asset.driver || 'No Driver'}</div>
-                                    <div>
-                                        <strong>Status:</strong> 
-                                        <span class="status-indicator status-${asset.status || 'inactive'}"></span>
-                                        ${asset.status || 'Inactive'}
-                                    </div>
-                                    <div><strong>Last Update:</strong> ${asset.last_update ? new Date(asset.last_update).toLocaleString() : 'Unknown'}</div>
-                                </div>
+                            <div style="min-width:200px">
+                                <h5>${asset.name || asset.id || 'Asset'}</h5>
+                                <div><strong>ID:</strong> ${asset.asset_id || asset.id}</div>
+                                <div><strong>Type:</strong> ${asset.type || 'Unknown'}</div>
+                                <div><strong>Driver:</strong> ${asset.driver || 'None'}</div>
+                                <div><strong>Status:</strong> ${asset.status || 'Unknown'}</div>
+                                <div><strong>Last Update:</strong> ${asset.last_update ? new Date(asset.last_update).toLocaleString() : 'Unknown'}</div>
                             </div>
                         `;
                         
-                        // Bind popup to marker
                         marker.bindPopup(popupContent);
-                        
-                        // Store marker reference
-                        assetMarkers[asset.id || asset.asset_id] = marker;
+                        assetMarkers[asset.id] = marker;
                     });
                     
-                    // Update status to success
+                    // Update status
                     document.getElementById('api-status').innerHTML = 
-                        '<span class="badge bg-primary">API Connection</span>' + 
-                        '<span class="badge bg-success float-end">Connected</span>';
-                    
-                    // Update last update time
+                        'API Connection <span class="status-badge bg-success float-end">Connected</span>';
                     document.getElementById('last-update-time').textContent = new Date().toLocaleTimeString();
                 })
-                .catch(function(error) {
-                    console.error('Error loading assets:', error);
-                    
-                    // Update status to error
+                .catch(error => {
+                    console.error("Error loading assets:", error);
                     document.getElementById('api-status').innerHTML = 
-                        '<span class="badge bg-primary">API Connection</span>' + 
-                        '<span class="badge bg-danger float-end">Error</span>';
+                        'API Connection <span class="status-badge bg-danger float-end">Error</span>';
                 });
         }
         
-        // Load job sites from API
+        // Load job sites
         function loadJobSites() {
             fetch('/asset-map/api/job-sites')
-                .then(function(response) {
+                .then(response => {
                     if (!response.ok) {
-                        throw new Error('API response error: ' + response.status);
+                        throw new Error('Network response was not ok');
                     }
                     return response.json();
                 })
-                .then(function(jobSites) {
-                    console.log('Loaded job sites:', jobSites);
+                .then(data => {
+                    console.log("Job sites loaded:", data);
                     
                     // Clear existing markers
-                    for (var id in jobSiteMarkers) {
-                        map.removeLayer(jobSiteMarkers[id]);
-                        delete jobSiteMarkers[id];
-                    }
+                    Object.values(jobSiteMarkers).forEach(marker => map.removeLayer(marker));
+                    jobSiteMarkers = {};
                     
-                    // Add markers for job sites
-                    jobSites.forEach(function(site) {
-                        // Skip sites without location data
-                        if (!site.latitude || !site.longitude) {
-                            return;
-                        }
-                        
-                        // Create custom icon for job sites
-                        var icon = L.divIcon({
-                            className: 'custom-jobsite-icon',
-                            html: `<div style="background-color: rgba(0,0,0,0.6); color: white; padding: 3px 8px; border-radius: 3px; font-size: 12px; white-space: nowrap;">${site.name}</div>`,
-                            iconSize: [100, 20],
-                            iconAnchor: [50, 10]
-                        });
+                    // Add job site markers
+                    data.forEach(site => {
+                        if (!site.latitude || !site.longitude) return;
                         
                         // Create marker
                         var marker = L.marker([site.latitude, site.longitude], {
-                            icon: icon
+                            icon: L.divIcon({
+                                className: 'job-site-marker',
+                                html: `<div style="background:#343a40;color:white;padding:3px 8px;border-radius:4px;font-size:12px;">${site.name}</div>`,
+                                iconSize: [100, 20],
+                                iconAnchor: [50, 10]
+                            })
                         }).addTo(map);
                         
-                        // Create popup content
                         var popupContent = `
                             <div>
                                 <h5>${site.name}</h5>
@@ -325,15 +330,12 @@
                             </div>
                         `;
                         
-                        // Bind popup to marker
                         marker.bindPopup(popupContent);
-                        
-                        // Store marker reference
                         jobSiteMarkers[site.id] = marker;
                     });
                 })
-                .catch(function(error) {
-                    console.error('Error loading job sites:', error);
+                .catch(error => {
+                    console.error("Error loading job sites:", error);
                 });
         }
         
@@ -341,16 +343,15 @@
         loadAssets();
         loadJobSites();
         
-        // Set up auto-refresh every minute
+        // Setup auto-refresh
         setInterval(loadAssets, 60000);
         
-        // Set up event listeners
+        // Setup event listeners
         document.getElementById('refresh-map').addEventListener('click', function() {
             loadAssets();
             loadJobSites();
         });
         
-        // Set up filter change handlers
         document.getElementById('type-filter').addEventListener('change', loadAssets);
         document.getElementById('job-site-filter').addEventListener('change', loadAssets);
     });

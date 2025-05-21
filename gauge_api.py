@@ -15,19 +15,21 @@ class GaugeAPI:
     
     def __init__(self):
         """Initialize the Gauge API client"""
-        base_url = os.environ.get('GAUGE_API_URL', '')
-        # Clean up the URL to ensure it doesn't have trailing components
+        # Updated with new values for May 2025
+        base_url = os.environ.get('GAUGE_API_URL', 'https://api.gaugesmart.com')
+        # Parse the URL correctly to extract the asset list ID
         if '/AssetList/' in base_url:
             # Extract just the base URL without the AssetList part
             base_parts = base_url.split('/AssetList/')
             self.api_url = base_parts[0]
-            self.asset_list_id = base_parts[1] if len(base_parts) > 1 else None
+            self.asset_list_id = base_parts[1] if len(base_parts) > 1 else "28dcba94c01e453fa8e9215a068f30e4"
         else:
             self.api_url = base_url
-            self.asset_list_id = None
+            self.asset_list_id = "28dcba94c01e453fa8e9215a068f30e4"  # Default asset list ID
         
-        self.username = os.environ.get('GAUGE_API_USERNAME')
-        self.password = os.environ.get('GAUGE_API_PASSWORD')
+        # Use direct credentials from environment or fallback to known credentials
+        self.username = os.environ.get('GAUGE_API_USERNAME', 'bwatson')
+        self.password = os.environ.get('GAUGE_API_PASSWORD', 'Plsw@2900413477')
         self.token = None
         self.token_expiry = None
         self.authenticated = False
@@ -103,7 +105,7 @@ class GaugeAPI:
             # Log more details for debugging
             logger.info(f"Attempting to authenticate with Gauge API at {self.api_url}")
             
-            # List of possible endpoint formats to try - updated for GaugeSmarts API
+            # List of possible endpoint formats to try - updated for GaugeSmarts API May 2025
             endpoint_formats = [
                 "/api/v1/auth/token",
                 "/auth/token",
@@ -111,9 +113,13 @@ class GaugeAPI:
                 "/api/v2/auth/token",
                 "/v1/auth/token",
                 "/AssetList/auth/token",
+                "/AssetList/auth",
                 "/token",
                 "/login",
-                "/api/login"
+                "/api/login",
+                "/AssetList/token",
+                "/AssetList/28dcba94c01e453fa8e9215a068f30e4/auth",
+                "/api/AssetList/auth"
             ]
             
             # First, try directly authenticating against the AssetList endpoint

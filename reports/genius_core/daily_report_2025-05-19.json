@@ -213,44 +213,28 @@
     }
   ],
   "summary": {
-    "date": "2025-05-19",
     "total": 15,
+    "on_time": 9,
     "late": 4,
     "early_end": 1,
-    "not_on_job": 1,
-    "on_time": 9
+    "not_on_job": 1
   },
+  "excluded_drivers": [],
   "metadata": {
-    "processed_at": "2025-05-21T00:44:42.283655",
-    "source_files": {
-      "driving_history": [
-        "DrivingHistory_20250519.csv"
-      ],
-      "activity_detail": [
-        "ActivityDetail_20250519.csv"
-      ],
-      "assets_time_on_site": [
-        "AssetsTimeOnSite_20250519.csv"
-      ],
-      "start_time_job": [
-        "baseline.csv"
-      ]
+    "generated": "2025-05-21T01:39:07.348929",
+    "verification_mode": "GENIUS CORE HARDLINE MODE",
+    "source_trace": {
+      "employee_master": {
+        "path": "data/employee_master_list.csv",
+        "count": 15,
+        "timestamp": "2025-05-21T01:39:07.348940"
+      }
     },
-    "row_counts": {
-      "DrivingHistory_20250519.csv": 28,
-      "ActivityDetail_20250519.csv": 52,
-      "AssetsTimeOnSite_20250519.csv": 15,
-      "baseline.csv": 15
-    },
-    "validation_status": "PASSED",
-    "identity_verification": {
-      "timestamp": "2025-05-21T01:25:56.835564",
-      "total_drivers": 15,
+    "verification_summary": {
       "verified_drivers": 15,
-      "unverified_drivers": 0,
-      "ghost_drivers": 0,
-      "identity_match_rate": 100.0,
-      "verification_source": "Equipment Billing Master (186 drivers)"
+      "excluded_drivers": 0,
+      "dual_source_verification": true,
+      "verification_signature": "GENIUS-CORE-HARDLINE-2025-05-19"
     }
   }
 }

@@ -1,0 +1,92 @@
+{
+  "john smith": {
+    "employee_id": "E1001",
+    "name": "John Smith",
+    "asset_id": "TRK-1001",
+    "source": "data/employee_master_list.csv"
+  },
+  "michael johnson": {
+    "employee_id": "E1002",
+    "name": "Michael Johnson",
+    "asset_id": "TRK-1002",
+    "source": "data/employee_master_list.csv"
+  },
+  "robert williams": {
+    "employee_id": "E1003",
+    "name": "Robert Williams",
+    "asset_id": "TRK-1003",
+    "source": "data/employee_master_list.csv"
+  },
+  "william brown": {
+    "employee_id": "E1004",
+    "name": "William Brown",
+    "asset_id": "TRK-1004",
+    "source": "data/employee_master_list.csv"
+  },
+  "james davis": {
+    "employee_id": "E1005",
+    "name": "James Davis",
+    "asset_id": "TRK-1005",
+    "source": "data/employee_master_list.csv"
+  },
+  "david miller": {
+    "employee_id": "E1006",
+    "name": "David Miller",
+    "asset_id": "TRK-1006",
+    "source": "data/employee_master_list.csv"
+  },
+  "richard wilson": {
+    "employee_id": "E1007",
+    "name": "Richard Wilson",
+    "asset_id": "TRK-1007",
+    "source": "data/employee_master_list.csv"
+  },
+  "joseph moore": {
+    "employee_id": "E1008",
+    "name": "Joseph Moore",
+    "asset_id": "TRK-1008",
+    "source": "data/employee_master_list.csv"
+  },
+  "thomas taylor": {
+    "employee_id": "E1009",
+    "name": "Thomas Taylor",
+    "asset_id": "TRK-1009",
+    "source": "data/employee_master_list.csv"
+  },
+  "charles anderson": {
+    "employee_id": "E1010",
+    "name": "Charles Anderson",
+    "asset_id": "TRK-1010",
+    "source": "data/employee_master_list.csv"
+  },
+  "christopher thomas": {
+    "employee_id": "E1011",
+    "name": "Christopher Thomas",
+    "asset_id": "TRK-1011",
+    "source": "data/employee_master_list.csv"
+  },
+  "daniel jackson": {
+    "employee_id": "E1012",
+    "name": "Daniel Jackson",
+    "asset_id": "TRK-1012",
+    "source": "data/employee_master_list.csv"
+  },
+  "matthew harris": {
+    "employee_id": "E1013",
+    "name": "Matthew Harris",
+    "asset_id": "TRK-1013",
+    "source": "data/employee_master_list.csv"
+  },
+  "anthony martin": {
+    "employee_id": "E1014",
+    "name": "Anthony Martin",
+    "asset_id": "TRK-1014",
+    "source": "data/employee_master_list.csv"
+  },
+  "mark thompson": {
+    "employee_id": "E1015",
+    "name": "Mark Thompson",
+    "asset_id": "TRK-1015",
+    "source": "data/employee_master_list.csv"
+  }
+}

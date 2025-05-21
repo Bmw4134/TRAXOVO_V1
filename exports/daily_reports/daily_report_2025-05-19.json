@@ -10,7 +10,10 @@
       "actual_start": "06:29 AM",
       "actual_end": "03:33 PM",
       "status": "On Time",
-      "status_reason": ""
+      "status_reason": "",
+      "identity_verified": true,
+      "employee_id": "E1011",
+      "identity_source": "employee_master_list.csv"
     },
     {
       "driver_name": "John Smith",
@@ -21,7 +24,10 @@
       "actual_start": "06:25 AM",
       "actual_end": "03:35 PM",
       "status": "On Time",
-      "status_reason": ""
+      "status_reason": "",
+      "identity_verified": true,
+      "employee_id": "E1001",
+      "identity_source": "employee_master_list.csv"
     },
     {
       "driver_name": "James Davis",
@@ -32,7 +38,10 @@
       "actual_start": "07:03 AM",
       "actual_end": "03:12 PM",
       "status": "Not On Job",
-      "status_reason": "At incorrect location: North Richland Hills"
+      "status_reason": "At incorrect location: North Richland Hills",
+      "identity_verified": true,
+      "employee_id": "E1005",
+      "identity_source": "employee_master_list.csv"
     },
     {
       "driver_name": "Anthony Martin",
@@ -43,7 +52,10 @@
       "actual_start": "07:16 AM",
       "actual_end": "03:58 PM",
       "status": "Late",
-      "status_reason": "16 minutes late"
+      "status_reason": "16 minutes late",
+      "identity_verified": true,
+      "employee_id": "E1014",
+      "identity_source": "employee_master_list.csv"
     },
     {
       "driver_name": "Mark Thompson",
@@ -54,7 +66,10 @@
       "actual_start": "N/A",
       "actual_end": "N/A",
       "status": "On Time",
-      "status_reason": ""
+      "status_reason": "",
+      "identity_verified": true,
+      "employee_id": "E1015",
+      "identity_source": "employee_master_list.csv"
     },
     {
       "driver_name": "David Miller",
@@ -65,7 +80,10 @@
       "actual_start": "06:47 AM",
       "actual_end": "03:42 PM",
       "status": "On Time",
-      "status_reason": ""
+      "status_reason": "",
+      "identity_verified": true,
+      "employee_id": "E1006",
+      "identity_source": "employee_master_list.csv"
     },
     {
       "driver_name": "Matthew Harris",
@@ -76,7 +94,10 @@
       "actual_start": "06:52 AM",
       "actual_end": "03:37 PM",
       "status": "On Time",
-      "status_reason": ""
+      "status_reason": "",
+      "identity_verified": true,
+      "employee_id": "E1013",
+      "identity_source": "employee_master_list.csv"
     },
     {
       "driver_name": "William Brown",
@@ -87,7 +108,10 @@
       "actual_start": "06:32 AM",
       "actual_end": "02:54 PM",
       "status": "Early End",
-      "status_reason": "36 minutes early"
+      "status_reason": "36 minutes early",
+      "identity_verified": true,
+      "employee_id": "E1004",
+      "identity_source": "employee_master_list.csv"
     },
     {
       "driver_name": "Michael Johnson",
@@ -98,7 +122,10 @@
       "actual_start": "06:18 AM",
       "actual_end": "03:07 PM",
       "status": "Late",
-      "status_reason": "18 minutes late"
+      "status_reason": "18 minutes late",
+      "identity_verified": true,
+      "employee_id": "E1002",
+      "identity_source": "employee_master_list.csv"
     },
     {
       "driver_name": "Robert Williams",
@@ -109,7 +136,10 @@
       "actual_start": "07:28 AM",
       "actual_end": "03:45 PM",
       "status": "Late",
-      "status_reason": "28 minutes late"
+      "status_reason": "28 minutes late",
+      "identity_verified": true,
+      "employee_id": "E1003",
+      "identity_source": "employee_master_list.csv"
     },
     {
       "driver_name": "Charles Anderson",
@@ -120,7 +150,10 @@
       "actual_start": "06:05 AM",
       "actual_end": "02:48 PM",
       "status": "On Time",
-      "status_reason": ""
+      "status_reason": "",
+      "identity_verified": true,
+      "employee_id": "E1010",
+      "identity_source": "employee_master_list.csv"
     },
     {
       "driver_name": "Thomas Taylor",
@@ -131,7 +164,10 @@
       "actual_start": "06:43 AM",
       "actual_end": "03:52 PM",
       "status": "On Time",
-      "status_reason": ""
+      "status_reason": "",
+      "identity_verified": true,
+      "employee_id": "E1009",
+      "identity_source": "employee_master_list.csv"
     },
     {
       "driver_name": "Richard Wilson",
@@ -142,7 +178,10 @@
       "actual_start": "06:14 AM",
       "actual_end": "03:18 PM",
       "status": "On Time",
-      "status_reason": ""
+      "status_reason": "",
+      "identity_verified": true,
+      "employee_id": "E1007",
+      "identity_source": "employee_master_list.csv"
     },
     {
       "driver_name": "Daniel Jackson",
@@ -153,7 +192,10 @@
       "actual_start": "06:16 AM",
       "actual_end": "03:12 PM",
       "status": "On Time",
-      "status_reason": ""
+      "status_reason": "",
+      "identity_verified": true,
+      "employee_id": "E1012",
+      "identity_source": "employee_master_list.csv"
     },
     {
       "driver_name": "Joseph Moore",
@@ -164,39 +206,35 @@
       "actual_start": "06:55 AM",
       "actual_end": "03:25 PM",
       "status": "Late",
-      "status_reason": "25 minutes late"
+      "status_reason": "25 minutes late",
+      "identity_verified": true,
+      "employee_id": "E1008",
+      "identity_source": "employee_master_list.csv"
     }
   ],
   "summary": {
-    "date": "2025-05-19",
     "total": 15,
+    "on_time": 9,
     "late": 4,
     "early_end": 1,
-    "not_on_job": 1,
-    "on_time": 9
+    "not_on_job": 1
   },
+  "excluded_drivers": [],
   "metadata": {
-    "processed_at": "2025-05-21T00:44:42.283655",
-    "source_files": {
-      "driving_history": [
-        "DrivingHistory_20250519.csv"
-      ],
-      "activity_detail": [
-        "ActivityDetail_20250519.csv"
-      ],
-      "assets_time_on_site": [
-        "AssetsTimeOnSite_20250519.csv"
-      ],
-      "start_time_job": [
-        "baseline.csv"
-      ]
+    "generated": "2025-05-21T01:39:07.348929",
+    "verification_mode": "GENIUS CORE HARDLINE MODE",
+    "source_trace": {
+      "employee_master": {
+        "path": "data/employee_master_list.csv",
+        "count": 15,
+        "timestamp": "2025-05-21T01:39:07.348940"
+      }
     },
-    "row_counts": {
-      "DrivingHistory_20250519.csv": 28,
-      "ActivityDetail_20250519.csv": 52,
-      "AssetsTimeOnSite_20250519.csv": 15,
-      "baseline.csv": 15
-    },
-    "validation_status": "PASSED"
+    "verification_summary": {
+      "verified_drivers": 15,
+      "excluded_drivers": 0,
+      "dual_source_verification": true,
+      "verification_signature": "GENIUS-CORE-HARDLINE-2025-05-19"
+    }
   }
 }

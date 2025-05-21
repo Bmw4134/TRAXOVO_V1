@@ -1,0 +1,23 @@
+TRAXORA GENIUS CORE | SOURCE TRACE MANIFEST
+Date: 2025-05-16
+Generated: 2025-05-21T01:39:07.301739
+================================================================================
+
+EMPLOYEE MASTER LIST
+================================================================================
+Path: data/employee_master_list.csv
+Record Count: 15
+Timestamp: 2025-05-21T01:39:07.301751
+
+VERIFICATION SUMMARY
+================================================================================
+Verified Drivers: 15
+Excluded Drivers: 0
+
+VERIFICATION STATUS
+================================================================================
+✓ All drivers verified against employee master list
+✓ All reports deleted and regenerated from clean state
+✓ Full trace manifests generated for all reports
+✓ No test or placeholder data included
+✓ GENIUS CORE HARDLINE MODE ACTIVE: LOCKED.

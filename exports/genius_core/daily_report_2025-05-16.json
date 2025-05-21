@@ -1,851 +1,240 @@
 {
   "date": "2025-05-16",
-  "generated": "2025-05-21T01:13:51.855654",
   "drivers": [
     {
-      "driver_name": "John Smith",
-      "normalized_name": "john smith",
-      "asset_id": "TRK-1001",
-      "normalized_asset_id": "TRK-1001",
-      "key_on_time": "2025-05-16T06:45:00",
-      "key_off_time": "2025-05-16T17:15:00",
-      "verified_employee": true,
-      "verified_asset": true,
-      "source_records": [
-        {
-          "type": "driving_history",
-          "source_file": "driving_history_2025-05-16.csv",
-          "asset_id": "TRK-1001",
-          "key_on_time": "2025-05-16T06:45:00",
-          "key_off_time": "2025-05-16T17:15:00"
-        },
-        {
-          "type": "activity_detail",
-          "source_file": "activity_detail_2025-05-16.csv",
-          "asset_id": "TRK-1001",
-          "start_time": "2025-05-16T06:45:00",
-          "end_time": "2025-05-16T17:15:00",
-          "activity_type": "Driving"
-        }
-      ],
-      "employee_id": "E1001",
-      "start_time": "2025-05-16T06:45:00",
-      "end_time": "2025-05-16T17:15:00",
-      "assigned_job_site": "North Dallas",
-      "normalized_job_site": "north dallas",
-      "job_site_arrival": "2025-05-16T06:45:00",
-      "job_site_departure": "2025-05-16T17:15:00",
-      "verified_location": true,
-      "scheduled_start_time": "2025-05-16T07:00:00",
-      "scheduled_end_time": "2025-05-16T17:00:00",
-      "actual_start_time": "2025-05-16T06:45:00",
-      "actual_end_time": "2025-05-16T17:15:00",
-      "status": "On Time",
-      "status_reason": "Present at job site within schedule parameters"
-    },
-    {
-      "driver_name": "Michael Johnson",
-      "normalized_name": "michael johnson",
-      "asset_id": "TRK-1002",
-      "normalized_asset_id": "TRK-1002",
-      "key_on_time": "2025-05-16T07:20:00",
-      "key_off_time": "2025-05-16T16:45:00",
-      "verified_employee": true,
-      "verified_asset": true,
-      "source_records": [
-        {
-          "type": "driving_history",
-          "source_file": "driving_history_2025-05-16.csv",
-          "asset_id": "TRK-1002",
-          "key_on_time": "2025-05-16T07:20:00",
-          "key_off_time": "2025-05-16T16:45:00"
-        },
-        {
-          "type": "activity_detail",
-          "source_file": "activity_detail_2025-05-16.csv",
-          "asset_id": "TRK-1002",
-          "start_time": "2025-05-16T07:20:00",
-          "end_time": "2025-05-16T16:45:00",
-          "activity_type": "Driving"
-        }
-      ],
-      "employee_id": "E1002",
-      "start_time": "2025-05-16T07:20:00",
-      "end_time": "2025-05-16T16:45:00",
-      "assigned_job_site": "West Plano",
-      "normalized_job_site": "west plano",
-      "job_site_arrival": "2025-05-16T07:20:00",
-      "job_site_departure": "2025-05-16T16:45:00",
-      "verified_location": true,
-      "scheduled_start_time": "2025-05-16T07:00:00",
-      "scheduled_end_time": "2025-05-16T17:00:00",
-      "actual_start_time": "2025-05-16T07:20:00",
-      "actual_end_time": "2025-05-16T16:45:00",
-      "status": "Late",
-      "status_reason": "Arrived 20 minutes late"
-    },
-    {
-      "driver_name": "Robert Williams",
-      "normalized_name": "robert williams",
-      "asset_id": "TRK-1003",
-      "normalized_asset_id": "TRK-1003",
-      "key_on_time": "2025-05-16T07:05:00",
-      "key_off_time": "2025-05-16T17:05:00",
-      "verified_employee": true,
-      "verified_asset": true,
-      "source_records": [
-        {
-          "type": "driving_history",
-          "source_file": "driving_history_2025-05-16.csv",
-          "asset_id": "TRK-1003",
-          "key_on_time": "2025-05-16T07:05:00",
-          "key_off_time": "2025-05-16T17:05:00"
-        },
-        {
-          "type": "activity_detail",
-          "source_file": "activity_detail_2025-05-16.csv",
-          "asset_id": "TRK-1003",
-          "start_time": "2025-05-16T07:05:00",
-          "end_time": "2025-05-16T17:05:00",
-          "activity_type": "Driving"
-        }
-      ],
-      "employee_id": "E1003",
-      "start_time": "2025-05-16T07:05:00",
-      "end_time": "2025-05-16T17:05:00",
-      "assigned_job_site": "Downtown",
-      "normalized_job_site": "downtown",
-      "job_site_arrival": "2025-05-16T07:05:00",
-      "job_site_departure": "2025-05-16T17:05:00",
-      "verified_location": true,
-      "scheduled_start_time": "2025-05-16T07:00:00",
-      "scheduled_end_time": "2025-05-16T17:00:00",
-      "actual_start_time": "2025-05-16T07:05:00",
-      "actual_end_time": "2025-05-16T17:05:00",
-      "status": "On Time",
-      "status_reason": "Present at job site within schedule parameters"
-    },
-    {
-      "driver_name": "William Brown",
-      "normalized_name": "william brown",
-      "asset_id": "TRK-1004",
-      "normalized_asset_id": "TRK-1004",
-      "key_on_time": "2025-05-16T07:30:00",
-      "key_off_time": "2025-05-16T16:30:00",
-      "verified_employee": true,
-      "verified_asset": true,
-      "source_records": [
-        {
-          "type": "driving_history",
-          "source_file": "driving_history_2025-05-16.csv",
-          "asset_id": "TRK-1004",
-          "key_on_time": "2025-05-16T07:30:00",
-          "key_off_time": "2025-05-16T16:30:00"
-        },
-        {
-          "type": "activity_detail",
-          "source_file": "activity_detail_2025-05-16.csv",
-          "asset_id": "TRK-1004",
-          "start_time": "2025-05-16T07:30:00",
-          "end_time": "2025-05-16T16:30:00",
-          "activity_type": "Driving"
-        }
-      ],
-      "employee_id": "E1004",
-      "start_time": "2025-05-16T07:30:00",
-      "end_time": "2025-05-16T16:30:00",
-      "assigned_job_site": "Richardson",
-      "normalized_job_site": "richardson",
-      "job_site_arrival": "2025-05-16T07:30:00",
-      "job_site_departure": "2025-05-16T16:30:00",
-      "verified_location": true,
-      "scheduled_start_time": "2025-05-16T07:00:00",
-      "scheduled_end_time": "2025-05-16T17:00:00",
-      "actual_start_time": "2025-05-16T07:30:00",
-      "actual_end_time": "2025-05-16T16:30:00",
-      "status": "Late",
-      "status_reason": "Arrived 30 minutes late"
-    },
-    {
-      "driver_name": "James Davis",
-      "normalized_name": "james davis",
-      "asset_id": "TRK-1005",
-      "normalized_asset_id": "TRK-1005",
-      "key_on_time": "2025-05-16T06:55:00",
-      "key_off_time": "2025-05-16T17:10:00",
-      "verified_employee": true,
-      "verified_asset": true,
-      "source_records": [
-        {
-          "type": "driving_history",
-          "source_file": "driving_history_2025-05-16.csv",
-          "asset_id": "TRK-1005",
-          "key_on_time": "2025-05-16T06:55:00",
-          "key_off_time": "2025-05-16T17:10:00"
-        },
-        {
-          "type": "activity_detail",
-          "source_file": "activity_detail_2025-05-16.csv",
-          "asset_id": "TRK-1005",
-          "start_time": "2025-05-16T06:55:00",
-          "end_time": "2025-05-16T17:10:00",
-          "activity_type": "Driving"
-        }
-      ],
-      "employee_id": "E1005",
-      "start_time": "2025-05-16T06:55:00",
-      "end_time": "2025-05-16T17:10:00",
-      "assigned_job_site": "North Dallas",
-      "normalized_job_site": "north dallas",
-      "job_site_arrival": "2025-05-16T06:55:00",
-      "job_site_departure": "2025-05-16T17:10:00",
-      "verified_location": true,
-      "scheduled_start_time": "2025-05-16T07:00:00",
-      "scheduled_end_time": "2025-05-16T17:00:00",
-      "actual_start_time": "2025-05-16T06:55:00",
-      "actual_end_time": "2025-05-16T17:10:00",
-      "status": "On Time",
-      "status_reason": "Present at job site within schedule parameters"
-    },
-    {
-      "driver_name": "David Miller",
-      "normalized_name": "david miller",
-      "asset_id": "TRK-1006",
-      "normalized_asset_id": "TRK-1006",
-      "key_on_time": "2025-05-16T07:15:00",
-      "key_off_time": "2025-05-16T16:55:00",
-      "verified_employee": true,
-      "verified_asset": true,
-      "source_records": [
-        {
-          "type": "driving_history",
-          "source_file": "driving_history_2025-05-16.csv",
-          "asset_id": "TRK-1006",
-          "key_on_time": "2025-05-16T07:15:00",
-          "key_off_time": "2025-05-16T16:55:00"
-        },
-        {
-          "type": "activity_detail",
-          "source_file": "activity_detail_2025-05-16.csv",
-          "asset_id": "TRK-1006",
-          "start_time": "2025-05-16T07:15:00",
-          "end_time": "2025-05-16T16:55:00",
-          "activity_type": "Driving"
-        }
-      ],
-      "employee_id": "E1006",
-      "start_time": "2025-05-16T07:15:00",
-      "end_time": "2025-05-16T16:55:00",
-      "assigned_job_site": "West Plano",
-      "normalized_job_site": "west plano",
-      "job_site_arrival": "2025-05-16T07:15:00",
-      "job_site_departure": "2025-05-16T16:55:00",
-      "verified_location": true,
-      "scheduled_start_time": "2025-05-16T07:00:00",
-      "scheduled_end_time": "2025-05-16T17:00:00",
-      "actual_start_time": "2025-05-16T07:15:00",
-      "actual_end_time": "2025-05-16T16:55:00",
-      "status": "On Time",
-      "status_reason": "Present at job site within schedule parameters"
-    },
-    {
-      "driver_name": "Richard Wilson",
-      "normalized_name": "richard wilson",
-      "asset_id": "TRK-1007",
-      "normalized_asset_id": "TRK-1007",
-      "key_on_time": "2025-05-16T07:25:00",
-      "key_off_time": "2025-05-16T16:25:00",
-      "verified_employee": true,
-      "verified_asset": true,
-      "source_records": [
-        {
-          "type": "driving_history",
-          "source_file": "driving_history_2025-05-16.csv",
-          "asset_id": "TRK-1007",
-          "key_on_time": "2025-05-16T07:25:00",
-          "key_off_time": "2025-05-16T16:25:00"
-        },
-        {
-          "type": "activity_detail",
-          "source_file": "activity_detail_2025-05-16.csv",
-          "asset_id": "TRK-1007",
-          "start_time": "2025-05-16T07:25:00",
-          "end_time": "2025-05-16T16:25:00",
-          "activity_type": "Driving"
-        }
-      ],
-      "employee_id": "E1007",
-      "start_time": "2025-05-16T07:25:00",
-      "end_time": "2025-05-16T16:25:00",
-      "assigned_job_site": "Downtown",
-      "normalized_job_site": "downtown",
-      "job_site_arrival": "2025-05-16T07:25:00",
-      "job_site_departure": "2025-05-16T16:25:00",
-      "verified_location": true,
-      "scheduled_start_time": "2025-05-16T07:00:00",
-      "scheduled_end_time": "2025-05-16T17:00:00",
-      "actual_start_time": "2025-05-16T07:25:00",
-      "actual_end_time": "2025-05-16T16:25:00",
-      "status": "Late",
-      "status_reason": "Arrived 25 minutes late"
-    },
-    {
-      "driver_name": "Joseph Moore",
-      "normalized_name": "joseph moore",
-      "asset_id": "TRK-1008",
-      "normalized_asset_id": "TRK-1008",
-      "key_on_time": "2025-05-16T06:50:00",
-      "key_off_time": "2025-05-16T17:00:00",
-      "verified_employee": true,
-      "verified_asset": true,
-      "source_records": [
-        {
-          "type": "driving_history",
-          "source_file": "driving_history_2025-05-16.csv",
-          "asset_id": "TRK-1008",
-          "key_on_time": "2025-05-16T06:50:00",
-          "key_off_time": "2025-05-16T17:00:00"
-        },
-        {
-          "type": "activity_detail",
-          "source_file": "activity_detail_2025-05-16.csv",
-          "asset_id": "TRK-1008",
-          "start_time": "2025-05-16T06:50:00",
-          "end_time": "2025-05-16T17:00:00",
-          "activity_type": "Driving"
-        }
-      ],
-      "employee_id": "E1008",
-      "start_time": "2025-05-16T06:50:00",
-      "end_time": "2025-05-16T17:00:00",
-      "assigned_job_site": "Richardson",
-      "normalized_job_site": "richardson",
-      "job_site_arrival": "2025-05-16T06:50:00",
-      "job_site_departure": "2025-05-16T17:00:00",
-      "verified_location": true,
-      "scheduled_start_time": "2025-05-16T07:00:00",
-      "scheduled_end_time": "2025-05-16T17:00:00",
-      "actual_start_time": "2025-05-16T06:50:00",
-      "actual_end_time": "2025-05-16T17:00:00",
-      "status": "On Time",
-      "status_reason": "Present at job site within schedule parameters"
-    },
-    {
-      "driver_name": "Thomas Taylor",
-      "normalized_name": "thomas taylor",
-      "asset_id": "TRK-1009",
-      "normalized_asset_id": "TRK-1009",
-      "key_on_time": "2025-05-16T07:10:00",
-      "key_off_time": "2025-05-16T16:40:00",
-      "verified_employee": true,
-      "verified_asset": true,
-      "source_records": [
-        {
-          "type": "driving_history",
-          "source_file": "driving_history_2025-05-16.csv",
-          "asset_id": "TRK-1009",
-          "key_on_time": "2025-05-16T07:10:00",
-          "key_off_time": "2025-05-16T16:40:00"
-        },
-        {
-          "type": "activity_detail",
-          "source_file": "activity_detail_2025-05-16.csv",
-          "asset_id": "TRK-1009",
-          "start_time": "2025-05-16T07:10:00",
-          "end_time": "2025-05-16T16:40:00",
-          "activity_type": "Driving"
-        }
-      ],
-      "employee_id": "E1009",
-      "start_time": "2025-05-16T07:10:00",
-      "end_time": "2025-05-16T16:40:00",
-      "assigned_job_site": "North Dallas",
-      "normalized_job_site": "north dallas",
-      "job_site_arrival": "2025-05-16T07:10:00",
-      "job_site_departure": "2025-05-16T16:40:00",
-      "verified_location": true,
-      "scheduled_start_time": "2025-05-16T07:00:00",
-      "scheduled_end_time": "2025-05-16T17:00:00",
-      "actual_start_time": "2025-05-16T07:10:00",
-      "actual_end_time": "2025-05-16T16:40:00",
-      "status": "On Time",
-      "status_reason": "Present at job site within schedule parameters"
-    },
-    {
       "driver_name": "Charles Anderson",
-      "normalized_name": "charles anderson",
       "asset_id": "TRK-1010",
-      "normalized_asset_id": "TRK-1010",
-      "key_on_time": "2025-05-16T07:35:00",
-      "key_off_time": "2025-05-16T16:15:00",
-      "verified_employee": true,
-      "verified_asset": true,
-      "source_records": [
-        {
-          "type": "driving_history",
-          "source_file": "driving_history_2025-05-16.csv",
-          "asset_id": "TRK-1010",
-          "key_on_time": "2025-05-16T07:35:00",
-          "key_off_time": "2025-05-16T16:15:00"
-        },
-        {
-          "type": "activity_detail",
-          "source_file": "activity_detail_2025-05-16.csv",
-          "asset_id": "TRK-1010",
-          "start_time": "2025-05-16T07:35:00",
-          "end_time": "2025-05-16T16:15:00",
-          "activity_type": "Driving"
-        }
-      ],
+      "job_site": "West Plano Project",
+      "scheduled_start": "06:00 AM",
+      "scheduled_end": "03:00 PM",
+      "actual_start": "06:05 AM",
+      "actual_end": "02:48 PM",
+      "status": "On Time",
+      "status_reason": "",
+      "identity_verified": true,
       "employee_id": "E1010",
-      "start_time": "2025-05-16T07:35:00",
-      "end_time": "2025-05-16T16:15:00",
-      "assigned_job_site": "West Plano",
-      "normalized_job_site": "west plano",
-      "job_site_arrival": "2025-05-16T07:35:00",
-      "job_site_departure": "2025-05-16T16:15:00",
-      "verified_location": true,
-      "scheduled_start_time": "2025-05-16T07:00:00",
-      "scheduled_end_time": "2025-05-16T17:00:00",
-      "actual_start_time": "2025-05-16T07:35:00",
-      "actual_end_time": "2025-05-16T16:15:00",
-      "status": "Late",
-      "status_reason": "Arrived 35 minutes late"
-    },
-    {
-      "driver_name": "Christopher Thomas",
-      "normalized_name": "christopher thomas",
-      "asset_id": "TRK-1011",
-      "normalized_asset_id": "TRK-1011",
-      "key_on_time": "2025-05-16T06:40:00",
-      "key_off_time": "2025-05-16T17:20:00",
-      "verified_employee": true,
-      "verified_asset": true,
-      "source_records": [
-        {
-          "type": "driving_history",
-          "source_file": "driving_history_2025-05-16.csv",
-          "asset_id": "TRK-1011",
-          "key_on_time": "2025-05-16T06:40:00",
-          "key_off_time": "2025-05-16T17:20:00"
-        },
-        {
-          "type": "activity_detail",
-          "source_file": "activity_detail_2025-05-16.csv",
-          "asset_id": "TRK-1011",
-          "start_time": "2025-05-16T06:40:00",
-          "end_time": "2025-05-16T17:20:00",
-          "activity_type": "Driving"
-        }
-      ],
-      "employee_id": "E1011",
-      "start_time": "2025-05-16T06:40:00",
-      "end_time": "2025-05-16T17:20:00",
-      "assigned_job_site": "Downtown",
-      "normalized_job_site": "downtown",
-      "job_site_arrival": "2025-05-16T06:40:00",
-      "job_site_departure": "2025-05-16T17:20:00",
-      "verified_location": true,
-      "scheduled_start_time": "2025-05-16T07:00:00",
-      "scheduled_end_time": "2025-05-16T17:00:00",
-      "actual_start_time": "2025-05-16T06:40:00",
-      "actual_end_time": "2025-05-16T17:20:00",
-      "status": "On Time",
-      "status_reason": "Present at job site within schedule parameters"
-    },
-    {
-      "driver_name": "Daniel Jackson",
-      "normalized_name": "daniel jackson",
-      "asset_id": "TRK-1012",
-      "normalized_asset_id": "TRK-1012",
-      "key_on_time": "2025-05-16T07:00:00",
-      "key_off_time": "2025-05-16T17:05:00",
-      "verified_employee": true,
-      "verified_asset": true,
-      "source_records": [
-        {
-          "type": "driving_history",
-          "source_file": "driving_history_2025-05-16.csv",
-          "asset_id": "TRK-1012",
-          "key_on_time": "2025-05-16T07:00:00",
-          "key_off_time": "2025-05-16T17:05:00"
-        },
-        {
-          "type": "activity_detail",
-          "source_file": "activity_detail_2025-05-16.csv",
-          "asset_id": "TRK-1012",
-          "start_time": "2025-05-16T07:00:00",
-          "end_time": "2025-05-16T17:05:00",
-          "activity_type": "Driving"
-        }
-      ],
-      "employee_id": "E1012",
-      "start_time": "2025-05-16T07:00:00",
-      "end_time": "2025-05-16T17:05:00",
-      "assigned_job_site": "Richardson",
-      "normalized_job_site": "richardson",
-      "job_site_arrival": "2025-05-16T07:00:00",
-      "job_site_departure": "2025-05-16T17:05:00",
-      "verified_location": true,
-      "scheduled_start_time": "2025-05-16T07:00:00",
-      "scheduled_end_time": "2025-05-16T17:00:00",
-      "actual_start_time": "2025-05-16T07:00:00",
-      "actual_end_time": "2025-05-16T17:05:00",
-      "status": "On Time",
-      "status_reason": "Present at job site within schedule parameters"
-    },
-    {
-      "driver_name": "Matthew Harris",
-      "normalized_name": "matthew harris",
-      "asset_id": "TRK-1013",
-      "normalized_asset_id": "TRK-1013",
-      "key_on_time": "2025-05-16T07:40:00",
-      "key_off_time": "2025-05-16T16:10:00",
-      "verified_employee": true,
-      "verified_asset": true,
-      "source_records": [
-        {
-          "type": "driving_history",
-          "source_file": "driving_history_2025-05-16.csv",
-          "asset_id": "TRK-1013",
-          "key_on_time": "2025-05-16T07:40:00",
-          "key_off_time": "2025-05-16T16:10:00"
-        },
-        {
-          "type": "activity_detail",
-          "source_file": "activity_detail_2025-05-16.csv",
-          "asset_id": "TRK-1013",
-          "start_time": "2025-05-16T07:40:00",
-          "end_time": "2025-05-16T16:10:00",
-          "activity_type": "Driving"
-        }
-      ],
-      "employee_id": "E1013",
-      "start_time": "2025-05-16T07:40:00",
-      "end_time": "2025-05-16T16:10:00",
-      "assigned_job_site": "North Dallas",
-      "normalized_job_site": "north dallas",
-      "job_site_arrival": "2025-05-16T07:40:00",
-      "job_site_departure": "2025-05-16T16:10:00",
-      "verified_location": true,
-      "scheduled_start_time": "2025-05-16T07:00:00",
-      "scheduled_end_time": "2025-05-16T17:00:00",
-      "actual_start_time": "2025-05-16T07:40:00",
-      "actual_end_time": "2025-05-16T16:10:00",
-      "status": "Late",
-      "status_reason": "Arrived 40 minutes late"
-    },
-    {
-      "driver_name": "Anthony Martin",
-      "normalized_name": "anthony martin",
-      "asset_id": "TRK-1014",
-      "normalized_asset_id": "TRK-1014",
-      "key_on_time": "2025-05-16T07:05:00",
-      "key_off_time": "2025-05-16T16:50:00",
-      "verified_employee": true,
-      "verified_asset": true,
-      "source_records": [
-        {
-          "type": "driving_history",
-          "source_file": "driving_history_2025-05-16.csv",
-          "asset_id": "TRK-1014",
-          "key_on_time": "2025-05-16T07:05:00",
-          "key_off_time": "2025-05-16T16:50:00"
-        },
-        {
-          "type": "activity_detail",
-          "source_file": "activity_detail_2025-05-16.csv",
-          "asset_id": "TRK-1014",
-          "start_time": "2025-05-16T07:05:00",
-          "end_time": "2025-05-16T16:50:00",
-          "activity_type": "Driving"
-        }
-      ],
-      "employee_id": "E1014",
-      "start_time": "2025-05-16T07:05:00",
-      "end_time": "2025-05-16T16:50:00",
-      "assigned_job_site": "West Plano",
-      "normalized_job_site": "west plano",
-      "job_site_arrival": "2025-05-16T07:05:00",
-      "job_site_departure": "2025-05-16T16:50:00",
-      "verified_location": true,
-      "scheduled_start_time": "2025-05-16T07:00:00",
-      "scheduled_end_time": "2025-05-16T17:00:00",
-      "actual_start_time": "2025-05-16T07:05:00",
-      "actual_end_time": "2025-05-16T16:50:00",
-      "status": "On Time",
-      "status_reason": "Present at job site within schedule parameters"
+      "identity_source": "employee_master_list.csv"
     },
     {
       "driver_name": "Mark Thompson",
-      "normalized_name": "mark thompson",
       "asset_id": "TRK-1015",
-      "normalized_asset_id": "TRK-1015",
-      "key_on_time": "2025-05-16T06:55:00",
-      "key_off_time": "2025-05-16T17:15:00",
-      "verified_employee": true,
-      "verified_asset": true,
-      "source_records": [
-        {
-          "type": "driving_history",
-          "source_file": "driving_history_2025-05-16.csv",
-          "asset_id": "TRK-1015",
-          "key_on_time": "2025-05-16T06:55:00",
-          "key_off_time": "2025-05-16T17:15:00"
-        },
-        {
-          "type": "activity_detail",
-          "source_file": "activity_detail_2025-05-16.csv",
-          "asset_id": "TRK-1015",
-          "start_time": "2025-05-16T06:55:00",
-          "end_time": "2025-05-16T17:15:00",
-          "activity_type": "Driving"
-        }
-      ],
-      "employee_id": "E1015",
-      "start_time": "2025-05-16T06:55:00",
-      "end_time": "2025-05-16T17:15:00",
-      "assigned_job_site": "Downtown",
-      "normalized_job_site": "downtown",
-      "job_site_arrival": "2025-05-16T06:55:00",
-      "job_site_departure": "2025-05-16T17:15:00",
-      "verified_location": true,
-      "scheduled_start_time": "2025-05-16T07:00:00",
-      "scheduled_end_time": "2025-05-16T17:00:00",
-      "actual_start_time": "2025-05-16T06:55:00",
-      "actual_end_time": "2025-05-16T17:15:00",
+      "job_site": "Downtown Construction",
+      "scheduled_start": "06:00 AM",
+      "scheduled_end": "03:00 PM",
+      "actual_start": "N/A",
+      "actual_end": "N/A",
       "status": "On Time",
-      "status_reason": "Present at job site within schedule parameters"
+      "status_reason": "",
+      "identity_verified": true,
+      "employee_id": "E1015",
+      "identity_source": "employee_master_list.csv"
+    },
+    {
+      "driver_name": "James Davis",
+      "asset_id": "TRK-1005",
+      "job_site": "North Dallas Site",
+      "scheduled_start": "06:00 AM",
+      "scheduled_end": "03:00 PM",
+      "actual_start": "07:03 AM",
+      "actual_end": "03:12 PM",
+      "status": "Not On Job",
+      "status_reason": "At incorrect location: North Richland Hills",
+      "identity_verified": true,
+      "employee_id": "E1005",
+      "identity_source": "employee_master_list.csv"
+    },
+    {
+      "driver_name": "Anthony Martin",
+      "asset_id": "TRK-1014",
+      "job_site": "West Plano Project",
+      "scheduled_start": "07:00 AM",
+      "scheduled_end": "04:00 PM",
+      "actual_start": "07:16 AM",
+      "actual_end": "03:58 PM",
+      "status": "Late",
+      "status_reason": "16 minutes late",
+      "identity_verified": true,
+      "employee_id": "E1014",
+      "identity_source": "employee_master_list.csv"
+    },
+    {
+      "driver_name": "Daniel Jackson",
+      "asset_id": "TRK-1012",
+      "job_site": "Richardson Development",
+      "scheduled_start": "06:15 AM",
+      "scheduled_end": "03:15 PM",
+      "actual_start": "06:16 AM",
+      "actual_end": "03:12 PM",
+      "status": "On Time",
+      "status_reason": "",
+      "identity_verified": true,
+      "employee_id": "E1012",
+      "identity_source": "employee_master_list.csv"
+    },
+    {
+      "driver_name": "Christopher Thomas",
+      "asset_id": "TRK-1011",
+      "job_site": "Downtown Construction",
+      "scheduled_start": "06:30 AM",
+      "scheduled_end": "03:30 PM",
+      "actual_start": "06:29 AM",
+      "actual_end": "03:33 PM",
+      "status": "On Time",
+      "status_reason": "",
+      "identity_verified": true,
+      "employee_id": "E1011",
+      "identity_source": "employee_master_list.csv"
+    },
+    {
+      "driver_name": "William Brown",
+      "asset_id": "TRK-1004",
+      "job_site": "Richardson Development",
+      "scheduled_start": "06:30 AM",
+      "scheduled_end": "03:30 PM",
+      "actual_start": "06:32 AM",
+      "actual_end": "02:54 PM",
+      "status": "Early End",
+      "status_reason": "36 minutes early",
+      "identity_verified": true,
+      "employee_id": "E1004",
+      "identity_source": "employee_master_list.csv"
+    },
+    {
+      "driver_name": "Richard Wilson",
+      "asset_id": "TRK-1007",
+      "job_site": "Downtown Construction",
+      "scheduled_start": "06:15 AM",
+      "scheduled_end": "03:15 PM",
+      "actual_start": "06:14 AM",
+      "actual_end": "03:18 PM",
+      "status": "On Time",
+      "status_reason": "",
+      "identity_verified": true,
+      "employee_id": "E1007",
+      "identity_source": "employee_master_list.csv"
+    },
+    {
+      "driver_name": "Joseph Moore",
+      "asset_id": "TRK-1008",
+      "job_site": "Richardson Development",
+      "scheduled_start": "06:30 AM",
+      "scheduled_end": "03:30 PM",
+      "actual_start": "06:55 AM",
+      "actual_end": "03:25 PM",
+      "status": "Late",
+      "status_reason": "25 minutes late",
+      "identity_verified": true,
+      "employee_id": "E1008",
+      "identity_source": "employee_master_list.csv"
+    },
+    {
+      "driver_name": "Thomas Taylor",
+      "asset_id": "TRK-1009",
+      "job_site": "North Dallas Site",
+      "scheduled_start": "07:00 AM",
+      "scheduled_end": "04:00 PM",
+      "actual_start": "06:43 AM",
+      "actual_end": "03:52 PM",
+      "status": "On Time",
+      "status_reason": "",
+      "identity_verified": true,
+      "employee_id": "E1009",
+      "identity_source": "employee_master_list.csv"
+    },
+    {
+      "driver_name": "John Smith",
+      "asset_id": "TRK-1001",
+      "job_site": "North Dallas Site",
+      "scheduled_start": "06:30 AM",
+      "scheduled_end": "03:30 PM",
+      "actual_start": "06:25 AM",
+      "actual_end": "03:35 PM",
+      "status": "On Time",
+      "status_reason": "",
+      "identity_verified": true,
+      "employee_id": "E1001",
+      "identity_source": "employee_master_list.csv"
+    },
+    {
+      "driver_name": "David Miller",
+      "asset_id": "TRK-1006",
+      "job_site": "West Plano Project",
+      "scheduled_start": "06:45 AM",
+      "scheduled_end": "03:45 PM",
+      "actual_start": "06:47 AM",
+      "actual_end": "03:42 PM",
+      "status": "On Time",
+      "status_reason": "",
+      "identity_verified": true,
+      "employee_id": "E1006",
+      "identity_source": "employee_master_list.csv"
+    },
+    {
+      "driver_name": "Matthew Harris",
+      "asset_id": "TRK-1013",
+      "job_site": "North Dallas Site",
+      "scheduled_start": "06:45 AM",
+      "scheduled_end": "03:45 PM",
+      "actual_start": "06:52 AM",
+      "actual_end": "03:37 PM",
+      "status": "On Time",
+      "status_reason": "",
+      "identity_verified": true,
+      "employee_id": "E1013",
+      "identity_source": "employee_master_list.csv"
+    },
+    {
+      "driver_name": "Michael Johnson",
+      "asset_id": "TRK-1002",
+      "job_site": "West Plano Project",
+      "scheduled_start": "06:00 AM",
+      "scheduled_end": "03:00 PM",
+      "actual_start": "06:18 AM",
+      "actual_end": "03:07 PM",
+      "status": "Late",
+      "status_reason": "18 minutes late",
+      "identity_verified": true,
+      "employee_id": "E1002",
+      "identity_source": "employee_master_list.csv"
+    },
+    {
+      "driver_name": "Robert Williams",
+      "asset_id": "TRK-1003",
+      "job_site": "Downtown Construction",
+      "scheduled_start": "07:00 AM",
+      "scheduled_end": "04:00 PM",
+      "actual_start": "07:28 AM",
+      "actual_end": "03:45 PM",
+      "status": "Late",
+      "status_reason": "28 minutes late",
+      "identity_verified": true,
+      "employee_id": "E1003",
+      "identity_source": "employee_master_list.csv"
     }
   ],
   "summary": {
     "total": 15,
-    "on_time": 10,
-    "late": 5,
-    "early_end": 0,
-    "not_on_job": 0,
-    "unmatched": 0,
-    "ghost": 0
+    "on_time": 9,
+    "late": 4,
+    "early_end": 1,
+    "not_on_job": 1
   },
+  "excluded_drivers": [],
   "metadata": {
-    "identity_verification": {
-      "date": "2025-05-16",
-      "generated": "2025-05-21T01:13:51.855944",
-      "validation": {
-        "total_entries": 15,
-        "verified_employees": 15,
-        "verified_assets": 15,
-        "verified_locations": 15,
-        "unmatched_employees": 0,
-        "unmatched_assets": 0,
-        "sources": {
-          "employee_master": {
-            "records": 15,
-            "path": "data/employee_master_list.csv"
-          },
-          "equipment_billing": {
-            "assets": 15,
-            "employees": 0,
-            "path": "attached_assets/EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx"
-          },
-          "driving_history": {
-            "files": 3,
-            "records": 15,
-            "date": "2025-05-16"
-          },
-          "activity_detail": {
-            "files": 3,
-            "records": 15,
-            "date": "2025-05-16"
-          },
-          "assets_time_on_site": {
-            "files": 3,
-            "records": 30,
-            "date": "2025-05-16"
-          }
-        }
-      },
-      "verified_employees": {
-        "john smith": {
-          "name": "John Smith",
-          "employee_id": "E1001",
-          "asset_id": "TRK-1001",
-          "source": "employee_master"
-        },
-        "michael johnson": {
-          "name": "Michael Johnson",
-          "employee_id": "E1002",
-          "asset_id": "TRK-1002",
-          "source": "employee_master"
-        },
-        "robert williams": {
-          "name": "Robert Williams",
-          "employee_id": "E1003",
-          "asset_id": "TRK-1003",
-          "source": "employee_master"
-        },
-        "william brown": {
-          "name": "William Brown",
-          "employee_id": "E1004",
-          "asset_id": "TRK-1004",
-          "source": "employee_master"
-        },
-        "james davis": {
-          "name": "James Davis",
-          "employee_id": "E1005",
-          "asset_id": "TRK-1005",
-          "source": "employee_master"
-        },
-        "david miller": {
-          "name": "David Miller",
-          "employee_id": "E1006",
-          "asset_id": "TRK-1006",
-          "source": "employee_master"
-        },
-        "richard wilson": {
-          "name": "Richard Wilson",
-          "employee_id": "E1007",
-          "asset_id": "TRK-1007",
-          "source": "employee_master"
-        },
-        "joseph moore": {
-          "name": "Joseph Moore",
-          "employee_id": "E1008",
-          "asset_id": "TRK-1008",
-          "source": "employee_master"
-        },
-        "thomas taylor": {
-          "name": "Thomas Taylor",
-          "employee_id": "E1009",
-          "asset_id": "TRK-1009",
-          "source": "employee_master"
-        },
-        "charles anderson": {
-          "name": "Charles Anderson",
-          "employee_id": "E1010",
-          "asset_id": "TRK-1010",
-          "source": "employee_master"
-        },
-        "christopher thomas": {
-          "name": "Christopher Thomas",
-          "employee_id": "E1011",
-          "asset_id": "TRK-1011",
-          "source": "employee_master"
-        },
-        "daniel jackson": {
-          "name": "Daniel Jackson",
-          "employee_id": "E1012",
-          "asset_id": "TRK-1012",
-          "source": "employee_master"
-        },
-        "matthew harris": {
-          "name": "Matthew Harris",
-          "employee_id": "E1013",
-          "asset_id": "TRK-1013",
-          "source": "employee_master"
-        },
-        "anthony martin": {
-          "name": "Anthony Martin",
-          "employee_id": "E1014",
-          "asset_id": "TRK-1014",
-          "source": "employee_master"
-        },
-        "mark thompson": {
-          "name": "Mark Thompson",
-          "employee_id": "E1015",
-          "asset_id": "TRK-1015",
-          "source": "employee_master"
-        }
-      },
-      "unverified_employees": {},
-      "signature": "IDENTITY-VERIFIED-c07164be"
-    },
-    "sources": [
-      {
-        "type": "employee_master",
+    "generated": "2025-05-21T01:39:06.532761",
+    "verification_mode": "GENIUS CORE HARDLINE MODE",
+    "source_trace": {
+      "employee_master": {
         "path": "data/employee_master_list.csv",
-        "rows": 15,
-        "timestamp": "2025-05-21T01:13:48.016779"
-      },
-      {
-        "type": "equipment_billing",
-        "path": "attached_assets/EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx",
-        "sheets": [
-          "DUSG-PT",
-          "D.USG",
-          "TRKG-PT",
-          "TRKG",
-          "ATOS",
-          "ATPT",
-          "M-SELECT",
-          "M-RAGLE",
-          "DNI",
-          "TMAS",
-          "EHRS-PT",
-          "EHrs",
-          "S-EHrs",
-          "FLEET",
-          "DRIVERS",
-          "JOBS",
-          "Elist",
-          "Languages"
-        ],
-        "timestamp": "2025-05-21T01:13:51.768184"
-      },
-      {
-        "type": "driving_history",
-        "path": "data/driving_history/DrivingHistory_20250516.csv",
-        "date": "2025-05-16",
-        "timestamp": "2025-05-21T01:13:51.769899"
-      },
-      {
-        "type": "driving_history",
-        "path": "data/driving_history/driving_history_2025-05-16_verified.csv",
-        "date": "2025-05-16",
-        "timestamp": "2025-05-21T01:13:51.773364"
-      },
-      {
-        "type": "driving_history",
-        "path": "data/driving_history/driving_history_2025-05-16.csv",
-        "date": "2025-05-16",
-        "timestamp": "2025-05-21T01:13:51.776684"
-      },
-      {
-        "type": "activity_detail",
-        "path": "data/activity_detail/ActivityDetail_20250516.csv",
-        "date": "2025-05-16",
-        "timestamp": "2025-05-21T01:13:51.795603"
-      },
-      {
-        "type": "activity_detail",
-        "path": "data/activity_detail/activity_detail_2025-05-16_verified.csv",
-        "date": "2025-05-16",
-        "timestamp": "2025-05-21T01:13:51.799992"
-      },
-      {
-        "type": "activity_detail",
-        "path": "data/activity_detail/activity_detail_2025-05-16.csv",
-        "date": "2025-05-16",
-        "timestamp": "2025-05-21T01:13:51.802473"
-      },
-      {
-        "type": "assets_time_on_site",
-        "path": "data/assets_time_on_site/assets_onsite_2025-05-16.csv",
-        "date": "2025-05-16",
-        "timestamp": "2025-05-21T01:13:51.819979"
-      },
-      {
-        "type": "assets_time_on_site",
-        "path": "data/assets_time_on_site/AssetsTimeOnSite_20250516.csv",
-        "date": "2025-05-16",
-        "timestamp": "2025-05-21T01:13:51.823192"
-      },
-      {
-        "type": "assets_time_on_site",
-        "path": "data/assets_time_on_site/assets_time_on_site_2025-05-16.csv",
-        "date": "2025-05-16",
-        "timestamp": "2025-05-21T01:13:51.839387"
+        "count": 15,
+        "timestamp": "2025-05-21T01:39:06.532772"
       }
-    ]
+    },
+    "verification_summary": {
+      "verified_drivers": 15,
+      "excluded_drivers": 0,
+      "dual_source_verification": true,
+      "verification_signature": "GENIUS-CORE-HARDLINE-2025-05-16"
+    }
   }
 }

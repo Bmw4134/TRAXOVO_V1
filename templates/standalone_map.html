@@ -268,6 +268,7 @@
             // Storage for markers
             var assetMarkers = {};
             var jobSiteMarkers = {};
+            var jobSites = []; // Global variable to store job site data
             
             // Create custom icons for assets
             function createAssetIcon(status) {
@@ -351,6 +352,54 @@
                                 icon: createAssetIcon(asset.status)
                             }).addTo(assetOverlay);
                             
+                            // Check for overlapping job sites
+                            var assetLatLng = L.latLng(asset.latitude, asset.longitude);
+                            var matchingSites = [];
+                            
+                            // Look through all job sites to find any that contain this asset
+                            jobSites.forEach(function(site) {
+                                var siteLatLng = L.latLng(site.latitude, site.longitude);
+                                var distance = assetLatLng.distanceTo(siteLatLng);
+                                
+                                // If asset is within radius, add to matching sites
+                                if (distance <= site.radius) {
+                                    matchingSites.push({
+                                        site: site,
+                                        distance: distance
+                                    });
+                                }
+                            });
+                            
+                            // Sort matching sites by distance (closest first)
+                            matchingSites.sort(function(a, b) {
+                                return a.distance - b.distance;
+                            });
+                            
+                            // Build the job site conflict section for popup
+                            var jobSiteSection = '';
+                            if (matchingSites.length > 0) {
+                                // Primary site is the closest one
+                                var primarySite = matchingSites[0].site;
+                                
+                                jobSiteSection = `<div><strong>Primary Job Site:</strong> ${primarySite.name}</div>`;
+                                
+                                // If there are multiple matching sites, show the conflicts section
+                                if (matchingSites.length > 1) {
+                                    jobSiteSection += `<div class="mt-2 mb-1"><strong class="text-warning">⚠️ Job Site Conflicts:</strong></div>`;
+                                    jobSiteSection += `<div class="small bg-light p-2 rounded mb-2" style="max-height: 100px; overflow-y: auto;">`;
+                                    
+                                    matchingSites.forEach(function(match, idx) {
+                                        var priority = idx === 0 ? '<span class="badge bg-primary">Primary</span>' : 
+                                                      `<span class="badge bg-secondary">Alt ${idx}</span>`;
+                                        var distance = (match.distance / 1000).toFixed(2);
+                                        jobSiteSection += `<div>${priority} <strong>${match.site.name}</strong> (${distance} km)</div>`;
+                                    });
+                                    
+                                    jobSiteSection += `</div>
+                                    <div class="small text-muted">📝 PM verification required for billing</div>`;
+                                }
+                            }
+                            
                             var popupContent = `
                                 <div style="min-width:250px">
                                     <h5>${asset.name || asset.id || 'Asset'}</h5>
@@ -361,6 +410,7 @@
                                     ${asset.serial ? `<div><strong>Serial:</strong> ${asset.serial}</div>` : ''}
                                     <div><strong>Driver:</strong> ${asset.driver || 'None'}</div>
                                     <div><strong>Status:</strong> ${asset.status || 'Unknown'}</div>
+                                    ${jobSiteSection}
                                     ${asset.location ? `<div><strong>Location:</strong> ${asset.location}</div>` : ''}
                                     <div><strong>Last Update:</strong> ${asset.last_update ? new Date(asset.last_update).toLocaleString() : 'Unknown'}</div>
                                 </div>
@@ -390,9 +440,13 @@
                     .then(function(data) {
                         console.log('Job sites loaded:', data);
                         
+                        // Store job sites globally for proximity detection
+                        jobSites = data;
+                        
                         // Clear existing markers
-                        Object.values(jobSiteMarkers).forEach(function(marker) {
-                            map.removeLayer(marker);
+                        Object.values(jobSiteMarkers).forEach(function(siteObj) {
+                            if (siteObj.marker) map.removeLayer(siteObj.marker);
+                            if (siteObj.shape) map.removeLayer(siteObj.shape);
                         });
                         jobSiteMarkers = {};
                         

@@ -1,0 +1,122 @@
+{
+  "date": "2025-05-16",
+  "drivers": [
+    {
+      "driver_name": "John Smith",
+      "asset_id": "ET-01",
+      "job_site": "DFW-101",
+      "scheduled_start": "06:30 AM",
+      "scheduled_end": "03:30 PM",
+      "actual_start": "06:45 AM",
+      "actual_end": "03:35 PM",
+      "status": "On Time",
+      "status_reason": ""
+    },
+    {
+      "driver_name": "Sarah Johnson",
+      "asset_id": "ET-02",
+      "job_site": "DFW-102",
+      "scheduled_start": "06:00 AM",
+      "scheduled_end": "03:00 PM",
+      "actual_start": "05:50 AM",
+      "actual_end": "03:10 PM",
+      "status": "On Time",
+      "status_reason": ""
+    },
+    {
+      "driver_name": "Michael Brown",
+      "asset_id": "ET-03",
+      "job_site": "DFW-103",
+      "scheduled_start": "07:00 AM",
+      "scheduled_end": "04:00 PM",
+      "actual_start": "07:15 AM",
+      "actual_end": "04:08 PM",
+      "status": "On Time",
+      "status_reason": ""
+    },
+    {
+      "driver_name": "Robert Davis",
+      "asset_id": "PT-04",
+      "job_site": "HOU-201",
+      "scheduled_start": "06:00 AM",
+      "scheduled_end": "03:30 PM",
+      "actual_start": "06:01 AM",
+      "actual_end": "03:30 PM",
+      "status": "On Time",
+      "status_reason": ""
+    },
+    {
+      "driver_name": "Jennifer Wilson",
+      "asset_id": "PT-05",
+      "job_site": "HOU-202",
+      "scheduled_start": "06:30 AM",
+      "scheduled_end": "03:30 PM",
+      "actual_start": "06:30 AM",
+      "actual_end": "03:32 PM",
+      "status": "On Time",
+      "status_reason": ""
+    },
+    {
+      "driver_name": "David Martinez",
+      "asset_id": "F-150",
+      "job_site": "HOU-203",
+      "scheduled_start": "06:00 AM",
+      "scheduled_end": "03:00 PM",
+      "actual_start": "06:45 AM",
+      "actual_end": "03:05 PM",
+      "status": "Late",
+      "status_reason": "45 minutes late"
+    },
+    {
+      "driver_name": "Thomas Anderson",
+      "asset_id": "RAM-2500",
+      "job_site": "WT-301",
+      "scheduled_start": "06:30 AM",
+      "scheduled_end": "03:30 PM",
+      "actual_start": "06:20 AM",
+      "actual_end": "02:50 PM",
+      "status": "Early End",
+      "status_reason": "40 minutes early"
+    },
+    {
+      "driver_name": "Jessica Taylor",
+      "asset_id": "ET-08",
+      "job_site": "WT-302",
+      "scheduled_start": "07:00 AM",
+      "scheduled_end": "04:00 PM",
+      "actual_start": "07:00 AM",
+      "actual_end": "04:15 PM",
+      "status": "On Time",
+      "status_reason": ""
+    },
+    {
+      "driver_name": "Christopher Lee",
+      "asset_id": "PT-09",
+      "job_site": "WT-303",
+      "scheduled_start": "06:00 AM",
+      "scheduled_end": "03:00 PM",
+      "actual_start": "07:25 AM",
+      "actual_end": "02:50 PM",
+      "status": "Late",
+      "status_reason": "85 minutes late"
+    },
+    {
+      "driver_name": "Amanda Clark",
+      "asset_id": "ET-10",
+      "job_site": "DFW-104",
+      "scheduled_start": "06:30 AM",
+      "scheduled_end": "03:30 PM",
+      "actual_start": "06:25 AM",
+      "actual_end": "03:40 PM",
+      "status": "On Time",
+      "status_reason": ""
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "late": 2,
+    "early_end": 1,
+    "not_on_job": 0,
+    "on_time": 7
+  }
+}

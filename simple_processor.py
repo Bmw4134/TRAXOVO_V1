@@ -1,317 +1,201 @@
 #!/usr/bin/env python3
 """
-Simple PM Allocation File Processor
+Simple Data Processor for Driver Reports
 
-This script provides a simplified interface for processing PM allocation files.
-It auto-detects files in the attached_assets directory and generates a reconciliation report.
+This script processes our sample data files directly without the complexity of the full
+unified_data_processor.py module. It generates a report for May 16, 2025.
 """
 
 import os
-import re
+import json
+import logging
 import pandas as pd
+from datetime import datetime, time
 from pathlib import Path
-from datetime import datetime
 
-# Directory setup
-ATTACHED_ASSETS_DIR = Path('./attached_assets')
-REPORTS_DIR = Path('./reports')
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+)
+logger = logging.getLogger(__name__)
 
-# Ensure directory exists
-REPORTS_DIR.mkdir(exist_ok=True)
+# Constants for status determination
+LATE_THRESHOLD_MINUTES = 15
+EARLY_END_THRESHOLD_MINUTES = 30
 
-def find_allocation_files():
-    """Find allocation files in the attached_assets directory"""
-    print("Looking for allocation files in:", ATTACHED_ASSETS_DIR)
+def process_date(date_str):
+    """Process data for a specific date and generate a report"""
+    logger.info(f"Processing data for {date_str}")
     
-    # Look for common patterns in filenames
-    original_patterns = [
-        r'EQMO.*BILLING.*(?<!REVISIONS)(?<!REVISED)(?<!FINAL)(?<!TR-FINAL).*\.(xlsx|xlsm)',
-        r'EQ MONTHLY BILLINGS.*\.(xlsx|xlsm)',
-        r'EQ.*PROFIT.*\.(xlsx|xlsm)',
-        r'.*allocated.*\.(xlsx|xlsm)'  # Specific to your naming convention
-    ]
-    
-    updated_patterns = [
-        r'EQMO.*BILLING.*REVISIONS.*\.(xlsx|xlsm)',
-        r'EQMO.*BILLING.*REVISED.*\.(xlsx|xlsm)',
-        r'.*FINAL REVISIONS.*\.(xlsx|xlsm)',
-        r'.*TR-FINAL.*\.(xlsx|xlsm)'  # Specific to your naming convention
-    ]
-    
-    # List all Excel files
-    all_files = []
-    for extension in ['.xlsx', '.xlsm', '.xls']:
-        all_files.extend(ATTACHED_ASSETS_DIR.glob(f'*{extension}'))
-    
-    # Sort by modification time (newest first)
-    all_files.sort(key=lambda x: os.path.getmtime(x), reverse=True)
-    
-    print(f"Found {len(all_files)} Excel files in total")
-    
-    # Print all file names for debugging
-    for i, file in enumerate(all_files):
-        print(f"{i+1}. {file.name}")
-    
-    # Find updated file first
-    updated_file = None
-    for file in all_files:
-        filename = file.name
-        for pattern in updated_patterns:
-            if re.search(pattern, filename, re.IGNORECASE):
-                updated_file = file
-                print(f"Found updated file: {file.name}")
-                break
-        if updated_file:
-            break
-    
-    # Find original file
-    original_file = None
-    for file in all_files:
-        if updated_file and file == updated_file:
-            continue  # Skip the updated file
-            
-        filename = file.name
-        for pattern in original_patterns:
-            if re.search(pattern, filename, re.IGNORECASE):
-                original_file = file
-                print(f"Found original file: {file.name}")
-                break
-        if original_file:
-            break
-    
-    # If we couldn't find by pattern, use the two most recent files
-    if not updated_file and not original_file and len(all_files) >= 2:
-        updated_file = all_files[0]  # Most recent
-        original_file = all_files[1]  # Second most recent
-        print(f"Using most recent files based on timestamps:")
-        print(f"Updated file: {updated_file.name}")
-        print(f"Original file: {original_file.name}")
-    
-    return original_file, updated_file
-
-def process_allocation_files(original_file, updated_file):
-    """Process PM allocation files and generate reconciliation report"""
-    print("\nProcessing files:")
-    print(f"Original: {original_file}")
-    print(f"Updated: {updated_file}")
-    
-    # Generate output file name
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_file = REPORTS_DIR / f"PM_Reconciliation_{timestamp}.csv"
-    
-    try:
-        # Read the Excel files
-        print("Reading original file...")
-        original_df = pd.read_excel(original_file)
-        
-        print("Reading updated file...")
-        updated_df = pd.read_excel(updated_file)
-        
-        # Clean column names
-        original_df.columns = [str(col).strip().upper() for col in original_df.columns]
-        updated_df.columns = [str(col).strip().upper() for col in updated_df.columns]
-        
-        # Print column names for debugging
-        print("\nOriginal columns:", original_df.columns.tolist())
-        print("Updated columns:", updated_df.columns.tolist())
-        
-        # Define patterns for identifying columns
-        id_patterns = [r'EQ#', r'EQ #', r'EQUIPMENT #', r'EQUIP #', r'EQUIP', r'UNIT']
-        desc_patterns = [r'DESCRIPTION', r'DESC', r'EQUIPMENT DESC']
-        amount_patterns = [r'COST', r'AMOUNT', r'TOTAL', r'BILLING']
-        
-        # Find columns in original file
-        orig_id_col = None
-        orig_desc_col = None
-        orig_amount_col = None
-        
-        for col in original_df.columns:
-            if not orig_id_col and any(re.search(p, col, re.IGNORECASE) for p in id_patterns):
-                orig_id_col = col
-            elif not orig_desc_col and any(re.search(p, col, re.IGNORECASE) for p in desc_patterns):
-                orig_desc_col = col
-            elif not orig_amount_col and any(re.search(p, col, re.IGNORECASE) for p in amount_patterns):
-                orig_amount_col = col
-        
-        # Find columns in updated file
-        update_id_col = None
-        update_desc_col = None
-        update_amount_col = None
-        
-        for col in updated_df.columns:
-            if not update_id_col and any(re.search(p, col, re.IGNORECASE) for p in id_patterns):
-                update_id_col = col
-            elif not update_desc_col and any(re.search(p, col, re.IGNORECASE) for p in desc_patterns):
-                update_desc_col = col
-            elif not update_amount_col and any(re.search(p, col, re.IGNORECASE) for p in amount_patterns):
-                update_amount_col = col
-        
-        print(f"\nIdentified columns:")
-        print(f"Original - ID: {orig_id_col}, Desc: {orig_desc_col}, Amount: {orig_amount_col}")
-        print(f"Updated - ID: {update_id_col}, Desc: {update_desc_col}, Amount: {update_amount_col}")
-        
-        # Verify that we found all required columns
-        if not all([orig_id_col, update_id_col, orig_amount_col, update_amount_col]):
-            print("ERROR: Could not identify all required columns in the files.")
-            return None
-        
-        # Prepare data structures for tracking changes
-        changes = []
-        
-        # Get unique identifiers from both files
-        original_ids = set(original_df[orig_id_col].astype(str))
-        updated_ids = set(updated_df[update_id_col].astype(str))
-        
-        print(f"\nFound {len(original_ids)} unique IDs in original file")
-        print(f"Found {len(updated_ids)} unique IDs in updated file")
-        
-        # Find additions (in updated but not in original)
-        additions = updated_ids - original_ids
-        print(f"Additions: {len(additions)}")
-        
-        for asset_id in additions:
-            # Get the row for this asset
-            row = updated_df[updated_df[update_id_col].astype(str) == asset_id].iloc[0]
-            desc = row[update_desc_col] if update_desc_col else "N/A"
-            amount = row[update_amount_col]
-            
-            # Convert amount to float if it's a string
-            if isinstance(amount, str):
-                try:
-                    amount = float(amount.replace('$', '').replace(',', ''))
-                except ValueError:
-                    amount = 0
-            
-            changes.append({
-                "Asset_ID": asset_id,
-                "Description": desc,
-                "Amount": amount,
-                "Change_Type": "Added",
-                "Original_Amount": 0,
-                "Difference": amount
-            })
-        
-        # Find deletions (in original but not in updated)
-        deletions = original_ids - updated_ids
-        print(f"Deletions: {len(deletions)}")
-        
-        for asset_id in deletions:
-            # Get the row for this asset
-            row = original_df[original_df[orig_id_col].astype(str) == asset_id].iloc[0]
-            desc = row[orig_desc_col] if orig_desc_col else "N/A"
-            amount = row[orig_amount_col]
-            
-            # Convert amount to float if it's a string
-            if isinstance(amount, str):
-                try:
-                    amount = float(amount.replace('$', '').replace(',', ''))
-                except ValueError:
-                    amount = 0
-            
-            changes.append({
-                "Asset_ID": asset_id,
-                "Description": desc,
-                "Amount": 0,
-                "Change_Type": "Deleted",
-                "Original_Amount": amount,
-                "Difference": -amount
-            })
-        
-        # Find modifications (same ID but different amount)
-        common_ids = original_ids.intersection(updated_ids)
-        print(f"Common IDs: {len(common_ids)}")
-        
-        modifications = 0
-        
-        for asset_id in common_ids:
-            orig_row = original_df[original_df[orig_id_col].astype(str) == asset_id].iloc[0]
-            update_row = updated_df[updated_df[update_id_col].astype(str) == asset_id].iloc[0]
-            
-            orig_amount = orig_row[orig_amount_col]
-            update_amount = update_row[update_amount_col]
-            
-            # Handle NaN values
-            if pd.isna(orig_amount):
-                orig_amount = 0
-            if pd.isna(update_amount):
-                update_amount = 0
-            
-            # Convert amounts to float if they're strings
-            if isinstance(orig_amount, str):
-                try:
-                    orig_amount = float(orig_amount.replace('$', '').replace(',', ''))
-                except ValueError:
-                    orig_amount = 0
-            
-            if isinstance(update_amount, str):
-                try:
-                    update_amount = float(update_amount.replace('$', '').replace(',', ''))
-                except ValueError:
-                    update_amount = 0
-            
-            # Check if amounts differ significantly
-            if abs(orig_amount - update_amount) > 0.01:  # Allow for small floating point differences
-                desc = update_row[update_desc_col] if update_desc_col else "N/A"
-                
-                changes.append({
-                    "Asset_ID": asset_id,
-                    "Description": desc,
-                    "Amount": update_amount,
-                    "Change_Type": "Modified",
-                    "Original_Amount": orig_amount,
-                    "Difference": update_amount - orig_amount
-                })
-                modifications += 1
-        
-        print(f"Modifications: {modifications}")
-        print(f"Total changes: {len(changes)}")
-        
-        # Calculate summary totals
-        total_original = sum(c["Original_Amount"] for c in changes)
-        total_updated = sum(c["Amount"] for c in changes)
-        total_difference = sum(c["Difference"] for c in changes)
-        
-        print(f"\nSummary:")
-        print(f"Original Total: ${total_original:,.2f}")
-        print(f"Updated Total: ${total_updated:,.2f}")
-        print(f"Difference: ${total_difference:,.2f}")
-        
-        # Create output file
-        if changes:
-            output_df = pd.DataFrame(changes)
-            output_df.to_csv(output_file, index=False)
-            print(f"\nOutput saved to: {output_file}")
-            
-            return output_file
-        else:
-            print("\nNo changes detected between the files.")
-            return None
-            
-    except Exception as e:
-        print(f"ERROR: {str(e)}")
-        import traceback
-        print(traceback.format_exc())
+    # Load baseline schedule data
+    baseline_file = "data/start_time_job/baseline.csv"
+    if not os.path.exists(baseline_file):
+        logger.error(f"Baseline file not found: {baseline_file}")
         return None
+    
+    schedule_df = pd.read_csv(baseline_file)
+    
+    # Load driving history data
+    driving_file = f"data/driving_history/driving_history_{date_str}.csv"
+    if not os.path.exists(driving_file):
+        logger.error(f"Driving history file not found: {driving_file}")
+        return None
+    
+    driving_df = pd.read_csv(driving_file)
+    
+    # Load activity detail data
+    activity_file = f"data/activity_detail/activity_detail_{date_str}.csv"
+    if not os.path.exists(activity_file):
+        logger.error(f"Activity detail file not found: {activity_file}")
+        return None
+    
+    activity_df = pd.read_csv(activity_file)
+    
+    # Load assets onsite data
+    assets_file = f"data/assets_time_on_site/assets_onsite_{date_str}.csv"
+    if not os.path.exists(assets_file):
+        logger.error(f"Assets onsite file not found: {assets_file}")
+        return None
+    
+    assets_df = pd.read_csv(assets_file)
+    
+    # Process data and generate report
+    drivers_data = []
+    late_count = 0
+    early_end_count = 0
+    not_on_job_count = 0
+    on_time_count = 0
+    
+    for _, schedule_row in schedule_df.iterrows():
+        driver_name = schedule_row['driver_name']
+        asset_id = schedule_row['asset_id']
+        job_site = schedule_row['job_site']
+        
+        # Parse scheduled times
+        scheduled_start = datetime.strptime(schedule_row['scheduled_start'], '%I:%M %p').time()
+        scheduled_end = datetime.strptime(schedule_row['scheduled_end'], '%I:%M %p').time()
+        
+        # Find driver's data in driving history
+        driver_driving = driving_df[driving_df['Driver'] == driver_name]
+        
+        # Default values
+        actual_start = None
+        actual_end = None
+        location = "Unknown"
+        status = "Unknown"
+        status_reason = ""
+        
+        # Get key on/off times from driving history
+        if not driver_driving.empty:
+            key_on_records = driver_driving[driver_driving['EventType'] == 'Key On']
+            key_off_records = driver_driving[driver_driving['EventType'] == 'Key Off']
+            
+            if not key_on_records.empty:
+                actual_start = pd.to_datetime(key_on_records.iloc[0]['DateTime'])
+                location = key_on_records.iloc[0]['Location']
+            
+            if not key_off_records.empty:
+                actual_end = pd.to_datetime(key_off_records.iloc[0]['DateTime'])
+        
+        # Determine status
+        if actual_start is None:
+            status = "Not On Job"
+            status_reason = "No activity detected"
+            not_on_job_count += 1
+        else:
+            # Check for location match
+            correct_location = location in job_site or job_site in location
+            
+            if not correct_location:
+                status = "Not On Job"
+                status_reason = f"At incorrect location: {location}"
+                not_on_job_count += 1
+            else:
+                # Check for late arrival
+                actual_start_time = actual_start.time()
+                minutes_late = (actual_start_time.hour * 60 + actual_start_time.minute) - (scheduled_start.hour * 60 + scheduled_start.minute)
+                
+                if minutes_late > LATE_THRESHOLD_MINUTES:
+                    status = "Late"
+                    status_reason = f"{minutes_late} minutes late"
+                    late_count += 1
+                elif actual_end is not None:
+                    # Check for early end
+                    actual_end_time = actual_end.time()
+                    minutes_early = (scheduled_end.hour * 60 + scheduled_end.minute) - (actual_end_time.hour * 60 + actual_end_time.minute)
+                    
+                    if minutes_early > EARLY_END_THRESHOLD_MINUTES:
+                        status = "Early End"
+                        status_reason = f"{minutes_early} minutes early"
+                        early_end_count += 1
+                    else:
+                        status = "On Time"
+                        on_time_count += 1
+                else:
+                    status = "On Time"
+                    on_time_count += 1
+        
+        # Format display times
+        actual_start_display = actual_start.strftime('%I:%M %p') if actual_start else "N/A"
+        actual_end_display = actual_end.strftime('%I:%M %p') if actual_end else "N/A"
+        
+        # Add to drivers data
+        driver_data = {
+            'driver_name': driver_name,
+            'asset_id': asset_id,
+            'job_site': job_site,
+            'scheduled_start': schedule_row['scheduled_start'],
+            'scheduled_end': schedule_row['scheduled_end'],
+            'actual_start': actual_start_display,
+            'actual_end': actual_end_display,
+            'status': status,
+            'status_reason': status_reason
+        }
+        
+        drivers_data.append(driver_data)
+    
+    # Create final report
+    report = {
+        'date': date_str,
+        'drivers': drivers_data,
+        'summary': {
+            'total': len(drivers_data),
+            'late': late_count,
+            'early_end': early_end_count,
+            'not_on_job': not_on_job_count,
+            'on_time': on_time_count
+        }
+    }
+    
+    return report
 
 def main():
     """Main function"""
-    print("=" * 60)
-    print("PM ALLOCATION FILE PROCESSOR")
-    print("=" * 60)
+    date_str = '2025-05-16'
+    report = process_date(date_str)
     
-    original_file, updated_file = find_allocation_files()
-    
-    if not original_file or not updated_file:
-        print("\nERROR: Could not find both original and updated allocation files.")
-        print("Please ensure the files exist in the attached_assets directory.")
-        return
-    
-    result = process_allocation_files(original_file, updated_file)
-    
-    if result:
-        print("\nProcessing completed successfully!")
+    if report:
+        # Create output directory
+        output_dir = Path('reports/daily_drivers')
+        output_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Save as JSON
+        with open(output_dir / f'daily_report_{date_str}.json', 'w') as f:
+            json.dump(report, f, indent=2)
+        
+        # Save as Excel
+        df = pd.DataFrame(report['drivers'])
+        df.to_excel(output_dir / f'daily_report_{date_str}.xlsx', index=False)
+        
+        logger.info(f"Report generated for {date_str}")
+        logger.info(f"Total drivers: {report['summary']['total']}")
+        logger.info(f"Late: {report['summary']['late']}")
+        logger.info(f"Early End: {report['summary']['early_end']}")
+        logger.info(f"Not On Job: {report['summary']['not_on_job']}")
+        logger.info(f"On Time: {report['summary']['on_time']}")
     else:
-        print("\nProcessing failed. Please check the error messages above.")
+        logger.error("Failed to generate report")
 
 if __name__ == "__main__":
     main()

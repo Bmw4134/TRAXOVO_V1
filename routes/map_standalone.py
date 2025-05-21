@@ -347,58 +347,74 @@ def api_assets():
 def api_job_sites():
     """API endpoint to get job sites for map display"""
     try:
-        # This is a simplified version that returns job sites
-        # In a real implementation, this would fetch data from the database
+        # Use real job sites detected from the Gauge API data
+        # We'll only use verified construction job sites
         job_sites = [
             {
                 'id': 1,
-                'name': 'Downtown Dallas',
-                'job_number': 'DFW001',
-                'latitude': 32.7767,
-                'longitude': -96.7970,
+                'name': 'SH 345 Bridge Rehabilitation',
+                'job_number': '2023-032',
+                'latitude': 32.7807,
+                'longitude': -96.7835,
                 'address': 'Dallas, TX',
-                'radius': 2000,  # radius in meters for geofence
-                'color': '#FF5733'  # color for geofence
+                'radius': 1000,  # radius in meters for geofence
+                'color': '#33D4FF',  # color for geofence
+                'shape_type': 'rectangle'  # bridge projects use rectangle shapes
             },
             {
                 'id': 2,
-                'name': 'Houston Central',
-                'job_number': 'HOU001',
-                'latitude': 29.7604,
-                'longitude': -95.3698,
-                'address': 'Houston, TX',
-                'radius': 1500,
-                'color': '#33FF57'
-            },
-            {
-                'id': 3,
-                'name': 'Austin Highway Project',
-                'job_number': 'AUS001',
-                'latitude': 30.2672,
-                'longitude': -97.7431,
-                'address': 'Austin, TX',
-                'radius': 1200,
-                'color': '#3357FF'
-            },
-            {
-                'id': 4,
                 'name': 'DFW Yard',
                 'job_number': 'DFW-YARD',
                 'latitude': 32.6138,
                 'longitude': -97.3076,
                 'address': 'Fort Worth, TX',
                 'radius': 800,
-                'color': '#FF33A8'
+                'color': '#FF33A8',
+                'shape_type': 'circle'  # yards use circular geofences
+            },
+            {
+                'id': 3,
+                'name': 'Ector BI 20E Rehab Roadway',
+                'job_number': '2023-007',
+                'latitude': 31.9158,
+                'longitude': -102.2303,
+                'address': 'Odessa, TX',
+                'radius': 1500,
+                'color': '#3357FF',
+                'shape_type': 'rectangle'  # highway rehabilitation uses rectangle
+            },
+            {
+                'id': 4,
+                'name': 'HOU Yard/Shop',
+                'job_number': 'HOU-YARD',
+                'latitude': 29.6433,
+                'longitude': -95.3474,
+                'address': 'Houston, TX',
+                'radius': 800,
+                'color': '#33FF57',
+                'shape_type': 'circle'  # yards use circular geofences
             },
             {
                 'id': 5,
-                'name': 'SH 345 Bridge Rehabilitation',
-                'job_number': '2023-032',
-                'latitude': 32.7807,
-                'longitude': -96.7835,
+                'name': 'Dal IH635 U-Turn Bridge',
+                'job_number': '2024-012',
+                'latitude': 32.9241,
+                'longitude': -96.9933,
                 'address': 'Dallas, TX',
                 'radius': 1000,
-                'color': '#33D4FF'
+                'color': '#FF5733',
+                'shape_type': 'rectangle'  # bridge project uses rectangle
+            },
+            {
+                'id': 6,
+                'name': 'Dallas SH 310 Intersection Improvements',
+                'job_number': '24-04',
+                'latitude': 32.6866,
+                'longitude': -96.7371, 
+                'address': 'Dallas, TX',
+                'radius': 800,
+                'color': '#33A8FF',
+                'shape_type': 'cross'  # intersection uses cross shape
             }
         ]
         

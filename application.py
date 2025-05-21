@@ -1,25 +1,25 @@
 """
-TRAXORA Fleet Management System - Minimal Application
+TRAXORA Fleet Management System - Basic Application
 
-This module provides a minimal working version of the application.
+This is a simplified version of the application to ensure basic functionality.
 """
 import os
 import logging
 from datetime import datetime
-from flask import Flask, render_template, jsonify, redirect, url_for
+from flask import Flask, render_template, jsonify
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Create Flask application
+# Create and configure the app
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "development_key")
 
-# Simple dashboard route
+# Basic routes
 @app.route('/')
 def index():
-    """Basic dashboard page"""
+    """Simplified dashboard for TRAXORA restart"""
     system_stats = {
         'asset_count': 0,
         'driver_count': 0,
@@ -37,7 +37,6 @@ def index():
                           system_stats=system_stats,
                           current_date=datetime.now().strftime('%Y-%m-%d'))
 
-# Health check endpoint
 @app.route('/health')
 def health():
     """Health check endpoint"""
@@ -46,6 +45,17 @@ def health():
         'timestamp': datetime.now().isoformat()
     })
 
-# Run the application
+# Error handlers
+@app.errorhandler(404)
+def page_not_found(e):
+    """Handle 404 errors"""
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def server_error(e):
+    """Handle 500 errors"""
+    logger.error(f"Server error: {str(e)}")
+    return render_template('500.html'), 500
+
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=True)

@@ -563,8 +563,9 @@
                                                 aria-valuenow="${match.confidencePercent}" aria-valuemin="0" aria-valuemax="100"></div>
                                         </div>`;
                                         
-                                        // Create sold/inactive warning if needed
+                                        // Create detailed factor breakdown to explain the recommendation score
                                         var inactiveWarning = '';
+                                        var scoreBreakdown = '';
                                         if (asset.last_update) {
                                             var lastUpdateDate = new Date(asset.last_update);
                                             var currentDate = new Date();
@@ -577,6 +578,115 @@
                                             }
                                         }
                                         
+                                        // Add score breakdown so PMs can see exactly why this recommendation was made
+                                        var baseDistanceScore = Math.round(1000 / (match.distance + 10));
+                                        var formattedDistance = (match.distance / 1000).toFixed(2);
+                                        
+                                        // Only show breakdown for the highest ranked site
+                                        if (idx === 0) {
+                                            scoreBreakdown = `
+                                            <div class="mt-2 border-top pt-2">
+                                                <div class="small fw-bold">Why This Recommendation?</div>
+                                                <div class="small">
+                                                    <table class="table table-sm table-borderless mb-0">
+                                                        <tr>
+                                                            <td>Distance (${formattedDistance} km):</td>
+                                                            <td class="text-end">+${baseDistanceScore} pts</td>
+                                                        </tr>`;
+                                                        
+                                            // Add equipment type factor
+                                            if ((match.site.shape_type === 'rectangle' && 
+                                                 ['Excavator', 'Roller', 'Crane', 'Bridge Machine', 'Grader', 'Dozer'].includes(asset.type)) ||
+                                                (match.site.shape_type === 'circle' && 
+                                                 ['Backhoe', 'Wheel Loader', 'Skid Steer', 'Truck Mounted Attenuator (TMA)'].includes(asset.type))) {
+                                                    
+                                                const equipTypeScore = match.site.shape_type === 'rectangle' ? 
+                                                    (asset.type === 'Bridge Machine' ? 120 : 
+                                                     asset.type === 'Roller' ? 100 : 
+                                                     asset.type === 'Crane' ? 90 : 
+                                                     asset.type === 'Grader' ? 90 : 
+                                                     asset.type === 'Excavator' ? 80 : 70) : 
+                                                    (asset.type === 'Wheel Loader' ? 80 : 70);
+                                                
+                                                scoreBreakdown += `
+                                                        <tr>
+                                                            <td>${asset.type} type bonus:</td>
+                                                            <td class="text-end">+${equipTypeScore} pts</td>
+                                                        </tr>`;
+                                            }
+                                            
+                                            // Historical pattern factor
+                                            if (asset.location && match.site.job_number && 
+                                                asset.location.includes(match.site.job_number)) {
+                                                scoreBreakdown += `
+                                                        <tr>
+                                                            <td>Historical pattern:</td>
+                                                            <td class="text-end">+200 pts</td>
+                                                        </tr>`;
+                                            }
+                                            
+                                            // Project type matching
+                                            if (asset.location && 
+                                                asset.location.toLowerCase().includes('bridge') && 
+                                                match.site.name.toLowerCase().includes('bridge')) {
+                                                scoreBreakdown += `
+                                                        <tr>
+                                                            <td>Project type match:</td>
+                                                            <td class="text-end">+50 pts</td>
+                                                        </tr>`;
+                                            }
+                                            
+                                            // Project recency factor
+                                            if (match.site.job_number) {
+                                                const jobYearMatch = match.site.job_number.match(/^(\d{4})/);
+                                                if (jobYearMatch) {
+                                                    const jobYear = parseInt(jobYearMatch[1]);
+                                                    const currentYear = new Date().getFullYear();
+                                                    
+                                                    if (jobYear === currentYear) {
+                                                        scoreBreakdown += `
+                                                        <tr>
+                                                            <td>Current year project:</td>
+                                                            <td class="text-end">+40 pts</td>
+                                                        </tr>`;
+                                                    } else if (jobYear === currentYear - 1) {
+                                                        scoreBreakdown += `
+                                                        <tr>
+                                                            <td>Recent project:</td>
+                                                            <td class="text-end">+20 pts</td>
+                                                        </tr>`;
+                                                    }
+                                                }
+                                            }
+                                            
+                                            // Seasonal factor
+                                            const currentMonth = new Date().getMonth();
+                                            if (currentMonth >= 4 && currentMonth <= 8 &&
+                                                (match.site.name.toLowerCase().includes('road') || 
+                                                 match.site.name.toLowerCase().includes('rehab') ||
+                                                 match.site.name.toLowerCase().includes('highway'))) {
+                                                scoreBreakdown += `
+                                                        <tr>
+                                                            <td>Seasonal pattern:</td>
+                                                            <td class="text-end">+30 pts</td>
+                                                        </tr>`;
+                                            }
+                                            
+                                            // Inactivity penalty
+                                            if (soldPenalty > 0) {
+                                                scoreBreakdown += `
+                                                        <tr>
+                                                            <td>Inactivity penalty:</td>
+                                                            <td class="text-end">-${soldPenalty} pts</td>
+                                                        </tr>`;
+                                            }
+                                            
+                                            scoreBreakdown += `
+                                                    </table>
+                                                </div>
+                                            </div>`;
+                                        }
+                                        
                                         jobSiteSection += `<div class="${siteBoxClass}">
                                             ${siteHeader}
                                             ${confidenceBadge}
@@ -585,6 +695,7 @@
                                                 <div class="text-muted">${distance} km</div>
                                             </div>
                                             ${inactiveWarning}
+                                            ${scoreBreakdown}
                                         </div>`;
                                     });
                                     

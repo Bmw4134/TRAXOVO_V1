@@ -290,12 +290,12 @@
             }
             
             // Create job site icon
-            function createJobSiteIcon(name) {
+            function createJobSiteIcon() {
                 return L.divIcon({
                     className: 'job-site-marker',
-                    html: `<div style="background:#343a40;color:white;padding:3px 8px;border-radius:4px;font-size:12px;white-space:nowrap;">${name}</div>`,
-                    iconSize: [120, 20],
-                    iconAnchor: [60, 10]
+                    html: `<div style="background:#343a40;color:white;border-radius:50%;width:10px;height:10px;border:2px solid white;"></div>`,
+                    iconSize: [14, 14],
+                    iconAnchor: [7, 7]
                 });
             }
             
@@ -396,23 +396,47 @@
                         });
                         jobSiteMarkers = {};
                         
-                        // Add markers for job sites
+                        // Add markers and geofences for job sites
                         data.forEach(function(site) {
                             if (!site.latitude || !site.longitude) return;
                             
+                            // Create marker for job site location
                             var marker = L.marker([site.latitude, site.longitude], {
-                                icon: createJobSiteIcon(site.name)
+                                icon: createJobSiteIcon()
                             }).addTo(jobSiteOverlay);
                             
+                            // Create geofence circle for the job site
+                            var radius = site.radius || 1000; // Default 1km radius if not specified
+                            var color = site.color || '#FF5733'; // Default color if not specified
+                            
+                            var circle = L.circle([site.latitude, site.longitude], {
+                                radius: radius,
+                                color: color,
+                                fillColor: color,
+                                fillOpacity: 0.1,
+                                weight: 2,
+                                dashArray: '5, 5',
+                                interactive: true
+                            }).addTo(jobSiteOverlay);
+                            
+                            // Add asset count to popup if available
+                            var assetCount = site.asset_count ? `<div><strong>Equipment Count:</strong> ${site.asset_count}</div>` : '';
+                            
                             var popupContent = `
-                                <div>
+                                <div style="min-width:200px">
                                     <h5>${site.name}</h5>
                                     <div><strong>Job Number:</strong> ${site.job_number || 'None'}</div>
                                     <div><strong>Address:</strong> ${site.address || 'Unknown'}</div>
+                                    ${assetCount}
+                                    <div><strong>Geofence Radius:</strong> ${(radius/1000).toFixed(1)} km</div>
                                 </div>
                             `;
                             
+                            // Bind popup to both marker and circle
                             marker.bindPopup(popupContent);
+                            circle.bindPopup(popupContent);
+                            
+                            // Store references
                             jobSiteMarkers[site.id] = marker;
                         });
                     })

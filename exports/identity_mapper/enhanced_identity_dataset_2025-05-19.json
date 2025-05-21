@@ -1,0 +1,2947 @@
+{
+  "ammar i elhamad": {
+    "name": "Elhamad, Ammar I",
+    "normalized_name": "ammar i elhamad",
+    "assets": [
+      "#210003 - AMMAR I. ELHAMAD"
+    ],
+    "job_sites": [
+      "TEXDIST, Two Thousand Oak Apartments, North Richland Hills, TX 76180"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "matthew c shaylor": {
+    "name": "Shaylor, Matthew C",
+    "normalized_name": "matthew c shaylor",
+    "assets": [
+      "#210013 - MATTHEW C. SHAYLOR"
+    ],
+    "job_sites": [
+      "Pine Valley Dr, Flower Mound, TX 75022"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "adam h goode": {
+    "name": "Goode, Adam H",
+    "normalized_name": "adam h goode",
+    "assets": [
+      "#210055 - ADAM H. GOODE"
+    ],
+    "job_sites": [
+      "2022-023 Riverfront & Cadiz Bridge Improvement, S Riverfront Blvd, Dallas, TX 75207"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "bikhyat adhikari": {
+    "name": "Adhikari, Bikhyat",
+    "normalized_name": "bikhyat adhikari",
+    "assets": [
+      "#210073 - BIKHYAT ADHIKARI"
+    ],
+    "job_sites": [
+      "2023-006 (OFFICE) Tarrant SH 183 Bridge, Decatur Ave, Fort Worth, TX 76106"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "s2372507": {
+    "name": "S2372507",
+    "normalized_name": "s2372507",
+    "assets": [
+      "14FT-03S"
+    ],
+    "job_sites": [
+      "2023-035 (5) HARRIS VA BRIDGE REHAB, South Loop E, Houston, TX 77051"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "r2360779": {
+    "name": "R2360779",
+    "normalized_name": "r2360779",
+    "assets": [
+      "14FT-04S"
+    ],
+    "job_sites": [
+      "2024-030 Matagorda SH 35 Bridge Replacement, State Highway 35 S, Bay City, TX 77414"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "shop trailer": {
+    "name": "SHOP TRAILER",
+    "normalized_name": "shop trailer",
+    "assets": [
+      "14T-21"
+    ],
+    "job_sites": [
+      "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "traffic control": {
+    "name": "TRAFFIC CONTROL",
+    "normalized_name": "traffic control",
+    "assets": [
+      "14T-38"
+    ],
+    "job_sites": [
+      "TRAFFIC WALNUT HILL YARD, Walnut Hill Ln, Dallas, TX 75229"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "wtx job trailer": {
+    "name": "WTX JOB TRAILER",
+    "normalized_name": "wtx job trailer",
+    "assets": [
+      "14T-39"
+    ],
+    "job_sites": [
+      "WTX YARD (2), W County Road 117, Midland, TX 79706"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "htx flatbed trailer": {
+    "name": "HTX FLATBED TRAILER",
+    "normalized_name": "htx flatbed trailer",
+    "assets": [
+      "14T-44"
+    ],
+    "job_sites": [
+      "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "htx dump trailer": {
+    "name": "HTX DUMP TRAILER",
+    "normalized_name": "htx dump trailer",
+    "assets": [
+      "14T-45"
+    ],
+    "job_sites": [
+      "2024-025 LIBERTY FM 787 EMC BRIDGE, FM 787 Rd W, Liberty, TX 77327"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "0153": {
+    "name": "0153",
+    "normalized_name": "0153",
+    "assets": [
+      "AC-25"
+    ],
+    "job_sites": [
+      "2023-032 SH 345 BRIDGE REHABILITATION, Canton St, Dallas, TX 75226"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "allen screed 22 5": {
+    "name": "ALLEN SCREED 22.5'",
+    "normalized_name": "allen screed 22 5",
+    "assets": [
+      "CFM-18"
+    ],
+    "job_sites": [],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "asphalt 84": {
+    "name": "ASPHALT 84\"",
+    "normalized_name": "asphalt 84",
+    "assets": [
+      "DD-01",
+      "DD-02"
+    ],
+    "job_sites": [
+      "2023-007 Ector BI 20E Rehab Roadway, W Highway 80 E, Midland, TX 79765"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "welding truck": {
+    "name": "WELDING TRUCK",
+    "normalized_name": "welding truck",
+    "assets": [
+      "DT-08"
+    ],
+    "job_sites": [
+      "2023-032 SH 345 BRIDGE REHABILITATION, US-75 N, Dallas, TX 75226"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "salvador aguillon": {
+    "name": "SALVADOR AGUILLON",
+    "normalized_name": "salvador aguillon",
+    "assets": [
+      "DTC-11",
+      "DTC-25",
+      "PT-208",
+      "SS-36"
+    ],
+    "job_sites": [
+      "2023-032 SH 345 BRIDGE REHABILITATION, Julius Schepps Fwy, Dallas, TX 75226",
+      "2023-006 (OFFICE) Tarrant SH 183 Bridge, Decatur Ave, Fort Worth, TX 76106",
+      "2023-032 SH 345 BRIDGE REHABILITATION, Canton St, Dallas, TX 75226"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "juan l ruiz": {
+    "name": "JUAN L. RUIZ",
+    "normalized_name": "juan l ruiz",
+    "assets": [
+      "DTC-12",
+      "ET-30"
+    ],
+    "job_sites": [
+      "Denton Hwy, Haltom City, TX 76117",
+      "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "alonso miramontes": {
+    "name": "ALONSO MIRAMONTES",
+    "normalized_name": "alonso miramontes",
+    "assets": [
+      "DTC-29",
+      "ET-27",
+      "SS-45"
+    ],
+    "job_sites": [
+      "2023-006 (OFFICE) Tarrant SH 183 Bridge, Peak St, Fort Worth, TX 76106",
+      "2023-006 Tarrant SH 183 Bridge Replacement, NE 28th St, Fort Worth, TX 76106"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "14t": {
+    "name": "14T",
+    "normalized_name": "14t",
+    "assets": [
+      "DTF-03S"
+    ],
+    "job_sites": [
+      "24-04 DALLAS SH 310 INTERSECTION IMPROV, S Central Expy, Dallas, TX 75241"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "jesus lopez soto": {
+    "name": "JESUS LOPEZ SOTO",
+    "normalized_name": "jesus lopez soto",
+    "assets": [
+      "DTF-06",
+      "ET-35",
+      "SS-38"
+    ],
+    "job_sites": [
+      "2024-004 City of Dallas Sidewalk 2024 (YARD), Langford St, Dallas, TX 75208",
+      "2024-004 CoD Sidewalks 2024 (#23-BFR1), N Winnetka Ave, Dallas, TX 75208"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "foundation": {
+    "name": "FOUNDATION",
+    "normalized_name": "foundation",
+    "assets": [
+      "DTF-09"
+    ],
+    "job_sites": [
+      "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "hector j claudio": {
+    "name": "HECTOR J. CLAUDIO",
+    "normalized_name": "hector j claudio",
+    "assets": [
+      "DTF-11",
+      "PT-269"
+    ],
+    "job_sites": [
+      "2023-032 SH 345 BRIDGE REHABILITATION, US-75 N, Dallas, TX 75226"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "jose m rangel": {
+    "name": "Rangel, Jose M",
+    "normalized_name": "jose m rangel",
+    "assets": [
+      "DTF-16",
+      "ET-29",
+      "PT-227"
+    ],
+    "job_sites": [
+      "2024-004 City of Dallas Sidewalk 2024 (YARD), Langford St, Dallas, TX 75208",
+      "Oakland Ave, Garland, TX 75041",
+      "2024-004 CoD Sidewalks 2024 (#06), San Jacinto St, Dallas, TX 75204"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "salvador": {
+    "name": "SALVADOR",
+    "normalized_name": "salvador",
+    "assets": [
+      "DTF-17"
+    ],
+    "job_sites": [
+      "2023-032 SH 345 BRIDGE REHABILITATION, US-75 N, Dallas, TX 75226"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "saul martinez alvarez": {
+    "name": "Martinez Alvarez, Saul",
+    "normalized_name": "saul martinez alvarez",
+    "assets": [
+      "ET-01"
+    ],
+    "job_sites": [
+      "2023-006 (OFFICE) Tarrant SH 183 Bridge, Decatur Ave, Fort Worth, TX 76106"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "anthony j hardimon": {
+    "name": "HARDIMON, ANTHONY J",
+    "normalized_name": "anthony j hardimon",
+    "assets": [
+      "ET-02"
+    ],
+    "job_sites": [
+      "Airport Fwy, Bedford, TX 76021"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "manuel andrade": {
+    "name": "Andrade, Manuel",
+    "normalized_name": "manuel andrade",
+    "assets": [
+      "ET-03"
+    ],
+    "job_sites": [
+      "2023-035 (5) HARRIS VA BRIDGE REHAB, I-610 E, Houston, TX 77033"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "gerald a ehimhen": {
+    "name": "Ehimhen, Gerald A",
+    "normalized_name": "gerald a ehimhen",
+    "assets": [
+      "ET-04"
+    ],
+    "job_sites": [
+      "2024-004 City of Dallas Sidewalk 2024 (YARD), Langford St, Dallas, TX 75208"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "anthony j loaner hardimon": {
+    "name": "HARDIMON, ANTHONY J LOANER",
+    "normalized_name": "anthony j loaner hardimon",
+    "assets": [
+      "ET-05"
+    ],
+    "job_sites": [
+      "2024-019 (15) Tarrant VA Bridge Rehab, US-67 Bus S, Keene, TX 76059"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "esteban rodriguez perez": {
+    "name": "Rodriguez Perez, Esteban",
+    "normalized_name": "esteban rodriguez perez",
+    "assets": [
+      "ET-06"
+    ],
+    "job_sites": [
+      "2023-007 Ector BI 20E Rehab Roadway, W Highway 80 E, Midland, TX 79765"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "paxton c hays": {
+    "name": "HAYS, PAXTON C",
+    "normalized_name": "paxton c hays",
+    "assets": [
+      "ET-07"
+    ],
+    "job_sites": [
+      "2024-004 City of Dallas Sidewalk 2024 (YARD), Langford St, Dallas, TX 75208"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "jorge l martinez": {
+    "name": "Martinez, Jorge L",
+    "normalized_name": "jorge l martinez",
+    "assets": [
+      "ET-08"
+    ],
+    "job_sites": [
+      "2023-006 (OFFICE) Tarrant SH 183 Bridge, Decatur Ave, Fort Worth, TX 76106"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "jose c ramirez": {
+    "name": "Ramirez, Jose C",
+    "normalized_name": "jose c ramirez",
+    "assets": [
+      "ET-09"
+    ],
+    "job_sites": [
+      "Hayman Dr, Garland, TX 75043"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "jesus a medina rodriguez": {
+    "name": "Medina-Rodriguez, Jesus A",
+    "normalized_name": "jesus a medina rodriguez",
+    "assets": [
+      "ET-10"
+    ],
+    "job_sites": [
+      "2024-030 Matagorda SH 35 Bridge Replacement, State Highway 35 S, Bay City, TX 77414"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "roberto guerrero jr": {
+    "name": "Guerrero Jr, Roberto",
+    "normalized_name": "roberto guerrero jr",
+    "assets": [
+      "ET-11"
+    ],
+    "job_sites": [
+      "2023-014 (3) TARRANT IH 20 US 81 BR, S Main St, Rhome, TX 76078"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "caleb s kocmick": {
+    "name": "Kocmick, Caleb S",
+    "normalized_name": "caleb s kocmick",
+    "assets": [
+      "ET-14"
+    ],
+    "job_sites": [
+      "2023-006 (OFFICE) Tarrant SH 183 Bridge, Decatur Ave, Fort Worth, TX 76106"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "carlos h eclavea": {
+    "name": "Eclavea, Carlos H",
+    "normalized_name": "carlos h eclavea",
+    "assets": [
+      "ET-15"
+    ],
+    "job_sites": [
+      "2023-006 Tarrant SH 183 Bridge Replacement, NE 28th St, Fort Worth, TX 76106"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "luis e murcia orellana": {
+    "name": "Murcia Orellana, Luis E",
+    "normalized_name": "luis e murcia orellana",
+    "assets": [
+      "ET-16"
+    ],
+    "job_sites": [
+      "2024-030 Matagorda SH 35 Bridge Replacement, State Highway 35 S, Bay City, TX 77414"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "cooper e link": {
+    "name": "Link, Cooper E",
+    "normalized_name": "cooper e link",
+    "assets": [
+      "ET-17"
+    ],
+    "job_sites": [
+      "TEXDIST, Airport Fwy, North Richland Hills, TX 76180"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "jesse a moore": {
+    "name": "Moore, Jesse A",
+    "normalized_name": "jesse a moore",
+    "assets": [
+      "ET-18"
+    ],
+    "job_sites": [
+      "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "osiel salaices": {
+    "name": "Salaices, Osiel",
+    "normalized_name": "osiel salaices",
+    "assets": [
+      "ET-19"
+    ],
+    "job_sites": [
+      "2022-023 Riverfront & Cadiz Bridge Improvement, S Riverfront Blvd, Dallas, TX 75207"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "open ram 1500": {
+    "name": "OPEN RAM 1500",
+    "normalized_name": "open ram 1500",
+    "assets": [
+      "ET-20"
+    ],
+    "job_sites": [
+      "EQUIP HOU, S Acres Dr, Houston, TX 77048"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "juan lopez": {
+    "name": "Lopez, Juan",
+    "normalized_name": "juan lopez",
+    "assets": [
+      "ET-22"
+    ],
+    "job_sites": [
+      "2023-032 SH 345 BRIDGE REHABILITATION, S Good Latimer Expy, Dallas, TX 75226"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "jose j rivera": {
+    "name": "Rivera, Jose J",
+    "normalized_name": "jose j rivera",
+    "assets": [
+      "ET-23"
+    ],
+    "job_sites": [
+      "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "troy s malette": {
+    "name": "Malette, Troy S",
+    "normalized_name": "troy s malette",
+    "assets": [
+      "ET-24"
+    ],
+    "job_sites": [
+      "Burwell Dr, Fort Worth, TX 76244"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "jesus o rodarte serrano": {
+    "name": "RODARTE SERRANO, JESUS O",
+    "normalized_name": "jesus o rodarte serrano",
+    "assets": [
+      "ET-25"
+    ],
+    "job_sites": [
+      "2023-014 (1) TARRANT IH 20 US 81 BR, Milmo Dr, Fort Worth, TX 76134"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "juan p rodriguez": {
+    "name": "Rodriguez, Juan P",
+    "normalized_name": "juan p rodriguez",
+    "assets": [
+      "ET-26",
+      "SS-35"
+    ],
+    "job_sites": [
+      "2024-012 Dal IH635 U-Turn Bridge, Interstate Highway 635, Coppell, TX 75063",
+      "2023-032 SH 345 BRIDGE REHABILITATION, S Crowdus St, Dallas, TX 75226"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "jorge l flores": {
+    "name": "Flores, Jorge L",
+    "normalized_name": "jorge l flores",
+    "assets": [
+      "ET-28"
+    ],
+    "job_sites": [
+      "S County Road 1314, Midland, TX 79765"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "ramiro vazquez de la cruz": {
+    "name": "Vazquez De La Cruz, Ramiro",
+    "normalized_name": "ramiro vazquez de la cruz",
+    "assets": [
+      "ET-31"
+    ],
+    "job_sites": [
+      "Springtime Dr, Cedar Hill, TX 75104"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "uriel garcia andrade": {
+    "name": "Garcia-Andrade, Uriel",
+    "normalized_name": "uriel garcia andrade",
+    "assets": [
+      "ET-32",
+      "SS-41"
+    ],
+    "job_sites": [
+      "Beaumont RAG Property, Romeda Rd, Beaumont, TX 77705",
+      "2024-030 Matagorda SH 35 Bridge Replacement, State Highway 35 S, Bay City, TX 77414"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "jose p lopez lira": {
+    "name": "Lopez Lira, Jose P",
+    "normalized_name": "jose p lopez lira",
+    "assets": [
+      "ET-33"
+    ],
+    "job_sites": [
+      "Forrester St, Greenville, TX 75401"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "aureliano reyes": {
+    "name": "Reyes, Aureliano",
+    "normalized_name": "aureliano reyes",
+    "assets": [
+      "ET-34"
+    ],
+    "job_sites": [
+      "2023-035 (5) HARRIS VA BRIDGE REHAB, South Loop E, Houston, TX 77087"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "alonzo gonzalez": {
+    "name": "Gonzalez, Alonzo",
+    "normalized_name": "alonzo gonzalez",
+    "assets": [
+      "ET-36",
+      "HTC-07"
+    ],
+    "job_sites": [
+      "EQUIP HOU, S Acres Dr, Houston, TX 77048",
+      "S Freeway N, Houston, TX 77047"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "sabino ibarra": {
+    "name": "Ibarra, Sabino",
+    "normalized_name": "sabino ibarra",
+    "assets": [
+      "ET-37",
+      "SS-39"
+    ],
+    "job_sites": [
+      "2023-007 Ector BI 20E Rehab Roadway, W Highway 80 E, Midland, TX 79765"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "caleb l padgett": {
+    "name": "Padgett, Caleb L",
+    "normalized_name": "caleb l padgett",
+    "assets": [
+      "ET-38"
+    ],
+    "job_sites": [
+      "Highway 360, Arlington, TX 76010"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "jose r terrazas melendez": {
+    "name": "Terrazas Melendez, Jose R",
+    "normalized_name": "jose r terrazas melendez",
+    "assets": [
+      "ET-39"
+    ],
+    "job_sites": [
+      "2024-012 Dal IH635 U-Turn Bridge, Interstate Highway 635, Coppell, TX 75063"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "justin d hampton": {
+    "name": "Hampton, Justin D",
+    "normalized_name": "justin d hampton",
+    "assets": [
+      "ET-41"
+    ],
+    "job_sites": [
+      "TEXDIST, Two Thousand Oak Apartments, North Richland Hills, TX 76180"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "juan c berjes ruiz": {
+    "name": "Berjes Ruiz, Juan C",
+    "normalized_name": "juan c berjes ruiz",
+    "assets": [
+      "ET-42"
+    ],
+    "job_sites": [
+      "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "eric stx giebelhaus": {
+    "name": "Giebelhaus, Eric STX",
+    "normalized_name": "eric stx giebelhaus",
+    "assets": [
+      "ET-43"
+    ],
+    "job_sites": [
+      "2023-032 (OFFICE) SH 345 BRIDGE REHABILITATION, Elm St, Dallas, TX 75226"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "stolen on 6 23 24": {
+    "name": "stolen on 6/23/24",
+    "normalized_name": "stolen on 6 23 24",
+    "assets": [
+      "EX-03S"
+    ],
+    "job_sites": [
+      "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "p1007116": {
+    "name": "P1007116",
+    "normalized_name": "p1007116",
+    "assets": [
+      "LP-114"
+    ],
+    "job_sites": [
+      "2024-012 Dal IH635 U-Turn Bridge, N Belt Line Rd, Irving, TX 75063"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "p1007120": {
+    "name": "P1007120",
+    "normalized_name": "p1007120",
+    "assets": [
+      "LP-115"
+    ],
+    "job_sites": [
+      "2024-030 Matagorda SH 35 Bridge Replacement, State Highway 35 S, Bay City, TX 77414"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "411774": {
+    "name": "411774",
+    "normalized_name": "411774",
+    "assets": [
+      "MB-05S"
+    ],
+    "job_sites": [
+      "EQUIP HOU, S Acres Dr, Houston, TX 77048"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "r1006827": {
+    "name": "R1006827",
+    "normalized_name": "r1006827",
+    "assets": [
+      "ME-60"
+    ],
+    "job_sites": [
+      "E Highway 67, Keene, TX 76031"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "r1006828": {
+    "name": "R1006828",
+    "normalized_name": "r1006828",
+    "assets": [
+      "ME-61"
+    ],
+    "job_sites": [
+      "2024-025 LIBERTY FM 787 EMC BRIDGE, FM 787 Rd W, Liberty, TX 77327"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "mower king": {
+    "name": "Mower King",
+    "normalized_name": "mower king",
+    "assets": [
+      "MOWER ATTACHMENT"
+    ],
+    "job_sites": [
+      "2020-027 DENTON CO US 377"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "tma": {
+    "name": "TMA",
+    "normalized_name": "tma",
+    "assets": [
+      "MT-07"
+    ],
+    "job_sites": [
+      "Dallas Pkwy, Plano, TX 75093"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "lorenzo aparicio": {
+    "name": "Aparicio, Lorenzo",
+    "normalized_name": "lorenzo aparicio",
+    "assets": [
+      "MT-09"
+    ],
+    "job_sites": [
+      "2023-032 SH 345 BRIDGE REHABILITATION, Julius Schepps Fwy, Dallas, TX 75226"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "open mech truck": {
+    "name": "OPEN MECH TRUCK",
+    "normalized_name": "open mech truck",
+    "assets": [
+      "MT-13"
+    ],
+    "job_sites": [
+      "Panay Dr, Houston, TX 77048"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "ivan torres": {
+    "name": "Torres, Ivan",
+    "normalized_name": "ivan torres",
+    "assets": [
+      "MT-14"
+    ],
+    "job_sites": [
+      "Tom Landry Fwy, Arlington, TX 76012"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "korbin e gee": {
+    "name": "Gee, Korbin E",
+    "normalized_name": "korbin e gee",
+    "assets": [
+      "MT-15"
+    ],
+    "job_sites": [
+      "2024-030 Matagorda SH 35 Bridge Replacement, State Highway 35 S, Bay City, TX 77414"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "lube truck": {
+    "name": "LUBE TRUCK",
+    "normalized_name": "lube truck",
+    "assets": [
+      "MT-16"
+    ],
+    "job_sites": [],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "office vehicle": {
+    "name": "OFFICE VEHICLE",
+    "normalized_name": "office vehicle",
+    "assets": [
+      "OV-01"
+    ],
+    "job_sites": [
+      "TEXDIST, Two Thousand Oak Apartments, North Richland Hills, TX 76180"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "select crew truck": {
+    "name": "SELECT CREW TRUCK",
+    "normalized_name": "select crew truck",
+    "assets": [
+      "PT-06S"
+    ],
+    "job_sites": [
+      "County Road 99, Alvin, TX 77511"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "roger w doddy": {
+    "name": "DODDY, ROGER W",
+    "normalized_name": "roger w doddy",
+    "assets": [
+      "PT-07S"
+    ],
+    "job_sites": [
+      "Park Dr, Dalworthington Gardens, TX 76016"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "james gabe": {
+    "name": "JAMES GABE",
+    "normalized_name": "james gabe",
+    "assets": [
+      "PT-08S"
+    ],
+    "job_sites": [],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "jovan espinoza casillas": {
+    "name": "Espinoza-Casillas, Jovan",
+    "normalized_name": "jovan espinoza casillas",
+    "assets": [
+      "PT-09S"
+    ],
+    "job_sites": [
+      "25-01 (1) TARRANT STARNES RD INTERSECT, Starnes Rd, Watauga, TX 76148"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "martin escobedo jr": {
+    "name": "Escobedo Jr, Martin",
+    "normalized_name": "martin escobedo jr",
+    "assets": [
+      "PT-104"
+    ],
+    "job_sites": [
+      "2022-023 Riverfront & Cadiz Bridge Improvement, S Riverfront Blvd, Dallas, TX 75207"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "dfw office truck": {
+    "name": "DFW OFFICE TRUCK",
+    "normalized_name": "dfw office truck",
+    "assets": [
+      "PT-107"
+    ],
+    "job_sites": [
+      "South Fwy, Fort Worth, TX 76134"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "gerardo j badillo": {
+    "name": "BADILLO, GERARDO J",
+    "normalized_name": "gerardo j badillo",
+    "assets": [
+      "PT-108"
+    ],
+    "job_sites": [
+      "W Cypress Forest Dr, Houston, TX 77070"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "robert p berryhill": {
+    "name": "Berryhill, Robert P",
+    "normalized_name": "robert p berryhill",
+    "assets": [
+      "PT-10S"
+    ],
+    "job_sites": [
+      "2023-035 (5) HARRIS VA BRIDGE REHAB, La Porte Fwy W, Houston, TX 77017"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "shop mech loaner": {
+    "name": "shop mech loaner",
+    "normalized_name": "shop mech loaner",
+    "assets": [
+      "PT-111"
+    ],
+    "job_sites": [
+      "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "rafael muratalla ceja": {
+    "name": "Muratalla-Ceja, Rafael",
+    "normalized_name": "rafael muratalla ceja",
+    "assets": [
+      "PT-11S"
+    ],
+    "job_sites": [
+      "24-04 DALLAS SH 310 INTERSECTION IMPROV, S Central Expy, Dallas, TX 75241"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "plano jobsite truck": {
+    "name": "PLANO JOBSITE TRUCK",
+    "normalized_name": "plano jobsite truck",
+    "assets": [
+      "PT-125"
+    ],
+    "job_sites": [
+      "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "javier magallanes": {
+    "name": "Magallanes, Javier",
+    "normalized_name": "javier magallanes",
+    "assets": [
+      "PT-13S"
+    ],
+    "job_sites": [
+      "25-01 (1) TARRANT STARNES RD INTERSECT, Starnes Rd, Watauga, TX 76148"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "keith a smith": {
+    "name": "Smith, Keith A",
+    "normalized_name": "keith a smith",
+    "assets": [
+      "PT-14S"
+    ],
+    "job_sites": [
+      "Hollow Tree Ln, Houston, TX 77090"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "eduardo d alvarado": {
+    "name": "Alvarado, Eduardo D",
+    "normalized_name": "eduardo d alvarado",
+    "assets": [
+      "PT-156"
+    ],
+    "job_sites": [
+      "W 6th Ave, Corsicana, TX 75110"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "armando saldierna jr": {
+    "name": "Saldierna Jr, Armando",
+    "normalized_name": "armando saldierna jr",
+    "assets": [
+      "PT-160"
+    ],
+    "job_sites": [
+      "EQUIP HOU, S Acres Dr, Houston, TX 77048"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "william persinger": {
+    "name": "PERSINGER, WILLIAM",
+    "normalized_name": "william persinger",
+    "assets": [
+      "PT-163"
+    ],
+    "job_sites": [
+      "2023-007 Ector BI 20E Rehab Roadway, E Highway 80, Odessa, TX 79762"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "alberto zuniga": {
+    "name": "Zuniga, Alberto",
+    "normalized_name": "alberto zuniga",
+    "assets": [
+      "PT-165"
+    ],
+    "job_sites": [
+      "Cedarwood Dr, Lancaster, TX 75134"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "juan m luevano": {
+    "name": "Luevano, Juan M",
+    "normalized_name": "juan m luevano",
+    "assets": [
+      "PT-166"
+    ],
+    "job_sites": [
+      "N Beach St, Haltom City, TX 76111"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "omar ramirez": {
+    "name": "Ramirez, Omar",
+    "normalized_name": "omar ramirez",
+    "assets": [
+      "PT-167"
+    ],
+    "job_sites": [
+      "Concan Dr, Travis Ranch, TX 75126"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "luis f ramirez": {
+    "name": "Ramirez, Luis F",
+    "normalized_name": "luis f ramirez",
+    "assets": [
+      "PT-168"
+    ],
+    "job_sites": [
+      "York Dr, Edgecliff Village, TX 76134"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "open f150 stx": {
+    "name": "OPEN F150 STX",
+    "normalized_name": "open f150 stx",
+    "assets": [
+      "PT-169"
+    ],
+    "job_sites": [
+      "TEXDIST, Two Thousand Oak Apartments, North Richland Hills, TX 76180"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "isaac f romero": {
+    "name": "Romero, Isaac F",
+    "normalized_name": "isaac f romero",
+    "assets": [
+      "PT-16S"
+    ],
+    "job_sites": [
+      "US Highway 287, Fort Worth, TX 76179"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "open traffic truck": {
+    "name": "OPEN TRAFFIC TRUCK",
+    "normalized_name": "open traffic truck",
+    "assets": [
+      "PT-172"
+    ],
+    "job_sites": [
+      "2022-023 Riverfront & Cadiz Bridge Improvement, S Riverfront Blvd, Dallas, TX 75207"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "juan b hernandez": {
+    "name": "Hernandez, Juan B",
+    "normalized_name": "juan b hernandez",
+    "assets": [
+      "PT-173"
+    ],
+    "job_sites": [
+      "E Jefferson Blvd, Dallas, TX 75203"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "salvador rodriguez jr": {
+    "name": "Rodriguez Jr, Salvador",
+    "normalized_name": "salvador rodriguez jr",
+    "assets": [
+      "PT-177"
+    ],
+    "job_sites": [
+      "Rayville Dr, Dallas, TX 75217"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "troy ragle": {
+    "name": "TROY RAGLE",
+    "normalized_name": "troy ragle",
+    "assets": [
+      "PT-179"
+    ],
+    "job_sites": [],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "open select jst": {
+    "name": "OPEN SELECT JST",
+    "normalized_name": "open select jst",
+    "assets": [
+      "PT-17S"
+    ],
+    "job_sites": [
+      "2024-004 City of Dallas Sidewalk 2024 (YARD), Langford St, Dallas, TX 75208"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "roberto lumbreras": {
+    "name": "Lumbreras, Roberto",
+    "normalized_name": "roberto lumbreras",
+    "assets": [
+      "PT-180",
+      "PT-187"
+    ],
+    "job_sites": [
+      "Northwest Dr, Mesquite, TX 75150",
+      "McCree Rd, Garland, TX 75041"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "leonel munoz": {
+    "name": "Munoz, Leonel",
+    "normalized_name": "leonel munoz",
+    "assets": [
+      "PT-182"
+    ],
+    "job_sites": [
+      "2023-007 Ector BI 20E Rehab Roadway, W Industrial Ave, Midland, TX 79706"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "jose a bautista": {
+    "name": "Bautista, Jose A",
+    "normalized_name": "jose a bautista",
+    "assets": [
+      "PT-185"
+    ],
+    "job_sites": [
+      "WTX YARD (2), W County Road 117, Midland, TX 79706"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "open f150": {
+    "name": "OPEN F150",
+    "normalized_name": "open f150",
+    "assets": [
+      "PT-188"
+    ],
+    "job_sites": [
+      "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "jst select 250": {
+    "name": "JST SELECT 250",
+    "normalized_name": "jst select 250",
+    "assets": [
+      "PT-18S"
+    ],
+    "job_sites": [
+      "24-04 DALLAS SH 310 INTERSECTION IMPROV, S Central Expy, Dallas, TX 75241"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "jose g turrubiartes jr": {
+    "name": "Turrubiartes Jr, Jose G",
+    "normalized_name": "jose g turrubiartes jr",
+    "assets": [
+      "PT-190"
+    ],
+    "job_sites": [
+      "2023-035 (5) HARRIS VA BRIDGE REHAB, South Loop E, Houston, TX 77012"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "open dfw tc using": {
+    "name": "OPEN DFW TC USING",
+    "normalized_name": "open dfw tc using",
+    "assets": [
+      "PT-193"
+    ],
+    "job_sites": [
+      "2023-032 SH 345 BRIDGE REHABILITATION, US-75 N, Dallas, TX 75226"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "albert perry is using": {
+    "name": "Albert Perry is using",
+    "normalized_name": "albert perry is using",
+    "assets": [
+      "PT-194"
+    ],
+    "job_sites": [
+      "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "wtx jst": {
+    "name": "WTX JST",
+    "normalized_name": "wtx jst",
+    "assets": [
+      "PT-199"
+    ],
+    "job_sites": [
+      "2023-007 Ector BI 20E Rehab Roadway, W Highway 80 E, Midland, TX 79765"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "bryan figueroa": {
+    "name": "Figueroa, Bryan",
+    "normalized_name": "bryan figueroa",
+    "assets": [
+      "PT-19S"
+    ],
+    "job_sites": [
+      "Chicago Ave, Nederland, TX 77627"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "2024 004 sidewalks jst": {
+    "name": "2024-004 SIDEWALKS JST",
+    "normalized_name": "2024 004 sidewalks jst",
+    "assets": [
+      "PT-202"
+    ],
+    "job_sites": [
+      "2024-004 CoD Sidewalks 2024 (#23-BFR1), W Canty St, Dallas, TX 75208"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "juan c vasquez": {
+    "name": "Vasquez, Juan C",
+    "normalized_name": "juan c vasquez",
+    "assets": [
+      "PT-207"
+    ],
+    "job_sites": [
+      "W Danieldale Rd, Desoto, TX 75232"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "obaldo s chavez": {
+    "name": "Chavez, Obaldo S",
+    "normalized_name": "obaldo s chavez",
+    "assets": [
+      "PT-20S"
+    ],
+    "job_sites": [
+      "24-04 DALLAS SH 310 INTERSECTION IMPROV, S Central Expy, Dallas, TX 75241"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "catalino flores jr": {
+    "name": "Flores Jr, Catalino",
+    "normalized_name": "catalino flores jr",
+    "assets": [
+      "PT-213"
+    ],
+    "job_sites": [
+      "Spur 408 N, Dallas, TX 75236"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "ernest s lemon jr": {
+    "name": "Lemon Jr, Ernest S",
+    "normalized_name": "ernest s lemon jr",
+    "assets": [
+      "PT-215"
+    ],
+    "job_sites": [
+      "2023-014 (3) TARRANT IH 20 US 81 BR, S US Highway 287, Rhome, TX 76078"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "michael a hammons": {
+    "name": "Hammons, Michael A",
+    "normalized_name": "michael a hammons",
+    "assets": [
+      "PT-218"
+    ],
+    "job_sites": [
+      "Nelson Pl, Fort Worth, TX 76028"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "valentin lopez": {
+    "name": "Lopez, Valentin",
+    "normalized_name": "valentin lopez",
+    "assets": [
+      "PT-219"
+    ],
+    "job_sites": [
+      "2024-004 CoD Sidewalks 2024 (#03), E Jefferson Blvd, Dallas, TX 75203"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "red44664": {
+    "name": "RED44664",
+    "normalized_name": "red44664",
+    "assets": [
+      "PT-21S"
+    ],
+    "job_sites": [
+      "County Road 99, Alvin, TX 77511"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "nagesh kumar pachipulusu sreedhar": {
+    "name": "Pachipulusu Sreedhar, Nagesh Kumar",
+    "normalized_name": "nagesh kumar pachipulusu sreedhar",
+    "assets": [
+      "PT-224"
+    ],
+    "job_sites": [
+      "2023-032 (OFFICE) SH 345 BRIDGE REHABILITATION, Elm St, Dallas, TX 75226"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "catalino flores sr": {
+    "name": "Flores Sr, Catalino",
+    "normalized_name": "catalino flores sr",
+    "assets": [
+      "PT-226"
+    ],
+    "job_sites": [
+      "2023-007 Ector BI 20E Rehab Roadway, W Highway 80 E, Midland, TX 79765"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "daniel lopez": {
+    "name": "Lopez, Daniel",
+    "normalized_name": "daniel lopez",
+    "assets": [
+      "PT-228"
+    ],
+    "job_sites": [
+      "I-35E S, Dallas, TX 75207"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "reyneri m caballero": {
+    "name": "Caballero, Reyneri M",
+    "normalized_name": "reyneri m caballero",
+    "assets": [
+      "PT-229"
+    ],
+    "job_sites": [
+      "Harris St, Houston, TX 77020"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "albert a mendieta": {
+    "name": "Mendieta, Albert A",
+    "normalized_name": "albert a mendieta",
+    "assets": [
+      "PT-22S"
+    ],
+    "job_sites": [
+      "Masters Rd, Manvel, TX 77584"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "luis a morales": {
+    "name": "Morales, Luis A",
+    "normalized_name": "luis a morales",
+    "assets": [
+      "PT-235"
+    ],
+    "job_sites": [
+      "2024-030 Matagorda SH 35 Bridge Replacement, State Highway 35 S, Bay City, TX 77414"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "rolando colmenero garcia": {
+    "name": "Colmenero-Garcia, Rolando",
+    "normalized_name": "rolando colmenero garcia",
+    "assets": [
+      "PT-236",
+      "SS-44"
+    ],
+    "job_sites": [
+      "2024-030 Matagorda SH 35 Bridge Replacement, State Highway 35 S, Bay City, TX 77414"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "juan c miramontes jr": {
+    "name": "Miramontes Jr, Juan C",
+    "normalized_name": "juan c miramontes jr",
+    "assets": [
+      "PT-237"
+    ],
+    "job_sites": [
+      "2023-006 (OFFICE) Tarrant SH 183 Bridge, Decatur Ave, Fort Worth, TX 76106"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "alejandro j rodriguez ayala": {
+    "name": "Rodriguez-Ayala, Alejandro J",
+    "normalized_name": "alejandro j rodriguez ayala",
+    "assets": [
+      "PT-239"
+    ],
+    "job_sites": [
+      "TEXDIST, Two Thousand Oak Apartments, North Richland Hills, TX 76180"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "clint mize": {
+    "name": "Mize, Clint",
+    "normalized_name": "clint mize",
+    "assets": [
+      "PT-240"
+    ],
+    "job_sites": [
+      "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "mark e xl garcia": {
+    "name": "Garcia, Mark E XL",
+    "normalized_name": "mark e xl garcia",
+    "assets": [
+      "PT-241"
+    ],
+    "job_sites": [
+      "TEXDIST, Two Thousand Oak Apartments, North Richland Hills, TX 76180"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "hector sanchez": {
+    "name": "Sanchez, Hector",
+    "normalized_name": "hector sanchez",
+    "assets": [
+      "PT-242"
+    ],
+    "job_sites": [
+      "2024-023 TARRANT RIVERSIDE BRIDGE REHAB, Riverside Dr, Fort Worth, TX 76103"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "ramesh bobba": {
+    "name": "Bobba, Ramesh",
+    "normalized_name": "ramesh bobba",
+    "assets": [
+      "PT-243"
+    ],
+    "job_sites": [
+      "TEXDIST, Two Thousand Oak Apartments, North Richland Hills, TX 76180"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "osama m abunemeh": {
+    "name": "Abunemeh, Osama M",
+    "normalized_name": "osama m abunemeh",
+    "assets": [
+      "PT-244"
+    ],
+    "job_sites": [
+      "2023-032 (OFFICE) SH 345 BRIDGE REHABILITATION, Elm St, Dallas, TX 75226"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "jared k ruhrup": {
+    "name": "Ruhrup, Jared K",
+    "normalized_name": "jared k ruhrup",
+    "assets": [
+      "PT-260"
+    ],
+    "job_sites": [
+      "2023-006 (OFFICE) Tarrant SH 183 Bridge, Decatur Ave, Fort Worth, TX 76106"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "phillip a sabaj": {
+    "name": "Sabaj, Phillip A",
+    "normalized_name": "phillip a sabaj",
+    "assets": [
+      "PT-246"
+    ],
+    "job_sites": [
+      "Kingshill Dr, Conroe, TX 77339"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "martin sanchez": {
+    "name": "MARTIN SANCHEZ",
+    "normalized_name": "martin sanchez",
+    "assets": [
+      "PT-247"
+    ],
+    "job_sites": [
+      "2023-032 (OFFICE) SH 345 BRIDGE REHABILITATION, Elm St, Dallas, TX 75226"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "juan c reyes diaz": {
+    "name": "Reyes Diaz, Juan C",
+    "normalized_name": "juan c reyes diaz",
+    "assets": [
+      "PT-252"
+    ],
+    "job_sites": [
+      "2023-034 DALLAS IH 45 BRIDGE MAINTENANCE, Martin Luther King Jr Blvd, Dallas, TX 75215"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "oepn": {
+    "name": "OEPN",
+    "normalized_name": "oepn",
+    "assets": [
+      "PT-268"
+    ],
+    "job_sites": [
+      "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "grecia mancho camacho": {
+    "name": "MANCHO CAMACHO, GRECIA",
+    "normalized_name": "grecia mancho camacho",
+    "assets": [
+      "PT-274"
+    ],
+    "job_sites": [
+      "TX-183 W, Irving, TX 75062"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "mario moya": {
+    "name": "MOYA, MARIO",
+    "normalized_name": "mario moya",
+    "assets": [
+      "PT-276"
+    ],
+    "job_sites": [
+      "N State Highway 360, Grand Prairie, TX 75050"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "said a garcia": {
+    "name": "GARCIA, SAID A",
+    "normalized_name": "said a garcia",
+    "assets": [
+      "PT-277"
+    ],
+    "job_sites": [
+      "TEXDIST, Two Thousand Oak Apartments, North Richland Hills, TX 76180"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "juan j castro": {
+    "name": "CASTRO, JUAN J",
+    "normalized_name": "juan j castro",
+    "assets": [
+      "PT-278"
+    ],
+    "job_sites": [
+      "TEXDIST, Two Thousand Oak Apartments, North Richland Hills, TX 76180"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "aaron concha": {
+    "name": "Concha, Aaron",
+    "normalized_name": "aaron concha",
+    "assets": [
+      "PT-279",
+      "SS-33"
+    ],
+    "job_sites": [
+      "24-04 DALLAS SH 310 INTERSECTION IMPROV, S Central Expy, Dallas, TX 75241"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "andres e blanco": {
+    "name": "Blanco, Andres E",
+    "normalized_name": "andres e blanco",
+    "assets": [
+      "PT-280"
+    ],
+    "job_sites": [
+      "2024-030 Matagorda SH 35 Bridge Replacement, State Highway 35 S, Bay City, TX 77414"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "josue martinez salazar": {
+    "name": "Martinez Salazar, Josue",
+    "normalized_name": "josue martinez salazar",
+    "assets": [
+      "PT-281"
+    ],
+    "job_sites": [
+      "2024-019 (15) Tarrant VA Bridge Rehab, US-67 Bus S, Keene, TX 76059"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "justin w owens": {
+    "name": "OWENS, JUSTIN W",
+    "normalized_name": "justin w owens",
+    "assets": [
+      "PT-282"
+    ],
+    "job_sites": [
+      "2022-023 Riverfront & Cadiz Bridge Improvement, S Riverfront Blvd, Dallas, TX 75207"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "robert s neff": {
+    "name": "NEFF, ROBERT S",
+    "normalized_name": "robert s neff",
+    "assets": [
+      "PT-89"
+    ],
+    "job_sites": [
+      "I-20 W, Dallas, TX 75241"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "stonie brown": {
+    "name": "STONIE BROWN",
+    "normalized_name": "stonie brown",
+    "assets": [
+      "PT-92"
+    ],
+    "job_sites": [
+      "E Colorado Blvd, Dallas, TX 75203"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "086733": {
+    "name": "086733",
+    "normalized_name": "086733",
+    "assets": [
+      "S-13"
+    ],
+    "job_sites": [],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "085764": {
+    "name": "085764",
+    "normalized_name": "085764",
+    "assets": [
+      "S-14"
+    ],
+    "job_sites": [],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "poly sprayer": {
+    "name": "POLY SPRAYER",
+    "normalized_name": "poly sprayer",
+    "assets": [
+      "SFB-04"
+    ],
+    "job_sites": [
+      "Beaumont RAG Property, Romeda Rd, Beaumont, TX 77705"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "kb9153": {
+    "name": "KB9153",
+    "normalized_name": "kb9153",
+    "assets": [
+      "SFB-23"
+    ],
+    "job_sites": [],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "shop use": {
+    "name": "shop use",
+    "normalized_name": "shop use",
+    "assets": [
+      "SS-11",
+      "TH-04"
+    ],
+    "job_sites": [
+      "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "jose rivera": {
+    "name": "JOSE RIVERA",
+    "normalized_name": "jose rivera",
+    "assets": [
+      "SS-34"
+    ],
+    "job_sites": [
+      "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "jose rangel": {
+    "name": "JOSE RANGEL",
+    "normalized_name": "jose rangel",
+    "assets": [
+      "SS-37"
+    ],
+    "job_sites": [
+      "2024-004 CoD Sidewalks 2024 (#06), San Jacinto St, Dallas, TX 75204"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "josue martinez": {
+    "name": "Josue Martinez",
+    "normalized_name": "josue martinez",
+    "assets": [
+      "SS-46"
+    ],
+    "job_sites": [
+      "2024-019 (15) Tarrant VA Bridge Rehab, US-67 Bus S, Keene, TX 76059"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "michael a rieder": {
+    "name": "RIEDER, MICHAEL A",
+    "normalized_name": "michael a rieder",
+    "assets": [
+      "SV-08"
+    ],
+    "job_sites": [
+      "2023-006 (OFFICE) Tarrant SH 183 Bridge, Decatur Ave, Fort Worth, TX 76106"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "lp873": {
+    "name": "LP873",
+    "normalized_name": "lp873",
+    "assets": [
+      "VT-01"
+    ],
+    "job_sites": [],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "j1s02294": {
+    "name": "J1S02294",
+    "normalized_name": "j1s02294",
+    "assets": [
+      "WL-11"
+    ],
+    "job_sites": [
+      "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "k03394": {
+    "name": "K03394",
+    "normalized_name": "k03394",
+    "assets": [
+      "WL-12"
+    ],
+    "job_sites": [
+      "2022-023 Riverfront & Cadiz Bridge Improvement, S Riverfront Blvd, Dallas, TX 75207"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "r08392": {
+    "name": "R08392",
+    "normalized_name": "r08392",
+    "assets": [
+      "WL-13"
+    ],
+    "job_sites": [
+      "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140"
+    ],
+    "sources": [
+      "Asset List"
+    ],
+    "in_driving_history": false,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "john smith": {
+    "name": "John Smith",
+    "normalized_name": "john smith",
+    "assets": [
+      "TRK-1001"
+    ],
+    "job_sites": [],
+    "sources": [
+      "Driving History"
+    ],
+    "in_driving_history": true,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "michael johnson": {
+    "name": "Michael Johnson",
+    "normalized_name": "michael johnson",
+    "assets": [
+      "TRK-1002"
+    ],
+    "job_sites": [],
+    "sources": [
+      "Driving History"
+    ],
+    "in_driving_history": true,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "robert williams": {
+    "name": "Robert Williams",
+    "normalized_name": "robert williams",
+    "assets": [
+      "TRK-1003"
+    ],
+    "job_sites": [],
+    "sources": [
+      "Driving History"
+    ],
+    "in_driving_history": true,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "william brown": {
+    "name": "William Brown",
+    "normalized_name": "william brown",
+    "assets": [
+      "TRK-1004"
+    ],
+    "job_sites": [],
+    "sources": [
+      "Driving History"
+    ],
+    "in_driving_history": true,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "james davis": {
+    "name": "James Davis",
+    "normalized_name": "james davis",
+    "assets": [
+      "TRK-1005"
+    ],
+    "job_sites": [],
+    "sources": [
+      "Driving History"
+    ],
+    "in_driving_history": true,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "david miller": {
+    "name": "David Miller",
+    "normalized_name": "david miller",
+    "assets": [
+      "TRK-1006"
+    ],
+    "job_sites": [],
+    "sources": [
+      "Driving History"
+    ],
+    "in_driving_history": true,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "richard wilson": {
+    "name": "Richard Wilson",
+    "normalized_name": "richard wilson",
+    "assets": [
+      "TRK-1007"
+    ],
+    "job_sites": [],
+    "sources": [
+      "Driving History"
+    ],
+    "in_driving_history": true,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "joseph moore": {
+    "name": "Joseph Moore",
+    "normalized_name": "joseph moore",
+    "assets": [
+      "TRK-1008"
+    ],
+    "job_sites": [],
+    "sources": [
+      "Driving History"
+    ],
+    "in_driving_history": true,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "thomas taylor": {
+    "name": "Thomas Taylor",
+    "normalized_name": "thomas taylor",
+    "assets": [
+      "TRK-1009"
+    ],
+    "job_sites": [],
+    "sources": [
+      "Driving History"
+    ],
+    "in_driving_history": true,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "charles anderson": {
+    "name": "Charles Anderson",
+    "normalized_name": "charles anderson",
+    "assets": [
+      "TRK-1010"
+    ],
+    "job_sites": [],
+    "sources": [
+      "Driving History"
+    ],
+    "in_driving_history": true,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "christopher thomas": {
+    "name": "Christopher Thomas",
+    "normalized_name": "christopher thomas",
+    "assets": [
+      "TRK-1011"
+    ],
+    "job_sites": [],
+    "sources": [
+      "Driving History"
+    ],
+    "in_driving_history": true,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "daniel jackson": {
+    "name": "Daniel Jackson",
+    "normalized_name": "daniel jackson",
+    "assets": [
+      "TRK-1012"
+    ],
+    "job_sites": [],
+    "sources": [
+      "Driving History"
+    ],
+    "in_driving_history": true,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "matthew harris": {
+    "name": "Matthew Harris",
+    "normalized_name": "matthew harris",
+    "assets": [
+      "TRK-1013"
+    ],
+    "job_sites": [],
+    "sources": [
+      "Driving History"
+    ],
+    "in_driving_history": true,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  },
+  "anthony martin": {
+    "name": "Anthony Martin",
+    "normalized_name": "anthony martin",
+    "assets": [
+      "TRK-1014"
+    ],
+    "job_sites": [],
+    "sources": [
+      "Driving History"
+    ],
+    "in_driving_history": true,
+    "driving_history_match": null,
+    "match_score": 0,
+    "match_type": "none"
+  }
+}

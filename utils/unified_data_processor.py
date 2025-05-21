@@ -1,1394 +1,1136 @@
 """
 Unified Data Processor
 
-This module provides a unified interface for processing all source data types,
-ensuring consistent parsing and output regardless of file format or source.
+This module handles direct parsing of raw source files including DrivingHistory, ActivityDetail, 
+and Start Time & Job sheets to generate accurate driver status reports.
 """
 
 import os
-import csv
-import json
-import logging
 import pandas as pd
-from datetime import datetime
-from pathlib import Path
-
-# Import attendance audit module
-from utils.attendance_audit import (
-    create_audit_record,
-    add_source_file,
-    update_stats,
-    log_error,
-    complete_audit
-)
+import numpy as np
+import logging
+from datetime import datetime, timedelta
+import traceback
+import json
 
 # Set up logging
 logger = logging.getLogger(__name__)
+file_handler = logging.FileHandler('logs/unified_data_processor.log')
+file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+logger.addHandler(file_handler)
+logger.setLevel(logging.INFO)
 
-# Constants
-DRIVING_HISTORY_COLUMNS = [
-    'EventDateTime', 'Contact', 'MsgType', 'Location', 'Latitude', 'Longitude'
-]
-ACTIVITY_DETAIL_COLUMNS = [
-    'DateTime', 'Activity', 'Driver', 'Asset', 'Location'
-]
-ASSET_ONSITE_COLUMNS = [
-    'Asset', 'StartDateTime', 'EndDateTime', 'Location', 'Duration'
-]
+# Constants for status determination
+LATE_THRESHOLD_MINUTES = 15
+EARLY_END_THRESHOLD_MINUTES = 30
 
-class UnifiedDataProcessor:
+def find_source_files(date_str=None):
     """
-    Unified data processor for all source data types
-    """
+    Find all relevant source files for processing
     
-    def __init__(self, date_str):
-        """
-        Initialize processor for a specific date
+    Args:
+        date_str (str): Optional date filter in YYYY-MM-DD format
         
-        Args:
-            date_str (str): Date in YYYY-MM-DD format
-        """
-        self.date_str = date_str
-        self.date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
+    Returns:
+        dict: Dictionary of source files by category
+    """
+    source_files = {
+        'driving_history': [],
+        'activity_detail': [],
+        'assets_time_on_site': [],
+        'start_time_job': []
+    }
+    
+    # Search directories
+    search_dirs = ['data', 'attached_assets']
+    
+    for directory in search_dirs:
+        if not os.path.exists(directory):
+            continue
+            
+        for file in os.listdir(directory):
+            file_path = os.path.join(directory, file)
+            
+            if not os.path.isfile(file_path):
+                continue
+                
+            file_lower = file.lower()
+            
+            # Categorize file based on name pattern
+            if 'driving' in file_lower and ('history' in file_lower or 'gps' in file_lower):
+                source_files['driving_history'].append(file_path)
+                
+            elif 'activity' in file_lower and 'detail' in file_lower:
+                source_files['activity_detail'].append(file_path)
+                
+            elif ('assets' in file_lower and 'time' in file_lower and 'site' in file_lower) or \
+                 ('fleet' in file_lower and 'utilization' in file_lower):
+                source_files['assets_time_on_site'].append(file_path)
+                
+            elif ('start' in file_lower and ('time' in file_lower or 'job' in file_lower)) or \
+                 ('schedule' in file_lower) or \
+                 ('baseline' in file_lower):
+                source_files['start_time_job'].append(file_path)
+    
+    # If date filter provided, try to filter files containing that date
+    if date_str:
+        date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+        date_patterns = [
+            date_str,
+            date_obj.strftime('%m-%d-%Y'),
+            date_obj.strftime('%m/%d/%Y'),
+            date_obj.strftime('%Y%m%d')
+        ]
         
-        # Create audit record
-        self.audit_record = create_audit_record(date_str)
+        for category in source_files:
+            date_filtered_files = []
+            for file_path in source_files[category]:
+                # Check if file contains date in name
+                if any(pattern in file_path for pattern in date_patterns):
+                    date_filtered_files.append(file_path)
+            
+            # If we found date-specific files, replace the list
+            if date_filtered_files:
+                source_files[category] = date_filtered_files
+    
+    return source_files
+
+def read_file_with_multiple_encodings(file_path):
+    """
+    Attempt to read a file with multiple encodings
+    
+    Args:
+        file_path (str): Path to the file
+        
+    Returns:
+        pandas.DataFrame or None: Dataframe if successful, None if all attempts fail
+    """
+    # Determine file type
+    file_extension = os.path.splitext(file_path)[1].lower()
+    
+    if file_extension in ['.xlsx', '.xls']:
+        try:
+            return pd.read_excel(file_path)
+        except Exception as e:
+            logger.error(f"Error reading Excel file {file_path}: {e}")
+            return None
+    
+    # Try different encodings for CSV files
+    encodings = ['utf-8', 'latin-1', 'cp1252']
+    
+    for encoding in encodings:
+        try:
+            return pd.read_csv(file_path, encoding=encoding)
+        except Exception as e:
+            logger.warning(f"Failed to read with {encoding} encoding: {e}")
+    
+    logger.error(f"Could not read file with any encoding: {file_path}")
+    return None
+
+def process_driving_history(file_path, date_str):
+    """
+    Process driving history data to extract key on/off events
+    
+    Args:
+        file_path (str): Path to driving history file
+        date_str (str): Date in YYYY-MM-DD format
+        
+    Returns:
+        dict: Processed driving data by driver or asset ID
+    """
+    logger.info(f"Processing driving history file: {file_path}")
+    
+    # Read file
+    df = read_file_with_multiple_encodings(file_path)
+    
+    if df is None:
+        return {}
+    
+    # Standardize column names
+    df.columns = [col.strip().lower().replace(' ', '_') for col in df.columns]
+    
+    # Look for essential columns
+    expected_columns = [
+        # Different possible column names for driver
+        ['driver', 'driver_name', 'drivername', 'operator', 'operator_name'],
+        # Different possible column names for asset
+        ['asset', 'asset_id', 'assetid', 'vehicle', 'vehicle_id', 'equipment'],
+        # Different possible column names for timestamp
+        ['timestamp', 'time', 'date_time', 'datetime', 'event_time', 'time_stamp'],
+        # Different possible column names for event type
+        ['event', 'event_type', 'eventtype', 'action', 'status']
+    ]
+    
+    # Find actual column names in the file
+    column_mapping = {}
+    for category, possible_names in enumerate(expected_columns):
+        found = False
+        for name in possible_names:
+            if name in df.columns:
+                if category == 0:
+                    column_mapping['driver'] = name
+                elif category == 1:
+                    column_mapping['asset'] = name
+                elif category == 2:
+                    column_mapping['timestamp'] = name
+                elif category == 3:
+                    column_mapping['event'] = name
+                found = True
+                break
+        
+        if not found:
+            # If we couldn't find a critical column, try to identify it by position or type
+            if category == 0:  # Driver
+                for col in df.columns:
+                    if 'name' in col or df[col].astype(str).str.contains('driver', case=False).any():
+                        column_mapping['driver'] = col
+                        break
+            elif category == 1:  # Asset
+                for col in df.columns:
+                    if df[col].astype(str).str.contains('-', case=False).any() and df[col].astype(str).str.len().mean() < 10:
+                        column_mapping['asset'] = col
+                        break
+            elif category == 2:  # Timestamp
+                for col in df.columns:
+                    if pd.api.types.is_datetime64_any_dtype(df[col]) or (
+                        isinstance(df[col].iloc[0], str) and 
+                        (':' in df[col].iloc[0] or '/' in df[col].iloc[0])
+                    ):
+                        column_mapping['timestamp'] = col
+                        break
+    
+    # If we couldn't map all necessary columns, log and return
+    if not all(key in column_mapping for key in ['driver', 'asset', 'timestamp']):
+        missing = [key for key in ['driver', 'asset', 'timestamp'] if key not in column_mapping]
+        logger.error(f"Could not identify essential columns in {file_path}: {missing}")
+        return {}
+    
+    # Now that we have identified columns, process the data
+    driver_data = {}
+    
+    # Convert timestamp to datetime if it's not already
+    if not pd.api.types.is_datetime64_any_dtype(df[column_mapping['timestamp']]):
+        # Try multiple formats
+        timestamp_formats = [
+            '%Y-%m-%d %H:%M:%S',
+            '%m/%d/%Y %H:%M:%S',
+            '%m/%d/%Y %I:%M:%S %p',
+            '%Y-%m-%dT%H:%M:%S',
+            '%Y-%m-%d %I:%M:%S %p'
+        ]
+        
+        converted = False
+        for fmt in timestamp_formats:
+            try:
+                df[column_mapping['timestamp']] = pd.to_datetime(df[column_mapping['timestamp']], format=fmt)
+                converted = True
+                break
+            except:
+                continue
+        
+        if not converted:
+            try:
+                df[column_mapping['timestamp']] = pd.to_datetime(df[column_mapping['timestamp']])
+            except Exception as e:
+                logger.error(f"Could not convert timestamp column: {e}")
+                return {}
+    
+    # Filter by date if specified
+    if date_str:
+        date_obj = pd.to_datetime(date_str)
+        date_min = date_obj.normalize()  # Start of day
+        date_max = date_min + timedelta(days=1)  # Start of next day
+        
+        # Filter dataframe to the specific date
+        df = df[(df[column_mapping['timestamp']] >= date_min) & 
+                (df[column_mapping['timestamp']] < date_max)]
+        
+        if len(df) == 0:
+            logger.warning(f"No records found for {date_str} in {file_path}")
+            return {}
+    
+    # Check if we have event type column
+    has_event_column = 'event' in column_mapping
+    
+    # Group by driver or asset and extract first/last activity
+    groupby_column = column_mapping['driver'] if 'driver' in column_mapping else column_mapping['asset']
+    
+    for name, group in df.groupby(groupby_column):
+        # Skip empty names
+        if pd.isna(name) or str(name).strip() == '':
+            continue
+            
+        # Sort by timestamp
+        group = group.sort_values(column_mapping['timestamp'])
+        
+        # Get asset ID if we're grouping by driver
+        asset_id = group[column_mapping['asset']].iloc[0] if 'asset' in column_mapping else 'Unknown'
+        
+        # Determine key on/off events if we have that column
+        first_activity = group[column_mapping['timestamp']].min()
+        last_activity = group[column_mapping['timestamp']].max()
+        
+        key_on_time = first_activity
+        key_off_time = last_activity
+        
+        if has_event_column:
+            # Look for key on/off events
+            key_on_events = group[
+                group[column_mapping['event']].str.lower().str.contains('key on|keyon|start|ignition on', na=False)
+            ]
+            
+            key_off_events = group[
+                group[column_mapping['event']].str.lower().str.contains('key off|keyoff|stop|ignition off', na=False)
+            ]
+            
+            if len(key_on_events) > 0:
+                key_on_time = key_on_events[column_mapping['timestamp']].min()
+            
+            if len(key_off_events) > 0:
+                key_off_time = key_off_events[column_mapping['timestamp']].max()
+        
+        # Extract location data if available
+        location = "Unknown"
+        location_columns = ['address', 'location', 'site', 'job_site', 'city', 'state']
+        
+        for loc_col in location_columns:
+            if loc_col in df.columns and not group[loc_col].isna().all():
+                location = group[loc_col].iloc[0]
+                break
+        
+        # Store processed data
+        driver_name = name if groupby_column == column_mapping['driver'] else "Unknown"
+        driver_key = str(name).strip()
+        
+        if driver_key not in driver_data:
+            driver_data[driver_key] = {
+                'driver_name': driver_name,
+                'asset_id': asset_id,
+                'first_activity': first_activity,
+                'last_activity': last_activity,
+                'key_on_time': key_on_time,
+                'key_off_time': key_off_time,
+                'location': location,
+                'activity_count': len(group)
+            }
+    
+    logger.info(f"Found {len(driver_data)} driver records for {date_str}")
+    return driver_data
+
+def process_activity_detail(file_path, date_str):
+    """
+    Process activity detail data to extract additional driver activity information
+    
+    Args:
+        file_path (str): Path to activity detail file
+        date_str (str): Date in YYYY-MM-DD format
+        
+    Returns:
+        dict: Processed activity data by driver or asset ID
+    """
+    logger.info(f"Processing activity detail file: {file_path}")
+    
+    # Read file
+    df = read_file_with_multiple_encodings(file_path)
+    
+    if df is None:
+        return {}
+    
+    # Standardize column names
+    df.columns = [col.strip().lower().replace(' ', '_') for col in df.columns]
+    
+    # Look for essential columns
+    expected_columns = [
+        # Different possible column names for driver
+        ['driver', 'driver_name', 'drivername', 'operator', 'operator_name'],
+        # Different possible column names for asset
+        ['asset', 'asset_id', 'assetid', 'vehicle', 'vehicle_id', 'equipment'],
+        # Different possible column names for start time
+        ['start_time', 'starttime', 'time_start', 'begin_time', 'from'],
+        # Different possible column names for end time
+        ['end_time', 'endtime', 'time_end', 'stop_time', 'to']
+    ]
+    
+    # Find actual column names in the file
+    column_mapping = {}
+    for category, possible_names in enumerate(expected_columns):
+        found = False
+        for name in possible_names:
+            if name in df.columns:
+                if category == 0:
+                    column_mapping['driver'] = name
+                elif category == 1:
+                    column_mapping['asset'] = name
+                elif category == 2:
+                    column_mapping['start_time'] = name
+                elif category == 3:
+                    column_mapping['end_time'] = name
+                found = True
+                break
+        
+        if not found:
+            # Try to infer column based on content
+            if category == 0:  # Driver
+                for col in df.columns:
+                    if 'name' in col or df[col].astype(str).str.contains('driver', case=False).any():
+                        column_mapping['driver'] = col
+                        break
+            elif category == 1:  # Asset
+                for col in df.columns:
+                    if df[col].astype(str).str.contains('-', case=False).any() and df[col].astype(str).str.len().mean() < 10:
+                        column_mapping['asset'] = col
+                        break
+    
+    # If we couldn't map all necessary columns, log and return
+    required_columns = ['driver', 'asset', 'start_time']
+    if not all(key in column_mapping for key in required_columns):
+        missing = [key for key in required_columns if key not in column_mapping]
+        logger.error(f"Could not identify essential columns in {file_path}: {missing}")
+        return {}
+    
+    # Convert time columns to datetime if needed
+    for time_col in ['start_time', 'end_time']:
+        if time_col in column_mapping and not pd.api.types.is_datetime64_any_dtype(df[column_mapping[time_col]]):
+            try:
+                df[column_mapping[time_col]] = pd.to_datetime(df[column_mapping[time_col]])
+            except:
+                # Try multiple formats
+                timestamp_formats = [
+                    '%Y-%m-%d %H:%M:%S',
+                    '%m/%d/%Y %H:%M:%S',
+                    '%m/%d/%Y %I:%M:%S %p',
+                    '%Y-%m-%dT%H:%M:%S',
+                    '%I:%M:%S %p'
+                ]
+                
+                for fmt in timestamp_formats:
+                    try:
+                        df[column_mapping[time_col]] = pd.to_datetime(df[column_mapping[time_col]], format=fmt)
+                        break
+                    except:
+                        continue
+    
+    # Filter by date if specified
+    if date_str:
+        date_obj = pd.to_datetime(date_str)
+        
+        # Try to filter by start time if it's a datetime
+        if pd.api.types.is_datetime64_any_dtype(df[column_mapping['start_time']]):
+            date_min = date_obj.normalize()  # Start of day
+            date_max = date_min + timedelta(days=1)  # Start of next day
+            
+            df = df[(df[column_mapping['start_time']] >= date_min) & 
+                    (df[column_mapping['start_time']] < date_max)]
+        
+        if len(df) == 0:
+            logger.warning(f"No records found for {date_str} in {file_path}")
+            return {}
+    
+    # Process activity data
+    activity_data = {}
+    
+    # Group by driver or asset
+    groupby_column = column_mapping['driver'] if 'driver' in column_mapping else column_mapping['asset']
+    
+    for name, group in df.groupby(groupby_column):
+        # Skip empty names
+        if pd.isna(name) or str(name).strip() == '':
+            continue
+            
+        # Sort by start time
+        if 'start_time' in column_mapping:
+            group = group.sort_values(column_mapping['start_time'])
+        
+        # Get asset ID if we're grouping by driver
+        asset_id = group[column_mapping['asset']].iloc[0] if 'asset' in column_mapping else 'Unknown'
+        
+        # Calculate first and last activity times
+        first_activity = group[column_mapping['start_time']].min() if 'start_time' in column_mapping else None
+        last_activity = None
+        
+        if 'end_time' in column_mapping:
+            last_activity = group[column_mapping['end_time']].max()
+        
+        # Extract job site/location if available
+        location = "Unknown"
+        location_columns = ['job_site', 'jobsite', 'site', 'location', 'address', 'city', 'project']
+        
+        for loc_col in location_columns:
+            if loc_col in df.columns and not group[loc_col].isna().all():
+                location = group[loc_col].iloc[0]
+                break
+        
+        # Store processed data
+        driver_name = name if groupby_column == column_mapping['driver'] else "Unknown"
+        driver_key = str(name).strip()
+        
+        if driver_key not in activity_data:
+            activity_data[driver_key] = {
+                'driver_name': driver_name,
+                'asset_id': asset_id,
+                'first_activity': first_activity,
+                'last_activity': last_activity,
+                'location': location,
+                'activity_count': len(group)
+            }
+    
+    logger.info(f"Found {len(activity_data)} activity detail records for {date_str}")
+    return activity_data
+
+def process_assets_time_on_site(file_path, date_str):
+    """
+    Process assets time on site data to validate job site presence
+    
+    Args:
+        file_path (str): Path to assets time on site file
+        date_str (str): Date in YYYY-MM-DD format
+        
+    Returns:
+        dict: Processed onsite data by asset ID
+    """
+    logger.info(f"Processing assets time on site file: {file_path}")
+    
+    # Read file
+    df = read_file_with_multiple_encodings(file_path)
+    
+    if df is None:
+        return {}
+    
+    # Standardize column names
+    df.columns = [col.strip().lower().replace(' ', '_') for col in df.columns]
+    
+    # Look for essential columns
+    expected_columns = [
+        # Different possible column names for asset
+        ['asset', 'asset_id', 'assetid', 'vehicle', 'vehicle_id', 'equipment'],
+        # Different possible column names for site
+        ['site', 'job_site', 'jobsite', 'location', 'project'],
+        # Different possible column names for time in
+        ['time_in', 'timein', 'arrival', 'arrival_time', 'start'],
+        # Different possible column names for time out
+        ['time_out', 'timeout', 'departure', 'departure_time', 'end']
+    ]
+    
+    # Find actual column names in the file
+    column_mapping = {}
+    for category, possible_names in enumerate(expected_columns):
+        found = False
+        for name in possible_names:
+            if name in df.columns:
+                if category == 0:
+                    column_mapping['asset'] = name
+                elif category == 1:
+                    column_mapping['site'] = name
+                elif category == 2:
+                    column_mapping['time_in'] = name
+                elif category == 3:
+                    column_mapping['time_out'] = name
+                found = True
+                break
+    
+    # If we couldn't map all necessary columns, log and return
+    required_columns = ['asset', 'site', 'time_in']
+    if not all(key in column_mapping for key in required_columns):
+        missing = [key for key in required_columns if key not in column_mapping]
+        logger.error(f"Could not identify essential columns in {file_path}: {missing}")
+        return {}
+    
+    # Convert time columns to datetime if needed
+    for time_col in ['time_in', 'time_out']:
+        if time_col in column_mapping and not pd.api.types.is_datetime64_any_dtype(df[column_mapping[time_col]]):
+            try:
+                df[column_mapping[time_col]] = pd.to_datetime(df[column_mapping[time_col]])
+            except:
+                # Try multiple formats
+                timestamp_formats = [
+                    '%Y-%m-%d %H:%M:%S',
+                    '%m/%d/%Y %H:%M:%S',
+                    '%m/%d/%Y %I:%M:%S %p',
+                    '%Y-%m-%dT%H:%M:%S',
+                    '%I:%M:%S %p'
+                ]
+                
+                for fmt in timestamp_formats:
+                    try:
+                        df[column_mapping[time_col]] = pd.to_datetime(df[column_mapping[time_col]], format=fmt)
+                        break
+                    except:
+                        continue
+    
+    # Filter by date if specified
+    if date_str:
+        date_obj = pd.to_datetime(date_str)
+        
+        # Try to filter by time in if it's a datetime
+        if pd.api.types.is_datetime64_any_dtype(df[column_mapping['time_in']]):
+            date_min = date_obj.normalize()  # Start of day
+            date_max = date_min + timedelta(days=1)  # Start of next day
+            
+            df = df[(df[column_mapping['time_in']] >= date_min) & 
+                    (df[column_mapping['time_in']] < date_max)]
+            
+            if len(df) == 0:
+                logger.warning(f"No records found for {date_str} in {file_path}")
+                return {}
+    
+    # Process onsite data
+    onsite_data = {}
+    
+    # Group by asset ID
+    for asset_id, group in df.groupby(column_mapping['asset']):
+        # Skip empty asset IDs
+        if pd.isna(asset_id) or str(asset_id).strip() == '':
+            continue
+            
+        # Calculate total time on site for each job site
+        for site, site_group in group.groupby(column_mapping['site']):
+            # Skip empty sites
+            if pd.isna(site) or str(site).strip() == '':
+                continue
+                
+            # Get time in and time out
+            time_in = site_group[column_mapping['time_in']].min()
+            
+            if 'time_out' in column_mapping:
+                time_out = site_group[column_mapping['time_out']].max()
+            else:
+                time_out = None
+            
+            # Generate a key for this asset
+            asset_key = str(asset_id).strip()
+            
+            if asset_key not in onsite_data:
+                onsite_data[asset_key] = []
+            
+            # Add site record
+            onsite_data[asset_key].append({
+                'site': site,
+                'time_in': time_in,
+                'time_out': time_out,
+                'total_minutes': (time_out - time_in).total_seconds() / 60 if time_out is not None else None
+            })
+    
+    logger.info(f"Found {len(onsite_data)} asset onsite records for {date_str}")
+    return onsite_data
+
+def process_start_time_job(file_path):
+    """
+    Process start time and job data to get scheduled times and job sites
+    
+    Args:
+        file_path (str): Path to start time and job file
+        
+    Returns:
+        dict: Processed schedule data by driver ID
+    """
+    logger.info(f"Processing start time and job file: {file_path}")
+    
+    # Read file
+    df = read_file_with_multiple_encodings(file_path)
+    
+    if df is None:
+        return {}
+    
+    # Standardize column names
+    df.columns = [col.strip().lower().replace(' ', '_') for col in df.columns]
+    
+    # Look for essential columns
+    expected_columns = [
+        # Different possible column names for driver
+        ['driver', 'driver_name', 'drivername', 'employee', 'employee_name', 'name'],
+        # Different possible column names for asset
+        ['asset', 'asset_id', 'assetid', 'vehicle', 'vehicle_id', 'equipment'],
+        # Different possible column names for start time
+        ['start_time', 'starttime', 'scheduled_start', 'job_start', 'shift_start'],
+        # Different possible column names for end time
+        ['end_time', 'endtime', 'scheduled_end', 'job_end', 'shift_end'],
+        # Different possible column names for job site
+        ['job_site', 'jobsite', 'site', 'location', 'project', 'job', 'assignment']
+    ]
+    
+    # Find actual column names in the file
+    column_mapping = {}
+    for category, possible_names in enumerate(expected_columns):
+        found = False
+        for name in possible_names:
+            if name in df.columns:
+                if category == 0:
+                    column_mapping['driver'] = name
+                elif category == 1:
+                    column_mapping['asset'] = name
+                elif category == 2:
+                    column_mapping['start_time'] = name
+                elif category == 3:
+                    column_mapping['end_time'] = name
+                elif category == 4:
+                    column_mapping['job_site'] = name
+                found = True
+                break
+    
+    # If we couldn't map driver column, log and return
+    if 'driver' not in column_mapping:
+        logger.error(f"Could not identify driver column in {file_path}")
+        return {}
+    
+    # Process schedule data
+    schedule_data = {}
+    
+    # Process each row
+    for _, row in df.iterrows():
+        driver_name = row[column_mapping['driver']]
+        
+        # Skip empty driver names
+        if pd.isna(driver_name) or str(driver_name).strip() == '':
+            continue
+        
+        # Get asset ID if available
+        asset_id = row[column_mapping['asset']] if 'asset' in column_mapping else None
+        
+        # Get start and end times
+        start_time = None
+        end_time = None
+        
+        if 'start_time' in column_mapping:
+            start_time = row[column_mapping['start_time']]
+            
+            # Convert to string time format if it's a datetime
+            if pd.api.types.is_datetime64_any_dtype(start_time) or isinstance(start_time, (pd.Timestamp, datetime)):
+                start_time = start_time.strftime('%I:%M %p')
+            elif isinstance(start_time, (int, float)):
+                # Handle Excel time format (fraction of day)
+                if 0 <= start_time < 1:
+                    hours = int(start_time * 24)
+                    minutes = int((start_time * 24 - hours) * 60)
+                    am_pm = 'AM' if hours < 12 else 'PM'
+                    hours = hours % 12
+                    if hours == 0:
+                        hours = 12
+                    start_time = f"{hours:02d}:{minutes:02d} {am_pm}"
+        
+        if 'end_time' in column_mapping:
+            end_time = row[column_mapping['end_time']]
+            
+            # Convert to string time format if it's a datetime
+            if pd.api.types.is_datetime64_any_dtype(end_time) or isinstance(end_time, (pd.Timestamp, datetime)):
+                end_time = end_time.strftime('%I:%M %p')
+            elif isinstance(end_time, (int, float)):
+                # Handle Excel time format (fraction of day)
+                if 0 <= end_time < 1:
+                    hours = int(end_time * 24)
+                    minutes = int((end_time * 24 - hours) * 60)
+                    am_pm = 'AM' if hours < 12 else 'PM'
+                    hours = hours % 12
+                    if hours == 0:
+                        hours = 12
+                    end_time = f"{hours:02d}:{minutes:02d} {am_pm}"
+        
+        # Default start/end times if not specified
+        if not start_time:
+            start_time = "06:00 AM"
+        
+        if not end_time:
+            end_time = "03:30 PM"
+        
+        # Get job site
+        job_site = row[column_mapping['job_site']] if 'job_site' in column_mapping else None
+        
+        # Store in schedule data
+        driver_key = str(driver_name).strip()
+        
+        schedule_data[driver_key] = {
+            'driver_name': driver_name,
+            'asset_id': asset_id,
+            'scheduled_start': start_time,
+            'scheduled_end': end_time,
+            'job_site': job_site
+        }
+    
+    logger.info(f"Found {len(schedule_data)} schedule records")
+    return schedule_data
+
+def determine_driver_status(driver_name, scheduled_data, actual_data, onsite_data):
+    """
+    Determine the status of a driver based on scheduled and actual data
+    
+    Args:
+        driver_name (str): Driver name or ID
+        scheduled_data (dict): Scheduled time and job site
+        actual_data (dict): Actual activity data
+        onsite_data (dict): Asset onsite data
+        
+    Returns:
+        dict: Driver status information
+    """
+    # Start with scheduled data as the base
+    status_info = {
+        'driver_name': driver_name,
+        'scheduled_start': scheduled_data.get('scheduled_start', '06:00 AM'),
+        'scheduled_end': scheduled_data.get('scheduled_end', '03:30 PM'),
+        'assigned_job_site': scheduled_data.get('job_site', 'Unknown'),
+        'asset_id': scheduled_data.get('asset_id', 'Unknown'),
+        'status': 'Not On Job',  # Default status
+        'status_reason': 'No activity data'
+    }
+    
+    # If no actual data, return now with Not On Job status
+    if not actual_data:
+        return status_info
+    
+    # Update with actual data
+    status_info.update({
+        'asset_id': actual_data.get('asset_id', status_info['asset_id']),
+        'actual_start': actual_data.get('first_activity'),
+        'actual_end': actual_data.get('last_activity'),
+        'key_on_time': actual_data.get('key_on_time'),
+        'key_off_time': actual_data.get('key_off_time'),
+        'location': actual_data.get('location', 'Unknown')
+    })
+    
+    # Convert scheduled times to datetime for comparison
+    try:
+        scheduled_start_time = datetime.strptime(status_info['scheduled_start'], '%I:%M %p').time()
+    except:
+        try:
+            scheduled_start_time = datetime.strptime(status_info['scheduled_start'], '%H:%M').time()
+        except:
+            scheduled_start_time = datetime.strptime('06:00 AM', '%I:%M %p').time()
+    
+    try:
+        scheduled_end_time = datetime.strptime(status_info['scheduled_end'], '%I:%M %p').time()
+    except:
+        try:
+            scheduled_end_time = datetime.strptime(status_info['scheduled_end'], '%H:%M').time()
+        except:
+            scheduled_end_time = datetime.strptime('03:30 PM', '%I:%M %p').time()
+    
+    # Format actual times for display
+    if status_info.get('actual_start'):
+        if isinstance(status_info['actual_start'], (datetime, pd.Timestamp)):
+            status_info['actual_start_display'] = status_info['actual_start'].strftime('%I:%M %p')
+        else:
+            status_info['actual_start_display'] = str(status_info['actual_start'])
+    else:
+        status_info['actual_start_display'] = "N/A"
+        
+    if status_info.get('actual_end'):
+        if isinstance(status_info['actual_end'], (datetime, pd.Timestamp)):
+            status_info['actual_end_display'] = status_info['actual_end'].strftime('%I:%M %p')
+        else:
+            status_info['actual_end_display'] = str(status_info['actual_end'])
+    else:
+        status_info['actual_end_display'] = "N/A"
+    
+    # Check if driver is at the correct job site
+    correct_job_site = True
+    
+    # First check the location from telematics
+    if status_info['location'] != 'Unknown' and status_info['assigned_job_site'] != 'Unknown':
+        # Simple string matching for now - could be enhanced with fuzzy matching
+        if status_info['assigned_job_site'] not in status_info['location'] and status_info['location'] not in status_info['assigned_job_site']:
+            correct_job_site = False
+            status_info['status'] = 'Not On Job'
+            status_info['status_reason'] = f"At incorrect location: {status_info['location']}"
+    
+    # If job site seems wrong, check the onsite data for confirmation
+    if not correct_job_site and status_info['asset_id'] in onsite_data:
+        # Check if asset was detected at correct job site
+        for site_record in onsite_data[status_info['asset_id']]:
+            if status_info['assigned_job_site'] in site_record['site'] or site_record['site'] in status_info['assigned_job_site']:
+                correct_job_site = True
+                break
+    
+    # If job site is correct, check arrival and departure times
+    if correct_job_site and status_info.get('actual_start') is not None:
+        actual_start_time = status_info['actual_start'].time() if isinstance(status_info['actual_start'], (datetime, pd.Timestamp)) else None
+        actual_end_time = status_info['actual_end'].time() if isinstance(status_info['actual_end'], (datetime, pd.Timestamp)) else None
+        
+        if actual_start_time:
+            # Calculate minutes late
+            scheduled_minutes = scheduled_start_time.hour * 60 + scheduled_start_time.minute
+            actual_minutes = actual_start_time.hour * 60 + actual_start_time.minute
+            
+            minutes_late = actual_minutes - scheduled_minutes
+            status_info['minutes_late'] = minutes_late if minutes_late > 0 else 0
+            
+            # Check if late
+            if minutes_late > LATE_THRESHOLD_MINUTES:
+                status_info['status'] = 'Late'
+                status_info['status_reason'] = f"{minutes_late} minutes late"
+                return status_info
+        
+        if actual_end_time:
+            # Calculate minutes early
+            scheduled_minutes = scheduled_end_time.hour * 60 + scheduled_end_time.minute
+            actual_minutes = actual_end_time.hour * 60 + actual_end_time.minute
+            
+            minutes_early = scheduled_minutes - actual_minutes
+            status_info['minutes_early'] = minutes_early if minutes_early > 0 else 0
+            
+            # Check if early end
+            if minutes_early > EARLY_END_THRESHOLD_MINUTES:
+                # Only mark as early end if not already marked as late
+                if status_info['status'] != 'Late':
+                    status_info['status'] = 'Early End'
+                    status_info['status_reason'] = f"{minutes_early} minutes early"
+                return status_info
+        
+        # If we got here, driver is on time
+        if status_info['status'] == 'Not On Job':
+            status_info['status'] = 'On Time'
+            status_info['status_reason'] = None
+    
+    return status_info
+
+def generate_daily_driver_report(date_str):
+    """
+    Generate a comprehensive daily driver report for a specific date
+    
+    Args:
+        date_str (str): Date in YYYY-MM-DD format
+        
+    Returns:
+        dict: Complete driver report
+    """
+    logger.info(f"Generating daily driver report for {date_str}")
+    
+    try:
+        # Find all relevant source files
+        source_files = find_source_files(date_str)
         
         # Initialize data containers
-        self.driving_history_data = []
-        self.activity_detail_data = []
-        self.asset_onsite_data = []
-        self.start_time_job_data = []
-        self.employee_data = []
+        driving_data = {}
+        activity_data = {}
+        onsite_data = {}
+        schedule_data = {}
         
-        # Output path
-        self.output_dir = Path('processed')
-        self.output_dir.mkdir(exist_ok=True)
-        
-        logger.info(f"Initialized unified data processor for {date_str}")
-    
-    def process_driving_history(self, file_path):
-        """
-        Process driving history file
-        
-        Args:
-            file_path (str): Path to the driving history file
-            
-        Returns:
-            bool: Success status
-        """
-        try:
-            logger.info(f"Processing driving history file: {file_path}")
-            
-            # Add file to audit record
-            add_source_file(self.date_str, file_path, 'driving_history')
-            
-            # Read file manually due to custom format
-            with open(file_path, 'r', encoding='utf-8') as f:
-                lines = f.readlines()
-            
-            # Find header line
-            header_line = 0
-            for i, line in enumerate(lines):
-                if ('EventDateTime' in line and 'MsgType' in line) or i > 20:
-                    header_line = i
-                    break
-            
-            # Extract header
-            headers = lines[header_line].strip().split(',')
-            
-            # Process data rows using CSV reader to handle quoted values
-            data = []
-            for line in lines[header_line+1:]:
-                if not line.strip():
-                    continue
-                
-                # Use CSV reader to handle quoted values
-                reader = csv.reader([line])
-                row = next(reader)
-                
-                # Skip rows with insufficient fields
-                if len(row) < 7:
-                    continue
-                
-                # Ensure row matches header length
-                if len(row) > len(headers):
-                    row = row[:len(headers)]
-                elif len(row) < len(headers):
-                    row += [''] * (len(headers) - len(row))
-                
-                # Create record
-                record = {}
-                for i, header in enumerate(headers):
-                    if i < len(row):
-                        record[header] = row[i]
-                    else:
-                        record[header] = ''
-                
-                # Parse date and time
-                if 'EventDateTime' in record and record['EventDateTime']:
-                    try:
-                        dt = pd.to_datetime(record['EventDateTime'])
-                        record_date = dt.date()
-                        
-                        # Only include records for the target date
-                        if record_date == self.date_obj:
-                            data.append(record)
-                    except:
-                        pass
-            
-            logger.info(f"Found {len(data)} driving history records for {self.date_str}")
-            
-            # Store data
-            self.driving_history_data = data
-            
-            # Extract driver info
-            drivers = {}
-            for record in data:
-                driver_name = record.get('Contact', '')
-                if not driver_name:
-                    continue
-                
-                # Extract employee ID if available
-                employee_id = None
-                if '(' in driver_name and ')' in driver_name:
-                    id_part = driver_name.split('(')[1].split(')')[0]
-                    if id_part.isdigit():
-                        employee_id = id_part
-                
-                # Clean up driver name
-                clean_name = driver_name.split('(')[0].strip() if '(' in driver_name else driver_name
-                
-                # Initialize driver record
-                if clean_name not in drivers:
-                    drivers[clean_name] = {
-                        'name': clean_name,
-                        'employee_id': employee_id,
-                        'events': [],
-                        'key_on_count': 0,
-                        'key_off_count': 0,
-                        'first_activity': None,
-                        'last_activity': None,
-                        'locations': set()
-                    }
-                
-                # Process event
-                if 'EventDateTime' in record and record['EventDateTime']:
-                    try:
-                        dt = pd.to_datetime(record['EventDateTime'])
-                        
-                        # Add event
-                        event_type = record.get('MsgType', '')
-                        event = {
-                            'time': dt,
-                            'type': event_type,
-                            'location': record.get('Location', '')
-                        }
-                        drivers[clean_name]['events'].append(event)
-                        
-                        # Count key events
-                        if event_type == 'Key On':
-                            drivers[clean_name]['key_on_count'] += 1
-                        elif event_type == 'Key Off':
-                            drivers[clean_name]['key_off_count'] += 1
-                        
-                        # Update activity timestamps
-                        if drivers[clean_name]['first_activity'] is None or dt < drivers[clean_name]['first_activity']:
-                            drivers[clean_name]['first_activity'] = dt
-                        
-                        if drivers[clean_name]['last_activity'] is None or dt > drivers[clean_name]['last_activity']:
-                            drivers[clean_name]['last_activity'] = dt
-                        
-                        # Add location
-                        if 'Location' in record and record['Location']:
-                            drivers[clean_name]['locations'].add(record['Location'])
-                    except:
-                        pass
-            
-            # Convert to list
-            driver_list = []
-            for driver_name, driver_data in drivers.items():
-                # Convert sets to lists
-                driver_data['locations'] = list(driver_data['locations'])
-                
-                # Add source
-                driver_data['source'] = 'driving_history'
-                
-                # Add date
-                driver_data['date'] = self.date_str
-                
-                driver_list.append(driver_data)
-            
-            # Save processed drivers
-            output_file = self.output_dir / f"drivers_{self.date_str}.json"
-            with open(output_file, 'w') as f:
-                json.dump(driver_list, f, indent=2, default=str)
-            
-            logger.info(f"Processed {len(driver_list)} drivers from driving history")
-            
-            # Update stats
-            update_stats(self.date_str, {
-                'total_drivers': len(driver_list),
-                'driving_history_records': len(data)
-            })
-            
-            return True
-        
-        except Exception as e:
-            logger.error(f"Error processing driving history: {e}")
-            import traceback
-            logger.error(traceback.format_exc())
-            
-            # Log error in audit record
-            log_error(self.date_str, str(e), f"driving_history:{file_path}")
-            
-            return False
-    
-    def process_activity_detail(self, file_path):
-        """
-        Process activity detail file
-        
-        Args:
-            file_path (str): Path to the activity detail file
-            
-        Returns:
-            bool: Success status
-        """
-        try:
-            logger.info(f"Processing activity detail file: {file_path}")
-            
-            # Add file to audit record
-            add_source_file(self.date_str, file_path, 'activity_detail')
-            
-            # Try different encoding options
-            encodings = ['utf-8', 'latin-1', 'cp1252']
-            df = None
-            
-            for encoding in encodings:
-                try:
-                    # For CSV files
-                    if file_path.endswith('.csv'):
-                        df = pd.read_csv(file_path, encoding=encoding, low_memory=False)
-                        break
-                    # For Excel files
-                    elif file_path.endswith(('.xlsx', '.xls')):
-                        df = pd.read_excel(file_path)
-                        break
-                except Exception as e:
-                    logger.warning(f"Failed to read with {encoding} encoding: {e}")
-            
-            if df is None:
-                logger.error(f"Could not read file with any encoding: {file_path}")
-                log_error(self.date_str, "Could not read file with any encoding", f"activity_detail:{file_path}")
-                return False
-            
-            # Filter by date
-            if 'DateTime' in df.columns:
-                df['DateTime'] = pd.to_datetime(df['DateTime'], errors='coerce')
-                df['Date'] = df['DateTime'].dt.date
-                df = df[df['Date'] == self.date_obj]
-            
-            logger.info(f"Found {len(df)} activity detail records for {self.date_str}")
-            
-            # Store data
-            self.activity_detail_data = df.to_dict('records')
-            
-            # Extract driver info
-            drivers = {}
-            for record in self.activity_detail_data:
-                driver_name = record.get('Driver', '')
-                if not driver_name or pd.isna(driver_name):
-                    continue
-                
-                # Clean up driver name
-                driver_name = str(driver_name).strip()
-                
-                # Initialize driver record
-                if driver_name not in drivers:
-                    drivers[driver_name] = {
-                        'name': driver_name,
-                        'activities': [],
-                        'asset_id': None,
-                        'locations': set()
-                    }
-                
-                # Process activity
-                if 'DateTime' in record and record['DateTime'] and not pd.isna(record['DateTime']):
-                    # Add activity
-                    activity_type = record.get('Activity', '')
-                    activity = {
-                        'time': record['DateTime'],
-                        'type': activity_type,
-                        'location': record.get('Location', '') if not pd.isna(record.get('Location', '')) else ''
-                    }
-                    drivers[driver_name]['activities'].append(activity)
-                    
-                    # Add location
-                    if 'Location' in record and record['Location'] and not pd.isna(record['Location']):
-                        drivers[driver_name]['locations'].add(str(record['Location']))
-                
-                # Capture asset ID
-                if 'Asset' in record and record['Asset'] and not pd.isna(record['Asset']):
-                    drivers[driver_name]['asset_id'] = str(record['Asset'])
-            
-            # Merge with existing driver list
-            self._merge_driver_data(drivers, 'activity_detail')
-            
-            # Update stats
-            update_stats(self.date_str, {
-                'activity_detail_records': len(self.activity_detail_data)
-            })
-            
-            return True
-        
-        except Exception as e:
-            logger.error(f"Error processing activity detail: {e}")
-            import traceback
-            logger.error(traceback.format_exc())
-            
-            # Log error in audit record
-            log_error(self.date_str, str(e), f"activity_detail:{file_path}")
-            
-            return False
-    
-    def process_asset_onsite(self, file_path):
-        """
-        Process assets time on site file
-        
-        Args:
-            file_path (str): Path to the assets time on site file
-            
-        Returns:
-            bool: Success status
-        """
-        try:
-            logger.info(f"Processing assets time on site file: {file_path}")
-            
-            # Add file to audit record
-            add_source_file(self.date_str, file_path, 'asset_onsite')
-            
-            # Try different encoding options
-            encodings = ['utf-8', 'latin-1', 'cp1252']
-            df = None
-            
-            for encoding in encodings:
-                try:
-                    # For CSV files
-                    if file_path.endswith('.csv'):
-                        df = pd.read_csv(file_path, encoding=encoding, low_memory=False)
-                        break
-                    # For Excel files
-                    elif file_path.endswith(('.xlsx', '.xls')):
-                        df = pd.read_excel(file_path)
-                        break
-                except Exception as e:
-                    logger.warning(f"Failed to read with {encoding} encoding: {e}")
-            
-            if df is None:
-                logger.error(f"Could not read file with any encoding: {file_path}")
-                log_error(self.date_str, "Could not read file with any encoding", f"asset_onsite:{file_path}")
-                return False
-            
-            # Filter by date
-            if 'StartDateTime' in df.columns:
-                df['StartDateTime'] = pd.to_datetime(df['StartDateTime'], errors='coerce')
-                df['Date'] = df['StartDateTime'].dt.date
-                df = df[df['Date'] == self.date_obj]
-            
-            logger.info(f"Found {len(df)} asset onsite records for {self.date_str}")
-            
-            # Store data
-            self.asset_onsite_data = df.to_dict('records')
-            
-            # Extract asset info
-            assets = {}
-            for record in self.asset_onsite_data:
-                asset_id = record.get('Asset', '')
-                if not asset_id or pd.isna(asset_id):
-                    continue
-                
-                # Clean up asset ID
-                asset_id = str(asset_id).strip()
-                
-                # Initialize asset record
-                if asset_id not in assets:
-                    assets[asset_id] = {
-                        'asset_id': asset_id,
-                        'time_onsite': [],
-                        'locations': set(),
-                        'total_duration': 0
-                    }
-                
-                # Process on-site time
-                if ('StartDateTime' in record and record['StartDateTime'] and 
-                    'EndDateTime' in record and record['EndDateTime'] and 
-                    not pd.isna(record['StartDateTime']) and not pd.isna(record['EndDateTime'])):
-                    
-                    # Calculate duration
-                    duration = 0
-                    if 'Duration' in record and record['Duration'] and not pd.isna(record['Duration']):
-                        try:
-                            duration = float(record['Duration'])
-                        except:
-                            pass
-                    
-                    # Add on-site time
-                    onsite = {
-                        'start_time': record['StartDateTime'],
-                        'end_time': record['EndDateTime'],
-                        'duration': duration,
-                        'location': record.get('Location', '') if not pd.isna(record.get('Location', '')) else ''
-                    }
-                    assets[asset_id]['time_onsite'].append(onsite)
-                    assets[asset_id]['total_duration'] += duration
-                    
-                    # Add location
-                    if 'Location' in record and record['Location'] and not pd.isna(record['Location']):
-                        assets[asset_id]['locations'].add(str(record['Location']))
-            
-            # Convert to list
-            asset_list = []
-            for asset_id, asset_data in assets.items():
-                # Convert sets to lists
-                asset_data['locations'] = list(asset_data['locations'])
-                
-                # Add source
-                asset_data['source'] = 'asset_onsite'
-                
-                # Add date
-                asset_data['date'] = self.date_str
-                
-                asset_list.append(asset_data)
-            
-            # Save processed assets
-            output_file = self.output_dir / f"assets_{self.date_str}.json"
-            with open(output_file, 'w') as f:
-                json.dump(asset_list, f, indent=2, default=str)
-            
-            logger.info(f"Processed {len(asset_list)} assets from time on site data")
-            
-            # Update stats
-            update_stats(self.date_str, {
-                'assets_count': len(asset_list),
-                'asset_onsite_records': len(self.asset_onsite_data)
-            })
-            
-            return True
-        
-        except Exception as e:
-            logger.error(f"Error processing asset onsite data: {e}")
-            import traceback
-            logger.error(traceback.format_exc())
-            
-            # Log error in audit record
-            log_error(self.date_str, str(e), f"asset_onsite:{file_path}")
-            
-            return False
-    
-    def process_start_time_job_sheet(self, file_path, sheet_name='Start Time & Job'):
-        """
-        Process Start Time & Job sheet from Excel file
-        
-        Args:
-            file_path (str): Path to the Excel file
-            sheet_name (str): Name of the start time and job sheet
-            
-        Returns:
-            bool: Success status
-        """
-        try:
-            logger.info(f"Processing Start Time & Job sheet from {file_path}")
-            
-            # Add file to audit record
-            add_source_file(self.date_str, file_path, 'start_time_job')
-            
-            # Try to find the correct sheet name
-            xl = pd.ExcelFile(file_path)
-            sheet_names = xl.sheet_names
-            
-            # Look for the Start Time & Job sheet
-            found_sheet = None
-            potential_sheet_names = [
-                'Start Time & Job', 'Start Time', 'Start Times', 'Start Time and Job',
-                # Add variations
-                'START TIME & JOB', 'START TIME', 'START TIMES'
-            ]
-            
-            for name in potential_sheet_names:
-                if name in sheet_names:
-                    found_sheet = name
-                    break
-            
-            # If not found, look for any sheet with "Start" and "Time" in the name
-            if found_sheet is None:
-                for name in sheet_names:
-                    if 'START' in name.upper() and 'TIME' in name.upper():
-                        found_sheet = name
-                        break
-            
-            if found_sheet is None:
-                logger.error(f"Could not find Start Time & Job sheet in {file_path}")
-                log_error(self.date_str, "Could not find Start Time & Job sheet", f"start_time_job:{file_path}")
-                return False
-            
-            logger.info(f"Found sheet: {found_sheet}")
-            
-            # Read the sheet
-            df = pd.read_excel(file_path, sheet_name=found_sheet)
-            
-            # Clean up and normalize the DataFrame
-            df = df.dropna(how='all')  # Remove empty rows
-            
-            # Convert column names to strings and normalize
-            df.columns = [str(col).strip() if col is not None else f'col_{i}' 
-                         for i, col in enumerate(df.columns)]
-            
-            # Find the key column names (case-insensitive)
-            asset_col = None
-            driver_col = None
-            job_col = None
-            emp_id_col = None
-            
-            for col in df.columns:
-                col_upper = col.upper()
-                if 'ASSET' in col_upper:
-                    asset_col = col
-                elif 'DRIVER' in col_upper:
-                    driver_col = col
-                elif 'JOB' in col_upper and 'SR' not in col_upper:
-                    job_col = col
-                elif 'EMP' in col_upper and 'ID' in col_upper:
-                    emp_id_col = col
-            
-            # Create standardized columns
-            if asset_col:
-                df['Asset ID'] = df[asset_col]
-            if driver_col:
-                df['Driver'] = df[driver_col]
-            if job_col:
-                df['Job'] = df[job_col]
-            if emp_id_col:
-                df['Employee ID'] = df[emp_id_col]
-            
-            # Filter out rows without asset ID or driver
-            if 'Asset ID' in df.columns:
-                df = df[df['Asset ID'].notna()]
-            if 'Driver' in df.columns:
-                df = df[df['Driver'].notna()]
-            
-            # Add report date
-            df['Report Date'] = self.date_str
-            
-            logger.info(f"Processed {len(df)} rows from Start Time & Job sheet")
-            
-            # Store data
-            self.start_time_job_data = df.to_dict('records')
-            
-            # Extract driver and job assignment info
-            drivers = {}
-            for record in self.start_time_job_data:
-                asset_id = record.get('Asset ID', '')
-                driver_name = record.get('Driver', '')
-                job_number = record.get('Job', '')
-                employee_id = record.get('Employee ID', '')
-                
-                if not asset_id or pd.isna(asset_id) or not driver_name or pd.isna(driver_name):
-                    continue
-                
-                # Clean up values
-                asset_id = str(asset_id).strip()
-                driver_name = str(driver_name).strip()
-                job_number = str(job_number).strip() if job_number and not pd.isna(job_number) else ''
-                employee_id = str(employee_id).strip() if employee_id and not pd.isna(employee_id) else ''
-                
-                # Initialize driver record
-                if driver_name not in drivers:
-                    drivers[driver_name] = {
-                        'name': driver_name,
-                        'asset_id': asset_id,
-                        'job_number': job_number,
-                        'employee_id': employee_id,
-                        'source': 'start_time_job'
-                    }
-            
-            # Merge with existing driver list
-            self._merge_driver_data(drivers, 'start_time_job')
-            
-            # Update stats
-            update_stats(self.date_str, {
-                'start_time_job_records': len(self.start_time_job_data)
-            })
-            
-            return True
-        
-        except Exception as e:
-            logger.error(f"Error processing Start Time & Job sheet: {e}")
-            import traceback
-            logger.error(traceback.format_exc())
-            
-            # Log error in audit record
-            log_error(self.date_str, str(e), f"start_time_job:{file_path}")
-            
-            return False
-    
-    def process_employee_data(self, file_path, sheet_name=None):
-        """
-        Process employee data from Excel file
-        
-        Args:
-            file_path (str): Path to the employee data file
-            sheet_name (str): Name of the sheet to read
-            
-        Returns:
-            bool: Success status
-        """
-        try:
-            logger.info(f"Processing employee data from {file_path}")
-            
-            # Add file to audit record
-            add_source_file(self.date_str, file_path, 'employee_data')
-            
-            # Try to read the file
-            if sheet_name:
-                df = pd.read_excel(file_path, sheet_name=sheet_name)
-            else:
-                # Try to find the right sheet
-                xl = pd.ExcelFile(file_path)
-                sheet_names = xl.sheet_names
-                
-                # Look for employee data sheet
-                potential_sheets = [
-                    'Employee_Contacts', 'Employees', 'Employee List', 'ELIST',
-                    'Employee_List', 'Employee_Data'
-                ]
-                
-                found_sheet = None
-                for name in potential_sheets:
-                    if name in sheet_names:
-                        found_sheet = name
-                        break
-                
-                if found_sheet:
-                    logger.info(f"Found employee sheet: {found_sheet}")
-                    df = pd.read_excel(file_path, sheet_name=found_sheet)
+        # Process driving history files
+        for file_path in source_files['driving_history']:
+            driving_results = process_driving_history(file_path, date_str)
+            
+            # Merge with existing data
+            for driver_key, data in driving_results.items():
+                if driver_key not in driving_data:
+                    driving_data[driver_key] = data
                 else:
-                    # Default to first sheet
-                    logger.warning(f"Could not find employee sheet, using first sheet")
-                    df = pd.read_excel(file_path)
-            
-            # Clean up and normalize the DataFrame
-            df = df.dropna(how='all')  # Remove empty rows
-            
-            # Store the data
-            self.employee_data = df.to_dict('records')
-            
-            logger.info(f"Processed {len(self.employee_data)} employee records")
-            
-            # Update stats
-            update_stats(self.date_str, {
-                'employee_records': len(self.employee_data)
-            })
-            
-            return True
+                    # Keep earliest first activity and latest last activity
+                    if data.get('first_activity') and (
+                        not driving_data[driver_key].get('first_activity') or
+                        data['first_activity'] < driving_data[driver_key]['first_activity']
+                    ):
+                        driving_data[driver_key]['first_activity'] = data['first_activity']
+                    
+                    if data.get('last_activity') and (
+                        not driving_data[driver_key].get('last_activity') or
+                        data['last_activity'] > driving_data[driver_key]['last_activity']
+                    ):
+                        driving_data[driver_key]['last_activity'] = data['last_activity']
+                    
+                    # Update other fields as needed
+                    for field in ['key_on_time', 'key_off_time', 'location']:
+                        if field in data and data[field]:
+                            driving_data[driver_key][field] = data[field]
+                    
+                    # Sum activity counts
+                    driving_data[driver_key]['activity_count'] += data.get('activity_count', 0)
         
-        except Exception as e:
-            logger.error(f"Error processing employee data: {e}")
-            import traceback
-            logger.error(traceback.format_exc())
+        # Process activity detail files
+        for file_path in source_files['activity_detail']:
+            activity_results = process_activity_detail(file_path, date_str)
             
-            # Log error in audit record
-            log_error(self.date_str, str(e), f"employee_data:{file_path}")
-            
-            return False
-    
-    def _merge_driver_data(self, new_drivers, source):
-        """
-        Merge new driver data with existing driver data
+            # Merge with existing data
+            for driver_key, data in activity_results.items():
+                if driver_key not in activity_data:
+                    activity_data[driver_key] = data
+                else:
+                    # Keep earliest first activity and latest last activity
+                    if data.get('first_activity') and (
+                        not activity_data[driver_key].get('first_activity') or
+                        data['first_activity'] < activity_data[driver_key]['first_activity']
+                    ):
+                        activity_data[driver_key]['first_activity'] = data['first_activity']
+                    
+                    if data.get('last_activity') and (
+                        not activity_data[driver_key].get('last_activity') or
+                        data['last_activity'] > activity_data[driver_key]['last_activity']
+                    ):
+                        activity_data[driver_key]['last_activity'] = data['last_activity']
+                    
+                    # Sum activity counts
+                    activity_data[driver_key]['activity_count'] += data.get('activity_count', 0)
         
-        Args:
-            new_drivers (dict): Dictionary of new driver data
-            source (str): Source of the data
-        """
-        # Load existing driver data
-        driver_file = self.output_dir / f"drivers_{self.date_str}.json"
-        
-        if os.path.exists(driver_file):
-            try:
-                with open(driver_file, 'r') as f:
-                    driver_list = json.load(f)
-                
-                # Convert to dictionary for easier merging
-                existing_drivers = {}
-                for driver in driver_list:
-                    existing_drivers[driver['name']] = driver
-                
-                # Merge with new drivers
-                for driver_name, driver_data in new_drivers.items():
-                    if driver_name in existing_drivers:
-                        # Update existing driver
-                        for key, value in driver_data.items():
-                            # For complex data types, preserve existing data
-                            if key in ('events', 'activities', 'locations') and key in existing_drivers[driver_name]:
-                                if isinstance(value, list):
-                                    existing_drivers[driver_name][key].extend(value)
-                                elif isinstance(value, set):
-                                    existing_drivers[driver_name][key].update(value)
-                            else:
-                                # For simple types, only overwrite if not already set
-                                if key not in existing_drivers[driver_name] or not existing_drivers[driver_name][key]:
-                                    existing_drivers[driver_name][key] = value
-                        
-                        # Update sources
-                        if 'sources' not in existing_drivers[driver_name]:
-                            existing_drivers[driver_name]['sources'] = []
-                        if source not in existing_drivers[driver_name]['sources']:
-                            existing_drivers[driver_name]['sources'].append(source)
-                    else:
-                        # Add new driver
-                        driver_data['sources'] = [source]
-                        driver_data['date'] = self.date_str
-                        existing_drivers[driver_name] = driver_data
-                
-                # Convert back to list
-                driver_list = list(existing_drivers.values())
-            except Exception as e:
-                logger.error(f"Error merging driver data: {e}")
-                
-                # If error, create new list
-                driver_list = []
-                for driver_name, driver_data in new_drivers.items():
-                    driver_data['sources'] = [source]
-                    driver_data['date'] = self.date_str
-                    driver_list.append(driver_data)
-        else:
-            # Create new list
-            driver_list = []
-            for driver_name, driver_data in new_drivers.items():
-                driver_data['sources'] = [source]
-                driver_data['date'] = self.date_str
-                driver_list.append(driver_data)
-        
-        # Save updated driver list
-        with open(driver_file, 'w') as f:
-            json.dump(driver_list, f, indent=2, default=str)
-        
-        logger.info(f"Merged {len(new_drivers)} drivers from {source}, total drivers: {len(driver_list)}")
-    
-    def generate_attendance_report(self):
-        """
-        Generate attendance report for the processed data
-        
-        Returns:
-            bool: Success status
-        """
-        try:
-            logger.info(f"Generating attendance report for {self.date_str}")
+        # Process assets time on site files
+        for file_path in source_files['assets_time_on_site']:
+            onsite_results = process_assets_time_on_site(file_path, date_str)
             
-            # Load processed driver data
-            driver_file = self.output_dir / f"drivers_{self.date_str}.json"
+            # Merge with existing data
+            for asset_key, site_records in onsite_results.items():
+                if asset_key not in onsite_data:
+                    onsite_data[asset_key] = site_records
+                else:
+                    onsite_data[asset_key].extend(site_records)
+        
+        # Process start time and job files (static baseline)
+        for file_path in source_files['start_time_job']:
+            schedule_results = process_start_time_job(file_path)
             
-            if not os.path.exists(driver_file):
-                logger.error(f"No driver data found for {self.date_str}")
-                log_error(self.date_str, "No driver data found", "generate_attendance_report")
-                return False
-            
-            with open(driver_file, 'r') as f:
-                drivers = json.load(f)
-            
-            # Create attendance report structure
-            attendance_data = {
-                'date': self.date_str,
-                'total_drivers': len(drivers),
-                'late_start_records': [],
-                'early_end_records': [],
-                'not_on_job_records': [],
-                'drivers': drivers
+            # Merge with existing data
+            for driver_key, data in schedule_results.items():
+                if driver_key not in schedule_data:
+                    schedule_data[driver_key] = data
+        
+        # If we don't have any schedule data, report error
+        if not schedule_data:
+            logger.error(f"No schedule data found for {date_str}")
+            return {
+                'error': f"No schedule data found for {date_str}",
+                'date': date_str,
+                'drivers': [],
+                'total_drivers': 0
             }
-            
-            # Standard work hours
-            work_start = datetime.strptime(f"{self.date_str} 07:00:00", '%Y-%m-%d %H:%M:%S')
-            work_end = datetime.strptime(f"{self.date_str} 17:00:00", '%Y-%m-%d %H:%M:%S')
-            
-            # Process each driver
-            for driver in drivers:
-                # Check for late start
-                if 'first_activity' in driver and driver['first_activity']:
-                    first_activity = pd.to_datetime(driver['first_activity'])
-                    
-                    if first_activity > work_start:
-                        # Calculate late minutes
-                        late_minutes = int((first_activity - work_start).total_seconds() / 60)
-                        
-                        if late_minutes > 10:  # Only count if more than 10 minutes late
-                            # Add late record
-                            late_record = {
-                                'driver_name': driver['name'],
-                                'job_site': driver.get('locations', ['Unknown'])[0] if driver.get('locations') else 'Unknown',
-                                'scheduled_start': '07:00',
-                                'actual_start': first_activity.strftime('%H:%M'),
-                                'late_minutes': late_minutes,
-                                'asset_id': driver.get('asset_id', '')
-                            }
-                            attendance_data['late_start_records'].append(late_record)
+        
+        # Combine driving and activity data
+        combined_data = {}
+        
+        # First add all driving data
+        for driver_key, data in driving_data.items():
+            combined_data[driver_key] = data.copy()
+        
+        # Then merge activity data
+        for driver_key, data in activity_data.items():
+            if driver_key not in combined_data:
+                combined_data[driver_key] = data.copy()
+            else:
+                # Keep earliest first activity and latest last activity
+                if data.get('first_activity') and (
+                    not combined_data[driver_key].get('first_activity') or
+                    data['first_activity'] < combined_data[driver_key]['first_activity']
+                ):
+                    combined_data[driver_key]['first_activity'] = data['first_activity']
                 
-                # Check for early end
-                if 'last_activity' in driver and driver['last_activity'] and 'first_activity' in driver and driver['first_activity']:
-                    first_activity = pd.to_datetime(driver['first_activity'])
-                    last_activity = pd.to_datetime(driver['last_activity'])
-                    
-                    # Calculate work duration
-                    work_duration = int((last_activity - first_activity).total_seconds() / 60)
-                    
-                    # Check if they worked at least 2 hours (120 minutes) and ended before standard end time
-                    if work_duration >= 120 and last_activity < work_end:
-                        # Calculate early minutes
-                        early_minutes = int((work_end - last_activity).total_seconds() / 60)
-                        
-                        if early_minutes > 10:  # Only count if more than 10 minutes early
-                            # Add early record
-                            early_record = {
-                                'driver_name': driver['name'],
-                                'job_site': driver.get('locations', ['Unknown'])[0] if driver.get('locations') else 'Unknown',
-                                'scheduled_end': '17:00',
-                                'actual_end': last_activity.strftime('%H:%M'),
-                                'early_minutes': early_minutes,
-                                'asset_id': driver.get('asset_id', '')
-                            }
-                            attendance_data['early_end_records'].append(early_record)
-            
-            # Sort records
-            attendance_data['late_start_records'] = sorted(
-                attendance_data['late_start_records'],
-                key=lambda x: x.get('late_minutes', 0),
-                reverse=True
-            )
-            
-            attendance_data['early_end_records'] = sorted(
-                attendance_data['early_end_records'],
-                key=lambda x: x.get('early_minutes', 0),
-                reverse=True
-            )
-            
-            # Add stat counts
-            attendance_data['late_count'] = len(attendance_data['late_start_records'])
-            attendance_data['early_count'] = len(attendance_data['early_end_records'])
-            attendance_data['missing_count'] = len(attendance_data['not_on_job_records'])
-            
-            # Calculate on-time percentage
-            on_time = attendance_data['total_drivers'] - attendance_data['late_count'] - attendance_data['missing_count']
-            attendance_data['on_time_percent'] = round(100 * on_time / max(1, attendance_data['total_drivers']), 1)
-            
-            # Save attendance report
-            reports_dir = Path('exports/daily_reports')
-            reports_dir.mkdir(exist_ok=True, parents=True)
-            
-            report_file = reports_dir / f"attendance_data_{self.date_str}.json"
-            with open(report_file, 'w') as f:
-                json.dump(attendance_data, f, indent=2, default=str)
-            
-            logger.info(f"Saved attendance report to {report_file}")
-            
-            # Update stats
-            update_stats(self.date_str, {
-                'total_drivers': attendance_data['total_drivers'],
-                'late_drivers': attendance_data['late_count'],
-                'early_end_drivers': attendance_data['early_count'],
-                'missing_drivers': attendance_data['missing_count'],
-                'on_time_percent': attendance_data['on_time_percent']
-            })
-            
-            # Mark audit as complete
-            complete_audit(self.date_str, success=True)
-            
-            return True
-        
-        except Exception as e:
-            logger.error(f"Error generating attendance report: {e}")
-            import traceback
-            logger.error(traceback.format_exc())
-            
-            # Log error in audit record
-            log_error(self.date_str, str(e), "generate_attendance_report")
-            
-            return False
-            
-    def export_excel_report(self):
-        """
-        Export attendance report to Excel with improved formatting
-        
-        Returns:
-            bool: Success status
-        """
-        try:
-            logger.info(f"Exporting Excel report for {self.date_str}")
-            
-            # Load attendance data
-            reports_dir = Path('exports/daily_reports')
-            reports_dir.mkdir(exist_ok=True, parents=True)
-            
-            report_file = reports_dir / f"attendance_data_{self.date_str}.json"
-            
-            if not os.path.exists(report_file):
-                logger.error(f"No attendance report found at {report_file}")
-                return False
-            
-            with open(report_file, 'r') as f:
-                attendance_data = json.load(f)
-            
-            # Create Excel report
-            report_path = reports_dir / f"daily_report_{self.date_str}.xlsx"
-            standard_path = reports_dir / f"{self.date_str}_DailyDriverReport.xlsx"
-            
-            # Import required libraries for formatting
-            import openpyxl
-            from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
-            from openpyxl.utils.dataframe import dataframe_to_rows
-            
-            # Create a workbook and remove default sheet
-            wb = openpyxl.Workbook()
-            default_sheet = wb.active
-            wb.remove(default_sheet)
-            
-            # Create summary sheet
-            summary_sheet = wb.create_sheet("Summary")
-            
-            # Add title
-            summary_sheet.merge_cells('A1:C1')
-            title_cell = summary_sheet['A1']
-            title_cell.value = f"Daily Driver Report - {self.date_str}"
-            title_cell.font = Font(size=14, bold=True)
-            title_cell.alignment = Alignment(horizontal='center')
-            
-            # Add summary data
-            summary_headers = ['Metric', 'Value']
-            summary_sheet.append(summary_headers)
-            
-            # Format headers
-            for col in range(1, 3):
-                cell = summary_sheet.cell(row=2, column=col)
-                cell.font = Font(bold=True)
-                cell.fill = PatternFill(start_color="DDDDDD", end_color="DDDDDD", fill_type="solid")
-                cell.border = Border(
-                    bottom=Side(style='thin'),
-                    top=Side(style='thin'),
-                    left=Side(style='thin'),
-                    right=Side(style='thin')
+                if data.get('last_activity') and (
+                    not combined_data[driver_key].get('last_activity') or
+                    data['last_activity'] > combined_data[driver_key]['last_activity']
+                ):
+                    combined_data[driver_key]['last_activity'] = data['last_activity']
+                
+                # Sum activity counts
+                combined_data[driver_key]['activity_count'] = (
+                    combined_data[driver_key].get('activity_count', 0) + 
+                    data.get('activity_count', 0)
                 )
-            
-            # Add summary rows
-            summary_data = [
-                ['Date', self.date_str],
-                ['Total Drivers', attendance_data['total_drivers']],
-                ['On-Time Drivers', attendance_data['total_drivers'] - attendance_data['late_count'] - attendance_data['missing_count']],
-                ['Late Drivers', attendance_data['late_count']],
-                ['Early End Drivers', attendance_data['early_count']],
-                ['Not on Job Drivers', attendance_data['missing_count']],
-                ['On-Time Percentage', f"{attendance_data['on_time_percent']}%"]
-            ]
-            
-            # Add and format data rows
-            for row_idx, row_data in enumerate(summary_data, 3):
-                summary_sheet.append(row_data)
-                
-                # Format cells
-                for col in range(1, 3):
-                    cell = summary_sheet.cell(row=row_idx, column=col)
-                    cell.border = Border(
-                        bottom=Side(style='thin'),
-                        left=Side(style='thin'),
-                        right=Side(style='thin')
-                    )
-                    
-                    # Highlight important metrics
-                    if row_data[0] == 'On-Time Percentage':
-                        cell.font = Font(bold=True)
-                        if col == 2 and attendance_data['on_time_percent'] < 80:
-                            cell.fill = PatternFill(start_color="FFDDDD", end_color="FFDDDD", fill_type="solid")
-                        elif col == 2 and attendance_data['on_time_percent'] >= 90:
-                            cell.fill = PatternFill(start_color="DDFFDD", end_color="DDFFDD", fill_type="solid")
-            
-            # Set column widths for summary sheet
-            summary_sheet.column_dimensions['A'].width = 25
-            summary_sheet.column_dimensions['B'].width = 15
-            
-            # Create All Drivers sheet with complete formatting
-            if attendance_data['drivers']:
-                all_drivers_sheet = wb.create_sheet("All Drivers")
-                
-                # Add title
-                all_drivers_sheet.merge_cells('A1:H1')
-                title_cell = all_drivers_sheet['A1']
-                title_cell.value = f"All Drivers - {self.date_str}"
-                title_cell.font = Font(size=14, bold=True)
-                title_cell.alignment = Alignment(horizontal='center')
-                
-                # Get driver data
-                drivers_df = pd.DataFrame(attendance_data['drivers'])
-                
-                # Sort by name
-                if 'name' in drivers_df.columns:
-                    drivers_df = drivers_df.sort_values('name')
-                
-                # Rename columns for better readability
-                column_mapping = {
-                    'name': 'Driver Name',
-                    'employee_id': 'Employee ID',
-                    'asset_id': 'Vehicle ID',
-                    'job_number': 'Job Number',
-                    'job_name': 'Job Name',
-                    'status': 'Status',
-                    'expected_start': 'Expected Start',
-                    'actual_start': 'Actual Start',
-                    'start_exception': 'Minutes Late',
-                    'expected_end': 'Expected End',
-                    'actual_end': 'Actual End',
-                    'end_exception': 'Minutes Early',
-                    'source': 'Data Source'
-                }
-                drivers_df = drivers_df.rename(columns={k: v for k, v in column_mapping.items() if k in drivers_df.columns})
-                
-                # Define column order
-                preferred_columns = [
-                    'Employee ID', 'Driver Name', 'Vehicle ID', 'Job Number', 'Job Name',
-                    'Status', 'Expected Start', 'Actual Start', 'Minutes Late',
-                    'Expected End', 'Actual End', 'Minutes Early', 'Data Source'
-                ]
-                
-                # Reorder columns (include only those that exist)
-                existing_preferred_columns = [col for col in preferred_columns if col in drivers_df.columns]
-                other_columns = [col for col in drivers_df.columns if col not in preferred_columns]
-                drivers_df = drivers_df[existing_preferred_columns + other_columns]
-                
-                # Add headers row
-                headers = list(drivers_df.columns)
-                all_drivers_sheet.append(headers)
-                
-                # Format headers
-                for col, _ in enumerate(headers, 1):
-                    cell = all_drivers_sheet.cell(row=2, column=col)
-                    cell.font = Font(bold=True)
-                    cell.fill = PatternFill(start_color="DDDDDD", end_color="DDDDDD", fill_type="solid")
-                    cell.border = Border(
-                        bottom=Side(style='thin'),
-                        top=Side(style='thin'),
-                        left=Side(style='thin'),
-                        right=Side(style='thin')
-                    )
-                    cell.alignment = Alignment(horizontal='center')
-                
-                # Add data rows
-                for row_idx, row_data in enumerate(dataframe_to_rows(drivers_df, index=False, header=False), 3):
-                    formatted_row = [
-                        str(val) if val is not None and not pd.isna(val) else '' 
-                        for val in row_data
-                    ]
-                    all_drivers_sheet.append(formatted_row)
-                    
-                    # Format data cells and add status colors
-                    status_idx = None
-                    if 'Status' in drivers_df.columns:
-                        status_idx = list(drivers_df.columns).index('Status')
-                    
-                    for col_idx, _ in enumerate(headers, 1):
-                        cell = all_drivers_sheet.cell(row=row_idx, column=col_idx)
-                        cell.border = Border(
-                            bottom=Side(style='thin'),
-                            left=Side(style='thin'),
-                            right=Side(style='thin')
-                        )
-                        
-                        # Add status colors
-                        if status_idx is not None and col_idx - 1 == status_idx:
-                            status = cell.value.lower() if cell.value else ''
-                            if 'late' in status:
-                                cell.fill = PatternFill(start_color="FFEEEE", end_color="FFEEEE", fill_type="solid")
-                            elif 'early' in status:
-                                cell.fill = PatternFill(start_color="FFFFEE", end_color="FFFFEE", fill_type="solid")
-                            elif 'not on job' in status:
-                                cell.fill = PatternFill(start_color="FFDDDD", end_color="FFDDDD", fill_type="solid")
-                            elif 'on time' in status or 'ontime' in status:
-                                cell.fill = PatternFill(start_color="EEFFEE", end_color="EEFFEE", fill_type="solid")
-                
-                # Auto-size columns for better readability
-                for col, _ in enumerate(headers, 1):
-                    column_letter = openpyxl.utils.get_column_letter(col)
-                    max_length = 0
-                    for row in range(2, all_drivers_sheet.max_row + 1):
-                        cell = all_drivers_sheet.cell(row=row, column=col)
-                        if cell.value:
-                            max_length = max(max_length, len(str(cell.value)))
-                    adjusted_width = max(max_length + 2, 12)  # Minimum 12 characters wide
-                    all_drivers_sheet.column_dimensions[column_letter].width = adjusted_width
-            
-            # Create Late Drivers sheet
-            if attendance_data['late_start_records']:
-                late_df = pd.DataFrame(attendance_data['late_start_records'])
-                late_sheet = wb.create_sheet("Late Drivers")
-                
-                # Add title
-                late_sheet.merge_cells('A1:H1')
-                title_cell = late_sheet['A1']
-                title_cell.value = f"Late Start Drivers - {self.date_str}"
-                title_cell.font = Font(size=14, bold=True)
-                title_cell.alignment = Alignment(horizontal='center')
-                
-                # Rename columns
-                column_mapping = {
-                    'name': 'Driver Name',
-                    'employee_id': 'Employee ID',
-                    'expected_start': 'Expected Start',
-                    'actual_start': 'Actual Start',
-                    'minutes_late': 'Minutes Late',
-                    'asset_id': 'Vehicle ID',
-                    'job_number': 'Job Number'
-                }
-                late_df = late_df.rename(columns={k: v for k, v in column_mapping.items() if k in late_df.columns})
-                
-                # Sort by minutes late (descending)
-                if 'Minutes Late' in late_df.columns:
-                    late_df = late_df.sort_values('Minutes Late', ascending=False)
-                
-                # Add headers
-                headers = list(late_df.columns)
-                late_sheet.append(headers)
-                
-                # Format headers
-                for col, _ in enumerate(headers, 1):
-                    cell = late_sheet.cell(row=2, column=col)
-                    cell.font = Font(bold=True)
-                    cell.fill = PatternFill(start_color="FFDDDD", end_color="FFDDDD", fill_type="solid")
-                    cell.border = Border(
-                        bottom=Side(style='thin'),
-                        top=Side(style='thin'),
-                        left=Side(style='thin'),
-                        right=Side(style='thin')
-                    )
-                    cell.alignment = Alignment(horizontal='center')
-                
-                # Add and format data
-                for row_idx, row_data in enumerate(dataframe_to_rows(late_df, index=False, header=False), 3):
-                    formatted_row = [
-                        str(val) if val is not None and not pd.isna(val) else '' 
-                        for val in row_data
-                    ]
-                    late_sheet.append(formatted_row)
-                    
-                    # Format all cells with borders
-                    for col_idx, _ in enumerate(headers, 1):
-                        cell = late_sheet.cell(row=row_idx, column=col_idx)
-                        cell.border = Border(
-                            bottom=Side(style='thin'),
-                            left=Side(style='thin'),
-                            right=Side(style='thin')
-                        )
-                
-                # Auto-size columns
-                for col, _ in enumerate(headers, 1):
-                    column_letter = openpyxl.utils.get_column_letter(col)
-                    max_length = 0
-                    for row in range(2, late_sheet.max_row + 1):
-                        cell = late_sheet.cell(row=row, column=col)
-                        if cell.value:
-                            max_length = max(max_length, len(str(cell.value)))
-                    adjusted_width = max(max_length + 2, 12)
-                    late_sheet.column_dimensions[column_letter].width = adjusted_width
-            
-            # Create Early End sheet
-            if attendance_data['early_end_records']:
-                early_df = pd.DataFrame(attendance_data['early_end_records'])
-                early_sheet = wb.create_sheet("Early End")
-                
-                # Add title
-                early_sheet.merge_cells('A1:H1')
-                title_cell = early_sheet['A1']
-                title_cell.value = f"Early End Drivers - {self.date_str}"
-                title_cell.font = Font(size=14, bold=True)
-                title_cell.alignment = Alignment(horizontal='center')
-                
-                # Rename columns
-                column_mapping = {
-                    'name': 'Driver Name',
-                    'employee_id': 'Employee ID',
-                    'expected_end': 'Expected End',
-                    'actual_end': 'Actual End',
-                    'minutes_early': 'Minutes Early',
-                    'asset_id': 'Vehicle ID',
-                    'job_number': 'Job Number'
-                }
-                early_df = early_df.rename(columns={k: v for k, v in column_mapping.items() if k in early_df.columns})
-                
-                # Sort by minutes early (descending)
-                if 'Minutes Early' in early_df.columns:
-                    early_df = early_df.sort_values('Minutes Early', ascending=False)
-                
-                # Add headers
-                headers = list(early_df.columns)
-                early_sheet.append(headers)
-                
-                # Format headers
-                for col, _ in enumerate(headers, 1):
-                    cell = early_sheet.cell(row=2, column=col)
-                    cell.font = Font(bold=True)
-                    cell.fill = PatternFill(start_color="FFFFEE", end_color="FFFFEE", fill_type="solid")
-                    cell.border = Border(
-                        bottom=Side(style='thin'),
-                        top=Side(style='thin'),
-                        left=Side(style='thin'),
-                        right=Side(style='thin')
-                    )
-                    cell.alignment = Alignment(horizontal='center')
-                
-                # Add and format data
-                for row_idx, row_data in enumerate(dataframe_to_rows(early_df, index=False, header=False), 3):
-                    formatted_row = [
-                        str(val) if val is not None and not pd.isna(val) else '' 
-                        for val in row_data
-                    ]
-                    early_sheet.append(formatted_row)
-                    
-                    # Format all cells with borders
-                    for col_idx, _ in enumerate(headers, 1):
-                        cell = early_sheet.cell(row=row_idx, column=col_idx)
-                        cell.border = Border(
-                            bottom=Side(style='thin'),
-                            left=Side(style='thin'),
-                            right=Side(style='thin')
-                        )
-                
-                # Auto-size columns
-                for col, _ in enumerate(headers, 1):
-                    column_letter = openpyxl.utils.get_column_letter(col)
-                    max_length = 0
-                    for row in range(2, early_sheet.max_row + 1):
-                        cell = early_sheet.cell(row=row, column=col)
-                        if cell.value:
-                            max_length = max(max_length, len(str(cell.value)))
-                    adjusted_width = max(max_length + 2, 12)
-                    early_sheet.column_dimensions[column_letter].width = adjusted_width
-            
-            # Save workbook
-            wb.save(str(report_path))
-            
-            # Copy to standardized name
-            import shutil
-            shutil.copy2(report_path, standard_path)
-            
-            logger.info(f"Exported Excel report to {report_path} and {standard_path}")
-            
-            return True
         
-        except Exception as e:
-            logger.error(f"Error exporting Excel report: {e}")
-            import traceback
-            logger.error(traceback.format_exc())
+        # Determine status for each driver
+        all_drivers = []
+        late_drivers = []
+        early_end_drivers = []
+        not_on_job_drivers = []
+        on_time_drivers = []
+        
+        # Start with scheduled drivers
+        for driver_key, scheduled in schedule_data.items():
+            # Get actual data if available
+            actual_data = combined_data.get(driver_key, None)
             
-            return False
+            # Get onsite data for this driver's asset
+            asset_id = actual_data.get('asset_id', scheduled.get('asset_id', None))
+            driver_onsite_data = onsite_data.get(asset_id, {}) if asset_id else {}
+            
+            # Determine status
+            status_info = determine_driver_status(
+                driver_name=driver_key,
+                scheduled_data=scheduled,
+                actual_data=actual_data,
+                onsite_data=driver_onsite_data
+            )
+            
+            # Add to appropriate list based on status
+            all_drivers.append(status_info)
+            
+            if status_info['status'] == 'Late':
+                late_drivers.append(status_info)
+            elif status_info['status'] == 'Early End':
+                early_end_drivers.append(status_info)
+            elif status_info['status'] == 'Not On Job':
+                not_on_job_drivers.append(status_info)
+            else:  # On Time
+                on_time_drivers.append(status_info)
+        
+        # Compile all unscheduled drivers with activity
+        for driver_key, actual_data in combined_data.items():
+            if driver_key not in schedule_data:
+                # This driver had activity but wasn't scheduled
+                status_info = {
+                    'driver_name': actual_data.get('driver_name', driver_key),
+                    'asset_id': actual_data.get('asset_id', 'Unknown'),
+                    'actual_start': actual_data.get('first_activity'),
+                    'actual_end': actual_data.get('last_activity'),
+                    'key_on_time': actual_data.get('key_on_time'),
+                    'key_off_time': actual_data.get('key_off_time'),
+                    'location': actual_data.get('location', 'Unknown'),
+                    'status': 'Unscheduled',
+                    'status_reason': 'Driver not on schedule'
+                }
+                
+                # Format actual times for display
+                if status_info.get('actual_start'):
+                    if isinstance(status_info['actual_start'], (datetime, pd.Timestamp)):
+                        status_info['actual_start_display'] = status_info['actual_start'].strftime('%I:%M %p')
+                    else:
+                        status_info['actual_start_display'] = str(status_info['actual_start'])
+                else:
+                    status_info['actual_start_display'] = "N/A"
+                    
+                if status_info.get('actual_end'):
+                    if isinstance(status_info['actual_end'], (datetime, pd.Timestamp)):
+                        status_info['actual_end_display'] = status_info['actual_end'].strftime('%I:%M %p')
+                    else:
+                        status_info['actual_end_display'] = str(status_info['actual_end'])
+                else:
+                    status_info['actual_end_display'] = "N/A"
+                
+                all_drivers.append(status_info)
+                not_on_job_drivers.append(status_info)
+        
+        # Parse date for formatting
+        date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+        formatted_date = date_obj.strftime('%A, %B %d, %Y')
+        
+        # Create summary report
+        report = {
+            'date': date_str,
+            'formatted_date': formatted_date,
+            'report_date': formatted_date,
+            'all_drivers': all_drivers,
+            'late_drivers': late_drivers,
+            'early_end_drivers': early_end_drivers,
+            'not_on_job_drivers': not_on_job_drivers,
+            'summary': {
+                'total_drivers': len(all_drivers),
+                'on_time_drivers': len(on_time_drivers),
+                'late_drivers': len(late_drivers),
+                'early_end_drivers': len(early_end_drivers),
+                'not_on_job_drivers': len(not_on_job_drivers)
+            }
+        }
+        
+        # Create export directory
+        export_dir = os.path.join('exports', 'daily_reports')
+        os.makedirs(export_dir, exist_ok=True)
+        
+        # Save report to JSON file
+        report_path = os.path.join(export_dir, f"daily_report_{date_str}.json")
+        with open(report_path, 'w') as f:
+            json.dump(report, f, indent=2, default=str)
+        
+        logger.info(f"Generated daily driver report for {date_str}: {len(all_drivers)} drivers")
+        return report
     
-    def export_pdf_report(self):
-        """
-        Export attendance report to PDF
-        
-        Returns:
-            bool: Success status
-        """
-        try:
-            logger.info(f"Exporting PDF report for {self.date_str}")
-            
-            # Load attendance data
-            reports_dir = Path('exports/daily_reports')
-            report_file = reports_dir / f"attendance_data_{self.date_str}.json"
-            
-            if not os.path.exists(report_file):
-                logger.error(f"No attendance report found at {report_file}")
-                return False
-            
-            with open(report_file, 'r') as f:
-                attendance_data = json.load(f)
-            
-            # Create PDF report
-            from fpdf import FPDF
-            
-            report_path = reports_dir / f"daily_report_{self.date_str}.pdf"
-            standard_path = reports_dir / f"{self.date_str}_DailyDriverReport.pdf"
-            
-            # Create PDF
-            pdf = FPDF()
-            pdf.add_page()
-            
-            # Set up fonts
-            pdf.set_font('Arial', 'B', 16)
-            pdf.cell(0, 10, f'Daily Driver Report: {self.date_str}', 0, 1, 'C')
-            pdf.ln(5)
-            
-            # Summary section
-            pdf.set_font('Arial', 'B', 12)
-            pdf.cell(0, 10, f"Total Drivers: {attendance_data['total_drivers']}", 0, 1)
-            pdf.cell(0, 10, f"Late Drivers: {attendance_data['late_count']}", 0, 1)
-            pdf.cell(0, 10, f"Early End Drivers: {attendance_data['early_count']}", 0, 1)
-            pdf.cell(0, 10, f"Not on Job Drivers: {attendance_data['missing_count']}", 0, 1)
-            pdf.cell(0, 10, f"On-Time Percentage: {attendance_data['on_time_percent']}%", 0, 1)
-            pdf.ln(5)
-            
-            # Late drivers section
-            if attendance_data['late_start_records']:
-                pdf.set_font('Arial', 'B', 14)
-                pdf.cell(0, 10, 'Late Drivers', 0, 1)
-                
-                # Column headers
-                pdf.set_font('Arial', 'B', 10)
-                pdf.cell(60, 7, 'Driver Name', 1)
-                pdf.cell(30, 7, 'Late (min)', 1)
-                pdf.cell(25, 7, 'Actual Start', 1)
-                pdf.cell(75, 7, 'Job Site', 1)
-                pdf.ln()
-                
-                # Late driver rows
-                pdf.set_font('Arial', '', 10)
-                for late in attendance_data['late_start_records'][:15]:  # Show first 15
-                    pdf.cell(60, 7, late['driver_name'][:28], 1)
-                    pdf.cell(30, 7, str(late['late_minutes']), 1)
-                    pdf.cell(25, 7, late['actual_start'], 1)
-                    pdf.cell(75, 7, (late['job_site'] or 'Unknown')[:35], 1)
-                    pdf.ln()
-                
-                pdf.ln(5)
-            
-            # Early end drivers section
-            if attendance_data['early_end_records']:
-                pdf.set_font('Arial', 'B', 14)
-                pdf.cell(0, 10, 'Early End Drivers', 0, 1)
-                
-                # Column headers
-                pdf.set_font('Arial', 'B', 10)
-                pdf.cell(60, 7, 'Driver Name', 1)
-                pdf.cell(30, 7, 'Early (min)', 1)
-                pdf.cell(25, 7, 'Actual End', 1)
-                pdf.cell(75, 7, 'Job Site', 1)
-                pdf.ln()
-                
-                # Early end driver rows
-                pdf.set_font('Arial', '', 10)
-                for early in attendance_data['early_end_records'][:15]:  # Show first 15
-                    pdf.cell(60, 7, early['driver_name'][:28], 1)
-                    pdf.cell(30, 7, str(early['early_minutes']), 1)
-                    pdf.cell(25, 7, early['actual_end'], 1)
-                    pdf.cell(75, 7, (early['job_site'] or 'Unknown')[:35], 1)
-                    pdf.ln()
-            
-            # Output PDF
-            pdf.output(report_path)
-            
-            # Copy to standardized name
-            import shutil
-            shutil.copy2(report_path, standard_path)
-            
-            logger.info(f"Exported PDF report to {report_path} and {standard_path}")
-            
-            return True
-        
-        except Exception as e:
-            logger.error(f"Error exporting PDF report: {e}")
-            import traceback
-            logger.error(traceback.format_exc())
-            
-            return False
+    except Exception as e:
+        logger.error(f"Error generating daily driver report for {date_str}: {e}")
+        logger.error(traceback.format_exc())
+        return {
+            'error': f"Error generating report: {str(e)}",
+            'date': date_str,
+            'drivers': [],
+            'total_drivers': 0
+        }

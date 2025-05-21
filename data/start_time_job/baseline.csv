@@ -1,0 +1,11 @@
+driver_name,asset_id,scheduled_start,scheduled_end,job_site
+John Smith,ET-01,06:30 AM,03:30 PM,DFW-101
+Sarah Johnson,ET-02,06:00 AM,03:00 PM,DFW-102
+Michael Brown,ET-03,07:00 AM,04:00 PM,DFW-103
+Robert Davis,PT-04,06:00 AM,03:30 PM,HOU-201
+Jennifer Wilson,PT-05,06:30 AM,03:30 PM,HOU-202
+David Martinez,F-150,06:00 AM,03:00 PM,HOU-203
+Thomas Anderson,RAM-2500,06:30 AM,03:30 PM,WT-301
+Jessica Taylor,ET-08,07:00 AM,04:00 PM,WT-302
+Christopher Lee,PT-09,06:00 AM,03:00 PM,WT-303
+Amanda Clark,ET-10,06:30 AM,03:30 PM,DFW-104

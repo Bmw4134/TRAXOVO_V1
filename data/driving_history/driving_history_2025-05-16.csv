@@ -1,0 +1,17 @@
+Driver,Asset,Timestamp,EventType,Location
+John Smith,ET-01,2025-05-16 06:45:23,Key On,DFW-101
+John Smith,ET-01,2025-05-16 03:30:15,Key Off,DFW-101
+Sarah Johnson,ET-02,2025-05-16 05:55:12,Key On,DFW-102
+Sarah Johnson,ET-02,2025-05-16 03:05:45,Key Off,DFW-102
+Michael Brown,ET-03,2025-05-16 07:20:31,Key On,DFW-103
+Michael Brown,ET-03,2025-05-16 04:02:18,Key Off,DFW-103
+Robert Davis,PT-04,2025-05-16 06:05:42,Key On,HOU-201
+Robert Davis,PT-04,2025-05-16 03:25:52,Key Off,HOU-201
+Jennifer Wilson,PT-05,2025-05-16 06:35:14,Key On,HOU-202
+Jennifer Wilson,PT-05,2025-05-16 03:28:29,Key Off,HOU-202
+David Martinez,F-150,2025-05-16 06:50:37,Key On,WT-305
+David Martinez,F-150,2025-05-16 03:02:19,Key Off,WT-305
+Thomas Anderson,RAM-2500,2025-05-16 06:25:09,Key On,WT-301
+Thomas Anderson,RAM-2500,2025-05-16 02:45:22,Key Off,WT-301
+Jessica Taylor,ET-08,2025-05-16 07:05:04,Key On,WT-302
+Jessica Taylor,ET-08,2025-05-16 04:10:47,Key Off,WT-302

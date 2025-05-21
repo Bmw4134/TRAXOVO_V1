@@ -1,0 +1,1168 @@
+{
+  "metadata": {
+    "created": "2025-05-21T12:56:38.249754",
+    "version": "1.0",
+    "last_modified": "2025-05-21T12:56:38.986767"
+  },
+  "assets": {
+    "#210003 - AMMAR I. ELHAMAD": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Elhamad, Ammar I",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.249773"
+        }
+      ],
+      "disposals": [
+        {
+          "date": "2025-04-30",
+          "reason": "other",
+          "notes": "Disposed for demonstration",
+          "recorded_at": "2025-05-21T12:56:38.250050"
+        }
+      ]
+    },
+    "#210013 - MATTHEW C. SHAYLOR": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Shaylor, Matthew C",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.250791"
+        }
+      ],
+      "disposals": []
+    },
+    "#210055 - ADAM H. GOODE": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Goode, Adam H",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.251362"
+        }
+      ],
+      "disposals": []
+    },
+    "#210073 - BIKHYAT ADHIKARI": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Adhikari, Bikhyat",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.251907"
+        }
+      ],
+      "disposals": []
+    },
+    "14FT-03S": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "S2372507",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.252709"
+        }
+      ],
+      "disposals": []
+    },
+    "14FT-04S": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "R2360779",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.253357"
+        }
+      ],
+      "disposals": []
+    },
+    "14T-21": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "SHOP TRAILER",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.254060"
+        }
+      ],
+      "disposals": []
+    },
+    "14T-38": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "TRAFFIC CONTROL",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.254819"
+        }
+      ],
+      "disposals": []
+    },
+    "14T-39": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "WTX JOB TRAILER",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.255480"
+        }
+      ],
+      "disposals": []
+    },
+    "14T-44": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "HTX FLATBED TRAILER",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.257747"
+        }
+      ],
+      "disposals": []
+    },
+    "14T-45": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "HTX DUMP TRAILER",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.259873"
+        }
+      ],
+      "disposals": [
+        {
+          "date": "2025-04-30",
+          "reason": "other",
+          "notes": "Disposed for demonstration",
+          "recorded_at": "2025-05-21T12:56:38.260535"
+        }
+      ]
+    },
+    "AC-25": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "0153",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.263840"
+        }
+      ],
+      "disposals": []
+    },
+    "CFM-18": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "ALLEN SCREED 22.5'",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.266968"
+        }
+      ],
+      "disposals": []
+    },
+    "DD-01": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "ASPHALT 84\"",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.269089"
+        }
+      ],
+      "disposals": []
+    },
+    "DD-02": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "ASPHALT 84\"",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.270066"
+        }
+      ],
+      "disposals": []
+    },
+    "DT-08": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "WELDING TRUCK",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.271355"
+        }
+      ],
+      "disposals": []
+    },
+    "DTC-11": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "SALVADOR AGUILLON",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.272771"
+        }
+      ],
+      "disposals": []
+    },
+    "DTC-12": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "JUAN L. RUIZ",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.274137"
+        }
+      ],
+      "disposals": []
+    },
+    "DTC-25": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "SALVADOR AGUILLON",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.275235"
+        }
+      ],
+      "disposals": []
+    },
+    "DTC-29": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "ALONSO MIRAMONTES",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.276078"
+        }
+      ],
+      "disposals": []
+    },
+    "DTF-03S": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "14T",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.277379"
+        }
+      ],
+      "disposals": [
+        {
+          "date": "2025-04-30",
+          "reason": "other",
+          "notes": "Disposed for demonstration",
+          "recorded_at": "2025-05-21T12:56:38.278019"
+        }
+      ]
+    },
+    "DTF-06": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "JESUS LOPEZ SOTO",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.279044"
+        }
+      ],
+      "disposals": []
+    },
+    "DTF-09": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "FOUNDATION",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.281654"
+        }
+      ],
+      "disposals": []
+    },
+    "DTF-11": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "HECTOR J. CLAUDIO",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.282473"
+        }
+      ],
+      "disposals": []
+    },
+    "DTF-16": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Rangel, Jose M",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.283428"
+        }
+      ],
+      "disposals": []
+    },
+    "DTF-17": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "SALVADOR",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.286888"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-01": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Martinez Alvarez, Saul",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.289906"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-02": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "HARDIMON, ANTHONY J",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.290859"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-03": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Andrade, Manuel",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.293161"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-04": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Ehimhen, Gerald A",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.293977"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-05": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "HARDIMON, ANTHONY J LOANER",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.296056"
+        }
+      ],
+      "disposals": [
+        {
+          "date": "2025-04-30",
+          "reason": "other",
+          "notes": "Disposed for demonstration",
+          "recorded_at": "2025-05-21T12:56:38.297244"
+        }
+      ]
+    },
+    "ET-06": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Rodriguez Perez, Esteban",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.298662"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-07": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "HAYS, PAXTON C",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.300046"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-08": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Martinez, Jorge L",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.310127"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-09": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Ramirez, Jose C",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.313366"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-10": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Medina-Rodriguez, Jesus A",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.316417"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-11": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Guerrero Jr, Roberto",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.319713"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-12": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Open",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.372659"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-13": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "open",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.373847"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-14": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Kocmick, Caleb S",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.375054"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-15": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Eclavea, Carlos H",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.377712"
+        }
+      ],
+      "disposals": [
+        {
+          "date": "2025-04-30",
+          "reason": "other",
+          "notes": "Disposed for demonstration",
+          "recorded_at": "2025-05-21T12:56:38.380953"
+        }
+      ]
+    },
+    "ET-16": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Murcia Orellana, Luis E",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.382097"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-17": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Link, Cooper E",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.385010"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-18": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Moore, Jesse A",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.386258"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-19": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Salaices, Osiel",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.389334"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-20": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "OPEN RAM 1500",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.392969"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-21": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "OPEN",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.394223"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-22": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Lopez, Juan",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.395470"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-23": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Rivera, Jose J",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.397274"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-24": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Malette, Troy S",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.399561"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-25": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "RODARTE SERRANO, JESUS O",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.407649"
+        }
+      ],
+      "disposals": [
+        {
+          "date": "2025-04-30",
+          "reason": "other",
+          "notes": "Disposed for demonstration",
+          "recorded_at": "2025-05-21T12:56:38.408805"
+        }
+      ]
+    },
+    "ET-26": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Rodriguez, Juan P",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.435011"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-27": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Miramontes, Alonso",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.517443"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-28": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Flores, Jorge L",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.582580"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-29": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Rangel, Jose M",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.587292"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-30": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Ruiz, Juan L",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.643887"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-31": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Vazquez De La Cruz, Ramiro",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.646881"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-32": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Garcia-Andrade, Uriel",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.650588"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-33": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Lopez Lira, Jose P",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.663311"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-34": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Reyes, Aureliano",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.664933"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-35": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Lopez Soto, Jesus",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.678202"
+        }
+      ],
+      "disposals": [
+        {
+          "date": "2025-04-30",
+          "reason": "other",
+          "notes": "Disposed for demonstration",
+          "recorded_at": "2025-05-21T12:56:38.684473"
+        }
+      ]
+    },
+    "ET-36": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Gonzalez, Alonzo",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.688315"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-37": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Ibarra, Sabino",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.689899"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-38": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Padgett, Caleb L",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.695725"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-39": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Terrazas Melendez, Jose R",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.720081"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-41": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Hampton, Justin D",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.722886"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-42": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Berjes Ruiz, Juan C",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.729107"
+        }
+      ],
+      "disposals": []
+    },
+    "ET-43": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Giebelhaus, Eric STX",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.730598"
+        }
+      ],
+      "disposals": []
+    },
+    "EX-03S": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "stolen on 6/23/24",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.734303"
+        }
+      ],
+      "disposals": []
+    },
+    "HTC-07": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "ALONZO GONZALEZ",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.741089"
+        }
+      ],
+      "disposals": []
+    },
+    "LP-114": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "P1007116",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.744026"
+        }
+      ],
+      "disposals": [
+        {
+          "date": "2025-04-30",
+          "reason": "other",
+          "notes": "Disposed for demonstration",
+          "recorded_at": "2025-05-21T12:56:38.745399"
+        }
+      ]
+    },
+    "LP-115": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "P1007120",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.807698"
+        }
+      ],
+      "disposals": []
+    },
+    "MB-05S": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "411774",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.813754"
+        }
+      ],
+      "disposals": []
+    },
+    "ME-60": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "R1006827",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.817575"
+        }
+      ],
+      "disposals": []
+    },
+    "ME-61": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "R1006828",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.819444"
+        }
+      ],
+      "disposals": []
+    },
+    "MOWER ATTACHMENT": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Mower King",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.824817"
+        }
+      ],
+      "disposals": []
+    },
+    "MT-07": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "TMA",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.827057"
+        }
+      ],
+      "disposals": []
+    },
+    "MT-09": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Aparicio, Lorenzo",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.832061"
+        }
+      ],
+      "disposals": []
+    },
+    "MT-11": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "OPEN",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.836115"
+        }
+      ],
+      "disposals": []
+    },
+    "MT-13": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "OPEN MECH TRUCK",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.837827"
+        }
+      ],
+      "disposals": []
+    },
+    "MT-14": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Torres, Ivan",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.840997"
+        }
+      ],
+      "disposals": [
+        {
+          "date": "2025-04-30",
+          "reason": "other",
+          "notes": "Disposed for demonstration",
+          "recorded_at": "2025-05-21T12:56:38.845125"
+        }
+      ]
+    },
+    "MT-15": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Gee, Korbin E",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.850130"
+        }
+      ],
+      "disposals": []
+    },
+    "MT-16": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "LUBE TRUCK",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.851958"
+        }
+      ],
+      "disposals": []
+    },
+    "OV-01": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "OFFICE VEHICLE",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.853881"
+        }
+      ],
+      "disposals": []
+    },
+    "PT-01S": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "open",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.859126"
+        }
+      ],
+      "disposals": []
+    },
+    "PT-06S": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "SELECT CREW TRUCK",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.863922"
+        }
+      ],
+      "disposals": []
+    },
+    "PT-07S": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "DODDY, ROGER W",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.866967"
+        }
+      ],
+      "disposals": []
+    },
+    "PT-08S": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "JAMES GABE",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.868802"
+        }
+      ],
+      "disposals": []
+    },
+    "PT-09S": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Espinoza-Casillas, Jovan",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.870864"
+        }
+      ],
+      "disposals": []
+    },
+    "PT-104": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Escobedo Jr, Martin",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.917257"
+        }
+      ],
+      "disposals": []
+    },
+    "PT-107": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "DFW OFFICE TRUCK",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.920518"
+        }
+      ],
+      "disposals": [
+        {
+          "date": "2025-04-30",
+          "reason": "other",
+          "notes": "Disposed for demonstration",
+          "recorded_at": "2025-05-21T12:56:38.922417"
+        }
+      ]
+    },
+    "PT-108": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "BADILLO, GERARDO J",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.924258"
+        }
+      ],
+      "disposals": []
+    },
+    "PT-10S": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Berryhill, Robert P",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.929745"
+        }
+      ],
+      "disposals": []
+    },
+    "PT-111": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "shop mech loaner",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.931537"
+        }
+      ],
+      "disposals": []
+    },
+    "PT-11S": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Muratalla-Ceja, Rafael",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.936088"
+        }
+      ],
+      "disposals": []
+    },
+    "PT-125": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "PLANO JOBSITE TRUCK",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.937900"
+        }
+      ],
+      "disposals": []
+    },
+    "PT-12S": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "OPEN",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.941384"
+        }
+      ],
+      "disposals": []
+    },
+    "PT-13S": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Magallanes, Javier",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.943435"
+        }
+      ],
+      "disposals": []
+    },
+    "PT-14S": {
+      "acquisitions": [
+        {
+          "date": "2025-01-01",
+          "driver_id": "Smith, Keith A",
+          "division": "Houston",
+          "recorded_at": "2025-05-21T12:56:38.986764"
+        }
+      ],
+      "disposals": []
+    }
+  }
+}

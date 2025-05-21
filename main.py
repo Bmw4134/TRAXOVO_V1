@@ -58,6 +58,22 @@ except ImportError:
     app.register_blueprint(driver_module_bp)
     logger.info("Registered Driver Module blueprint (fallback)")
 
+# Register asset map blueprint
+try:
+    from routes.asset_map import asset_map_bp
+    app.register_blueprint(asset_map_bp)
+    logger.info("Registered Asset Map blueprint")
+except ImportError:
+    logger.info("Asset Map blueprint not available")
+
+# Initialize lifecycle module
+try:
+    import equipment_lifecycle
+    import lifecycle_integration
+    logger.info("Initialized Equipment Lifecycle module")
+except ImportError:
+    logger.info("Equipment Lifecycle module not available")
+
 # Temporary skip some modules
 logger.info("Skipping asset_drivers blueprint temporarily")
 logger.info("Skipping maintenance blueprint temporarily")

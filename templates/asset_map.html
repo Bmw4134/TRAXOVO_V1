@@ -1,734 +1,244 @@
 {% extends "base.html" %}
 
+{% block title %}Asset Map | TRAXORA{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="anonymous">
+<style>
+  #map-container {
+    height: 70vh;
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  .asset-marker {
+    cursor: pointer;
+  }
+  .asset-marker.active {
+    color: #28a745;
+    z-index: 1000;
+  }
+  .asset-marker.disposed {
+    color: #6c757d;
+    opacity: 0.7;
+  }
+  .asset-popup {
+    padding: 10px;
+  }
+  .asset-popup h5 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  .asset-popup p {
+    margin-bottom: 5px;
+  }
+  .filter-controls {
+    margin-bottom: 15px;
+  }
+  .status-badge {
+    display: inline-block;
+    padding: 0.25em 0.6em;
+    border-radius: 0.25rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    line-height: 1;
+  }
+  .status-active {
+    background-color: #28a745;
+    color: white;
+  }
+  .status-disposed {
+    background-color: #6c757d;
+    color: white;
+  }
+  .status-unknown {
+    background-color: #ffc107;
+    color: #212529;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid my-4">
-    <div class="row mb-4">
-        <div class="col">
-            <div class="d-flex justify-content-between align-items-center">
-                <h1 class="display-5">Asset Location Map</h1>
-                <div class="btn-group">
-                    <button type="button" class="btn btn-outline-primary" id="refreshMapBtn">
-                        <i class="bi bi-arrow-clockwise me-1"></i> Refresh Map
-                    </button>
-                    <button type="button" class="btn btn-outline-success" id="createGeofenceBtn">
-                        <i class="bi bi-geo-alt me-1"></i> Create Geofence
-                    </button>
-                </div>
+<div class="container pt-4">
+  <h1 class="mb-4">Asset Map Dashboard</h1>
+  
+  <div class="row">
+    <div class="col-md-9">
+      <div class="card mb-4">
+        <div class="card-header">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Equipment Location Map</h5>
+            <div>
+              <input type="date" id="date-picker" class="form-control form-control-sm" value="{{ date }}">
             </div>
+          </div>
         </div>
+        <div class="card-body p-0">
+          <div id="map-container"></div>
+        </div>
+      </div>
     </div>
-
-    <div class="row">
-        <div class="col-md-3">
-            <div class="card mb-4">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0"><i class="bi bi-funnel me-1"></i> Map Filters</h5>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label for="regionFilter" class="form-label">Region</label>
-                        <select class="form-select" id="regionFilter">
-                            <option value="all">All Regions</option>
-                            <option value="DFW">DFW</option>
-                            <option value="HOU">HOU</option>
-                            <option value="WT">WT</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="categoryFilter" class="form-label">Asset Category</label>
-                        <select class="form-select" id="categoryFilter">
-                            <option value="all">All Categories</option>
-                            <option value="Heavy Equipment">Heavy Equipment</option>
-                            <option value="Light Equipment">Light Equipment</option>
-                            <option value="Vehicle">Vehicle</option>
-                            <option value="Tool">Tool</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="statusFilter" class="form-label">Status</label>
-                        <select class="form-select" id="statusFilter">
-                            <option value="all">All Statuses</option>
-                            <option value="Available">Available</option>
-                            <option value="In Use">In Use</option>
-                            <option value="Maintenance">Maintenance</option>
-                            <option value="Out of Service">Out of Service</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="assetSearch" class="form-label">Search</label>
-                        <input type="text" class="form-control" id="assetSearch" placeholder="Search by ID or description...">
-                    </div>
-                    <hr>
-                    <div class="mb-3">
-                        <h6 class="mb-2">Geofences</h6>
-                        <div class="list-group" id="geofenceList">
-                            <div class="list-group-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    <i class="bi bi-geo-fill text-primary me-2"></i>
-                                    <span>DFW HQ</span>
-                                </div>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="geofence1" checked>
-                                </div>
-                            </div>
-                            <div class="list-group-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    <i class="bi bi-geo-fill text-success me-2"></i>
-                                    <span>Houston Yard</span>
-                                </div>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="geofence2" checked>
-                                </div>
-                            </div>
-                            <div class="list-group-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    <i class="bi bi-geo-fill text-warning me-2"></i>
-                                    <span>West Texas Site</span>
-                                </div>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="geofence3" checked>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0"><i class="bi bi-info-circle me-1"></i> Map Statistics</h5>
-                </div>
-                <div class="card-body">
-                    <div class="mb-2">
-                        <strong>Assets Displayed:</strong> <span id="assetsCount">0</span>
-                    </div>
-                    <div class="mb-2">
-                        <strong>Active Geofences:</strong> <span id="geofencesCount">3</span>
-                    </div>
-                    <div class="mb-2">
-                        <strong>Assets Outside Geofence:</strong> <span id="outsideGeofenceCount">0</span>
-                    </div>
-                    <div class="mt-3">
-                        <div class="alert alert-info">
-                            <i class="bi bi-info-circle-fill me-2"></i>
-                            <small>Last updated: <span id="lastUpdated">{{ now().strftime('%m/%d/%Y %H:%M:%S') }}</span></small>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    
+    <div class="col-md-3">
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">Filters</h5>
         </div>
-
-        <div class="col-md-9">
-            <div class="card h-100">
-                <div class="card-header bg-light">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><i class="bi bi-geo-alt me-1"></i> Asset Map</h5>
-                        <div class="btn-group btn-group-sm">
-                            <button type="button" class="btn btn-outline-secondary" id="zoomInBtn">
-                                <i class="bi bi-zoom-in"></i>
-                            </button>
-                            <button type="button" class="btn btn-outline-secondary" id="zoomOutBtn">
-                                <i class="bi bi-zoom-out"></i>
-                            </button>
-                            <button type="button" class="btn btn-outline-secondary" id="centerMapBtn">
-                                <i class="bi bi-fullscreen"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-body p-0">
-                    <div id="assetMap" style="width: 100%; height: 700px;"></div>
-                </div>
+        <div class="card-body">
+          <div class="filter-controls">
+            <div class="form-group">
+              <label for="division-filter">Division:</label>
+              <select id="division-filter" class="form-control">
+                <option value="all">All Divisions</option>
+                <option value="Houston">Houston</option>
+                <option value="DFW">DFW</option>
+                <option value="West Texas">West Texas</option>
+              </select>
             </div>
+            
+            <div class="form-check mt-3">
+              <input class="form-check-input" type="checkbox" id="show-disposed" checked>
+              <label class="form-check-label" for="show-disposed">
+                Show Disposed Assets
+              </label>
+            </div>
+          </div>
+          
+          <div class="asset-summary mt-4">
+            <h6>Asset Summary</h6>
+            <div id="asset-count" class="text-center py-3">
+              <div class="spinner-border spinner-border-sm" role="status">
+                <span class="sr-only">Loading...</span>
+              </div>
+              <p class="mb-0 mt-2">Loading asset data...</p>
+            </div>
+          </div>
         </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Legend</h5>
+        </div>
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-2">
+            <span class="status-badge status-active mr-2">Active</span>
+            <span class="ml-2">Equipment currently in use</span>
+          </div>
+          <div class="d-flex align-items-center mb-2">
+            <span class="status-badge status-disposed mr-2">Disposed</span>
+            <span class="ml-2">Equipment no longer in service</span>
+          </div>
+          <div class="d-flex align-items-center">
+            <span class="status-badge status-unknown mr-2">Unknown</span>
+            <span class="ml-2">Status could not be determined</span>
+          </div>
+        </div>
+      </div>
     </div>
-
-    <!-- Asset Info Modal -->
-    <div class="modal fade" id="assetInfoModal" tabindex="-1" aria-labelledby="assetInfoModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="assetInfoModalLabel">Asset Information</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="d-flex align-items-center mb-3">
-                        <span class="badge bg-primary p-2 me-2">
-                            <i class="bi bi-truck fs-4"></i>
-                        </span>
-                        <div>
-                            <h5 id="assetIdLabel" class="mb-0">PT-4921</h5>
-                            <span id="assetCategoryLabel" class="text-muted">Heavy Equipment</span>
-                        </div>
-                    </div>
-                    <div class="mb-2">
-                        <strong>Description:</strong> <span id="assetDescriptionLabel">Caterpillar 320 Excavator</span>
-                    </div>
-                    <div class="mb-2">
-                        <strong>Status:</strong> <span id="assetStatusLabel" class="badge bg-success">Available</span>
-                    </div>
-                    <div class="mb-2">
-                        <strong>Location:</strong> <span id="assetLocationLabel">DFW-Site-34</span>
-                    </div>
-                    <div class="mb-2">
-                        <strong>Coordinates:</strong> <span id="assetCoordsLabel">32.7767, -96.7970</span>
-                    </div>
-                    <div class="mb-2">
-                        <strong>Last Updated:</strong> <span id="assetUpdateLabel">05/17/2025 09:45 AM</span>
-                    </div>
-                    <hr>
-                    <div class="mb-2">
-                        <strong>Current Driver:</strong> <span id="assetDriverLabel">John Smith</span>
-                    </div>
-                    <div class="mb-2">
-                        <strong>Engine Hours:</strong> <span id="assetEngineHoursLabel">1,245.6 hrs</span>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <a href="#" id="assetDetailsBtn" class="btn btn-primary">View Details</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Create Geofence Modal -->
-    <div class="modal fade" id="createGeofenceModal" tabindex="-1" aria-labelledby="createGeofenceModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="createGeofenceModalLabel">Create New Geofence</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle-fill me-2"></i>
-                        Draw a geofence on the map by clicking to add points. Complete the shape by connecting back to the starting point.
-                    </div>
-                    <div class="mb-3">
-                        <label for="geofenceName" class="form-label">Geofence Name</label>
-                        <input type="text" class="form-control" id="geofenceName" placeholder="Enter name for this geofence">
-                    </div>
-                    <div class="mb-3">
-                        <label for="geofenceType" class="form-label">Type</label>
-                        <select class="form-select" id="geofenceType">
-                            <option value="jobsite">Job Site</option>
-                            <option value="yard">Equipment Yard</option>
-                            <option value="office">Office</option>
-                            <option value="restricted">Restricted Area</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="geofenceColor" class="form-label">Color</label>
-                        <select class="form-select" id="geofenceColor">
-                            <option value="primary">Blue</option>
-                            <option value="success">Green</option>
-                            <option value="danger">Red</option>
-                            <option value="warning">Yellow</option>
-                            <option value="info">Cyan</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="geofenceNotes" class="form-label">Notes</label>
-                        <textarea class="form-control" id="geofenceNotes" rows="3" placeholder="Optional notes about this geofence"></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="saveGeofenceBtn">Save Geofence</button>
-                </div>
-            </div>
-        </div>
-    </div>
+  </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
-<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+{{ super() }}
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin="anonymous"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize map
-        const map = L.map('assetMap').setView([32.7767, -96.7970], 10); // Dallas-Fort Worth area
-
-        // Add tile layer (OpenStreetMap)
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-
-        // Sample asset data - in production would come from API
-        const assets = [
-            {
-                id: 'PT-4921',
-                lat: 32.7767,
-                lng: -96.7970,
-                description: 'Caterpillar 320 Excavator',
-                category: 'Heavy Equipment',
-                status: 'Available',
-                location: 'DFW-Site-34',
-                lastUpdated: '05/17/2025 09:45 AM',
-                driver: 'John Smith',
-                engineHours: '1,245.6 hrs'
-            },
-            {
-                id: 'ET-1204',
-                lat: 32.8242,
-                lng: -96.8714,
-                description: 'Bobcat Skid Steer',
-                category: 'Light Equipment',
-                status: 'In Use',
-                location: 'DFW-Site-12',
-                lastUpdated: '05/17/2025 08:30 AM',
-                driver: 'Maria Rodriguez',
-                engineHours: '876.2 hrs'
-            },
-            {
-                id: 'VH-3302',
-                lat: 29.7604,
-                lng: -95.3698,
-                description: 'Ford F-250 Pickup Truck',
-                category: 'Vehicle',
-                status: 'In Use',
-                location: 'HOU-Site-05',
-                lastUpdated: '05/16/2025 05:15 PM',
-                driver: 'Robert Johnson',
-                engineHours: '24,156.8 hrs'
-            },
-            {
-                id: 'ET-1187',
-                lat: 29.7340,
-                lng: -95.4090,
-                description: 'Multiquip Generator',
-                category: 'Light Equipment',
-                status: 'Maintenance',
-                location: 'HOU-Site-08',
-                lastUpdated: '05/15/2025 10:20 AM',
-                driver: 'N/A',
-                engineHours: '3,567.4 hrs'
-            },
-            {
-                id: 'PT-3302',
-                lat: 32.4487,
-                lng: -99.7337,
-                description: 'Komatsu Bulldozer',
-                category: 'Heavy Equipment',
-                status: 'Available',
-                location: 'WT-Site-02',
-                lastUpdated: '05/17/2025 07:15 AM',
-                driver: 'Michael Williams',
-                engineHours: '2,098.1 hrs'
-            }
-        ];
-
-        // Sample geofence data - in production would come from database
-        const geofences = [
-            {
-                id: 1,
-                name: 'DFW HQ',
-                type: 'office',
-                color: 'primary',
-                coordinates: [
-                    [32.7767, -96.7970],
-                    [32.7787, -96.7950],
-                    [32.7787, -96.7990],
-                    [32.7747, -96.7990]
-                ]
-            },
-            {
-                id: 2,
-                name: 'Houston Yard',
-                type: 'yard',
-                color: 'success',
-                coordinates: [
-                    [29.7604, -95.3698],
-                    [29.7624, -95.3678],
-                    [29.7624, -95.3718],
-                    [29.7584, -95.3718]
-                ]
-            },
-            {
-                id: 3,
-                name: 'West Texas Site',
-                type: 'jobsite',
-                color: 'warning',
-                coordinates: [
-                    [32.4487, -99.7337],
-                    [32.4507, -99.7317],
-                    [32.4507, -99.7357],
-                    [32.4467, -99.7357]
-                ]
-            }
-        ];
-
-        // Asset markers and layers
-        const markers = {};
-        const markerLayer = L.layerGroup().addTo(map);
-        const geofenceLayer = L.layerGroup().addTo(map);
-
-        // Helper function to get marker icon based on asset category
-        function getMarkerIcon(category, status) {
-            let color = 'blue';
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize map
+    const map = L.map('map-container').setView([32.7767, -96.7970], 9); // Dallas area
+    
+    // Add tile layer (OpenStreetMap)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+    
+    // Asset markers layer group
+    const markersLayer = L.layerGroup().addTo(map);
+    
+    // Load asset data
+    function loadAssetData(date) {
+      fetch(`/asset-map/api/assets?date=${date}`)
+        .then(response => response.json())
+        .then(data => {
+          // Clear existing markers
+          markersLayer.clearLayers();
+          
+          // Update asset count
+          document.getElementById('asset-count').innerHTML = `
+            <div class="h3 mb-0">${data.length}</div>
+            <p class="text-muted mb-0">Total Assets</p>
+          `;
+          
+          // Add markers for each asset
+          data.forEach(asset => {
+            if (!asset.latitude || !asset.longitude) return;
             
-            if (status === 'Available') {
-                color = 'green';
-            } else if (status === 'In Use') {
-                color = 'blue';
-            } else if (status === 'Maintenance') {
-                color = 'orange';
-            } else if (status === 'Out of Service') {
-                color = 'red';
-            }
-            
-            return L.divIcon({
-                className: 'custom-marker-icon',
-                html: `<div class="marker-icon bg-${color} text-white">
-                        ${category === 'Heavy Equipment' ? '<i class="bi bi-truck"></i>' : 
-                          category === 'Light Equipment' ? '<i class="bi bi-tools"></i>' : 
-                          category === 'Vehicle' ? '<i class="bi bi-car-front"></i>' : 
-                          '<i class="bi bi-gear"></i>'}
-                       </div>`,
-                iconSize: [30, 30],
-                iconAnchor: [15, 15]
-            });
-        }
-
-        // Add assets to map
-        function addAssetsToMap() {
-            markerLayer.clearLayers();
-            let visibleAssets = 0;
-            let outsideGeofence = 0;
-            
-            assets.forEach(asset => {
-                // Check if asset passes filters
-                if (passesFilters(asset)) {
-                    visibleAssets++;
-                    
-                    // Check if inside any geofence
-                    let insideGeofence = false;
-                    geofences.forEach(geofence => {
-                        if (isPointInPolygon([asset.lat, asset.lng], geofence.coordinates)) {
-                            insideGeofence = true;
-                        }
-                    });
-                    
-                    if (!insideGeofence) {
-                        outsideGeofence++;
-                    }
-                    
-                    // Create marker
-                    const marker = L.marker([asset.lat, asset.lng], {
-                        icon: getMarkerIcon(asset.category, asset.status)
-                    }).addTo(markerLayer);
-                    
-                    // Add popup
-                    marker.bindTooltip(`${asset.id}: ${asset.description}`);
-                    
-                    // Add click handler
-                    marker.on('click', function() {
-                        showAssetInfo(asset);
-                    });
-                    
-                    markers[asset.id] = marker;
-                }
+            // Create marker
+            const marker = L.marker([asset.latitude, asset.longitude], {
+              title: asset.asset_id,
+              alt: asset.asset_id,
+              opacity: asset.status === 'disposed' ? 0.7 : 1
             });
             
-            // Update UI counts
-            document.getElementById('assetsCount').textContent = visibleAssets;
-            document.getElementById('outsideGeofenceCount').textContent = outsideGeofence;
-        }
-
-        // Filter assets based on UI selections
-        function passesFilters(asset) {
-            const regionFilter = document.getElementById('regionFilter').value;
-            const categoryFilter = document.getElementById('categoryFilter').value;
-            const statusFilter = document.getElementById('statusFilter').value;
-            const searchText = document.getElementById('assetSearch').value.toLowerCase();
-            
-            // Check region
-            if (regionFilter !== 'all') {
-                if (!asset.location.startsWith(regionFilter)) {
-                    return false;
-                }
-            }
-            
-            // Check category
-            if (categoryFilter !== 'all' && asset.category !== categoryFilter) {
-                return false;
-            }
-            
-            // Check status
-            if (statusFilter !== 'all' && asset.status !== statusFilter) {
-                return false;
-            }
-            
-            // Check search text
-            if (searchText && !(
-                asset.id.toLowerCase().includes(searchText) || 
-                asset.description.toLowerCase().includes(searchText)
-            )) {
-                return false;
-            }
-            
-            return true;
-        }
-
-        // Draw geofences on map
-        function drawGeofences() {
-            geofenceLayer.clearLayers();
-            let activeGeofences = 0;
-            
-            geofences.forEach(geofence => {
-                const checkboxId = `geofence${geofence.id}`;
-                const checkbox = document.getElementById(checkboxId);
-                
-                if (!checkbox || checkbox.checked) {
-                    activeGeofences++;
-                    
-                    const polygon = L.polygon(geofence.coordinates, {
-                        color: getColorClass(geofence.color),
-                        fillOpacity: 0.2
-                    }).addTo(geofenceLayer);
-                    
-                    polygon.bindTooltip(geofence.name);
-                }
-            });
-            
-            document.getElementById('geofencesCount').textContent = activeGeofences;
-        }
-
-        // Helper to convert color name to hex
-        function getColorClass(colorName) {
-            const colorMap = {
-                'primary': '#0d6efd',
-                'success': '#198754',
-                'danger': '#dc3545',
-                'warning': '#ffc107',
-                'info': '#0dcaf0'
-            };
-            
-            return colorMap[colorName] || '#0d6efd';
-        }
-
-        // Show asset info in modal
-        function showAssetInfo(asset) {
-            document.getElementById('assetIdLabel').textContent = asset.id;
-            document.getElementById('assetCategoryLabel').textContent = asset.category;
-            document.getElementById('assetDescriptionLabel').textContent = asset.description;
-            
-            const statusBadge = document.getElementById('assetStatusLabel');
-            statusBadge.textContent = asset.status;
-            statusBadge.className = 'badge';
-            
-            if (asset.status === 'Available') {
-                statusBadge.classList.add('bg-success');
-            } else if (asset.status === 'In Use') {
-                statusBadge.classList.add('bg-primary');
-            } else if (asset.status === 'Maintenance') {
-                statusBadge.classList.add('bg-warning');
-            } else if (asset.status === 'Out of Service') {
-                statusBadge.classList.add('bg-danger');
-            } else {
-                statusBadge.classList.add('bg-secondary');
-            }
-            
-            document.getElementById('assetLocationLabel').textContent = asset.location;
-            document.getElementById('assetCoordsLabel').textContent = `${asset.lat}, ${asset.lng}`;
-            document.getElementById('assetUpdateLabel').textContent = asset.lastUpdated;
-            document.getElementById('assetDriverLabel').textContent = asset.driver;
-            document.getElementById('assetEngineHoursLabel').textContent = asset.engineHours;
-            
-            document.getElementById('assetDetailsBtn').href = `/asset-details/${asset.id}`;
-            
-            const modal = new bootstrap.Modal(document.getElementById('assetInfoModal'));
-            modal.show();
-        }
-
-        // Helper to check if a point is inside a polygon
-        function isPointInPolygon(point, polygon) {
-            let inside = false;
-            for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-                const xi = polygon[i][0], yi = polygon[i][1];
-                const xj = polygon[j][0], yj = polygon[j][1];
-                
-                const intersect = ((yi > point[0]) !== (yj > point[0])) &&
-                    (point[1] < (xj - xi) * (point[0] - yi) / (yj - yi) + xi);
-                    
-                if (intersect) inside = !inside;
-            }
-            return inside;
-        }
-
-        // Event listeners
-        document.getElementById('refreshMapBtn').addEventListener('click', function() {
-            addAssetsToMap();
-            document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
-        });
-
-        document.getElementById('zoomInBtn').addEventListener('click', function() {
-            map.zoomIn();
-        });
-
-        document.getElementById('zoomOutBtn').addEventListener('click', function() {
-            map.zoomOut();
-        });
-
-        document.getElementById('centerMapBtn').addEventListener('click', function() {
-            const bounds = L.latLngBounds();
-            markerLayer.eachLayer(function(layer) {
-                bounds.extend(layer.getLatLng());
-            });
-            
-            if (!bounds.isValid()) {
-                map.setView([32.7767, -96.7970], 10); // Default center
-            } else {
-                map.fitBounds(bounds);
-            }
-        });
-
-        // Filter event listeners
-        document.getElementById('regionFilter').addEventListener('change', addAssetsToMap);
-        document.getElementById('categoryFilter').addEventListener('change', addAssetsToMap);
-        document.getElementById('statusFilter').addEventListener('change', addAssetsToMap);
-        document.getElementById('assetSearch').addEventListener('input', addAssetsToMap);
-
-        // Geofence checkboxes
-        document.querySelectorAll('#geofenceList input[type="checkbox"]').forEach(checkbox => {
-            checkbox.addEventListener('change', drawGeofences);
-        });
-
-        // Create geofence
-        let drawingMode = false;
-        let currentPolygon = null;
-        let currentPoints = [];
-
-        document.getElementById('createGeofenceBtn').addEventListener('click', function() {
-            const modal = new bootstrap.Modal(document.getElementById('createGeofenceModal'));
-            modal.show();
-            
-            drawingMode = true;
-            currentPoints = [];
-            
-            if (currentPolygon) {
-                map.removeLayer(currentPolygon);
-            }
-            
-            map.once('click', startDrawing);
-        });
-
-        function startDrawing(e) {
-            const latlng = e.latlng;
-            currentPoints.push([latlng.lat, latlng.lng]);
-            
-            currentPolygon = L.polygon([currentPoints], {
-                color: '#0d6efd',
-                fillOpacity: 0.2
-            }).addTo(map);
-            
-            map.on('click', continueDrawing);
-        }
-
-        function continueDrawing(e) {
-            const latlng = e.latlng;
-            currentPoints.push([latlng.lat, latlng.lng]);
-            
-            map.removeLayer(currentPolygon);
-            currentPolygon = L.polygon([currentPoints], {
-                color: '#0d6efd',
-                fillOpacity: 0.2
-            }).addTo(map);
-            
-            if (currentPoints.length >= 3) {
-                // Allow completion by clicking near the first point
-                const firstPoint = L.latLng(currentPoints[0][0], currentPoints[0][1]);
-                if (firstPoint.distanceTo(latlng) < 50) { // Within 50 meters
-                    completeDrawing();
-                }
-            }
-        }
-
-        function completeDrawing() {
-            map.off('click', continueDrawing);
-            drawingMode = false;
-        }
-
-        document.getElementById('saveGeofenceBtn').addEventListener('click', function() {
-            const name = document.getElementById('geofenceName').value;
-            const type = document.getElementById('geofenceType').value;
-            const color = document.getElementById('geofenceColor').value;
-            const notes = document.getElementById('geofenceNotes').value;
-            
-            if (!name) {
-                alert('Please enter a name for the geofence');
-                return;
-            }
-            
-            if (currentPoints.length < 3) {
-                alert('Please draw a valid geofence on the map');
-                return;
-            }
-            
-            // Add new geofence
-            const newGeofence = {
-                id: geofences.length + 1,
-                name: name,
-                type: type,
-                color: color,
-                coordinates: currentPoints,
-                notes: notes
-            };
-            
-            geofences.push(newGeofence);
-            
-            // Add to UI list
-            const geofenceList = document.getElementById('geofenceList');
-            const listItem = document.createElement('div');
-            listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
-            listItem.innerHTML = `
-                <div>
-                    <i class="bi bi-geo-fill text-${color} me-2"></i>
-                    <span>${name}</span>
-                </div>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="geofence${newGeofence.id}" checked>
-                </div>
+            // Create popup content
+            const popupContent = `
+              <div class="asset-popup">
+                <h5>${asset.asset_id}</h5>
+                <p><strong>Status:</strong> <span class="status-badge status-${asset.status}">${asset.status}</span></p>
+                <p><strong>Driver:</strong> ${asset.driver_id || 'None'}</p>
+                <p><strong>Location:</strong> ${asset.location || 'Unknown'}</p>
+                <p><strong>Source:</strong> ${asset.location_source || 'Unknown'}</p>
+                <p class="text-muted small">Last updated: ${new Date(asset.last_updated).toLocaleString()}</p>
+              </div>
             `;
             
-            geofenceList.appendChild(listItem);
+            // Add popup to marker
+            marker.bindPopup(popupContent);
             
-            // Add event listener to new checkbox
-            document.getElementById(`geofence${newGeofence.id}`).addEventListener('change', drawGeofences);
-            
-            // Redraw geofences
-            drawGeofences();
-            
-            // Hide modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById('createGeofenceModal'));
-            modal.hide();
-            
-            // Reset drawing
-            map.removeLayer(currentPolygon);
-            currentPolygon = null;
-            currentPoints = [];
+            // Add marker to layer group
+            markersLayer.addLayer(marker);
+          });
+          
+          // Fit map to markers if we have any
+          if (data.length > 0) {
+            const bounds = L.featureGroup(markersLayer.getLayers()).getBounds();
+            map.fitBounds(bounds, { padding: [50, 50] });
+          }
+        })
+        .catch(error => {
+          console.error('Error loading asset data:', error);
+          document.getElementById('asset-count').innerHTML = `
+            <div class="text-danger">Error</div>
+            <p class="text-muted mb-0">Could not load asset data</p>
+          `;
         });
-
-        // Initialize
-        addAssetsToMap();
-        drawGeofences();
+    }
+    
+    // Initialize with current date
+    const datePicker = document.getElementById('date-picker');
+    loadAssetData(datePicker.value);
+    
+    // Update on date change
+    datePicker.addEventListener('change', function() {
+      loadAssetData(this.value);
     });
+    
+    // Filter functionality
+    document.getElementById('division-filter').addEventListener('change', function() {
+      const division = this.value;
+      // Implementation would filter markers based on division
+      // For now, this is a placeholder
+    });
+    
+    document.getElementById('show-disposed').addEventListener('change', function() {
+      const showDisposed = this.checked;
+      // Implementation would show/hide disposed assets
+      // For now, this is a placeholder
+    });
+  });
 </script>
-<style>
-    .custom-marker-icon {
-        text-align: center;
-    }
-    .marker-icon {
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 16px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    }
-</style>
 {% endblock %}

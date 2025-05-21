@@ -1,0 +1,23 @@
+TRAXORA GENIUS CORE | STREAMLINED PIPELINE TRACE MANIFEST
+Date: 2025-05-16
+Generated: 2025-05-21T12:31:59.501404
+================================================================================
+
+WORKBOOK LOGIC HIERARCHY
+================================================================================
+1. Asset List - PRIMARY RELATIONAL SOURCE OF TRUTH
+2. Start Time & Job - DERIVED DATA (not standalone source)
+3. Driving History - TELEMATICS VERIFICATION
+4. Activity Detail - LOCATION VALIDATION
+
+CLASSIFICATION RESULTS
+================================================================================
+Total Drivers: 192
+On Time: 0
+Late: 0
+Early End: 0
+Not On Job: 192
+Unmatched: 14
+
+TEST DATA DETECTED
+================================================================================

@@ -395,7 +395,7 @@ def process_pipeline(date_str):
                 'generated': datetime.now().isoformat(),
                 'verification_mode': 'GENIUS CORE CONTINUITY STANDARD',
                 'is_test_data': results['is_test_data'],
-                'test_drivers_count': results['stats']['test_drivers'],
+                'test_drivers_count': len(driving_history_drivers) if results['is_test_data'] else 0,
                 'workbook_logic_hierarchy': [
                     'Asset List (primary relational source of truth)',
                     'Start Time & Job (derived data, not standalone)',

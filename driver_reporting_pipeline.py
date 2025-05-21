@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 Driver Reporting Pipeline
 
@@ -11,25 +12,25 @@ import json
 import logging
 import argparse
 from datetime import datetime, timedelta
-import traceback
-
-# Import utility modules
-from utils.data_audit import audit_source_data, compare_pre_post_join, audit_status_mapping
-from utils.consistency_engine import compute_driver_status, build_driver_summary, generate_daily_report
-from utils.attendance_pipeline_connector import get_attendance_data, get_trend_data, get_source_data_paths
-from utils.export_sync import sync_exports, update_report_links, process_specific_date
-from utils.email_service import email_daily_report, get_user_email_config
+from pathlib import Path
 
 # Set up logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+)
 logger = logging.getLogger(__name__)
-file_handler = logging.FileHandler('logs/driver_reporting_pipeline.log')
-file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-logger.addHandler(file_handler)
 
-# Ensure directories exist
-for directory in ['logs', 'exports', 'exports/daily_reports', 'exports/pdf_reports', 'exports/excel_reports', 'data']:
-    os.makedirs(directory, exist_ok=True)
+# Ensure logs directory exists
+Path('logs').mkdir(exist_ok=True)
+
+# Import our custom modules
+try:
+    from utils.email_service import send_daily_report_email, validate_email_recipients
+except ImportError:
+    logger.error("Failed to import email_service module. Make sure it's available.")
+    sys.exit(1)
+
 
 def process_date(date_str, force_refresh=False, email_report=False, recipients=None):
     """
@@ -39,80 +40,82 @@ def process_date(date_str, force_refresh=False, email_report=False, recipients=N
         date_str (str): Date in YYYY-MM-DD format
         force_refresh (bool): Force refresh of cached data
         email_report (bool): Send email with report
-        recipients (str): Comma-separated list of email recipients
+        recipients (list): List of email recipients
         
     Returns:
         dict: Processing results
     """
-    logger.info(f"Processing date {date_str}")
-    try:
-        # Step 1: Get attendance data (processes data if not cached, or if force_refresh=True)
-        if force_refresh:
-            logger.info(f"Forcing refresh of attendance data for {date_str}")
-            # Remove cached data if exists
-            cached_file = f"exports/daily_reports/daily_report_{date_str}.json"
-            if os.path.exists(cached_file):
-                os.remove(cached_file)
-        
-        # Process attendance data
-        attendance_data = get_attendance_data(date_str)
-        
-        if not attendance_data:
-            logger.error(f"Failed to retrieve attendance data for {date_str}")
-            return {
-                'status': 'error',
-                'message': f"Failed to retrieve attendance data for {date_str}"
-            }
-        
-        # Step 2: Sync exports (PDF, Excel)
-        export_paths = sync_exports(date_str, attendance_data)
-        
-        if not export_paths:
-            logger.error(f"Failed to sync exports for {date_str}")
-            return {
-                'status': 'error',
-                'message': f"Failed to sync exports for {date_str}"
-            }
-        
-        # Step 3: Update report links in JSON
-        update_status = update_report_links(date_str, export_paths)
-        
-        if not update_status:
-            logger.warning(f"Failed to update report links for {date_str}")
-        
-        # Step 4: Send email if requested
-        if email_report:
-            email_config = get_user_email_config()
-            
-            # Override recipients if provided
-            if recipients:
-                email_config['recipients'] = recipients
-            
-            email_result = email_daily_report(date_str, email_config)
-            
-            if email_result.get('success', False):
-                logger.info(f"Successfully sent email report for {date_str}")
-            else:
-                logger.error(f"Failed to send email report: {email_result.get('message', 'Unknown error')}")
-                
-            return {
-                'status': 'success',
-                'export_paths': export_paths,
-                'email_status': email_result
-            }
-        
-        return {
-            'status': 'success',
-            'export_paths': export_paths
-        }
+    logger.info(f"Starting pipeline processing for date: {date_str}")
     
+    try:
+        # Import simple_processor here to avoid circular imports
+        sys.path.append('.')
+        from simple_processor import process_date as simple_process
+        
+        # Process the date
+        report_data = simple_process(date_str)
+        
+        if not report_data:
+            logger.error(f"Failed to process date: {date_str}")
+            return None
+            
+        # Create output directory
+        output_dir = Path('reports/daily_drivers')
+        output_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Determine if files already exist and if we should overwrite
+        json_file = output_dir / f'daily_report_{date_str}.json'
+        excel_file = output_dir / f'daily_report_{date_str}.xlsx'
+        
+        if json_file.exists() and excel_file.exists() and not force_refresh:
+            logger.info(f"Using existing report files for {date_str}")
+            
+            # Load existing report
+            with open(json_file, 'r') as f:
+                report_data = json.load(f)
+        else:
+            # Import pandas here to avoid including it in the global scope
+            import pandas as pd
+            
+            # Save as JSON
+            with open(json_file, 'w') as f:
+                json.dump(report_data, f, indent=2)
+                
+            # Save as Excel
+            df = pd.DataFrame(report_data['drivers'])
+            df.to_excel(excel_file, index=False)
+            
+            logger.info(f"Saved report files for {date_str}")
+        
+        # Print summary information
+        summary = report_data.get('summary', {})
+        logger.info(f"Report summary for {date_str}:")
+        logger.info(f"Total drivers: {summary.get('total', 0)}")
+        logger.info(f"Late: {summary.get('late', 0)}")
+        logger.info(f"Early End: {summary.get('early_end', 0)}")
+        logger.info(f"Not On Job: {summary.get('not_on_job', 0)}")
+        logger.info(f"On Time: {summary.get('on_time', 0)}")
+        
+        # Send email if requested
+        if email_report:
+            if recipients is None:
+                recipients = []
+                
+            result = send_daily_report_email(date_str, recipients)
+            
+            if result:
+                logger.info(f"Email sent for {date_str}")
+            else:
+                logger.error(f"Failed to send email for {date_str}")
+        
+        return report_data
+        
     except Exception as e:
-        logger.error(f"Error processing date {date_str}: {e}")
+        logger.error(f"Error processing date {date_str}: {str(e)}")
+        import traceback
         logger.error(traceback.format_exc())
-        return {
-            'status': 'error',
-            'message': str(e)
-        }
+        return None
+
 
 def process_date_range(start_date, end_date, force_refresh=False, email_report=False, recipients=None):
     """
@@ -123,30 +126,38 @@ def process_date_range(start_date, end_date, force_refresh=False, email_report=F
         end_date (str): End date in YYYY-MM-DD format
         force_refresh (bool): Force refresh of cached data
         email_report (bool): Send email with report
-        recipients (str): Comma-separated list of email recipients
+        recipients (list): List of email recipients
         
     Returns:
         dict: Processing results by date
     """
-    logger.info(f"Processing date range {start_date} to {end_date}")
+    logger.info(f"Processing date range: {start_date} to {end_date}")
     
-    results = {}
-    
-    start_date_obj = datetime.strptime(start_date, '%Y-%m-%d')
-    end_date_obj = datetime.strptime(end_date, '%Y-%m-%d')
-    
-    current_date = start_date_obj
-    while current_date <= end_date_obj:
-        date_str = current_date.strftime('%Y-%m-%d')
+    try:
+        # Parse dates
+        start = datetime.strptime(start_date, '%Y-%m-%d')
+        end = datetime.strptime(end_date, '%Y-%m-%d')
         
+        # Ensure start date is before end date
+        if start > end:
+            start, end = end, start
+            
         # Process each date
-        result = process_date(date_str, force_refresh, email_report, recipients)
-        results[date_str] = result
+        results = {}
+        current = start
         
-        # Go to next date
-        current_date += timedelta(days=1)
-    
-    return results
+        while current <= end:
+            date_str = current.strftime('%Y-%m-%d')
+            result = process_date(date_str, force_refresh, email_report, recipients)
+            results[date_str] = result
+            current += timedelta(days=1)
+            
+        return results
+        
+    except Exception as e:
+        logger.error(f"Error processing date range: {str(e)}")
+        return {}
+
 
 def list_available_dates():
     """
@@ -155,35 +166,54 @@ def list_available_dates():
     Returns:
         list: Available dates in YYYY-MM-DD format
     """
-    # Get all source data paths (without date filter)
-    source_files = get_source_data_paths()
-    
-    # Extract dates from filenames
     available_dates = set()
     
-    for category, files in source_files.items():
-        for file_path in files:
-            # Extract potential dates from filename
-            filename = os.path.basename(file_path)
-            
-            # Try different date formats
-            for date_format in ['%Y-%m-%d', '%Y%m%d', '%m-%d-%Y', '%m/%d/%Y']:
-                try:
-                    # For each format, try sliding window approach
-                    for i in range(len(filename) - 8):
-                        potential_date = filename[i:i+10]  # Assuming YYYY-MM-DD or similar length
-                        try:
-                            date_obj = datetime.strptime(potential_date, date_format)
-                            # Only consider reasonable dates (last 5 years)
-                            if date_obj.year > datetime.now().year - 5:
-                                available_dates.add(date_obj.strftime('%Y-%m-%d'))
-                        except ValueError:
-                            continue
-                except Exception:
-                    continue
+    # Check for driving history files
+    driving_dir = Path('data/driving_history')
+    if driving_dir.exists():
+        for file in driving_dir.glob('driving_history_*.csv'):
+            try:
+                date_str = file.name.replace('driving_history_', '').replace('.csv', '')
+                if validate_date_str(date_str):
+                    available_dates.add(date_str)
+            except:
+                pass
     
-    # Sort dates
+    # Check for activity detail files
+    activity_dir = Path('data/activity_detail')
+    if activity_dir.exists():
+        for file in activity_dir.glob('activity_detail_*.csv'):
+            try:
+                date_str = file.name.replace('activity_detail_', '').replace('.csv', '')
+                if validate_date_str(date_str):
+                    available_dates.add(date_str)
+            except:
+                pass
+    
+    # Check for assets time on site files
+    assets_dir = Path('data/assets_time_on_site')
+    if assets_dir.exists():
+        for file in assets_dir.glob('assets_onsite_*.csv'):
+            try:
+                date_str = file.name.replace('assets_onsite_', '').replace('.csv', '')
+                if validate_date_str(date_str):
+                    available_dates.add(date_str)
+            except:
+                pass
+    
+    # Check for existing reports
+    reports_dir = Path('reports/daily_drivers')
+    if reports_dir.exists():
+        for file in reports_dir.glob('daily_report_*.json'):
+            try:
+                date_str = file.name.replace('daily_report_', '').replace('.json', '')
+                if validate_date_str(date_str):
+                    available_dates.add(date_str)
+            except:
+                pass
+    
     return sorted(list(available_dates))
+
 
 def validate_date_str(date_str):
     """
@@ -201,95 +231,86 @@ def validate_date_str(date_str):
     except ValueError:
         return False
 
+
 def main():
     """
     Main function to run the pipeline from command line
     """
-    parser = argparse.ArgumentParser(description="Driver Reporting Pipeline")
+    parser = argparse.ArgumentParser(description='Driver Reporting Pipeline')
+    subparsers = parser.add_subparsers(dest='command', help='Command to run')
     
-    # Date arguments
-    date_group = parser.add_mutually_exclusive_group()
-    date_group.add_argument('--date', type=str, help="Process a specific date (YYYY-MM-DD)")
-    date_group.add_argument('--range', type=str, nargs=2, metavar=('START_DATE', 'END_DATE'), 
-                          help="Process a date range (YYYY-MM-DD to YYYY-MM-DD)")
-    date_group.add_argument('--today', action='store_true', help="Process today's date")
-    date_group.add_argument('--yesterday', action='store_true', help="Process yesterday's date")
-    date_group.add_argument('--list-dates', action='store_true', help="List available dates with source data")
+    # List dates command
+    list_parser = subparsers.add_parser('list', help='List available dates')
     
-    # Processing options
-    parser.add_argument('--force', action='store_true', help="Force refresh of cached data")
-    parser.add_argument('--email', action='store_true', help="Send email with report")
-    parser.add_argument('--recipients', type=str, help="Comma-separated list of email recipients")
+    # Process date command
+    process_parser = subparsers.add_parser('process', help='Process a specific date')
+    process_parser.add_argument('date', help='Date in YYYY-MM-DD format')
+    process_parser.add_argument('--force', action='store_true', help='Force refresh of cached data')
+    process_parser.add_argument('--email', action='store_true', help='Send email with report')
+    process_parser.add_argument('--recipients', help='Comma-separated list of email recipients')
     
+    # Process range command
+    range_parser = subparsers.add_parser('range', help='Process a range of dates')
+    range_parser.add_argument('start_date', help='Start date in YYYY-MM-DD format')
+    range_parser.add_argument('end_date', help='End date in YYYY-MM-DD format')
+    range_parser.add_argument('--force', action='store_true', help='Force refresh of cached data')
+    range_parser.add_argument('--email', action='store_true', help='Send email with report')
+    range_parser.add_argument('--recipients', help='Comma-separated list of email recipients')
+    
+    # Parse arguments
     args = parser.parse_args()
     
-    # List available dates if requested
-    if args.list_dates:
-        available_dates = list_available_dates()
-        print(f"Available dates with source data ({len(available_dates)}):")
-        for date_str in available_dates:
-            print(f"  {date_str}")
-        return
+    # Run the appropriate command
+    if args.command == 'list':
+        dates = list_available_dates()
+        if dates:
+            print("Available dates:")
+            for date in dates:
+                print(f"  {date}")
+        else:
+            print("No available dates found.")
     
-    # Default to today if no date specified
-    if not args.date and not args.range and not args.today and not args.yesterday:
-        args.today = True
-    
-    # Process today
-    if args.today:
-        date_str = datetime.now().strftime('%Y-%m-%d')
-        print(f"Processing today's date: {date_str}")
-        result = process_date(date_str, args.force, args.email, args.recipients)
-        print(f"Result: {result['status']}")
-        if result['status'] == 'error':
-            print(f"Error: {result.get('message', 'Unknown error')}")
-        return
-    
-    # Process yesterday
-    if args.yesterday:
-        date_str = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
-        print(f"Processing yesterday's date: {date_str}")
-        result = process_date(date_str, args.force, args.email, args.recipients)
-        print(f"Result: {result['status']}")
-        if result['status'] == 'error':
-            print(f"Error: {result.get('message', 'Unknown error')}")
-        return
-    
-    # Process specific date
-    if args.date:
+    elif args.command == 'process':
+        # Validate date
         if not validate_date_str(args.date):
-            print(f"Invalid date format: {args.date}. Please use YYYY-MM-DD.")
+            print(f"Invalid date format: {args.date}")
             return
         
-        print(f"Processing date: {args.date}")
-        result = process_date(args.date, args.force, args.email, args.recipients)
-        print(f"Result: {result['status']}")
-        if result['status'] == 'error':
-            print(f"Error: {result.get('message', 'Unknown error')}")
-        return
+        # Process recipients
+        recipients = None
+        if args.recipients:
+            recipients = validate_email_recipients(args.recipients)
+        
+        # Process the date
+        result = process_date(args.date, args.force, args.email, recipients)
+        
+        if result:
+            print(f"Successfully processed {args.date}")
+        else:
+            print(f"Failed to process {args.date}")
     
-    # Process date range
-    if args.range:
-        start_date, end_date = args.range
-        
-        if not validate_date_str(start_date) or not validate_date_str(end_date):
-            print(f"Invalid date format in range. Please use YYYY-MM-DD.")
+    elif args.command == 'range':
+        # Validate dates
+        if not validate_date_str(args.start_date) or not validate_date_str(args.end_date):
+            print(f"Invalid date format: {args.start_date} or {args.end_date}")
             return
         
-        print(f"Processing date range: {start_date} to {end_date}")
-        results = process_date_range(start_date, end_date, args.force, args.email, args.recipients)
+        # Process recipients
+        recipients = None
+        if args.recipients:
+            recipients = validate_email_recipients(args.recipients)
         
-        # Print summary of results
-        print("\nProcessing Summary:")
-        success_count = sum(1 for result in results.values() if result['status'] == 'success')
-        error_count = sum(1 for result in results.values() if result['status'] == 'error')
-        print(f"Total: {len(results)}, Success: {success_count}, Errors: {error_count}")
+        # Process the date range
+        results = process_date_range(args.start_date, args.end_date, args.force, args.email, recipients)
         
-        if error_count > 0:
-            print("\nErrors:")
-            for date_str, result in results.items():
-                if result['status'] == 'error':
-                    print(f"  {date_str}: {result.get('message', 'Unknown error')}")
+        success_count = sum(1 for result in results.values() if result)
+        total_count = len(results)
+        
+        print(f"Successfully processed {success_count} of {total_count} dates")
+    
+    else:
+        parser.print_help()
+
 
 if __name__ == "__main__":
     main()

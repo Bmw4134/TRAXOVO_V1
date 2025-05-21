@@ -292,6 +292,9 @@ def daily_report():
         # Get date parameter with safe fallback
         date_str = request.args.get('date')
         
+        # Check if MTD ingestion mode is requested
+        use_mtd = request.args.get('use_mtd') == 'true'
+        
         # If no date provided, find the most recent report
         if not date_str:
             # Check exports directory for the latest report
@@ -308,6 +311,68 @@ def daily_report():
                 date_str = datetime.now().strftime('%Y-%m-%d')
                 
         logger.info(f"Using report date: {date_str}")
+        
+        # Process MTD ingestion if requested
+        if use_mtd:
+            try:
+                logger.info(f"Activating GENIUS CORE SMART MTD INGESTION MODE for date: {date_str}")
+                
+                # Import and initialize MTD processor
+                from genius_core_mtd import GeniusCoreMTDProcessor
+                mtd_processor = GeniusCoreMTDProcessor()
+                
+                # Process MTD files for the target date
+                mtd_result = mtd_processor.process_date(date_str)
+                
+                if mtd_result and mtd_result.get('output_files'):
+                    logger.info(f"MTD ingestion successful: {mtd_result['output_files']}")
+                    flash("MTD INGESTION ENABLED — FILTERED DAILY PIPELINE ACTIVE", "success")
+                    
+                    # Trigger standard report generation with the filtered data
+                    try:
+                        # Attempt to generate the report using the unified processor
+                        from utils.unified_data_processor import UnifiedDataProcessor
+                        
+                        # Create processor for the date
+                        processor = UnifiedDataProcessor(date_str)
+                        
+                        # Use the filtered data from MTD ingestion
+                        driving_history_path = mtd_result['output_files'].get('driving_history')
+                        activity_detail_path = mtd_result['output_files'].get('activity_detail')
+                        
+                        if driving_history_path and os.path.exists(driving_history_path):
+                            processor.process_driving_history(driving_history_path)
+                            
+                        if activity_detail_path and os.path.exists(activity_detail_path):
+                            processor.process_activity_detail(activity_detail_path)
+                        
+                        # Still process employee data and job sheets from available sources
+                        assets_dir = 'attached_assets'
+                        for file in os.listdir(assets_dir):
+                            file_path = os.path.join(assets_dir, file)
+                            
+                            if 'ELIST' in file or 'Employee' in file:
+                                processor.process_employee_data(file_path)
+                            
+                            elif 'DAILY' in file and ('NOJ' in file or 'REPORT' in file) and file.endswith('.xlsx'):
+                                processor.process_start_time_job_sheet(file_path)
+                        
+                        # Generate reports
+                        processor.generate_attendance_report()
+                        processor.export_excel_report()
+                        processor.export_pdf_report()
+                        
+                        logger.info("Successfully generated report using MTD filtered data")
+                    except Exception as regen_error:
+                        logger.error(f"Error generating report with MTD processed data: {regen_error}")
+                
+                else:
+                    logger.warning(f"No MTD data found for date: {date_str}")
+                    flash("No MTD data found for the selected date. Using available data instead.", "warning")
+            except Exception as mtd_error:
+                logger.error(f"Error in MTD ingestion process: {mtd_error}")
+                logger.error(traceback.format_exc())
+                flash(f"Error processing MTD data: {str(mtd_error)}", "danger")
         
         # Check if export files exist
         excel_path = f"exports/daily_reports/{date_str}_DailyDriverReport.xlsx"

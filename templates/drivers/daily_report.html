@@ -9,8 +9,12 @@
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Daily Driver Report - {{ selected_date }}</h5>
-                    <form method="GET" action="{{ url_for('driver_module.daily_report') }}" class="d-flex">
+                    <form method="GET" action="{{ url_for('driver_module.daily_report') }}" class="d-flex align-items-center">
                         <input type="date" name="date" class="form-control form-control-sm me-2" value="{{ report.date }}" required>
+                        <div class="form-check me-2">
+                            <input type="checkbox" class="form-check-input" id="use_mtd" name="use_mtd" value="true">
+                            <label class="form-check-label small" for="use_mtd">MTD Ingestion</label>
+                        </div>
                         <button type="submit" class="btn btn-sm btn-light">View Report</button>
                     </form>
                 </div>

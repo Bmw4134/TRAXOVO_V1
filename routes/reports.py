@@ -850,17 +850,17 @@ def driver_reports():
         return render_template('error.html', error=str(e)), 500
 
 @reports_bp.route('/download/<path:report_path>')
-def download_<path:report_path>():
+def download_report(report_path):
     """Handler for /download/<path:report_path>"""
     try:
         # Add your route handler logic here
-        return render_template('reports/download_<path:report_path>.html')
+        return render_template('reports/download.html', report_path=report_path)
     except Exception as e:
         logger.error(f"Error in download_<path:report_path>: {e}")
         return render_template('error.html', error=str(e)), 500
 
 @reports_bp.route('/download-export/<path:export_path>')
-def download_export_<path:export_path>():
+def download_export(export_path):
     """Handler for /download-export/<path:export_path>"""
     try:
         # Add your route handler logic here
@@ -870,7 +870,7 @@ def download_export_<path:export_path>():
         return render_template('error.html', error=str(e)), 500
 
 @reports_bp.route('/view/<path:report_path>')
-def view_<path:report_path>():
+def view_report(report_path):
     """Handler for /view/<path:report_path>"""
     try:
         # Add your route handler logic here

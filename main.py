@@ -66,6 +66,22 @@ try:
 except ImportError:
     logger.info("Asset Map blueprint not available")
 
+# Register PM allocation blueprint
+try:
+    from routes.pm_allocation import pm_allocation_bp
+    app.register_blueprint(pm_allocation_bp)
+    logger.info("Registered PM Allocation blueprint")
+except ImportError:
+    logger.info("PM Allocation blueprint not available")
+
+# Register reports module blueprint
+try:
+    from routes.reports_fixed import reports_bp
+    app.register_blueprint(reports_bp)
+    logger.info("Registered Reports blueprint")
+except ImportError:
+    logger.info("Reports blueprint not available")
+
 # Initialize lifecycle module
 try:
     import equipment_lifecycle

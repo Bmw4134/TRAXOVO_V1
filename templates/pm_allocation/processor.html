@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}PM Allocation Processor | TRAXORA{% endblock %}
+
+{% block content %}
+<div class="container pt-4">
+  <h1 class="mb-4">PM Allocation Processor</h1>
+  
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5>Upload PM Allocation Files</h5>
+    </div>
+    <div class="card-body">
+      <p class="lead">Upload your PM allocation files to reconcile changes and generate reports.</p>
+      
+      <form method="post" enctype="multipart/form-data" action="#">
+        <div class="mb-3">
+          <label for="baseFile" class="form-label">Base RAGLE File</label>
+          <input type="file" class="form-control" id="baseFile" name="baseFile">
+          <div class="form-text">The original Equipment Billing allocation file</div>
+        </div>
+        
+        <div class="mb-3">
+          <label for="pmFiles" class="form-label">PM Allocation Files</label>
+          <input type="file" class="form-control" id="pmFiles" name="pmFiles" multiple>
+          <div class="form-text">Select all PM allocation files to process</div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">
+          <i class="bi bi-arrow-right-circle me-1"></i> Process Files
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

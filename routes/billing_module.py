@@ -733,13 +733,13 @@ def invoices():
         return render_template('error.html', error=str(e)), 500
 
 @billing_module_bp.route('/invoice_detail/<invoice_id>')
-def invoice_detail_<invoice_id>():
+def invoice_detail(invoice_id):
     """Handler for /invoice_detail/<invoice_id>"""
     try:
         # Add your route handler logic here
-        return render_template('billing_module/invoice_detail_<invoice_id>.html')
+        return render_template('billing_module/invoice_detail.html', invoice_id=invoice_id)
     except Exception as e:
-        logger.error(f"Error in invoice_detail_<invoice_id>: {e}")
+        logger.error(f"Error in invoice_detail: {e}")
         return render_template('error.html', error=str(e)), 500
 
 @billing_module_bp.route('/generate_invoice')

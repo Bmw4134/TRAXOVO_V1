@@ -2,17 +2,6 @@
   "date": "2025-05-16",
   "drivers": [
     {
-      "driver_name": "Charles Anderson",
-      "asset_id": "TRK-1010",
-      "job_site": "West Plano Project",
-      "scheduled_start": "06:00 AM",
-      "scheduled_end": "03:00 PM",
-      "actual_start": "06:05 AM",
-      "actual_end": "02:48 PM",
-      "status": "On Time",
-      "status_reason": ""
-    },
-    {
       "driver_name": "Mark Thompson",
       "asset_id": "TRK-1015",
       "job_site": "Downtown Construction",
@@ -20,39 +9,6 @@
       "scheduled_end": "03:00 PM",
       "actual_start": "N/A",
       "actual_end": "N/A",
-      "status": "On Time",
-      "status_reason": ""
-    },
-    {
-      "driver_name": "James Davis",
-      "asset_id": "TRK-1005",
-      "job_site": "North Dallas Site",
-      "scheduled_start": "06:00 AM",
-      "scheduled_end": "03:00 PM",
-      "actual_start": "07:03 AM",
-      "actual_end": "03:12 PM",
-      "status": "Not On Job",
-      "status_reason": "At incorrect location: North Richland Hills"
-    },
-    {
-      "driver_name": "Anthony Martin",
-      "asset_id": "TRK-1014",
-      "job_site": "West Plano Project",
-      "scheduled_start": "07:00 AM",
-      "scheduled_end": "04:00 PM",
-      "actual_start": "07:16 AM",
-      "actual_end": "03:58 PM",
-      "status": "Late",
-      "status_reason": "16 minutes late"
-    },
-    {
-      "driver_name": "Daniel Jackson",
-      "asset_id": "TRK-1012",
-      "job_site": "Richardson Development",
-      "scheduled_start": "06:15 AM",
-      "scheduled_end": "03:15 PM",
-      "actual_start": "06:16 AM",
-      "actual_end": "03:12 PM",
       "status": "On Time",
       "status_reason": ""
     },
@@ -68,15 +24,15 @@
       "status_reason": ""
     },
     {
-      "driver_name": "William Brown",
-      "asset_id": "TRK-1004",
-      "job_site": "Richardson Development",
+      "driver_name": "John Smith",
+      "asset_id": "TRK-1001",
+      "job_site": "North Dallas Site",
       "scheduled_start": "06:30 AM",
       "scheduled_end": "03:30 PM",
-      "actual_start": "06:32 AM",
-      "actual_end": "02:54 PM",
-      "status": "Early End",
-      "status_reason": "36 minutes early"
+      "actual_start": "06:25 AM",
+      "actual_end": "03:35 PM",
+      "status": "On Time",
+      "status_reason": ""
     },
     {
       "driver_name": "Richard Wilson",
@@ -90,15 +46,15 @@
       "status_reason": ""
     },
     {
-      "driver_name": "Joseph Moore",
-      "asset_id": "TRK-1008",
+      "driver_name": "William Brown",
+      "asset_id": "TRK-1004",
       "job_site": "Richardson Development",
       "scheduled_start": "06:30 AM",
       "scheduled_end": "03:30 PM",
-      "actual_start": "06:55 AM",
-      "actual_end": "03:25 PM",
-      "status": "Late",
-      "status_reason": "25 minutes late"
+      "actual_start": "06:32 AM",
+      "actual_end": "02:54 PM",
+      "status": "Early End",
+      "status_reason": "36 minutes early"
     },
     {
       "driver_name": "Thomas Taylor",
@@ -112,13 +68,35 @@
       "status_reason": ""
     },
     {
-      "driver_name": "John Smith",
-      "asset_id": "TRK-1001",
+      "driver_name": "James Davis",
+      "asset_id": "TRK-1005",
       "job_site": "North Dallas Site",
+      "scheduled_start": "06:00 AM",
+      "scheduled_end": "03:00 PM",
+      "actual_start": "07:03 AM",
+      "actual_end": "03:12 PM",
+      "status": "Not On Job",
+      "status_reason": "At incorrect location: North Richland Hills"
+    },
+    {
+      "driver_name": "Joseph Moore",
+      "asset_id": "TRK-1008",
+      "job_site": "Richardson Development",
       "scheduled_start": "06:30 AM",
       "scheduled_end": "03:30 PM",
-      "actual_start": "06:25 AM",
-      "actual_end": "03:35 PM",
+      "actual_start": "06:55 AM",
+      "actual_end": "03:25 PM",
+      "status": "Late",
+      "status_reason": "25 minutes late"
+    },
+    {
+      "driver_name": "Matthew Harris",
+      "asset_id": "TRK-1013",
+      "job_site": "North Dallas Site",
+      "scheduled_start": "06:45 AM",
+      "scheduled_end": "03:45 PM",
+      "actual_start": "06:52 AM",
+      "actual_end": "03:37 PM",
       "status": "On Time",
       "status_reason": ""
     },
@@ -134,17 +112,6 @@
       "status_reason": ""
     },
     {
-      "driver_name": "Matthew Harris",
-      "asset_id": "TRK-1013",
-      "job_site": "North Dallas Site",
-      "scheduled_start": "06:45 AM",
-      "scheduled_end": "03:45 PM",
-      "actual_start": "06:52 AM",
-      "actual_end": "03:37 PM",
-      "status": "On Time",
-      "status_reason": ""
-    },
-    {
       "driver_name": "Michael Johnson",
       "asset_id": "TRK-1002",
       "job_site": "West Plano Project",
@@ -156,6 +123,17 @@
       "status_reason": "18 minutes late"
     },
     {
+      "driver_name": "Daniel Jackson",
+      "asset_id": "TRK-1012",
+      "job_site": "Richardson Development",
+      "scheduled_start": "06:15 AM",
+      "scheduled_end": "03:15 PM",
+      "actual_start": "06:16 AM",
+      "actual_end": "03:12 PM",
+      "status": "On Time",
+      "status_reason": ""
+    },
+    {
       "driver_name": "Robert Williams",
       "asset_id": "TRK-1003",
       "job_site": "Downtown Construction",
@@ -165,6 +143,28 @@
       "actual_end": "03:45 PM",
       "status": "Late",
       "status_reason": "28 minutes late"
+    },
+    {
+      "driver_name": "Anthony Martin",
+      "asset_id": "TRK-1014",
+      "job_site": "West Plano Project",
+      "scheduled_start": "07:00 AM",
+      "scheduled_end": "04:00 PM",
+      "actual_start": "07:16 AM",
+      "actual_end": "03:58 PM",
+      "status": "Late",
+      "status_reason": "16 minutes late"
+    },
+    {
+      "driver_name": "Charles Anderson",
+      "asset_id": "TRK-1010",
+      "job_site": "West Plano Project",
+      "scheduled_start": "06:00 AM",
+      "scheduled_end": "03:00 PM",
+      "actual_start": "06:05 AM",
+      "actual_end": "02:48 PM",
+      "status": "On Time",
+      "status_reason": ""
     }
   ],
   "summary": {
@@ -176,17 +176,15 @@
     "on_time": 9
   },
   "metadata": {
-    "processed_at": "2025-05-21T00:44:35.516857",
+    "processed_at": "2025-05-21T00:35:41.694043",
     "source_files": {
       "driving_history": [
         "driving_history_2025-05-16.csv",
-        "DrivingHistory_20250516.csv",
-        "driving_history_2025-05-16_verified.csv"
+        "DrivingHistory_20250516.csv"
       ],
       "activity_detail": [
         "activity_detail_2025-05-16.csv",
-        "ActivityDetail_20250516.csv",
-        "activity_detail_2025-05-16_verified.csv"
+        "ActivityDetail_20250516.csv"
       ],
       "assets_time_on_site": [
         "assets_onsite_2025-05-16.csv",
@@ -199,10 +197,8 @@
     "row_counts": {
       "driving_history_2025-05-16.csv": 20,
       "DrivingHistory_20250516.csv": 28,
-      "driving_history_2025-05-16_verified.csv": 2,
       "activity_detail_2025-05-16.csv": 20,
       "ActivityDetail_20250516.csv": 52,
-      "activity_detail_2025-05-16_verified.csv": 2,
       "assets_onsite_2025-05-16.csv": 10,
       "AssetsTimeOnSite_20250516.csv": 15,
       "baseline.csv": 15

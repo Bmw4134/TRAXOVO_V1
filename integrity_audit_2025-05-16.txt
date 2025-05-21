@@ -1,0 +1,90 @@
+INTEGRITY AUDIT FOR 2025-05-16
+================================================================================
+
+SUMMARY:
+--------------------------------------------------------------------------------
+Verified Drivers: 15
+Total Files Scanned: 4
+Files with Unverified Drivers: 2
+Total Unverified Drivers: 36
+Report Rebuild Status: SUCCESS
+
+FILE DETAILS:
+--------------------------------------------------------------------------------
+File: data/driving_history/driving_history_2025-05-16.csv
+  Row Count: 20
+  Driver Column: driver
+  Driver Sample: John Smith, John Smith, Sarah Johnson, Sarah Johnson, Michael Brown, Michael Brown, Robert Davis, Robert Davis, Jennifer Wilson, Jennifer Wilson
+  Unverified Drivers: 18 / 20
+  Unverified Driver Names: Sarah Johnson, Sarah Johnson, Michael Brown, Michael Brown, Robert Davis, Robert Davis, Jennifer Wilson, Jennifer Wilson, David Martinez, David Martinez, Thomas Anderson, Thomas Anderson, Jessica Taylor, Jessica Taylor, Christopher Lee, Christopher Lee, Amanda Clark, Amanda Clark
+  Verified File: data/driving_history/driving_history_2025-05-16_verified.csv
+
+File: data/driving_history/DrivingHistory_20250516.csv
+  Row Count: 28
+  Driver Column: driver
+  Driver Sample: John Smith, John Smith, Michael Johnson, Michael Johnson, Robert Williams, Robert Williams, William Brown, William Brown, James Davis, James Davis
+  Unverified Drivers: 0 / 28
+  Verified File: data/driving_history/DrivingHistory_20250516.csv
+
+File: data/activity_detail/activity_detail_2025-05-16.csv
+  Row Count: 20
+  Driver Column: driver
+  Driver Sample: John Smith, John Smith, Sarah Johnson, Sarah Johnson, Michael Brown, Michael Brown, Robert Davis, Robert Davis, Jennifer Wilson, Jennifer Wilson
+  Unverified Drivers: 18 / 20
+  Unverified Driver Names: Sarah Johnson, Sarah Johnson, Michael Brown, Michael Brown, Robert Davis, Robert Davis, Jennifer Wilson, Jennifer Wilson, David Martinez, David Martinez, Thomas Anderson, Thomas Anderson, Jessica Taylor, Jessica Taylor, Christopher Lee, Christopher Lee, Amanda Clark, Amanda Clark
+  Verified File: data/activity_detail/activity_detail_2025-05-16_verified.csv
+
+File: data/activity_detail/ActivityDetail_20250516.csv
+  Row Count: 52
+  Driver Column: driver
+  Driver Sample: John Smith, John Smith, John Smith, John Smith, Michael Johnson, Michael Johnson, Michael Johnson, Robert Williams, Robert Williams, Robert Williams
+  Unverified Drivers: 0 / 52
+  Verified File: data/activity_detail/ActivityDetail_20250516.csv
+
+UNVERIFIED DRIVERS DETECTED:
+--------------------------------------------------------------------------------
+File: data/driving_history/driving_history_2025-05-16.csv
+  Unverified Drivers: 18
+  1. Sarah Johnson
+  2. Sarah Johnson
+  3. Michael Brown
+  4. Michael Brown
+  5. Robert Davis
+  6. Robert Davis
+  7. Jennifer Wilson
+  8. Jennifer Wilson
+  9. David Martinez
+  10. David Martinez
+  11. Thomas Anderson
+  12. Thomas Anderson
+  13. Jessica Taylor
+  14. Jessica Taylor
+  15. Christopher Lee
+  16. Christopher Lee
+  17. Amanda Clark
+  18. Amanda Clark
+
+File: data/activity_detail/activity_detail_2025-05-16.csv
+  Unverified Drivers: 18
+  1. Sarah Johnson
+  2. Sarah Johnson
+  3. Michael Brown
+  4. Michael Brown
+  5. Robert Davis
+  6. Robert Davis
+  7. Jennifer Wilson
+  8. Jennifer Wilson
+  9. David Martinez
+  10. David Martinez
+  11. Thomas Anderson
+  12. Thomas Anderson
+  13. Jessica Taylor
+  14. Jessica Taylor
+  15. Christopher Lee
+  16. Christopher Lee
+  17. Amanda Clark
+  18. Amanda Clark
+
+REBUILD DETAILS:
+--------------------------------------------------------------------------------
+Daily report successfully rebuilt using only verified drivers.

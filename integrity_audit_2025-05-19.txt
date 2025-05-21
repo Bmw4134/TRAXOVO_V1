@@ -1,0 +1,34 @@
+INTEGRITY AUDIT FOR 2025-05-19
+================================================================================
+
+SUMMARY:
+--------------------------------------------------------------------------------
+Verified Drivers: 15
+Total Files Scanned: 2
+Files with Unverified Drivers: 0
+Total Unverified Drivers: 0
+Report Rebuild Status: SUCCESS
+
+FILE DETAILS:
+--------------------------------------------------------------------------------
+File: data/driving_history/DrivingHistory_20250519.csv
+  Row Count: 28
+  Driver Column: driver
+  Driver Sample: John Smith, John Smith, Michael Johnson, Michael Johnson, Robert Williams, Robert Williams, William Brown, William Brown, James Davis, James Davis
+  Unverified Drivers: 0 / 28
+  Verified File: data/driving_history/DrivingHistory_20250519.csv
+
+File: data/activity_detail/ActivityDetail_20250519.csv
+  Row Count: 52
+  Driver Column: driver
+  Driver Sample: John Smith, John Smith, John Smith, John Smith, Michael Johnson, Michael Johnson, Michael Johnson, Robert Williams, Robert Williams, Robert Williams
+  Unverified Drivers: 0 / 52
+  Verified File: data/activity_detail/ActivityDetail_20250519.csv
+
+UNVERIFIED DRIVERS DETECTED:
+--------------------------------------------------------------------------------
+No unverified drivers detected.
+
+REBUILD DETAILS:
+--------------------------------------------------------------------------------
+Daily report successfully rebuilt using only verified drivers.

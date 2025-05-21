@@ -1,0 +1,3 @@
+driver,asset,datetime,activity,duration,location
+John Smith,ET-01,2025-05-16 06:45:12,Start,510,DFW-101
+John Smith,ET-01,2025-05-16 15:35:22,End,0,DFW-101

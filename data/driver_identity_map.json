@@ -1,8 +1,144 @@
 {
   "metadata": {
-    "timestamp": "2025-05-21T00:54:45.358573",
-    "source_files": [],
-    "total_mappings": 0
+    "timestamp": "2025-05-21T01:00:37.650264",
+    "source": "data/employee_master_list.csv",
+    "count": 15
   },
-  "identity_map": {}
+  "identity_map": {
+    "john smith": {
+      "employee_id": "E1001",
+      "name": "John Smith",
+      "normalized_name": "john smith",
+      "job_title": "Equipment Operator",
+      "division": "North Dallas",
+      "job_code": "JOB-2023-001",
+      "asset_id": "TRK-1001"
+    },
+    "michael johnson": {
+      "employee_id": "E1002",
+      "name": "Michael Johnson",
+      "normalized_name": "michael johnson",
+      "job_title": "Equipment Operator",
+      "division": "West Plano",
+      "job_code": "JOB-2023-002",
+      "asset_id": "TRK-1002"
+    },
+    "robert williams": {
+      "employee_id": "E1003",
+      "name": "Robert Williams",
+      "normalized_name": "robert williams",
+      "job_title": "Equipment Operator",
+      "division": "Downtown",
+      "job_code": "JOB-2023-003",
+      "asset_id": "TRK-1003"
+    },
+    "william brown": {
+      "employee_id": "E1004",
+      "name": "William Brown",
+      "normalized_name": "william brown",
+      "job_title": "Equipment Operator",
+      "division": "Richardson",
+      "job_code": "JOB-2023-004",
+      "asset_id": "TRK-1004"
+    },
+    "james davis": {
+      "employee_id": "E1005",
+      "name": "James Davis",
+      "normalized_name": "james davis",
+      "job_title": "Equipment Operator",
+      "division": "North Dallas",
+      "job_code": "JOB-2023-001",
+      "asset_id": "TRK-1005"
+    },
+    "david miller": {
+      "employee_id": "E1006",
+      "name": "David Miller",
+      "normalized_name": "david miller",
+      "job_title": "Equipment Operator",
+      "division": "West Plano",
+      "job_code": "JOB-2023-002",
+      "asset_id": "TRK-1006"
+    },
+    "richard wilson": {
+      "employee_id": "E1007",
+      "name": "Richard Wilson",
+      "normalized_name": "richard wilson",
+      "job_title": "Equipment Operator",
+      "division": "Downtown",
+      "job_code": "JOB-2023-003",
+      "asset_id": "TRK-1007"
+    },
+    "joseph moore": {
+      "employee_id": "E1008",
+      "name": "Joseph Moore",
+      "normalized_name": "joseph moore",
+      "job_title": "Equipment Operator",
+      "division": "Richardson",
+      "job_code": "JOB-2023-004",
+      "asset_id": "TRK-1008"
+    },
+    "thomas taylor": {
+      "employee_id": "E1009",
+      "name": "Thomas Taylor",
+      "normalized_name": "thomas taylor",
+      "job_title": "Equipment Operator",
+      "division": "North Dallas",
+      "job_code": "JOB-2023-001",
+      "asset_id": "TRK-1009"
+    },
+    "charles anderson": {
+      "employee_id": "E1010",
+      "name": "Charles Anderson",
+      "normalized_name": "charles anderson",
+      "job_title": "Equipment Operator",
+      "division": "West Plano",
+      "job_code": "JOB-2023-002",
+      "asset_id": "TRK-1010"
+    },
+    "christopher thomas": {
+      "employee_id": "E1011",
+      "name": "Christopher Thomas",
+      "normalized_name": "christopher thomas",
+      "job_title": "Equipment Operator",
+      "division": "Downtown",
+      "job_code": "JOB-2023-003",
+      "asset_id": "TRK-1011"
+    },
+    "daniel jackson": {
+      "employee_id": "E1012",
+      "name": "Daniel Jackson",
+      "normalized_name": "daniel jackson",
+      "job_title": "Equipment Operator",
+      "division": "Richardson",
+      "job_code": "JOB-2023-004",
+      "asset_id": "TRK-1012"
+    },
+    "matthew harris": {
+      "employee_id": "E1013",
+      "name": "Matthew Harris",
+      "normalized_name": "matthew harris",
+      "job_title": "Equipment Operator",
+      "division": "North Dallas",
+      "job_code": "JOB-2023-001",
+      "asset_id": "TRK-1013"
+    },
+    "anthony martin": {
+      "employee_id": "E1014",
+      "name": "Anthony Martin",
+      "normalized_name": "anthony martin",
+      "job_title": "Equipment Operator",
+      "division": "West Plano",
+      "job_code": "JOB-2023-002",
+      "asset_id": "TRK-1014"
+    },
+    "mark thompson": {
+      "employee_id": "E1015",
+      "name": "Mark Thompson",
+      "normalized_name": "mark thompson",
+      "job_title": "Equipment Operator",
+      "division": "Downtown",
+      "job_code": "JOB-2023-003",
+      "asset_id": "TRK-1015"
+    }
+  }
 }

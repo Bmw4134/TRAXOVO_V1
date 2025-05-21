@@ -1,0 +1,16 @@
+employee_id,employee_name,job_title,division,job_code,asset_id
+E1001,John Smith,Equipment Operator,North Dallas,JOB-2023-001,TRK-1001
+E1002,Michael Johnson,Equipment Operator,West Plano,JOB-2023-002,TRK-1002
+E1003,Robert Williams,Equipment Operator,Downtown,JOB-2023-003,TRK-1003
+E1004,William Brown,Equipment Operator,Richardson,JOB-2023-004,TRK-1004
+E1005,James Davis,Equipment Operator,North Dallas,JOB-2023-001,TRK-1005
+E1006,David Miller,Equipment Operator,West Plano,JOB-2023-002,TRK-1006
+E1007,Richard Wilson,Equipment Operator,Downtown,JOB-2023-003,TRK-1007
+E1008,Joseph Moore,Equipment Operator,Richardson,JOB-2023-004,TRK-1008
+E1009,Thomas Taylor,Equipment Operator,North Dallas,JOB-2023-001,TRK-1009
+E1010,Charles Anderson,Equipment Operator,West Plano,JOB-2023-002,TRK-1010
+E1011,Christopher Thomas,Equipment Operator,Downtown,JOB-2023-003,TRK-1011
+E1012,Daniel Jackson,Equipment Operator,Richardson,JOB-2023-004,TRK-1012
+E1013,Matthew Harris,Equipment Operator,North Dallas,JOB-2023-001,TRK-1013
+E1014,Anthony Martin,Equipment Operator,West Plano,JOB-2023-002,TRK-1014
+E1015,Mark Thompson,Equipment Operator,Downtown,JOB-2023-003,TRK-1015

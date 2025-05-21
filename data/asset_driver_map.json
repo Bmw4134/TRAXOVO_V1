@@ -1,0 +1,114 @@
+{
+  "metadata": {
+    "timestamp": "2025-05-21T01:00:37.651923",
+    "source": "data/employee_master_list.csv",
+    "count": 15
+  },
+  "asset_driver_map": {
+    "TRK-1001": {
+      "asset_id": "TRK-1001",
+      "normalized_asset_id": "TRK-1001",
+      "employee_id": "E1001",
+      "driver_name": "John Smith",
+      "normalized_name": "john smith"
+    },
+    "TRK-1002": {
+      "asset_id": "TRK-1002",
+      "normalized_asset_id": "TRK-1002",
+      "employee_id": "E1002",
+      "driver_name": "Michael Johnson",
+      "normalized_name": "michael johnson"
+    },
+    "TRK-1003": {
+      "asset_id": "TRK-1003",
+      "normalized_asset_id": "TRK-1003",
+      "employee_id": "E1003",
+      "driver_name": "Robert Williams",
+      "normalized_name": "robert williams"
+    },
+    "TRK-1004": {
+      "asset_id": "TRK-1004",
+      "normalized_asset_id": "TRK-1004",
+      "employee_id": "E1004",
+      "driver_name": "William Brown",
+      "normalized_name": "william brown"
+    },
+    "TRK-1005": {
+      "asset_id": "TRK-1005",
+      "normalized_asset_id": "TRK-1005",
+      "employee_id": "E1005",
+      "driver_name": "James Davis",
+      "normalized_name": "james davis"
+    },
+    "TRK-1006": {
+      "asset_id": "TRK-1006",
+      "normalized_asset_id": "TRK-1006",
+      "employee_id": "E1006",
+      "driver_name": "David Miller",
+      "normalized_name": "david miller"
+    },
+    "TRK-1007": {
+      "asset_id": "TRK-1007",
+      "normalized_asset_id": "TRK-1007",
+      "employee_id": "E1007",
+      "driver_name": "Richard Wilson",
+      "normalized_name": "richard wilson"
+    },
+    "TRK-1008": {
+      "asset_id": "TRK-1008",
+      "normalized_asset_id": "TRK-1008",
+      "employee_id": "E1008",
+      "driver_name": "Joseph Moore",
+      "normalized_name": "joseph moore"
+    },
+    "TRK-1009": {
+      "asset_id": "TRK-1009",
+      "normalized_asset_id": "TRK-1009",
+      "employee_id": "E1009",
+      "driver_name": "Thomas Taylor",
+      "normalized_name": "thomas taylor"
+    },
+    "TRK-1010": {
+      "asset_id": "TRK-1010",
+      "normalized_asset_id": "TRK-1010",
+      "employee_id": "E1010",
+      "driver_name": "Charles Anderson",
+      "normalized_name": "charles anderson"
+    },
+    "TRK-1011": {
+      "asset_id": "TRK-1011",
+      "normalized_asset_id": "TRK-1011",
+      "employee_id": "E1011",
+      "driver_name": "Christopher Thomas",
+      "normalized_name": "christopher thomas"
+    },
+    "TRK-1012": {
+      "asset_id": "TRK-1012",
+      "normalized_asset_id": "TRK-1012",
+      "employee_id": "E1012",
+      "driver_name": "Daniel Jackson",
+      "normalized_name": "daniel jackson"
+    },
+    "TRK-1013": {
+      "asset_id": "TRK-1013",
+      "normalized_asset_id": "TRK-1013",
+      "employee_id": "E1013",
+      "driver_name": "Matthew Harris",
+      "normalized_name": "matthew harris"
+    },
+    "TRK-1014": {
+      "asset_id": "TRK-1014",
+      "normalized_asset_id": "TRK-1014",
+      "employee_id": "E1014",
+      "driver_name": "Anthony Martin",
+      "normalized_name": "anthony martin"
+    },
+    "TRK-1015": {
+      "asset_id": "TRK-1015",
+      "normalized_asset_id": "TRK-1015",
+      "employee_id": "E1015",
+      "driver_name": "Mark Thompson",
+      "normalized_name": "mark thompson"
+    }
+  }
+}

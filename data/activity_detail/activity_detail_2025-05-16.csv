@@ -1,21 +1,16 @@
-Driver,Asset,DateTime,Activity,Duration,Location
-John Smith,ET-01,2025-05-16 06:45:12,Start,510,DFW-101
-John Smith,ET-01,2025-05-16 15:35:22,End,0,DFW-101
-Sarah Johnson,ET-02,2025-05-16 05:50:42,Start,560,DFW-102
-Sarah Johnson,ET-02,2025-05-16 15:10:31,End,0,DFW-102
-Michael Brown,ET-03,2025-05-16 07:15:18,Start,533,DFW-103
-Michael Brown,ET-03,2025-05-16 16:08:45,End,0,DFW-103
-Robert Davis,PT-04,2025-05-16 06:01:23,Start,569,HOU-201
-Robert Davis,PT-04,2025-05-16 15:30:17,End,0,HOU-201
-Jennifer Wilson,PT-05,2025-05-16 06:30:45,Start,542,HOU-202
-Jennifer Wilson,PT-05,2025-05-16 15:32:08,End,0,HOU-202
-David Martinez,F-150,2025-05-16 06:45:12,Start,500,HOU-203
-David Martinez,F-150,2025-05-16 15:05:29,End,0,HOU-203
-Thomas Anderson,RAM-2500,2025-05-16 06:20:39,Start,510,WT-301
-Thomas Anderson,RAM-2500,2025-05-16 14:50:14,End,0,WT-301
-Jessica Taylor,ET-08,2025-05-16 07:00:52,Start,555,WT-302
-Jessica Taylor,ET-08,2025-05-16 16:15:03,End,0,WT-302
-Christopher Lee,PT-09,2025-05-16 07:25:44,Start,445,WT-303
-Christopher Lee,PT-09,2025-05-16 14:50:22,End,0,WT-303
-Amanda Clark,ET-10,2025-05-16 06:25:19,Start,555,DFW-104
-Amanda Clark,ET-10,2025-05-16 15:40:07,End,0,DFW-104
+driver_name,asset_id,start_time,end_time,activity_type,job_code,duration_minutes,location
+John Smith,TRK-1001,2025-05-16T06:45:00,2025-05-16T17:15:00,Driving,JOB-2023-001,630,"North Dallas"
+Michael Johnson,TRK-1002,2025-05-16T07:20:00,2025-05-16T16:45:00,Driving,JOB-2023-002,565,"West Plano"
+Robert Williams,TRK-1003,2025-05-16T07:05:00,2025-05-16T17:05:00,Driving,JOB-2023-003,600,"Downtown"
+William Brown,TRK-1004,2025-05-16T07:30:00,2025-05-16T16:30:00,Driving,JOB-2023-004,540,"Richardson"
+James Davis,TRK-1005,2025-05-16T06:55:00,2025-05-16T17:10:00,Driving,JOB-2023-001,615,"North Dallas"
+David Miller,TRK-1006,2025-05-16T07:15:00,2025-05-16T16:55:00,Driving,JOB-2023-002,580,"West Plano"
+Richard Wilson,TRK-1007,2025-05-16T07:25:00,2025-05-16T16:25:00,Driving,JOB-2023-003,540,"Downtown"
+Joseph Moore,TRK-1008,2025-05-16T06:50:00,2025-05-16T17:00:00,Driving,JOB-2023-004,610,"Richardson"
+Thomas Taylor,TRK-1009,2025-05-16T07:10:00,2025-05-16T16:40:00,Driving,JOB-2023-001,570,"North Dallas"
+Charles Anderson,TRK-1010,2025-05-16T07:35:00,2025-05-16T16:15:00,Driving,JOB-2023-002,520,"West Plano"
+Christopher Thomas,TRK-1011,2025-05-16T06:40:00,2025-05-16T17:20:00,Driving,JOB-2023-003,640,"Downtown"
+Daniel Jackson,TRK-1012,2025-05-16T07:00:00,2025-05-16T17:05:00,Driving,JOB-2023-004,605,"Richardson"
+Matthew Harris,TRK-1013,2025-05-16T07:40:00,2025-05-16T16:10:00,Driving,JOB-2023-001,510,"North Dallas"
+Anthony Martin,TRK-1014,2025-05-16T07:05:00,2025-05-16T16:50:00,Driving,JOB-2023-002,585,"West Plano"
+Mark Thompson,TRK-1015,2025-05-16T06:55:00,2025-05-16T17:15:00,Driving,JOB-2023-003,620,"Downtown"

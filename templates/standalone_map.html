@@ -383,20 +383,68 @@
                                 
                                 jobSiteSection = `<div><strong>Primary Job Site:</strong> ${primarySite.name}</div>`;
                                 
-                                // If there are multiple matching sites, show the conflicts section
+                                // If there are multiple matching sites, show the conflicts section with site recommendation logic
                                 if (matchingSites.length > 1) {
-                                    jobSiteSection += `<div class="mt-2 mb-1"><strong class="text-warning">⚠️ Job Site Conflicts:</strong></div>`;
-                                    jobSiteSection += `<div class="small bg-light p-2 rounded mb-2" style="max-height: 100px; overflow-y: auto;">`;
+                                    jobSiteSection += `<div class="mt-2 mb-1"><strong class="text-warning">⚠️ PM Conflict Alert:</strong></div>`;
+                                    jobSiteSection += `<div class="small bg-light p-2 rounded mb-2" style="max-height: 120px; overflow-y: auto;">`;
                                     
+                                    // Calculate recommendation scores based on multiple factors
+                                    matchingSites.forEach(function(match) {
+                                        // Base score = inverse of distance (closer = higher score)
+                                        var distanceScore = 1000 / (match.distance + 10); // Add 10m to avoid division by zero
+                                        
+                                        // Add job type bonus
+                                        var jobTypeBonus = 0;
+                                        if (match.site.shape_type === 'rectangle' && (asset.type === 'Excavator' || asset.type === 'Roller')) {
+                                            // Excavators and rollers are more likely to be on linear/road projects
+                                            jobTypeBonus = 50;
+                                        } else if (match.site.shape_type === 'circle' && (asset.type === 'Backhoe' || asset.type === 'Wheel Loader')) {
+                                            // Backhoes and wheel loaders are often used at yards
+                                            jobTypeBonus = 50;
+                                        }
+                                        
+                                        // Calculate final recommendation score
+                                        match.recommendationScore = distanceScore + jobTypeBonus;
+                                    });
+                                    
+                                    // Sort by recommendation score (highest first) 
+                                    matchingSites.sort(function(a, b) {
+                                        return b.recommendationScore - a.recommendationScore;
+                                    });
+                                    
+                                    // Assign recommendation categories
+                                    const highestScore = matchingSites[0].recommendationScore;
+                                    matchingSites.forEach(function(match) {
+                                        // Calculate confidence percentage relative to highest score
+                                        const confidencePercent = Math.round((match.recommendationScore / highestScore) * 100);
+                                        
+                                        if (confidencePercent >= 90) {
+                                            match.recommendationLevel = 'Highly Recommended';
+                                            match.badgeClass = 'bg-success';
+                                        } else if (confidencePercent >= 70) {
+                                            match.recommendationLevel = 'Recommended';
+                                            match.badgeClass = 'bg-primary';
+                                        } else if (confidencePercent >= 40) {
+                                            match.recommendationLevel = 'Possible';
+                                            match.badgeClass = 'bg-secondary';
+                                        } else {
+                                            match.recommendationLevel = 'Unlikely';
+                                            match.badgeClass = 'bg-dark';
+                                        }
+                                    });
+                                    
+                                    // Display recommendations
                                     matchingSites.forEach(function(match, idx) {
-                                        var priority = idx === 0 ? '<span class="badge bg-primary">Primary</span>' : 
-                                                      `<span class="badge bg-secondary">Alt ${idx}</span>`;
                                         var distance = (match.distance / 1000).toFixed(2);
-                                        jobSiteSection += `<div>${priority} <strong>${match.site.name}</strong> (${distance} km)</div>`;
+                                        var confidenceBadge = `<span class="badge ${match.badgeClass}">${match.recommendationLevel}</span>`;
+                                        jobSiteSection += `<div class="mb-1 d-flex justify-content-between">
+                                            <div><strong>${match.site.name}</strong> (${distance} km)</div>
+                                            <div>${confidenceBadge}</div>
+                                        </div>`;
                                     });
                                     
                                     jobSiteSection += `</div>
-                                    <div class="small text-muted">📝 PM verification required for billing</div>`;
+                                    <div class="small text-warning fw-bold">📝 PM verification required - Log in to assign to specific job</div>`;
                                 }
                             }
                             

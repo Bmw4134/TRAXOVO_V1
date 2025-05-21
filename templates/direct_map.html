@@ -1,0 +1,1622 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAXORA Asset Map</title>
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #1e2124;
+            color: white;
+        }
+        
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+        
+        .sidebar {
+            width: 280px;
+            min-width: 280px;
+            height: 100%;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #1e2124;
+            border-right: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+            z-index: 900;
+        }
+        
+        .sidebar.sticky {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .map-container {
+            flex: 1;
+            height: 100%;
+            position: relative;
+        }
+        
+        #map {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .status-active {
+            background-color: #28a745;
+        }
+        
+        .status-idle {
+            background-color: #ffc107;
+        }
+        
+        .status-maintenance {
+            background-color: #dc3545;
+        }
+        
+        .status-inactive {
+            background-color: #6c757d;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            margin-bottom: 0.25rem;
+            display: block;
+        }
+        
+        .section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .section h5 {
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .footer {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 1rem;
+            margin-top: 1rem;
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.5);
+            text-align: center;
+        }
+        
+        /* Map Legend */
+        .map-legend {
+            position: absolute;
+            bottom: 20px;
+            right: 10px;
+            background: rgba(40, 40, 40, 0.85);
+            border-radius: 5px;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+            max-width: 300px;
+            width: 280px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            font-size: 13px;
+            max-height: 40px;
+        }
+        
+        .map-legend.expanded {
+            max-height: 80vh;
+        }
+        
+        .legend-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(30, 30, 30, 0.5);
+            cursor: pointer;
+        }
+        
+        .legend-header h6 {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        .legend-content {
+            padding: 10px;
+            overflow-y: auto;
+            max-height: calc(80vh - 40px);
+        }
+        
+        .legend-section {
+            margin-bottom: 12px;
+        }
+        
+        .legend-section h6 {
+            margin: 0 0 8px 0;
+            font-size: 13px;
+            font-weight: 500;
+            color: #ccc;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 5px;
+        }
+        
+        .color-item, .icon-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        
+        .color-swatch {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            margin-right: 8px;
+        }
+        
+        .icon-swatch {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            text-align: center;
+        }
+        
+        .color-label, .icon-label {
+            font-size: 12px;
+            color: #ddd;
+        }
+        
+        /* Asset Markers */
+        .asset-marker {
+            background-color: #33d4ff;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 12px;
+            border: 2px solid white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .asset-marker:hover {
+            transform: scale(1.2);
+        }
+        
+        .asset-marker.pulsating {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Enhanced Popups */
+        .custom-popup .leaflet-popup-content-wrapper {
+            background-color: rgba(40, 40, 40, 0.9);
+            border-radius: 5px;
+            color: #fff;
+            padding: 0;
+        }
+        
+        .custom-popup .leaflet-popup-content {
+            margin: 0;
+            width: 280px !important;
+            overflow: hidden;
+        }
+        
+        .custom-popup .leaflet-popup-tip {
+            background-color: rgba(40, 40, 40, 0.9);
+        }
+        
+        .asset-popup-header {
+            padding: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: rgba(30, 30, 30, 0.5);
+        }
+        
+        .asset-popup-title {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        .asset-popup-subtitle {
+            font-size: 12px;
+            color: #33d4ff;
+            margin: 0;
+        }
+        
+        .asset-popup-content {
+            padding: 10px;
+        }
+        
+        .asset-popup-detail {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+        
+        .asset-popup-label {
+            color: #aaa;
+            margin-right: 10px;
+        }
+        
+        .asset-popup-value {
+            color: #fff;
+            text-align: right;
+        }
+        
+        .popup-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+            padding: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: rgba(30, 30, 30, 0.5);
+        }
+        
+        .asset-action-button {
+            flex: 1;
+            min-width: 80px;
+            background: rgba(40, 40, 40, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            color: #fff;
+            padding: 4px 8px;
+            font-size: 11px;
+            cursor: pointer;
+            text-align: center;
+            transition: background 0.2s ease;
+        }
+        
+        .asset-action-button:hover {
+            background: rgba(60, 60, 60, 0.8);
+        }
+        
+        .asset-action-button.primary {
+            background: rgba(51, 122, 183, 0.7);
+        }
+        
+        .asset-action-button.primary:hover {
+            background: rgba(51, 122, 183, 0.8);
+        }
+        
+        .job-selector {
+            width: 100%;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .job-selector.visible {
+            display: block;
+        }
+        
+        /* Offline Indicator */
+        .offline-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(243, 156, 18, 0.9);
+            color: #fff;
+            padding: 8px 15px;
+            text-align: center;
+            font-size: 13px;
+            z-index: 9999;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .offline-indicator.hidden {
+            display: none;
+        }
+        
+        .offline-message {
+            flex: 1;
+        }
+        
+        .offline-close {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 0 0 0 10px;
+        }
+        
+        /* Distance Circles */
+        .distance-circle {
+            stroke-dasharray: 10, 10;
+            animation: dash 15s linear infinite;
+            stroke: rgba(51, 212, 255, 0.6);
+            fill: rgba(51, 212, 255, 0.1);
+        }
+        
+        @keyframes dash {
+            to {
+                stroke-dashoffset: -200;
+            }
+        }
+        
+        /* Cluster Markers */
+        .cluster-marker {
+            background-color: rgba(51, 122, 183, 0.8);
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            border: 2px solid white;
+        }
+        
+        /* GENIUS CORE Status Panel */
+        .genius-status-panel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(40, 40, 40, 0.85);
+            border-radius: 5px;
+            padding: 10px;
+            width: 280px;
+            z-index: 1000;
+        }
+        
+        .genius-status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 5px;
+        }
+        
+        .genius-status-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: #33d4ff;
+            margin: 0;
+        }
+        
+        .genius-status-module {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 12px;
+        }
+        
+        .module-name {
+            color: #ccc;
+        }
+        
+        .module-status {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .module-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        
+        .module-indicator.active {
+            background-color: #28a745;
+        }
+        
+        .module-indicator.passive {
+            background-color: #ffc107;
+        }
+        
+        .module-indicator.offline {
+            background-color: #dc3545;
+        }
+        
+        .module-text {
+            font-size: 11px;
+        }
+        
+        .module-text.active {
+            color: #28a745;
+        }
+        
+        .module-text.passive {
+            color: #ffc107;
+        }
+        
+        .module-text.offline {
+            color: #dc3545;
+        }
+        
+        /* Event Timeline */
+        .event-timeline {
+            position: absolute;
+            bottom: 20px;
+            left: 10px;
+            background: rgba(40, 40, 40, 0.85);
+            border-radius: 5px;
+            width: 280px;
+            max-height: 40px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .event-timeline.expanded {
+            max-height: 240px;
+        }
+        
+        .event-timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(30, 30, 30, 0.5);
+            cursor: pointer;
+        }
+        
+        .event-timeline-title {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        .event-timeline-content {
+            padding: 10px;
+            overflow-y: auto;
+            max-height: 190px;
+        }
+        
+        .event-item {
+            padding: 5px;
+            border-radius: 3px;
+            background-color: rgba(255, 255, 255, 0.05);
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2px;
+        }
+        
+        .event-source {
+            font-weight: 500;
+            color: #33d4ff;
+        }
+        
+        .event-time {
+            font-size: 10px;
+            color: #aaa;
+        }
+        
+        .event-message {
+            color: #ddd;
+        }
+        
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                max-height: 40vh;
+                overflow-y: auto;
+            }
+            
+            .map-container {
+                height: 60vh;
+            }
+            
+            .map-legend, .genius-status-panel, .event-timeline {
+                width: calc(100% - 20px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar sticky">
+            <h3 class="mb-1">TRAXORA</h3>
+            <p class="text-muted mb-4">Fleet Management System</p>
+            
+            <!-- Filters Section -->
+            <div class="section">
+                <h5>Asset Filters</h5>
+                <div class="form-group">
+                    <label>Asset Type</label>
+                    <select id="type-filter" class="form-select form-select-sm">
+                        <option value="">All Types</option>
+                        <option value="Truck">Trucks</option>
+                        <option value="Excavator">Excavators</option>
+                        <option value="Crane">Cranes</option>
+                        <option value="Loader">Loaders</option>
+                        <option value="Dozer">Dozers</option>
+                        <option value="Roller">Rollers</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Division</label>
+                    <select id="division-filter" class="form-select form-select-sm">
+                        <option value="">All Divisions</option>
+                        <option value="DIV 2">DFW (DIV 2)</option>
+                        <option value="DIV 3">WT (DIV 3)</option>
+                        <option value="DIV 4">HOU (DIV 4)</option>
+                        <option value="DIV 8">TEXDIST (DIV 8)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Job Site</label>
+                    <select id="job-site-filter" class="form-select form-select-sm">
+                        <option value="">All Job Sites</option>
+                        <option value="2023-032">2023-032 SH 345 Bridge</option>
+                        <option value="2024-019">2024-019 Tarrant VA Bridge</option>
+                        <option value="DFW-YARD">DFW Yard</option>
+                        <option value="HOU-YARD">HOU Yard</option>
+                        <option value="2023-007">2023-007 Ector BI 20E</option>
+                    </select>
+                </div>
+                
+                <!-- Filter Shortcuts -->
+                <div class="d-flex flex-wrap gap-2 mt-3">
+                    <button class="btn btn-sm btn-outline-secondary shortcut-btn" data-type="Truck">Trucks</button>
+                    <button class="btn btn-sm btn-outline-secondary shortcut-btn" data-type="Excavator">Excavators</button>
+                    <button class="btn btn-sm btn-outline-secondary shortcut-btn" data-type="Crane">Cranes</button>
+                </div>
+                <div class="d-flex flex-wrap gap-2 mt-2">
+                    <button class="btn btn-sm btn-outline-primary shortcut-job" data-job="2023-032">SH 345</button>
+                    <button class="btn btn-sm btn-outline-primary shortcut-job" data-job="DFW-YARD">DFW Yard</button>
+                    <button class="btn btn-sm btn-outline-primary shortcut-job" data-job="2023-007">Ector</button>
+                </div>
+                
+                <button id="refresh-map" class="btn btn-primary btn-sm w-100 mt-3">
+                    <i class="bi bi-arrow-clockwise me-1"></i> Refresh Map
+                </button>
+            </div>
+            
+            <!-- Job Proximity Section -->
+            <div class="section">
+                <h5>Job Proximity</h5>
+                <div class="mb-2 small">Show assets within job radius:</div>
+                <div class="d-flex flex-wrap gap-2">
+                    <button class="btn btn-sm btn-outline-info proximity-btn" data-job="2023-032">SH 345</button>
+                    <button class="btn btn-sm btn-outline-info proximity-btn" data-job="DFW-YARD">DFW Yard</button>
+                    <button class="btn btn-sm btn-outline-info proximity-btn" data-job="2023-007">Ector</button>
+                </div>
+            </div>
+            
+            <!-- System Status Section -->
+            <div class="section">
+                <h5>System Status</h5>
+                <div id="api-status" class="d-flex justify-content-between align-items-center mb-2">
+                    <span><i class="bi bi-cloud me-1"></i> API Connection</span>
+                    <span class="badge bg-warning">Connecting...</span>
+                </div>
+                <div id="update-time" class="small text-muted">
+                    Last update: <span id="last-update-time">Not yet updated</span>
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div class="footer">
+                © 2025 TRAXORA Fleet Management System<br>
+                GENIUS CORE CONTINUITY MODE ACTIVE
+            </div>
+        </div>
+        
+        <!-- Map Container -->
+        <div class="map-container">
+            <div id="map"></div>
+            
+            <!-- Map Legend -->
+            <div id="map-legend" class="map-legend">
+                <div class="legend-header">
+                    <h6>Map Legend</h6>
+                    <button class="legend-toggle-button">
+                        <i class="bi bi-chevron-down"></i>
+                    </button>
+                </div>
+                <div class="legend-content">
+                    <div class="legend-section">
+                        <h6>Division Colors</h6>
+                        <div class="color-item">
+                            <span class="color-swatch" style="background-color: #3366FF;"></span>
+                            <span class="color-label">DFW (DIV 2)</span>
+                        </div>
+                        <div class="color-item">
+                            <span class="color-swatch" style="background-color: #FF3333;"></span>
+                            <span class="color-label">HOU (DIV 4)</span>
+                        </div>
+                        <div class="color-item">
+                            <span class="color-swatch" style="background-color: #33CC33;"></span>
+                            <span class="color-label">WT (DIV 3)</span>
+                        </div>
+                        <div class="color-item">
+                            <span class="color-swatch" style="background-color: #FFCC00;"></span>
+                            <span class="color-label">TEXDIST (DIV 8)</span>
+                        </div>
+                        <div class="color-item">
+                            <span class="color-swatch" style="background-color: #999999;"></span>
+                            <span class="color-label">Unassigned</span>
+                        </div>
+                    </div>
+                    
+                    <div class="legend-section">
+                        <h6>Asset Types</h6>
+                        <div class="icon-item">
+                            <i class="bi bi-truck icon-swatch"></i>
+                            <span class="icon-label">Truck</span>
+                        </div>
+                        <div class="icon-item">
+                            <i class="bi bi-wrench icon-swatch"></i>
+                            <span class="icon-label">Excavator/Loader</span>
+                        </div>
+                        <div class="icon-item">
+                            <i class="bi bi-minecart-loaded icon-swatch"></i>
+                            <span class="icon-label">Crane</span>
+                        </div>
+                        <div class="icon-item">
+                            <i class="bi bi-cone-striped icon-swatch"></i>
+                            <span class="icon-label">Safety Equipment</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- GENIUS CORE Status Panel -->
+            <div class="genius-status-panel">
+                <div class="genius-status-header">
+                    <h6 class="genius-status-title">GENIUS CORE Status</h6>
+                    <span><i class="bi bi-activity"></i></span>
+                </div>
+                <div class="genius-status-modules">
+                    <div class="genius-status-module">
+                        <span class="module-name">Map Agent</span>
+                        <div class="module-status">
+                            <span class="module-indicator passive"></span>
+                            <span class="module-text passive">Passive Mode</span>
+                        </div>
+                    </div>
+                    <div class="genius-status-module">
+                        <span class="module-name">Driver Pipeline</span>
+                        <div class="module-status">
+                            <span class="module-indicator active"></span>
+                            <span class="module-text active">Active</span>
+                        </div>
+                    </div>
+                    <div class="genius-status-module">
+                        <span class="module-name">Billing Verifier</span>
+                        <div class="module-status">
+                            <span class="module-indicator active"></span>
+                            <span class="module-text active">Active</span>
+                        </div>
+                    </div>
+                    <div class="genius-status-module">
+                        <span class="module-name">Continuity Module</span>
+                        <div class="module-status">
+                            <span class="module-indicator active"></span>
+                            <span class="module-text active">Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Event Timeline -->
+            <div class="event-timeline">
+                <div class="event-timeline-header">
+                    <h6 class="event-timeline-title">Event Timeline</h6>
+                    <button class="timeline-toggle-button">
+                        <i class="bi bi-chevron-down"></i>
+                    </button>
+                </div>
+                <div class="event-timeline-content">
+                    <div class="event-item">
+                        <div class="event-header">
+                            <span class="event-source">MapAgent</span>
+                            <span class="event-time">5:12:45 PM</span>
+                        </div>
+                        <div class="event-message">Loading 656 assets from GaugeSmart API</div>
+                    </div>
+                    <div class="event-item">
+                        <div class="event-header">
+                            <span class="event-source">DriverPipeline</span>
+                            <span class="event-time">5:10:22 PM</span>
+                        </div>
+                        <div class="event-message">2 drivers classified as "Not On Job"</div>
+                    </div>
+                    <div class="event-item">
+                        <div class="event-header">
+                            <span class="event-source">BillingVerifier</span>
+                            <span class="event-time">5:08:17 PM</span>
+                        </div>
+                        <div class="event-message">Verified billing for 7 assets (2 unbilled)</div>
+                    </div>
+                    <div class="event-item">
+                        <div class="event-header">
+                            <span class="event-source">ContinuityModule</span>
+                            <span class="event-time">5:05:03 PM</span>
+                        </div>
+                        <div class="event-message">GENIUS CORE CONTINUITY MODE active</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Offline Indicator -->
+            <div id="offline-indicator" class="offline-indicator hidden">
+                <div class="offline-message">
+                    <i class="bi bi-wifi-off"></i> 
+                    <span class="offline-text">Using offline asset data from 2 minutes ago</span>
+                </div>
+                <button class="offline-close" title="Dismiss">&times;</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing direct map');
+            
+            // Initialize map with a dark theme
+            var map = L.map('map', {
+                center: [32.7767, -96.7970],
+                zoom: 8,
+                zoomControl: true,
+                attributionControl: true
+            });
+            
+            // Create base map layers
+            var satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: '&copy; <a href="https://www.esri.com/">Esri</a>',
+                maxZoom: 19
+            });
+            
+            var darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a>',
+                subdomains: 'abcd',
+                maxZoom: 19
+            });
+            
+            // Add dark layer by default
+            darkLayer.addTo(map);
+            
+            // Create layer control
+            var baseMaps = {
+                "Satellite": satelliteLayer,
+                "Dark Mode": darkLayer
+            };
+            
+            // Create layer groups
+            var assetClusterLayer = L.markerClusterGroup({
+                showCoverageOnHover: false,
+                maxClusterRadius: 40,
+                iconCreateFunction: function(cluster) {
+                    const count = cluster.getChildCount();
+                    return L.divIcon({
+                        html: `<div class="cluster-marker">${count}</div>`,
+                        className: 'custom-cluster-icon',
+                        iconSize: L.point(36, 36)
+                    });
+                }
+            });
+            
+            var heatmapLayer = null; // Will be created when we have assets
+            var jobSiteLayer = L.layerGroup();
+            
+            // Define overlays
+            var overlays = {
+                "Clustered Assets": assetClusterLayer,
+                "Job Sites": jobSiteLayer
+            };
+            
+            // Add layer control
+            L.control.layers(baseMaps, overlays, {position: 'topright'}).addTo(map);
+            
+            // Map interactions
+            map.invalidateSize(true);
+            
+            // Create custom icons
+            function createAssetIcon(type, division) {
+                // Determine icon based on type
+                let iconClass = 'bi-geo-alt-fill'; // Default
+                
+                if (type.includes('Truck')) {
+                    iconClass = 'bi-truck';
+                } else if (type.includes('Excavator') || type.includes('Loader')) {
+                    iconClass = 'bi-wrench';
+                } else if (type.includes('Crane')) {
+                    iconClass = 'bi-minecart-loaded';
+                } else if (type.includes('Sweeper') || type.includes('TMA')) {
+                    iconClass = 'bi-cone-striped';
+                }
+                
+                // Determine color based on division
+                let color = "#3366FF"; // Default: DFW (DIV 2)
+                
+                if (division === "DIV 4" || division === "HOU") {
+                    color = "#FF3333"; // HOU
+                } else if (division === "DIV 3" || division === "WT") {
+                    color = "#33CC33"; // WT
+                } else if (division === "DIV 8" || division === "TEXDIST") {
+                    color = "#FFCC00"; // TEXDIST
+                } else if (division === "UNASSIGNED") {
+                    color = "#999999"; // Unassigned
+                }
+                
+                return L.divIcon({
+                    html: `<div class="asset-marker" style="background-color:${color};"><i class="bi ${iconClass}"></i></div>`,
+                    className: 'asset-marker-container',
+                    iconSize: [24, 24],
+                    iconAnchor: [12, 12]
+                });
+            }
+            
+            // Create enhanced popup for asset
+            function createAssetPopup(asset) {
+                // Determine division
+                let division = getDivisionFromLocation(asset.location);
+                let divisionColor = getDivisionColor(division);
+                
+                // Create popup content
+                return `
+                    <div class="asset-popup-container">
+                        <div class="asset-popup-header" style="border-left: 4px solid ${divisionColor};">
+                            <h3 class="asset-popup-title">${asset.name}</h3>
+                            <p class="asset-popup-subtitle">${asset.asset_id || asset.id} | ${division}</p>
+                        </div>
+                        <div class="asset-popup-content">
+                            <div class="asset-popup-detail">
+                                <span class="asset-popup-label">Status:</span>
+                                <span class="asset-popup-value">${asset.status || 'Active'}</span>
+                            </div>
+                            <div class="asset-popup-detail">
+                                <span class="asset-popup-label">Location:</span>
+                                <span class="asset-popup-value">${asset.location || 'Unknown'}</span>
+                            </div>
+                            <div class="asset-popup-detail">
+                                <span class="asset-popup-label">Last Update:</span>
+                                <span class="asset-popup-value">${asset.last_update || 'Unknown'}</span>
+                            </div>
+                            <div class="asset-popup-detail">
+                                <span class="asset-popup-label">Type:</span>
+                                <span class="asset-popup-value">${asset.type || 'Unknown'}</span>
+                            </div>
+                            <div class="asset-popup-detail">
+                                <span class="asset-popup-label">Make/Model:</span>
+                                <span class="asset-popup-value">${asset.make || ''} ${asset.model || ''}</span>
+                            </div>
+                            <div class="asset-popup-detail">
+                                <span class="asset-popup-label">Driver:</span>
+                                <span class="asset-popup-value">${asset.driver || 'Unassigned'}</span>
+                            </div>
+                        </div>
+                        <div class="popup-actions">
+                            <button class="asset-action-button primary job-reassign-btn" data-asset-id="${asset.asset_id || asset.id}">
+                                <i class="bi bi-arrow-repeat"></i> Reassign Job
+                            </button>
+                            <button class="asset-action-button mark-billable-btn" data-asset-id="${asset.asset_id || asset.id}">
+                                <i class="bi bi-receipt"></i> Mark Billable
+                            </button>
+                            <button class="asset-action-button flag-review-btn" data-asset-id="${asset.asset_id || asset.id}">
+                                <i class="bi bi-flag"></i> Flag for Review
+                            </button>
+                            
+                            <div class="job-selector" id="job-selector-${asset.asset_id || asset.id}">
+                                <div class="mt-2 mb-1">Select New Job Site:</div>
+                                <select class="form-select form-select-sm" id="job-select-${asset.asset_id || asset.id}">
+                                    <option value="">-- Select Job --</option>
+                                    <option value="2023-032">2023-032 SH 345 Bridge</option>
+                                    <option value="2024-019">2024-019 Tarrant VA Bridge</option>
+                                    <option value="DFW-YARD">DFW Yard</option>
+                                    <option value="HOU-YARD">HOU Yard</option>
+                                    <option value="2023-007">2023-007 Ector BI 20E</option>
+                                </select>
+                                
+                                <div class="d-flex gap-2 mt-2">
+                                    <button class="btn btn-sm btn-success confirm-btn w-50" data-asset-id="${asset.asset_id || asset.id}">Confirm</button>
+                                    <button class="btn btn-sm btn-danger cancel-btn w-50" data-asset-id="${asset.asset_id || asset.id}">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Helper functions for division detection
+            function getDivisionFromLocation(location = '') {
+                const locationUpper = location.toUpperCase();
+                
+                if (locationUpper.includes('HOU') || locationUpper.includes('HOUSTON')) {
+                    return 'DIV 4';
+                } else if (locationUpper.includes('ECTOR') || locationUpper.includes('MIDLAND')) {
+                    return 'DIV 3';
+                } else if (locationUpper.includes('TEX')) {
+                    return 'DIV 8';
+                }
+                
+                // Default to DFW
+                return 'DIV 2';
+            }
+            
+            function getDivisionColor(division) {
+                switch (division) {
+                    case 'DIV 4': return '#FF3333';
+                    case 'DIV 3': return '#33CC33';
+                    case 'DIV 8': return '#FFCC00';
+                    case 'UNASSIGNED': return '#999999';
+                    default: return '#3366FF'; // DIV 2
+                }
+            }
+            
+            // Create map markers
+            function createAssetMarker(asset) {
+                // Skip assets without coordinates
+                if (!asset.latitude || !asset.longitude) return null;
+                
+                // Get division and type for the icon
+                const division = getDivisionFromLocation(asset.location);
+                const assetType = asset.type || 'Unknown';
+                
+                // Create marker with correct icon
+                const marker = L.marker([asset.latitude, asset.longitude], {
+                    icon: createAssetIcon(assetType, division)
+                });
+                
+                // Create and bind popup
+                const popup = L.popup({
+                    className: 'custom-popup',
+                    closeButton: true,
+                    autoClose: true,
+                    closeOnClick: true
+                }).setContent(createAssetPopup(asset));
+                
+                marker.bindPopup(popup);
+                
+                // Add popup open event listener for dynamic buttons
+                marker.on('popupopen', function() {
+                    // Add button event listeners after popup is opened
+                    setTimeout(() => {
+                        setupPopupButtons(asset);
+                    }, 100);
+                });
+                
+                return marker;
+            }
+            
+            // Setup popup buttons
+            function setupPopupButtons(asset) {
+                // Add reassign job functionality
+                const reassignBtn = document.querySelector('.job-reassign-btn');
+                if (reassignBtn) {
+                    reassignBtn.addEventListener('click', function() {
+                        const assetId = this.getAttribute('data-asset-id');
+                        const selector = document.getElementById(`job-selector-${assetId}`);
+                        if (selector) {
+                            selector.style.display = 'block';
+                        }
+                    });
+                }
+                
+                // Add confirm button functionality
+                const confirmBtn = document.querySelector('.confirm-btn');
+                if (confirmBtn) {
+                    confirmBtn.addEventListener('click', function() {
+                        const assetId = this.getAttribute('data-asset-id');
+                        const jobSelect = document.getElementById(`job-select-${assetId}`);
+                        const selector = document.getElementById(`job-selector-${assetId}`);
+                        
+                        if (jobSelect && selector) {
+                            const selectedJob = jobSelect.value;
+                            if (selectedJob) {
+                                console.log(`[PASSIVE] Would reassign asset ${assetId} to job ${selectedJob}`);
+                                
+                                // Add a log to the event timeline
+                                addEventToTimeline('MapAgent', `Asset ${assetId} assignment to ${selectedJob} (passive mode)`);
+                                
+                                // Show confirmation message
+                                const actionsDiv = selector.parentElement;
+                                const confirmationDiv = document.createElement('div');
+                                confirmationDiv.className = 'alert alert-success mt-2 p-2 small';
+                                confirmationDiv.innerHTML = '<i class="bi bi-check-circle"></i> Reassignment request logged (passive mode)';
+                                
+                                // Add after the job selector
+                                actionsDiv.appendChild(confirmationDiv);
+                                
+                                // Hide job selector
+                                selector.style.display = 'none';
+                                
+                                // Remove confirmation after delay
+                                setTimeout(() => {
+                                    if (confirmationDiv.parentElement) {
+                                        confirmationDiv.parentElement.removeChild(confirmationDiv);
+                                    }
+                                }, 3000);
+                            }
+                        }
+                    });
+                }
+                
+                // Add cancel button functionality
+                const cancelBtn = document.querySelector('.cancel-btn');
+                if (cancelBtn) {
+                    cancelBtn.addEventListener('click', function() {
+                        const assetId = this.getAttribute('data-asset-id');
+                        const selector = document.getElementById(`job-selector-${assetId}`);
+                        if (selector) {
+                            selector.style.display = 'none';
+                        }
+                    });
+                }
+                
+                // Add mark billable functionality
+                const billableBtn = document.querySelector('.mark-billable-btn');
+                if (billableBtn) {
+                    billableBtn.addEventListener('click', function() {
+                        const assetId = this.getAttribute('data-asset-id');
+                        console.log(`[PASSIVE] Would mark asset ${assetId} as billable`);
+                        
+                        // Add a log to the event timeline
+                        addEventToTimeline('BillingVerifier', `Asset ${assetId} marked as billable (passive mode)`);
+                        
+                        // Show quick confirmation
+                        this.innerHTML = '<i class="bi bi-check-circle"></i> Marked Billable';
+                        this.classList.add('btn-success');
+                        
+                        // Reset after delay
+                        setTimeout(() => {
+                            this.innerHTML = '<i class="bi bi-receipt"></i> Mark Billable';
+                            this.classList.remove('btn-success');
+                        }, 3000);
+                    });
+                }
+                
+                // Add flag for review functionality
+                const flagBtn = document.querySelector('.flag-review-btn');
+                if (flagBtn) {
+                    flagBtn.addEventListener('click', function() {
+                        const assetId = this.getAttribute('data-asset-id');
+                        console.log(`Flagging asset ${assetId} for review`);
+                        
+                        // Add a log to the event timeline
+                        addEventToTimeline('MapAgent', `Asset ${assetId} flagged for review`);
+                        
+                        // Show quick confirmation
+                        this.innerHTML = '<i class="bi bi-check-circle"></i> Flagged';
+                        this.classList.add('btn-warning');
+                        
+                        // Reset after delay
+                        setTimeout(() => {
+                            this.innerHTML = '<i class="bi bi-flag"></i> Flag for Review';
+                            this.classList.remove('btn-warning');
+                        }, 3000);
+                    });
+                }
+            }
+            
+            // Event timeline functionality
+            function addEventToTimeline(source, message) {
+                const timelineContent = document.querySelector('.event-timeline-content');
+                if (!timelineContent) return;
+                
+                // Get current time
+                const now = new Date();
+                const hours = now.getHours();
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                const seconds = now.getSeconds().toString().padStart(2, '0');
+                const timeString = `${hours}:${minutes}:${seconds}`;
+                
+                // Create event item
+                const eventItem = document.createElement('div');
+                eventItem.className = 'event-item';
+                eventItem.innerHTML = `
+                    <div class="event-header">
+                        <span class="event-source">${source}</span>
+                        <span class="event-time">${timeString}</span>
+                    </div>
+                    <div class="event-message">${message}</div>
+                `;
+                
+                // Add to top of timeline
+                timelineContent.insertBefore(eventItem, timelineContent.firstChild);
+                
+                // Ensure timeline is expanded
+                document.querySelector('.event-timeline').classList.add('expanded');
+                
+                // After delay, collapse if not interacting
+                setTimeout(() => {
+                    if (!document.querySelector('.event-timeline:hover')) {
+                        document.querySelector('.event-timeline').classList.remove('expanded');
+                    }
+                }, 5000);
+            }
+            
+            // Load sample job sites
+            const jobSites = [
+                {
+                    job_number: '2023-032',
+                    name: '2023-032 SH 345 Bridge Rehabilitation',
+                    latitude: 32.7807,
+                    longitude: -96.7835,
+                    radius: 1000,
+                    color: '#33D4FF'
+                },
+                {
+                    job_number: 'DFW-YARD',
+                    name: 'DFW Yard',
+                    latitude: 32.6138,
+                    longitude: -97.3076,
+                    radius: 800,
+                    color: '#FF33A8'
+                },
+                {
+                    job_number: '2023-007',
+                    name: '2023-007 Ector BI 20E Rehab Roadway',
+                    latitude: 31.9158,
+                    longitude: -102.2303,
+                    radius: 1500,
+                    color: '#3357FF'
+                },
+                {
+                    job_number: 'HOU-YARD',
+                    name: 'HOU Yard/Shop',
+                    latitude: 29.6433,
+                    longitude: -95.3474,
+                    radius: 800,
+                    color: '#33FF57'
+                },
+                {
+                    job_number: '2024-012',
+                    name: '2024-012 Dal IH635 U-Turn Bridge',
+                    latitude: 32.9241,
+                    longitude: -96.9933,
+                    radius: 1000,
+                    color: '#FF5733'
+                },
+                {
+                    job_number: '2024-019',
+                    name: '2024-019 (15) Tarrant VA Bridge Rehab',
+                    latitude: 32.3849,
+                    longitude: -97.3316,
+                    radius: 1200,
+                    color: '#33A8FF'
+                }
+            ];
+            
+            // Plot job sites on map
+            jobSites.forEach(site => {
+                const circle = L.circle([site.latitude, site.longitude], {
+                    radius: site.radius,
+                    color: site.color,
+                    fillColor: site.color,
+                    fillOpacity: 0.1,
+                    weight: 2
+                }).addTo(jobSiteLayer);
+                
+                circle.bindTooltip(site.name, {
+                    permanent: false,
+                    direction: 'top',
+                    className: 'job-site-tooltip'
+                });
+            });
+            
+            // Add job sites layer to map
+            jobSiteLayer.addTo(map);
+            
+            // Mock asset data
+            const mockAssets = [
+                {
+                    asset_id: 'RTC-02',
+                    id: 'RTC-02',
+                    name: 'RTC-02 TEREX RT665 Crane +',
+                    make: 'TEREX',
+                    model: 'RT665',
+                    type: 'Crane',
+                    latitude: 32.7808342,
+                    longitude: -96.78361,
+                    location: '2023-032 SH 345 BRIDGE REHABILITATION',
+                    last_update: '5/21/2025 2:40:55 PM CT',
+                    status: 'active',
+                    driver: ''
+                },
+                {
+                    asset_id: 'BH-15',
+                    id: 'BH-15',
+                    name: 'BH-15 CAT 420F 2014 Backhoe +',
+                    make: 'CAT',
+                    model: '420F',
+                    type: 'Backhoe',
+                    latitude: 29.643177,
+                    longitude: -95.34747,
+                    location: 'HOU YARD/SHOP',
+                    last_update: '5/21/2025 3:29:05 PM CT',
+                    status: 'active',
+                    driver: ''
+                },
+                {
+                    asset_id: 'EX-30',
+                    id: 'EX-30',
+                    name: 'EX-30 CAT 320D L 2011 Excavator +',
+                    make: 'CAT',
+                    model: '320D L',
+                    type: 'Excavator',
+                    latitude: 32.3848953,
+                    longitude: -97.3316345,
+                    location: '2024-019 (15) Tarrant VA Bridge Rehab',
+                    last_update: '5/21/2025 4:59:18 PM CT',
+                    status: 'active',
+                    driver: ''
+                },
+                {
+                    asset_id: 'R-09',
+                    id: 'R-09',
+                    name: 'R-09 CAT CP563 2006 Roller +',
+                    make: 'CAT',
+                    model: 'CP563',
+                    type: 'Roller',
+                    latitude: 31.9183979,
+                    longitude: -102.225624,
+                    location: '2023-007 Ector BI 20E Rehab Roadway',
+                    last_update: '5/21/2025 5:04:57 PM CT',
+                    status: 'active',
+                    driver: ''
+                },
+                {
+                    asset_id: 'ML-03',
+                    id: 'ML-03',
+                    name: 'ML-03 GENIE S60X 2011 Man Lift +',
+                    make: 'GENIE',
+                    model: 'S60X',
+                    type: 'Man Lift',
+                    latitude: 32.78879,
+                    longitude: -96.79155,
+                    location: '2023-032 SH 345 BRIDGE REHABILITATION',
+                    last_update: '5/21/2025 8:55:41 AM CT',
+                    status: 'active',
+                    driver: ''
+                },
+                {
+                    asset_id: 'DT-07',
+                    id: 'DT-07',
+                    name: 'DT-07 FORD F550 2012 Medium Truck +',
+                    make: 'FORD',
+                    model: 'F550',
+                    type: 'Medium Truck',
+                    latitude: 32.61358,
+                    longitude: -97.3076,
+                    location: 'DFW Yard',
+                    last_update: '5/21/2025 9:46:51 AM CT',
+                    status: 'active',
+                    driver: ''
+                }
+            ];
+            
+            // Load assets
+            function loadAssets() {
+                // Clear existing layers
+                assetClusterLayer.clearLayers();
+                
+                // Show connecting status
+                document.querySelector('#api-status .badge').className = 'badge bg-warning';
+                document.querySelector('#api-status .badge').textContent = 'Connecting...';
+                
+                // Load from API - For this demo, we'll use mock data
+                try {
+                    // Use mock data
+                    const assets = mockAssets;
+                    
+                    // For each asset, create a marker and add to cluster layer
+                    assets.forEach(asset => {
+                        if (asset.latitude && asset.longitude) {
+                            const marker = createAssetMarker(asset);
+                            if (marker) {
+                                assetClusterLayer.addLayer(marker);
+                            }
+                        }
+                    });
+                    
+                    // Add cluster layer to map
+                    map.addLayer(assetClusterLayer);
+                    
+                    // Update status
+                    document.querySelector('#api-status .badge').className = 'badge bg-success';
+                    document.querySelector('#api-status .badge').textContent = 'Connected';
+                    
+                    // Update last update time
+                    const now = new Date();
+                    document.querySelector('#last-update-time').textContent = now.toLocaleTimeString();
+                    
+                    // Add to event timeline
+                    addEventToTimeline('MapAgent', `Loaded ${mockAssets.length} assets`);
+                    
+                    // Create heatmap layer if it doesn't exist
+                    if (!heatmapLayer) {
+                        const heatData = assets
+                            .filter(asset => asset.latitude && asset.longitude)
+                            .map(asset => [asset.latitude, asset.longitude, 0.5]);
+                        
+                        heatmapLayer = L.heatLayer(heatData, {
+                            radius: 25,
+                            blur: 15,
+                            maxZoom: 17,
+                            gradient: {0.4: 'blue', 0.65: 'lime', 1: 'red'}
+                        });
+                        
+                        // Add to overlays
+                        overlays["Heat Map"] = heatmapLayer;
+                        
+                        // Update layer control
+                        L.control.layers(baseMaps, overlays, {position: 'topright'}).addTo(map);
+                    }
+                    
+                    // Store in local storage for offline use
+                    localStorage.setItem('traxora_asset_cache', JSON.stringify({
+                        assets: assets,
+                        timestamp: new Date().toISOString()
+                    }));
+                    
+                } catch (error) {
+                    console.error('Error loading assets:', error);
+                    
+                    // Update status
+                    document.querySelector('#api-status .badge').className = 'badge bg-danger';
+                    document.querySelector('#api-status .badge').textContent = 'Error';
+                    
+                    // Try to load from cache
+                    const cachedData = localStorage.getItem('traxora_asset_cache');
+                    if (cachedData) {
+                        const parsedData = JSON.parse(cachedData);
+                        
+                        // Show offline indicator
+                        document.getElementById('offline-indicator').classList.remove('hidden');
+                        document.querySelector('.offline-text').textContent = `Using offline asset data from ${formatTimeAgo(new Date(parsedData.timestamp))}`;
+                        
+                        // Load assets from cache
+                        parsedData.assets.forEach(asset => {
+                            if (asset.latitude && asset.longitude) {
+                                const marker = createAssetMarker(asset);
+                                if (marker) {
+                                    assetClusterLayer.addLayer(marker);
+                                }
+                            }
+                        });
+                        
+                        // Add cluster layer to map
+                        map.addLayer(assetClusterLayer);
+                        
+                        // Add to event timeline
+                        addEventToTimeline('MapAgent', `Using offline data (${parsedData.assets.length} assets)`);
+                    }
+                }
+            }
+            
+            // Helper function to format time ago
+            function formatTimeAgo(date) {
+                const now = new Date();
+                const diffMs = now - date;
+                const diffMins = Math.floor(diffMs / (1000 * 60));
+                
+                if (diffMins < 1) {
+                    return 'just now';
+                } else if (diffMins < 60) {
+                    return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+                } else if (diffMins < 24 * 60) {
+                    const hours = Math.floor(diffMins / 60);
+                    return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+                } else {
+                    const days = Math.floor(diffMins / (60 * 24));
+                    return `${days} day${days > 1 ? 's' : ''} ago`;
+                }
+            }
+            
+            // UI Interactions
+            
+            // Legend toggle
+            document.querySelector('.legend-header').addEventListener('click', function() {
+                const legend = document.getElementById('map-legend');
+                legend.classList.toggle('expanded');
+                
+                // Update icon
+                const icon = this.querySelector('i');
+                if (legend.classList.contains('expanded')) {
+                    icon.className = 'bi bi-chevron-up';
+                } else {
+                    icon.className = 'bi bi-chevron-down';
+                }
+            });
+            
+            // Timeline toggle
+            document.querySelector('.event-timeline-header').addEventListener('click', function() {
+                const timeline = document.querySelector('.event-timeline');
+                timeline.classList.toggle('expanded');
+                
+                // Update icon
+                const icon = this.querySelector('i');
+                if (timeline.classList.contains('expanded')) {
+                    icon.className = 'bi bi-chevron-up';
+                } else {
+                    icon.className = 'bi bi-chevron-down';
+                }
+            });
+            
+            // Offline indicator close button
+            document.querySelector('.offline-close').addEventListener('click', function() {
+                document.getElementById('offline-indicator').classList.add('hidden');
+            });
+            
+            // Filter buttons
+            document.querySelectorAll('.shortcut-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const type = this.getAttribute('data-type');
+                    document.getElementById('type-filter').value = type;
+                    // In a real app, would filter markers
+                    
+                    // Add to event timeline
+                    addEventToTimeline('MapAgent', `Applied filter: ${type}`);
+                });
+            });
+            
+            // Job site buttons
+            document.querySelectorAll('.shortcut-job').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const job = this.getAttribute('data-job');
+                    // In a real app, would filter markers
+                    
+                    // Add to event timeline
+                    addEventToTimeline('MapAgent', `Filtered to job site: ${job}`);
+                    
+                    // Find job site and zoom to it
+                    const jobSite = jobSites.find(site => site.job_number === job);
+                    if (jobSite) {
+                        map.setView([jobSite.latitude, jobSite.longitude], 14);
+                    }
+                });
+            });
+            
+            // Proximity buttons
+            document.querySelectorAll('.proximity-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const job = this.getAttribute('data-job');
+                    
+                    // Find job site
+                    const jobSite = jobSites.find(site => site.job_number === job);
+                    if (jobSite) {
+                        // Remove any existing proximity circles
+                        map.eachLayer(layer => {
+                            if (layer.options && layer.options.className === 'distance-circle') {
+                                map.removeLayer(layer);
+                            }
+                        });
+                        
+                        // Create proximity circle
+                        const circle = L.circle([jobSite.latitude, jobSite.longitude], {
+                            radius: jobSite.radius,
+                            className: 'distance-circle'
+                        }).addTo(map);
+                        
+                        // Zoom to job site
+                        map.setView([jobSite.latitude, jobSite.longitude], 14);
+                        
+                        // Add to event timeline
+                        addEventToTimeline('MapAgent', `Showing proximity for job: ${job}`);
+                    }
+                });
+            });
+            
+            // Refresh button
+            document.getElementById('refresh-map').addEventListener('click', function() {
+                loadAssets();
+            });
+            
+            // Initialize draw control for measurements
+            const drawnItems = new L.FeatureGroup();
+            map.addLayer(drawnItems);
+            
+            const drawControl = new L.Control.Draw({
+                draw: {
+                    marker: false,
+                    circlemarker: false,
+                    polyline: {
+                        shapeOptions: {
+                            color: '#3388ff',
+                            weight: 3
+                        },
+                        metric: true,
+                        showLength: true
+                    },
+                    polygon: false,
+                    rectangle: false,
+                    circle: false
+                },
+                edit: {
+                    featureGroup: drawnItems
+                }
+            });
+            map.addControl(drawControl);
+            
+            // Event handler for when a shape is drawn
+            map.on(L.Draw.Event.CREATED, function(event) {
+                const layer = event.layer;
+                
+                // If it's a polyline, add distance information
+                if (event.layerType === 'polyline') {
+                    const latlngs = layer.getLatLngs();
+                    let totalDistance = 0;
+                    
+                    for (let i = 1; i < latlngs.length; i++) {
+                        totalDistance += latlngs[i-1].distanceTo(latlngs[i]);
+                    }
+                    
+                    const distanceInMiles = (totalDistance / 1609.34).toFixed(2);
+                    
+                    // Add a tooltip with the distance
+                    layer.bindTooltip(`Distance: ${distanceInMiles} miles`, {
+                        permanent: true,
+                        direction: 'center',
+                        className: 'distance-tooltip'
+                    });
+                    
+                    // Add to event timeline
+                    addEventToTimeline('MapAgent', `Measured distance: ${distanceInMiles} miles`);
+                }
+                
+                // Add the layer to the feature group
+                drawnItems.addLayer(layer);
+            });
+            
+            // Load assets on start
+            loadAssets();
+        });
+    </script>
+</body>
+</html>

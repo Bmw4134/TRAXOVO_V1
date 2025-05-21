@@ -1,0 +1,1474 @@
+{
+  "date": "2025-05-16",
+  "generated_at": "2025-05-21T12:13:34.895139",
+  "statistics": {
+    "total_drivers": 160,
+    "on_time": 0,
+    "late": 0,
+    "early_end": 0,
+    "not_on_job": 160,
+    "unverified": 0,
+    "is_test_data": true,
+    "test_drivers_count": 14,
+    "real_drivers_count": 0
+  },
+  "is_test_data": true,
+  "drivers": [
+    {
+      "name": "Elhamad, Ammar I",
+      "normalized_name": "ammar i elhamad",
+      "asset_id": "#210003 - AMMAR I. ELHAMAD",
+      "job_site": "TEXDIST, Two Thousand Oak Apartments, North Richland Hills, TX 76180",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Shaylor, Matthew C",
+      "normalized_name": "matthew c shaylor",
+      "asset_id": "#210013 - MATTHEW C. SHAYLOR",
+      "job_site": "Pine Valley Dr, Flower Mound, TX 75022",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Goode, Adam H",
+      "normalized_name": "adam h goode",
+      "asset_id": "#210055 - ADAM H. GOODE",
+      "job_site": "2022-023 Riverfront & Cadiz Bridge Improvement, S Riverfront Blvd, Dallas, TX 75207",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Adhikari, Bikhyat",
+      "normalized_name": "bikhyat adhikari",
+      "asset_id": "#210073 - BIKHYAT ADHIKARI",
+      "job_site": "2023-006 (OFFICE) Tarrant SH 183 Bridge, Decatur Ave, Fort Worth, TX 76106",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "S2372507",
+      "normalized_name": "s2372507",
+      "asset_id": "14FT-03S",
+      "job_site": "2023-035 (5) HARRIS VA BRIDGE REHAB, South Loop E, Houston, TX 77051",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "R2360779",
+      "normalized_name": "r2360779",
+      "asset_id": "14FT-04S",
+      "job_site": "2024-030 Matagorda SH 35 Bridge Replacement, State Highway 35 S, Bay City, TX 77414",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "SHOP TRAILER",
+      "normalized_name": "shop trailer",
+      "asset_id": "14T-21",
+      "job_site": "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "TRAFFIC CONTROL",
+      "normalized_name": "traffic control",
+      "asset_id": "14T-38",
+      "job_site": "TRAFFIC WALNUT HILL YARD, Walnut Hill Ln, Dallas, TX 75229",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "WTX JOB TRAILER",
+      "normalized_name": "wtx job trailer",
+      "asset_id": "14T-39",
+      "job_site": "WTX YARD (2), W County Road 117, Midland, TX 79706",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "HTX FLATBED TRAILER",
+      "normalized_name": "htx flatbed trailer",
+      "asset_id": "14T-44",
+      "job_site": "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "HTX DUMP TRAILER",
+      "normalized_name": "htx dump trailer",
+      "asset_id": "14T-45",
+      "job_site": "2024-025 LIBERTY FM 787 EMC BRIDGE, FM 787 Rd W, Liberty, TX 77327",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "0153",
+      "normalized_name": "0153",
+      "asset_id": "AC-25",
+      "job_site": "2023-032 SH 345 BRIDGE REHABILITATION, Canton St, Dallas, TX 75226",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "ALLEN SCREED 22.5'",
+      "normalized_name": "allen screed 22 5",
+      "asset_id": "CFM-18",
+      "job_site": null,
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "ASPHALT 84\"",
+      "normalized_name": "asphalt 84",
+      "asset_id": "DD-02",
+      "job_site": "2023-007 Ector BI 20E Rehab Roadway, W Highway 80 E, Midland, TX 79765",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "WELDING TRUCK",
+      "normalized_name": "welding truck",
+      "asset_id": "DT-08",
+      "job_site": "2023-032 SH 345 BRIDGE REHABILITATION, US-75 N, Dallas, TX 75226",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "SALVADOR AGUILLON",
+      "normalized_name": "salvador aguillon",
+      "asset_id": "SS-36",
+      "job_site": "2023-032 SH 345 BRIDGE REHABILITATION, Canton St, Dallas, TX 75226",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Ruiz, Juan L",
+      "normalized_name": "juan l ruiz",
+      "asset_id": "ET-30",
+      "job_site": "Denton Hwy, Haltom City, TX 76117",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Alonso Miramontes",
+      "normalized_name": "alonso miramontes",
+      "asset_id": "SS-45",
+      "job_site": "2023-006 (OFFICE) Tarrant SH 183 Bridge, Peak St, Fort Worth, TX 76106",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "14T",
+      "normalized_name": "14t",
+      "asset_id": "DTF-03S",
+      "job_site": "24-04 DALLAS SH 310 INTERSECTION IMPROV, S Central Expy, Dallas, TX 75241",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "JESUS LOPEZ SOTO",
+      "normalized_name": "jesus lopez soto",
+      "asset_id": "SS-38",
+      "job_site": "2024-004 CoD Sidewalks 2024 (#23-BFR1), N Winnetka Ave, Dallas, TX 75208",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "FOUNDATION",
+      "normalized_name": "foundation",
+      "asset_id": "DTF-09",
+      "job_site": "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Claudio, Hector J",
+      "normalized_name": "hector j claudio",
+      "asset_id": "PT-269",
+      "job_site": "2023-032 SH 345 BRIDGE REHABILITATION, US-75 N, Dallas, TX 75226",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Rangel, Jose M",
+      "normalized_name": "jose m rangel",
+      "asset_id": "PT-227",
+      "job_site": "2024-004 CoD Sidewalks 2024 (#06), San Jacinto St, Dallas, TX 75204",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "SALVADOR",
+      "normalized_name": "salvador",
+      "asset_id": "DTF-17",
+      "job_site": "2023-032 SH 345 BRIDGE REHABILITATION, US-75 N, Dallas, TX 75226",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Martinez Alvarez, Saul",
+      "normalized_name": "saul martinez alvarez",
+      "asset_id": "ET-01",
+      "job_site": "2023-006 (OFFICE) Tarrant SH 183 Bridge, Decatur Ave, Fort Worth, TX 76106",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "HARDIMON, ANTHONY J",
+      "normalized_name": "anthony j hardimon",
+      "asset_id": "ET-02",
+      "job_site": "Airport Fwy, Bedford, TX 76021",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Andrade, Manuel",
+      "normalized_name": "manuel andrade",
+      "asset_id": "ET-03",
+      "job_site": "2023-035 (5) HARRIS VA BRIDGE REHAB, I-610 E, Houston, TX 77033",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Ehimhen, Gerald A",
+      "normalized_name": "gerald a ehimhen",
+      "asset_id": "ET-04",
+      "job_site": "2024-004 City of Dallas Sidewalk 2024 (YARD), Langford St, Dallas, TX 75208",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "HARDIMON, ANTHONY J LOANER",
+      "normalized_name": "anthony j loaner hardimon",
+      "asset_id": "ET-05",
+      "job_site": "2024-019 (15) Tarrant VA Bridge Rehab, US-67 Bus S, Keene, TX 76059",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Rodriguez Perez, Esteban",
+      "normalized_name": "esteban rodriguez perez",
+      "asset_id": "ET-06",
+      "job_site": "2023-007 Ector BI 20E Rehab Roadway, W Highway 80 E, Midland, TX 79765",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "HAYS, PAXTON C",
+      "normalized_name": "paxton c hays",
+      "asset_id": "ET-07",
+      "job_site": "2024-004 City of Dallas Sidewalk 2024 (YARD), Langford St, Dallas, TX 75208",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Martinez, Jorge L",
+      "normalized_name": "jorge l martinez",
+      "asset_id": "ET-08",
+      "job_site": "2023-006 (OFFICE) Tarrant SH 183 Bridge, Decatur Ave, Fort Worth, TX 76106",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Ramirez, Jose C",
+      "normalized_name": "jose c ramirez",
+      "asset_id": "ET-09",
+      "job_site": "Hayman Dr, Garland, TX 75043",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Medina-Rodriguez, Jesus A",
+      "normalized_name": "jesus a medina rodriguez",
+      "asset_id": "ET-10",
+      "job_site": "2024-030 Matagorda SH 35 Bridge Replacement, State Highway 35 S, Bay City, TX 77414",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Guerrero Jr, Roberto",
+      "normalized_name": "roberto guerrero jr",
+      "asset_id": "ET-11",
+      "job_site": "2023-014 (3) TARRANT IH 20 US 81 BR, S Main St, Rhome, TX 76078",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Kocmick, Caleb S",
+      "normalized_name": "caleb s kocmick",
+      "asset_id": "ET-14",
+      "job_site": "2023-006 (OFFICE) Tarrant SH 183 Bridge, Decatur Ave, Fort Worth, TX 76106",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Eclavea, Carlos H",
+      "normalized_name": "carlos h eclavea",
+      "asset_id": "ET-15",
+      "job_site": "2023-006 Tarrant SH 183 Bridge Replacement, NE 28th St, Fort Worth, TX 76106",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Murcia Orellana, Luis E",
+      "normalized_name": "luis e murcia orellana",
+      "asset_id": "ET-16",
+      "job_site": "2024-030 Matagorda SH 35 Bridge Replacement, State Highway 35 S, Bay City, TX 77414",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Link, Cooper E",
+      "normalized_name": "cooper e link",
+      "asset_id": "ET-17",
+      "job_site": "TEXDIST, Airport Fwy, North Richland Hills, TX 76180",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Moore, Jesse A",
+      "normalized_name": "jesse a moore",
+      "asset_id": "ET-18",
+      "job_site": "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Salaices, Osiel",
+      "normalized_name": "osiel salaices",
+      "asset_id": "ET-19",
+      "job_site": "2022-023 Riverfront & Cadiz Bridge Improvement, S Riverfront Blvd, Dallas, TX 75207",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "OPEN RAM 1500",
+      "normalized_name": "open ram 1500",
+      "asset_id": "ET-20",
+      "job_site": "EQUIP HOU, S Acres Dr, Houston, TX 77048",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Lopez, Juan",
+      "normalized_name": "juan lopez",
+      "asset_id": "ET-22",
+      "job_site": "2023-032 SH 345 BRIDGE REHABILITATION, S Good Latimer Expy, Dallas, TX 75226",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Rivera, Jose J",
+      "normalized_name": "jose j rivera",
+      "asset_id": "ET-23",
+      "job_site": "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Malette, Troy S",
+      "normalized_name": "troy s malette",
+      "asset_id": "ET-24",
+      "job_site": "Burwell Dr, Fort Worth, TX 76244",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "RODARTE SERRANO, JESUS O",
+      "normalized_name": "jesus o rodarte serrano",
+      "asset_id": "ET-25",
+      "job_site": "2023-014 (1) TARRANT IH 20 US 81 BR, Milmo Dr, Fort Worth, TX 76134",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "JUAN P. RODRIGUEZ",
+      "normalized_name": "juan p rodriguez",
+      "asset_id": "SS-35",
+      "job_site": "2023-032 SH 345 BRIDGE REHABILITATION, S Crowdus St, Dallas, TX 75226",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Flores, Jorge L",
+      "normalized_name": "jorge l flores",
+      "asset_id": "ET-28",
+      "job_site": "S County Road 1314, Midland, TX 79765",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Vazquez De La Cruz, Ramiro",
+      "normalized_name": "ramiro vazquez de la cruz",
+      "asset_id": "ET-31",
+      "job_site": "Springtime Dr, Cedar Hill, TX 75104",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "URIEL GARCIA-ANDRADE",
+      "normalized_name": "uriel garcia andrade",
+      "asset_id": "SS-41",
+      "job_site": "Beaumont RAG Property, Romeda Rd, Beaumont, TX 77705",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Lopez Lira, Jose P",
+      "normalized_name": "jose p lopez lira",
+      "asset_id": "ET-33",
+      "job_site": "Forrester St, Greenville, TX 75401",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Reyes, Aureliano",
+      "normalized_name": "aureliano reyes",
+      "asset_id": "ET-34",
+      "job_site": "2023-035 (5) HARRIS VA BRIDGE REHAB, South Loop E, Houston, TX 77087",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "ALONZO GONZALEZ",
+      "normalized_name": "alonzo gonzalez",
+      "asset_id": "HTC-07",
+      "job_site": "EQUIP HOU, S Acres Dr, Houston, TX 77048",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "SABINO IBARRA",
+      "normalized_name": "sabino ibarra",
+      "asset_id": "SS-39",
+      "job_site": "2023-007 Ector BI 20E Rehab Roadway, W Highway 80 E, Midland, TX 79765",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Padgett, Caleb L",
+      "normalized_name": "caleb l padgett",
+      "asset_id": "ET-38",
+      "job_site": "Highway 360, Arlington, TX 76010",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Terrazas Melendez, Jose R",
+      "normalized_name": "jose r terrazas melendez",
+      "asset_id": "ET-39",
+      "job_site": "2024-012 Dal IH635 U-Turn Bridge, Interstate Highway 635, Coppell, TX 75063",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Hampton, Justin D",
+      "normalized_name": "justin d hampton",
+      "asset_id": "ET-41",
+      "job_site": "TEXDIST, Two Thousand Oak Apartments, North Richland Hills, TX 76180",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Berjes Ruiz, Juan C",
+      "normalized_name": "juan c berjes ruiz",
+      "asset_id": "ET-42",
+      "job_site": "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Giebelhaus, Eric STX",
+      "normalized_name": "eric stx giebelhaus",
+      "asset_id": "ET-43",
+      "job_site": "2023-032 (OFFICE) SH 345 BRIDGE REHABILITATION, Elm St, Dallas, TX 75226",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "stolen on 6/23/24",
+      "normalized_name": "stolen on 6 23 24",
+      "asset_id": "EX-03S",
+      "job_site": "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "P1007116",
+      "normalized_name": "p1007116",
+      "asset_id": "LP-114",
+      "job_site": "2024-012 Dal IH635 U-Turn Bridge, N Belt Line Rd, Irving, TX 75063",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "P1007120",
+      "normalized_name": "p1007120",
+      "asset_id": "LP-115",
+      "job_site": "2024-030 Matagorda SH 35 Bridge Replacement, State Highway 35 S, Bay City, TX 77414",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "411774",
+      "normalized_name": "411774",
+      "asset_id": "MB-05S",
+      "job_site": "EQUIP HOU, S Acres Dr, Houston, TX 77048",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "R1006827",
+      "normalized_name": "r1006827",
+      "asset_id": "ME-60",
+      "job_site": "E Highway 67, Keene, TX 76031",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "R1006828",
+      "normalized_name": "r1006828",
+      "asset_id": "ME-61",
+      "job_site": "2024-025 LIBERTY FM 787 EMC BRIDGE, FM 787 Rd W, Liberty, TX 77327",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Mower King",
+      "normalized_name": "mower king",
+      "asset_id": "MOWER ATTACHMENT",
+      "job_site": "2020-027 DENTON CO US 377",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "TMA",
+      "normalized_name": "tma",
+      "asset_id": "MT-07",
+      "job_site": "Dallas Pkwy, Plano, TX 75093",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Aparicio, Lorenzo",
+      "normalized_name": "lorenzo aparicio",
+      "asset_id": "MT-09",
+      "job_site": "2023-032 SH 345 BRIDGE REHABILITATION, Julius Schepps Fwy, Dallas, TX 75226",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "OPEN MECH TRUCK",
+      "normalized_name": "open mech truck",
+      "asset_id": "MT-13",
+      "job_site": "Panay Dr, Houston, TX 77048",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Torres, Ivan",
+      "normalized_name": "ivan torres",
+      "asset_id": "MT-14",
+      "job_site": "Tom Landry Fwy, Arlington, TX 76012",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Gee, Korbin E",
+      "normalized_name": "korbin e gee",
+      "asset_id": "MT-15",
+      "job_site": "2024-030 Matagorda SH 35 Bridge Replacement, State Highway 35 S, Bay City, TX 77414",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "LUBE TRUCK",
+      "normalized_name": "lube truck",
+      "asset_id": "MT-16",
+      "job_site": null,
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "OFFICE VEHICLE",
+      "normalized_name": "office vehicle",
+      "asset_id": "OV-01",
+      "job_site": "TEXDIST, Two Thousand Oak Apartments, North Richland Hills, TX 76180",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "SELECT CREW TRUCK",
+      "normalized_name": "select crew truck",
+      "asset_id": "PT-06S",
+      "job_site": "County Road 99, Alvin, TX 77511",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "DODDY, ROGER W",
+      "normalized_name": "roger w doddy",
+      "asset_id": "PT-07S",
+      "job_site": "Park Dr, Dalworthington Gardens, TX 76016",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "JAMES GABE",
+      "normalized_name": "james gabe",
+      "asset_id": "PT-08S",
+      "job_site": null,
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Espinoza-Casillas, Jovan",
+      "normalized_name": "jovan espinoza casillas",
+      "asset_id": "PT-09S",
+      "job_site": "25-01 (1) TARRANT STARNES RD INTERSECT, Starnes Rd, Watauga, TX 76148",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Escobedo Jr, Martin",
+      "normalized_name": "martin escobedo jr",
+      "asset_id": "PT-104",
+      "job_site": "2022-023 Riverfront & Cadiz Bridge Improvement, S Riverfront Blvd, Dallas, TX 75207",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "DFW OFFICE TRUCK",
+      "normalized_name": "dfw office truck",
+      "asset_id": "PT-107",
+      "job_site": "South Fwy, Fort Worth, TX 76134",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "BADILLO, GERARDO J",
+      "normalized_name": "gerardo j badillo",
+      "asset_id": "PT-108",
+      "job_site": "W Cypress Forest Dr, Houston, TX 77070",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Berryhill, Robert P",
+      "normalized_name": "robert p berryhill",
+      "asset_id": "PT-10S",
+      "job_site": "2023-035 (5) HARRIS VA BRIDGE REHAB, La Porte Fwy W, Houston, TX 77017",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "shop mech loaner",
+      "normalized_name": "shop mech loaner",
+      "asset_id": "PT-111",
+      "job_site": "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Muratalla-Ceja, Rafael",
+      "normalized_name": "rafael muratalla ceja",
+      "asset_id": "PT-11S",
+      "job_site": "24-04 DALLAS SH 310 INTERSECTION IMPROV, S Central Expy, Dallas, TX 75241",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "PLANO JOBSITE TRUCK",
+      "normalized_name": "plano jobsite truck",
+      "asset_id": "PT-125",
+      "job_site": "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Magallanes, Javier",
+      "normalized_name": "javier magallanes",
+      "asset_id": "PT-13S",
+      "job_site": "25-01 (1) TARRANT STARNES RD INTERSECT, Starnes Rd, Watauga, TX 76148",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Smith, Keith A",
+      "normalized_name": "keith a smith",
+      "asset_id": "PT-14S",
+      "job_site": "Hollow Tree Ln, Houston, TX 77090",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Alvarado, Eduardo D",
+      "normalized_name": "eduardo d alvarado",
+      "asset_id": "PT-156",
+      "job_site": "W 6th Ave, Corsicana, TX 75110",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Saldierna Jr, Armando",
+      "normalized_name": "armando saldierna jr",
+      "asset_id": "PT-160",
+      "job_site": "EQUIP HOU, S Acres Dr, Houston, TX 77048",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "PERSINGER, WILLIAM",
+      "normalized_name": "william persinger",
+      "asset_id": "PT-163",
+      "job_site": "2023-007 Ector BI 20E Rehab Roadway, E Highway 80, Odessa, TX 79762",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Zuniga, Alberto",
+      "normalized_name": "alberto zuniga",
+      "asset_id": "PT-165",
+      "job_site": "Cedarwood Dr, Lancaster, TX 75134",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Luevano, Juan M",
+      "normalized_name": "juan m luevano",
+      "asset_id": "PT-166",
+      "job_site": "N Beach St, Haltom City, TX 76111",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Ramirez, Omar",
+      "normalized_name": "omar ramirez",
+      "asset_id": "PT-167",
+      "job_site": "Concan Dr, Travis Ranch, TX 75126",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Ramirez, Luis F",
+      "normalized_name": "luis f ramirez",
+      "asset_id": "PT-168",
+      "job_site": "York Dr, Edgecliff Village, TX 76134",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "OPEN F150 STX",
+      "normalized_name": "open f150 stx",
+      "asset_id": "PT-169",
+      "job_site": "TEXDIST, Two Thousand Oak Apartments, North Richland Hills, TX 76180",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Romero, Isaac F",
+      "normalized_name": "isaac f romero",
+      "asset_id": "PT-16S",
+      "job_site": "US Highway 287, Fort Worth, TX 76179",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "OPEN TRAFFIC TRUCK",
+      "normalized_name": "open traffic truck",
+      "asset_id": "PT-172",
+      "job_site": "2022-023 Riverfront & Cadiz Bridge Improvement, S Riverfront Blvd, Dallas, TX 75207",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Hernandez, Juan B",
+      "normalized_name": "juan b hernandez",
+      "asset_id": "PT-173",
+      "job_site": "E Jefferson Blvd, Dallas, TX 75203",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Rodriguez Jr, Salvador",
+      "normalized_name": "salvador rodriguez jr",
+      "asset_id": "PT-177",
+      "job_site": "Rayville Dr, Dallas, TX 75217",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "TROY RAGLE",
+      "normalized_name": "troy ragle",
+      "asset_id": "PT-179",
+      "job_site": null,
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "OPEN SELECT JST",
+      "normalized_name": "open select jst",
+      "asset_id": "PT-17S",
+      "job_site": "2024-004 City of Dallas Sidewalk 2024 (YARD), Langford St, Dallas, TX 75208",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Lumbreras, Roberto",
+      "normalized_name": "roberto lumbreras",
+      "asset_id": "PT-187",
+      "job_site": "Northwest Dr, Mesquite, TX 75150",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Munoz, Leonel",
+      "normalized_name": "leonel munoz",
+      "asset_id": "PT-182",
+      "job_site": "2023-007 Ector BI 20E Rehab Roadway, W Industrial Ave, Midland, TX 79706",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Bautista, Jose A",
+      "normalized_name": "jose a bautista",
+      "asset_id": "PT-185",
+      "job_site": "WTX YARD (2), W County Road 117, Midland, TX 79706",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "OPEN F150",
+      "normalized_name": "open f150",
+      "asset_id": "PT-188",
+      "job_site": "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "JST SELECT 250",
+      "normalized_name": "jst select 250",
+      "asset_id": "PT-18S",
+      "job_site": "24-04 DALLAS SH 310 INTERSECTION IMPROV, S Central Expy, Dallas, TX 75241",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Turrubiartes Jr, Jose G",
+      "normalized_name": "jose g turrubiartes jr",
+      "asset_id": "PT-190",
+      "job_site": "2023-035 (5) HARRIS VA BRIDGE REHAB, South Loop E, Houston, TX 77012",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "OPEN DFW TC USING",
+      "normalized_name": "open dfw tc using",
+      "asset_id": "PT-193",
+      "job_site": "2023-032 SH 345 BRIDGE REHABILITATION, US-75 N, Dallas, TX 75226",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Albert Perry is using",
+      "normalized_name": "albert perry is using",
+      "asset_id": "PT-194",
+      "job_site": "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "WTX JST",
+      "normalized_name": "wtx jst",
+      "asset_id": "PT-199",
+      "job_site": "2023-007 Ector BI 20E Rehab Roadway, W Highway 80 E, Midland, TX 79765",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Figueroa, Bryan",
+      "normalized_name": "bryan figueroa",
+      "asset_id": "PT-19S",
+      "job_site": "Chicago Ave, Nederland, TX 77627",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "2024-004 SIDEWALKS JST",
+      "normalized_name": "2024 004 sidewalks jst",
+      "asset_id": "PT-202",
+      "job_site": "2024-004 CoD Sidewalks 2024 (#23-BFR1), W Canty St, Dallas, TX 75208",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Vasquez, Juan C",
+      "normalized_name": "juan c vasquez",
+      "asset_id": "PT-207",
+      "job_site": "W Danieldale Rd, Desoto, TX 75232",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Chavez, Obaldo S",
+      "normalized_name": "obaldo s chavez",
+      "asset_id": "PT-20S",
+      "job_site": "24-04 DALLAS SH 310 INTERSECTION IMPROV, S Central Expy, Dallas, TX 75241",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Flores Jr, Catalino",
+      "normalized_name": "catalino flores jr",
+      "asset_id": "PT-213",
+      "job_site": "Spur 408 N, Dallas, TX 75236",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Lemon Jr, Ernest S",
+      "normalized_name": "ernest s lemon jr",
+      "asset_id": "PT-215",
+      "job_site": "2023-014 (3) TARRANT IH 20 US 81 BR, S US Highway 287, Rhome, TX 76078",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Hammons, Michael A",
+      "normalized_name": "michael a hammons",
+      "asset_id": "PT-218",
+      "job_site": "Nelson Pl, Fort Worth, TX 76028",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Lopez, Valentin",
+      "normalized_name": "valentin lopez",
+      "asset_id": "PT-219",
+      "job_site": "2024-004 CoD Sidewalks 2024 (#03), E Jefferson Blvd, Dallas, TX 75203",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "RED44664",
+      "normalized_name": "red44664",
+      "asset_id": "PT-21S",
+      "job_site": "County Road 99, Alvin, TX 77511",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Pachipulusu Sreedhar, Nagesh Kumar",
+      "normalized_name": "nagesh kumar pachipulusu sreedhar",
+      "asset_id": "PT-224",
+      "job_site": "2023-032 (OFFICE) SH 345 BRIDGE REHABILITATION, Elm St, Dallas, TX 75226",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Flores Sr, Catalino",
+      "normalized_name": "catalino flores sr",
+      "asset_id": "PT-226",
+      "job_site": "2023-007 Ector BI 20E Rehab Roadway, W Highway 80 E, Midland, TX 79765",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Lopez, Daniel",
+      "normalized_name": "daniel lopez",
+      "asset_id": "PT-228",
+      "job_site": "I-35E S, Dallas, TX 75207",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Caballero, Reyneri M",
+      "normalized_name": "reyneri m caballero",
+      "asset_id": "PT-229",
+      "job_site": "Harris St, Houston, TX 77020",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Mendieta, Albert A",
+      "normalized_name": "albert a mendieta",
+      "asset_id": "PT-22S",
+      "job_site": "Masters Rd, Manvel, TX 77584",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Morales, Luis A",
+      "normalized_name": "luis a morales",
+      "asset_id": "PT-235",
+      "job_site": "2024-030 Matagorda SH 35 Bridge Replacement, State Highway 35 S, Bay City, TX 77414",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Colmenero-Garcia, Rolando",
+      "normalized_name": "rolando colmenero garcia",
+      "asset_id": "SS-44",
+      "job_site": "2024-030 Matagorda SH 35 Bridge Replacement, State Highway 35 S, Bay City, TX 77414",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Miramontes Jr, Juan C",
+      "normalized_name": "juan c miramontes jr",
+      "asset_id": "PT-237",
+      "job_site": "2023-006 (OFFICE) Tarrant SH 183 Bridge, Decatur Ave, Fort Worth, TX 76106",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Rodriguez-Ayala, Alejandro J",
+      "normalized_name": "alejandro j rodriguez ayala",
+      "asset_id": "PT-239",
+      "job_site": "TEXDIST, Two Thousand Oak Apartments, North Richland Hills, TX 76180",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Mize, Clint",
+      "normalized_name": "clint mize",
+      "asset_id": "PT-240",
+      "job_site": "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Garcia, Mark E XL",
+      "normalized_name": "mark e xl garcia",
+      "asset_id": "PT-241",
+      "job_site": "TEXDIST, Two Thousand Oak Apartments, North Richland Hills, TX 76180",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Sanchez, Hector",
+      "normalized_name": "hector sanchez",
+      "asset_id": "PT-242",
+      "job_site": "2024-023 TARRANT RIVERSIDE BRIDGE REHAB, Riverside Dr, Fort Worth, TX 76103",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Bobba, Ramesh",
+      "normalized_name": "ramesh bobba",
+      "asset_id": "PT-243",
+      "job_site": "TEXDIST, Two Thousand Oak Apartments, North Richland Hills, TX 76180",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Abunemeh, Osama M",
+      "normalized_name": "osama m abunemeh",
+      "asset_id": "PT-244",
+      "job_site": "2023-032 (OFFICE) SH 345 BRIDGE REHABILITATION, Elm St, Dallas, TX 75226",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Ruhrup, Jared K",
+      "normalized_name": "jared k ruhrup",
+      "asset_id": "PT-260",
+      "job_site": "2023-006 (OFFICE) Tarrant SH 183 Bridge, Decatur Ave, Fort Worth, TX 76106",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Sabaj, Phillip A",
+      "normalized_name": "phillip a sabaj",
+      "asset_id": "PT-246",
+      "job_site": "Kingshill Dr, Conroe, TX 77339",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "MARTIN SANCHEZ",
+      "normalized_name": "martin sanchez",
+      "asset_id": "PT-247",
+      "job_site": "2023-032 (OFFICE) SH 345 BRIDGE REHABILITATION, Elm St, Dallas, TX 75226",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Reyes Diaz, Juan C",
+      "normalized_name": "juan c reyes diaz",
+      "asset_id": "PT-252",
+      "job_site": "2023-034 DALLAS IH 45 BRIDGE MAINTENANCE, Martin Luther King Jr Blvd, Dallas, TX 75215",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "OEPN",
+      "normalized_name": "oepn",
+      "asset_id": "PT-268",
+      "job_site": "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "MANCHO CAMACHO, GRECIA",
+      "normalized_name": "grecia mancho camacho",
+      "asset_id": "PT-274",
+      "job_site": "TX-183 W, Irving, TX 75062",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "MOYA, MARIO",
+      "normalized_name": "mario moya",
+      "asset_id": "PT-276",
+      "job_site": "N State Highway 360, Grand Prairie, TX 75050",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "GARCIA, SAID A",
+      "normalized_name": "said a garcia",
+      "asset_id": "PT-277",
+      "job_site": "TEXDIST, Two Thousand Oak Apartments, North Richland Hills, TX 76180",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "CASTRO, JUAN J",
+      "normalized_name": "juan j castro",
+      "asset_id": "PT-278",
+      "job_site": "TEXDIST, Two Thousand Oak Apartments, North Richland Hills, TX 76180",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "AARON CONCHA",
+      "normalized_name": "aaron concha",
+      "asset_id": "SS-33",
+      "job_site": "24-04 DALLAS SH 310 INTERSECTION IMPROV, S Central Expy, Dallas, TX 75241",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Blanco, Andres E",
+      "normalized_name": "andres e blanco",
+      "asset_id": "PT-280",
+      "job_site": "2024-030 Matagorda SH 35 Bridge Replacement, State Highway 35 S, Bay City, TX 77414",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Martinez Salazar, Josue",
+      "normalized_name": "josue martinez salazar",
+      "asset_id": "PT-281",
+      "job_site": "2024-019 (15) Tarrant VA Bridge Rehab, US-67 Bus S, Keene, TX 76059",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "OWENS, JUSTIN W",
+      "normalized_name": "justin w owens",
+      "asset_id": "PT-282",
+      "job_site": "2022-023 Riverfront & Cadiz Bridge Improvement, S Riverfront Blvd, Dallas, TX 75207",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "NEFF, ROBERT S",
+      "normalized_name": "robert s neff",
+      "asset_id": "PT-89",
+      "job_site": "I-20 W, Dallas, TX 75241",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "STONIE BROWN",
+      "normalized_name": "stonie brown",
+      "asset_id": "PT-92",
+      "job_site": "E Colorado Blvd, Dallas, TX 75203",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "086733",
+      "normalized_name": "086733",
+      "asset_id": "S-13",
+      "job_site": null,
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "085764",
+      "normalized_name": "085764",
+      "asset_id": "S-14",
+      "job_site": null,
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "POLY SPRAYER",
+      "normalized_name": "poly sprayer",
+      "asset_id": "SFB-04",
+      "job_site": "Beaumont RAG Property, Romeda Rd, Beaumont, TX 77705",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "KB9153",
+      "normalized_name": "kb9153",
+      "asset_id": "SFB-23",
+      "job_site": null,
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "shop use",
+      "normalized_name": "shop use",
+      "asset_id": "TH-04",
+      "job_site": "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "JOSE RIVERA",
+      "normalized_name": "jose rivera",
+      "asset_id": "SS-34",
+      "job_site": "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "JOSE RANGEL",
+      "normalized_name": "jose rangel",
+      "asset_id": "SS-37",
+      "job_site": "2024-004 CoD Sidewalks 2024 (#06), San Jacinto St, Dallas, TX 75204",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "Josue Martinez",
+      "normalized_name": "josue martinez",
+      "asset_id": "SS-46",
+      "job_site": "2024-019 (15) Tarrant VA Bridge Rehab, US-67 Bus S, Keene, TX 76059",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "RIEDER, MICHAEL A",
+      "normalized_name": "michael a rieder",
+      "asset_id": "SV-08",
+      "job_site": "2023-006 (OFFICE) Tarrant SH 183 Bridge, Decatur Ave, Fort Worth, TX 76106",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "LP873",
+      "normalized_name": "lp873",
+      "asset_id": "VT-01",
+      "job_site": null,
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "J1S02294",
+      "normalized_name": "j1s02294",
+      "asset_id": "WL-11",
+      "job_site": "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "K03394",
+      "normalized_name": "k03394",
+      "asset_id": "WL-12",
+      "job_site": "2022-023 Riverfront & Cadiz Bridge Improvement, S Riverfront Blvd, Dallas, TX 75207",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    },
+    {
+      "name": "R08392",
+      "normalized_name": "r08392",
+      "asset_id": "WL-13",
+      "job_site": "DFW Yard, Oak Grove Rd, Fort Worth, TX 76140",
+      "in_driving_history": false,
+      "classification": "Not On Job",
+      "classification_reason": "Test data detected - no real drivers in Driving History"
+    }
+  ],
+  "test_drivers": [
+    "john smith",
+    "michael johnson",
+    "robert williams",
+    "william brown",
+    "james davis",
+    "david miller",
+    "richard wilson",
+    "joseph moore",
+    "thomas taylor",
+    "charles anderson",
+    "christopher thomas",
+    "daniel jackson",
+    "matthew harris",
+    "anthony martin"
+  ]
+}

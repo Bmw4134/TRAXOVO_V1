@@ -510,16 +510,58 @@ def api_job_sites():
                     hue = (idx * 30) % 360
                     color = f'hsl({hue}, 70%, 50%)'
                     
-                    # Determine appropriate radius based on site type
+                    # Determine appropriate radius and shape based on site type
                     radius = 500  # default radius
-                    if 'YARD' in name.upper():
+                    shape_type = 'circle'  # default shape
+                    
+                    # Generate shape coordinates
+                    if 'YARD' in name.upper() or 'SHOP' in name.upper():
                         radius = 800  # yards are larger
+                        shape_type = 'circle'
                     elif 'BRIDGE' in name.upper():
                         radius = 600  # bridge projects
-                    elif 'HIGHWAY' in name.upper() or 'ROAD' in name.upper():
+                        # Bridge sites are elongated ovals or rectangles, not circles
+                        shape_type = 'rectangle'
+                    elif 'HIGHWAY' in name.upper() or 'ROAD' in name.upper() or 'SIDEWALK' in name.upper():
                         radius = 1200  # highway projects are longer
+                        # Highway projects are linear, not circular
+                        shape_type = 'rectangle'
+                    elif 'INTERSECTION' in name.upper():
+                        shape_type = 'cross'
+                        radius = 400
                     
-                    # Add to job sites list
+                    # Create polygon coordinates if needed
+                    polygon_coordinates = []
+                    # For rectangular shapes (like highways, roads)
+                    if shape_type == 'rectangle':
+                        # Try to determine orientation (North-South or East-West)
+                        orientation = 'NS'  # Default North-South
+                        if 'EAST' in name.upper() or 'WEST' in name.upper() or 'HWY' in name.upper():
+                            orientation = 'EW'  # East-West
+                        
+                        lat = loc_data['latitude']
+                        lon = loc_data['longitude']
+                        width = radius * 0.4
+                        length = radius * 2
+                        
+                        # Create an elongated rectangle shape
+                        if orientation == 'NS':
+                            # North-South orientation (longer in lat direction)
+                            lat_offset = length * 0.00001
+                            lon_offset = width * 0.00001
+                        else:
+                            # East-West orientation (longer in lon direction)
+                            lat_offset = width * 0.00001
+                            lon_offset = length * 0.00001
+                            
+                        polygon_coordinates = [
+                            [lat - lat_offset, lon - lon_offset],
+                            [lat + lat_offset, lon - lon_offset],
+                            [lat + lat_offset, lon + lon_offset],
+                            [lat - lat_offset, lon + lon_offset]
+                        ]
+                    
+                    # Add to job sites list with shape information
                     job_sites.append({
                         'id': idx,
                         'name': name,
@@ -529,7 +571,9 @@ def api_job_sites():
                         'address': name,
                         'radius': radius,
                         'color': color,
-                        'asset_count': loc_data['count']
+                        'asset_count': loc_data['count'],
+                        'shape_type': shape_type,
+                        'polygon': polygon_coordinates if polygon_coordinates else []
                     })
         except Exception as e:
             logger.warning(f"Could not extract job sites from API data: {str(e)}")

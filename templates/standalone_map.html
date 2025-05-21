@@ -413,19 +413,71 @@
                                 icon: createJobSiteIcon()
                             }).addTo(jobSiteOverlay);
                             
-                            // Create geofence circle for the job site
+                            // Create the appropriate geofence shape based on site type
                             var radius = site.radius || 1000; // Default 1km radius if not specified
                             var color = site.color || '#FF5733'; // Default color if not specified
+                            var shape; // Will hold the geofence shape (circle, polygon, etc.)
                             
-                            var circle = L.circle([site.latitude, site.longitude], {
-                                radius: radius,
-                                color: color,
-                                fillColor: color,
-                                fillOpacity: 0.1,
-                                weight: 2,
-                                dashArray: '5, 5',
-                                interactive: true
-                            }).addTo(jobSiteOverlay);
+                            // Determine which type of shape to create based on shape_type
+                            if (site.shape_type === 'rectangle' && site.polygon && site.polygon.length > 0) {
+                                // Create a rectangle for highway/road projects
+                                shape = L.polygon(site.polygon, {
+                                    color: color,
+                                    fillColor: color,
+                                    fillOpacity: 0.1,
+                                    weight: 2,
+                                    dashArray: '5, 5',
+                                    interactive: true
+                                }).addTo(jobSiteOverlay);
+                            } 
+                            else if (site.shape_type === 'cross') {
+                                // Create a cross shape for intersections
+                                var lat = site.latitude;
+                                var lng = site.longitude;
+                                var halfRadius = radius / 111320; // Convert meters to degrees (approx)
+                                var thinWidth = halfRadius * 0.3;
+                                
+                                // Create the horizontal arm
+                                var horizontalArm = L.rectangle([
+                                    [lat - thinWidth, lng - halfRadius], 
+                                    [lat + thinWidth, lng + halfRadius]
+                                ], {
+                                    color: color,
+                                    fillColor: color,
+                                    fillOpacity: 0.1,
+                                    weight: 2,
+                                    dashArray: '5, 5',
+                                    interactive: true
+                                }).addTo(jobSiteOverlay);
+                                
+                                // Create the vertical arm
+                                var verticalArm = L.rectangle([
+                                    [lat - halfRadius, lng - thinWidth], 
+                                    [lat + halfRadius, lng + thinWidth]
+                                ], {
+                                    color: color,
+                                    fillColor: color,
+                                    fillOpacity: 0.1,
+                                    weight: 2,
+                                    dashArray: '5, 5',
+                                    interactive: true
+                                }).addTo(jobSiteOverlay);
+                                
+                                // Group both arms into one shape
+                                shape = L.layerGroup([horizontalArm, verticalArm]);
+                            }
+                            else {
+                                // Default to a circle for other shapes (yards, etc.)
+                                shape = L.circle([site.latitude, site.longitude], {
+                                    radius: radius,
+                                    color: color,
+                                    fillColor: color,
+                                    fillOpacity: 0.1,
+                                    weight: 2,
+                                    dashArray: '5, 5',
+                                    interactive: true
+                                }).addTo(jobSiteOverlay);
+                            }
                             
                             // Add asset count to popup if available
                             var assetCount = site.asset_count ? `<div><strong>Equipment Count:</strong> ${site.asset_count}</div>` : '';
@@ -440,12 +492,27 @@
                                 </div>
                             `;
                             
-                            // Bind popup to both marker and circle
+                            // Bind popup to marker
                             marker.bindPopup(popupContent);
-                            circle.bindPopup(popupContent);
                             
-                            // Store references
-                            jobSiteMarkers[site.id] = marker;
+                            // Bind popup to shape if it's a standard Leaflet layer
+                            if (shape && typeof shape.bindPopup === 'function') {
+                                shape.bindPopup(popupContent);
+                            }
+                            // For layer groups (like our cross shape), bind to each layer
+                            else if (shape && typeof shape.eachLayer === 'function') {
+                                shape.eachLayer(function(layer) {
+                                    if (typeof layer.bindPopup === 'function') {
+                                        layer.bindPopup(popupContent);
+                                    }
+                                });
+                            }
+                            
+                            // Store references to both marker and shape
+                            jobSiteMarkers[site.id] = {
+                                marker: marker,
+                                shape: shape
+                            };
                         });
                     })
                     .catch(function(error) {

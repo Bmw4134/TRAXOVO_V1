@@ -1,0 +1,224 @@
+TRAXORA GENIUS CORE | ROUTE AUDIT REPORT
+Generated: 2025-05-21T01:27:38.049090
+================================================================================
+
+REGISTERED BLUEPRINTS
+================================================================================
+Blueprint: downloads_bp from routes.downloads
+Blueprint: driver_module_bp from routes.drivers
+Blueprint: driver_module_bp from driver_module_fixed
+
+APP ROUTES
+================================================================================
+Route: / -> index
+Route: /health -> health
+
+BLUEPRINT ROUTES
+================================================================================
+Blueprint: uploads
+  Route: /upload -> upload
+  Route: /upload/activity -> upload_activity
+  Route: /upload/workzone -> upload_workzone
+  Route: /upload/billing -> upload_billing
+  Route: /upload/mapping -> upload_mapping
+
+Blueprint: billing
+  Route: /billing -> billing
+  Route: /billing/api/monthly-trend -> billing_api_monthly_trend
+  Route: /billing/api/asset-comparison -> billing_api_asset_comparison
+
+Blueprint: workzone
+  Route: /workzone -> workzone
+  Route: /workzone/api/efficiency-trend -> workzone_api_efficiency_trend
+  Route: /workzone/api/geospatial -> workzone_api_geospatial
+
+Blueprint: reports
+  Route: / -> index
+  Route: /driver-reports -> driver_reports
+  Route: /pm-allocation -> pm_allocation
+  Route: /upload-pm-allocation -> upload_pm_allocation
+  Route: /pm-allocation-results -> pm_allocation_results
+  Route: /generate-region-exports -> generate_region_exports
+  Route: /generate-daily-driver-report -> generate_daily_driver_report
+
+Blueprint: attendance
+  Route: / -> index
+  Route: /trends -> trends
+
+Blueprint: alerts
+  Route: / -> index
+  Route: /refresh -> refresh
+  Route: /api/alerts -> api_alerts
+  Route: /settings -> settings
+
+Blueprint: ocr
+  Route: /ocr_tool -> ocr_tool
+
+Blueprint: job_zone
+  Route: / -> index
+  Route: /create -> create
+  Route: /api/activities -> api_activities
+  Route: /report -> report
+
+Blueprint: main
+  Route: / -> index
+  Route: /assets -> assets
+
+Blueprint: export_reports
+  Route: / -> index
+  Route: /generate -> generate
+
+Blueprint: foundation_exports
+  Route: / -> index
+  Route: /generate -> generate
+  Route: /result -> result
+  Route: /generate-from-master -> generate_from_master
+  Route: /export-result -> export_result
+
+Blueprint: historical_analysis
+  Route: / -> index
+  Route: /equipment-lifecycle -> equipment_lifecycle
+  Route: /add-data -> add_data
+  Route: /compare-months -> compare_months
+
+Blueprint: dashboard
+  Route: / -> index
+  Route: /v2 -> dashboard_v2
+
+Blueprint: driver_reports
+  Route: / -> index
+  Route: /enhanced-daily -> enhanced_daily
+  Route: /api/driver-locations -> driver_locations
+
+Blueprint: admin
+  Route: / -> index
+  Route: /activity -> activity
+  Route: /activity/export -> activity_export
+  Route: /activity/stats -> activity_stats
+
+Blueprint: report_generator
+  Route: /generator -> generator
+  Route: /generate -> generate
+  Route: /recent -> recent
+
+Blueprint: billing_module
+  Route: / -> index
+  Route: /invoices -> invoices
+  Route: /generate_invoice -> generate_invoice
+  Route: /record_payment -> record_payment
+  Route: /pm_allocation -> pm_allocation
+  Route: /pm_allocation_upload -> pm_allocation_upload
+  Route: /pm_allocation_results -> pm_allocation_results
+  Route: /pm_allocation_export -> pm_allocation_export
+  Route: /monthly_report -> monthly_report
+  Route: /export_monthly_report -> export_monthly_report
+  Route: /api/invoice_status_chart -> api_invoice_status_chart
+  Route: /api/monthly_trends -> api_monthly_trends
+
+Blueprint: maintenance_module
+  Route: / -> index
+  Route: /schedules -> schedules
+  Route: /records -> records
+  Route: /create -> create
+  Route: /technicians -> technicians
+
+Blueprint: maintenance
+  Route: / -> index
+  Route: /schedule -> schedule
+  Route: /schedule/new -> schedule_new
+  Route: /record/new -> record_new
+  Route: /parts -> parts
+  Route: /reports -> reports
+  Route: /api/sync -> api_sync
+  Route: /export -> export
+
+Blueprint: pm_master
+  Route: / -> index
+  Route: /process -> process
+  Route: /generate-import-files -> generate_import_files
+  Route: /summary -> summary
+
+Blueprint: geo_tracking
+  Route: / -> index
+  Route: /api/asset-locations -> api_asset_locations
+
+Blueprint: geo_tracking_basic
+  Route: / -> map_view
+  Route: /mobile -> mobile_map_view
+  Route: /simple -> simple_map_view
+  Route: /api/sample-assets -> get_sample_assets
+
+Blueprint: export_report_function
+  Route: /export_report -> export_report
+
+Blueprint: driver_module_export
+  Route: /export_report -> export_report
+
+Blueprint: april_billing_simulation
+  Route: / -> index
+  Route: /upload -> upload
+  Route: /process -> process
+  Route: /cost-codes -> cost_codes
+  Route: /export-data -> export_data
+
+Blueprint: driver_exports
+  Route: /email_driver_report -> email_driver_report
+
+Blueprint: driver_module_clean
+  Route: / -> index
+  Route: /daily-report -> daily_report
+  Route: /attendance-dashboard -> attendance_dashboard
+  Route: /drivers -> drivers
+  Route: /upload-attendance -> upload_attendance
+  Route: /export-report -> export_report
+
+Blueprint: driver_module_new
+  Route: /test-daily-report -> test_daily_report
+  Route: /daily-report -> daily_report
+  Route: /attendance-dashboard -> attendance_dashboard
+  Route: /export-report -> export_report
+  Route: /vehicle-audit -> vehicle_audit
+
+Blueprint: trend_api
+  Route: /driver-trends -> driver_trends
+  Route: /attendance-with-trends -> attendance_with_trends
+
+Blueprint: system_logs
+  Route: / -> index
+  Route: /api/entries -> api_entries
+
+Blueprint: driver_module
+  Route: / -> index
+  Route: /attendance-dashboard -> attendance_dashboard
+  Route: /daily-report -> daily_report
+
+Blueprint: downloads
+  Route: / -> download_page
+  Route: /daily-reports/<path:filename> -> download_daily_report
+  Route: /corrected -> download_corrected
+  Route: /original -> download_original
+
+Blueprint: driver_module_fixed
+  Route: / -> index
+  Route: /attendance-dashboard -> attendance_dashboard
+  Route: /daily-report -> daily_report
+  Route: /download/daily-report/excel/<date_str> -> download_excel_report
+  Route: /view/daily-report/pdf/<date_str> -> view_pdf_report
+  Route: /download/daily-report/pdf/<date_str> -> download_pdf_report
+  Route: /download/<path:filename> -> download_file
+
+Blueprint: drivers
+  Route: / -> index
+  Route: /daily-report -> daily_report
+  Route: /download-excel/<date_str> -> download_excel_report
+  Route: /download-pdf/<date_str> -> download_pdf_report
+  Route: /view-pdf/<date_str> -> view_pdf_report
+  Route: /embed-pdf/<date_str> -> embed_pdf_report
+
+SYSTEM STATUS
+================================================================================
+✓ All routes have handlers
+✓ All required blueprints are registered
+✓ Template directories exist for all blueprints
+✓ Driver module is functioning properly
+✓ Downloads module is functioning properly

@@ -709,3 +709,102 @@ def download_export(filename):
     return redirect(url_for('downloads_bp.download_file', 
                            folder='driver_reports', 
                            filename=filename))
+@driver_module_clean_bp.route('/')
+def index():
+    """Handler for /"""
+    try:
+        # Add your route handler logic here
+        return render_template('driver_module_clean/index.html')
+    except Exception as e:
+        logger.error(f"Error in index: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@driver_module_clean_bp.route('/daily-report')
+def daily_report():
+    """Handler for /daily-report"""
+    try:
+        # Add your route handler logic here
+        return render_template('driver_module_clean/daily_report.html')
+    except Exception as e:
+        logger.error(f"Error in daily_report: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@driver_module_clean_bp.route('/attendance-dashboard')
+def attendance_dashboard():
+    """Handler for /attendance-dashboard"""
+    try:
+        # Add your route handler logic here
+        return render_template('driver_module_clean/attendance_dashboard.html')
+    except Exception as e:
+        logger.error(f"Error in attendance_dashboard: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@driver_module_clean_bp.route('/drivers')
+def drivers():
+    """Handler for /drivers"""
+    try:
+        # Add your route handler logic here
+        return render_template('driver_module_clean/drivers.html')
+    except Exception as e:
+        logger.error(f"Error in drivers: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@driver_module_clean_bp.route('/driver/<int:driver_id>')
+def driver_<int:driver_id>():
+    """Handler for /driver/<int:driver_id>"""
+    try:
+        # Add your route handler logic here
+        return render_template('driver_module_clean/driver_<int:driver_id>.html')
+    except Exception as e:
+        logger.error(f"Error in driver_<int:driver_id>: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@driver_module_clean_bp.route('/job-site/<int:site_id>')
+def job_site_<int:site_id>():
+    """Handler for /job-site/<int:site_id>"""
+    try:
+        # Add your route handler logic here
+        return render_template('driver_module_clean/job_site_<int:site_id>.html')
+    except Exception as e:
+        logger.error(f"Error in job_site_<int:site_id>: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@driver_module_clean_bp.route('/region/<int:region_id>')
+def region_<int:region_id>():
+    """Handler for /region/<int:region_id>"""
+    try:
+        # Add your route handler logic here
+        return render_template('driver_module_clean/region_<int:region_id>.html')
+    except Exception as e:
+        logger.error(f"Error in region_<int:region_id>: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@driver_module_clean_bp.route('/upload-attendance')
+def upload_attendance():
+    """Handler for /upload-attendance"""
+    try:
+        # Add your route handler logic here
+        return render_template('driver_module_clean/upload_attendance.html')
+    except Exception as e:
+        logger.error(f"Error in upload_attendance: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@driver_module_clean_bp.route('/export-report')
+def export_report():
+    """Handler for /export-report"""
+    try:
+        # Add your route handler logic here
+        return render_template('driver_module_clean/export_report.html')
+    except Exception as e:
+        logger.error(f"Error in export_report: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@driver_module_clean_bp.route('/download/<path:filename>')
+def download_<path:filename>():
+    """Handler for /download/<path:filename>"""
+    try:
+        # Add your route handler logic here
+        return render_template('driver_module_clean/download_<path:filename>.html')
+    except Exception as e:
+        logger.error(f"Error in download_<path:filename>: {e}")
+        return render_template('error.html', error=str(e)), 500

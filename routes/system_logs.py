@@ -303,3 +303,32 @@ def register_blueprint(app):
     """Register the blueprint with the application"""
     app.register_blueprint(system_logs_bp)
     app.logger.info("Registered System Logs blueprint")
+@system_logs_bp.route('/')
+def index():
+    """Handler for /"""
+    try:
+        # Add your route handler logic here
+        return render_template('system_logs/index.html')
+    except Exception as e:
+        logger.error(f"Error in index: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@system_logs_bp.route('/api/entries')
+def api_entries():
+    """Handler for /api/entries"""
+    try:
+        # Add your route handler logic here
+        return render_template('system_logs/api_entries.html')
+    except Exception as e:
+        logger.error(f"Error in api_entries: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@system_logs_bp.route('/download/<log_file>')
+def download_<log_file>():
+    """Handler for /download/<log_file>"""
+    try:
+        # Add your route handler logic here
+        return render_template('system_logs/download_<log_file>.html')
+    except Exception as e:
+        logger.error(f"Error in download_<log_file>: {e}")
+        return render_template('error.html', error=str(e)), 500

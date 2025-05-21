@@ -216,3 +216,32 @@ def asset_comparison_api():
     }
     
     return jsonify(result)
+@billing_bp.route('/billing')
+def billing():
+    """Handler for /billing"""
+    try:
+        # Add your route handler logic here
+        return render_template('billing/billing.html')
+    except Exception as e:
+        logger.error(f"Error in billing: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@billing_bp.route('/billing/api/monthly-trend')
+def billing_api_monthly_trend():
+    """Handler for /billing/api/monthly-trend"""
+    try:
+        # Add your route handler logic here
+        return render_template('billing/billing_api_monthly_trend.html')
+    except Exception as e:
+        logger.error(f"Error in billing_api_monthly_trend: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@billing_bp.route('/billing/api/asset-comparison')
+def billing_api_asset_comparison():
+    """Handler for /billing/api/asset-comparison"""
+    try:
+        # Add your route handler logic here
+        return render_template('billing/billing_api_asset_comparison.html')
+    except Exception as e:
+        logger.error(f"Error in billing_api_asset_comparison: {e}")
+        return render_template('error.html', error=str(e)), 500

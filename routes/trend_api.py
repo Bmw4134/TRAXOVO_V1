@@ -67,3 +67,22 @@ def attendance_with_trends_api():
 def register_trend_api(app):
     app.register_blueprint(trend_api_bp)
     logger.info("Registered Attendance Trends API blueprint")
+@trend_api_bp.route('/driver-trends')
+def driver_trends():
+    """Handler for /driver-trends"""
+    try:
+        # Add your route handler logic here
+        return render_template('trend_api/driver_trends.html')
+    except Exception as e:
+        logger.error(f"Error in driver_trends: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@trend_api_bp.route('/attendance-with-trends')
+def attendance_with_trends():
+    """Handler for /attendance-with-trends"""
+    try:
+        # Add your route handler logic here
+        return render_template('trend_api/attendance_with_trends.html')
+    except Exception as e:
+        logger.error(f"Error in attendance_with_trends: {e}")
+        return render_template('error.html', error=str(e)), 500

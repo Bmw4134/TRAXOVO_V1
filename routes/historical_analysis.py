@@ -524,3 +524,72 @@ def register_blueprint(app):
     app.register_blueprint(historical_bp)
     logger.info('Registered historical analysis blueprint')
     return historical_bp
+@historical_analysis_bp.route('/')
+def index():
+    """Handler for /"""
+    try:
+        # Add your route handler logic here
+        return render_template('historical_analysis/index.html')
+    except Exception as e:
+        logger.error(f"Error in index: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@historical_analysis_bp.route('/equipment/<equipment_id>')
+def equipment_<equipment_id>():
+    """Handler for /equipment/<equipment_id>"""
+    try:
+        # Add your route handler logic here
+        return render_template('historical_analysis/equipment_<equipment_id>.html')
+    except Exception as e:
+        logger.error(f"Error in equipment_<equipment_id>: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@historical_analysis_bp.route('/job/<job_number>')
+def job_<job_number>():
+    """Handler for /job/<job_number>"""
+    try:
+        # Add your route handler logic here
+        return render_template('historical_analysis/job_<job_number>.html')
+    except Exception as e:
+        logger.error(f"Error in job_<job_number>: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@historical_analysis_bp.route('/equipment-lifecycle')
+def equipment_lifecycle():
+    """Handler for /equipment-lifecycle"""
+    try:
+        # Add your route handler logic here
+        return render_template('historical_analysis/equipment_lifecycle.html')
+    except Exception as e:
+        logger.error(f"Error in equipment_lifecycle: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@historical_analysis_bp.route('/add-data')
+def add_data():
+    """Handler for /add-data"""
+    try:
+        # Add your route handler logic here
+        return render_template('historical_analysis/add_data.html')
+    except Exception as e:
+        logger.error(f"Error in add_data: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@historical_analysis_bp.route('/compare-months')
+def compare_months():
+    """Handler for /compare-months"""
+    try:
+        # Add your route handler logic here
+        return render_template('historical_analysis/compare_months.html')
+    except Exception as e:
+        logger.error(f"Error in compare_months: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@historical_analysis_bp.route('/export/<format>')
+def export_<format>():
+    """Handler for /export/<format>"""
+    try:
+        # Add your route handler logic here
+        return render_template('historical_analysis/export_<format>.html')
+    except Exception as e:
+        logger.error(f"Error in export_<format>: {e}")
+        return render_template('error.html', error=str(e)), 500

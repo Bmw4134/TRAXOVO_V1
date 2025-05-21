@@ -270,3 +270,72 @@ def complete_maintenance(schedule_id):
         technicians=SAMPLE_TECHNICIANS,
         tasks=SAMPLE_MAINTENANCE_TASKS
     )
+@maintenance_module_bp.route('/')
+def index():
+    """Handler for /"""
+    try:
+        # Add your route handler logic here
+        return render_template('maintenance_module/index.html')
+    except Exception as e:
+        logger.error(f"Error in index: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@maintenance_module_bp.route('/schedules')
+def schedules():
+    """Handler for /schedules"""
+    try:
+        # Add your route handler logic here
+        return render_template('maintenance_module/schedules.html')
+    except Exception as e:
+        logger.error(f"Error in schedules: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@maintenance_module_bp.route('/schedule/<int:schedule_id>')
+def schedule_<int:schedule_id>():
+    """Handler for /schedule/<int:schedule_id>"""
+    try:
+        # Add your route handler logic here
+        return render_template('maintenance_module/schedule_<int:schedule_id>.html')
+    except Exception as e:
+        logger.error(f"Error in schedule_<int:schedule_id>: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@maintenance_module_bp.route('/records')
+def records():
+    """Handler for /records"""
+    try:
+        # Add your route handler logic here
+        return render_template('maintenance_module/records.html')
+    except Exception as e:
+        logger.error(f"Error in records: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@maintenance_module_bp.route('/create')
+def create():
+    """Handler for /create"""
+    try:
+        # Add your route handler logic here
+        return render_template('maintenance_module/create.html')
+    except Exception as e:
+        logger.error(f"Error in create: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@maintenance_module_bp.route('/technicians')
+def technicians():
+    """Handler for /technicians"""
+    try:
+        # Add your route handler logic here
+        return render_template('maintenance_module/technicians.html')
+    except Exception as e:
+        logger.error(f"Error in technicians: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@maintenance_module_bp.route('/complete/<int:schedule_id>')
+def complete_<int:schedule_id>():
+    """Handler for /complete/<int:schedule_id>"""
+    try:
+        # Add your route handler logic here
+        return render_template('maintenance_module/complete_<int:schedule_id>.html')
+    except Exception as e:
+        logger.error(f"Error in complete_<int:schedule_id>: {e}")
+        return render_template('error.html', error=str(e)), 500

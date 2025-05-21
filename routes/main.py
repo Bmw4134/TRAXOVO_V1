@@ -36,3 +36,12 @@ def assets():
     return render_template('assets.html')
 
 # Add more routes as needed from main.py
+@main_bp.route('/assets')
+def assets():
+    """Handler for /assets"""
+    try:
+        # Add your route handler logic here
+        return render_template('main/assets.html')
+    except Exception as e:
+        logger.error(f"Error in assets: {e}")
+        return render_template('error.html', error=str(e)), 500

@@ -311,3 +311,12 @@ def generate_excel_report(report_data, export_time, file_path):
     except Exception as e:
         logger.error(f"Error generating Excel report: {e}")
         return False
+@driver_exports_bp.route('/email_driver_report')
+def email_driver_report():
+    """Handler for /email_driver_report"""
+    try:
+        # Add your route handler logic here
+        return render_template('driver_exports/email_driver_report.html')
+    except Exception as e:
+        logger.error(f"Error in email_driver_report: {e}")
+        return render_template('error.html', error=str(e)), 500

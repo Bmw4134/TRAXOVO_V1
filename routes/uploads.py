@@ -207,3 +207,72 @@ def delete_upload(upload_id):
     
     flash(f'File "{file_upload.original_filename}" deleted successfully.', 'success')
     return redirect(url_for('uploads.upload_form'))
+@uploads_bp.route('/upload')
+def upload():
+    """Handler for /upload"""
+    try:
+        # Add your route handler logic here
+        return render_template('uploads/upload.html')
+    except Exception as e:
+        logger.error(f"Error in upload: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@uploads_bp.route('/upload/activity')
+def upload_activity():
+    """Handler for /upload/activity"""
+    try:
+        # Add your route handler logic here
+        return render_template('uploads/upload_activity.html')
+    except Exception as e:
+        logger.error(f"Error in upload_activity: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@uploads_bp.route('/upload/workzone')
+def upload_workzone():
+    """Handler for /upload/workzone"""
+    try:
+        # Add your route handler logic here
+        return render_template('uploads/upload_workzone.html')
+    except Exception as e:
+        logger.error(f"Error in upload_workzone: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@uploads_bp.route('/upload/billing')
+def upload_billing():
+    """Handler for /upload/billing"""
+    try:
+        # Add your route handler logic here
+        return render_template('uploads/upload_billing.html')
+    except Exception as e:
+        logger.error(f"Error in upload_billing: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@uploads_bp.route('/upload/mapping')
+def upload_mapping():
+    """Handler for /upload/mapping"""
+    try:
+        # Add your route handler logic here
+        return render_template('uploads/upload_mapping.html')
+    except Exception as e:
+        logger.error(f"Error in upload_mapping: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@uploads_bp.route('/uploads/<int:upload_id>/process')
+def uploads_<int:upload_id>_process():
+    """Handler for /uploads/<int:upload_id>/process"""
+    try:
+        # Add your route handler logic here
+        return render_template('uploads/uploads_<int:upload_id>_process.html')
+    except Exception as e:
+        logger.error(f"Error in uploads_<int:upload_id>_process: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@uploads_bp.route('/uploads/<int:upload_id>/delete')
+def uploads_<int:upload_id>_delete():
+    """Handler for /uploads/<int:upload_id>/delete"""
+    try:
+        # Add your route handler logic here
+        return render_template('uploads/uploads_<int:upload_id>_delete.html')
+    except Exception as e:
+        logger.error(f"Error in uploads_<int:upload_id>_delete: {e}")
+        return render_template('error.html', error=str(e)), 500

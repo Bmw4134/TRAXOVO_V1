@@ -1,0 +1,266 @@
+{
+  "date": "2025-05-16",
+  "drivers": [
+    {
+      "driver_name": "Charles Anderson",
+      "asset_id": "TRK-1010",
+      "job_site": "West Plano Project",
+      "scheduled_start": "06:00 AM",
+      "scheduled_end": "03:00 PM",
+      "actual_start": "06:05 AM",
+      "actual_end": "02:48 PM",
+      "status": "On Time",
+      "status_reason": "",
+      "identity_verified": true,
+      "employee_id": "E1010",
+      "identity_source": "employee_master_list.csv"
+    },
+    {
+      "driver_name": "Mark Thompson",
+      "asset_id": "TRK-1015",
+      "job_site": "Downtown Construction",
+      "scheduled_start": "06:00 AM",
+      "scheduled_end": "03:00 PM",
+      "actual_start": "N/A",
+      "actual_end": "N/A",
+      "status": "On Time",
+      "status_reason": "",
+      "identity_verified": true,
+      "employee_id": "E1015",
+      "identity_source": "employee_master_list.csv"
+    },
+    {
+      "driver_name": "James Davis",
+      "asset_id": "TRK-1005",
+      "job_site": "North Dallas Site",
+      "scheduled_start": "06:00 AM",
+      "scheduled_end": "03:00 PM",
+      "actual_start": "07:03 AM",
+      "actual_end": "03:12 PM",
+      "status": "Not On Job",
+      "status_reason": "At incorrect location: North Richland Hills",
+      "identity_verified": true,
+      "employee_id": "E1005",
+      "identity_source": "employee_master_list.csv"
+    },
+    {
+      "driver_name": "Anthony Martin",
+      "asset_id": "TRK-1014",
+      "job_site": "West Plano Project",
+      "scheduled_start": "07:00 AM",
+      "scheduled_end": "04:00 PM",
+      "actual_start": "07:16 AM",
+      "actual_end": "03:58 PM",
+      "status": "Late",
+      "status_reason": "16 minutes late",
+      "identity_verified": true,
+      "employee_id": "E1014",
+      "identity_source": "employee_master_list.csv"
+    },
+    {
+      "driver_name": "Daniel Jackson",
+      "asset_id": "TRK-1012",
+      "job_site": "Richardson Development",
+      "scheduled_start": "06:15 AM",
+      "scheduled_end": "03:15 PM",
+      "actual_start": "06:16 AM",
+      "actual_end": "03:12 PM",
+      "status": "On Time",
+      "status_reason": "",
+      "identity_verified": true,
+      "employee_id": "E1012",
+      "identity_source": "employee_master_list.csv"
+    },
+    {
+      "driver_name": "Christopher Thomas",
+      "asset_id": "TRK-1011",
+      "job_site": "Downtown Construction",
+      "scheduled_start": "06:30 AM",
+      "scheduled_end": "03:30 PM",
+      "actual_start": "06:29 AM",
+      "actual_end": "03:33 PM",
+      "status": "On Time",
+      "status_reason": "",
+      "identity_verified": true,
+      "employee_id": "E1011",
+      "identity_source": "employee_master_list.csv"
+    },
+    {
+      "driver_name": "William Brown",
+      "asset_id": "TRK-1004",
+      "job_site": "Richardson Development",
+      "scheduled_start": "06:30 AM",
+      "scheduled_end": "03:30 PM",
+      "actual_start": "06:32 AM",
+      "actual_end": "02:54 PM",
+      "status": "Early End",
+      "status_reason": "36 minutes early",
+      "identity_verified": true,
+      "employee_id": "E1004",
+      "identity_source": "employee_master_list.csv"
+    },
+    {
+      "driver_name": "Richard Wilson",
+      "asset_id": "TRK-1007",
+      "job_site": "Downtown Construction",
+      "scheduled_start": "06:15 AM",
+      "scheduled_end": "03:15 PM",
+      "actual_start": "06:14 AM",
+      "actual_end": "03:18 PM",
+      "status": "On Time",
+      "status_reason": "",
+      "identity_verified": true,
+      "employee_id": "E1007",
+      "identity_source": "employee_master_list.csv"
+    },
+    {
+      "driver_name": "Joseph Moore",
+      "asset_id": "TRK-1008",
+      "job_site": "Richardson Development",
+      "scheduled_start": "06:30 AM",
+      "scheduled_end": "03:30 PM",
+      "actual_start": "06:55 AM",
+      "actual_end": "03:25 PM",
+      "status": "Late",
+      "status_reason": "25 minutes late",
+      "identity_verified": true,
+      "employee_id": "E1008",
+      "identity_source": "employee_master_list.csv"
+    },
+    {
+      "driver_name": "Thomas Taylor",
+      "asset_id": "TRK-1009",
+      "job_site": "North Dallas Site",
+      "scheduled_start": "07:00 AM",
+      "scheduled_end": "04:00 PM",
+      "actual_start": "06:43 AM",
+      "actual_end": "03:52 PM",
+      "status": "On Time",
+      "status_reason": "",
+      "identity_verified": true,
+      "employee_id": "E1009",
+      "identity_source": "employee_master_list.csv"
+    },
+    {
+      "driver_name": "John Smith",
+      "asset_id": "TRK-1001",
+      "job_site": "North Dallas Site",
+      "scheduled_start": "06:30 AM",
+      "scheduled_end": "03:30 PM",
+      "actual_start": "06:25 AM",
+      "actual_end": "03:35 PM",
+      "status": "On Time",
+      "status_reason": "",
+      "identity_verified": true,
+      "employee_id": "E1001",
+      "identity_source": "employee_master_list.csv"
+    },
+    {
+      "driver_name": "David Miller",
+      "asset_id": "TRK-1006",
+      "job_site": "West Plano Project",
+      "scheduled_start": "06:45 AM",
+      "scheduled_end": "03:45 PM",
+      "actual_start": "06:47 AM",
+      "actual_end": "03:42 PM",
+      "status": "On Time",
+      "status_reason": "",
+      "identity_verified": true,
+      "employee_id": "E1006",
+      "identity_source": "employee_master_list.csv"
+    },
+    {
+      "driver_name": "Matthew Harris",
+      "asset_id": "TRK-1013",
+      "job_site": "North Dallas Site",
+      "scheduled_start": "06:45 AM",
+      "scheduled_end": "03:45 PM",
+      "actual_start": "06:52 AM",
+      "actual_end": "03:37 PM",
+      "status": "On Time",
+      "status_reason": "",
+      "identity_verified": true,
+      "employee_id": "E1013",
+      "identity_source": "employee_master_list.csv"
+    },
+    {
+      "driver_name": "Michael Johnson",
+      "asset_id": "TRK-1002",
+      "job_site": "West Plano Project",
+      "scheduled_start": "06:00 AM",
+      "scheduled_end": "03:00 PM",
+      "actual_start": "06:18 AM",
+      "actual_end": "03:07 PM",
+      "status": "Late",
+      "status_reason": "18 minutes late",
+      "identity_verified": true,
+      "employee_id": "E1002",
+      "identity_source": "employee_master_list.csv"
+    },
+    {
+      "driver_name": "Robert Williams",
+      "asset_id": "TRK-1003",
+      "job_site": "Downtown Construction",
+      "scheduled_start": "07:00 AM",
+      "scheduled_end": "04:00 PM",
+      "actual_start": "07:28 AM",
+      "actual_end": "03:45 PM",
+      "status": "Late",
+      "status_reason": "28 minutes late",
+      "identity_verified": true,
+      "employee_id": "E1003",
+      "identity_source": "employee_master_list.csv"
+    }
+  ],
+  "summary": {
+    "date": "2025-05-16",
+    "total": 15,
+    "late": 4,
+    "early_end": 1,
+    "not_on_job": 1,
+    "on_time": 9
+  },
+  "metadata": {
+    "processed_at": "2025-05-21T00:44:35.516857",
+    "source_files": {
+      "driving_history": [
+        "driving_history_2025-05-16.csv",
+        "DrivingHistory_20250516.csv",
+        "driving_history_2025-05-16_verified.csv"
+      ],
+      "activity_detail": [
+        "activity_detail_2025-05-16.csv",
+        "ActivityDetail_20250516.csv",
+        "activity_detail_2025-05-16_verified.csv"
+      ],
+      "assets_time_on_site": [
+        "assets_onsite_2025-05-16.csv",
+        "AssetsTimeOnSite_20250516.csv"
+      ],
+      "start_time_job": [
+        "baseline.csv"
+      ]
+    },
+    "row_counts": {
+      "driving_history_2025-05-16.csv": 20,
+      "DrivingHistory_20250516.csv": 28,
+      "driving_history_2025-05-16_verified.csv": 2,
+      "activity_detail_2025-05-16.csv": 20,
+      "ActivityDetail_20250516.csv": 52,
+      "activity_detail_2025-05-16_verified.csv": 2,
+      "assets_onsite_2025-05-16.csv": 10,
+      "AssetsTimeOnSite_20250516.csv": 15,
+      "baseline.csv": 15
+    },
+    "validation_status": "PASSED",
+    "identity_verification": {
+      "timestamp": "2025-05-21T01:25:56.425954",
+      "total_drivers": 15,
+      "verified_drivers": 15,
+      "unverified_drivers": 0,
+      "ghost_drivers": 0,
+      "identity_match_rate": 100.0,
+      "verification_source": "Equipment Billing Master (186 drivers)"
+    }
+  }
+}

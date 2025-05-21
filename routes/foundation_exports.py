@@ -238,3 +238,62 @@ def export_result():
     result = session['foundation_result']
     
     return render_template('foundation_exports_result.html', result=result)
+@foundation_exports_bp.route('/')
+def index():
+    """Handler for /"""
+    try:
+        # Add your route handler logic here
+        return render_template('foundation_exports/index.html')
+    except Exception as e:
+        logger.error(f"Error in index: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@foundation_exports_bp.route('/generate')
+def generate():
+    """Handler for /generate"""
+    try:
+        # Add your route handler logic here
+        return render_template('foundation_exports/generate.html')
+    except Exception as e:
+        logger.error(f"Error in generate: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@foundation_exports_bp.route('/result')
+def result():
+    """Handler for /result"""
+    try:
+        # Add your route handler logic here
+        return render_template('foundation_exports/result.html')
+    except Exception as e:
+        logger.error(f"Error in result: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@foundation_exports_bp.route('/download/<path:filename>')
+def download_<path:filename>():
+    """Handler for /download/<path:filename>"""
+    try:
+        # Add your route handler logic here
+        return render_template('foundation_exports/download_<path:filename>.html')
+    except Exception as e:
+        logger.error(f"Error in download_<path:filename>: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@foundation_exports_bp.route('/generate-from-master')
+def generate_from_master():
+    """Handler for /generate-from-master"""
+    try:
+        # Add your route handler logic here
+        return render_template('foundation_exports/generate_from_master.html')
+    except Exception as e:
+        logger.error(f"Error in generate_from_master: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@foundation_exports_bp.route('/export-result')
+def export_result():
+    """Handler for /export-result"""
+    try:
+        # Add your route handler logic here
+        return render_template('foundation_exports/export_result.html')
+    except Exception as e:
+        logger.error(f"Error in export_result: {e}")
+        return render_template('error.html', error=str(e)), 500

@@ -712,3 +712,132 @@ def monthly_trends():
     report = get_sample_monthly_report()
     
     return jsonify(report['monthly_trends'])
+@billing_module_bp.route('/')
+def index():
+    """Handler for /"""
+    try:
+        # Add your route handler logic here
+        return render_template('billing_module/index.html')
+    except Exception as e:
+        logger.error(f"Error in index: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@billing_module_bp.route('/invoices')
+def invoices():
+    """Handler for /invoices"""
+    try:
+        # Add your route handler logic here
+        return render_template('billing_module/invoices.html')
+    except Exception as e:
+        logger.error(f"Error in invoices: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@billing_module_bp.route('/invoice_detail/<invoice_id>')
+def invoice_detail_<invoice_id>():
+    """Handler for /invoice_detail/<invoice_id>"""
+    try:
+        # Add your route handler logic here
+        return render_template('billing_module/invoice_detail_<invoice_id>.html')
+    except Exception as e:
+        logger.error(f"Error in invoice_detail_<invoice_id>: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@billing_module_bp.route('/generate_invoice')
+def generate_invoice():
+    """Handler for /generate_invoice"""
+    try:
+        # Add your route handler logic here
+        return render_template('billing_module/generate_invoice.html')
+    except Exception as e:
+        logger.error(f"Error in generate_invoice: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@billing_module_bp.route('/record_payment')
+def record_payment():
+    """Handler for /record_payment"""
+    try:
+        # Add your route handler logic here
+        return render_template('billing_module/record_payment.html')
+    except Exception as e:
+        logger.error(f"Error in record_payment: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@billing_module_bp.route('/pm_allocation')
+def pm_allocation():
+    """Handler for /pm_allocation"""
+    try:
+        # Add your route handler logic here
+        return render_template('billing_module/pm_allocation.html')
+    except Exception as e:
+        logger.error(f"Error in pm_allocation: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@billing_module_bp.route('/pm_allocation_upload')
+def pm_allocation_upload():
+    """Handler for /pm_allocation_upload"""
+    try:
+        # Add your route handler logic here
+        return render_template('billing_module/pm_allocation_upload.html')
+    except Exception as e:
+        logger.error(f"Error in pm_allocation_upload: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@billing_module_bp.route('/pm_allocation_results')
+def pm_allocation_results():
+    """Handler for /pm_allocation_results"""
+    try:
+        # Add your route handler logic here
+        return render_template('billing_module/pm_allocation_results.html')
+    except Exception as e:
+        logger.error(f"Error in pm_allocation_results: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@billing_module_bp.route('/pm_allocation_export')
+def pm_allocation_export():
+    """Handler for /pm_allocation_export"""
+    try:
+        # Add your route handler logic here
+        return render_template('billing_module/pm_allocation_export.html')
+    except Exception as e:
+        logger.error(f"Error in pm_allocation_export: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@billing_module_bp.route('/monthly_report')
+def monthly_report():
+    """Handler for /monthly_report"""
+    try:
+        # Add your route handler logic here
+        return render_template('billing_module/monthly_report.html')
+    except Exception as e:
+        logger.error(f"Error in monthly_report: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@billing_module_bp.route('/export_monthly_report')
+def export_monthly_report():
+    """Handler for /export_monthly_report"""
+    try:
+        # Add your route handler logic here
+        return render_template('billing_module/export_monthly_report.html')
+    except Exception as e:
+        logger.error(f"Error in export_monthly_report: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@billing_module_bp.route('/api/invoice_status_chart')
+def api_invoice_status_chart():
+    """Handler for /api/invoice_status_chart"""
+    try:
+        # Add your route handler logic here
+        return render_template('billing_module/api_invoice_status_chart.html')
+    except Exception as e:
+        logger.error(f"Error in api_invoice_status_chart: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@billing_module_bp.route('/api/monthly_trends')
+def api_monthly_trends():
+    """Handler for /api/monthly_trends"""
+    try:
+        # Add your route handler logic here
+        return render_template('billing_module/api_monthly_trends.html')
+    except Exception as e:
+        logger.error(f"Error in api_monthly_trends: {e}")
+        return render_template('error.html', error=str(e)), 500

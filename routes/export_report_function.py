@@ -325,3 +325,12 @@ def export_report():
         logger.error(f"Error in export_report: {str(e)}", exc_info=True)
         flash(f"Error generating report: {str(e)}", "danger")
         return redirect(url_for('driver_module.index'))
+@export_report_function_bp.route('/export_report')
+def export_report():
+    """Handler for /export_report"""
+    try:
+        # Add your route handler logic here
+        return render_template('export_report_function/export_report.html')
+    except Exception as e:
+        logger.error(f"Error in export_report: {e}")
+        return render_template('error.html', error=str(e)), 500

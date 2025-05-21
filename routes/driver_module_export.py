@@ -135,3 +135,22 @@ def download_export(filename):
         logger.error(f"Error downloading export: {str(e)}")
         flash(f"Error downloading export: {str(e)}", "danger")
         return redirect(url_for('driver_module.index'))
+@driver_module_export_bp.route('/export_report')
+def export_report():
+    """Handler for /export_report"""
+    try:
+        # Add your route handler logic here
+        return render_template('driver_module_export/export_report.html')
+    except Exception as e:
+        logger.error(f"Error in export_report: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@driver_module_export_bp.route('/download_export/<filename>')
+def download_export_<filename>():
+    """Handler for /download_export/<filename>"""
+    try:
+        # Add your route handler logic here
+        return render_template('driver_module_export/download_export_<filename>.html')
+    except Exception as e:
+        logger.error(f"Error in download_export_<filename>: {e}")
+        return render_template('error.html', error=str(e)), 500

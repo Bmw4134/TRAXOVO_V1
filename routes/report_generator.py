@@ -333,3 +333,52 @@ def _get_sample_report_data(report_type):
             {'Column 1': 'Data 4A', 'Column 2': 'Data 4B', 'Column 3': 'Data 4C'},
             {'Column 1': 'Data 5A', 'Column 2': 'Data 5B', 'Column 3': 'Data 5C'}
         ]
+@report_generator_bp.route('/generator')
+def generator():
+    """Handler for /generator"""
+    try:
+        # Add your route handler logic here
+        return render_template('report_generator/generator.html')
+    except Exception as e:
+        logger.error(f"Error in generator: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@report_generator_bp.route('/generate')
+def generate():
+    """Handler for /generate"""
+    try:
+        # Add your route handler logic here
+        return render_template('report_generator/generate.html')
+    except Exception as e:
+        logger.error(f"Error in generate: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@report_generator_bp.route('/preview/<filename>')
+def preview_<filename>():
+    """Handler for /preview/<filename>"""
+    try:
+        # Add your route handler logic here
+        return render_template('report_generator/preview_<filename>.html')
+    except Exception as e:
+        logger.error(f"Error in preview_<filename>: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@report_generator_bp.route('/download/<filename>')
+def download_<filename>():
+    """Handler for /download/<filename>"""
+    try:
+        # Add your route handler logic here
+        return render_template('report_generator/download_<filename>.html')
+    except Exception as e:
+        logger.error(f"Error in download_<filename>: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@report_generator_bp.route('/recent')
+def recent():
+    """Handler for /recent"""
+    try:
+        # Add your route handler logic here
+        return render_template('report_generator/recent.html')
+    except Exception as e:
+        logger.error(f"Error in recent: {e}")
+        return render_template('error.html', error=str(e)), 500

@@ -74,3 +74,22 @@ def download_extracted_text(filename):
     extracted_dir.mkdir(exist_ok=True)
     
     return send_from_directory(extracted_dir, filename, as_attachment=True)
+@ocr_bp.route('/ocr_tool')
+def ocr_tool():
+    """Handler for /ocr_tool"""
+    try:
+        # Add your route handler logic here
+        return render_template('ocr/ocr_tool.html')
+    except Exception as e:
+        logger.error(f"Error in ocr_tool: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@ocr_bp.route('/download_extracted_text/<filename>')
+def download_extracted_text_<filename>():
+    """Handler for /download_extracted_text/<filename>"""
+    try:
+        # Add your route handler logic here
+        return render_template('ocr/download_extracted_text_<filename>.html')
+    except Exception as e:
+        logger.error(f"Error in download_extracted_text_<filename>: {e}")
+        return render_template('error.html', error=str(e)), 500

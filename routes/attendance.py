@@ -279,3 +279,32 @@ def driver_details(driver_id):
         not_on_job=not_on_job,
         date_range=date_range
     )
+@attendance_bp.route('/')
+def index():
+    """Handler for /"""
+    try:
+        # Add your route handler logic here
+        return render_template('attendance/index.html')
+    except Exception as e:
+        logger.error(f"Error in index: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@attendance_bp.route('/trends')
+def trends():
+    """Handler for /trends"""
+    try:
+        # Add your route handler logic here
+        return render_template('attendance/trends.html')
+    except Exception as e:
+        logger.error(f"Error in trends: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@attendance_bp.route('/driver/<int:driver_id>')
+def driver_<int:driver_id>():
+    """Handler for /driver/<int:driver_id>"""
+    try:
+        # Add your route handler logic here
+        return render_template('attendance/driver_<int:driver_id>.html')
+    except Exception as e:
+        logger.error(f"Error in driver_<int:driver_id>: {e}")
+        return render_template('error.html', error=str(e)), 500

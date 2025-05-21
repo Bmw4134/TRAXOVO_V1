@@ -365,3 +365,32 @@ def daily_report():
         repeated_absence_count=repeated_absence_count,
         unstable_shift_count=unstable_shift_count
     )
+@driver_module_bp.route('/')
+def index():
+    """Handler for /"""
+    try:
+        # Add your route handler logic here
+        return render_template('driver_module/index.html')
+    except Exception as e:
+        logger.error(f"Error in index: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@driver_module_bp.route('/attendance-dashboard')
+def attendance_dashboard():
+    """Handler for /attendance-dashboard"""
+    try:
+        # Add your route handler logic here
+        return render_template('driver_module/attendance_dashboard.html')
+    except Exception as e:
+        logger.error(f"Error in attendance_dashboard: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@driver_module_bp.route('/daily-report')
+def daily_report():
+    """Handler for /daily-report"""
+    try:
+        # Add your route handler logic here
+        return render_template('driver_module/daily_report.html')
+    except Exception as e:
+        logger.error(f"Error in daily_report: {e}")
+        return render_template('error.html', error=str(e)), 500

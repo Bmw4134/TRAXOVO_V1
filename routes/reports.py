@@ -829,3 +829,102 @@ def generate_daily_driver_report():
         logging.error(f"Error generating driver reports: {str(e)}")
         flash(f'Error generating driver reports: {str(e)}', 'danger')
         return redirect(url_for('reports.generate_daily_driver_report'))
+@reports_bp.route('/')
+def index():
+    """Handler for /"""
+    try:
+        # Add your route handler logic here
+        return render_template('reports/index.html')
+    except Exception as e:
+        logger.error(f"Error in index: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@reports_bp.route('/driver-reports')
+def driver_reports():
+    """Handler for /driver-reports"""
+    try:
+        # Add your route handler logic here
+        return render_template('reports/driver_reports.html')
+    except Exception as e:
+        logger.error(f"Error in driver_reports: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@reports_bp.route('/download/<path:report_path>')
+def download_<path:report_path>():
+    """Handler for /download/<path:report_path>"""
+    try:
+        # Add your route handler logic here
+        return render_template('reports/download_<path:report_path>.html')
+    except Exception as e:
+        logger.error(f"Error in download_<path:report_path>: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@reports_bp.route('/download-export/<path:export_path>')
+def download_export_<path:export_path>():
+    """Handler for /download-export/<path:export_path>"""
+    try:
+        # Add your route handler logic here
+        return render_template('reports/download_export_<path:export_path>.html')
+    except Exception as e:
+        logger.error(f"Error in download_export_<path:export_path>: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@reports_bp.route('/view/<path:report_path>')
+def view_<path:report_path>():
+    """Handler for /view/<path:report_path>"""
+    try:
+        # Add your route handler logic here
+        return render_template('reports/view_<path:report_path>.html')
+    except Exception as e:
+        logger.error(f"Error in view_<path:report_path>: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@reports_bp.route('/pm-allocation')
+def pm_allocation():
+    """Handler for /pm-allocation"""
+    try:
+        # Add your route handler logic here
+        return render_template('reports/pm_allocation.html')
+    except Exception as e:
+        logger.error(f"Error in pm_allocation: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@reports_bp.route('/upload-pm-allocation')
+def upload_pm_allocation():
+    """Handler for /upload-pm-allocation"""
+    try:
+        # Add your route handler logic here
+        return render_template('reports/upload_pm_allocation.html')
+    except Exception as e:
+        logger.error(f"Error in upload_pm_allocation: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@reports_bp.route('/pm-allocation-results')
+def pm_allocation_results():
+    """Handler for /pm-allocation-results"""
+    try:
+        # Add your route handler logic here
+        return render_template('reports/pm_allocation_results.html')
+    except Exception as e:
+        logger.error(f"Error in pm_allocation_results: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@reports_bp.route('/generate-region-exports')
+def generate_region_exports():
+    """Handler for /generate-region-exports"""
+    try:
+        # Add your route handler logic here
+        return render_template('reports/generate_region_exports.html')
+    except Exception as e:
+        logger.error(f"Error in generate_region_exports: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@reports_bp.route('/generate-daily-driver-report')
+def generate_daily_driver_report():
+    """Handler for /generate-daily-driver-report"""
+    try:
+        # Add your route handler logic here
+        return render_template('reports/generate_daily_driver_report.html')
+    except Exception as e:
+        logger.error(f"Error in generate_daily_driver_report: {e}")
+        return render_template('error.html', error=str(e)), 500

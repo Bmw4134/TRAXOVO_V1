@@ -181,3 +181,52 @@ def billing_summary():
     except Exception as e:
         flash(f"Error generating billing summary: {str(e)}", 'danger')
         return redirect(url_for('pm_master.index'))
+@pm_master_bp.route('/')
+def index():
+    """Handler for /"""
+    try:
+        # Add your route handler logic here
+        return render_template('pm_master/index.html')
+    except Exception as e:
+        logger.error(f"Error in index: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@pm_master_bp.route('/process')
+def process():
+    """Handler for /process"""
+    try:
+        # Add your route handler logic here
+        return render_template('pm_master/process.html')
+    except Exception as e:
+        logger.error(f"Error in process: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@pm_master_bp.route('/download/<path:filename>')
+def download_<path:filename>():
+    """Handler for /download/<path:filename>"""
+    try:
+        # Add your route handler logic here
+        return render_template('pm_master/download_<path:filename>.html')
+    except Exception as e:
+        logger.error(f"Error in download_<path:filename>: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@pm_master_bp.route('/generate-import-files')
+def generate_import_files():
+    """Handler for /generate-import-files"""
+    try:
+        # Add your route handler logic here
+        return render_template('pm_master/generate_import_files.html')
+    except Exception as e:
+        logger.error(f"Error in generate_import_files: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@pm_master_bp.route('/summary')
+def summary():
+    """Handler for /summary"""
+    try:
+        # Add your route handler logic here
+        return render_template('pm_master/summary.html')
+    except Exception as e:
+        logger.error(f"Error in summary: {e}")
+        return render_template('error.html', error=str(e)), 500

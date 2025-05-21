@@ -223,3 +223,42 @@ def activity_stats():
     }
     
     return jsonify(data)
+@admin_bp.route('/')
+def index():
+    """Handler for /"""
+    try:
+        # Add your route handler logic here
+        return render_template('admin/index.html')
+    except Exception as e:
+        logger.error(f"Error in index: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@admin_bp.route('/activity')
+def activity():
+    """Handler for /activity"""
+    try:
+        # Add your route handler logic here
+        return render_template('admin/activity.html')
+    except Exception as e:
+        logger.error(f"Error in activity: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@admin_bp.route('/activity/export')
+def activity_export():
+    """Handler for /activity/export"""
+    try:
+        # Add your route handler logic here
+        return render_template('admin/activity_export.html')
+    except Exception as e:
+        logger.error(f"Error in activity_export: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@admin_bp.route('/activity/stats')
+def activity_stats():
+    """Handler for /activity/stats"""
+    try:
+        # Add your route handler logic here
+        return render_template('admin/activity_stats.html')
+    except Exception as e:
+        logger.error(f"Error in activity_stats: {e}")
+        return render_template('error.html', error=str(e)), 500

@@ -447,3 +447,82 @@ def report():
         job_sites=job_sites,
         selected_job_site_id=job_site_id
     )
+@job_zone_bp.route('/')
+def index():
+    """Handler for /"""
+    try:
+        # Add your route handler logic here
+        return render_template('job_zone/index.html')
+    except Exception as e:
+        logger.error(f"Error in index: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@job_zone_bp.route('/create')
+def create():
+    """Handler for /create"""
+    try:
+        # Add your route handler logic here
+        return render_template('job_zone/create.html')
+    except Exception as e:
+        logger.error(f"Error in create: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@job_zone_bp.route('/<int:job_zone_id>')
+def <int:job_zone_id>():
+    """Handler for /<int:job_zone_id>"""
+    try:
+        # Add your route handler logic here
+        return render_template('job_zone/<int:job_zone_id>.html')
+    except Exception as e:
+        logger.error(f"Error in <int:job_zone_id>: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@job_zone_bp.route('/<int:job_zone_id>/update')
+def <int:job_zone_id>_update():
+    """Handler for /<int:job_zone_id>/update"""
+    try:
+        # Add your route handler logic here
+        return render_template('job_zone/<int:job_zone_id>_update.html')
+    except Exception as e:
+        logger.error(f"Error in <int:job_zone_id>_update: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@job_zone_bp.route('/<int:job_zone_id>/hours/<int:day>')
+def <int:job_zone_id>_hours_<int:day>():
+    """Handler for /<int:job_zone_id>/hours/<int:day>"""
+    try:
+        # Add your route handler logic here
+        return render_template('job_zone/<int:job_zone_id>_hours_<int:day>.html')
+    except Exception as e:
+        logger.error(f"Error in <int:job_zone_id>_hours_<int:day>: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@job_zone_bp.route('/<int:job_zone_id>/override')
+def <int:job_zone_id>_override():
+    """Handler for /<int:job_zone_id>/override"""
+    try:
+        # Add your route handler logic here
+        return render_template('job_zone/<int:job_zone_id>_override.html')
+    except Exception as e:
+        logger.error(f"Error in <int:job_zone_id>_override: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@job_zone_bp.route('/api/activities')
+def api_activities():
+    """Handler for /api/activities"""
+    try:
+        # Add your route handler logic here
+        return render_template('job_zone/api_activities.html')
+    except Exception as e:
+        logger.error(f"Error in api_activities: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@job_zone_bp.route('/report')
+def report():
+    """Handler for /report"""
+    try:
+        # Add your route handler logic here
+        return render_template('job_zone/report.html')
+    except Exception as e:
+        logger.error(f"Error in report: {e}")
+        return render_template('error.html', error=str(e)), 500

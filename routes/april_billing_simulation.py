@@ -1454,3 +1454,82 @@ def get_billing_summary():
         'regions': processed_data['DIV'].unique().tolist(),
         'jobs': processed_data['JOB'].unique().tolist()
     }
+@april_billing_simulation_bp.route('/')
+def index():
+    """Handler for /"""
+    try:
+        # Add your route handler logic here
+        return render_template('april_billing_simulation/index.html')
+    except Exception as e:
+        logger.error(f"Error in index: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@april_billing_simulation_bp.route('/upload')
+def upload():
+    """Handler for /upload"""
+    try:
+        # Add your route handler logic here
+        return render_template('april_billing_simulation/upload.html')
+    except Exception as e:
+        logger.error(f"Error in upload: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@april_billing_simulation_bp.route('/process')
+def process():
+    """Handler for /process"""
+    try:
+        # Add your route handler logic here
+        return render_template('april_billing_simulation/process.html')
+    except Exception as e:
+        logger.error(f"Error in process: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@april_billing_simulation_bp.route('/region/<region_id>')
+def region_<region_id>():
+    """Handler for /region/<region_id>"""
+    try:
+        # Add your route handler logic here
+        return render_template('april_billing_simulation/region_<region_id>.html')
+    except Exception as e:
+        logger.error(f"Error in region_<region_id>: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@april_billing_simulation_bp.route('/job/<job_id>')
+def job_<job_id>():
+    """Handler for /job/<job_id>"""
+    try:
+        # Add your route handler logic here
+        return render_template('april_billing_simulation/job_<job_id>.html')
+    except Exception as e:
+        logger.error(f"Error in job_<job_id>: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@april_billing_simulation_bp.route('/cost-codes')
+def cost_codes():
+    """Handler for /cost-codes"""
+    try:
+        # Add your route handler logic here
+        return render_template('april_billing_simulation/cost_codes.html')
+    except Exception as e:
+        logger.error(f"Error in cost_codes: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@april_billing_simulation_bp.route('/asset/<asset_id>')
+def asset_<asset_id>():
+    """Handler for /asset/<asset_id>"""
+    try:
+        # Add your route handler logic here
+        return render_template('april_billing_simulation/asset_<asset_id>.html')
+    except Exception as e:
+        logger.error(f"Error in asset_<asset_id>: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@april_billing_simulation_bp.route('/export-data')
+def export_data():
+    """Handler for /export-data"""
+    try:
+        # Add your route handler logic here
+        return render_template('april_billing_simulation/export_data.html')
+    except Exception as e:
+        logger.error(f"Error in export_data: {e}")
+        return render_template('error.html', error=str(e)), 500

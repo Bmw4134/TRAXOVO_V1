@@ -1,0 +1,1052 @@
+{
+  "#210003 - AMMAR I. ELHAMAD": {
+    "asset_id": "#210003 - AMMAR I. ELHAMAD",
+    "driver_name": "Elhamad, Ammar I",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "#210013 - MATTHEW C. SHAYLOR": {
+    "asset_id": "#210013 - MATTHEW C. SHAYLOR",
+    "driver_name": "Shaylor, Matthew C",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "#210055 - ADAM H. GOODE": {
+    "asset_id": "#210055 - ADAM H. GOODE",
+    "driver_name": "Goode, Adam H",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "#210073 - BIKHYAT ADHIKARI": {
+    "asset_id": "#210073 - BIKHYAT ADHIKARI",
+    "driver_name": "Adhikari, Bikhyat",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "14FT-03S": {
+    "asset_id": "14FT-03S",
+    "driver_name": "S2372507",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "14FT-04S": {
+    "asset_id": "14FT-04S",
+    "driver_name": "R2360779",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "14T-21": {
+    "asset_id": "14T-21",
+    "driver_name": "SHOP TRAILER",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "14T-38": {
+    "asset_id": "14T-38",
+    "driver_name": "TRAFFIC CONTROL",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "14T-39": {
+    "asset_id": "14T-39",
+    "driver_name": "WTX JOB TRAILER",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "14T-44": {
+    "asset_id": "14T-44",
+    "driver_name": "HTX FLATBED TRAILER",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "14T-45": {
+    "asset_id": "14T-45",
+    "driver_name": "HTX DUMP TRAILER",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "AC-25": {
+    "asset_id": "AC-25",
+    "driver_name": "0153",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "CFM-18": {
+    "asset_id": "CFM-18",
+    "driver_name": "ALLEN SCREED 22.5'",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "DD-01": {
+    "asset_id": "DD-01",
+    "driver_name": "ASPHALT 84\"",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "DD-02": {
+    "asset_id": "DD-02",
+    "driver_name": "ASPHALT 84\"",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "DT-08": {
+    "asset_id": "DT-08",
+    "driver_name": "WELDING TRUCK",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "DTC-11": {
+    "asset_id": "DTC-11",
+    "driver_name": "SALVADOR AGUILLON",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "DTC-12": {
+    "asset_id": "DTC-12",
+    "driver_name": "JUAN L. RUIZ",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "DTC-25": {
+    "asset_id": "DTC-25",
+    "driver_name": "SALVADOR AGUILLON",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "DTC-29": {
+    "asset_id": "DTC-29",
+    "driver_name": "ALONSO MIRAMONTES",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "DTF-03S": {
+    "asset_id": "DTF-03S",
+    "driver_name": "14T",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "DTF-06": {
+    "asset_id": "DTF-06",
+    "driver_name": "JESUS LOPEZ SOTO",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "DTF-09": {
+    "asset_id": "DTF-09",
+    "driver_name": "FOUNDATION",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "DTF-11": {
+    "asset_id": "DTF-11",
+    "driver_name": "HECTOR J. CLAUDIO",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "DTF-16": {
+    "asset_id": "DTF-16",
+    "driver_name": "Rangel, Jose M",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "DTF-17": {
+    "asset_id": "DTF-17",
+    "driver_name": "SALVADOR",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-01": {
+    "asset_id": "ET-01",
+    "driver_name": "Martinez Alvarez, Saul",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-02": {
+    "asset_id": "ET-02",
+    "driver_name": "HARDIMON, ANTHONY J",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-03": {
+    "asset_id": "ET-03",
+    "driver_name": "Andrade, Manuel",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-04": {
+    "asset_id": "ET-04",
+    "driver_name": "Ehimhen, Gerald A",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-05": {
+    "asset_id": "ET-05",
+    "driver_name": "HARDIMON, ANTHONY J LOANER",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-06": {
+    "asset_id": "ET-06",
+    "driver_name": "Rodriguez Perez, Esteban",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-07": {
+    "asset_id": "ET-07",
+    "driver_name": "HAYS, PAXTON C",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-08": {
+    "asset_id": "ET-08",
+    "driver_name": "Martinez, Jorge L",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-09": {
+    "asset_id": "ET-09",
+    "driver_name": "Ramirez, Jose C",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-10": {
+    "asset_id": "ET-10",
+    "driver_name": "Medina-Rodriguez, Jesus A",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-11": {
+    "asset_id": "ET-11",
+    "driver_name": "Guerrero Jr, Roberto",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-12": {
+    "asset_id": "ET-12",
+    "driver_name": "Open",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-13": {
+    "asset_id": "ET-13",
+    "driver_name": "open",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-14": {
+    "asset_id": "ET-14",
+    "driver_name": "Kocmick, Caleb S",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-15": {
+    "asset_id": "ET-15",
+    "driver_name": "Eclavea, Carlos H",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-16": {
+    "asset_id": "ET-16",
+    "driver_name": "Murcia Orellana, Luis E",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-17": {
+    "asset_id": "ET-17",
+    "driver_name": "Link, Cooper E",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-18": {
+    "asset_id": "ET-18",
+    "driver_name": "Moore, Jesse A",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-19": {
+    "asset_id": "ET-19",
+    "driver_name": "Salaices, Osiel",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-20": {
+    "asset_id": "ET-20",
+    "driver_name": "OPEN RAM 1500",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-21": {
+    "asset_id": "ET-21",
+    "driver_name": "OPEN",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-22": {
+    "asset_id": "ET-22",
+    "driver_name": "Lopez, Juan",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-23": {
+    "asset_id": "ET-23",
+    "driver_name": "Rivera, Jose J",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-24": {
+    "asset_id": "ET-24",
+    "driver_name": "Malette, Troy S",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-25": {
+    "asset_id": "ET-25",
+    "driver_name": "RODARTE SERRANO, JESUS O",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-26": {
+    "asset_id": "ET-26",
+    "driver_name": "Rodriguez, Juan P",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-27": {
+    "asset_id": "ET-27",
+    "driver_name": "Miramontes, Alonso",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-28": {
+    "asset_id": "ET-28",
+    "driver_name": "Flores, Jorge L",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-29": {
+    "asset_id": "ET-29",
+    "driver_name": "Rangel, Jose M",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-30": {
+    "asset_id": "ET-30",
+    "driver_name": "Ruiz, Juan L",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-31": {
+    "asset_id": "ET-31",
+    "driver_name": "Vazquez De La Cruz, Ramiro",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-32": {
+    "asset_id": "ET-32",
+    "driver_name": "Garcia-Andrade, Uriel",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-33": {
+    "asset_id": "ET-33",
+    "driver_name": "Lopez Lira, Jose P",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-34": {
+    "asset_id": "ET-34",
+    "driver_name": "Reyes, Aureliano",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-35": {
+    "asset_id": "ET-35",
+    "driver_name": "Lopez Soto, Jesus",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-36": {
+    "asset_id": "ET-36",
+    "driver_name": "Gonzalez, Alonzo",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-37": {
+    "asset_id": "ET-37",
+    "driver_name": "Ibarra, Sabino",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-38": {
+    "asset_id": "ET-38",
+    "driver_name": "Padgett, Caleb L",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-39": {
+    "asset_id": "ET-39",
+    "driver_name": "Terrazas Melendez, Jose R",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-41": {
+    "asset_id": "ET-41",
+    "driver_name": "Hampton, Justin D",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-42": {
+    "asset_id": "ET-42",
+    "driver_name": "Berjes Ruiz, Juan C",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ET-43": {
+    "asset_id": "ET-43",
+    "driver_name": "Giebelhaus, Eric STX",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "EX-03S": {
+    "asset_id": "EX-03S",
+    "driver_name": "stolen on 6/23/24",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "HTC-07": {
+    "asset_id": "HTC-07",
+    "driver_name": "ALONZO GONZALEZ",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "LP-114": {
+    "asset_id": "LP-114",
+    "driver_name": "P1007116",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "LP-115": {
+    "asset_id": "LP-115",
+    "driver_name": "P1007120",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "MB-05S": {
+    "asset_id": "MB-05S",
+    "driver_name": "411774",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ME-60": {
+    "asset_id": "ME-60",
+    "driver_name": "R1006827",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "ME-61": {
+    "asset_id": "ME-61",
+    "driver_name": "R1006828",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "MOWER ATTACHMENT": {
+    "asset_id": "MOWER ATTACHMENT",
+    "driver_name": "Mower King",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "MT-07": {
+    "asset_id": "MT-07",
+    "driver_name": "TMA",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "MT-09": {
+    "asset_id": "MT-09",
+    "driver_name": "Aparicio, Lorenzo",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "MT-11": {
+    "asset_id": "MT-11",
+    "driver_name": "OPEN",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "MT-13": {
+    "asset_id": "MT-13",
+    "driver_name": "OPEN MECH TRUCK",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "MT-14": {
+    "asset_id": "MT-14",
+    "driver_name": "Torres, Ivan",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "MT-15": {
+    "asset_id": "MT-15",
+    "driver_name": "Gee, Korbin E",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "MT-16": {
+    "asset_id": "MT-16",
+    "driver_name": "LUBE TRUCK",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "OV-01": {
+    "asset_id": "OV-01",
+    "driver_name": "OFFICE VEHICLE",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-01S": {
+    "asset_id": "PT-01S",
+    "driver_name": "open",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-06S": {
+    "asset_id": "PT-06S",
+    "driver_name": "SELECT CREW TRUCK",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-07S": {
+    "asset_id": "PT-07S",
+    "driver_name": "DODDY, ROGER W",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-08S": {
+    "asset_id": "PT-08S",
+    "driver_name": "JAMES GABE",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-09S": {
+    "asset_id": "PT-09S",
+    "driver_name": "Espinoza-Casillas, Jovan",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-104": {
+    "asset_id": "PT-104",
+    "driver_name": "Escobedo Jr, Martin",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-107": {
+    "asset_id": "PT-107",
+    "driver_name": "DFW OFFICE TRUCK",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-108": {
+    "asset_id": "PT-108",
+    "driver_name": "BADILLO, GERARDO J",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-10S": {
+    "asset_id": "PT-10S",
+    "driver_name": "Berryhill, Robert P",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-111": {
+    "asset_id": "PT-111",
+    "driver_name": "shop mech loaner",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-11S": {
+    "asset_id": "PT-11S",
+    "driver_name": "Muratalla-Ceja, Rafael",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-125": {
+    "asset_id": "PT-125",
+    "driver_name": "PLANO JOBSITE TRUCK",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-12S": {
+    "asset_id": "PT-12S",
+    "driver_name": "OPEN",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-13S": {
+    "asset_id": "PT-13S",
+    "driver_name": "Magallanes, Javier",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-14S": {
+    "asset_id": "PT-14S",
+    "driver_name": "Smith, Keith A",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-156": {
+    "asset_id": "PT-156",
+    "driver_name": "Alvarado, Eduardo D",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-159": {
+    "asset_id": "PT-159",
+    "driver_name": "OPEN",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-15S": {
+    "asset_id": "PT-15S",
+    "driver_name": "OPEN",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-160": {
+    "asset_id": "PT-160",
+    "driver_name": "Saldierna Jr, Armando",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-163": {
+    "asset_id": "PT-163",
+    "driver_name": "PERSINGER, WILLIAM",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-165": {
+    "asset_id": "PT-165",
+    "driver_name": "Zuniga, Alberto",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-166": {
+    "asset_id": "PT-166",
+    "driver_name": "Luevano, Juan M",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-167": {
+    "asset_id": "PT-167",
+    "driver_name": "Ramirez, Omar",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-168": {
+    "asset_id": "PT-168",
+    "driver_name": "Ramirez, Luis F",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-169": {
+    "asset_id": "PT-169",
+    "driver_name": "OPEN F150 STX",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-16S": {
+    "asset_id": "PT-16S",
+    "driver_name": "Romero, Isaac F",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-172": {
+    "asset_id": "PT-172",
+    "driver_name": "OPEN TRAFFIC TRUCK",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-173": {
+    "asset_id": "PT-173",
+    "driver_name": "Hernandez, Juan B",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-177": {
+    "asset_id": "PT-177",
+    "driver_name": "Rodriguez Jr, Salvador",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-179": {
+    "asset_id": "PT-179",
+    "driver_name": "TROY RAGLE",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-17S": {
+    "asset_id": "PT-17S",
+    "driver_name": "OPEN SELECT JST",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-180": {
+    "asset_id": "PT-180",
+    "driver_name": "Lumbreras, Roberto",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-182": {
+    "asset_id": "PT-182",
+    "driver_name": "Munoz, Leonel",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-185": {
+    "asset_id": "PT-185",
+    "driver_name": "Bautista, Jose A",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-187": {
+    "asset_id": "PT-187",
+    "driver_name": "Lumbreras, Roberto",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-188": {
+    "asset_id": "PT-188",
+    "driver_name": "OPEN F150",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-18S": {
+    "asset_id": "PT-18S",
+    "driver_name": "JST SELECT 250",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-190": {
+    "asset_id": "PT-190",
+    "driver_name": "Turrubiartes Jr, Jose G",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-193": {
+    "asset_id": "PT-193",
+    "driver_name": "OPEN DFW TC USING",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-194": {
+    "asset_id": "PT-194",
+    "driver_name": "Albert Perry is using",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-199": {
+    "asset_id": "PT-199",
+    "driver_name": "WTX JST",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-19S": {
+    "asset_id": "PT-19S",
+    "driver_name": "Figueroa, Bryan",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-201": {
+    "asset_id": "PT-201",
+    "driver_name": "OPEN",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-202": {
+    "asset_id": "PT-202",
+    "driver_name": "2024-004 SIDEWALKS JST",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-207": {
+    "asset_id": "PT-207",
+    "driver_name": "Vasquez, Juan C",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-208": {
+    "asset_id": "PT-208",
+    "driver_name": "Aguillon, Salvador",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-20S": {
+    "asset_id": "PT-20S",
+    "driver_name": "Chavez, Obaldo S",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-213": {
+    "asset_id": "PT-213",
+    "driver_name": "Flores Jr, Catalino",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-215": {
+    "asset_id": "PT-215",
+    "driver_name": "Lemon Jr, Ernest S",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-218": {
+    "asset_id": "PT-218",
+    "driver_name": "Hammons, Michael A",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-219": {
+    "asset_id": "PT-219",
+    "driver_name": "Lopez, Valentin",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-21S": {
+    "asset_id": "PT-21S",
+    "driver_name": "RED44664",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-224": {
+    "asset_id": "PT-224",
+    "driver_name": "Pachipulusu Sreedhar, Nagesh Kumar",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-226": {
+    "asset_id": "PT-226",
+    "driver_name": "Flores Sr, Catalino",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-227": {
+    "asset_id": "PT-227",
+    "driver_name": "Rangel, Jose M",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-228": {
+    "asset_id": "PT-228",
+    "driver_name": "Lopez, Daniel",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-229": {
+    "asset_id": "PT-229",
+    "driver_name": "Caballero, Reyneri M",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-22S": {
+    "asset_id": "PT-22S",
+    "driver_name": "Mendieta, Albert A",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-235": {
+    "asset_id": "PT-235",
+    "driver_name": "Morales, Luis A",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-236": {
+    "asset_id": "PT-236",
+    "driver_name": "Colmenero-Garcia, Rolando",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-237": {
+    "asset_id": "PT-237",
+    "driver_name": "Miramontes Jr, Juan C",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-239": {
+    "asset_id": "PT-239",
+    "driver_name": "Rodriguez-Ayala, Alejandro J",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-240": {
+    "asset_id": "PT-240",
+    "driver_name": "Mize, Clint",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-241": {
+    "asset_id": "PT-241",
+    "driver_name": "Garcia, Mark E XL",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-242": {
+    "asset_id": "PT-242",
+    "driver_name": "Sanchez, Hector",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-243": {
+    "asset_id": "PT-243",
+    "driver_name": "Bobba, Ramesh",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-244": {
+    "asset_id": "PT-244",
+    "driver_name": "Abunemeh, Osama M",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-260": {
+    "asset_id": "PT-260",
+    "driver_name": "Ruhrup, Jared K",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-246": {
+    "asset_id": "PT-246",
+    "driver_name": "Sabaj, Phillip A",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-247": {
+    "asset_id": "PT-247",
+    "driver_name": "MARTIN SANCHEZ",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-252": {
+    "asset_id": "PT-252",
+    "driver_name": "Reyes Diaz, Juan C",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-268": {
+    "asset_id": "PT-268",
+    "driver_name": "OEPN",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-269": {
+    "asset_id": "PT-269",
+    "driver_name": "Claudio, Hector J",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-270": {
+    "asset_id": "PT-270",
+    "driver_name": "OPEN",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-274": {
+    "asset_id": "PT-274",
+    "driver_name": "MANCHO CAMACHO, GRECIA",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-275": {
+    "asset_id": "PT-275",
+    "driver_name": "OPEN",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-276": {
+    "asset_id": "PT-276",
+    "driver_name": "MOYA, MARIO",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-277": {
+    "asset_id": "PT-277",
+    "driver_name": "GARCIA, SAID A",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-278": {
+    "asset_id": "PT-278",
+    "driver_name": "CASTRO, JUAN J",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-279": {
+    "asset_id": "PT-279",
+    "driver_name": "Concha, Aaron",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-280": {
+    "asset_id": "PT-280",
+    "driver_name": "Blanco, Andres E",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-281": {
+    "asset_id": "PT-281",
+    "driver_name": "Martinez Salazar, Josue",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-282": {
+    "asset_id": "PT-282",
+    "driver_name": "OWENS, JUSTIN W",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-284": {
+    "asset_id": "PT-284",
+    "driver_name": "OPEN",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-89": {
+    "asset_id": "PT-89",
+    "driver_name": "NEFF, ROBERT S",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "PT-92": {
+    "asset_id": "PT-92",
+    "driver_name": "STONIE BROWN",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "S-13": {
+    "asset_id": "S-13",
+    "driver_name": "086733",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "S-14": {
+    "asset_id": "S-14",
+    "driver_name": "085764",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "SFB-04": {
+    "asset_id": "SFB-04",
+    "driver_name": "POLY SPRAYER",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "SFB-23": {
+    "asset_id": "SFB-23",
+    "driver_name": "KB9153",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "SS-11": {
+    "asset_id": "SS-11",
+    "driver_name": "shop use",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "SS-33": {
+    "asset_id": "SS-33",
+    "driver_name": "AARON CONCHA",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "SS-34": {
+    "asset_id": "SS-34",
+    "driver_name": "JOSE RIVERA",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "SS-35": {
+    "asset_id": "SS-35",
+    "driver_name": "JUAN P. RODRIGUEZ",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "SS-36": {
+    "asset_id": "SS-36",
+    "driver_name": "SALVADOR AGUILLON",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "SS-37": {
+    "asset_id": "SS-37",
+    "driver_name": "JOSE RANGEL",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "SS-38": {
+    "asset_id": "SS-38",
+    "driver_name": "JESUS LOPEZ SOTO",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "SS-39": {
+    "asset_id": "SS-39",
+    "driver_name": "SABINO IBARRA",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "SS-41": {
+    "asset_id": "SS-41",
+    "driver_name": "URIEL GARCIA-ANDRADE",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "SS-44": {
+    "asset_id": "SS-44",
+    "driver_name": "Colmenero-Garcia, Rolando",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "SS-45": {
+    "asset_id": "SS-45",
+    "driver_name": "Alonso Miramontes",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "SS-46": {
+    "asset_id": "SS-46",
+    "driver_name": "Josue Martinez",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "SV-08": {
+    "asset_id": "SV-08",
+    "driver_name": "RIEDER, MICHAEL A",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "TH-04": {
+    "asset_id": "TH-04",
+    "driver_name": "shop use",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "VT-01": {
+    "asset_id": "VT-01",
+    "driver_name": "LP873",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "WL-11": {
+    "asset_id": "WL-11",
+    "driver_name": "J1S02294",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "WL-12": {
+    "asset_id": "WL-12",
+    "driver_name": "K03394",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "WL-13": {
+    "asset_id": "WL-13",
+    "driver_name": "R08392",
+    "source": "EQ MONTHLY BILLINGS WORKING SPREADSHEET - APRIL 2025.xlsx:FLEET"
+  },
+  "TRK-1001": {
+    "asset_id": "TRK-1001",
+    "driver_name": "John Smith",
+    "employee_id": "E1001",
+    "source": "employee_master_list.csv"
+  },
+  "TRK-1002": {
+    "asset_id": "TRK-1002",
+    "driver_name": "Michael Johnson",
+    "employee_id": "E1002",
+    "source": "employee_master_list.csv"
+  },
+  "TRK-1003": {
+    "asset_id": "TRK-1003",
+    "driver_name": "Robert Williams",
+    "employee_id": "E1003",
+    "source": "employee_master_list.csv"
+  },
+  "TRK-1004": {
+    "asset_id": "TRK-1004",
+    "driver_name": "William Brown",
+    "employee_id": "E1004",
+    "source": "employee_master_list.csv"
+  },
+  "TRK-1005": {
+    "asset_id": "TRK-1005",
+    "driver_name": "James Davis",
+    "employee_id": "E1005",
+    "source": "employee_master_list.csv"
+  },
+  "TRK-1006": {
+    "asset_id": "TRK-1006",
+    "driver_name": "David Miller",
+    "employee_id": "E1006",
+    "source": "employee_master_list.csv"
+  },
+  "TRK-1007": {
+    "asset_id": "TRK-1007",
+    "driver_name": "Richard Wilson",
+    "employee_id": "E1007",
+    "source": "employee_master_list.csv"
+  },
+  "TRK-1008": {
+    "asset_id": "TRK-1008",
+    "driver_name": "Joseph Moore",
+    "employee_id": "E1008",
+    "source": "employee_master_list.csv"
+  },
+  "TRK-1009": {
+    "asset_id": "TRK-1009",
+    "driver_name": "Thomas Taylor",
+    "employee_id": "E1009",
+    "source": "employee_master_list.csv"
+  },
+  "TRK-1010": {
+    "asset_id": "TRK-1010",
+    "driver_name": "Charles Anderson",
+    "employee_id": "E1010",
+    "source": "employee_master_list.csv"
+  },
+  "TRK-1011": {
+    "asset_id": "TRK-1011",
+    "driver_name": "Christopher Thomas",
+    "employee_id": "E1011",
+    "source": "employee_master_list.csv"
+  },
+  "TRK-1012": {
+    "asset_id": "TRK-1012",
+    "driver_name": "Daniel Jackson",
+    "employee_id": "E1012",
+    "source": "employee_master_list.csv"
+  },
+  "TRK-1013": {
+    "asset_id": "TRK-1013",
+    "driver_name": "Matthew Harris",
+    "employee_id": "E1013",
+    "source": "employee_master_list.csv"
+  },
+  "TRK-1014": {
+    "asset_id": "TRK-1014",
+    "driver_name": "Anthony Martin",
+    "employee_id": "E1014",
+    "source": "employee_master_list.csv"
+  },
+  "TRK-1015": {
+    "asset_id": "TRK-1015",
+    "driver_name": "Mark Thompson",
+    "employee_id": "E1015",
+    "source": "employee_master_list.csv"
+  }
+}

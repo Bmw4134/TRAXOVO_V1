@@ -256,3 +256,32 @@ def geospatial_api():
     }
     
     return jsonify(result)
+@workzone_bp.route('/workzone')
+def workzone():
+    """Handler for /workzone"""
+    try:
+        # Add your route handler logic here
+        return render_template('workzone/workzone.html')
+    except Exception as e:
+        logger.error(f"Error in workzone: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@workzone_bp.route('/workzone/api/efficiency-trend')
+def workzone_api_efficiency_trend():
+    """Handler for /workzone/api/efficiency-trend"""
+    try:
+        # Add your route handler logic here
+        return render_template('workzone/workzone_api_efficiency_trend.html')
+    except Exception as e:
+        logger.error(f"Error in workzone_api_efficiency_trend: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@workzone_bp.route('/workzone/api/geospatial')
+def workzone_api_geospatial():
+    """Handler for /workzone/api/geospatial"""
+    try:
+        # Add your route handler logic here
+        return render_template('workzone/workzone_api_geospatial.html')
+    except Exception as e:
+        logger.error(f"Error in workzone_api_geospatial: {e}")
+        return render_template('error.html', error=str(e)), 500

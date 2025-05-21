@@ -290,3 +290,22 @@ def generate_sample_asset_data():
     
     logger.info(f"Generated {asset_count} sample assets for the map")
     return sample_assets
+@geo_tracking_bp.route('/')
+def index():
+    """Handler for /"""
+    try:
+        # Add your route handler logic here
+        return render_template('geo_tracking/index.html')
+    except Exception as e:
+        logger.error(f"Error in index: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@geo_tracking_bp.route('/api/asset-locations')
+def api_asset_locations():
+    """Handler for /api/asset-locations"""
+    try:
+        # Add your route handler logic here
+        return render_template('geo_tracking/api_asset_locations.html')
+    except Exception as e:
+        logger.error(f"Error in api_asset_locations: {e}")
+        return render_template('error.html', error=str(e)), 500

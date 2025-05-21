@@ -715,3 +715,122 @@ def export_maintenance_costs(start_date, end_date):
         data.append(row)
     
     return pd.DataFrame(data)
+@maintenance_bp.route('/')
+def index():
+    """Handler for /"""
+    try:
+        # Add your route handler logic here
+        return render_template('maintenance/index.html')
+    except Exception as e:
+        logger.error(f"Error in index: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@maintenance_bp.route('/schedule')
+def schedule():
+    """Handler for /schedule"""
+    try:
+        # Add your route handler logic here
+        return render_template('maintenance/schedule.html')
+    except Exception as e:
+        logger.error(f"Error in schedule: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@maintenance_bp.route('/schedule/new')
+def schedule_new():
+    """Handler for /schedule/new"""
+    try:
+        # Add your route handler logic here
+        return render_template('maintenance/schedule_new.html')
+    except Exception as e:
+        logger.error(f"Error in schedule_new: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@maintenance_bp.route('/schedule/<int:schedule_id>')
+def schedule_<int:schedule_id>():
+    """Handler for /schedule/<int:schedule_id>"""
+    try:
+        # Add your route handler logic here
+        return render_template('maintenance/schedule_<int:schedule_id>.html')
+    except Exception as e:
+        logger.error(f"Error in schedule_<int:schedule_id>: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@maintenance_bp.route('/schedule/<int:schedule_id>/edit')
+def schedule_<int:schedule_id>_edit():
+    """Handler for /schedule/<int:schedule_id>/edit"""
+    try:
+        # Add your route handler logic here
+        return render_template('maintenance/schedule_<int:schedule_id>_edit.html')
+    except Exception as e:
+        logger.error(f"Error in schedule_<int:schedule_id>_edit: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@maintenance_bp.route('/schedule/<int:schedule_id>/delete')
+def schedule_<int:schedule_id>_delete():
+    """Handler for /schedule/<int:schedule_id>/delete"""
+    try:
+        # Add your route handler logic here
+        return render_template('maintenance/schedule_<int:schedule_id>_delete.html')
+    except Exception as e:
+        logger.error(f"Error in schedule_<int:schedule_id>_delete: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@maintenance_bp.route('/record/new')
+def record_new():
+    """Handler for /record/new"""
+    try:
+        # Add your route handler logic here
+        return render_template('maintenance/record_new.html')
+    except Exception as e:
+        logger.error(f"Error in record_new: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@maintenance_bp.route('/record/<int:record_id>')
+def record_<int:record_id>():
+    """Handler for /record/<int:record_id>"""
+    try:
+        # Add your route handler logic here
+        return render_template('maintenance/record_<int:record_id>.html')
+    except Exception as e:
+        logger.error(f"Error in record_<int:record_id>: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@maintenance_bp.route('/parts')
+def parts():
+    """Handler for /parts"""
+    try:
+        # Add your route handler logic here
+        return render_template('maintenance/parts.html')
+    except Exception as e:
+        logger.error(f"Error in parts: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@maintenance_bp.route('/reports')
+def reports():
+    """Handler for /reports"""
+    try:
+        # Add your route handler logic here
+        return render_template('maintenance/reports.html')
+    except Exception as e:
+        logger.error(f"Error in reports: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@maintenance_bp.route('/api/sync')
+def api_sync():
+    """Handler for /api/sync"""
+    try:
+        # Add your route handler logic here
+        return render_template('maintenance/api_sync.html')
+    except Exception as e:
+        logger.error(f"Error in api_sync: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@maintenance_bp.route('/export')
+def export():
+    """Handler for /export"""
+    try:
+        # Add your route handler logic here
+        return render_template('maintenance/export.html')
+    except Exception as e:
+        logger.error(f"Error in export: {e}")
+        return render_template('error.html', error=str(e)), 500

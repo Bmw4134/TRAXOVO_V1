@@ -205,3 +205,32 @@ def download_file(filename):
         logger.error(f"Error downloading file: {e}")
         flash(f'Error downloading file: {e}', 'danger')
         return redirect(url_for('export_reports.index'))
+@export_reports_bp.route('/')
+def index():
+    """Handler for /"""
+    try:
+        # Add your route handler logic here
+        return render_template('export_reports/index.html')
+    except Exception as e:
+        logger.error(f"Error in index: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@export_reports_bp.route('/generate')
+def generate():
+    """Handler for /generate"""
+    try:
+        # Add your route handler logic here
+        return render_template('export_reports/generate.html')
+    except Exception as e:
+        logger.error(f"Error in generate: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@export_reports_bp.route('/download/<filename>')
+def download_<filename>():
+    """Handler for /download/<filename>"""
+    try:
+        # Add your route handler logic here
+        return render_template('export_reports/download_<filename>.html')
+    except Exception as e:
+        logger.error(f"Error in download_<filename>: {e}")
+        return render_template('error.html', error=str(e)), 500

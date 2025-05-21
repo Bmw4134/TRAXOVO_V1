@@ -260,3 +260,72 @@ def alerts_settings():
 def register_alerts_routes(app):
     """Register alerts routes with the app"""
     app.register_blueprint(alerts_bp)
+@alerts_bp.route('/')
+def index():
+    """Handler for /"""
+    try:
+        # Add your route handler logic here
+        return render_template('alerts/index.html')
+    except Exception as e:
+        logger.error(f"Error in index: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@alerts_bp.route('/asset/<asset_id>')
+def asset_<asset_id>():
+    """Handler for /asset/<asset_id>"""
+    try:
+        # Add your route handler logic here
+        return render_template('alerts/asset_<asset_id>.html')
+    except Exception as e:
+        logger.error(f"Error in asset_<asset_id>: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@alerts_bp.route('/acknowledge/<int:alert_id>')
+def acknowledge_<int:alert_id>():
+    """Handler for /acknowledge/<int:alert_id>"""
+    try:
+        # Add your route handler logic here
+        return render_template('alerts/acknowledge_<int:alert_id>.html')
+    except Exception as e:
+        logger.error(f"Error in acknowledge_<int:alert_id>: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@alerts_bp.route('/resolve/<int:alert_id>')
+def resolve_<int:alert_id>():
+    """Handler for /resolve/<int:alert_id>"""
+    try:
+        # Add your route handler logic here
+        return render_template('alerts/resolve_<int:alert_id>.html')
+    except Exception as e:
+        logger.error(f"Error in resolve_<int:alert_id>: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@alerts_bp.route('/refresh')
+def refresh():
+    """Handler for /refresh"""
+    try:
+        # Add your route handler logic here
+        return render_template('alerts/refresh.html')
+    except Exception as e:
+        logger.error(f"Error in refresh: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@alerts_bp.route('/api/alerts')
+def api_alerts():
+    """Handler for /api/alerts"""
+    try:
+        # Add your route handler logic here
+        return render_template('alerts/api_alerts.html')
+    except Exception as e:
+        logger.error(f"Error in api_alerts: {e}")
+        return render_template('error.html', error=str(e)), 500
+
+@alerts_bp.route('/settings')
+def settings():
+    """Handler for /settings"""
+    try:
+        # Add your route handler logic here
+        return render_template('alerts/settings.html')
+    except Exception as e:
+        logger.error(f"Error in settings: {e}")
+        return render_template('error.html', error=str(e)), 500

@@ -417,6 +417,7 @@
                                     matchingSites.forEach(function(match) {
                                         // Calculate confidence percentage relative to highest score
                                         const confidencePercent = Math.round((match.recommendationScore / highestScore) * 100);
+                                        match.confidencePercent = confidencePercent;
                                         
                                         if (confidencePercent >= 90) {
                                             match.recommendationLevel = 'Highly Recommended';
@@ -433,13 +434,54 @@
                                         }
                                     });
                                     
-                                    // Display recommendations
+                                    // First remove the "Primary Job Site" line since we're going to show a better version
+                                    jobSiteSection = '';
+                                    
+                                    // Add a title with site recommendation explanation
+                                    jobSiteSection += `<div class="mt-2 mb-2">
+                                        <strong class="text-warning">⚠️ Job Site Conflict Alert</strong>
+                                        <div class="small">
+                                            <em>Recommended job sites for ${asset.type || 'equipment'} based on intelligent scoring:</em>
+                                        </div>
+                                    </div>`;
+                                    
+                                    // Display recommendations with percentage scores
                                     matchingSites.forEach(function(match, idx) {
                                         var distance = (match.distance / 1000).toFixed(2);
-                                        var confidenceBadge = `<span class="badge ${match.badgeClass}">${match.recommendationLevel}</span>`;
-                                        jobSiteSection += `<div class="mb-1 d-flex justify-content-between">
-                                            <div><strong>${match.site.name}</strong> (${distance} km)</div>
-                                            <div>${confidenceBadge}</div>
+                                        var isTopRecommendation = idx === 0;
+                                        var siteBoxClass = isTopRecommendation ? 
+                                            'border border-success rounded-3 mb-2 p-2 bg-light bg-opacity-25' : 
+                                            'border border-light mb-2 p-2 bg-light bg-opacity-10';
+                                        
+                                        // Add project number prefix if available in the name
+                                        var siteName = match.site.name;
+                                        var projectMatch = siteName.match(/^(\d{4}-\d{3})\s+(.+)/);
+                                        var displayName = siteName;
+                                        
+                                        if (projectMatch) {
+                                            displayName = `<span class="badge bg-dark me-1">${projectMatch[1]}</span>${projectMatch[2]}`;
+                                        }
+                                        
+                                        var siteHeader = isTopRecommendation ? 
+                                            `<div class="d-flex align-items-center">
+                                                <span class="badge bg-success me-2">Top Choice</span>
+                                                <strong>${displayName}</strong>
+                                            </div>` : 
+                                            `<strong>${displayName}</strong>`;
+                                            
+                                        var confidenceBadge = `<div class="progress mt-1 mb-1" style="height: 8px;">
+                                            <div class="progress-bar ${match.badgeClass}" role="progressbar" 
+                                                style="width: ${match.confidencePercent}%" 
+                                                aria-valuenow="${match.confidencePercent}" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>`;
+                                        
+                                        jobSiteSection += `<div class="${siteBoxClass}">
+                                            ${siteHeader}
+                                            ${confidenceBadge}
+                                            <div class="small d-flex justify-content-between">
+                                                <div><span class="badge ${match.badgeClass}">${match.confidencePercent}%</span> ${match.recommendationLevel}</div>
+                                                <div class="text-muted">${distance} km</div>
+                                            </div>
                                         </div>`;
                                     });
                                     

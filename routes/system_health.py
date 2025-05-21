@@ -125,7 +125,7 @@ TABLE DETAILS:
             report += "- Issues detected that require attention:\n"
             for issue in health_issues:
                 report += f"  * {issue}\n"
-            if not api_status:
+            if not api_connected:
                 report += "  * The system will fall back to local data until API connection is restored\n"
         else:
             report += "- All systems are operating normally\n"

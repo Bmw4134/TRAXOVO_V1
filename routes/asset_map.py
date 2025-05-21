@@ -88,16 +88,19 @@ def api_assets():
         
         # Fallback to direct database query in case of error with data provider
         try:
-            # Base query
+            # Base query with safe defaults for filter variables
+            asset_type_filter = request.args.get('type')
+            job_site_filter = request.args.get('job_site')
+            
             query = db.session.query(Asset)
             
             # Apply filters if provided
-            if asset_type:
-                query = query.filter(Asset.type == asset_type)
+            if asset_type_filter:
+                query = query.filter(Asset.type == asset_type_filter)
             
-            if job_site_id:
+            if job_site_filter:
                 # Join with AssetLocation to filter by job_site_id
-                query = query.join(AssetLocation).filter(AssetLocation.job_site_id == job_site_id)
+                query = query.join(AssetLocation).filter(AssetLocation.job_site_id == job_site_filter)
             
             # Get the assets
             assets = query.filter(Asset.status == 'active').all()

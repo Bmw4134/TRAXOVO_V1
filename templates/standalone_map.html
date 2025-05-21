@@ -20,7 +20,7 @@
         .page-container {
             display: flex;
             flex-direction: row;
-            height: 100vh;
+            height: calc(100vh - 56px); /* Subtract navbar height */
         }
         
         .sidebar {
@@ -111,6 +111,32 @@
     </style>
 </head>
 <body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3 py-2">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">TRAXORA</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/map"><i class="bi bi-geo-alt me-1"></i> Asset Map</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/driver-reports/"><i class="bi bi-person-badge me-1"></i> Driver Reports</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/billing/"><i class="bi bi-receipt me-1"></i> PM Allocation</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
     <div class="page-container">
         <!-- Sidebar -->
         <div class="sidebar">
@@ -197,11 +223,41 @@
                 attributionControl: true
             });
             
-            // Add satellite imagery tile layer to match Gauge's style
-            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            // Create base map layers
+            var satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                 attribution: '&copy; <a href="https://www.esri.com/">Esri</a>',
                 maxZoom: 19
-            }).addTo(map);
+            });
+            
+            var streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                maxZoom: 19
+            });
+            
+            var topoLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://opentopomap.org">OpenTopoMap</a> contributors',
+                maxZoom: 17
+            });
+            
+            var darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a>',
+                subdomains: 'abcd',
+                maxZoom: 19
+            });
+            
+            // Add satellite layer by default
+            satelliteLayer.addTo(map);
+            
+            // Create layer control
+            var baseMaps = {
+                "Satellite": satelliteLayer,
+                "Streets": streetLayer,
+                "Topographic": topoLayer,
+                "Dark Mode": darkLayer
+            };
+            
+            // Add layer control to the map
+            L.control.layers(baseMaps, null, {position: 'topright'}).addTo(map);
             
             // Force a map refresh to prevent rendering issues
             setTimeout(function() {
@@ -242,6 +298,21 @@
                     iconAnchor: [60, 10]
                 });
             }
+            
+            // Create site overlay group
+            var jobSiteOverlay = L.layerGroup().addTo(map);
+            
+            // Create asset overlay group
+            var assetOverlay = L.layerGroup().addTo(map);
+            
+            // Create overlay controls
+            var overlays = {
+                "Assets": assetOverlay,
+                "Job Sites": jobSiteOverlay
+            };
+            
+            // Update layer control to include overlays
+            L.control.layers(baseMaps, overlays, {position: 'topright'}).addTo(map);
             
             // Load assets from API
             function loadAssets() {

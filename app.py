@@ -81,7 +81,8 @@ def check_database_status():
     """Check database connection status"""
     try:
         from sqlalchemy import text
-        db.session.execute(text("SELECT 1"))
+        with db.engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
         return True
     except Exception as e:
         logger.error(f"Failed to check database status: {str(e)}")

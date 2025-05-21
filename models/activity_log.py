@@ -28,8 +28,8 @@ class ActivityLog(db.Model):
     source = Column(String(64))  # Web, API, System, etc.
     success = Column(Boolean, default=True)
     
-    # Relationships
-    user = relationship('User', backref='activities')
+    # Relationships - use back_populates to match User model
+    user = relationship('User', back_populates='activity_logs')
     
     def __repr__(self):
         return f'<ActivityLog {self.id} - {self.activity_type}>'

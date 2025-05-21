@@ -54,14 +54,18 @@ def generate_pdf_report(date_str='2025-05-16'):
         # Format date for display
         display_date = datetime.strptime(date_str, '%Y-%m-%d').strftime('%A, %B %d, %Y')
         
-        # Create PDF document
+        # Create PDF document with higher quality settings
         doc = SimpleDocTemplate(
             str(pdf_path),
             pagesize=landscape(letter),
             rightMargin=0.5*inch,
             leftMargin=0.5*inch,
             topMargin=0.5*inch,
-            bottomMargin=0.5*inch
+            bottomMargin=0.5*inch,
+            pageCompression=1,
+            invariant=1,
+            initialFontName='Helvetica',
+            initialFontSize=10
         )
         
         # Get styles

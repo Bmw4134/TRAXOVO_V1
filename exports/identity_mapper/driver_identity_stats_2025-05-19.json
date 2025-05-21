@@ -1,0 +1,26 @@
+{
+  "date": "2025-05-19",
+  "asset_counts": {
+    "total": 596,
+    "vehicles": 192,
+    "trailers": 0,
+    "other": 0
+  },
+  "mapping_stats": {
+    "total_asset_list": 160,
+    "total_driving_history": 14,
+    "total_activity_detail": 14,
+    "matched_driving_history": 0,
+    "matched_activity_detail": 0,
+    "unmatched_driving_history": 14,
+    "unmatched_activity_detail": 14,
+    "trailers_excluded": 0
+  },
+  "summary": {
+    "total_unique_drivers": 174,
+    "in_asset_list_only": 160,
+    "in_driving_history_only": 0,
+    "in_activity_detail_only": 0,
+    "in_multiple_sources": 14
+  }
+}

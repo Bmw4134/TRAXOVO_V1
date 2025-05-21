@@ -103,14 +103,50 @@ class GaugeAPI:
             # Log more details for debugging
             logger.info(f"Attempting to authenticate with Gauge API at {self.api_url}")
             
-            # List of possible endpoint formats to try
+            # List of possible endpoint formats to try - updated for GaugeSmarts API
             endpoint_formats = [
                 "/api/v1/auth/token",
                 "/auth/token",
                 "/api/auth/token",
                 "/api/v2/auth/token",
-                "/v1/auth/token"
+                "/v1/auth/token",
+                "/AssetList/auth/token",
+                "/token",
+                "/login",
+                "/api/login"
             ]
+            
+            # First, try directly authenticating against the AssetList endpoint
+            asset_list_auth_url = f"{self.api_url}/AssetList/{self.asset_list_id}/auth"
+            try:
+                logger.info(f"Trying direct AssetList authentication: {asset_list_auth_url}")
+                response = requests.post(
+                    asset_list_auth_url,
+                    json={
+                        "username": self.username,
+                        "password": self.password
+                    },
+                    timeout=15,
+                    verify=False
+                )
+                
+                if response.status_code == 200:
+                    try:
+                        data = response.json()
+                        if 'token' in data:
+                            self.token = data['token']
+                            self.token_expiry = datetime.now() + timedelta(hours=23)
+                            self.authenticated = True
+                            logger.info(f"Successfully authenticated with AssetList endpoint")
+                            return
+                        else:
+                            logger.warning(f"Response from {asset_list_auth_url} does not contain a token")
+                    except ValueError:
+                        logger.warning(f"Invalid JSON response from {asset_list_auth_url}")
+                else:
+                    logger.warning(f"Authentication attempt to {asset_list_auth_url} failed with status code {response.status_code}")
+            except requests.exceptions.RequestException as req_err:
+                logger.warning(f"Request failed for {asset_list_auth_url}: {str(req_err)}")
             
             # Try each endpoint format until one works
             for endpoint in endpoint_formats:

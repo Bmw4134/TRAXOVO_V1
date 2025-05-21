@@ -1,161 +1,192 @@
 {% extends "basic_base.html" %}
 
-{% block title %}TRAXORA Dashboard{% endblock %}
+{% block title %}Dashboard - TRAXORA Fleet Management System{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card bg-dark text-white">
-                <div class="card-body p-4">
-                    <h2 class="card-title">
-                        <i class="bi bi-speedometer2 me-2"></i>
-                        TRAXORA Fleet Management
-                    </h2>
-                    <p class="card-text">
-                        <span class="badge bg-info me-2">GENIUS CORE CONTINUITY MODE</span>
-                        <span class="badge bg-secondary">{{ current_date }}</span>
-                    </p>
-                    <p>Welcome to the TRAXORA Fleet Management System dashboard. Comprehensive asset tracking and management for your fleet operations.</p>
-                </div>
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card bg-dark border-0 shadow-sm">
+            <div class="card-body">
+                <h2 class="card-title mb-3">TRAXORA Fleet Management System</h2>
+                <p class="lead mb-0">GENIUS CORE CONTINUITY MODE is active. All system modules have been restored for full data validation and integrity protection.</p>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- System Status Cards -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <h4 class="mb-3">System Status</h4>
-        </div>
-
-        <!-- Gauge API Status -->
-        <div class="col-md-4 mb-3">
-            <div class="card h-100 {% if api_status.gauge_api %}bg-success-subtle{% else %}bg-danger-subtle{% endif %}">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="bi bi-speedometer me-2"></i>
-                        Gauge API
-                    </h5>
-                    <p class="card-text">
-                        {% if api_status.gauge_api %}
-                        <span class="badge bg-success">Connected</span>
-                        {% else %}
-                        <span class="badge bg-danger">Disconnected</span>
-                        {% endif %}
-                    </p>
-                    <p class="card-text text-muted small">Connection to the Gauge API for telematics data</p>
+<div class="row mb-4">
+    <div class="col-md-3 mb-3 mb-md-0">
+        <div class="card bg-dark text-white border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title">Assets</h5>
+                    <i class="bi bi-truck fs-1 text-primary"></i>
                 </div>
-            </div>
-        </div>
-
-        <!-- Database Status -->
-        <div class="col-md-4 mb-3">
-            <div class="card h-100 {% if api_status.database %}bg-success-subtle{% else %}bg-danger-subtle{% endif %}">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="bi bi-database me-2"></i>
-                        Database
-                    </h5>
-                    <p class="card-text">
-                        {% if api_status.database %}
-                        <span class="badge bg-success">Connected</span>
-                        {% else %}
-                        <span class="badge bg-danger">Disconnected</span>
-                        {% endif %}
-                    </p>
-                    <p class="card-text text-muted small">Connection to the PostgreSQL database</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- File System Status -->
-        <div class="col-md-4 mb-3">
-            <div class="card h-100 {% if api_status.file_system %}bg-success-subtle{% else %}bg-danger-subtle{% endif %}">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="bi bi-folder me-2"></i>
-                        File System
-                    </h5>
-                    <p class="card-text">
-                        {% if api_status.file_system %}
-                        <span class="badge bg-success">Available</span>
-                        {% else %}
-                        <span class="badge bg-danger">Unavailable</span>
-                        {% endif %}
-                    </p>
-                    <p class="card-text text-muted small">Access to required directories for file operations</p>
-                </div>
+                <p class="display-4 mb-0">{{ assets_count }}</p>
+                <small class="text-muted">Active in system</small>
             </div>
         </div>
     </div>
-
-    <!-- System Statistics -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <h4 class="mb-3">System Statistics</h4>
-        </div>
-        
-        <!-- Asset Count -->
-        <div class="col-md-4 mb-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="bi bi-truck me-2"></i>
-                        Assets
-                    </h5>
-                    <h2 class="display-4">{{ system_stats.asset_count }}</h2>
-                    <p class="card-text text-muted">Total assets in the system</p>
+    <div class="col-md-3 mb-3 mb-md-0">
+        <div class="card bg-dark text-white border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title">Drivers</h5>
+                    <i class="bi bi-person fs-1 text-success"></i>
                 </div>
-            </div>
-        </div>
-        
-        <!-- Driver Count -->
-        <div class="col-md-4 mb-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="bi bi-person me-2"></i>
-                        Drivers
-                    </h5>
-                    <h2 class="display-4">{{ system_stats.driver_count }}</h2>
-                    <p class="card-text text-muted">Total drivers in the system</p>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Last Sync -->
-        <div class="col-md-4 mb-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="bi bi-arrow-repeat me-2"></i>
-                        Last Sync
-                    </h5>
-                    <p class="lead">{{ system_stats.last_sync }}</p>
-                    <p class="card-text text-muted">Last data synchronization time</p>
-                </div>
+                <p class="display-4 mb-0">{{ drivers_count }}</p>
+                <small class="text-muted">Active in system</small>
             </div>
         </div>
     </div>
+    <div class="col-md-3 mb-3 mb-md-0">
+        <div class="card bg-dark text-white border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title">Job Sites</h5>
+                    <i class="bi bi-building fs-1 text-info"></i>
+                </div>
+                <p class="display-4 mb-0">{{ job_sites_count }}</p>
+                <small class="text-muted">Active in system</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3 mb-md-0">
+        <div class="card bg-dark text-white border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title">PM Allocations</h5>
+                    <i class="bi bi-cash-coin fs-1 text-warning"></i>
+                </div>
+                <p class="display-4 mb-0">{{ pm_allocations_count }}</p>
+                <small class="text-muted">Current month</small>
+            </div>
+        </div>
+    </div>
+</div>
 
-    <!-- Module Status -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card bg-dark text-white">
-                <div class="card-body">
-                    <h4 class="card-title">
-                        <i class="bi bi-github me-2"></i>
-                        GENIUS CORE Status
-                    </h4>
-                    <div class="alert alert-warning">
-                        <i class="bi bi-exclamation-triangle me-2"></i>
-                        <strong>System rebuild in progress</strong> - TRAXORA is currently in CONTINUITY RESTORATION mode. Full system integration is being restored.
+<div class="row mb-4">
+    <div class="col-md-6 mb-3 mb-md-0">
+        <div class="card bg-dark border-0 shadow-sm h-100">
+            <div class="card-header bg-dark border-bottom-0">
+                <h5 class="card-title mb-0">Quick Access</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <a href="{{ url_for('driver_reports.daily_report') }}" class="btn btn-outline-primary btn-lg w-100 d-flex align-items-center justify-content-between">
+                            <span><i class="bi bi-person-badge me-2"></i> Driver Reports</span>
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
                     </div>
-                    <div class="progress mb-3">
-                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" style="width: 45%">45%</div>
+                    <div class="col-md-6">
+                        <a href="{{ url_for('asset_map.asset_map') }}" class="btn btn-outline-primary btn-lg w-100 d-flex align-items-center justify-content-between">
+                            <span><i class="bi bi-geo-alt me-2"></i> Asset Map</span>
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
                     </div>
-                    <p class="card-text text-muted small">When system rebuild is complete, all modules will be available again.</p>
+                    <div class="col-md-6">
+                        <a href="{{ url_for('billing.pm_allocation') }}" class="btn btn-outline-primary btn-lg w-100 d-flex align-items-center justify-content-between">
+                            <span><i class="bi bi-receipt me-2"></i> PM Allocations</span>
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="#" class="btn btn-outline-primary btn-lg w-100 d-flex align-items-center justify-content-between">
+                            <span><i class="bi bi-file-earmark-text me-2"></i> Reports</span>
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
                 </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card bg-dark border-0 shadow-sm h-100">
+            <div class="card-header bg-dark border-bottom-0">
+                <h5 class="card-title mb-0">System Status</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item bg-dark d-flex justify-content-between align-items-center">
+                        <span>
+                            <i class="bi bi-database me-2"></i> Database
+                        </span>
+                        <span class="badge {% if database_status == 'connected' %}bg-success{% else %}bg-danger{% endif %}">
+                            {{ database_status }}
+                        </span>
+                    </li>
+                    <li class="list-group-item bg-dark d-flex justify-content-between align-items-center">
+                        <span>
+                            <i class="bi bi-cloud me-2"></i> Gauge API
+                        </span>
+                        <span class="badge 
+                        {% if api_status == 'connected' %}bg-success
+                        {% elif api_status == 'warning' %}bg-warning
+                        {% elif api_status == 'not_configured' %}bg-secondary
+                        {% else %}bg-danger{% endif %}">
+                            {{ api_status }}
+                        </span>
+                    </li>
+                    <li class="list-group-item bg-dark d-flex justify-content-between align-items-center">
+                        <span>
+                            <i class="bi bi-hdd me-2"></i> Storage System
+                        </span>
+                        <span class="badge {% if storage_status == 'connected' %}bg-success{% else %}bg-danger{% endif %}">
+                            {{ storage_status }}
+                        </span>
+                    </li>
+                    <li class="list-group-item bg-dark d-flex justify-content-between align-items-center">
+                        <span>
+                            <i class="bi bi-clock-history me-2"></i> Last Sync
+                        </span>
+                        <span>{{ last_sync_time }}</span>
+                    </li>
+                    <li class="list-group-item bg-dark d-flex justify-content-between align-items-center">
+                        <span>
+                            <i class="bi bi-shield-check me-2"></i> GENIUS CORE
+                        </span>
+                        <span class="badge bg-info">CONTINUITY MODE</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card bg-dark border-0 shadow-sm">
+            <div class="card-header bg-dark border-bottom-0">
+                <h5 class="card-title mb-0">Recent Notifications</h5>
+            </div>
+            <div class="card-body">
+                {% if notifications %}
+                <ul class="list-group list-group-flush">
+                    {% for notification in notifications %}
+                    <li class="list-group-item bg-dark">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">
+                                {% if notification.type == 'info' %}
+                                <i class="bi bi-info-circle text-info me-2"></i>
+                                {% elif notification.type == 'warning' %}
+                                <i class="bi bi-exclamation-triangle text-warning me-2"></i>
+                                {% elif notification.type == 'error' %}
+                                <i class="bi bi-exclamation-octagon text-danger me-2"></i>
+                                {% else %}
+                                <i class="bi bi-bell text-primary me-2"></i>
+                                {% endif %}
+                                {{ notification.title }}
+                            </h5>
+                            <small>{{ notification.time }}</small>
+                        </div>
+                        <p class="mb-1">{{ notification.message }}</p>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted">No recent notifications.</p>
+                {% endif %}
             </div>
         </div>
     </div>

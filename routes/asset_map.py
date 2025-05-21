@@ -11,6 +11,12 @@ from datetime import datetime, timedelta
 from flask import Blueprint, render_template, request, jsonify, current_app
 from sqlalchemy import func
 
+import sys
+import os
+
+# Add the parent directory to the sys.path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from app import db
 from models import Asset, AssetLocation, Driver, JobSite
 

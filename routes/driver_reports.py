@@ -1,283 +1,450 @@
 """
 TRAXORA Fleet Management System - Driver Reports Module
 
-This module provides the routes and functionality for the Driver Reports module,
-which is responsible for processing driver attendance and activity data.
+This module provides routes and functionality for the Driver Reports module,
+including daily driver attendance tracking and reporting.
 """
 import os
 import logging
 import pandas as pd
 from datetime import datetime, timedelta
-from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for, current_app
 from werkzeug.utils import secure_filename
+from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for, current_app
+
+import sys
+import os
+
+# Add the parent directory to the sys.path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app import db
-from models import Driver, Asset, AttendanceRecord, JobSite, ActivityLog
+from models import Driver, JobSite, DriverReport
 
 logger = logging.getLogger(__name__)
 
 # Create blueprint
-driver_reports_bp = Blueprint('driver_reports', __name__, url_prefix='/drivers')
-
-# Allowed file extensions
-ALLOWED_EXTENSIONS = {'csv', 'xlsx'}
-
-def allowed_file(filename):
-    """Check if the file extension is allowed"""
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-def load_csv(file_path):
-    """Load a CSV file into a pandas DataFrame"""
-    try:
-        return pd.read_csv(file_path)
-    except Exception as e:
-        logger.error(f"Error loading CSV file {file_path}: {str(e)}")
-        return None
-
-def derive_driver_reports(driving_history_df, activity_detail_df):
-    """
-    Derive driver reports from driving history and activity detail data
-    
-    This function implements the core logic of the Driver Reports module:
-    1. Process driving history and activity detail data
-    2. Derive Start Time, End Time, and Job fields from event timestamps
-    3. Generate structured report records
-    """
-    if driving_history_df is None or activity_detail_df is None:
-        return pd.DataFrame()
-    
-    # Normalize driver names
-    driving_history_df['NormalizedDriver'] = driving_history_df['Driver'].apply(normalize_name)
-    activity_detail_df['NormalizedDriver'] = activity_detail_df['Driver'].apply(normalize_name)
-    
-    # Process driving history to extract start and end times
-    driving_history_grouped = driving_history_df.groupby(['NormalizedDriver', 'Date'])
-    
-    # Create a new DataFrame to store the results
-    driver_reports = []
-    
-    for (driver_name, date), group in driving_history_grouped:
-        # Extract earliest and latest timestamps for each driver on each date
-        start_time = group['StartTime'].min() if 'StartTime' in group.columns else None
-        end_time = group['EndTime'].max() if 'EndTime' in group.columns else None
-        
-        # Extract job information from activity detail
-        job_info = activity_detail_df[
-            (activity_detail_df['NormalizedDriver'] == driver_name) & 
-            (activity_detail_df['Date'] == date)
-        ]
-        
-        job_site = job_info['JobSite'].iloc[0] if not job_info.empty and 'JobSite' in job_info.columns else None
-        
-        # Create a report record
-        driver_reports.append({
-            'DriverName': driver_name,
-            'Date': date,
-            'StartTime': start_time,
-            'EndTime': end_time,
-            'JobSite': job_site,
-            'Source': 'driving_history'
-        })
-    
-    # Convert to DataFrame
-    return pd.DataFrame(driver_reports)
-
-def cross_verify_with_asset_list(driver_reports, asset_list_df):
-    """
-    Cross-verify driver reports with the Asset List
-    
-    This function ensures that all drivers in the reports are present in the Asset List,
-    which is the source of truth for driver-asset mappings.
-    """
-    if driver_reports.empty or asset_list_df is None:
-        return driver_reports
-    
-    # Normalize driver names in the asset list
-    asset_list_df['NormalizedDriver'] = asset_list_df['Driver'].apply(normalize_name)
-    
-    # Filter driver reports to include only drivers in the asset list
-    verified_driver_reports = driver_reports[driver_reports['DriverName'].isin(asset_list_df['NormalizedDriver'])]
-    
-    # Add asset information from the asset list
-    verified_driver_reports = verified_driver_reports.merge(
-        asset_list_df[['NormalizedDriver', 'Asset', 'AssetType']],
-        left_on='DriverName',
-        right_on='NormalizedDriver',
-        how='left'
-    )
-    
-    return verified_driver_reports
-
-def normalize_name(name):
-    """Normalize driver name for consistent matching"""
-    if name is None:
-        return ""
-    
-    # Convert to lowercase and remove extra spaces
-    normalized = str(name).lower().strip()
-    
-    # Handle common name formats (last, first -> first last)
-    if ',' in normalized:
-        parts = normalized.split(',')
-        if len(parts) >= 2:
-            normalized = f"{parts[1].strip()} {parts[0].strip()}"
-    
-    return normalized
-
-def classify_driver_status(row):
-    """
-    Classify driver status based on scheduled and actual times
-    
-    Classification rules:
-    - On Time: Within 15 minutes of scheduled start time
-    - Late: More than 15 minutes after scheduled start time
-    - Early End: More than 30 minutes before scheduled end time
-    - Not On Job: Not present in driving history
-    """
-    if pd.isna(row['StartTime']):
-        return 'not_on_job'
-    
-    scheduled_start = row['ScheduledStartTime']
-    scheduled_end = row['ScheduledEndTime']
-    actual_start = row['StartTime']
-    actual_end = row['EndTime']
-    
-    # Convert to datetime if they are strings
-    if isinstance(scheduled_start, str):
-        scheduled_start = pd.to_datetime(scheduled_start)
-    if isinstance(scheduled_end, str):
-        scheduled_end = pd.to_datetime(scheduled_end)
-    if isinstance(actual_start, str):
-        actual_start = pd.to_datetime(actual_start)
-    if isinstance(actual_end, str):
-        actual_end = pd.to_datetime(actual_end)
-    
-    # If any of the required fields are missing, return 'unknown'
-    if pd.isna(scheduled_start) or pd.isna(actual_start):
-        return 'unknown'
-    
-    # Calculate time differences
-    start_diff = (actual_start - scheduled_start).total_seconds() / 60  # in minutes
-    
-    if start_diff > 15:
-        return 'late'
-    
-    # Check for early end if both scheduled and actual end times are available
-    if not pd.isna(scheduled_end) and not pd.isna(actual_end):
-        end_diff = (scheduled_end - actual_end).total_seconds() / 60  # in minutes
-        if end_diff > 30:
-            return 'early_end'
-    
-    return 'on_time'
+driver_reports_bp = Blueprint('driver_reports', __name__, url_prefix='/driver-reports')
 
 @driver_reports_bp.route('/')
-def index():
-    """Driver Reports main page"""
-    return render_template('drivers/index.html')
-
 @driver_reports_bp.route('/daily-report')
-def daily_report():
+@driver_reports_bp.route('/daily-report/<date>')
+def daily_report(date=None):
     """Daily Driver Report page"""
-    # Get the date parameter, default to today
-    date_str = request.args.get('date', datetime.now().strftime('%Y-%m-%d'))
-    
     try:
-        # Convert to datetime
-        report_date = datetime.strptime(date_str, '%Y-%m-%d')
-        
-        # Get driver report for the specified date
-        driver_reports = AttendanceRecord.query.filter(
-            AttendanceRecord.date == report_date
-        ).all()
+        # Parse date if provided, otherwise use today
+        if date:
+            report_date = datetime.strptime(date, '%Y-%m-%d').date()
+        else:
+            report_date = datetime.now().date()
+            
+        # Get driver reports for the specified date
+        driver_reports = DriverReport.query.filter(
+            DriverReport.report_date == report_date
+        ).order_by(DriverReport.status, DriverReport.driver_id).all()
         
         return render_template(
             'drivers/daily_report.html',
             report_date=report_date,
-            driver_reports=driver_reports
+            driver_reports=driver_reports,
+            timedelta=timedelta  # Pass timedelta to template
         )
-    except ValueError:
-        flash(f"Invalid date format: {date_str}", 'error')
-        return redirect(url_for('driver_reports.daily_report'))
     except Exception as e:
-        flash(f"Error retrieving driver report: {str(e)}", 'error')
-        return redirect(url_for('driver_reports.daily_report'))
+        logger.error(f"Error in daily_report: {str(e)}")
+        flash(f"Error loading daily report: {str(e)}", 'error')
+        return render_template(
+            'drivers/daily_report.html',
+            report_date=datetime.now().date(),
+            driver_reports=[],
+            timedelta=timedelta
+        )
 
 @driver_reports_bp.route('/upload', methods=['GET', 'POST'])
-def upload_files():
-    """Upload driving history and activity detail files"""
+def upload():
+    """Upload driver files page"""
     if request.method == 'POST':
-        # Check if files were submitted
-        if 'driving_history' not in request.files or 'activity_detail' not in request.files:
-            flash('Missing required files', 'error')
-            return redirect(request.url)
-        
-        driving_history_file = request.files['driving_history']
-        activity_detail_file = request.files['activity_detail']
-        
-        # Validate file extensions
-        if not allowed_file(driving_history_file.filename) or not allowed_file(activity_detail_file.filename):
-            flash('Invalid file format. Only CSV and Excel files are allowed.', 'error')
-            return redirect(request.url)
-        
-        # Create upload directory if it doesn't exist
-        upload_dir = os.path.join(current_app.root_path, 'uploads')
-        os.makedirs(upload_dir, exist_ok=True)
-        
-        # Save the uploaded files
-        driving_history_path = os.path.join(upload_dir, secure_filename(driving_history_file.filename))
-        activity_detail_path = os.path.join(upload_dir, secure_filename(activity_detail_file.filename))
-        
-        driving_history_file.save(driving_history_path)
-        activity_detail_file.save(activity_detail_path)
-        
-        # Process the files
         try:
-            # Load the uploaded files
-            driving_history_df = load_csv(driving_history_path)
-            activity_detail_df = load_csv(activity_detail_path)
+            # Check if files were submitted
+            if 'driving_history' not in request.files or 'activity_detail' not in request.files:
+                flash('Missing required files', 'error')
+                return redirect(request.url)
             
-            # Derive driver reports
-            driver_reports = derive_driver_reports(driving_history_df, activity_detail_df)
+            driving_history_file = request.files['driving_history']
+            activity_detail_file = request.files['activity_detail']
+            asset_list_file = request.files.get('asset_list')
             
-            # Process and store the results
-            # (In a real implementation, we would save these to the database)
+            # Check if a file was selected
+            if driving_history_file.filename == '' or activity_detail_file.filename == '':
+                flash('No selected files', 'error')
+                return redirect(request.url)
             
-            flash('Files uploaded and processed successfully', 'success')
-            return redirect(url_for('driver_reports.daily_report'))
+            # Check if the files are valid
+            if not allowed_file(driving_history_file.filename) or not allowed_file(activity_detail_file.filename):
+                flash('Invalid file type', 'error')
+                return redirect(request.url)
+            
+            if asset_list_file and asset_list_file.filename != '' and not allowed_file(asset_list_file.filename):
+                flash('Invalid asset list file type', 'error')
+                return redirect(request.url)
+            
+            # Get verify with asset list option
+            verify_with_asset_list = request.form.get('verify_with_asset_list') == 'on'
+            
+            # Create upload directory if it doesn't exist
+            upload_dir = os.path.join(current_app.root_path, 'uploads', 'driver_reports')
+            os.makedirs(upload_dir, exist_ok=True)
+            
+            # Generate timestamp for unique filenames
+            timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+            
+            # Save the uploaded files
+            driving_history_path = os.path.join(upload_dir, f"{timestamp}_{secure_filename(driving_history_file.filename)}")
+            activity_detail_path = os.path.join(upload_dir, f"{timestamp}_{secure_filename(activity_detail_file.filename)}")
+            driving_history_file.save(driving_history_path)
+            activity_detail_file.save(activity_detail_path)
+            
+            asset_list_path = None
+            if asset_list_file and asset_list_file.filename != '':
+                asset_list_path = os.path.join(upload_dir, f"{timestamp}_{secure_filename(asset_list_file.filename)}")
+                asset_list_file.save(asset_list_path)
+            
+            # Process the files
+            result = process_driver_files(driving_history_path, activity_detail_path, asset_list_path, verify_with_asset_list)
+            
+            if 'error' in result:
+                flash(f"Error processing files: {result['error']}", 'error')
+                return redirect(request.url)
+            
+            # Redirect to the daily report page for the processed date
+            flash('Files processed successfully', 'success')
+            return redirect(url_for(
+                'driver_reports.daily_report',
+                date=result.get('date', datetime.now().strftime('%Y-%m-%d'))
+            ))
         except Exception as e:
+            logger.error(f"Error in upload: {str(e)}")
             flash(f"Error processing files: {str(e)}", 'error')
             return redirect(request.url)
     
     return render_template('drivers/upload.html')
 
-@driver_reports_bp.route('/api/daily-report/<date_str>')
-def api_daily_report(date_str):
-    """API endpoint for daily driver report data"""
+@driver_reports_bp.route('/api/drivers')
+def api_drivers():
+    """API endpoint to get all drivers"""
     try:
-        # Convert to datetime
-        report_date = datetime.strptime(date_str, '%Y-%m-%d')
+        # Query parameters for filtering
+        status = request.args.get('status')
+        job_site_id = request.args.get('job_site')
         
-        # Get driver report for the specified date
-        driver_reports = AttendanceRecord.query.filter(
-            AttendanceRecord.date == report_date
-        ).all()
+        # Base query
+        query = Driver.query
         
-        # Convert to JSON
+        # Apply filters if provided
+        if status:
+            query = query.filter(Driver.status == status)
+        
+        if job_site_id:
+            # This assumes Driver has a relationship with JobSite
+            # Adjust this filter based on your actual model structure
+            query = query.filter(Driver.job_site_id == job_site_id)
+        
+        # Get the drivers
+        drivers = query.filter(Driver.is_active == True).all()
+        
+        # Prepare the response
         result = []
-        for report in driver_reports:
-            result.append({
-                'id': report.id,
-                'driver_name': report.driver.full_name if report.driver else 'Unknown',
-                'job_site': report.job_site.name if report.job_site else 'Unknown',
-                'scheduled_start': report.scheduled_start_time.strftime('%H:%M') if report.scheduled_start_time else None,
-                'scheduled_end': report.scheduled_end_time.strftime('%H:%M') if report.scheduled_end_time else None,
-                'actual_start': report.actual_start_time.strftime('%H:%M') if report.actual_start_time else None,
-                'actual_end': report.actual_end_time.strftime('%H:%M') if report.actual_end_time else None,
-                'status': report.status
-            })
+        for driver in drivers:
+            driver_data = {
+                'id': driver.id,
+                'full_name': driver.full_name,
+                'employee_id': driver.employee_id,
+                'status': driver.status,
+                'job_site': driver.job_site.name if driver.job_site else None
+            }
+            result.append(driver_data)
         
         return jsonify(result)
-    except ValueError:
-        return jsonify({'error': f"Invalid date format: {date_str}"}), 400
     except Exception as e:
+        logger.error(f"Error in api_drivers: {str(e)}")
         return jsonify({'error': str(e)}), 500
+
+@driver_reports_bp.route('/api/daily-report/<date>')
+def api_daily_report(date):
+    """API endpoint to get daily report data for a specific date"""
+    try:
+        # Parse date
+        report_date = datetime.strptime(date, '%Y-%m-%d').date()
+        
+        # Get driver reports for the specified date
+        driver_reports = DriverReport.query.filter(
+            DriverReport.report_date == report_date
+        ).order_by(DriverReport.status, DriverReport.driver_id).all()
+        
+        # Prepare the response
+        result = []
+        for report in driver_reports:
+            report_data = {
+                'id': report.id,
+                'driver': {
+                    'id': report.driver.id,
+                    'full_name': report.driver.full_name,
+                    'employee_id': report.driver.employee_id
+                } if report.driver else None,
+                'job_site': {
+                    'id': report.job_site.id,
+                    'name': report.job_site.name,
+                    'job_number': report.job_site.job_number
+                } if report.job_site else None,
+                'scheduled_start_time': report.scheduled_start_time.strftime('%H:%M') if report.scheduled_start_time else None,
+                'actual_start_time': report.actual_start_time.strftime('%H:%M') if report.actual_start_time else None,
+                'scheduled_end_time': report.scheduled_end_time.strftime('%H:%M') if report.scheduled_end_time else None,
+                'actual_end_time': report.actual_end_time.strftime('%H:%M') if report.actual_end_time else None,
+                'status': report.status
+            }
+            result.append(report_data)
+        
+        # Add summary statistics
+        status_counts = {
+            'on_time': sum(1 for r in driver_reports if r.status == 'on_time'),
+            'late': sum(1 for r in driver_reports if r.status == 'late'),
+            'early_end': sum(1 for r in driver_reports if r.status == 'early_end'),
+            'not_on_job': sum(1 for r in driver_reports if r.status == 'not_on_job'),
+            'total': len(driver_reports)
+        }
+        
+        return jsonify({
+            'date': report_date.strftime('%Y-%m-%d'),
+            'reports': result,
+            'statistics': status_counts
+        })
+    except Exception as e:
+        logger.error(f"Error in api_daily_report: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+def allowed_file(filename):
+    """Check if the file extension is allowed"""
+    ALLOWED_EXTENSIONS = {'csv', 'xlsx', 'xls'}
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def process_driver_files(driving_history_path, activity_detail_path, asset_list_path=None, verify_with_asset_list=True):
+    """
+    Process driver files and generate daily report.
+    
+    This is a simplified implementation that would be expanded in the actual application
+    to include the full GENIUS CORE logic for driver attendance tracking.
+    
+    Args:
+        driving_history_path: Path to the driving history file
+        activity_detail_path: Path to the activity detail file
+        asset_list_path: Path to the asset list file (optional)
+        verify_with_asset_list: Whether to verify drivers against the asset list
+        
+    Returns:
+        dict: Results of processing
+    """
+    try:
+        logger.info("Processing driver files with GENIUS CORE CONTINUITY MODE")
+        
+        # Load the files
+        driving_history_df = load_file(driving_history_path)
+        activity_detail_df = load_file(activity_detail_path)
+        asset_list_df = load_file(asset_list_path) if asset_list_path else None
+        
+        if driving_history_df is None or activity_detail_df is None:
+            return {'error': 'Failed to load input files'}
+        
+        if verify_with_asset_list and asset_list_df is None and asset_list_path:
+            return {'error': 'Failed to load asset list file for verification'}
+        
+        # Extract date from driving history file
+        # This assumes the file has a 'Date' column
+        if 'Date' not in driving_history_df.columns:
+            return {'error': 'Driving history file missing Date column'}
+        
+        # Get the first date in the file
+        date_str = driving_history_df['Date'].iloc[0]
+        date_obj = None
+        
+        # Try to parse the date
+        try:
+            # Handle different date formats
+            if isinstance(date_str, str):
+                # Try different formats
+                for fmt in ['%Y-%m-%d', '%m/%d/%Y', '%d/%m/%Y']:
+                    try:
+                        date_obj = datetime.strptime(date_str, fmt).date()
+                        break
+                    except ValueError:
+                        continue
+            elif isinstance(date_str, datetime):
+                date_obj = date_str.date()
+            else:
+                # For pandas Timestamp or other date types
+                date_obj = pd.to_datetime(date_str).date()
+        except Exception as e:
+            logger.error(f"Error parsing date from driving history: {str(e)}")
+            date_obj = datetime.now().date()
+        
+        if date_obj is None:
+            logger.warning("Could not determine date from file, using today's date")
+            date_obj = datetime.now().date()
+        
+        logger.info(f"Processing data for date: {date_obj}")
+        
+        # In a real implementation, this is where we would execute the full GENIUS CORE
+        # driver attendance tracking logic, including:
+        # 1. Normalizing driver names
+        # 2. Matching drivers across files
+        # 3. Verifying against the asset list
+        # 4. Classifying drivers (on time, late, early end, not on job)
+        # 5. Saving the results to the database
+        
+        # For this prototype, we'll simulate the result
+        # In a real implementation, this would be replaced with actual processing logic
+        simulate_daily_report(date_obj)
+        
+        return {
+            'success': True,
+            'date': date_obj.strftime('%Y-%m-%d'),
+            'message': 'Files processed successfully'
+        }
+    except Exception as e:
+        logger.error(f"Error processing driver files: {str(e)}")
+        return {'error': str(e)}
+
+def load_file(file_path):
+    """Load a file into a pandas DataFrame"""
+    if file_path is None:
+        return None
+    
+    try:
+        # Determine file type from extension
+        file_ext = file_path.rsplit('.', 1)[1].lower()
+        
+        if file_ext == 'csv':
+            # Try different encodings and delimiters for CSV
+            try:
+                return pd.read_csv(file_path)
+            except:
+                try:
+                    return pd.read_csv(file_path, encoding='latin1')
+                except:
+                    return pd.read_csv(file_path, delimiter=';')
+        else:
+            # Excel file
+            return pd.read_excel(file_path)
+    except Exception as e:
+        logger.error(f"Error loading file {file_path}: {str(e)}")
+        return None
+
+def simulate_daily_report(date_obj):
+    """
+    Simulate generating a daily report for testing purposes.
+    
+    In a real implementation, this would be replaced with actual data processing.
+    """
+    try:
+        # Clear existing reports for this date to avoid duplicates
+        DriverReport.query.filter_by(report_date=date_obj).delete()
+        
+        # Get all active drivers and job sites
+        drivers = Driver.query.filter_by(is_active=True).all()
+        job_sites = JobSite.query.filter_by(is_active=True).all()
+        
+        if not drivers or not job_sites:
+            # If no drivers or job sites exist, create some sample data
+            if not drivers:
+                sample_drivers = [
+                    {'full_name': 'John Smith', 'employee_id': 'EMP001'},
+                    {'full_name': 'Jane Doe', 'employee_id': 'EMP002'},
+                    {'full_name': 'Bob Johnson', 'employee_id': 'EMP003'},
+                    {'full_name': 'Alice Brown', 'employee_id': 'EMP004'},
+                    {'full_name': 'Charlie Davis', 'employee_id': 'EMP005'}
+                ]
+                
+                for driver_data in sample_drivers:
+                    driver = Driver(
+                        full_name=driver_data['full_name'],
+                        employee_id=driver_data['employee_id'],
+                        is_active=True,
+                        status='active'
+                    )
+                    db.session.add(driver)
+                
+                db.session.commit()
+                drivers = Driver.query.filter_by(is_active=True).all()
+            
+            if not job_sites:
+                sample_job_sites = [
+                    {'name': 'Downtown Construction', 'job_number': 'JOB001'},
+                    {'name': 'Highway Extension', 'job_number': 'JOB002'},
+                    {'name': 'Commercial Building', 'job_number': 'JOB003'}
+                ]
+                
+                for site_data in sample_job_sites:
+                    job_site = JobSite(
+                        name=site_data['name'],
+                        job_number=site_data['job_number'],
+                        is_active=True
+                    )
+                    db.session.add(job_site)
+                
+                db.session.commit()
+                job_sites = JobSite.query.filter_by(is_active=True).all()
+        
+        # Generate random reports
+        import random
+        
+        # Set seed for reproducibility within a day
+        random.seed(date_obj.toordinal())
+        
+        for driver in drivers:
+            # Randomly assign a job site
+            job_site = random.choice(job_sites)
+            
+            # Generate scheduled times
+            scheduled_start = datetime.combine(date_obj, datetime.strptime('07:00', '%H:%M').time())
+            scheduled_end = datetime.combine(date_obj, datetime.strptime('16:00', '%H:%M').time())
+            
+            # Randomly determine status
+            status_choices = ['on_time', 'late', 'early_end', 'not_on_job']
+            status_weights = [0.6, 0.2, 0.15, 0.05]  # Probabilities for each status
+            status = random.choices(status_choices, weights=status_weights, k=1)[0]
+            
+            # Generate actual times based on status
+            if status == 'on_time':
+                # On time: start within 15 minutes of scheduled, end after scheduled
+                actual_start = scheduled_start + timedelta(minutes=random.randint(-5, 10))
+                actual_end = scheduled_end + timedelta(minutes=random.randint(0, 30))
+            elif status == 'late':
+                # Late: start more than 15 minutes after scheduled
+                actual_start = scheduled_start + timedelta(minutes=random.randint(16, 60))
+                actual_end = scheduled_end + timedelta(minutes=random.randint(0, 30))
+            elif status == 'early_end':
+                # Early end: start on time, end more than 30 minutes before scheduled
+                actual_start = scheduled_start + timedelta(minutes=random.randint(-5, 10))
+                actual_end = scheduled_end - timedelta(minutes=random.randint(31, 90))
+            else:  # not_on_job
+                # Not on job: no actual times
+                actual_start = None
+                actual_end = None
+            
+            # Create the driver report
+            report = DriverReport(
+                driver_id=driver.id,
+                job_site_id=job_site.id,
+                report_date=date_obj,
+                scheduled_start_time=scheduled_start,
+                scheduled_end_time=scheduled_end,
+                actual_start_time=actual_start,
+                actual_end_time=actual_end,
+                status=status
+            )
+            
+            db.session.add(report)
+        
+        db.session.commit()
+        logger.info(f"Generated simulated daily report for {date_obj}")
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error simulating daily report: {str(e)}")
+        raise

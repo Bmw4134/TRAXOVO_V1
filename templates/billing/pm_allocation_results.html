@@ -1,227 +1,266 @@
-{% extends "layout.html" %}
+{% extends "basic_base.html" %}
 
 {% block title %}PM Allocation Results{% endblock %}
 
+{% block extra_css %}
+<style>
+    .result-card {
+        margin-bottom: 1.5rem;
+    }
+    
+    .difference-positive {
+        color: var(--bs-success);
+    }
+    
+    .difference-negative {
+        color: var(--bs-danger);
+    }
+    
+    .difference-zero {
+        color: var(--bs-secondary);
+    }
+    
+    .allocation-verified {
+        background-color: rgba(25, 135, 84, 0.1);
+    }
+    
+    .allocation-unverified {
+        background-color: rgba(220, 53, 69, 0.1);
+    }
+    
+    .total-row {
+        font-weight: bold;
+        border-top: 2px solid var(--bs-border-color);
+    }
+    
+    .file-badges {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+    
+    .allocation-badge {
+        font-size: 0.8rem;
+    }
+    
+    .summary-number {
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+    
+    .summary-label {
+        font-size: 0.9rem;
+        color: var(--bs-secondary);
+    }
+    
+    .over-allocated {
+        background-color: rgba(255, 193, 7, 0.1);
+    }
+    
+    .under-allocated {
+        background-color: rgba(13, 110, 253, 0.1);
+    }
+    
+    .perfectly-allocated {
+        background-color: rgba(25, 135, 84, 0.1);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid my-4">
-    <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <h1 class="display-5 mb-2">
-                <i class="bi bi-file-earmark-diff me-2"></i>PM Allocation Comparison
-            </h1>
-            <p class="lead text-muted">
-                Review changes between original and updated allocations
-            </p>
-        </div>
-        <div class="col-md-6 text-md-end">
-            <div class="btn-group">
-                <a href="{{ url_for('billing_module.pm_allocation_upload') }}" class="btn btn-success">
-                    <i class="bi bi-upload me-1"></i> Upload More
-                </a>
-                <a href="{{ url_for('billing_module.pm_allocation') }}" class="btn btn-primary">
-                    <i class="bi bi-file-earmark-spreadsheet me-1"></i> View All Allocations
-                </a>
-                <a href="{{ url_for('billing_module.index') }}" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left me-1"></i> Back to Billing
+<div class="container mt-4">
+    <div class="card bg-dark shadow-sm mb-4">
+        <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between">
+                <h1 class="card-title mb-0">
+                    <i class="bi bi-file-earmark-spreadsheet me-2"></i>
+                    PM Allocation Results
+                </h1>
+                <a href="{{ url_for('billing.pm_allocation_processor') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Processor
                 </a>
             </div>
         </div>
     </div>
     
-    <!-- Summary Cards -->
-    <div class="row mb-4">
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card bg-primary text-white h-100">
-                <div class="card-body text-center">
-                    <h1 class="display-4 mb-0">{{ results.summary.total_assets }}</h1>
-                    <h5 class="card-title">Total Assets</h5>
-                </div>
+    <div class="card bg-dark shadow-sm mb-4">
+        <div class="card-body">
+            <h4 class="mb-3">Files Processed</h4>
+            
+            <div class="file-badges">
+                <span class="badge bg-primary">
+                    <i class="bi bi-file-earmark-spreadsheet me-1"></i>
+                    {{ ragle_file }}
+                </span>
+                
+                {% for file in pm_files %}
+                <span class="badge bg-info">
+                    <i class="bi bi-file-earmark-spreadsheet me-1"></i>
+                    {{ file }}
+                </span>
+                {% endfor %}
             </div>
-        </div>
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card bg-success text-white h-100">
-                <div class="card-body text-center">
-                    <h1 class="display-4 mb-0">{{ results.summary.increased_count }}</h1>
-                    <h5 class="card-title">Increased</h5>
-                    <p class="mb-0">${{ "{:,.2f}".format(results.summary.total_increase) }}</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card bg-danger text-white h-100">
-                <div class="card-body text-center">
-                    <h1 class="display-4 mb-0">{{ results.summary.decreased_count }}</h1>
-                    <h5 class="card-title">Decreased</h5>
-                    <p class="mb-0">${{ "{:,.2f}".format(results.summary.total_decrease) }}</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card bg-secondary text-white h-100">
-                <div class="card-body text-center">
-                    <h1 class="display-4 mb-0">{{ results.summary.unchanged_count }}</h1>
-                    <h5 class="card-title">Unchanged</h5>
-                    <p class="mb-0">No difference</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Overall Summary -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-calculator me-1"></i> Summary
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="alert alert-primary">
-                                <h5 class="alert-heading">Original Total</h5>
-                                <h3 class="mb-0">${{ "{:,.2f}".format(results.summary.total_original) }}</h3>
-                            </div>
+            
+            <!-- Summary Statistics -->
+            <div class="row mb-4">
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="summary-label">RAGLE TOTAL</div>
+                            <div class="summary-number">${{ "{:,.2f}".format(results.ragle_total) }}</div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="alert alert-info">
-                                <h5 class="alert-heading">Updated Total</h5>
-                                <h3 class="mb-0">${{ "{:,.2f}".format(results.summary.total_updated) }}</h3>
-                            </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="summary-label">ALLOCATED TOTAL</div>
+                            <div class="summary-number">${{ "{:,.2f}".format(results.allocated_total) }}</div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="alert {{ 'alert-success' if results.summary.total_difference >= 0 else 'alert-danger' }}">
-                                <h5 class="alert-heading">Net Difference</h5>
-                                <h3 class="mb-0">{{ "+" if results.summary.total_difference > 0 else "" }}${{ "{:,.2f}".format(results.summary.total_difference) }}</h3>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 {% if results.difference_total > 0 %}over-allocated{% elif results.difference_total < 0 %}under-allocated{% else %}perfectly-allocated{% endif %}">
+                        <div class="card-body">
+                            <div class="summary-label">DIFFERENCE</div>
+                            <div class="summary-number {% if results.difference_total > 0 %}difference-positive{% elif results.difference_total < 0 %}difference-negative{% else %}difference-zero{% endif %}">
+                                {{ "+" if results.difference_total > 0 else "" }}${{ "{:,.2f}".format(results.difference_total) }}
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="card-footer bg-light d-flex justify-content-between align-items-center">
-                    <div>
-                        <strong>Changed Assets:</strong> {{ results.summary.changed_assets }} of {{ results.summary.total_assets }} 
-                        ({{ "{:.1f}%".format((results.summary.changed_assets / results.summary.total_assets) * 100) if results.summary.total_assets > 0 else "0%" }})
-                    </div>
-                    <div class="btn-group">
-                        <a href="{{ url_for('billing_module.pm_allocation_export', results_file=results_file) }}?format=xlsx" class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-file-earmark-excel me-1"></i> Export to Excel
-                        </a>
-                        <a href="{{ url_for('billing_module.pm_allocation_export', results_file=results_file) }}?format=csv" class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-file-earmark-spreadsheet me-1"></i> Export to CSV
-                        </a>
-                    </div>
+            </div>
+            
+            <div class="alert alert-info d-flex align-items-center">
+                <i class="bi bi-info-circle-fill me-2 fs-4"></i>
+                <div>
+                    <strong>GENIUS CORE CONTINUITY MODE:</strong> All allocations are cross-verified against the official Asset List to ensure data integrity.
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Filter Controls -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <label for="status-filter" class="form-label">Status</label>
-                            <select id="status-filter" class="form-select">
-                                <option value="">All Changes</option>
-                                <option value="increased">Increased</option>
-                                <option value="decreased">Decreased</option>
-                                <option value="unchanged">Unchanged</option>
-                                <option value="added">Added</option>
-                                <option value="removed">Removed</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="threshold-filter" class="form-label">Diff. Threshold (%)</label>
-                            <div class="input-group">
-                                <input type="number" id="threshold-filter" class="form-control" min="0" max="100" value="0">
-                                <span class="input-group-text">%</span>
-                                <button class="btn btn-outline-secondary loading-button" type="button" id="apply-threshold-btn" 
-                                        data-loading-text="Applying...">Apply</button>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="search-filter" class="form-label">Search</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-search"></i></span>
-                                <input type="text" id="search-filter" class="form-control" placeholder="Asset ID or Description">
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            
+            <!-- Results Table -->
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Job Number</th>
+                            <th>RAGLE Amount</th>
+                            {% for pm_name in results.pm_names %}
+                            <th>{{ pm_name }}</th>
+                            {% endfor %}
+                            <th>Total Allocated</th>
+                            <th>Difference</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for job in results.job_allocations %}
+                        <tr class="{% if not job.verified %}allocation-unverified{% endif %} {% if job.difference > 0 %}over-allocated{% elif job.difference < 0 %}under-allocated{% elif job.difference == 0 and job.original_amount > 0 %}perfectly-allocated{% endif %}">
+                            <td>{{ job.job_number }}</td>
+                            <td>${{ "{:,.2f}".format(job.original_amount) }}</td>
+                            
+                            {% for pm_name in results.pm_names %}
+                            <td>${{ "{:,.2f}".format(job.allocated_amounts.get(pm_name, 0)) }}</td>
+                            {% endfor %}
+                            
+                            <td>${{ "{:,.2f}".format(job.total_allocated) }}</td>
+                            <td class="{% if job.difference > 0 %}difference-positive{% elif job.difference < 0 %}difference-negative{% else %}difference-zero{% endif %}">
+                                {{ "+" if job.difference > 0 else "" }}${{ "{:,.2f}".format(job.difference) }}
+                            </td>
+                            <td>
+                                {% if not job.verified %}
+                                <span class="badge bg-danger allocation-badge">
+                                    <i class="bi bi-exclamation-triangle me-1"></i> Not Verified
+                                </span>
+                                {% elif job.difference > 0 %}
+                                <span class="badge bg-warning text-dark allocation-badge">
+                                    <i class="bi bi-arrow-up me-1"></i> Over-allocated
+                                </span>
+                                {% elif job.difference < 0 %}
+                                <span class="badge bg-info allocation-badge">
+                                    <i class="bi bi-arrow-down me-1"></i> Under-allocated
+                                </span>
+                                {% else %}
+                                <span class="badge bg-success allocation-badge">
+                                    <i class="bi bi-check me-1"></i> Balanced
+                                </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        
+                        <!-- Totals Row -->
+                        <tr class="total-row">
+                            <td>TOTALS</td>
+                            <td>${{ "{:,.2f}".format(results.ragle_total) }}</td>
+                            
+                            {% for pm_name in results.pm_names %}
+                            {% set pm_total = 0 %}
+                            {% for job in results.job_allocations %}
+                            {% set pm_total = pm_total + job.allocated_amounts.get(pm_name, 0) %}
+                            {% endfor %}
+                            <td>${{ "{:,.2f}".format(pm_total) }}</td>
+                            {% endfor %}
+                            
+                            <td>${{ "{:,.2f}".format(results.allocated_total) }}</td>
+                            <td class="{% if results.difference_total > 0 %}difference-positive{% elif results.difference_total < 0 %}difference-negative{% else %}difference-zero{% endif %}">
+                                {{ "+" if results.difference_total > 0 else "" }}${{ "{:,.2f}".format(results.difference_total) }}
+                            </td>
+                            <td>
+                                {% if results.difference_total == 0 %}
+                                <span class="badge bg-success allocation-badge">
+                                    <i class="bi bi-check-all me-1"></i> Fully Balanced
+                                </span>
+                                {% else %}
+                                <span class="badge bg-warning text-dark allocation-badge">
+                                    <i class="bi bi-exclamation-circle me-1"></i> Needs Reconciliation
+                                </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-4">
+                <button id="reconcile-btn" class="btn btn-primary">
+                    <i class="bi bi-check-square me-1"></i> Reconcile and Save
+                </button>
+                <button id="export-btn" class="btn btn-outline-secondary ms-2">
+                    <i class="bi bi-download me-1"></i> Export Results
+                </button>
             </div>
         </div>
     </div>
     
-    <!-- Loading Animation Container -->
-    <div class="row mb-4 d-none" id="filtering-animation-container">
-        <div class="col-12 text-center">
-            <div id="filtering-animation" class="loading-placeholder" 
-                 data-loader-type="excavator" 
-                 data-loader-message="Filtering allocation data...">
+    <!-- Explanation Card -->
+    <div class="card bg-dark shadow-sm mb-4">
+        <div class="card-body">
+            <h4 class="mb-3">Understanding the Results</h4>
+            
+            <div class="mb-3">
+                <h5><i class="bi bi-info-circle me-2"></i> Verification Status</h5>
+                <ul>
+                    <li><span class="badge bg-danger"><i class="bi bi-exclamation-triangle me-1"></i> Not Verified</span> - Job number does not exist in the official Asset List.</li>
+                    <li><span class="badge bg-success"><i class="bi bi-check me-1"></i> Verified</span> - Job number is verified against the official Asset List.</li>
+                </ul>
             </div>
-        </div>
-    </div>
-
-    <!-- Allocation Changes Table -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-light">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">Allocation Changes</h5>
-                        <span class="badge bg-primary rounded-pill">{{ results.allocations|length }} Items</span>
-                    </div>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover table-sm mb-0" id="changes-table">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>Asset ID</th>
-                                    <th>Description</th>
-                                    <th class="text-end">Original</th>
-                                    <th class="text-end">Updated</th>
-                                    <th class="text-end">Difference</th>
-                                    <th class="text-end">% Change</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for item in results.allocations %}
-                                <tr class="status-{{ item.status }}">
-                                    <td>{{ item.asset_id }}</td>
-                                    <td>{{ item.description }}</td>
-                                    <td class="text-end">${{ "{:,.2f}".format(item.original_amount) }}</td>
-                                    <td class="text-end">${{ "{:,.2f}".format(item.updated_amount) }}</td>
-                                    <td class="text-end {{ 'text-success' if item.difference > 0 else 'text-danger' if item.difference < 0 else '' }}">
-                                        {{ "+" if item.difference > 0 else "" }}${{ "{:,.2f}".format(item.difference) }}
-                                    </td>
-                                    <td class="text-end {{ 'text-success' if item.percentage_change > 0 else 'text-danger' if item.percentage_change < 0 else '' }}">
-                                        {{ "+" if item.percentage_change > 0 else "" }}{{ "{:.1f}%".format(item.percentage_change) }}
-                                    </td>
-                                    <td>
-                                        {% if item.status == 'increased' %}
-                                            <span class="badge bg-success">Increased</span>
-                                        {% elif item.status == 'decreased' %}
-                                            <span class="badge bg-danger">Decreased</span>
-                                        {% elif item.status == 'unchanged' %}
-                                            <span class="badge bg-secondary">Unchanged</span>
-                                        {% elif item.status == 'added' %}
-                                            <span class="badge bg-primary">Added</span>
-                                        {% elif item.status == 'removed' %}
-                                            <span class="badge bg-warning text-dark">Removed</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+            
+            <div class="mb-3">
+                <h5><i class="bi bi-calculator me-2"></i> Allocation Status</h5>
+                <ul>
+                    <li><span class="badge bg-success"><i class="bi bi-check me-1"></i> Balanced</span> - Total allocation matches the original RAGLE amount.</li>
+                    <li><span class="badge bg-warning text-dark"><i class="bi bi-arrow-up me-1"></i> Over-allocated</span> - Total allocation exceeds the original RAGLE amount.</li>
+                    <li><span class="badge bg-info"><i class="bi bi-arrow-down me-1"></i> Under-allocated</span> - Total allocation is less than the original RAGLE amount.</li>
+                </ul>
+            </div>
+            
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <strong>IMPORTANT:</strong> In GENIUS CORE CONTINUITY MODE, all allocations must be verified against the official Asset List. Unverified jobs will not be processed during reconciliation.
             </div>
         </div>
     </div>
@@ -231,55 +270,19 @@
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Filter elements
-        const statusFilter = document.getElementById('status-filter');
-        const thresholdFilter = document.getElementById('threshold-filter');
-        const applyThresholdBtn = document.getElementById('apply-threshold-btn');
-        const searchFilter = document.getElementById('search-filter');
-        const filteringAnimationContainer = document.getElementById('filtering-animation-container');
+        // Handle reconcile button
+        const reconcileBtn = document.getElementById('reconcile-btn');
+        if (reconcileBtn) {
+            reconcileBtn.addEventListener('click', function() {
+                alert('Reconciliation feature will be implemented in the next phase of GENIUS CORE CONTINUITY MODE.');
+            });
+        }
         
-        // Add event listeners
-        statusFilter.addEventListener('change', filterTable);
-        applyThresholdBtn.addEventListener('click', function() {
-            // Show excavator animation when applying threshold filter
-            filteringAnimationContainer.classList.remove('d-none');
-            setTimeout(() => {
-                filterTable();
-                filteringAnimationContainer.classList.add('d-none');
-            }, 1200); // Show animation for 1.2 seconds
-        });
-        searchFilter.addEventListener('input', filterTable);
-        
-        // Function to filter the table
-        function filterTable() {
-            const status = statusFilter.value.toLowerCase();
-            const threshold = parseFloat(thresholdFilter.value) || 0;
-            const search = searchFilter.value.toLowerCase();
-            
-            const rows = document.querySelectorAll('#changes-table tbody tr');
-            
-            rows.forEach(row => {
-                const rowStatus = row.className.replace('status-', '').toLowerCase();
-                const assetId = row.cells[0].textContent.toLowerCase();
-                const description = row.cells[1].textContent.toLowerCase();
-                const differenceCell = row.cells[4].textContent;
-                const percentageCell = row.cells[5].textContent;
-                
-                // Extract percentage value
-                const percentageMatch = percentageCell.match(/[-+]?\d+\.\d+/);
-                const percentageChange = percentageMatch ? Math.abs(parseFloat(percentageMatch[0])) : 0;
-                
-                // Check if row matches all filters
-                const matchesStatus = !status || rowStatus === status;
-                const matchesThreshold = percentageChange >= threshold;
-                const matchesSearch = !search || assetId.includes(search) || description.includes(search);
-                
-                // Show/hide row based on filters
-                if (matchesStatus && matchesThreshold && matchesSearch) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
+        // Handle export button
+        const exportBtn = document.getElementById('export-btn');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', function() {
+                alert('Export feature will be implemented in the next phase of GENIUS CORE CONTINUITY MODE.');
             });
         }
     });

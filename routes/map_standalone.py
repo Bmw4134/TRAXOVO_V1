@@ -273,7 +273,7 @@ def api_assets():
 def api_job_sites():
     """API endpoint to get job sites for map display"""
     try:
-        # This is a simplified version that returns sample job sites
+        # This is a simplified version that returns job sites
         # In a real implementation, this would fetch data from the database
         job_sites = [
             {
@@ -282,7 +282,9 @@ def api_job_sites():
                 'job_number': 'DFW001',
                 'latitude': 32.7767,
                 'longitude': -96.7970,
-                'address': 'Dallas, TX'
+                'address': 'Dallas, TX',
+                'radius': 2000,  # radius in meters for geofence
+                'color': '#FF5733'  # color for geofence
             },
             {
                 'id': 2,
@@ -290,7 +292,9 @@ def api_job_sites():
                 'job_number': 'HOU001',
                 'latitude': 29.7604,
                 'longitude': -95.3698,
-                'address': 'Houston, TX'
+                'address': 'Houston, TX',
+                'radius': 1500,
+                'color': '#33FF57'
             },
             {
                 'id': 3,
@@ -298,9 +302,125 @@ def api_job_sites():
                 'job_number': 'AUS001',
                 'latitude': 30.2672,
                 'longitude': -97.7431,
-                'address': 'Austin, TX'
+                'address': 'Austin, TX',
+                'radius': 1200,
+                'color': '#3357FF'
+            },
+            {
+                'id': 4,
+                'name': 'DFW Yard',
+                'job_number': 'DFW-YARD',
+                'latitude': 32.6138,
+                'longitude': -97.3076,
+                'address': 'Fort Worth, TX',
+                'radius': 800,
+                'color': '#FF33A8'
+            },
+            {
+                'id': 5,
+                'name': 'SH 345 Bridge Rehabilitation',
+                'job_number': '2023-032',
+                'latitude': 32.7807,
+                'longitude': -96.7835,
+                'address': 'Dallas, TX',
+                'radius': 1000,
+                'color': '#33D4FF'
             }
         ]
+        
+        # Add the real job sites from API data
+        # Scan the API assets and extract unique locations
+        try:
+            # Get API credentials from environment
+            api_url = os.environ.get('GAUGE_API_URL', 'https://api.gaugesmart.com')
+            api_username = os.environ.get('GAUGE_API_USERNAME', 'bwatson')
+            api_password = os.environ.get('GAUGE_API_PASSWORD', 'Plsw@2900413477')
+            
+            if '/AssetList/' in api_url:
+                base_parts = api_url.split('/AssetList/')
+                base_url = base_parts[0]
+                asset_list_id = base_parts[1] if len(base_parts) > 1 else "28dcba94c01e453fa8e9215a068f30e4"
+            else:
+                base_url = api_url
+                asset_list_id = "28dcba94c01e453fa8e9215a068f30e4"
+                
+            url = f"{base_url}/AssetList/{asset_list_id}"
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", InsecureRequestWarning)
+                response = requests.get(
+                    url,
+                    auth=(api_username, api_password),
+                    headers={"Content-Type": "application/json", "Accept": "application/json"},
+                    timeout=30,
+                    verify=False
+                )
+                
+            if response.status_code == 200:
+                api_data = response.json()
+                unique_locations = {}
+                
+                for asset in api_data:
+                    location = asset.get('Location')
+                    site = asset.get('Site')
+                    
+                    # Use either Location or Site field
+                    loc_name = location or site
+                    if loc_name and loc_name.strip() and loc_name not in unique_locations:
+                        lat = None
+                        lon = None
+                        
+                        # Check if this asset has coordinates
+                        for lat_field in ['Latitude', 'latitude']:
+                            if asset.get(lat_field) and str(asset.get(lat_field)).strip() != '0.0':
+                                try:
+                                    lat = float(asset.get(lat_field))
+                                    break
+                                except (ValueError, TypeError):
+                                    pass
+                                    
+                        for lon_field in ['Longitude', 'longitude']:
+                            if asset.get(lon_field) and str(asset.get(lon_field)).strip() != '0.0':
+                                try:
+                                    lon = float(asset.get(lon_field))
+                                    break
+                                except (ValueError, TypeError):
+                                    pass
+                        
+                        if lat and lon:
+                            unique_locations[loc_name] = {
+                                'latitude': lat, 
+                                'longitude': lon,
+                                'count': 1
+                            }
+                        
+                # Add job site locations from the real API data
+                for idx, (name, loc_data) in enumerate(unique_locations.items(), start=len(job_sites)+1):
+                    # Extract job number if available in the name
+                    job_number = ''
+                    if name.startswith('20'):
+                        parts = name.split(' ', 1)
+                        if len(parts) > 0:
+                            job_number = parts[0]
+                    
+                    # Create a unique color based on the index
+                    hue = (idx * 30) % 360
+                    color = f'hsl({hue}, 70%, 50%)'
+                    
+                    # Add to job sites list
+                    job_sites.append({
+                        'id': idx,
+                        'name': name,
+                        'job_number': job_number or f'SITE-{idx}',
+                        'latitude': loc_data['latitude'],
+                        'longitude': loc_data['longitude'],
+                        'address': name,
+                        'radius': 500,  # default radius
+                        'color': color,
+                        'asset_count': loc_data['count']
+                    })
+        except Exception as e:
+            logger.warning(f"Could not extract job sites from API data: {str(e)}")
+            
         return jsonify(job_sites)
     except Exception as e:
         logger.error(f"Error getting job sites: {str(e)}")

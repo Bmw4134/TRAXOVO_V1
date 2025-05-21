@@ -26,75 +26,118 @@ def smart_parse_csv(file_path: str, expected_columns: Optional[List[str]] = None
         DataFrame: Parsed DataFrame, potentially with adjusted columns
     """
     try:
-        # First attempt with pandas default parser
+        # Hyper robust CSV parsing for May 2025
+        # First attempt: Use pandas with error_bad_lines=False
         try:
-            df = pd.read_csv(file_path)
-            logger.info(f"Successfully parsed {file_path} with standard parser")
-            return df
-        except pd.errors.ParserError as e:
-            logger.warning(f"Standard parsing failed for {file_path}, trying robust method: {str(e)}")
+            # For pandas version compatibility
+            try:
+                # Newer pandas versions
+                df = pd.read_csv(file_path, on_bad_lines='skip')
+            except TypeError:
+                # Older pandas versions
+                df = pd.read_csv(file_path, error_bad_lines=False)
+                
+            if not df.empty:
+                logger.info(f"Successfully parsed {file_path} with error skipping")
+                
+                # If we have expected columns and fewer columns than expected, add missing columns
+                if expected_columns and len(df.columns) < len(expected_columns):
+                    for col in expected_columns:
+                        if col not in df.columns:
+                            df[col] = None
+                
+                return df
+        except Exception as e:
+            logger.warning(f"Error skipping method failed for {file_path}: {str(e)}")
         
-        # If standard parsing fails, use custom robust parsing with sniffer
-        with open(file_path, 'r', encoding='utf-8-sig') as f:
+        # Second attempt: Use pd.read_csv with delimiters explicitly specified
+        for delimiter in [',', ';', '\t', '|']:
+            try:
+                df = pd.read_csv(file_path, delimiter=delimiter)
+                if not df.empty:
+                    logger.info(f"Successfully parsed {file_path} with delimiter '{delimiter}'")
+                    
+                    # If we have expected columns and fewer columns than expected, add missing columns
+                    if expected_columns and len(df.columns) < len(expected_columns):
+                        for col in expected_columns:
+                            if col not in df.columns:
+                                df[col] = None
+                    
+                    return df
+            except Exception:
+                continue
+        
+        # Third attempt: Use ultra-robust manual parsing approach
+        with open(file_path, 'r', encoding='utf-8-sig', errors='replace') as f:
             content = f.read()
         
-        # Try to detect dialect
-        try:
-            dialect = csv.Sniffer().sniff(content[:1000])
-            logger.info(f"Detected dialect for {file_path}: delimiter='{dialect.delimiter}'")
-        except csv.Error:
-            logger.warning(f"Could not detect dialect for {file_path}, using comma delimiter")
+        # Try multiple delimiters with csv.Sniffer
+        dialect = None
+        for delimiter in [',', ';', '\t', '|']:
+            try:
+                # Check if this delimiter creates at least some multicolumn rows
+                test_reader = csv.reader(StringIO(content[:2000]), delimiter=delimiter)
+                test_rows = list(test_reader)
+                if any(len(row) > 1 for row in test_rows):
+                    dialect = csv.excel
+                    dialect.delimiter = delimiter
+                    break
+            except Exception:
+                continue
+        
+        if dialect is None:
+            logger.warning(f"Could not detect delimiter for {file_path}, using comma")
             dialect = csv.excel
         
-        # Find the maximum number of fields in any row
-        max_fields = 0
+        # Process the content line by line to handle inconsistencies
+        reader = csv.reader(StringIO(content), dialect)
         rows = []
+        max_fields = 0
         
-        for line in content.splitlines():
-            if line.strip():  # Skip empty lines
-                reader = csv.reader([line], dialect)
-                for row in reader:
-                    max_fields = max(max_fields, len(row))
-                    rows.append(row)
+        try:
+            for row in reader:
+                # Skip completely empty rows
+                if not row or all(not cell.strip() for cell in row):
+                    continue
+                
+                # Update max field count
+                max_fields = max(max_fields, len(row))
+                rows.append(row)
+        except Exception as e:
+            logger.warning(f"Error during CSV reading: {str(e)}")
         
-        logger.info(f"Maximum field count in {file_path}: {max_fields}")
+        # Ensure we have some data
+        if not rows:
+            logger.warning(f"No valid data found in {file_path}")
+            if expected_columns:
+                return pd.DataFrame(columns=expected_columns)
+            return pd.DataFrame()
         
-        # Normalize rows to have consistent field count
-        normalized_rows = []
-        header = None
+        # Extract and normalize header
+        header = rows[0] if rows else []
+        if len(header) < max_fields:
+            header.extend([f'Column{j+1}' for j in range(len(header), max_fields)])
         
-        for i, row in enumerate(rows):
-            if i == 0:
-                # This is the header row
-                header = row
-                # If header has fewer fields than max_fields, extend it
-                if len(header) < max_fields:
-                    header.extend([f'Field{j+1}' for j in range(len(header), max_fields)])
-                normalized_rows.append(header)
-            else:
-                # Data row - pad to match max_fields
-                normalized_row = row + [''] * (max_fields - len(row))
-                normalized_rows.append(normalized_row)
-        
-        # If we have expected columns, use them
-        if expected_columns and len(normalized_rows) > 0:
+        # Replace header with expected columns if provided
+        if expected_columns:
+            # Ensure expected_columns has at least max_fields elements
             if len(expected_columns) < max_fields:
-                # Extend expected columns if needed
-                expected_columns = expected_columns + [f'Field{j+1}' for j in range(len(expected_columns), max_fields)]
-            elif len(expected_columns) > max_fields:
-                # Truncate expected columns if they exceed max fields
-                expected_columns = expected_columns[:max_fields]
-            
-            # Replace the header with expected columns
-            normalized_rows[0] = expected_columns
-            
-        # Convert to DataFrame
-        df = pd.DataFrame(normalized_rows[1:], columns=normalized_rows[0])
-        logger.info(f"Successfully parsed {file_path} with robust method")
+                expected_columns = expected_columns + [f'Column{j+1}' for j in range(len(expected_columns), max_fields)]
+            header = expected_columns[:max_fields]
+        
+        # Normalize all data rows to have consistent field count
+        data_rows = []
+        for row in rows[1:]:  # Skip header
+            normalized_row = row + [''] * (max_fields - len(row))
+            data_rows.append(normalized_row)
+        
+        # Create DataFrame using normalized data
+        df = pd.DataFrame(data_rows, columns=header[:max_fields])
+        logger.info(f"Successfully parsed {file_path} with ultra-robust method - found {len(df)} rows")
         return df
         
     except Exception as e:
-        logger.error(f"Error parsing CSV file {file_path}: {str(e)}")
+        logger.error(f"All parsing methods failed for {file_path}: {str(e)}")
         # Return empty DataFrame with expected columns if provided
         if expected_columns:
             return pd.DataFrame(columns=expected_columns)

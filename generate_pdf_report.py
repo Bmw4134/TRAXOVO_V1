@@ -1,12 +1,15 @@
+#!/usr/bin/env python3
 """
-PDF Generator for Daily Driver Reports
+Generate PDF Report for Daily Driver Data
 
-This module handles the generation of PDF reports for daily driver attendance data.
+This script generates a PDF report for the May 16, 2025 driver attendance data
+using ReportLab.
 """
 
 import os
 import json
 import logging
+import pandas as pd
 from datetime import datetime
 from pathlib import Path
 from reportlab.lib import colors
@@ -16,86 +19,44 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 
 # Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+)
 logger = logging.getLogger(__name__)
-file_handler = logging.FileHandler('logs/pdf_generator.log')
-file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-logger.addHandler(file_handler)
-logger.setLevel(logging.INFO)
 
-def generate_driver_report_pdf(date_str, output_path=None):
-    """
-    Generate a PDF report for daily driver data
+def generate_pdf_report(date_str='2025-05-16'):
+    """Generate PDF report for the specified date"""
+    logger.info(f"Generating PDF report for {date_str}")
     
-    Args:
-        date_str (str): Date in YYYY-MM-DD format
-        output_path (str): Optional custom output path
-        
-    Returns:
-        str: Path to the generated PDF file
-    """
     try:
-        # Determine file paths
-        if output_path is None:
-            # Use both paths to ensure compatibility with the web interface
-            report_dir = Path('reports/daily_drivers')
-            export_dir = Path('exports/daily_reports')
-            
-            # Ensure directories exist
-            report_dir.mkdir(parents=True, exist_ok=True)
-            export_dir.mkdir(parents=True, exist_ok=True)
-            
-            output_path = export_dir / f"{date_str}_DailyDriverReport.pdf"
-            
-            # Create a copy in the expected report path
-            alt_output_path = export_dir / f"daily_report_{date_str}.pdf"
-            
-            # Also put a copy in our reports directory
-            report_output_path = report_dir / f"daily_report_{date_str}.pdf"
-        else:
-            output_path = Path(output_path)
-            alt_output_path = None
-            report_output_path = None
-            
+        # Ensure output directories exist
+        reports_dir = Path('reports/daily_drivers')
+        exports_dir = Path('exports/daily_reports')
+        reports_dir.mkdir(parents=True, exist_ok=True)
+        exports_dir.mkdir(parents=True, exist_ok=True)
+        
         # Check for JSON data
-        json_path = report_dir / f"daily_report_{date_str}.json"
+        json_path = reports_dir / f"daily_report_{date_str}.json"
         if not json_path.exists():
-            json_path = export_dir / f"daily_report_{date_str}.json"
-            
-        if not json_path.exists():
-            json_path = export_dir / f"attendance_data_{date_str}.json"
-            
-        if not json_path.exists():
-            logger.error(f"No report data found for {date_str}")
-            return None
+            logger.error(f"JSON data file not found: {json_path}")
+            return False
             
         # Load report data
         with open(json_path, 'r') as f:
             report_data = json.load(f)
             
+        # Output file paths
+        pdf_path = reports_dir / f"daily_report_{date_str}.pdf"
+        export_pdf = exports_dir / f"{date_str}_DailyDriverReport.pdf"
+        legacy_pdf = exports_dir / f"daily_report_{date_str}.pdf"
+        
         # Format date for display
         display_date = datetime.strptime(date_str, '%Y-%m-%d').strftime('%A, %B %d, %Y')
-            
-        # Extract driver data
-        drivers = []
-        if 'drivers' in report_data:
-            drivers = report_data['drivers']
         
-        # Extract summary
-        summary = {}
-        if 'summary' in report_data:
-            summary = report_data['summary']
-        elif 'total' in report_data:
-            summary = {
-                'total': report_data.get('total', 0),
-                'late': report_data.get('late', 0),
-                'early_end': report_data.get('early_end', 0),
-                'not_on_job': report_data.get('not_on_job', 0),
-                'on_time': report_data.get('on_time', 0)
-            }
-            
         # Create PDF document
         doc = SimpleDocTemplate(
-            str(output_path),
+            str(pdf_path),
             pagesize=landscape(letter),
             rightMargin=0.5*inch,
             leftMargin=0.5*inch,
@@ -103,7 +64,7 @@ def generate_driver_report_pdf(date_str, output_path=None):
             bottomMargin=0.5*inch
         )
         
-        # Set up styles
+        # Get styles
         styles = getSampleStyleSheet()
         title_style = styles['Title']
         heading_style = styles['Heading2']
@@ -113,15 +74,6 @@ def generate_driver_report_pdf(date_str, output_path=None):
         title_style.fontName = 'Helvetica-Bold'
         title_style.fontSize = 16
         title_style.spaceAfter = 0.3 * inch
-        
-        # Create custom styles
-        header_style = ParagraphStyle(
-            'HeaderStyle',
-            parent=styles['Heading4'],
-            textColor=colors.white,
-            backColor=colors.darkblue,
-            alignment=1
-        )
         
         # Create PDF elements
         elements = []
@@ -133,15 +85,23 @@ def generate_driver_report_pdf(date_str, output_path=None):
         # Add summary
         elements.append(Paragraph("Summary", heading_style))
         
+        # Extract summary data
+        summary = report_data.get('summary', {})
+        total = summary.get('total', 0)
+        late = summary.get('late', 0)
+        early_end = summary.get('early_end', 0)
+        not_on_job = summary.get('not_on_job', 0)
+        on_time = summary.get('on_time', 0)
+        
         # Create summary table
         summary_data = [
             ["Total Drivers", "Late", "Early End", "Not On Job", "On Time"],
             [
-                summary.get('total', 0),
-                f"{summary.get('late', 0)} ({summary.get('late', 0)/summary.get('total', 1)*100:.1f}%)" if summary.get('total', 0) > 0 else "0 (0.0%)",
-                f"{summary.get('early_end', 0)} ({summary.get('early_end', 0)/summary.get('total', 1)*100:.1f}%)" if summary.get('total', 0) > 0 else "0 (0.0%)",
-                f"{summary.get('not_on_job', 0)} ({summary.get('not_on_job', 0)/summary.get('total', 1)*100:.1f}%)" if summary.get('total', 0) > 0 else "0 (0.0%)",
-                f"{summary.get('on_time', 0)} ({summary.get('on_time', 0)/summary.get('total', 1)*100:.1f}%)" if summary.get('total', 0) > 0 else "0 (0.0%)"
+                total,
+                f"{late} ({late/total*100:.1f}%)" if total > 0 else "0 (0.0%)",
+                f"{early_end} ({early_end/total*100:.1f}%)" if total > 0 else "0 (0.0%)",
+                f"{not_on_job} ({not_on_job/total*100:.1f}%)" if total > 0 else "0 (0.0%)",
+                f"{on_time} ({on_time/total*100:.1f}%)" if total > 0 else "0 (0.0%)"
             ]
         ]
         
@@ -162,6 +122,9 @@ def generate_driver_report_pdf(date_str, output_path=None):
         
         # Add driver details
         elements.append(Paragraph("Driver Details", heading_style))
+        
+        # Get driver data
+        drivers = report_data.get('drivers', [])
         
         if drivers:
             # Create driver table data
@@ -224,27 +187,21 @@ def generate_driver_report_pdf(date_str, output_path=None):
         
         # Build the PDF
         doc.build(elements)
+        logger.info(f"PDF report generated at {pdf_path}")
         
-        logger.info(f"Generated PDF report at {output_path}")
+        # Create copies for web interface
+        import shutil
+        shutil.copy(pdf_path, export_pdf)
+        shutil.copy(pdf_path, legacy_pdf)
+        logger.info(f"PDF copies created at {export_pdf} and {legacy_pdf}")
         
-        # Create duplicates if needed for compatibility
-        if alt_output_path:
-            import shutil
-            shutil.copy(output_path, alt_output_path)
-            logger.info(f"Created alternate PDF at {alt_output_path}")
-            
-        if report_output_path:
-            import shutil
-            shutil.copy(output_path, report_output_path)
-            logger.info(f"Created report PDF at {report_output_path}")
-        
-        return str(output_path)
-        
+        return True
+    
     except Exception as e:
-        logger.error(f"Error generating PDF report: {str(e)}")
+        logger.error(f"Error generating PDF: {e}")
         import traceback
         logger.error(traceback.format_exc())
-        return None
+        return False
 
-
-# Remove unused function since we're using getSampleStyleSheet directly
+if __name__ == "__main__":
+    generate_pdf_report()

@@ -180,13 +180,33 @@ def main():
         output_dir = Path('reports/daily_drivers')
         output_dir.mkdir(parents=True, exist_ok=True)
         
-        # Save as JSON
+        # Export directory for web interface compatibility
+        export_dir = Path('exports/daily_reports')
+        export_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Save as JSON to both locations
         with open(output_dir / f'daily_report_{date_str}.json', 'w') as f:
             json.dump(report, f, indent=2)
+            
+        # Also save to exports directory for web interface
+        with open(export_dir / f'daily_report_{date_str}.json', 'w') as f:
+            json.dump(report, f, indent=2)
         
-        # Save as Excel
+        # Save as Excel to both locations
         df = pd.DataFrame(report['drivers'])
         df.to_excel(output_dir / f'daily_report_{date_str}.xlsx', index=False)
+        df.to_excel(export_dir / f'daily_report_{date_str}.xlsx', index=False)
+        
+        # Generate PDF using our new PDF generator
+        try:
+            from utils.pdf_generator import generate_driver_report_pdf
+            pdf_path = generate_driver_report_pdf(date_str)
+            if pdf_path:
+                logger.info(f"PDF report generated at {pdf_path}")
+            else:
+                logger.warning("PDF generation failed, please check logs")
+        except Exception as e:
+            logger.error(f"Error generating PDF: {e}")
         
         logger.info(f"Report generated for {date_str}")
         logger.info(f"Total drivers: {report['summary']['total']}")

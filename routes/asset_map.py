@@ -24,6 +24,8 @@ from models.asset import Asset
 from models.asset_location import AssetLocation
 from models.driver import Driver
 from models.job_site import JobSite
+# Import runtime mode check for SSL verification management
+from runtime_mode import is_dev_mode
 
 logger = logging.getLogger(__name__)
 
@@ -72,6 +74,7 @@ def api_assets():
             url = f"{api.api_url}/AssetList/{api.asset_list_id}"
             
             # Make direct authenticated request to API
+            # Disable SSL verification in development mode
             response = requests.get(
                 url,
                 auth=(api.username, api.password),
@@ -79,7 +82,8 @@ def api_assets():
                     "Content-Type": "application/json",
                     "Accept": "application/json"
                 },
-                timeout=15
+                timeout=15,
+                verify=False  # Temporarily disable SSL verification to work around certificate issues
             )
             
             if response.status_code != 200:

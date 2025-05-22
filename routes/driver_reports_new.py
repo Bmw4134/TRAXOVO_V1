@@ -184,11 +184,38 @@ def dashboard():
     # Get today's date for date picker default
     today = datetime.now().strftime('%Y-%m-%d')
     
+    # Create default metrics
+    metrics = {
+        'total': 0,
+        'on_time': 0,
+        'late': 0,
+        'early_end': 0,
+        'not_on_job': 0,
+        'avg_late': 0,
+        'avg_early_end': 0
+    }
+    
+    # If there are any reports, calculate summary metrics
+    if reports:
+        most_recent = reports[0]
+        if 'summary' in most_recent and most_recent['summary']:
+            summary = most_recent['summary']
+            metrics = {
+                'total': summary.get('total', 0),
+                'on_time': summary.get('on_time', 0),
+                'late': summary.get('late', 0),
+                'early_end': summary.get('early_end', 0),
+                'not_on_job': summary.get('not_on_job', 0),
+                'avg_late': summary.get('avg_late', 0),
+                'avg_early_end': summary.get('avg_early_end', 0)
+            }
+    
     return render_template(
         'driver_reports/dashboard.html', 
         reports=reports,
         today=today,
-        timecard_comparisons=timecard_comparisons
+        timecard_comparisons=timecard_comparisons,
+        metrics=metrics
     )
 
 @driver_reports_bp.route('/generate', methods=['POST'])

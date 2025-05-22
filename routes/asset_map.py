@@ -113,12 +113,15 @@ def api_assets():
                     latitude = None
                     longitude = None
                 
-                # Skip assets without coordinates or with invalid coordinates
+                # Include all assets, even those without coordinates
+                # For assets without valid coordinates, use a default location (central Texas)
                 if latitude is None or longitude is None or not (-90 <= latitude <= 90) or not (-180 <= longitude <= 180):
                     assets_without_coords += 1
-                    continue
-                
-                assets_with_valid_coords += 1
+                    # Default to central Texas if no coordinates available
+                    latitude = 31.8160
+                    longitude = -99.5120
+                else:
+                    assets_with_valid_coords += 1
                 
                 asset = {
                     'id': item.get('id') or item.get('AssetId'),

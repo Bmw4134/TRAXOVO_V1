@@ -45,65 +45,127 @@ def index():
 
 @attendance_report_bp.route('/process', methods=['POST'])
 def process_attendance_data():
-    """Process uploaded attendance data files"""
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file part'}), 400
+    """Process multiple uploaded attendance data files"""
+    if 'files[]' not in request.files:
+        return jsonify({'error': 'No files provided'}), 400
         
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
+    uploaded_files = request.files.getlist('files[]')
+    file_types = request.form.getlist('fileTypes[]')
+    
+    if not uploaded_files or len(uploaded_files) == 0:
+        return jsonify({'error': 'No selected files'}), 400
     
     # Get group by option
     group_by = request.form.get('group_by', 'driver')
     weeks = int(request.form.get('weeks', 1))
     
-    if file:
-        # Save file temporarily
-        filename = secure_filename(file.filename)
-        file_ext = os.path.splitext(filename)[1].lower()
-        
-        # Create temp path
-        temp_path = os.path.join(UPLOAD_FOLDER, f"attendance_{datetime.now().strftime('%Y%m%d%H%M%S')}{file_ext}")
-        file.save(temp_path)
-        
-        try:
-            # Process the file
-            processed_data = process_file(temp_path)
-            
-            if not processed_data or not isinstance(processed_data, list) or len(processed_data) == 0:
-                return jsonify({'error': 'No valid data found in file'}), 400
-            
-            # Get attendance stats
-            stats = get_attendance_stats(processed_data)
-            
-            # Process weekly summary with the specified grouping
-            summary_options = {
-                'group_by': group_by,
-                'weeks': weeks
-            }
-            
-            summary = process_weekly_summary(processed_data, summary_options)
-            
-            # Clean up temp file
-            os.remove(temp_path)
-            
-            # Return combined response
-            return jsonify({
-                'stats': stats,
-                'summary': summary,
-                'success': True
-            })
-            
-        except Exception as e:
-            logger.error(f"Error processing attendance data: {str(e)}")
-            
-            # Clean up temp file if it exists
-            if os.path.exists(temp_path):
-                os.remove(temp_path)
-                
-            return jsonify({'error': f'Error processing file: {str(e)}'}), 500
+    # Collected data from each file type
+    time_on_site_data = []
+    activity_detail_data = []
+    driving_history_data = []
     
-    return jsonify({'error': 'Invalid file'}), 400
+    # Temporary file paths to clean up later
+    temp_paths = []
+    
+    try:
+        # Process each file based on its type
+        for i, file in enumerate(uploaded_files):
+            if file and file.filename != '':
+                # Determine file type (if provided in form data)
+                file_type = file_types[i] if i < len(file_types) else 'Unknown'
+                
+                # Save file temporarily
+                filename = secure_filename(file.filename)
+                file_ext = os.path.splitext(filename)[1].lower()
+                timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+                temp_path = os.path.join(UPLOAD_FOLDER, f"{file_type}_{timestamp}_{i}{file_ext}")
+                file.save(temp_path)
+                temp_paths.append(temp_path)
+                
+                # Process the file data
+                processed_data = process_file(temp_path)
+                
+                if processed_data and isinstance(processed_data, list) and len(processed_data) > 0:
+                    # Add the data to the appropriate collection based on file type
+                    if file_type == 'TimeOnSite':
+                        time_on_site_data.extend(processed_data)
+                    elif file_type == 'ActivityDetail':
+                        activity_detail_data.extend(processed_data)
+                    elif file_type == 'DrivingHistory':
+                        driving_history_data.extend(processed_data)
+                    else:
+                        # If type is unknown, try to detect based on content
+                        # This is a fallback mechanism
+                        logger.info(f"File type unknown, attempting to infer type for {filename}")
+                        if any('duration' in str(record).lower() for record in processed_data[:5]):
+                            time_on_site_data.extend(processed_data)
+                        elif any('activity' in str(record).lower() for record in processed_data[:5]):
+                            activity_detail_data.extend(processed_data)
+                        elif any('trip' in str(record).lower() for record in processed_data[:5]):
+                            driving_history_data.extend(processed_data)
+                        else:
+                            # Default to TimeOnSite if we can't determine
+                            time_on_site_data.extend(processed_data)
+        
+        # Combine all data sources for a complete view
+        from utils.multi_source_processor import combine_attendance_sources
+        
+        # Log data collection counts
+        logger.info(f"Collected data: TimeOnSite: {len(time_on_site_data)}, "
+                   f"ActivityDetail: {len(activity_detail_data)}, "
+                   f"DrivingHistory: {len(driving_history_data)}")
+        
+        # Combine data from all sources
+        combined_data = combine_attendance_sources(
+            time_on_site_data, 
+            activity_detail_data, 
+            driving_history_data
+        )
+        
+        # No data found across all files
+        if not combined_data or len(combined_data) == 0:
+            return jsonify({'error': 'No valid data found in uploaded files'}), 400
+        
+        # Get attendance stats from combined data
+        stats = get_attendance_stats(combined_data)
+        
+        # Process weekly summary with the specified grouping
+        summary_options = {
+            'group_by': group_by,
+            'weeks': weeks
+        }
+        
+        summary = process_weekly_summary(combined_data, summary_options)
+        
+        # Clean up temp files
+        for path in temp_paths:
+            if os.path.exists(path):
+                os.remove(path)
+        
+        # Return combined response
+        return jsonify({
+            'stats': stats,
+            'summary': summary,
+            'success': True,
+            'file_counts': {
+                'time_on_site': len(time_on_site_data),
+                'activity_detail': len(activity_detail_data),
+                'driving_history': len(driving_history_data),
+                'combined': len(combined_data)
+            }
+        })
+        
+    except Exception as e:
+        logger.error(f"Error processing attendance data: {str(e)}", exc_info=True)
+        
+        # Clean up temp files
+        for path in temp_paths:
+            if os.path.exists(path):
+                os.remove(path)
+                
+        return jsonify({'error': f'Error processing files: {str(e)}'}), 500
+    
+    return jsonify({'error': 'Invalid files'}), 400
 
 @attendance_report_bp.route('/download/<report_type>')
 def download_report(report_type):

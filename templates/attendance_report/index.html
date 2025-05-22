@@ -61,10 +61,50 @@
             </div>
             <div class="card-body">
                 <form id="uploadForm" class="row g-3">
-                    <div class="col-md-6">
-                        <label for="fileInput" class="form-label">Select CSV or Excel File</label>
-                        <input type="file" class="form-control" id="fileInput" name="file" accept=".csv,.xlsx,.xls">
-                        <div class="form-text">Upload TimeOnSite or ActivityDetail reports</div>
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label">Upload Attendance Data Files</label>
+                        <div class="card bg-dark-secondary border-0">
+                            <div class="card-body">
+                                <div class="file-upload-container border border-secondary rounded p-4 mb-3 text-center" id="dropArea">
+                                    <i class="bi bi-cloud-upload fs-1 mb-2 text-primary"></i>
+                                    <p>Drag & drop your files here or click to select files</p>
+                                    <p class="text-muted small">Accepts CSV, XLS, and XLSX files</p>
+                                    <input type="file" class="d-none" id="fileInput" name="files[]" multiple accept=".csv,.xlsx,.xls">
+                                    <button type="button" class="btn btn-outline-primary" id="browseButton">Browse Files</button>
+                                </div>
+                                <div id="fileList" class="d-none">
+                                    <h6 class="mb-3">Selected Files:</h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-dark table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>File Name</th>
+                                                    <th>File Type</th>
+                                                    <th>Data Type</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="fileListBody">
+                                                <!-- Files will be displayed here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="alert alert-info mt-2">
+                                        <div class="d-flex align-items-center">
+                                            <i class="bi bi-info-circle me-2"></i>
+                                            <div>
+                                                <strong>File Types:</strong>
+                                                <ul class="mb-0 ps-3">
+                                                    <li><strong>TimeOnSite</strong> - Records presence window at job sites</li>
+                                                    <li><strong>ActivityDetail</strong> - Contains movement/activity context</li>
+                                                    <li><strong>DrivingHistory</strong> - Shows arrival/departure sequences</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="col-md-3">
                         <label for="groupBy" class="form-label">Group By</label>
@@ -239,12 +279,188 @@
         let statsData = null;
         let summaryData = null;
         
+        // Handle drag and drop
+        const dropArea = document.getElementById('dropArea');
+        const browseButton = document.getElementById('browseButton');
+        const fileListDiv = document.getElementById('fileList');
+        const fileListBody = document.getElementById('fileListBody');
+        const selectedFiles = new Map(); // Map to store files with their detected type
+
+        // Detect file type based on content
+        function detectFileType(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const content = e.target.result;
+                    let fileType = 'Unknown';
+                    
+                    // Check for TimeOnSite indicators
+                    if (content.includes('TimeOnSite') || 
+                        content.includes('Site Time') || 
+                        content.includes('Duration')) {
+                        fileType = 'TimeOnSite';
+                    }
+                    // Check for ActivityDetail indicators 
+                    else if (content.includes('ActivityDetail') || 
+                             content.includes('Activity') || 
+                             content.includes('Event Type')) {
+                        fileType = 'ActivityDetail';
+                    }
+                    // Check for DrivingHistory indicators
+                    else if (content.includes('DrivingHistory') || 
+                             content.includes('Trip') || 
+                             content.includes('Distance')) {
+                        fileType = 'DrivingHistory';
+                    }
+                    
+                    resolve(fileType);
+                };
+                
+                // Read first 5000 chars to detect file type
+                reader.readAsText(file.slice(0, 5000));
+            });
+        }
+
+        // Add file to the list
+        async function addFileToList(file) {
+            const fileId = Date.now() + '-' + file.name; // Unique ID
+            const fileType = file.name.split('.').pop().toLowerCase();
+            const dataType = await detectFileType(file);
+            
+            selectedFiles.set(fileId, {
+                file: file,
+                dataType: dataType
+            });
+            
+            updateFileList();
+        }
+
+        // Update file list display
+        function updateFileList() {
+            fileListBody.innerHTML = '';
+            
+            if (selectedFiles.size > 0) {
+                fileListDiv.classList.remove('d-none');
+                
+                selectedFiles.forEach((fileInfo, fileId) => {
+                    const file = fileInfo.file;
+                    const row = document.createElement('tr');
+                    const fileType = file.name.split('.').pop().toLowerCase();
+                    
+                    row.innerHTML = `
+                        <td>${file.name}</td>
+                        <td>${fileType.toUpperCase()}</td>
+                        <td>
+                            <select class="form-select form-select-sm data-type-select" data-file-id="${fileId}">
+                                <option value="TimeOnSite" ${fileInfo.dataType === 'TimeOnSite' ? 'selected' : ''}>TimeOnSite</option>
+                                <option value="ActivityDetail" ${fileInfo.dataType === 'ActivityDetail' ? 'selected' : ''}>ActivityDetail</option>
+                                <option value="DrivingHistory" ${fileInfo.dataType === 'DrivingHistory' ? 'selected' : ''}>DrivingHistory</option>
+                                <option value="Unknown" ${fileInfo.dataType === 'Unknown' ? 'selected' : ''}>Unknown</option>
+                            </select>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-outline-danger remove-file" data-file-id="${fileId}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    
+                    fileListBody.appendChild(row);
+                });
+                
+                // Add event listeners for data type selection
+                document.querySelectorAll('.data-type-select').forEach(select => {
+                    select.addEventListener('change', function() {
+                        const fileId = this.getAttribute('data-file-id');
+                        const fileInfo = selectedFiles.get(fileId);
+                        if (fileInfo) {
+                            fileInfo.dataType = this.value;
+                            selectedFiles.set(fileId, fileInfo);
+                        }
+                    });
+                });
+                
+                // Add event listeners for remove buttons
+                document.querySelectorAll('.remove-file').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const fileId = this.getAttribute('data-file-id');
+                        selectedFiles.delete(fileId);
+                        updateFileList();
+                    });
+                });
+            } else {
+                fileListDiv.classList.add('d-none');
+            }
+        }
+
+        // Handle file selection via button
+        browseButton.addEventListener('click', function() {
+            document.getElementById('fileInput').click();
+        });
+
+        // Handle file selection via input
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const files = e.target.files;
+            if (files.length > 0) {
+                for (let i = 0; i < files.length; i++) {
+                    addFileToList(files[i]);
+                }
+            }
+        });
+
+        // Handle drag events
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }, false);
+        });
+
+        // Highlight drop area on drag over
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, function() {
+                dropArea.classList.add('border-primary');
+            }, false);
+        });
+
+        // Remove highlight on drag leave
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, function() {
+                dropArea.classList.remove('border-primary');
+            }, false);
+        });
+
+        // Handle drop
+        dropArea.addEventListener('drop', function(e) {
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                for (let i = 0; i < files.length; i++) {
+                    addFileToList(files[i]);
+                }
+            }
+        }, false);
+
         // Handle form submission
         uploadForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Get form data
-            const formData = new FormData(uploadForm);
+            if (selectedFiles.size === 0) {
+                alert('Please select at least one file to process.');
+                return;
+            }
+            
+            // Create form data with all files
+            const formData = new FormData();
+            
+            // Add each file with its data type
+            selectedFiles.forEach((fileInfo, fileId) => {
+                formData.append('files[]', fileInfo.file);
+                formData.append('fileTypes[]', fileInfo.dataType);
+            });
+            
+            // Add other form fields
+            formData.append('group_by', document.getElementById('groupBy').value);
+            formData.append('weeks', document.getElementById('weeksCount').value);
             
             // Show loading overlay
             loadingOverlay.classList.remove('d-none');

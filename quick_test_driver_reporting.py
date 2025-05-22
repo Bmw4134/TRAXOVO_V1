@@ -89,6 +89,19 @@ def ensure_dirs():
         os.makedirs(directory, exist_ok=True)
     
     logger.info("Created required directories")
+    
+    # Also copy the input files to the data directory for direct access
+    if os.path.exists(DRIVING_HISTORY_PATH):
+        shutil.copy(DRIVING_HISTORY_PATH, "data/driving_history.csv")
+        logger.info(f"Copied {DRIVING_HISTORY_PATH} to data/driving_history.csv")
+        
+    if os.path.exists(ACTIVITY_DETAIL_PATH):
+        shutil.copy(ACTIVITY_DETAIL_PATH, "data/activity_detail.csv")
+        logger.info(f"Copied {ACTIVITY_DETAIL_PATH} to data/activity_detail.csv")
+        
+    if os.path.exists(ASSETS_TIME_ON_SITE_PATH):
+        shutil.copy(ASSETS_TIME_ON_SITE_PATH, "data/assets_time_on_site.csv")
+        logger.info(f"Copied {ASSETS_TIME_ON_SITE_PATH} to data/assets_time_on_site.csv")
 
 def test_pipeline():
     """Run a simplified test of the pipeline"""

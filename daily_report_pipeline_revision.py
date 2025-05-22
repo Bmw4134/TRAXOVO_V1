@@ -931,10 +931,14 @@ class DriverReportPipeline:
                 else:
                     # Fallback to pandas read_csv
                     df = pd.read_csv(file_path)
+            except Exception as e:
+                logger.error(f"Error parsing activity detail file: {e}")
+                logger.error(traceback.format_exc())
+                continue
                 
-                if df is None or df.empty:
-                    logger.warning(f"No data found in file: {file_path}")
-                    continue
+            if df is None or df.empty:
+                logger.warning(f"No data found in file: {file_path}")
+                continue
                 
                 logger.info(f"Found {len(df)} rows in activity detail file")
                 
@@ -1217,11 +1221,13 @@ class DriverReportPipeline:
                 logger.info(f"Extracted {len(self.activity_detail_data)} driver records from Activity Detail")
                 
                 return True
+            
+            except Exception as e:
+                logger.error(f"Error extracting Activity Detail: {e}")
+                logger.error(traceback.format_exc())
+                continue
         
-        except Exception as e:
-            logger.error(f"Error extracting Activity Detail: {e}")
-            logger.error(traceback.format_exc())
-            return False
+        return True
     
     def process_drivers(self):
         """

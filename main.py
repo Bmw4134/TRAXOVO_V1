@@ -30,6 +30,14 @@ app.register_blueprint(map_standalone_bp)
 app.register_blueprint(direct_map)
 app.register_blueprint(mtd_reports_bp)
 
+# Add the File Processor route (will be created later)
+try:
+    from routes.file_processor import file_processor_bp
+    app.register_blueprint(file_processor_bp)
+    logger.info("File Processor blueprint registered")
+except ImportError:
+    logger.warning("File Processor module not found - will be added later")
+
 @app.route('/')
 def dashboard():
     """Homepage shows dashboard"""

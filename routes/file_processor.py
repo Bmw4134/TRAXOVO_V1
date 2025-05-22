@@ -54,7 +54,7 @@ def upload_file():
         return jsonify({'error': 'No file selected'}), 400
     
     # Check if file has allowed extension
-    if not allowed_file(file.filename):
+    if not file.filename or not allowed_file(file.filename):
         return jsonify({
             'error': f'Invalid file type. Allowed types: {", ".join(ALLOWED_EXTENSIONS)}'
         }), 400
@@ -121,11 +121,7 @@ def upload_file():
     finally:
         # Clean up the uploaded file
         try:
-            if os.path.exists(file_path):
+            if 'file_path' in locals() and os.path.exists(file_path):
                 os.remove(file_path)
         except Exception as e:
             logger.warning(f"Error removing temporary file: {str(e)}")
-
-def register_blueprint(app):
-    """Register the blueprint with the Flask app"""
-    app.register_blueprint(file_processor_bp)

@@ -9,7 +9,7 @@ from datetime import datetime
 from flask import Flask, render_template, jsonify, redirect, url_for, request
 
 from app import app, db
-from routes.driver_reports import driver_reports_bp
+from routes.driver_reports_new import driver_reports_bp
 from routes.asset_map import asset_map_bp  
 from routes.billing import billing_bp
 from routes.system_health import system_health_bp

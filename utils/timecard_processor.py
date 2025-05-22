@@ -1,597 +1,420 @@
 """
-Timecard Processor Module
+TRAXORA Fleet Management - Timecard Processor
 
-This module provides functions for processing timecard data from Ground Works
-and comparing it with GPS data to verify accuracy and track driver attendance.
+This module processes GroundWorks timecard data and compares it with GPS data
+to identify discrepancies between reported work times and actual GPS records.
 """
-
 import os
+import json
+import logging
 import pandas as pd
 from datetime import datetime, timedelta
-import logging
+from typing import Dict, List, Any, Optional, Union
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def process_timecard(file_path):
+def process_groundworks_timecards(file_path: str, start_date: Optional[str] = None, end_date: Optional[str] = None) -> Dict[str, Any]:
     """
-    Process a timecard file and return structured data
+    Process GroundWorks timecard data
     
     Args:
-        file_path (str): Path to the timecard Excel file
-        
+        file_path: Path to the timecard Excel file
+        start_date: Start date string (YYYY-MM-DD) for filtering
+        end_date: End date string (YYYY-MM-DD) for filtering
+    
     Returns:
-        dict: Dictionary with success status and message
+        dict: Processed timecard data
     """
     try:
-        logger.info(f"Processing timecard file: {file_path}")
+        logger.info(f"Processing GroundWorks timecard file: {file_path}")
         
-        # Create reports directory if it doesn't exist
-        reports_dir = os.path.join('reports', datetime.now().strftime('%Y-%m-%d'))
-        os.makedirs(reports_dir, exist_ok=True)
+        # Read Excel file
+        df = pd.read_excel(file_path)
         
-        # Load the timecard data
-        timecard_data = load_timecard_data(file_path)
+        # Try to identify relevant columns
+        employee_col = None
+        date_col = None
+        start_time_col = None
+        end_time_col = None
+        job_col = None
         
-        if "error" in timecard_data:
-            return {
-                "success": False,
-                "message": f"Error processing timecard: {timecard_data['error']}"
+        # Look for common column names
+        for col in df.columns:
+            col_lower = col.lower()
+            if any(term in col_lower for term in ['employee', 'name', 'worker']):
+                employee_col = col
+            elif any(term in col_lower for term in ['date', 'day']):
+                date_col = col
+            elif any(term in col_lower for term in ['start', 'in', 'clock in']):
+                start_time_col = col
+            elif any(term in col_lower for term in ['end', 'out', 'clock out']):
+                end_time_col = col
+            elif any(term in col_lower for term in ['job', 'site', 'location']):
+                job_col = col
+        
+        # Check if we found all required columns
+        if not (employee_col and date_col and start_time_col and end_time_col):
+            logger.warning("Could not identify all required columns in timecard file")
+            # Try to use default column names
+            if not employee_col:
+                employee_col = "Employee Name"
+            if not date_col:
+                date_col = "Date"
+            if not start_time_col:
+                start_time_col = "Clock In"
+            if not end_time_col:
+                end_time_col = "Clock Out"
+            if not job_col:
+                job_col = "Job Number"
+        
+        # Parse date filters
+        start_date_obj = None
+        end_date_obj = None
+        
+        if start_date:
+            try:
+                start_date_obj = datetime.strptime(start_date, '%Y-%m-%d').date()
+            except ValueError:
+                logger.warning(f"Invalid start date format: {start_date}")
+        
+        if end_date:
+            try:
+                end_date_obj = datetime.strptime(end_date, '%Y-%m-%d').date()
+            except ValueError:
+                logger.warning(f"Invalid end date format: {end_date}")
+        
+        # Process data
+        result = {
+            'timecards': [],
+            'employees': {},
+            'jobs': {},
+            'dates': {},
+            'metadata': {
+                'file_path': file_path,
+                'processed_at': datetime.now().isoformat(),
+                'total_records': len(df)
             }
-            
-        # Generate attendance report
-        report_file = os.path.join(reports_dir, f"attendance_report_{datetime.now().strftime('%Y%m%d%H%M%S')}.xlsx")
-        generate_attendance_report(timecard_data, output_path=report_file)
-        
-        # Return success message with stats
-        driver_count = len(timecard_data["drivers"])
-        job_count = len(timecard_data["jobs"])
-        total_hours = timecard_data["summary"]["total_hours"]
-        
-        return {
-            "success": True,
-            "message": f"Processed timecard with {driver_count} drivers, {job_count} jobs, and {total_hours} total hours.",
-            "report_file": report_file,
-            "data": timecard_data
         }
         
-    except Exception as e:
-        logger.error(f"Error in process_timecard: {e}")
-        return {
-            "success": False,
-            "message": f"Error processing timecard: {str(e)}"
-        }
-
-def load_timecard_data(file_path):
-    """
-    Load timecard data from Ground Works Excel file
-    
-    Args:
-        file_path (str): Path to the Excel timecard file
+        # Process each row
+        for _, row in df.iterrows():
+            try:
+                # Extract data
+                employee = str(row.get(employee_col, '')).strip()
+                date_val = row.get(date_col, None)
+                start_time = row.get(start_time_col, None)
+                end_time = row.get(end_time_col, None)
+                job = str(row.get(job_col, '')).strip() if job_col else None
+                
+                # Skip rows with missing data
+                if not employee or pd.isna(employee) or employee.lower() == 'nan':
+                    continue
+                
+                # Parse date
+                date_obj = None
+                if isinstance(date_val, datetime):
+                    date_obj = date_val.date()
+                elif isinstance(date_val, str):
+                    try:
+                        date_obj = datetime.strptime(date_val, '%Y-%m-%d').date()
+                    except ValueError:
+                        try:
+                            date_obj = datetime.strptime(date_val, '%m/%d/%Y').date()
+                        except ValueError:
+                            logger.warning(f"Could not parse date: {date_val}")
+                
+                if not date_obj:
+                    continue
+                
+                # Apply date filters
+                if start_date_obj and date_obj < start_date_obj:
+                    continue
+                if end_date_obj and date_obj > end_date_obj:
+                    continue
+                
+                # Parse times
+                start_time_str = None
+                end_time_str = None
+                
+                if isinstance(start_time, datetime):
+                    start_time_str = start_time.strftime('%H:%M')
+                elif isinstance(start_time, str):
+                    # Try to parse time string
+                    try:
+                        start_time_obj = datetime.strptime(start_time, '%H:%M')
+                        start_time_str = start_time_obj.strftime('%H:%M')
+                    except ValueError:
+                        try:
+                            start_time_obj = datetime.strptime(start_time, '%I:%M %p')
+                            start_time_str = start_time_obj.strftime('%H:%M')
+                        except ValueError:
+                            logger.warning(f"Could not parse start time: {start_time}")
+                
+                if isinstance(end_time, datetime):
+                    end_time_str = end_time.strftime('%H:%M')
+                elif isinstance(end_time, str):
+                    # Try to parse time string
+                    try:
+                        end_time_obj = datetime.strptime(end_time, '%H:%M')
+                        end_time_str = end_time_obj.strftime('%H:%M')
+                    except ValueError:
+                        try:
+                            end_time_obj = datetime.strptime(end_time, '%I:%M %p')
+                            end_time_str = end_time_obj.strftime('%H:%M')
+                        except ValueError:
+                            logger.warning(f"Could not parse end time: {end_time}")
+                
+                # Create timecard record
+                timecard = {
+                    'employee': employee,
+                    'date': date_obj.isoformat(),
+                    'start_time': start_time_str,
+                    'end_time': end_time_str,
+                    'job': job
+                }
+                
+                # Add to result
+                result['timecards'].append(timecard)
+                
+                # Update employee stats
+                employee_key = employee.lower()
+                if employee_key not in result['employees']:
+                    result['employees'][employee_key] = {
+                        'name': employee,
+                        'days': [],
+                        'jobs': set()
+                    }
+                
+                result['employees'][employee_key]['days'].append(date_obj.isoformat())
+                if job:
+                    result['employees'][employee_key]['jobs'].add(job)
+                
+                # Update job stats
+                if job:
+                    if job not in result['jobs']:
+                        result['jobs'][job] = {
+                            'employees': set(),
+                            'days': []
+                        }
+                    
+                    result['jobs'][job]['employees'].add(employee_key)
+                    result['jobs'][job]['days'].append(date_obj.isoformat())
+                
+                # Update date stats
+                date_key = date_obj.isoformat()
+                if date_key not in result['dates']:
+                    result['dates'][date_key] = {
+                        'employees': set(),
+                        'jobs': set()
+                    }
+                
+                result['dates'][date_key]['employees'].add(employee_key)
+                if job:
+                    result['dates'][date_key]['jobs'].add(job)
+                
+            except Exception as e:
+                logger.error(f"Error processing timecard row: {e}")
         
-    Returns:
-        dict: Processed timecard data with driver stats
-    """
-    try:
-        # Load Excel file
-        logger.info(f"Loading timecard data from: {file_path}")
-        df = pd.read_excel(file_path, engine='openpyxl')
+        # Convert sets to lists for JSON serialization
+        for employee_key in result['employees']:
+            result['employees'][employee_key]['jobs'] = list(result['employees'][employee_key]['jobs'])
         
-        # Check if file loaded properly
-        if df.empty:
-            logger.error("Timecard file appears to be empty")
-            return {"error": "Empty timecard file"}
+        for job_key in result['jobs']:
+            result['jobs'][job_key]['employees'] = list(result['jobs'][job_key]['employees'])
         
-        # Log column names for debugging
-        logger.info(f"Columns found: {df.columns.tolist()}")
+        for date_key in result['dates']:
+            result['dates'][date_key]['employees'] = list(result['dates'][date_key]['employees'])
+            result['dates'][date_key]['jobs'] = list(result['dates'][date_key]['jobs'])
         
-        # Process the data into a structured format
-        timecard_data = process_timecard_entries(df)
+        # Update metadata
+        result['metadata']['processed_records'] = len(result['timecards'])
+        result['metadata']['employee_count'] = len(result['employees'])
+        result['metadata']['job_count'] = len(result['jobs'])
+        result['metadata']['date_count'] = len(result['dates'])
         
-        return timecard_data
+        logger.info(f"Successfully processed {len(result['timecards'])} timecard records")
+        return result
         
     except Exception as e:
         logger.error(f"Error processing timecard file: {e}")
-        return {"error": str(e)}
+        return {
+            'error': str(e),
+            'timecards': [],
+            'employees': {},
+            'jobs': {},
+            'dates': {},
+            'metadata': {
+                'file_path': file_path,
+                'processed_at': datetime.now().isoformat(),
+                'error': str(e)
+            }
+        }
 
-def process_timecard_entries(df):
+def compare_timecards_with_gps(timecard_file: str, gps_data: Dict[str, Any], target_date: Optional[str] = None) -> List[Dict[str, Any]]:
     """
-    Process timecard entries into structured format
+    Compare timecard data with GPS data to identify discrepancies
     
     Args:
-        df (DataFrame): pandas DataFrame containing timecard data
-        
-    Returns:
-        dict: Processed data with driver stats
-    """
-    # Initialize results
-    result = {
-        "drivers": {},
-        "jobs": {},
-        "summary": {
-            "total_entries": 0,
-            "total_hours": 0,
-            "missing_gps": 0,
-            "pto_entries": 0,
-            "late_starts": 0
-        },
-        "date_range": {
-            "start": None,
-            "end": None
-        }
-    }
+        timecard_file: Path to timecard file
+        gps_data: GPS data from driver reports
+        target_date: Specific date to compare (YYYY-MM-DD)
     
-    # Try to determine if this is the Ground Works format
-    # Check if this is the Ground Works format (has specific columns)
-    if 'ProjectNo' in df.columns and 'EmployeeNo' in df.columns and 'Employee' in df.columns:
-        logger.info("Detected Ground Works timecard format")
+    Returns:
+        list: Comparison results
+    """
+    try:
+        logger.info(f"Comparing timecards with GPS data")
         
-        # Map columns to our standard format
-        column_mapping = {
-            "Employee": "Employee",
-            "Job": "ProjectNo",
-            "Date": "Date",
-            "Hours": "Hours"
-        }
+        # Process timecard data
+        timecard_data = process_groundworks_timecards(timecard_file, target_date, target_date)
         
-        # Time In/Out might not be available in this format, but we can still process other data
-        # We'll use the date without specific times
-    else:
-        # Standard format - try to determine column mapping
-        required_columns = ["Employee", "Job", "Date", "Hours"]
-        optional_columns = ["In", "Out"]
+        # Initialize results
+        comparisons = []
         
-        # Create normalized column mapping (handle various column name formats)
-        column_mapping = {}
-        for col in df.columns:
-            for req_col in required_columns + optional_columns:
-                if req_col.lower() in col.lower():
-                    column_mapping[req_col] = col
+        # For each employee in timecards
+        for employee_key, employee_data in timecard_data['employees'].items():
+            employee_name = employee_data['name']
+            
+            # Find matching driver in GPS data
+            gps_driver_data = None
+            normalized_key = employee_key.lower().replace(' ', '')
+            
+            # Try to find match in GPS data
+            for driver_key, driver_data in gps_data.items():
+                if normalized_key in driver_key.lower().replace(' ', ''):
+                    gps_driver_data = driver_data
                     break
-        
-        # Ensure we have all required columns
-        missing_cols = [col for col in required_columns if col not in column_mapping]
-        if missing_cols:
-            logger.warning(f"Missing columns: {missing_cols}")
             
-            # Try alternative column names
-            alt_mappings = {
-                "Employee": ["Name", "Employee Name", "Driver", "Worker", "EmployeeNo"],
-                "Job": ["Job Name", "Job Number", "JobID", "Project", "Task", "ProjectNo", "ProjectDescription"],
-                "Date": ["Work Date", "Time Date", "Entry Date"],
-                "Hours": ["Total Hours", "Work Hours", "Duration"],
-                "In": ["Time In", "Clock In", "Start Time"],
-                "Out": ["Time Out", "Clock Out", "End Time"]
-            }
+            if not gps_driver_data:
+                # Try a more flexible match
+                for driver_key, driver_data in gps_data.items():
+                    driver_name = driver_data.get('driver_data', {}).get('name', '')
+                    if employee_name.lower() in driver_name.lower() or driver_name.lower() in employee_name.lower():
+                        gps_driver_data = driver_data
+                        break
             
-            for req_col in missing_cols:
-                for alt_col in alt_mappings.get(req_col, []):
-                    for df_col in df.columns:
-                        if alt_col.lower() in df_col.lower():
-                            column_mapping[req_col] = df_col
-                            logger.info(f"Found alternative mapping: {req_col} -> {df_col}")
-                            break
-        
-        # Final check for required columns
-        missing_cols = [col for col in required_columns if col not in column_mapping]
-        if missing_cols:
-            logger.error(f"Still missing required columns: {missing_cols}")
-            return {"error": f"Missing required columns: {missing_cols}"}
-    
-    # Normalize column names
-    df_processed = df.rename(columns={column_mapping[col]: col for col in column_mapping})
-    
-    # Process date range
-    try:
-        date_col = df_processed['Date']
-        if pd.api.types.is_datetime64_any_dtype(date_col):
-            min_date = date_col.min()
-            max_date = date_col.max()
-        else:
-            # Try to convert to datetime
-            date_col = pd.to_datetime(date_col, errors='coerce')
-            min_date = date_col.min()
-            max_date = date_col.max()
-        
-        result["date_range"]["start"] = min_date.strftime('%Y-%m-%d') if not pd.isnull(min_date) else None
-        result["date_range"]["end"] = max_date.strftime('%Y-%m-%d') if not pd.isnull(max_date) else None
-    except Exception as e:
-        logger.error(f"Error processing date range: {e}")
-    
-    # Process entries
-    for _, row in df_processed.iterrows():
-        try:
-            # Extract basic info
-            employee = str(row.get('Employee', '')).strip()
-            job = str(row.get('Job', '')).strip()
-            date = row.get('Date')
-            hours = float(row.get('Hours', 0))
-            
-            # Ground Works format may not have Time In/Out explicitly
-            time_in = row.get('In') if 'In' in row else None
-            time_out = row.get('Out') if 'Out' in row else None
-            
-            # Check for ProjectDescription as a fallback for job name
-            if job == '' and 'ProjectDescription' in df_processed.columns:
-                job = str(row.get('ProjectDescription', '')).strip()
-            
-            # Skip empty rows
-            if pd.isnull(employee) or pd.isnull(job) or pd.isnull(date):
+            if not gps_driver_data:
                 continue
+            
+            # Now compare for each day
+            for date_str in employee_data['days']:
+                # Find timecard for this date
+                timecard = None
+                for tc in timecard_data['timecards']:
+                    if tc['employee'].lower() == employee_name.lower() and tc['date'] == date_str:
+                        timecard = tc
+                        break
                 
-            # Convert date to string format if it's a datetime
-            if isinstance(date, pd.Timestamp):
-                date_str = date.strftime('%Y-%m-%d')
-            else:
-                # Try to convert string to datetime
-                try:
-                    date = pd.to_datetime(date)
-                    date_str = date.strftime('%Y-%m-%d')
-                except:
-                    date_str = str(date)
-            
-            # Process time in/out
-            time_in_str = None
-            time_out_str = None
-            
-            if not pd.isnull(time_in):
-                if isinstance(time_in, datetime) or isinstance(time_in, pd.Timestamp):
-                    time_in_str = time_in.strftime('%H:%M')
-                else:
-                    # Try to parse time string
+                if not timecard:
+                    continue
+                
+                # Get GPS times for this date
+                gps_start = None
+                gps_end = None
+                
+                classification = gps_driver_data.get('classification', {})
+                
+                if classification.get('first_seen'):
+                    gps_start = classification.get('first_seen')
+                
+                if classification.get('last_seen'):
+                    gps_end = classification.get('last_seen')
+                
+                # Skip if no GPS data
+                if not gps_start or not gps_end:
+                    continue
+                
+                # Parse timecard times
+                timecard_start = None
+                timecard_end = None
+                
+                if timecard.get('start_time'):
                     try:
-                        time_in_str = str(time_in)
-                    except:
-                        time_in_str = None
-            
-            if not pd.isnull(time_out):
-                if isinstance(time_out, datetime) or isinstance(time_out, pd.Timestamp):
-                    time_out_str = time_out.strftime('%H:%M')
-                else:
-                    # Try to parse time string
+                        timecard_start = timecard['start_time']
+                    except ValueError:
+                        logger.warning(f"Could not parse timecard start time: {timecard['start_time']}")
+                
+                if timecard.get('end_time'):
                     try:
-                        time_out_str = str(time_out)
-                    except:
-                        time_out_str = None
-            
-            # Check if this is PTO
-            is_pto = False
-            if job.lower().startswith('pto') or 'pto' in job.lower() or 'sick' in job.lower() or 'vacation' in job.lower():
-                is_pto = True
-                result["summary"]["pto_entries"] += 1
-            
-            # Check for late start (after 7:00 AM)
-            is_late = False
-            if time_in_str and not is_pto:
-                try:
-                    # Parse the time string
-                    time_format = '%H:%M'
-                    # Convert AM/PM format if needed
-                    if 'am' in time_in_str.lower() or 'pm' in time_in_str.lower():
-                        time_format = '%I:%M %p'
-                    
-                    time_in_obj = datetime.strptime(time_in_str, time_format).time()
-                    start_threshold = datetime.strptime('07:00', '%H:%M').time()
-                    
-                    if time_in_obj > start_threshold:
-                        is_late = True
-                        result["summary"]["late_starts"] += 1
-                except Exception as e:
-                    logger.error(f"Error parsing time: {time_in_str} - {e}")
-            
-            # Update driver stats
-            if employee not in result["drivers"]:
-                result["drivers"][employee] = {
-                    "total_hours": 0,
-                    "job_entries": {},
-                    "days_worked": set(),
-                    "late_starts": 0,
-                    "pto_hours": 0
+                        timecard_end = timecard['end_time']
+                    except ValueError:
+                        logger.warning(f"Could not parse timecard end time: {timecard['end_time']}")
+                
+                # Skip if no timecard data
+                if not timecard_start or not timecard_end:
+                    continue
+                
+                # Calculate differences
+                start_diff_minutes = calculate_time_diff(timecard_start, gps_start)
+                end_diff_minutes = calculate_time_diff(gps_end, timecard_end)
+                total_variance = abs(start_diff_minutes) + abs(end_diff_minutes)
+                
+                # Add to comparisons
+                comparison = {
+                    'driver_name': employee_name,
+                    'date': date_str,
+                    'timecard_start': timecard_start,
+                    'gps_start': gps_start,
+                    'start_diff': start_diff_minutes,
+                    'timecard_end': timecard_end,
+                    'gps_end': gps_end,
+                    'end_diff': end_diff_minutes,
+                    'total_variance': total_variance,
+                    'job': timecard.get('job', ''),
+                    'flags': []
                 }
-            
-            # Update total hours
-            if is_pto:
-                result["drivers"][employee]["pto_hours"] += hours
-            else:
-                result["drivers"][employee]["total_hours"] += hours
-            
-            # Track days worked
-            result["drivers"][employee]["days_worked"].add(date_str)
-            
-            # Track job entries
-            if job not in result["drivers"][employee]["job_entries"]:
-                result["drivers"][employee]["job_entries"][job] = {
-                    "total_hours": 0,
-                    "entries": []
-                }
-            
-            # Add this entry
-            result["drivers"][employee]["job_entries"][job]["total_hours"] += hours
-            result["drivers"][employee]["job_entries"][job]["entries"].append({
-                "date": date_str,
-                "hours": hours,
-                "time_in": time_in_str,
-                "time_out": time_out_str,
-                "is_pto": is_pto,
-                "is_late": is_late
-            })
-            
-            # Track late starts
-            if is_late:
-                result["drivers"][employee]["late_starts"] += 1
-            
-            # Update job stats
-            if job not in result["jobs"]:
-                result["jobs"][job] = {
-                    "total_hours": 0,
-                    "employees": set(),
-                    "entries": []
-                }
-            
-            result["jobs"][job]["total_hours"] += hours
-            result["jobs"][job]["employees"].add(employee)
-            result["jobs"][job]["entries"].append({
-                "employee": employee,
-                "date": date_str,
-                "hours": hours,
-                "time_in": time_in_str,
-                "time_out": time_out_str
-            })
-            
-            # Update summary stats
-            result["summary"]["total_entries"] += 1
-            result["summary"]["total_hours"] += hours
-            
-        except Exception as e:
-            logger.error(f"Error processing row: {e}")
-    
-    # Convert sets to lists for JSON serialization
-    for employee in result["drivers"]:
-        result["drivers"][employee]["days_worked"] = list(result["drivers"][employee]["days_worked"])
-    
-    for job in result["jobs"]:
-        result["jobs"][job]["employees"] = list(result["jobs"][job]["employees"])
-    
-    return result
+                
+                # Add flags for significant discrepancies
+                if abs(start_diff_minutes) > 15:
+                    if start_diff_minutes > 0:
+                        comparison['flags'].append('TIMECARD_START_EARLIER')
+                    else:
+                        comparison['flags'].append('TIMECARD_START_LATER')
+                
+                if abs(end_diff_minutes) > 15:
+                    if end_diff_minutes > 0:
+                        comparison['flags'].append('TIMECARD_END_EARLIER')
+                    else:
+                        comparison['flags'].append('TIMECARD_END_LATER')
+                
+                if total_variance > 30:
+                    comparison['flags'].append('SIGNIFICANT_VARIANCE')
+                
+                comparisons.append(comparison)
+        
+        # Sort by total variance descending
+        comparisons.sort(key=lambda x: x['total_variance'], reverse=True)
+        
+        logger.info(f"Generated {len(comparisons)} timecard comparisons")
+        return comparisons
+        
+    except Exception as e:
+        logger.error(f"Error comparing timecards with GPS data: {e}")
+        return []
 
-def cross_reference_with_gps(timecard_data, gps_data):
+def calculate_time_diff(time1_str: str, time2_str: str) -> int:
     """
-    Cross-reference timecard data with GPS data
+    Calculate difference between two times in minutes
     
     Args:
-        timecard_data (dict): Processed timecard data
-        gps_data (dict): GPS location data
-        
-    Returns:
-        dict: Analysis results with discrepancies
-    """
-    # Placeholder for implementation
-    result = {
-        "matched_entries": 0,
-        "missing_gps": 0,
-        "time_discrepancies": 0,
-        "location_discrepancies": 0,
-        "entries": []
-    }
+        time1_str: First time string (HH:MM)
+        time2_str: Second time string (HH:MM)
     
-    return result
-
-def generate_attendance_report(timecard_data, output_path=None, include_asset_data=True):
-    """
-    Generate attendance report from timecard data
-    
-    Args:
-        timecard_data (dict): Processed timecard data
-        output_path (str, optional): Path to save Excel report
-        include_asset_data (bool): Whether to include asset-driver relationships
-        
     Returns:
-        dict: Report summary
+        int: Difference in minutes (time1 - time2)
     """
-    # Import here to avoid circular imports
     try:
-        from models import Driver, Asset
-        from utils.asset_driver_mapper import extract_asset_driver_mappings
-        db_access = True
-    except ImportError:
-        logger.warning("Could not import database models, asset data will be limited")
-        db_access = False
-    
-    # Create summary dataframes
-    driver_summary = []
-    for driver, data in timecard_data["drivers"].items():
-        # Try to find asset assigned to this driver if db_access is available
-        asset_id = None
-        asset_name = None
+        # Parse times
+        time1 = datetime.strptime(time1_str, '%H:%M')
+        time2 = datetime.strptime(time2_str, '%H:%M')
         
-        if db_access and include_asset_data:
-            try:
-                # Look up driver in database by name
-                driver_obj = Driver.query.filter(Driver.name.ilike(f"%{driver}%")).first()
-                if driver_obj and driver_obj.asset_id:
-                    asset = Asset.query.get(driver_obj.asset_id)
-                    if asset:
-                        asset_id = asset.asset_identifier
-                        asset_name = asset.label or asset.asset_identifier
-            except Exception as e:
-                logger.warning(f"Error looking up driver asset: {e}")
+        # Calculate difference in minutes
+        diff = (time1.hour * 60 + time1.minute) - (time2.hour * 60 + time2.minute)
         
-        driver_summary.append({
-            "Driver": driver,
-            "Total Hours": data["total_hours"],
-            "PTO Hours": data["pto_hours"],
-            "Days Worked": len(data["days_worked"]),
-            "Late Starts": data["late_starts"],
-            "Jobs Worked": len(data["job_entries"]),
-            "Asset ID": asset_id,
-            "Asset Name": asset_name
-        })
-    
-    job_summary = []
-    for job, data in timecard_data["jobs"].items():
-        job_summary.append({
-            "Job": job,
-            "Total Hours": data["total_hours"],
-            "Employee Count": len(data["employees"]),
-            "Entry Count": len(data["entries"]),
-            "Avg Hours Per Employee": round(data["total_hours"] / len(data["employees"]), 2) if data["employees"] else 0
-        })
-    
-    # Convert to DataFrames
-    driver_df = pd.DataFrame(driver_summary)
-    job_df = pd.DataFrame(job_summary)
-    
-    # Add additional calculations to driver summary
-    if not driver_df.empty:
-        if "Total Hours" in driver_df.columns and "Days Worked" in driver_df.columns:
-            driver_df["Avg Hours Per Day"] = driver_df.apply(
-                lambda row: round(row["Total Hours"] / row["Days Worked"], 2) if row["Days Worked"] > 0 else 0, 
-                axis=1
-            )
-    
-    # Generate Excel report if output path provided
-    if output_path:
-        try:
-            with pd.ExcelWriter(output_path, engine='openpyxl') as writer:
-                # Create overview sheet with explanation
-                overview_data = {
-                    "Report Section": [
-                        "Overview",
-                        "Driver Summary",
-                        "Job Summary", 
-                        "Detailed Entries",
-                        "Late Starts",
-                        "PTO Summary"
-                    ],
-                    "Description": [
-                        "This report summarizes timecard data for the period " + 
-                        f"{timecard_data['date_range']['start']} to {timecard_data['date_range']['end']}",
-                        "Shows total hours, PTO, and attendance patterns for each driver",
-                        "Breaks down hours worked by job site",
-                        "Contains individual timecard entries with dates and hours",
-                        "Lists all instances where drivers started after 7:00 AM",
-                        "Summarizes PTO usage by driver"
-                    ]
-                }
-                
-                # Add report statistics
-                overview_stats = {
-                    "Statistic": [
-                        "Total Entries",
-                        "Total Hours",
-                        "PTO Hours",
-                        "Late Starts",
-                        "Unique Drivers",
-                        "Unique Job Sites"
-                    ],
-                    "Value": [
-                        timecard_data["summary"]["total_entries"],
-                        timecard_data["summary"]["total_hours"],
-                        sum(data["pto_hours"] for data in timecard_data["drivers"].values()),
-                        timecard_data["summary"]["late_starts"],
-                        len(timecard_data["drivers"]),
-                        len(timecard_data["jobs"])
-                    ]
-                }
-                
-                # Write overview and stats to Excel
-                pd.DataFrame(overview_data).to_excel(writer, sheet_name='Report Guide', index=False, startrow=1)
-                pd.DataFrame(overview_stats).to_excel(writer, sheet_name='Report Guide', index=False, startrow=10)
-                
-                # Format the overview sheet
-                workbook = writer.book
-                overview_sheet = writer.sheets['Report Guide']
-                
-                # Add title
-                overview_sheet['A1'] = "Timecard Analysis Report"
-                overview_sheet['A1'].font = workbook.add_format({'bold': True, 'size': 16}).font
-                
-                # Write main summary sheets
-                driver_df.to_excel(writer, sheet_name='Driver Summary', index=False)
-                job_df.to_excel(writer, sheet_name='Job Summary', index=False)
-                
-                # Create detailed entries sheet
-                detailed_entries = []
-                for driver, data in timecard_data["drivers"].items():
-                    for job, job_data in data["job_entries"].items():
-                        for entry in job_data["entries"]:
-                            detailed_entries.append({
-                                "Driver": driver,
-                                "Job": job,
-                                "Date": entry["date"],
-                                "Hours": entry["hours"],
-                                "Time In": entry["time_in"],
-                                "Time Out": entry["time_out"],
-                                "Is PTO": "Yes" if entry["is_pto"] else "No",
-                                "Is Late": "Yes" if entry["is_late"] else "No"
-                            })
-                
-                entries_df = pd.DataFrame(detailed_entries)
-                entries_df.to_excel(writer, sheet_name='Detailed Entries', index=False)
-                
-                # Create late starts sheet
-                late_entries = [entry for entry in detailed_entries if entry["Is Late"] == "Yes"]
-                if late_entries:
-                    late_df = pd.DataFrame(late_entries)
-                    late_df.to_excel(writer, sheet_name='Late Starts', index=False)
-                
-                # Create PTO summary sheet
-                pto_entries = [entry for entry in detailed_entries if entry["Is PTO"] == "Yes"]
-                if pto_entries:
-                    pto_df = pd.DataFrame(pto_entries)
-                    pto_df.to_excel(writer, sheet_name='PTO Summary', index=False)
-                
-                # Try to add asset data from most recent monthly billing if available
-                if include_asset_data:
-                    try:
-                        # Look for billing files
-                        billing_files = []
-                        for root, dirs, files in os.walk("attached_assets"):
-                            for file in files:
-                                if "MONTHLY BILLINGS" in file.upper() and file.endswith((".xlsx", ".xlsm")):
-                                    billing_files.append(os.path.join(root, file))
-                        
-                        if billing_files:
-                            # Use the most recent file
-                            billing_files.sort(key=os.path.getmtime, reverse=True)
-                            recent_file = billing_files[0]
-                            
-                            # Extract asset-driver mappings
-                            mappings_result = extract_asset_driver_mappings(recent_file, sheet_name="DRIVERS")
-                            
-                            if mappings_result.get("status") == "success":
-                                # Create asset mapping sheet
-                                mapping_data = []
-                                for asset_id, data in mappings_result.get("mappings", {}).items():
-                                    mapping_data.append({
-                                        "Asset ID": asset_id,
-                                        "Driver Name": data.get("employee_name"),
-                                        "Employee ID": data.get("employee_id")
-                                    })
-                                
-                                mapping_df = pd.DataFrame(mapping_data)
-                                mapping_df.to_excel(writer, sheet_name='Asset-Driver Mapping', index=False)
-                                
-                                logger.info(f"Added asset-driver mapping from {recent_file}")
-                    except Exception as e:
-                        logger.warning(f"Error adding asset-driver mapping: {e}")
-            
-            return {
-                "status": "success",
-                "report_path": output_path,
-                "driver_count": len(driver_summary),
-                "job_count": len(job_summary),
-                "total_hours": timecard_data["summary"]["total_hours"],
-                "message": "Report generated with enhanced data visualization and explanations"
-            }
-        except Exception as e:
-            logger.error(f"Error generating Excel report: {e}")
-            return {"status": "error", "message": str(e)}
-    
-    return {
-        "status": "success",
-        "driver_summary": driver_summary,
-        "job_summary": job_summary,
-        "total_hours": timecard_data["summary"]["total_hours"]
-    }
+        return diff
+        
+    except Exception as e:
+        logger.error(f"Error calculating time difference: {e}")
+        return 0

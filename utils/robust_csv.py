@@ -24,8 +24,28 @@ def detect_data_rows(file_path):
     Returns:
         tuple: (header_row_index, data_start_row_index, detected_columns)
     """
-    with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
-        lines = f.readlines()
+    try:
+        # First check if file exists and has content
+        if not os.path.exists(file_path):
+            logger.error(f"File does not exist: {file_path}")
+            return 0, 1, []
+            
+        if os.path.getsize(file_path) == 0:
+            logger.error(f"File is empty: {file_path}")
+            return 0, 1, []
+        
+        # For very large files, only read the first 500 lines to avoid memory issues
+        line_count = 0
+        with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
+            lines = []
+            for i, line in enumerate(f):
+                lines.append(line)
+                line_count += 1
+                if i >= 500:  # Only read first 500 lines for header detection
+                    break
+    except Exception as e:
+        logger.error(f"Error reading file {file_path}: {e}")
+        return 0, 1, []
     
     # Look for lines that have more fields and could be headers
     max_fields = 0
@@ -35,19 +55,28 @@ def detect_data_rows(file_path):
     
     # First pass: find the line with the most comma-separated fields (likely the header)
     for i, line in enumerate(lines):
-        # Handle quoted fields correctly
-        fields = list(csv.reader([line]))[0]  # Parse line using csv module
-        field_count = len(fields)
-        
-        # Skip empty lines or minimal metadata rows
-        if field_count <= 3 and i < 10:
+        # Skip empty lines
+        if not line.strip():
             continue
         
-        # If this line has more fields than we've seen before
-        if field_count > max_fields:
-            max_fields = field_count
-            header_row = i
-            data_start_row = i + 1  # Data usually starts right after the header
+        try:
+            # Handle quoted fields correctly
+            fields = list(csv.reader([line]))[0]  # Parse line using csv module
+            field_count = len(fields)
+            
+            # Skip empty lines or minimal metadata rows
+            if field_count <= 3 and i < 10:
+                continue
+            
+            # If this line has more fields than we've seen before
+            if field_count > max_fields:
+                max_fields = field_count
+                header_row = i
+                data_start_row = i + 1  # Data usually starts right after the header
+        except Exception as e:
+            # If we can't parse this line, skip it
+            logger.warning(f"Could not parse line {i}: {e}")
+            continue
             potential_columns = fields
     
     # Special handling for Driving History files which often have metadata headers

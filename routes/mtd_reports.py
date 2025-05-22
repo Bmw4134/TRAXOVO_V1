@@ -456,6 +456,60 @@ def show_report(date):
         flash(f'Error showing report: {str(e)}', 'danger')
         return redirect(url_for('mtd_reports.dashboard'))
         
+@mtd_reports_bp.route('/report/<date>/job_site/<job_site>')
+def job_site_detail(date, job_site):
+    """Show all drivers for a specific job site on a specific date"""
+    try:
+        # Load the full report first
+        report_file = os.path.join(current_app.root_path, 'uploads', 'mtd_reports', f'report_{date}.json')
+        with open(report_file, 'r') as f:
+            report_data = json.load(f)
+            
+        # Filter drivers by job site
+        job_site_drivers = []
+        for driver in report_data.get('drivers', []):
+            if driver.get('job_site') == job_site or driver.get('assigned_job') == job_site:
+                job_site_drivers.append(driver)
+                
+        if not job_site_drivers:
+            flash(f"No drivers found for job site {job_site} on date {date}", 'warning')
+            return redirect(url_for('mtd_reports.show_report', date=date))
+            
+        # Get job site metrics
+        metrics = {
+            'total_drivers': len(job_site_drivers),
+            'on_time_count': 0,
+            'late_count': 0,
+            'early_end_count': 0,
+            'not_on_job_count': 0
+        }
+        
+        for driver in job_site_drivers:
+            if driver.get('status') == 'on_time':
+                metrics['on_time_count'] += 1
+            elif driver.get('status') == 'late':
+                metrics['late_count'] += 1
+            elif driver.get('status') == 'early_end':
+                metrics['early_end_count'] += 1
+            elif driver.get('status') == 'not_on_job':
+                metrics['not_on_job_count'] += 1
+                
+        # Calculate percentages
+        metrics['on_time_percent'] = round((metrics['on_time_count'] / metrics['total_drivers']) * 100) if metrics['total_drivers'] > 0 else 0
+        metrics['late_percent'] = round((metrics['late_count'] / metrics['total_drivers']) * 100) if metrics['total_drivers'] > 0 else 0
+        metrics['early_end_percent'] = round((metrics['early_end_count'] / metrics['total_drivers']) * 100) if metrics['total_drivers'] > 0 else 0
+        metrics['not_on_job_percent'] = round((metrics['not_on_job_count'] / metrics['total_drivers']) * 100) if metrics['total_drivers'] > 0 else 0
+        
+        return render_template('mtd_reports/job_site_detail.html', 
+                              job_site=job_site,
+                              drivers=job_site_drivers,
+                              metrics=metrics,
+                              date=date)
+    except Exception as e:
+        logger.error(f"Error loading job site detail for {job_site} on date {date}: {str(e)}")
+        flash(f"Error loading job site details: {str(e)}", 'danger')
+        return redirect(url_for('mtd_reports.show_report', date=date))
+
 @mtd_reports_bp.route('/report/<date>/driver/<driver_id>')
 def driver_detail(date, driver_id):
     """Show driver detail for a specific date with GENIUS CORE validation"""

@@ -115,7 +115,17 @@
                                                 {% endif %}
                                             </td>
                                             <td>{{ driver.asset|default('N/A', true) }}</td>
-                                            <td>{{ driver.job_site|default('N/A', true) }}</td>
+                                            <td>
+                                                {% if driver.job_site %}
+                                                    <a href="{{ url_for('mtd_reports.job_site_detail', date=date, job_site=driver.job_site) }}" 
+                                                       class="text-decoration-none">
+                                                        {{ driver.job_site }}
+                                                        <i class="fa fa-external-link-alt small ms-1"></i>
+                                                    </a>
+                                                {% else %}
+                                                    <span class="text-muted">N/A</span>
+                                                {% endif %}
+                                            </td>
                                             <td>{{ driver.scheduled_start|default('N/A', true) }}</td>
                                             <td>
                                                 {% if driver.actual_start %}

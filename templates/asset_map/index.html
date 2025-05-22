@@ -211,16 +211,25 @@
                     let invalidAssets = 0;
                     
                     data.forEach(asset => {
-                        // Check for valid coordinates
-                        if (!asset.latitude || !asset.longitude || 
-                            isNaN(parseFloat(asset.latitude)) || isNaN(parseFloat(asset.longitude))) {
+                        // Convert coordinates to numbers (force parsing)
+                        let lat = parseFloat(asset.latitude);
+                        let lng = parseFloat(asset.longitude);
+                        
+                        // Use default coordinates if invalid
+                        if (isNaN(lat) || isNaN(lng) || 
+                            lat < -90 || lat > 90 || lng < -180 || lng > 180) {
                             invalidAssets++;
-                            console.log('Asset missing valid coordinates:', asset.name || asset.id, 
-                                       'Lat:', asset.latitude, 'Long:', asset.longitude);
-                            return;
+                            console.log('Using default coordinates for asset:', asset.name || asset.id);
+                            // Default to central Texas
+                            lat = 31.8160;
+                            lng = -99.5120;
+                        } else {
+                            validAssets++;
                         }
                         
-                        validAssets++;
+                        // Store parsed coordinates back
+                        asset.latitude = lat;
+                        asset.longitude = lng;
                         var marker = L.marker([parseFloat(asset.latitude), parseFloat(asset.longitude)], {
                             icon: createAssetIcon(asset.status)
                         }).addTo(map);

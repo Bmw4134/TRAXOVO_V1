@@ -118,18 +118,77 @@ def parse_driving_history(file_path):
             logger.info(f"Detected Excel file format for driving history: {file_path}")
             return pd.read_excel(file_path)
             
-        # First pass: detect where the real data begins
-        header_row, data_start_row, detected_columns = detect_data_rows(file_path)
-        
-        logger.info(f"Detected header at row {header_row}, data starts at row {data_start_row}")
-        
-        # Read the file with pandas, skipping to the header row
-        df = pd.read_csv(file_path, 
-                         skiprows=header_row,
-                         header=0,
-                         encoding='utf-8',
-                         engine='python',
-                         on_bad_lines='skip')
+        # Check if this is the specific format with metadata headers (like in the examples)
+        with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
+            first_line = f.readline().strip()
+            
+        # Check for the specific format used in GAUGE API exports
+        if first_line.startswith('StartDate,ReportParameters_1,Values_1'):
+            logger.info("Detected GAUGE API specific CSV format for Driving History")
+            
+            # This is the special format with metadata at top
+            # Read the file line by line to find the actual data
+            with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
+                lines = f.readlines()
+                
+            # Find the header row (usually line 8)
+            header_row = None
+            for i, line in enumerate(lines):
+                # Look for the line that contains the column headers
+                if ('Contact' in line and 'EventDateTime' in line) or \
+                   ('Textbox53' in line and 'Textbox61' in line):
+                    header_row = i
+                    break
+            
+            if header_row is None:
+                logger.warning("Could not find header row in GAUGE API format, falling back to detection")
+                header_row, data_start_row, detected_columns = detect_data_rows(file_path)
+            else:
+                data_start_row = header_row + 1
+                logger.info(f"Found header row at line {header_row+1}, data starts at line {data_start_row+1}")
+                
+            # Create a new file with just the header and data rows
+            with open(file_path + '.tmp', 'w', encoding='utf-8') as f:
+                f.write(lines[header_row])  # Write header
+                
+                # Write data rows, looking for valid entries
+                for i in range(data_start_row, len(lines)):
+                    line = lines[i].strip()
+                    if not line:
+                        continue
+                        
+                    # Check if this is a data row (contains date or driver info)
+                    fields = list(csv.reader([line]))[0]
+                    has_date = any(re.search(r'\d{1,2}/\d{1,2}/\d{2,4}', field) for field in fields)
+                    has_contact = any('(' in field for field in fields)  # Driver IDs often in parentheses
+                    
+                    if has_date or has_contact:
+                        f.write(lines[i])
+                
+            # Read the temporary clean file
+            df = pd.read_csv(file_path + '.tmp', encoding='utf-8')
+            
+            # Clean up
+            try:
+                os.remove(file_path + '.tmp')
+            except:
+                pass
+                
+            if df.empty or len(df.columns) < 3:
+                logger.warning("Failed with specific format handling, trying standard approach")
+        else:
+            # First pass: detect where the real data begins
+            header_row, data_start_row, detected_columns = detect_data_rows(file_path)
+            
+            logger.info(f"Detected header at row {header_row}, data starts at row {data_start_row}")
+            
+            # Read the file with pandas, skipping to the header row
+            df = pd.read_csv(file_path, 
+                             skiprows=header_row,
+                             header=0,
+                             encoding='utf-8',
+                             engine='python',
+                             on_bad_lines='skip')
         
         # Clean up the column names
         df.columns = [str(col).strip() for col in df.columns]
@@ -284,19 +343,79 @@ def parse_activity_detail(file_path):
         if file_ext in ['.xlsx', '.xls']:
             logger.info(f"Detected Excel file format for activity detail: {file_path}")
             return pd.read_excel(file_path)
+        
+        # Check if this is the specific format with metadata headers (like in the examples)
+        with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
+            first_line = f.readline().strip()
             
-        # First pass: detect where the real data begins
-        header_row, data_start_row, detected_columns = detect_data_rows(file_path)
-        
-        logger.info(f"Detected header at row {header_row}, data starts at row {data_start_row}")
-        
-        # Read the file with pandas, skipping to the header row
-        df = pd.read_csv(file_path, 
-                         skiprows=header_row,
-                         header=0,
-                         encoding='utf-8',
-                         engine='python',
-                         on_bad_lines='skip')
+        # Check for the specific format used in GAUGE API exports
+        if first_line.startswith('StartDate,ReportParameters_1,Values_1'):
+            logger.info("Detected GAUGE API specific CSV format for Activity Detail")
+            
+            # This is the special format with metadata at top
+            # Read the file line by line to find the actual data
+            with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
+                lines = f.readlines()
+                
+            # Find the header row (usually line 9)
+            header_row = None
+            for i, line in enumerate(lines):
+                # Look for the line that contains the column headers
+                if ('AssetLabel' in line and 'EventDateTimex' in line) or \
+                   ('Asset' in line and 'EventDateTime' in line) or \
+                   ('Driver' in line and 'Timestamp' in line):
+                    header_row = i
+                    break
+            
+            if header_row is None:
+                logger.warning("Could not find header row in GAUGE API format, falling back to detection")
+                header_row, data_start_row, detected_columns = detect_data_rows(file_path)
+            else:
+                data_start_row = header_row + 1
+                logger.info(f"Found header row at line {header_row+1}, data starts at line {data_start_row+1}")
+                
+            # Create a new file with just the header and data rows
+            with open(file_path + '.tmp', 'w', encoding='utf-8') as f:
+                f.write(lines[header_row])  # Write header
+                
+                # Write data rows, looking for valid entries
+                for i in range(data_start_row, len(lines)):
+                    line = lines[i].strip()
+                    if not line:
+                        continue
+                        
+                    # Check if this is a data row (contains date or asset info)
+                    fields = list(csv.reader([line]))[0]
+                    has_date = any(re.search(r'\d{1,2}/\d{1,2}/\d{2,4}', field) for field in fields)
+                    has_asset = any(('FORD' in field or 'F-' in field or 'TMA' in field) for field in fields)
+                    
+                    if has_date or has_asset:
+                        f.write(lines[i])
+                
+            # Read the temporary clean file
+            df = pd.read_csv(file_path + '.tmp', encoding='utf-8')
+            
+            # Clean up
+            try:
+                os.remove(file_path + '.tmp')
+            except:
+                pass
+                
+            if df.empty or len(df.columns) < 3:
+                logger.warning("Failed with specific format handling, trying standard approach")
+        else:
+            # First pass: detect where the real data begins
+            header_row, data_start_row, detected_columns = detect_data_rows(file_path)
+            
+            logger.info(f"Detected header at row {header_row}, data starts at row {data_start_row}")
+            
+            # Read the file with pandas, skipping to the header row
+            df = pd.read_csv(file_path, 
+                            skiprows=header_row,
+                            header=0,
+                            encoding='utf-8',
+                            engine='python',
+                            on_bad_lines='skip')
         
         # Clean up the column names
         df.columns = [str(col).strip() for col in df.columns]
@@ -307,11 +426,11 @@ def parse_activity_detail(file_path):
             
             # Try reading from data_start_row instead
             df = pd.read_csv(file_path, 
-                             skiprows=data_start_row-1,  # -1 because we want to include the header
-                             header=0,
-                             encoding='utf-8',
-                             engine='python',
-                             on_bad_lines='skip')
+                            skiprows=data_start_row-1,  # -1 because we want to include the header
+                            header=0,
+                            encoding='utf-8',
+                            engine='python',
+                            on_bad_lines='skip')
             
             # Clean up the column names again
             df.columns = [str(col).strip() for col in df.columns]

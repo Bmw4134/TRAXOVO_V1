@@ -91,11 +91,28 @@ def test_pipeline():
         # Print summary
         print("\n=== DRIVER REPORT SUMMARY ===")
         print(f"Date: {DATE_STR}")
-        print(f"Total drivers: {report_data['summary']['total']}")
-        print(f"On time: {report_data['summary']['on_time']}")
-        print(f"Late: {report_data['summary']['late']}")
-        print(f"Early end: {report_data['summary']['early_end']}")
-        print(f"Not on job: {report_data['summary']['not_on_job']}")
+        
+        # Handle different report formats gracefully
+        if 'summary' in report_data:
+            print(f"Total drivers: {report_data['summary'].get('total', 0)}")
+            print(f"On time: {report_data['summary'].get('on_time', 0)}")
+            print(f"Late: {report_data['summary'].get('late', 0)}")
+            print(f"Early end: {report_data['summary'].get('early_end', 0)}")
+            print(f"Not on job: {report_data['summary'].get('not_on_job', 0)}")
+        else:
+            # For newer format where summary might be calculated differently
+            print(f"Total drivers processed: {len(report_data.get('drivers', []))}")
+            
+            # Count statuses directly from driver records
+            statuses = {}
+            for driver in report_data.get('drivers', []):
+                status = driver.get('status', 'unknown')
+                statuses[status] = statuses.get(status, 0) + 1
+                
+            print(f"Status breakdown:")
+            for status, count in statuses.items():
+                print(f"  - {status}: {count}")
+        
         print(f"Report saved to: {report_file}")
         
         return True, report_data

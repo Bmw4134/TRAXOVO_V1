@@ -613,15 +613,15 @@ class DriverReportPipeline:
             return False
         
         try:
-            # First, determine the file structure by reading the header
-            with open(self.driving_history_path, 'r') as f:
-                header = f.readline().strip()
+            # Use our advanced CSV parser to handle complex formats
+            from utils.csv_parser import parse_driving_history
             
-            # Determine delimiter
-            delimiter = ',' if ',' in header else ';'
+            # Parse the file using the advanced parser
+            df = parse_driving_history(self.driving_history_path)
             
-            # Load CSV file
-            df = pd.read_csv(self.driving_history_path, delimiter=delimiter)
+            if df.empty:
+                logger.warning("No data found in Driving History file")
+                return False
             
             # Normalize column names
             df.columns = [str(col).strip().lower().replace(' ', '_') for col in df.columns]
@@ -791,15 +791,15 @@ class DriverReportPipeline:
             return False
         
         try:
-            # First, determine the file structure by reading the header
-            with open(self.activity_detail_path, 'r') as f:
-                header = f.readline().strip()
+            # Use our advanced CSV parser to handle complex formats
+            from utils.csv_parser import parse_activity_detail
             
-            # Determine delimiter
-            delimiter = ',' if ',' in header else ';'
+            # Parse the file using the advanced parser
+            df = parse_activity_detail(self.activity_detail_path)
             
-            # Load CSV file
-            df = pd.read_csv(self.activity_detail_path, delimiter=delimiter)
+            if df.empty:
+                logger.warning("No data found in Activity Detail file")
+                return False
             
             # Normalize column names
             df.columns = [str(col).strip().lower().replace(' ', '_') for col in df.columns]

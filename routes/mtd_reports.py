@@ -282,6 +282,13 @@ def process_report():
                         while sample_date <= end_date:
                             days_to_process.append(sample_date)
                             sample_date += timedelta(days=1)
+                            
+                    # Custom JSON encoder to handle datetime objects
+                    class DateTimeEncoder(json.JSONEncoder):
+                        def default(self, o):
+                            if isinstance(o, datetime):
+                                return o.strftime('%Y-%m-%d')
+                            return super().default(o)
                     
                     # Process the selected days
                     for sample_date in days_to_process:
@@ -358,7 +365,7 @@ def process_report():
             
             index_file = os.path.join(current_app.root_path, 'uploads', 'mtd_reports', f'interval_index_{start_date}_to_{end_date}.json')
             with open(index_file, 'w') as f:
-                json.dump(reports_index, f)
+                json.dump(reports_index, f, cls=DateTimeEncoder)
             
             # Redirect to interval reports page
             return redirect(url_for('mtd_reports.show_interval_reports', start=start_date, end=end_date))

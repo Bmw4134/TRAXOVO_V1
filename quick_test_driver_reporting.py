@@ -21,19 +21,21 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Sample data paths - use actual CSV files from attached_assets or convert from Excel
-DRIVING_HISTORY_PATH = "attached_assets/DrivingHistory.csv"
-ACTIVITY_DETAIL_PATH = "attached_assets/ActivityDetail.csv"
-DATE_STR = datetime.now().strftime('%Y-%m-%d')  # Use today's date for testing
+# Use the specific CSV files provided by the user
+DRIVING_HISTORY_PATH = "attached_assets/DrivingHistory (14).csv"
+ACTIVITY_DETAIL_PATH = "attached_assets/ActivityDetail (10).csv"
+ASSETS_TIME_ON_SITE_PATH = "attached_assets/AssetsTimeOnSite (6).csv"
+DATE_STR = "2025-05-22"  # Use today's date from the provided files
 
-# Check if files exist, if not look for common alternatives
+# Verify files exist
 if not os.path.exists(DRIVING_HISTORY_PATH):
+    logger.error(f"Driving history file not found: {DRIVING_HISTORY_PATH}")
+    # Check for alternatives
     alternatives = [
         "attached_assets/DrivingHistory (13).csv",
         "attached_assets/DrivingHistory.csv",
         "attached_assets/DrivingHistory.xlsx", 
-        "attached_assets/Driving_History.csv",
-        "attached_assets/DrivingHistory_latest.csv"
+        "attached_assets/Driving_History.csv"
     ]
     for alt in alternatives:
         if os.path.exists(alt):
@@ -42,17 +44,33 @@ if not os.path.exists(DRIVING_HISTORY_PATH):
             break
 
 if not os.path.exists(ACTIVITY_DETAIL_PATH):
+    logger.error(f"Activity detail file not found: {ACTIVITY_DETAIL_PATH}")
+    # Check for alternatives
     alternatives = [
         "attached_assets/ActivityDetail (9).csv",
         "attached_assets/ActivityDetail (7).csv",
         "attached_assets/ActivityDetail (6).csv",
-        "attached_assets/ActivityDetail.xlsx",
-        "attached_assets/Activity_Detail.csv"
+        "attached_assets/ActivityDetail.csv"
     ]
     for alt in alternatives:
         if os.path.exists(alt):
             ACTIVITY_DETAIL_PATH = alt
             logger.info(f"Using alternative activity detail file: {alt}")
+            break
+
+if not os.path.exists(ASSETS_TIME_ON_SITE_PATH):
+    logger.warning(f"Assets time on site file not found: {ASSETS_TIME_ON_SITE_PATH}")
+    # Check for alternatives
+    alternatives = [
+        "attached_assets/AssetsTimeOnSite (5).csv",
+        "attached_assets/AssetsTimeOnSite (4).csv",
+        "attached_assets/AssetsTimeOnSite (3).csv",
+        "attached_assets/AssetsTimeOnSite.csv"
+    ]
+    for alt in alternatives:
+        if os.path.exists(alt):
+            ASSETS_TIME_ON_SITE_PATH = alt
+            logger.info(f"Using alternative assets time on site file: {alt}")
             break
 
 def ensure_dirs():

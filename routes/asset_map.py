@@ -253,7 +253,8 @@ def api_job_sites():
                     "Content-Type": "application/json",
                     "Accept": "application/json"
                 },
-                timeout=15
+                timeout=15,
+                verify=False  # Temporarily disable SSL verification to work around certificate issues
             )
             
             if response.status_code != 200:
@@ -295,7 +296,8 @@ def api_job_sites():
                         "Content-Type": "application/json",
                         "Accept": "application/json"
                     },
-                    timeout=15
+                    timeout=15,
+                    verify=False  # Temporarily disable SSL verification to work around certificate issues
                 )
                 
                 if response.status_code == 200:

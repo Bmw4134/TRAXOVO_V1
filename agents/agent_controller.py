@@ -8,8 +8,9 @@ import logging
 import json
 import time
 import os
-import yaml
 from datetime import datetime
+
+# We'll import yaml only when needed to avoid dependency issues
 
 # Import all agent modules
 from agents.driver_classifier_agent import handle as driver_classifier

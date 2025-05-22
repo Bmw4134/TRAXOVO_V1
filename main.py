@@ -21,7 +21,18 @@ from routes.mtd_reports_fixed import mtd_reports_bp
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-# Register blueprints
+# Setup runtime mode indicator
+runtime_mode = os.environ.get('RUNTIME_MODE', 'DEVELOPMENT').upper()
+logger.info(f"TRAXORA running in {runtime_mode} mode")
+
+# Load jobsite catalog
+try:
+    from utils.jobsite_catalog_loader import load_jobsite_catalog
+    load_jobsite_catalog()
+except Exception as e:
+    logger.warning(f"Error loading jobsite catalog: {str(e)}")
+
+# Register core blueprints
 app.register_blueprint(driver_reports_bp)
 app.register_blueprint(asset_map_bp)
 app.register_blueprint(billing_bp)
@@ -29,6 +40,22 @@ app.register_blueprint(system_health_bp)
 app.register_blueprint(map_standalone_bp)
 app.register_blueprint(direct_map)
 app.register_blueprint(mtd_reports_bp)
+
+# Register new UI Dashboard
+try:
+    from routes.dashboard import dashboard_bp
+    app.register_blueprint(dashboard_bp)
+    logger.info("New Dashboard blueprint registered")
+except ImportError:
+    logger.warning("New Dashboard module not found")
+
+# Register new File Upload UI
+try:
+    from routes.file_upload_new import file_upload_bp
+    app.register_blueprint(file_upload_bp) 
+    logger.info("New File Upload blueprint registered")
+except ImportError:
+    logger.warning("New File Upload module not found")
 
 # Add the File Processor and Upload routes
 try:

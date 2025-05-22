@@ -52,9 +52,19 @@ def process_uploaded_files(files, file_type):
     return saved_files
 
 @mtd_reports_bp.route('/')
+@mtd_reports_bp.route('/dashboard')
 def dashboard():
     """MTD Reports Dashboard"""
-    return render_template('mtd_reports/dashboard.html')
+    try:
+        # Create necessary directories if they don't exist
+        upload_dir = os.path.join(current_app.root_path, 'uploads', 'mtd_reports')
+        os.makedirs(upload_dir, exist_ok=True)
+        
+        return render_template('mtd_reports/dashboard.html')
+    except Exception as e:
+        logger.error(f"Error loading dashboard: {str(e)}")
+        flash(f'Error loading MTD Reports dashboard: {str(e)}', 'danger')
+        return redirect(url_for('index'))
 
 @mtd_reports_bp.route('/reports')
 def list_reports():

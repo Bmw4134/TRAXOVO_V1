@@ -188,16 +188,15 @@ def save_driver_reports_to_db(report_data, date_obj):
             if not driver_name:
                 continue
                 
-            driver = Driver.query.filter(Driver.full_name == driver_name).first()
+            driver = Driver.query.filter(Driver.name == driver_name).first()
             
             if not driver:
                 # Create a new driver record
                 import random
-                driver = Driver(
-                    full_name=driver_name,
-                    employee_id=f"EMP{random.randint(1000, 9999)}",  # Generate a placeholder ID
-                    is_active=True
-                )
+                driver = Driver()
+                driver.name = driver_name
+                driver.employee_id = f"EMP{random.randint(1000, 9999)}"  # Generate a placeholder ID
+                driver.is_active = True
                 db.session.add(driver)
                 db.session.flush()  # Get ID without committing
             
@@ -215,11 +214,10 @@ def save_driver_reports_to_db(report_data, date_obj):
                     if not job_number:
                         job_number = f"J{random.randint(1000, 9999)}"
                         
-                    job_site = JobSite(
-                        name=job_site_name,
-                        job_number=job_number,
-                        is_active=True
-                    )
+                    job_site = JobSite()
+                    job_site.name = job_site_name
+                    job_site.job_number = job_number
+                    job_site.is_active = True
                     db.session.add(job_site)
                     db.session.flush()  # Get ID without committing
             
@@ -243,24 +241,23 @@ def save_driver_reports_to_db(report_data, date_obj):
             db_status = status.lower().replace(' ', '_') if status else 'unknown'
             
             # Create the driver report
-            report = DriverReport(
-                driver_id=driver.id,
-                job_site_id=job_site.id if job_site else None,
-                report_date=date_obj,
-                scheduled_start_time=datetime.strptime('07:00', '%H:%M').time(),  # Default to 7:00 AM if not specified
-                scheduled_end_time=datetime.strptime('17:00', '%H:%M').time(),  # Default to 5:00 PM if not specified
-                actual_start_time=key_on_time.time() if key_on_time else None,
-                actual_end_time=key_off_time.time() if key_off_time else None,
-                minutes_late=driver_data.get('key_delta_minutes') if driver_data.get('status') == 'Late' else 0,
-                minutes_early_end=driver_data.get('key_delta_minutes') if driver_data.get('status') == 'Early End' else 0,
-                status=db_status,
-                classification=driver_data.get('verification_level', 'UNKNOWN'),
-                assigned_job_number=job_site.job_number if job_site else None,
-                data_sources=", ".join(driver_data.get('sources', [])),
-                validation_status="validated" if driver_data.get('identity_verified') else "pending",
-                validation_notes=driver_data.get('status_reason'),
-                is_valid=driver_data.get('identity_verified', False)
-            )
+            report = DriverReport()
+            report.driver_id = driver.id
+            report.job_site_id = job_site.id if job_site else None
+            report.report_date = date_obj
+            report.scheduled_start_time = datetime.strptime('07:00', '%H:%M').time()  # Default to 7:00 AM if not specified
+            report.scheduled_end_time = datetime.strptime('17:00', '%H:%M').time()  # Default to 5:00 PM if not specified
+            report.actual_start_time = key_on_time.time() if key_on_time else None
+            report.actual_end_time = key_off_time.time() if key_off_time else None
+            report.minutes_late = driver_data.get('key_delta_minutes') if driver_data.get('status') == 'Late' else 0
+            report.minutes_early_end = driver_data.get('key_delta_minutes') if driver_data.get('status') == 'Early End' else 0
+            report.status = db_status
+            report.classification = driver_data.get('verification_level', 'UNKNOWN')
+            report.assigned_job_number = job_site.job_number if job_site else None
+            report.data_sources = ", ".join(driver_data.get('sources', []))
+            report.validation_status = "validated" if driver_data.get('identity_verified') else "pending"
+            report.validation_notes = driver_data.get('status_reason')
+            report.is_valid = driver_data.get('identity_verified', False)
             
             # Add location data if available
             if 'locations' in driver_data and driver_data['locations']:

@@ -248,127 +248,17 @@ def process_driver_files(driving_history_path, activity_detail_path, asset_list_
     try:
         logger.info("Processing driver files with GENIUS CORE CONTINUITY MODE")
         
-        # Load the files
-        driving_history_df = load_file(driving_history_path)
-        activity_detail_df = load_file(activity_detail_path)
-        asset_list_df = load_file(asset_list_path) if asset_list_path else None
+        # Use our specialized genius core driver processor
+        from utils.genius_core_driver_processor import process_uploaded_files
         
-        if driving_history_df is None or activity_detail_df is None:
-            return {'error': 'Failed to load input files'}
+        # Process the files using the GENIUS CORE pipeline
+        result = process_uploaded_files(
+            driving_history_path,
+            activity_detail_path,
+            asset_list_path if verify_with_asset_list else None
+        )
         
-        if verify_with_asset_list and asset_list_df is None and asset_list_path:
-            return {'error': 'Failed to load asset list file for verification'}
-        
-        # Extract date from driving history file
-        # This assumes the file has a 'Date' column
-        if 'Date' not in driving_history_df.columns:
-            return {'error': 'Driving history file missing Date column'}
-        
-        # Get the first date in the file
-        date_str = driving_history_df['Date'].iloc[0]
-        date_obj = None
-        
-        # Try to parse the date
-        try:
-            # Handle different date formats
-            if isinstance(date_str, str):
-                # Try different formats
-                for fmt in ['%Y-%m-%d', '%m/%d/%Y', '%d/%m/%Y']:
-                    try:
-                        date_obj = datetime.strptime(date_str, fmt).date()
-                        break
-                    except ValueError:
-                        continue
-            elif isinstance(date_str, datetime):
-                date_obj = date_str.date()
-            else:
-                # For pandas Timestamp or other date types
-                date_obj = pd.to_datetime(date_str).date()
-        except Exception as e:
-            logger.error(f"Error parsing date from driving history: {str(e)}")
-            date_obj = datetime.now().date()
-        
-        if date_obj is None:
-            logger.warning("Could not determine date from file, using today's date")
-            date_obj = datetime.now().date()
-        
-        date_str_formatted = date_obj.strftime('%Y-%m-%d')
-        logger.info(f"Processing data for date: {date_str_formatted}")
-        
-        # Copy files to appropriate directories for pipeline processing
-        import shutil
-        from pathlib import Path
-        
-        # Create directories if they don't exist
-        data_dir = Path('data')
-        driving_history_dir = data_dir / 'driving_history'
-        activity_detail_dir = data_dir / 'activity_detail'
-        asset_list_dir = data_dir / 'asset_list'
-        
-        driving_history_dir.mkdir(parents=True, exist_ok=True)
-        activity_detail_dir.mkdir(parents=True, exist_ok=True)
-        asset_list_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Copy files with appropriate naming for the pipeline
-        driving_history_target = driving_history_dir / f'DrivingHistory_{date_str_formatted.replace("-", "")}.csv'
-        activity_detail_target = activity_detail_dir / f'ActivityDetail_{date_str_formatted.replace("-", "")}.csv'
-        
-        shutil.copy(driving_history_path, driving_history_target)
-        shutil.copy(activity_detail_path, activity_detail_target)
-        
-        if asset_list_path:
-            asset_list_target = asset_list_dir / f'AssetList_{date_str_formatted.replace("-", "")}.csv'
-            shutil.copy(asset_list_path, asset_list_target)
-        
-        # Import our daily report pipeline and process the data
-        from daily_report_pipeline_revision import DriverReportPipeline
-        
-        # Run the pipeline for the specific date
-        pipeline = DriverReportPipeline(date_str_formatted)
-        
-        # Execute the pipeline
-        pipeline.extract_equipment_billing_data()
-        pipeline.extract_driving_history()
-        pipeline.extract_activity_detail()
-        pipeline.process_drivers()
-        report_data = pipeline.generate_report()
-        
-        # Create reports directory if it doesn't exist
-        reports_dir = Path('reports/daily_drivers')
-        exports_dir = Path('exports/daily_reports')
-        reports_dir.mkdir(parents=True, exist_ok=True)
-        exports_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Save the report data to JSON file
-        import json
-        json_path = reports_dir / f'daily_report_{date_str_formatted}.json'
-        with open(json_path, 'w') as f:
-            json.dump(report_data, f, indent=2)
-        
-        # Save as Excel for easy viewing
-        import pandas as pd
-        excel_path = reports_dir / f'daily_report_{date_str_formatted}.xlsx'
-        df = pd.DataFrame(report_data['drivers'])
-        df.to_excel(excel_path, index=False)
-        
-        # Copy to exports directory
-        export_json_path = exports_dir / f'daily_report_{date_str_formatted}.json'
-        export_excel_path = exports_dir / f'daily_report_{date_str_formatted}.xlsx'
-        shutil.copy(json_path, export_json_path)
-        shutil.copy(excel_path, export_excel_path)
-        
-        # Create report entries in the database
-        save_driver_reports_to_db(report_data, date_obj)
-        
-        return {
-            'success': True,
-            'date': date_str_formatted,
-            'message': 'Files processed successfully',
-            'report_path': str(json_path),
-            'export_path': str(export_json_path),
-            'driver_count': len(report_data['drivers']),
-            'summary': report_data['summary']
-        }
+        return result
     except Exception as e:
         logger.error(f"Error processing driver files: {str(e)}")
         import traceback

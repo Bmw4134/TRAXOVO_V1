@@ -1,0 +1,350 @@
+{% extends "basic_base.html" %}
+
+{% block title %}MTD Interval Reports{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h2 class="mb-0">MTD Interval Reports</h2>
+                    <div>
+                        <a href="{{ url_for('mtd_reports.dashboard') }}" class="btn btn-light btn-sm">
+                            <i class="fa fa-arrow-left"></i> Back to Dashboard
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fa fa-info-circle me-2"></i>
+                        <strong>Date Range:</strong> {{ reports_index.start_date }} to {{ reports_index.end_date }}
+                        <span class="ms-3 badge bg-primary">{{ reports_index.interval_type|capitalize }} Reports</span>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h4>Report Summary</h4>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Period</th>
+                                        <th class="text-center">Total Drivers</th>
+                                        <th class="text-center">On Time</th>
+                                        <th class="text-center">Late</th>
+                                        <th class="text-center">Early End</th>
+                                        <th class="text-center">Not On Job</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for report in reports_index.reports %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ report.label }}</strong>
+                                        </td>
+                                        <td class="text-center">{{ report.total_drivers }}</td>
+                                        <td class="text-center">
+                                            {{ report.on_time_count }}
+                                            {% if report.total_drivers > 0 %}
+                                            <div class="progress" style="height: 5px;">
+                                                <div class="progress-bar bg-success" role="progressbar" 
+                                                    style="width: {{ (report.on_time_count / report.total_drivers * 100)|round }}%;"
+                                                    aria-valuenow="{{ (report.on_time_count / report.total_drivers * 100)|round }}" 
+                                                    aria-valuemin="0" 
+                                                    aria-valuemax="100"></div>
+                                            </div>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-center">
+                                            {{ report.late_count }}
+                                            {% if report.total_drivers > 0 %}
+                                            <div class="progress" style="height: 5px;">
+                                                <div class="progress-bar bg-danger" role="progressbar" 
+                                                    style="width: {{ (report.late_count / report.total_drivers * 100)|round }}%;"
+                                                    aria-valuenow="{{ (report.late_count / report.total_drivers * 100)|round }}" 
+                                                    aria-valuemin="0" 
+                                                    aria-valuemax="100"></div>
+                                            </div>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-center">
+                                            {{ report.early_end_count }}
+                                            {% if report.total_drivers > 0 %}
+                                            <div class="progress" style="height: 5px;">
+                                                <div class="progress-bar bg-warning" role="progressbar" 
+                                                    style="width: {{ (report.early_end_count / report.total_drivers * 100)|round }}%;"
+                                                    aria-valuenow="{{ (report.early_end_count / report.total_drivers * 100)|round }}" 
+                                                    aria-valuemin="0" 
+                                                    aria-valuemax="100"></div>
+                                            </div>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-center">
+                                            {{ report.not_on_job_count }}
+                                            {% if report.total_drivers > 0 %}
+                                            <div class="progress" style="height: 5px;">
+                                                <div class="progress-bar bg-secondary" role="progressbar" 
+                                                    style="width: {{ (report.not_on_job_count / report.total_drivers * 100)|round }}%;"
+                                                    aria-valuenow="{{ (report.not_on_job_count / report.total_drivers * 100)|round }}" 
+                                                    aria-valuemin="0" 
+                                                    aria-valuemax="100"></div>
+                                            </div>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-end">
+                                            {% if reports_index.interval_type == 'daily' %}
+                                                <a href="{{ url_for('mtd_reports.show_report', date=report.date) }}" 
+                                                   class="btn btn-sm btn-primary">
+                                                    <i class="fa fa-eye"></i> View
+                                                </a>
+                                            {% else %}
+                                                <a href="{{ url_for('mtd_reports.show_interval_report', id=report.id) }}" 
+                                                   class="btn btn-sm btn-primary">
+                                                    <i class="fa fa-eye"></i> View
+                                                </a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h4>Trend Analysis</h4>
+                        <div class="card">
+                            <div class="card-body">
+                                <canvas id="trendChart" height="300"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h4>Distribution Summary</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <canvas id="distributionChart" height="300"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <canvas id="attendanceChart" height="300"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 d-flex justify-content-between">
+                        <a href="{{ url_for('mtd_reports.dashboard') }}" class="btn btn-secondary">
+                            <i class="fa fa-arrow-left"></i> Back to Dashboard
+                        </a>
+                        <a href="{{ url_for('mtd_reports.upload_files') }}" class="btn btn-primary">
+                            <i class="fa fa-upload"></i> Upload New Files
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Data from reports
+        const reports = {{ reports_index.reports|tojson }};
+        const labels = reports.map(r => r.label);
+        const onTimeData = reports.map(r => r.on_time_count);
+        const lateData = reports.map(r => r.late_count);
+        const earlyEndData = reports.map(r => r.early_end_count);
+        const notOnJobData = reports.map(r => r.not_on_job_count);
+        const totalData = reports.map(r => r.total_drivers);
+        
+        // Calculate averages for the pie chart
+        const totalOnTime = onTimeData.reduce((a, b) => a + b, 0);
+        const totalLate = lateData.reduce((a, b) => a + b, 0);
+        const totalEarlyEnd = earlyEndData.reduce((a, b) => a + b, 0);
+        const totalNotOnJob = notOnJobData.reduce((a, b) => a + b, 0);
+        const grandTotal = totalOnTime + totalLate + totalEarlyEnd + totalNotOnJob;
+        
+        // Trend chart
+        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'On Time',
+                        data: onTimeData,
+                        borderColor: '#28a745',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        tension: 0.1,
+                        fill: false
+                    },
+                    {
+                        label: 'Late',
+                        data: lateData,
+                        borderColor: '#dc3545',
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                        tension: 0.1,
+                        fill: false
+                    },
+                    {
+                        label: 'Early End',
+                        data: earlyEndData,
+                        borderColor: '#ffc107',
+                        backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                        tension: 0.1,
+                        fill: false
+                    },
+                    {
+                        label: 'Not On Job',
+                        data: notOnJobData,
+                        borderColor: '#6c757d',
+                        backgroundColor: 'rgba(108, 117, 125, 0.1)',
+                        tension: 0.1,
+                        fill: false
+                    },
+                    {
+                        label: 'Total Drivers',
+                        data: totalData,
+                        borderColor: '#007bff',
+                        backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                        tension: 0.1,
+                        fill: false,
+                        borderDash: [5, 5]
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Driver Attendance Trends',
+                        font: {
+                            size: 16
+                        }
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Drivers'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Distribution chart
+        const distributionCtx = document.getElementById('distributionChart').getContext('2d');
+        new Chart(distributionCtx, {
+            type: 'pie',
+            data: {
+                labels: ['On Time', 'Late', 'Early End', 'Not On Job'],
+                datasets: [{
+                    data: [totalOnTime, totalLate, totalEarlyEnd, totalNotOnJob],
+                    backgroundColor: [
+                        '#28a745',
+                        '#dc3545',
+                        '#ffc107',
+                        '#6c757d'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Overall Attendance Distribution',
+                        font: {
+                            size: 16
+                        }
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+        
+        // Attendance rate chart (stacked)
+        const attendanceCtx = document.getElementById('attendanceChart').getContext('2d');
+        new Chart(attendanceCtx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'On Time',
+                        data: reports.map(r => r.total_drivers > 0 ? Math.round(r.on_time_count / r.total_drivers * 100) : 0),
+                        backgroundColor: '#28a745'
+                    },
+                    {
+                        label: 'Late',
+                        data: reports.map(r => r.total_drivers > 0 ? Math.round(r.late_count / r.total_drivers * 100) : 0),
+                        backgroundColor: '#dc3545'
+                    },
+                    {
+                        label: 'Early End',
+                        data: reports.map(r => r.total_drivers > 0 ? Math.round(r.early_end_count / r.total_drivers * 100) : 0),
+                        backgroundColor: '#ffc107'
+                    },
+                    {
+                        label: 'Not On Job',
+                        data: reports.map(r => r.total_drivers > 0 ? Math.round(r.not_on_job_count / r.total_drivers * 100) : 0),
+                        backgroundColor: '#6c757d'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        stacked: true,
+                    },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Percentage (%)'
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Attendance Rate by Period',
+                        font: {
+                            size: 16
+                        }
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

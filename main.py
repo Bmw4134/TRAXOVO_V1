@@ -30,13 +30,27 @@ app.register_blueprint(map_standalone_bp)
 app.register_blueprint(direct_map)
 app.register_blueprint(mtd_reports_bp)
 
-# Add the File Processor route (will be created later)
+# Add the File Processor and Upload routes
 try:
     from routes.file_processor import file_processor_bp
     app.register_blueprint(file_processor_bp)
     logger.info("File Processor blueprint registered")
 except ImportError:
     logger.warning("File Processor module not found - will be added later")
+
+try:
+    from routes.file_upload import upload_bp
+    app.register_blueprint(upload_bp)
+    logger.info("File Upload API blueprint registered")
+except ImportError:
+    logger.warning("File Upload API module not found")
+
+try:
+    from routes.react_upload import react_upload_bp
+    app.register_blueprint(react_upload_bp)
+    logger.info("React Upload blueprint registered")
+except ImportError:
+    logger.warning("React Upload module not found")
 
 @app.route('/')
 def dashboard():

@@ -1,166 +1,142 @@
 """
 TRAXORA | Attendance Summary Utilities
 
-This module provides functions for classifying and summarizing driver attendance data.
+This module provides utilities for summarizing attendance data,
+including classification of attendance records.
 """
-from datetime import datetime, timedelta
-from collections import defaultdict
+
 import logging
+from datetime import datetime, time
+from typing import Dict, Any, List, Optional
 
 # Configure logging
 logger = logging.getLogger(__name__)
 
-def classify_day(row):
+# Define time thresholds for classification
+START_TIME_THRESHOLD = time(7, 30)  # 7:30 AM
+END_TIME_THRESHOLD = time(16, 30)   # 4:30 PM
+
+def parse_time(time_str: str) -> Optional[time]:
     """
-    Classify a driver's day based on TimeOnSite data
+    Parse a time string in various formats
     
     Args:
-        row (dict): Data row containing attendance information
+        time_str (str): Time string to parse
         
     Returns:
-        str: Classification as "On Time", "Late", "Early End", or "No Show"
+        datetime.time: Parsed time or None if parsing failed
     """
-    try:
-        time_on = row.get("TimeOnSite")
-        if not time_on or time_on == "#Error":
-            return "No Show"
+    if not time_str:
+        return None
         
-        # Parse minutes from format like "120 Minutes"
-        parts = time_on.split()
-        if len(parts) >= 1:
-            try:
-                minutes = float(parts[0])
-                if minutes < 15:
-                    return "Early End"
-                if minutes < 60:
-                    return "Late"
-                return "On Time"
-            except ValueError:
-                logger.warning(f"Could not parse TimeOnSite value: {time_on}")
-                return "Unknown"
-        return "Unknown"
-    except Exception as e:
-        logger.error(f"Error classifying day: {str(e)}")
-        return "Unknown"
-
-def summarize_week(data, start_date=None):
-    """
-    Summarize weekly attendance for all drivers
+    formats = [
+        "%H:%M:%S",       # 13:45:30
+        "%H:%M",          # 13:45
+        "%I:%M:%S %p",    # 1:45:30 PM
+        "%I:%M %p"        # 1:45 PM
+    ]
     
-    Args:
-        data (list): List of attendance data records
-        start_date (datetime.date, optional): Start date to filter records
-        
-    Returns:
-        list: List of driver attendance summaries
-    """
-    # Convert dates and organize by driver and date
-    summary = defaultdict(lambda: defaultdict(list))
-    all_dates = set()
-
-    for row in data:
+    for fmt in formats:
         try:
-            # Get driver identifier (handle different field names)
-            driver = row.get("Asset") or row.get("Driver") or row.get("DriverName") or "Unknown"
-            
-            # Parse date
-            raw_date = row.get("Date")
-            if not raw_date:
-                continue
-                
-            # Try different date formats
-            try:
-                date = datetime.strptime(raw_date, "%m/%d/%Y").date()
-            except ValueError:
-                try:
-                    date = datetime.strptime(raw_date, "%Y-%m-%d").date()
-                except ValueError:
-                    logger.warning(f"Could not parse date: {raw_date}")
-                    continue
-            
-            # Skip if before start date
-            if start_date and date < start_date:
-                continue
-
-            # Classify the day
-            classification = classify_day(row)
-            
-            # Add to summary
-            summary[driver]["daily"].append({
-                "date": str(date),
-                "status": classification,
-                "row": row
-            })
-            
-            # Increment classification counter
-            summary[driver][classification] = summary[driver].get(classification, 0) + 1
-            
-            # Track all dates
-            all_dates.add(date)
-        except Exception as e:
-            logger.error(f"Error processing row: {str(e)}")
-            continue
-
-    # Create report
-    report = []
-    for driver, record in summary.items():
-        total_days = len(record["daily"])
-        
-        # Skip drivers with no data
-        if total_days == 0:
-            continue
-            
-        report.append({
-            "driver": driver,
-            "total_days": total_days,
-            "on_time": record.get("On Time", 0),
-            "late": record.get("Late", 0),
-            "early_end": record.get("Early End", 0),
-            "no_show": record.get("No Show", 0),
-            "unknown": record.get("Unknown", 0),
-            "attendance_rate": round((record.get("On Time", 0) / total_days) * 100 if total_days > 0 else 0, 1),
-            "daily_breakdown": record["daily"]
-        })
-
-    # Sort by driver name
-    return sorted(report, key=lambda x: x["driver"])
-
-def get_date_range(data, weeks=1):
-    """
-    Determine the date range for the report
-    
-    Args:
-        data (list): List of attendance data records
-        weeks (int): Number of weeks to include
-        
-    Returns:
-        tuple: (start_date, end_date)
-    """
-    dates = []
-    for row in data:
-        raw_date = row.get("Date")
-        if not raw_date:
-            continue
-            
-        try:
-            date = datetime.strptime(raw_date, "%m/%d/%Y").date()
-            dates.append(date)
+            dt = datetime.strptime(time_str, fmt)
+            return dt.time()
         except ValueError:
-            try:
-                date = datetime.strptime(raw_date, "%Y-%m-%d").date()
-                dates.append(date)
-            except ValueError:
-                continue
+            continue
     
-    if not dates:
-        # Default to current week
-        today = datetime.now().date()
-        start_date = today - timedelta(days=today.weekday())
-        end_date = start_date + timedelta(days=6)
-        return start_date, end_date
+    # Try special formats with AM/PM
+    try:
+        # Handle formats like "7:30AM" (no space)
+        time_str = time_str.replace("AM", " AM").replace("PM", " PM")
+        return parse_time(time_str)
+    except Exception:
+        pass
     
-    # Find max date and calculate start date
-    max_date = max(dates)
-    start_date = max_date - timedelta(days=7 * weeks - 1)
+    logger.warning(f"Could not parse time: {time_str}")
+    return None
+
+def classify_day(record: Dict[str, Any]) -> str:
+    """
+    Classify a day based on attendance record
     
-    return start_date, max_date
+    Args:
+        record (dict): Attendance record
+        
+    Returns:
+        str: Classification ('On Time', 'Late', 'Early End', 'No Show', 'Unknown')
+    """
+    # Check for on job or driving status
+    on_job = record.get('OnJob')
+    activity = record.get('Activity')
+    
+    # Fields to check for specific records
+    time_on_site = record.get('TimeOnSite', 0)
+    start_time_str = record.get('StartTime')
+    end_time_str = record.get('EndTime')
+    
+    # Parse times
+    start_time = parse_time(start_time_str) if start_time_str else None
+    end_time = parse_time(end_time_str) if end_time_str else None
+    
+    # If no data at all, mark as No Show
+    if not on_job and not activity and not time_on_site and not start_time and not end_time:
+        return "No Show"
+    
+    # Non-driving activities (we only care about drivers)
+    if activity and "non-driving" in str(activity).lower():
+        return "Non-Driving"
+    
+    # Explicitly not on job
+    if on_job is not None and not on_job:
+        return "No Show"
+    
+    # Check start time (late)
+    if start_time and start_time > START_TIME_THRESHOLD:
+        return "Late"
+    
+    # Check end time (early end)
+    if end_time and end_time < END_TIME_THRESHOLD:
+        return "Early End"
+    
+    # If we have valid start and end times, mark as On Time
+    if start_time and end_time:
+        return "On Time"
+    
+    # Default to Unknown if we don't have enough information
+    return "Unknown"
+
+def get_attendance_stats(data: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """
+    Get overall attendance statistics
+    
+    Args:
+        data (list): List of attendance records
+        
+    Returns:
+        dict: Summary statistics
+    """
+    total_records = len(data)
+    classifications = {
+        "On Time": 0,
+        "Late": 0,
+        "Early End": 0,
+        "No Show": 0,
+        "Unknown": 0,
+        "Non-Driving": 0
+    }
+    
+    for record in data:
+        classification = classify_day(record)
+        classifications[classification] = classifications.get(classification, 0) + 1
+    
+    attendance_rate = (classifications["On Time"] / total_records) * 100 if total_records > 0 else 0
+    
+    return {
+        "total_records": total_records,
+        "on_time": classifications["On Time"],
+        "late": classifications["Late"],
+        "early_end": classifications["Early End"],
+        "no_show": classifications["No Show"],
+        "unknown": classifications["Unknown"],
+        "non_driving": classifications.get("Non-Driving", 0),
+        "attendance_rate": round(attendance_rate, 1)
+    }

@@ -1,236 +1,174 @@
 """
-Geo Validator Agent
+TRAXORA GENIUS CORE | Geographic Validator Agent
 
-This agent validates driver and asset locations against job site boundaries
-to determine if they are within the expected work areas.
+This agent validates job site references and geographic coordinates,
+ensuring data integrity for location-based reporting.
 """
 import logging
-import json
-import time
-import math
-from datetime import datetime
+from typing import Dict, List, Any, Optional, Tuple
+from utils.jobsite_catalog_loader import validate_jobsite_reference, get_jobsite_by_number
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def handle(data, job_sites=None):
+def validate_coordinates(lat: float, lng: float) -> Dict[str, Any]:
     """
-    Validate locations of drivers/assets against job site boundaries
+    Validate if coordinates are within expected ranges for project areas
     
     Args:
-        data (list/dict): Driver or asset location data to validate
-        job_sites (list/dict): Job site data with boundaries
+        lat (float): Latitude
+        lng (float): Longitude
         
     Returns:
-        dict: Validation results for each location
+        dict: Validation result containing valid status and metadata
     """
-    start_time = time.time()
-    input_count = len(data) if isinstance(data, list) else 1
-    logger.info(f"Geo Validator Agent processing {input_count} locations")
+    # Basic bounds check for Texas region (approximate)
+    TEXAS_LAT_MIN, TEXAS_LAT_MAX = 25.8, 36.5
+    TEXAS_LNG_MIN, TEXAS_LNG_MAX = -106.6, -93.5
     
-    # Process input data
-    if not job_sites:
-        logger.warning("No job site data provided for validation")
-        return {"validated_locations": [], "validation_status": "error", "reason": "No job site data"}
+    # Check if coordinates are within Texas bounds
+    is_in_texas = (
+        TEXAS_LAT_MIN <= lat <= TEXAS_LAT_MAX and
+        TEXAS_LNG_MIN <= lng <= TEXAS_LNG_MAX
+    )
     
-    results = []
-    if isinstance(data, list):
-        for item in data:
-            try:
-                result = validate_location(item, job_sites)
-                results.append(result)
-            except Exception as e:
-                logger.error(f"Error validating location: {e}")
-                results.append({
-                    "id": item.get("id", "unknown"),
-                    "validated": False,
-                    "error": str(e)
-                })
-    else:
-        # Single item
-        try:
-            result = validate_location(data, job_sites)
-            results.append(result)
-        except Exception as e:
-            logger.error(f"Error validating location: {e}")
-            results.append({
-                "id": data.get("id", "unknown"),
-                "validated": False,
-                "error": str(e)
-            })
-    
-    processing_time = time.time() - start_time
-    
-    # Log usage
-    log_usage(input_count, len(results), processing_time)
+    # More precise checks could be added for specific work zones
     
     return {
-        "validated_locations": results,
-        "validation_summary": {
-            "total": len(results),
-            "validated": sum(1 for r in results if r.get("validated", False)),
-            "failed": sum(1 for r in results if not r.get("validated", False))
+        'valid': is_in_texas,
+        'region': 'Texas' if is_in_texas else 'Out of Region',
+        'confidence': 1.0 if is_in_texas else 0.0
+    }
+
+def validate_jobsite(jobsite_reference: str) -> Dict[str, Any]:
+    """
+    Validate a job site reference against the catalog
+    
+    Args:
+        jobsite_reference (str): Job site reference (job number, description)
+        
+    Returns:
+        dict: Validation result with job site metadata
+    """
+    # Use the jobsite catalog to validate the reference
+    validation_result = validate_jobsite_reference(jobsite_reference)
+    
+    if validation_result['valid']:
+        jobsite = validation_result['jobsite']
+        return {
+            'valid': True,
+            'job_number': jobsite['job_number'],
+            'description': jobsite['description'],
+            'zone': jobsite.get('zone'),
+            'division': jobsite.get('division'),
+            'category': jobsite.get('category'),
+            'confidence': validation_result['confidence'],
+            'match_type': validation_result['match_type']
         }
-    }
+    else:
+        return {
+            'valid': False,
+            'reference': jobsite_reference,
+            'reason': 'Job site not found in catalog',
+            'confidence': 0.0
+        }
 
-def run(data, job_sites=None):
-    """Alias for handle() function"""
-    return handle(data, job_sites)
-
-def validate_location(location_data, job_sites):
+def enrich_record_with_jobsite(record: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Validate a single location against job sites
+    Enrich a record with job site metadata
     
     Args:
-        location_data (dict): Location data with lat/long
-        job_sites (list/dict): Job site reference data
+        record (dict): Record to enrich
         
     Returns:
-        dict: Validation result
+        dict: Enriched record with job site metadata
     """
-    result = {
-        "id": location_data.get("id", "unknown"),
-        "driver_id": location_data.get("driver_id"),
-        "asset_id": location_data.get("asset_id"),
-        "job_site_id": location_data.get("job_site_id"),
-        "validated": False,
-        "distance": None,
-        "validation_time": datetime.now().isoformat()
-    }
+    # Copy the record to avoid modifying the original
+    enriched = record.copy()
     
-    # Extract location coordinates
-    lat = location_data.get("latitude") or location_data.get("lat")
-    lng = location_data.get("longitude") or location_data.get("lng") or location_data.get("lon")
+    # Try different fields that might contain jobsite references
+    reference_fields = ['JobSite', 'jobsite', 'job_site', 'JobNumber', 'job_number', 'JobID']
+    jobsite_reference = None
     
-    if not lat or not lng:
-        result["reason"] = "Missing latitude/longitude"
-        return result
-        
-    # Format job sites for processing
-    job_site_list = []
-    if isinstance(job_sites, dict):
-        job_site_list = list(job_sites.values())
-    elif isinstance(job_sites, list):
-        job_site_list = job_sites
-    else:
-        result["reason"] = "Invalid job site data format"
-        return result
-        
-    # Find the nearest job site for validation
-    target_job_site = None
-    min_distance = float('inf')
+    # Find the first non-empty reference field
+    for field in reference_fields:
+        if field in record and record[field]:
+            jobsite_reference = record[field]
+            break
     
-    for site in job_site_list:
-        site_lat = site.get("latitude") or site.get("lat")
-        site_lng = site.get("longitude") or site.get("lng") or site.get("lon")
-        site_id = site.get("id") or site.get("job_site_id")
-        
-        if not site_lat or not site_lng:
-            continue
-            
-        # If job_site_id is specified, only validate against that site
-        if result["job_site_id"] and str(result["job_site_id"]) != str(site_id):
-            continue
-            
-        distance = calculate_distance(float(lat), float(lng), float(site_lat), float(site_lng))
-        
-        if distance < min_distance:
-            min_distance = distance
-            target_job_site = site
+    if not jobsite_reference:
+        # No job site reference found
+        enriched['jobsite_validation'] = {
+            'valid': False,
+            'reason': 'No job site reference found'
+        }
+        return enriched
     
-    if not target_job_site:
-        result["reason"] = "No matching job site found"
-        return result
-        
-    # Get validation radius (default to 200 meters if not specified)
-    radius = target_job_site.get("radius", 200)
+    # Validate the job site reference
+    validation = validate_jobsite(jobsite_reference)
     
-    # Validate if within radius
-    if min_distance <= radius:
-        result["validated"] = True
-        result["matched_job_site"] = target_job_site.get("name") or target_job_site.get("id")
-        result["matched_job_site_id"] = target_job_site.get("id")
-        result["distance"] = round(min_distance, 2)
-    else:
-        result["reason"] = f"Outside job site radius by {round(min_distance - radius, 2)} meters"
-        result["matched_job_site"] = target_job_site.get("name") or target_job_site.get("id")
-        result["matched_job_site_id"] = target_job_site.get("id") 
-        result["distance"] = round(min_distance, 2)
-        
-    return result
+    # Add validation results to the record
+    enriched['jobsite_validation'] = validation
+    
+    # If valid, add additional metadata
+    if validation['valid']:
+        enriched['normalized_job_number'] = validation['job_number']
+        enriched['job_description'] = validation['description']
+        enriched['division'] = validation.get('division')
+        enriched['zone'] = validation.get('zone')
+        enriched['category'] = validation.get('category')
+    
+    return enriched
 
-def calculate_distance(lat1, lon1, lat2, lon2):
+def handle(data: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
-    Calculate distance between two points in meters using the Haversine formula
+    Process a batch of records for geographic validation
     
     Args:
-        lat1 (float): Latitude of point 1
-        lon1 (float): Longitude of point 1
-        lat2 (float): Latitude of point 2
-        lon2 (float): Longitude of point 2
+        data (list): List of records to validate
         
     Returns:
-        float: Distance in meters
+        dict: Processing results with validated records
     """
-    # Earth radius in meters
-    R = 6371000
+    validated_records = []
+    invalid_records = []
     
-    # Convert to radians
-    lat1_rad = math.radians(lat1)
-    lon1_rad = math.radians(lon1)
-    lat2_rad = math.radians(lat2)
-    lon2_rad = math.radians(lon2)
+    for record in data:
+        # Enrich with jobsite information
+        enriched = enrich_record_with_jobsite(record)
+        
+        # Check for coordinates if available
+        lat = record.get('Latitude') or record.get('latitude')
+        lng = record.get('Longitude') or record.get('longitude')
+        
+        if lat and lng:
+            try:
+                lat_float = float(lat)
+                lng_float = float(lng)
+                coord_validation = validate_coordinates(lat_float, lng_float)
+                enriched['coordinate_validation'] = coord_validation
+            except (ValueError, TypeError):
+                enriched['coordinate_validation'] = {
+                    'valid': False,
+                    'reason': 'Invalid coordinate format'
+                }
+        
+        # Determine if the record is valid overall
+        is_valid = (
+            enriched.get('jobsite_validation', {}).get('valid', False) or
+            enriched.get('coordinate_validation', {}).get('valid', False)
+        )
+        
+        if is_valid:
+            validated_records.append(enriched)
+        else:
+            invalid_records.append(enriched)
     
-    # Differences
-    dlat = lat2_rad - lat1_rad
-    dlon = lon2_rad - lon1_rad
-    
-    # Haversine formula
-    a = math.sin(dlat/2)**2 + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(dlon/2)**2
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
-    distance = R * c
-    
-    return distance
-
-def log_usage(input_count, output_count, processing_time):
-    """
-    Log agent usage statistics
-    
-    Args:
-        input_count (int): Number of input records
-        output_count (int): Number of output records
-        processing_time (float): Processing time in seconds
-    """
-    usage_log = {
-        "agent": "geo_validator",
-        "timestamp": datetime.now().isoformat(),
-        "input_count": input_count,
-        "output_count": output_count,
-        "processing_time": round(processing_time, 3),
-        "records_per_second": round(input_count / processing_time, 2) if processing_time > 0 else 0
+    return {
+        'validated_records': validated_records,
+        'invalid_records': invalid_records,
+        'total_records': len(data),
+        'valid_count': len(validated_records),
+        'invalid_count': len(invalid_records),
+        'validation_rate': len(validated_records) / len(data) if data else 0
     }
-    
-    logger.info(f"Agent usage: {json.dumps(usage_log)}")
-    
-    # In a production environment, this could write to a database or external logging system
-    try:
-        with open("logs/agent_usage.log", "a") as f:
-            f.write(json.dumps(usage_log) + "\n")
-    except Exception as e:
-        logger.warning(f"Could not write to agent usage log: {e}")
-
-if __name__ == "__main__":
-    # Example usage
-    test_locations = [
-        {"id": 1, "driver_id": 1, "latitude": 32.7767, "longitude": -96.7970, "job_site_id": 101},
-        {"id": 2, "driver_id": 2, "latitude": 32.7957, "longitude": -96.8089, "job_site_id": 102}
-    ]
-    
-    test_job_sites = [
-        {"id": 101, "name": "Downtown Project", "latitude": 32.7767, "longitude": -96.7970, "radius": 300},
-        {"id": 102, "name": "Uptown Project", "latitude": 32.8000, "longitude": -96.8000, "radius": 200}
-    ]
-    
-    result = handle(test_locations, test_job_sites)
-    print(json.dumps(result, indent=2))

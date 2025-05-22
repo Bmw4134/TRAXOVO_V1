@@ -1,15 +1,23 @@
 """
 TRAXORA | Attendance Report Routes
 
-This module provides routes for the weekly attendance reporting system.
+This module provides routes for displaying the weekly attendance report
+with support for grouping by driver, job site, division, and zone.
 """
 import os
 import json
 import logging
+import pandas as pd
 from datetime import datetime, timedelta
-from flask import Blueprint, render_template, request, jsonify, current_app, Response
-from utils.enhanced_data_ingestion import load_data_file
-from utils.attendance_summary import summarize_week, get_date_range
+from typing import Dict, List, Any, Optional
+
+from flask import Blueprint, render_template, request, jsonify, send_file, Response
+from werkzeug.utils import secure_filename
+
+from agents.weekly_driver_summary_agent import handle as process_weekly_summary
+from utils.attendance_summary import get_attendance_stats
+from utils.enhanced_data_ingestion import process_file
+from utils.jobsite_catalog_loader import get_all_divisions, get_all_categories
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -17,96 +25,120 @@ logger = logging.getLogger(__name__)
 # Create blueprint
 attendance_report_bp = Blueprint('attendance_report', __name__, url_prefix='/attendance')
 
-@attendance_report_bp.route('/', methods=['GET'])
-def index():
-    """Render the attendance report interface"""
-    return render_template('attendance_report/index.html')
+# Temp directory for file uploads
+UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 
-@attendance_report_bp.route('/weekly', methods=['POST'])
-def process_weekly():
-    """Process and generate weekly attendance report"""
-    # Check if file was uploaded
+@attendance_report_bp.route('/')
+def index():
+    """Display the attendance report interface"""
+    # Get available divisions and categories for filtering
+    divisions = get_all_divisions()
+    categories = get_all_categories()
+    
+    return render_template(
+        'attendance_report/index.html',
+        divisions=divisions,
+        categories=categories
+    )
+
+@attendance_report_bp.route('/process', methods=['POST'])
+def process_attendance_data():
+    """Process uploaded attendance data files"""
     if 'file' not in request.files:
-        return jsonify({'error': 'No file provided'}), 400
-    
-    file = request.files['file']
-    
-    # Check if file was selected
-    if file.filename == '':
-        return jsonify({'error': 'No file selected'}), 400
-    
-    # Check file extension
-    if not file.filename.lower().endswith(('.csv', '.xlsx', '.xls')):
-        return jsonify({
-            'error': 'Invalid file type. Please upload a CSV or Excel file.'
-        }), 400
-    
-    try:
-        # Save the uploaded file temporarily
-        temp_dir = os.path.join(current_app.root_path, 'temp')
-        os.makedirs(temp_dir, exist_ok=True)
+        return jsonify({'error': 'No file part'}), 400
         
-        temp_path = os.path.join(temp_dir, file.filename)
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+    
+    # Get group by option
+    group_by = request.form.get('group_by', 'driver')
+    weeks = int(request.form.get('weeks', 1))
+    
+    if file:
+        # Save file temporarily
+        filename = secure_filename(file.filename)
+        file_ext = os.path.splitext(filename)[1].lower()
+        
+        # Create temp path
+        temp_path = os.path.join(UPLOAD_FOLDER, f"attendance_{datetime.now().strftime('%Y%m%d%H%M%S')}{file_ext}")
         file.save(temp_path)
         
-        # Process the file with enhanced data ingestion
-        data = load_data_file(temp_path)
-        
-        if not data:
-            return jsonify({
-                'error': 'No valid data found in the file. Please check file format.'
-            }), 400
-        
-        # Determine date range for the report
-        weeks = int(request.form.get('weeks', 1))
-        start_date, end_date = get_date_range(data, weeks)
-        
-        # Generate attendance summary
-        summary = summarize_week(data, start_date)
-        
-        # Return the report data
-        return jsonify({
-            'success': True,
-            'start_date': start_date.strftime('%Y-%m-%d'),
-            'end_date': end_date.strftime('%Y-%m-%d'),
-            'total_drivers': len(summary),
-            'attendance_summary': summary
-        })
-    
-    except Exception as e:
-        logger.error(f"Error processing attendance report: {str(e)}")
-        return jsonify({'error': f'Error processing report: {str(e)}'}), 500
-    
-    finally:
-        # Clean up temporary file
         try:
-            if 'temp_path' in locals() and os.path.exists(temp_path):
-                os.remove(temp_path)
+            # Process the file
+            processed_data = process_file(temp_path)
+            
+            if not processed_data or not isinstance(processed_data, list) or len(processed_data) == 0:
+                return jsonify({'error': 'No valid data found in file'}), 400
+            
+            # Get attendance stats
+            stats = get_attendance_stats(processed_data)
+            
+            # Process weekly summary with the specified grouping
+            summary_options = {
+                'group_by': group_by,
+                'weeks': weeks
+            }
+            
+            summary = process_weekly_summary(processed_data, summary_options)
+            
+            # Clean up temp file
+            os.remove(temp_path)
+            
+            # Return combined response
+            return jsonify({
+                'stats': stats,
+                'summary': summary,
+                'success': True
+            })
+            
         except Exception as e:
-            logger.warning(f"Error removing temp file: {str(e)}")
-
-@attendance_report_bp.route('/download', methods=['POST'])
-def download_report():
-    """Download attendance report as JSON"""
-    try:
-        # Get report data from request
-        report_data = request.json
-        
-        if not report_data:
-            return jsonify({'error': 'No report data provided'}), 400
-        
-        # Generate filename with date range
-        start_date = report_data.get('start_date', datetime.now().strftime('%Y-%m-%d'))
-        end_date = report_data.get('end_date', datetime.now().strftime('%Y-%m-%d'))
-        filename = f"attendance_report_{start_date}_to_{end_date}.json"
-        
-        # Return as downloadable file
-        return Response(
-            json.dumps(report_data, indent=2),
-            mimetype='application/json',
-            headers={'Content-Disposition': f'attachment;filename={filename}'}
-        )
+            logger.error(f"Error processing attendance data: {str(e)}")
+            
+            # Clean up temp file if it exists
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+                
+            return jsonify({'error': f'Error processing file: {str(e)}'}), 500
     
+    return jsonify({'error': 'Invalid file'}), 400
+
+@attendance_report_bp.route('/download/<report_type>')
+def download_report(report_type):
+    """Download attendance report data"""
+    if 'report_data' not in request.args:
+        return jsonify({'error': 'No report data provided'}), 400
+        
+    try:
+        # Parse the report data from the URL parameter
+        report_data = json.loads(request.args.get('report_data'))
+        
+        # Generate filename
+        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+        filename = f"attendance_report_{report_type}_{timestamp}.json"
+        
+        # Create temp file
+        temp_path = os.path.join(UPLOAD_FOLDER, filename)
+        
+        # Write data to file
+        with open(temp_path, 'w') as f:
+            json.dump(report_data, f, indent=2)
+        
+        # Send file as attachment
+        return send_file(
+            temp_path,
+            as_attachment=True,
+            download_name=filename,
+            mimetype='application/json'
+        )
+        
     except Exception as e:
         logger.error(f"Error generating download: {str(e)}")
         return jsonify({'error': f'Error generating download: {str(e)}'}), 500
+
+def register_blueprint(app):
+    """Register the attendance report blueprint with the app"""
+    app.register_blueprint(attendance_report_bp)
+    logger.info("Attendance Report blueprint registered")

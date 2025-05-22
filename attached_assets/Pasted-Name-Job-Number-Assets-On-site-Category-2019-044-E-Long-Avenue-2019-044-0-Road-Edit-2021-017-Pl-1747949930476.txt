@@ -1,0 +1,152 @@
+Name	Job Number	Assets On-site	Category	 
+2019-044 E. Long Avenue	2019-044	0	Road	Edit
+2021-017 Plano Collin Creek Culvert Imp	2021-017	6	Culvert	Edit
+2021-072 (1) DFW Slope Remediation 2	2021-072 (1)	0	Slope Stabilization	Edit
+2021-072 (14) DFW Slope Remediation 2	2021-072 (14)	0	Slope Stabilization	Edit
+2021-072 (2) DFW Slope Remediation 2	2021-072 (2)	0	Slope Stabilization	Edit
+2021-072 (3, 4, 10, 11) DFW Slope Remediation 2	2021-072 (3, 4, 10, 11)	0	Slope Stabilization	Edit
+2021-072 (6, 12, 13) DFW Slope Remediation 2	2021-072 (6, 12, 13)	0	Slope Stabilization	Edit
+2021-072 (9) DFW Slope Remediation 2	2021-072 (9)	0	Slope Stabilization	Edit
+2022-003 (YARD)	2022-003 (YARD)	1	Office	Edit
+2022-003 DFW Rehab Runway 17L35R Storm Drain Pipe	2022-003	0	Pipe	Edit
+2022-008 Gregg CS Bridge Replacement	2022-008	6	Bridge	Edit
+2022-023 Riverfront & Cadiz Bridge Improvement	2022-023	10	Bridge	Edit
+2022-033 CoMckinney Collin Mckinney Pkwy	2022-033	0	Bridge	Edit
+2022-040 (1) Hardin US 96 Bridge Maintenance	2022-040 (1)	0	Bridge	Edit
+2022-040 (3) Hardin US 96 Bridge Maintenance	2022-040 (3)	0	Bridge	Edit
+2022-040 (4) Hardin US 96 Bridge Maintenance	2022-040 (4)	0	Bridge	Edit
+2022-042 (3) SL 12 Overlay & Maintenance	2022-042 (3)	0	Road	Edit
+2023-004 (1) DFW Airport Landside Storm PH2	2023-004 (1)	0	Slope Stabilization	Edit
+2023-004 (2) DFW Airport Landside Storm PH2	2023-004 (2)	0	Slope Stabilization	Edit
+2023-004 (3) DFW Airport Landside Storm PH2	2023-004 (3)	0	Slope Stabilization	Edit
+2023-004 (4) DFW Airport Landside Storm PH2	2023-004 (4)	0	Slope Stabilization	Edit
+2023-006 (OFFICE) Tarrant SH 183 Bridge	2023-006 (OFFICE)	15	Office	Edit
+2023-006 Tarrant SH 183 Bridge Replacement	2023-006	4	Bridge	Edit
+2023-007 BI 20 (OFFICE)	2023-007 (OFFICE)	0	Office	Edit
+2023-007 Ector BI 20E Rehab Roadway	2023-007	21	Road	Edit
+2023-014 (1) TARRANT IH 20 US 81 BR	2023-014 (1)	2	Bridge	Edit
+2023-014 (2) TARRANT IH 20 US 81 BR	2023-014 (2)	0	Bridge	Edit
+2023-014 (3) TARRANT IH 20 US 81 BR	2023-014 (3)	0	Bridge	Edit
+2023-019 (1) MARTIN SH 176 ROADWAY IMPROVEMENTS	2023-019 (1)	2	Road	Edit
+2023-019 (2) MARTIN SH 176 ROADWAY IMPROVEMENTS	2023-019 (2)	0	Road	Edit
+2023-026 MATAGORDA FM 521 BR	2023-026	0	Bridge	Edit
+2023-028 TARRANT FM 157 INTERSECTION IMPROVEMENTS	2023-028	0	Road	Edit
+2023-032 (OFFICE) SH 345 BRIDGE REHABILITATION	2023-032 (OFFICE)	2	Office	Edit
+2023-032 (YARD) SH 345 BRIDGE REHABILITATION	2023-032 (YARD)	2	Yard	Edit
+2023-032 SH 345 BRIDGE REHABILITATION	2023-032	60	Bridge	Edit
+2023-034 DALLAS IH 45 BRIDGE MAINTENANCE	2023-034	1	Bridge	Edit
+2023-035 (1) HARRIS VA BRIDGE REHABS	2023-035 (1)	0	Bridge	Edit
+2023-035 (10) HARRIS VA BRIDGE REHABS	2023-035 (10)	0	Bridge	Edit
+2023-035 (11) FRED HARTMAN BRIDGE	2023-035 (11)	0	Bridge	Edit
+2023-035 (2) HARRIS VA BRIDGE REHABS	2023-035 (2)	0	Bridge	Edit
+2023-035 (3) HARRIS VA BRIDGE REHABS	2023-035 (3)	0	Bridge	Edit
+2023-035 (4) HARRIS VA BRIDGE REHABS	2023-035 (4)	0	Bridge	Edit
+2023-035 (5) HARRIS VA BRIDGE REHAB	2023-035 (5)	2	Bridge	Edit
+2023-035 (6) HARRIS VA BRIDGE REHABS	2023-035 (6)	0	Bridge	Edit
+2023-035 (7) HARRIS VA BRIDGE REHABS	2023-035 (7)	0	Bridge	Edit
+2023-035 (8) HARRIS VA BRIDGE REHABS	2023-035 (8)	1	Bridge	Edit
+2023-035 (9) HARRIS VA BRIDGE REHABS	2023-035 (9)	0	Bridge	Edit
+2023-035 (TXDOT YARD) HARRIS VA BRIDGE REHABS	2023-035 (TXDOT YARD)	0	Yard	Edit
+2023-036 GALVESTON FM 517 HIGHWAY IMPROVEMENT	2023-036	0	Highway	Edit
+2024-003 Dallas 635 Slope Stabalization	2024-003	0	Slope Stabilization	Edit
+2024-004 City of Dallas Sidewalk 2024 (YARD)	2024-004 (YARD)	14	Yard	Edit
+2024-004 CoD Sidewalks 2024 (#01)	2024-004 (#01 - Live Oak St)	0	Sidewalks	Edit
+2024-004 CoD Sidewalks 2024 (#02)	2024-004 (#01 - Audelia Rd)	0	Sidewalks	Edit
+2024-004 CoD Sidewalks 2024 (#03)	2024-004 (#03 - E Jefferson Blvd)	0	Sidewalks	Edit
+2024-004 CoD Sidewalks 2024 (#04)	2024-004 (#04 - Engle Ave)	0	Sidewalks	Edit
+2024-004 CoD Sidewalks 2024 (#05)	2024-004 (#05 - Ewing Ave)	0	Sidewalks	Edit
+2024-004 CoD Sidewalks 2024 (#06)	2024-004 (#06 - San Jacinto St)	0	Sidewalks	Edit
+2024-004 CoD Sidewalks 2024 (#07)	2024-004 (#07 - Hollywood Ave)	0	Sidewalks	Edit
+2024-004 CoD Sidewalks 2024 (#08)	2024-004 (#08 - CF Haun Fwy)	0	Sidewalks	Edit
+2024-004 CoD Sidewalks 2024 (#09)	2024-004 (#09 - N Murdeaux Ln)	0	Sidewalks	Edit
+2024-004 CoD Sidewalks 2024 (#10)	2024-004 (#10 - Esperanza Rd)	0	Sidewalks	Edit
+2024-004 CoD Sidewalks 2024 (#11)	2024-004 (#11 - Glenfield Ave)	0	Sidewalks	Edit
+2024-004 CoD Sidewalks 2024 (#12)	2024-004 (#12 - Metropolitan Ave)	0	Sidewalks	Edit
+2024-004 CoD Sidewalks 2024 (#13)	2024-004 (#13 - Romine Ave)	0	Sidewalks	Edit
+2024-004 CoD Sidewalks 2024 (#14)	2024-004 (#14 - Hillburn Dr)	0	Sidewalks	Edit
+2024-004 CoD Sidewalks 2024 (#15)	2024-004 (#15 - Hillburn Dr)	0	Sidewalks	Edit
+2024-004 CoD Sidewalks 2024 (#16)	2024-004 (#16 - Samuell Blvd)	0	Sidewalks	Edit
+2024-004 CoD Sidewalks 2024 (#17)	2024-004 (#17 - Leisure Dr)	6	Sidewalks	Edit
+2024-004 CoD Sidewalks 2024 (#18)	2024-004 (#18 - Morrell Ave)	0	Sidewalks	Edit
+2024-004 CoD Sidewalks 2024 (#19)	2024-004 (#19 - Calypso St)	0	Sidewalks	Edit
+2024-004 CoD Sidewalks 2024 (#20)	2024-004 (#20 - Timberglen Rd)	0	Sidewalks	Edit
+2024-004 CoD Sidewalks 2024 (#21)	2024-004 (#21 - Adelta St)	0	Sidewalks	Edit
+2024-004 CoD Sidewalks 2024 (#22)	2024-004 (#22 - Laughlin Dr)	0	Sidewalks	Edit
+2024-004 CoD Sidewalks 2024 (#23-BFR1)	2024-004 (#23-BFR1)	5	Sidewalks	Edit
+2024-004 CoD Sidewalks 2024 (#24-BFR2)	2024-004 (#24-BFR2)	1	Sidewalks	Edit
+2024-004 CoD Sidewalks 2024 (#25-BFR3)	2024-004 (#24-BFR3)	0	Sidewalks	Edit
+2024-004 CoD Sidewalks 2024 (#26-BFR4)	2024-004 (#26-BFR4)	0	Sidewalks	Edit
+2024-004 CoD Sidewalks 2024 (#27 KEENELAND PKWY)	2024-004 (#27 KEENELAND PKWY)	4	Sidewalks	Edit
+2024-012 Dal IH635 U-Turn Bridge	2024-012	20	Bridge	Edit
+2024-014 SUB SH 73 BARRIER INSTALL	2024-014	0	Bridge	Edit
+2024-016 (1) ROCKWALL SH 66 COLUMN REPAIR	2024-016 (1)	0	Bridge	Edit
+2024-016 (2) ROCKWALL SH 66 COLUMN REPAIR	2024-016 (2)	0	Bridge	Edit
+2024-017 JEFFERSON SH 73 SAFETY IMPROVEMENTS	2024-017	0	Road	Edit
+2024-019 (1) Tarrant VA Bridge Rehab	2024-019 (1-FM1191)	0	Bridge	Edit
+2024-019 (10) Tarrant VA Bridge Rehab	2024-019 (10-FM51 CATLETT CREEK)	0	Bridge	Edit
+2024-019 (11) Tarrant VA Bridge Rehab	2024-019 (11-FM51 US380)	0	Bridge	Edit
+2024-019 (12) Tarrant VA Bridge Rehab	2024-019 (12-US380 VILLAGE CREEK)	0	Bridge	Edit
+2024-019 (13) Tarrant VA Bridge Rehab	2024-019 (13-US380 LAKE BRIDGEPORT))	0	Bridge	Edit
+2024-019 (14) Tarrant VA Bridge Rehab	2024-019 (14-BUS IH 35 OVER ALVARADO CREEK)	0	Bridge	Edit
+2024-019 (15) Tarrant VA Bridge Rehab	2024-019 (15-)	6	Bridge	Edit
+2024-019 (16) Tarrant VA Bridge Rehab	2024-019 (16-OLD DENNIS RD OVER IH20)	0	Bridge	Edit
+2024-019 (17) Tarrant VA Bridge Rehab	2024-019 (17-IH20-I30)	0	Bridge	Edit
+2024-019 (18) Tarrant VA Bridge Rehab	2024-019 (18-BIG SUNDAY CREEK)	0	Bridge	Edit
+2024-019 (19) Tarrant VA Bridge Rehab	2024-019 (19-E BANKHEAD DR)	0	Bridge	Edit
+2024-019 (2) Tarrant VA Bridge Rehab	2024-019 (2-FM2210)	0	Bridge	Edit
+2024-019 (20) Tarrant VA Bridge Rehab	2024-019 (20-180 OR TO I20	0	Bridge	Edit
+2024-019 (21) Tarrant VA Bridge Rehab	2024-019 (21-SHAW CREEK)	0	Bridge	Edit
+2024-019 (22) Tarrant VA Bridge Rehab	2024-019 (22-SPUR 312)	0	Bridge	Edit
+2024-019 (3) Tarrant VA Bridge Rehab	2024-019 (3-SH199 JASPER CREEK)	0	Bridge	Edit
+2024-019 (4) Tarrant VA Bridge Rehab	2024-019 (4-SH199 WILLOW CREEK)	0	Bridge	Edit
+2024-019 (5) Tarrant VA Bridge Rehab	2024-019 (5-SH114 GARRETT CREEK)	0	Bridge	Edit
+2024-019 (6) Tarrant VA Bridge Rehab	2024-019 (6-SH114 TRINITY RIVER	0	Bridge	Edit
+2024-019 (7,8,9) Tarrant VA Bridge Rehab	2024-019 (7,8,9-SH114 BNSF & US81/287)	0	Bridge	Edit
+2024-023 TARRANT RIVERSIDE BRIDGE REHAB	2024-023	11	Bridge	Edit
+2024-024 (1) TARRANT CS INTERSECTION IMPROV	2024-024 (1)	4	Intersection	Edit
+2024-024 (2) TARRANT CS INTERSECTION IMPROV	2024-024 (2)	0	Intersection	Edit
+2024-025 LIBERTY FM 787 EMC BRIDGE	2024-025	2	Bridge	Edit
+2024-026 SUB GOLF COAST HARDIN US 96	2024-026	0	SUB	Edit
+2024-027 (1) NTTA FRACTURE CRITICAL BRIDGE REPAIRS	2024-027 (1)	0	Bridge	Edit
+2024-027 (2) NTTA FRACTURE CRITICAL BRIDGE REPAIRS	2024-027 (2)	0	Jobsite	Edit
+2024-028 (1) HARRIS VA BEARING PAD REPLACEMENT	2024-028 (1)	0	Jobsite	Edit
+2024-028 (10) HARRIS VA BEARING PAD REPLACEMENT	2024-028 (10)	0	Bridge	Edit
+2024-028 (2) HARRIS VA BEARING PAD REPLACEMENT	2024-028 (2)	0	Bridge	Edit
+2024-028 (3) HARRIS VA BEARING PAD REPLACEMENT	2024-028 (3)	0	Bridge	Edit
+2024-028 (4) HARRIS VA BEARING PAD REPLACEMENT	2024-028 (4)	0	Bridge	Edit
+2024-028 (5) HARRIS VA BEARING PAD REPLACEMENT	2024-028 (5)	0	Bridge	Edit
+2024-028 (6) HARRIS VA BEARING PAD REPLACEMENT	2024-028 (6)	0	Bridge	Edit
+2024-028 (7) HARRIS VA BEARING PAD REPLACEMENT	2024-028 (7)	0	Bridge	Edit
+2024-028 (8) HARRIS VA BEARING PAD REPLACEMENT	2024-028 (8)	0	Bridge	Edit
+2024-028 (9) HARRIS VA BEARING PAD REPLACEMENT	2024-028 (9)	0	Bridge	Edit
+2024-030 Matagorda SH 35 Bridge Replacement	2024-030	25	Bridge	Edit
+2024-034 (1) NTTA DNT ML Deck Repair	2024-034 (1)	0	Bridge	Edit
+2024-034 (2) NTTA DNT ML Deck Repair	2024-034 (2)	0	Bridge	Edit
+2024-036 TERMINAL F CIVIL AND UTILITY PACKAGE	2024-036	0	Dirt	Edit
+2025-004 NTTA PGBT HMA Shoulder Rehab	2025-004	0	Road	Edit
+2025-005 (1) Howard IH 20 Bridge Replacement	2025-005 (1)	0	Bridge	Edit
+2025-005 (2) Howard IH 20 Bridge Replacement	2025-005 (2)	0	Bridge	Edit
+2025-006 (1) NTTA PGBT SHOULDER IMPROVEMENTS	2025-006 (1)	0	Road	Edit
+2025-006 (2) NTTA PGBT SHOULDER IMPROVEMENTS	2025-006 (2)	0	Road	Edit
+2025-008 NTTA CTP Southbound Mainlanes	2025-008	0	Road	Edit
+22-04 Addison Tunnel	22-04	0	Road	Edit
+24-02 HARRIS VA SOLAR LIGHTING	24-02	0	Jobsite	Edit
+24-04 DALLAS SH 310 INTERSECTION IMPROV	24-04	8	Intersection	Edit
+24-05 ANGELINA US 59 TRAFFIC MAINTENANCE	24-05	0	Jobsite	Edit
+24-06 NTTA DNT Seg 3 Joint Sealing	24-06	0	Bridge	Edit
+24-07 Harris VA OH Sign Repl	24-07	0	Sign/Signal	Edit
+25-01 (1) TARRANT STARNES RD INTERSECT	25-01 (1)	0	SELECT - JOBSITE	Edit
+25-01 (2) TARRANT STARNES RD INTERSECT	25-01 (2)	0	SELECT - JOBSITE	Edit
+Beaumont RAG Property		3	Yard	Edit
+DFW Yard		114	Yard	Edit
+HOU YARD/SHOP	HOU YARD/SHOP	44	Yard	Edit
+HOUOH-HH	HOUOH-HH	0	Office	Edit
+HTX YARD	HTX YARD	0	Yard	Edit
+Ragle storage unit		0	Yard	Edit
+REGIONAL TRAFFIC SERVICES	VENDOR - RTS	0	Customer	Edit
+ROAD BROTHERS	VENDOR - ROAD BROTHERS	0	Customer	Edit
+TEXDIST	TEXDIST	10	Office	Edit
+TRAFFIC WALNUT HILL YARD		12	Yard	Edit
+Will Davis Plantation Ranch	Plantation Ranch	0	SUB	Edit
+WTX YARD (2)	WTX YARD (2)	20	Yard	Edit
+WTX YARD PIT	WTX YARD PIT	0	Yard	Edit

@@ -1,0 +1,87 @@
+{
+  "version": "1.0.0",
+  "last_tuned": "2025-05-22T21:00:00Z",
+  "company_contexts": {
+    "Ragle": {
+      "driver_classifier_agent": {
+        "vehicle_type_whitelist": ["pickup truck"],
+        "usage_type_whitelist": ["on-road"],
+        "invalid_jobsite_values": [null, 0, "Unknown", "None", "", "0"],
+        "strict_mode": true,
+        "acceptable_lateness_minutes": 15,
+        "acceptable_early_departure_minutes": 10,
+        "confidence_threshold": 0.85
+      },
+      "geo_validator_agent": {
+        "max_distance_from_jobsite_meters": 500,
+        "min_time_at_jobsite_minutes": 30,
+        "location_update_frequency_minutes": 15,
+        "confidence_threshold": 0.90,
+        "max_speed_warning_kph": 105
+      },
+      "report_generator_agent": {
+        "include_driver_details": true,
+        "include_vehicle_details": true,
+        "include_jobsite_details": true,
+        "include_metrics": true,
+        "include_recommendations": true,
+        "acceptable_compliance_threshold": 0.80
+      }
+    },
+    "Unified Specialties": {
+      "driver_classifier_agent": {
+        "vehicle_type_whitelist": ["pickup truck", "light duty truck"],
+        "usage_type_whitelist": ["on-road", "mixed use"],
+        "invalid_jobsite_values": [null, 0, "Unknown", "None", "", "0"],
+        "strict_mode": false,
+        "acceptable_lateness_minutes": 20,
+        "acceptable_early_departure_minutes": 15,
+        "confidence_threshold": 0.75
+      },
+      "geo_validator_agent": {
+        "max_distance_from_jobsite_meters": 750,
+        "min_time_at_jobsite_minutes": 20,
+        "location_update_frequency_minutes": 10,
+        "confidence_threshold": 0.85,
+        "max_speed_warning_kph": 110
+      },
+      "report_generator_agent": {
+        "include_driver_details": true,
+        "include_vehicle_details": true,
+        "include_jobsite_details": true,
+        "include_metrics": true,
+        "include_recommendations": false,
+        "acceptable_compliance_threshold": 0.75
+      }
+    }
+  },
+  "global_settings": {
+    "log_level": "INFO",
+    "cache_duration_minutes": 60,
+    "enable_auto_tuning": true,
+    "tuning_frequency_days": 7,
+    "performance_metrics": {
+      "min_classification_accuracy": 0.95,
+      "max_false_positives_rate": 0.02,
+      "max_false_negatives_rate": 0.05
+    }
+  },
+  "auto_tuning_history": [
+    {
+      "date": "2025-05-15T09:00:00Z",
+      "company": "Ragle",
+      "parameter": "driver_classifier_agent.acceptable_lateness_minutes",
+      "old_value": 10,
+      "new_value": 15,
+      "reason": "High false negative rate for borderline cases detected in daily analysis"
+    },
+    {
+      "date": "2025-05-18T14:30:00Z",
+      "company": "Ragle",
+      "parameter": "geo_validator_agent.max_distance_from_jobsite_meters",
+      "old_value": 400,
+      "new_value": 500,
+      "reason": "Analysis of rural job sites showed need for larger radius"
+    }
+  ]
+}

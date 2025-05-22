@@ -1,0 +1,84 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2025-05-22T21:00:00Z",
+  "feedback_entries": [
+    {
+      "id": "fb-001",
+      "date": "2025-05-20T14:32:15Z",
+      "source": "project_manager",
+      "user_id": "pm_johnson",
+      "component": "driver_classifier_agent",
+      "feedback": "Need stricter filtering for pickup trucks only, exclude SUVs and cars",
+      "priority": "high",
+      "status": "implemented",
+      "resolution_date": "2025-05-22T21:00:00Z"
+    },
+    {
+      "id": "fb-002",
+      "date": "2025-05-21T09:15:22Z",
+      "source": "field_supervisor",
+      "user_id": "fs_williams",
+      "component": "geo_validator_agent",
+      "feedback": "Some job sites showing up with incorrect coordinates",
+      "priority": "medium",
+      "status": "in_progress",
+      "resolution_date": null
+    },
+    {
+      "id": "fb-003",
+      "date": "2025-05-21T16:45:12Z",
+      "source": "project_manager",
+      "user_id": "pm_johnson",
+      "component": "daily_driver_report",
+      "feedback": "Only include valid job sites, remove zeroes and unknowns",
+      "priority": "high",
+      "status": "implemented",
+      "resolution_date": "2025-05-22T21:00:00Z"
+    },
+    {
+      "id": "fb-004",
+      "date": "2025-05-22T08:30:45Z",
+      "source": "executive",
+      "user_id": "exec_smith",
+      "component": "reporting_dashboard",
+      "feedback": "Add option to export report in PDF format with company logo",
+      "priority": "low",
+      "status": "pending",
+      "resolution_date": null
+    }
+  ],
+  "auto_implemented_changes": [
+    {
+      "id": "ac-001",
+      "date": "2025-05-22T21:00:00Z",
+      "component": "driver_classifier_agent",
+      "change": "Added strict filtering for pickup trucks and on-road vehicles only",
+      "based_on_feedback": ["fb-001"]
+    },
+    {
+      "id": "ac-002",
+      "date": "2025-05-22T21:00:00Z",
+      "component": "driver_classifier_agent",
+      "change": "Added filtering to remove job sites that are null, 0, or Unknown",
+      "based_on_feedback": ["fb-003"]
+    }
+  ],
+  "pending_changes": [
+    {
+      "id": "pc-001",
+      "component": "geo_validator_agent",
+      "proposed_change": "Add validation for job site coordinates against known good values",
+      "based_on_feedback": ["fb-002"],
+      "priority": "medium",
+      "estimated_completion": "2025-05-25"
+    },
+    {
+      "id": "pc-002",
+      "component": "reporting_dashboard",
+      "proposed_change": "Add PDF export functionality with company branding",
+      "based_on_feedback": ["fb-004"],
+      "priority": "low",
+      "estimated_completion": "2025-05-30"
+    }
+  ]
+}

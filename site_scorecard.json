@@ -1,0 +1,150 @@
+{
+  "version": "1.0.0",
+  "report_date": "2025-05-22T21:00:00Z",
+  "company": "Ragle",
+  "scorecard_metrics": {
+    "overall_fleet_utilization": 76.4,
+    "on_time_arrival_percentage": 84.2,
+    "average_downtime_minutes": 37.5,
+    "exceptions_per_day": 3.8,
+    "compliance_score": 89.0
+  },
+  "job_sites": [
+    {
+      "id": 101,
+      "name": "Main Construction Site",
+      "location": {
+        "latitude": 32.7767,
+        "longitude": -96.7970
+      },
+      "metrics": {
+        "time_on_site_vs_plan": 0.93,
+        "downtime_percentage": 4.2,
+        "exceptions_per_day": 1.2,
+        "driver_count": 12,
+        "on_time_arrival_percentage": 91.7,
+        "equipment_utilization_percentage": 82.5
+      },
+      "trend": {
+        "time_on_site": "improving",
+        "downtime": "stable",
+        "exceptions": "decreasing"
+      },
+      "grade": "A-"
+    },
+    {
+      "id": 103,
+      "name": "Mountain Site",
+      "location": {
+        "latitude": 32.8203,
+        "longitude": -96.8716
+      },
+      "metrics": {
+        "time_on_site_vs_plan": 0.81,
+        "downtime_percentage": 8.7,
+        "exceptions_per_day": 4.5,
+        "driver_count": 8,
+        "on_time_arrival_percentage": 75.0,
+        "equipment_utilization_percentage": 68.2
+      },
+      "trend": {
+        "time_on_site": "stable",
+        "downtime": "increasing",
+        "exceptions": "stable"
+      },
+      "grade": "C+"
+    },
+    {
+      "id": 105,
+      "name": "Bridge Project",
+      "location": {
+        "latitude": 32.7555,
+        "longitude": -96.8245
+      },
+      "metrics": {
+        "time_on_site_vs_plan": 0.97,
+        "downtime_percentage": 3.1,
+        "exceptions_per_day": 0.8,
+        "driver_count": 15,
+        "on_time_arrival_percentage": 93.3,
+        "equipment_utilization_percentage": 89.7
+      },
+      "trend": {
+        "time_on_site": "stable",
+        "downtime": "decreasing",
+        "exceptions": "stable"
+      },
+      "grade": "A"
+    },
+    {
+      "id": 107,
+      "name": "Highway Extension",
+      "location": {
+        "latitude": 32.7888,
+        "longitude": -96.8178
+      },
+      "metrics": {
+        "time_on_site_vs_plan": 0.89,
+        "downtime_percentage": 5.3,
+        "exceptions_per_day": 2.4,
+        "driver_count": 10,
+        "on_time_arrival_percentage": 87.0,
+        "equipment_utilization_percentage": 78.5
+      },
+      "trend": {
+        "time_on_site": "improving",
+        "downtime": "stable",
+        "exceptions": "improving"
+      },
+      "grade": "B+"
+    },
+    {
+      "id": 108,
+      "name": "City Center",
+      "location": {
+        "latitude": 32.7801,
+        "longitude": -96.7999
+      },
+      "metrics": {
+        "time_on_site_vs_plan": 0.76,
+        "downtime_percentage": 10.2,
+        "exceptions_per_day": 5.7,
+        "driver_count": 6,
+        "on_time_arrival_percentage": 66.7,
+        "equipment_utilization_percentage": 62.1
+      },
+      "trend": {
+        "time_on_site": "declining",
+        "downtime": "increasing",
+        "exceptions": "increasing"
+      },
+      "grade": "D+"
+    }
+  ],
+  "recommendations": [
+    {
+      "target_site_id": 108,
+      "recommendation": "Implement morning pre-shift briefing to improve on-time arrivals",
+      "estimated_impact": "15% improvement in on-time arrival rate",
+      "priority": "high"
+    },
+    {
+      "target_site_id": 103,
+      "recommendation": "Schedule preventative maintenance to reduce equipment downtime",
+      "estimated_impact": "3.5% reduction in downtime",
+      "priority": "medium"
+    },
+    {
+      "target_site_id": null,
+      "recommendation": "Deploy GPS-enabled pre-start checks across all sites",
+      "estimated_impact": "2.1% fleet-wide utilization improvement",
+      "priority": "medium"
+    }
+  ],
+  "historical_comparison": {
+    "current_month_avg_score": 83.2,
+    "previous_month_avg_score": 79.8,
+    "trend_percentage": 4.3,
+    "year_to_date_avg": 81.6
+  }
+}

@@ -613,15 +613,53 @@ class DriverReportPipeline:
             return False
         
         try:
-            # Use our advanced CSV parser to handle complex formats
-            from utils.csv_parser import parse_driving_history
+            # Use our new robust CSV parser to handle complex formats and Excel files
+            from utils.robust_csv import parse_driving_history
             
-            # Parse the file using the advanced parser
+            # Parse the file using the enhanced robust parser
             df = parse_driving_history(self.driving_history_path)
             
             if df.empty:
                 logger.warning("No data found in Driving History file")
                 return False
+            
+            # Log the raw data to help with debugging
+            logger.info(f"Raw Driving History data columns: {list(df.columns)}")
+            logger.info(f"Raw Driving History data shape: {df.shape}")
+            
+            # Check for contact/driver information
+            contact_columns = [col for col in df.columns if 'contact' in str(col).lower()]
+            if contact_columns:
+                logger.info(f"Found contact columns: {contact_columns}")
+            
+            # Sometimes columns don't get the right names due to merged cells in the original file
+            # Let's try to identify the key columns by their content in the first few rows
+            if 'Contact' not in df.columns and len(df) > 0:
+                # Look for a column that contains driver names
+                for col in df.columns:
+                    if col == 'Textbox53' or col == 'Textbox61':
+                        continue  # Skip these known header columns
+                    
+                    # Sample the first few rows
+                    sample_values = df[col].dropna().head(10).astype(str).tolist()
+                    
+                    # Check if any values look like driver names (e.g., contains a space and parenthesis)
+                    if any(' (' in str(val) for val in sample_values):
+                        logger.info(f"Identified likely Contact/Driver column: {col}")
+                        df['Contact'] = df[col]
+                        break
+            
+            # Look for a timestamp/date column
+            if 'EventDateTime' not in df.columns and len(df) > 0:
+                for col in df.columns:
+                    # Sample the first few rows
+                    sample_values = df[col].dropna().head(10).astype(str).tolist()
+                    
+                    # Check if any values look like timestamps
+                    if any('/' in str(val) and ':' in str(val) for val in sample_values):
+                        logger.info(f"Identified likely EventDateTime column: {col}")
+                        df['EventDateTime'] = df[col]
+                        break
             
             # Normalize column names
             df.columns = [str(col).strip().lower().replace(' ', '_') for col in df.columns]
@@ -791,15 +829,75 @@ class DriverReportPipeline:
             return False
         
         try:
-            # Use our advanced CSV parser to handle complex formats
-            from utils.csv_parser import parse_activity_detail
+            # Use our new robust CSV parser to handle complex formats and Excel files
+            from utils.robust_csv import parse_activity_detail
             
-            # Parse the file using the advanced parser
+            # Parse the file using the enhanced robust parser
             df = parse_activity_detail(self.activity_detail_path)
             
             if df.empty:
                 logger.warning("No data found in Activity Detail file")
                 return False
+            
+            # Log the raw data to help with debugging
+            logger.info(f"Raw Activity Detail data columns: {list(df.columns)}")
+            logger.info(f"Raw Activity Detail data shape: {df.shape}")
+            
+            # For the specific format in the CSV you provided, look for relevant columns
+            # The data might be using different column names than we expect
+            
+            # Look for driver/contact information
+            if 'Contact' not in df.columns and len(df) > 0:
+                for col in df.columns:
+                    if col in ['AssetLabel', 'EventDateTimex', 'Reasonx']:
+                        continue  # Skip these known header columns
+                    
+                    # Sample the first few rows
+                    sample_values = df[col].dropna().head(10).astype(str).tolist()
+                    
+                    # Check if any values look like driver/contact names 
+                    if any(' ' in str(val) and len(str(val).split()) >= 2 for val in sample_values):
+                        logger.info(f"Identified likely Contact/Driver column: {col}")
+                        df['Contact'] = df[col]
+                        break
+            
+            # Look for a timestamp/date column
+            if 'StartTime' not in df.columns and 'EventDateTime' not in df.columns and len(df) > 0:
+                for col in df.columns:
+                    # Sample the first few rows
+                    sample_values = df[col].dropna().head(10).astype(str).tolist()
+                    
+                    # Check if any values look like timestamps
+                    if any('/' in str(val) and ':' in str(val) for val in sample_values):
+                        logger.info(f"Identified likely EventDateTime/StartTime column: {col}")
+                        df['StartTime'] = df[col]
+                        break
+            
+            # Look for location information
+            if 'Location' not in df.columns and len(df) > 0:
+                for col in df.columns:
+                    # Sample the first few rows
+                    sample_values = df[col].dropna().head(10).astype(str).tolist()
+                    
+                    # Check if any values look like locations (e.g., contain words like 'St', 'Rd', 'Ave')
+                    location_indicators = ['St', 'Rd', 'Ave', 'Ln', 'Dr', 'Blvd', 'Hwy', 'TX']
+                    if any(any(indicator in str(val) for indicator in location_indicators) for val in sample_values):
+                        logger.info(f"Identified likely Location column: {col}")
+                        df['Location'] = df[col]
+                        break
+            
+            # Look for asset information
+            if 'Asset' not in df.columns and len(df) > 0:
+                for col in df.columns:
+                    # Sample the first few rows
+                    sample_values = df[col].dropna().head(10).astype(str).tolist()
+                    
+                    # Check if any values look like asset IDs (e.g., contain vehicle names or model numbers)
+                    asset_indicators = ['FORD', 'F', 'TOYOTA', 'TMA', 'Vehicle', 'Truck', '20']
+                    if any(any(indicator in str(val) for indicator in asset_indicators) for val in sample_values):
+                        logger.info(f"Identified likely Asset column: {col}")
+                        df['Asset'] = df[col]
+                        break
             
             # Normalize column names
             df.columns = [str(col).strip().lower().replace(' ', '_') for col in df.columns]

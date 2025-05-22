@@ -1,0 +1,300 @@
+{% extends "layout_unified.html" %}
+
+{% block title %}Dashboard - TRAXORA GENIUS CORE{% endblock %}
+
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}Fleet management system overview and quick access{% endblock %}
+
+{% block content %}
+<!-- System Status Overview -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card bg-dark border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="mb-1">TRAXORA GENIUS CORE</h4>
+                        <p class="text-muted mb-0">CONTINUITY MODE is active. All system modules have been restored for full data validation and integrity protection.</p>
+                    </div>
+                    <span class="badge bg-info py-2 px-3">OPERATIONAL</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Key Metrics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3 mb-md-0">
+        <div class="card hoverable bg-dark border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title">Assets</h5>
+                    <i class="bi bi-truck fs-1 text-primary"></i>
+                </div>
+                <p class="display-4 mb-0">{{ assets_count|default('0') }}</p>
+                <small class="text-muted">Active in system</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3 mb-md-0">
+        <div class="card hoverable bg-dark border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title">Drivers</h5>
+                    <i class="bi bi-person fs-1 text-success"></i>
+                </div>
+                <p class="display-4 mb-0">{{ drivers_count|default('0') }}</p>
+                <small class="text-muted">Active in system</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3 mb-md-0">
+        <div class="card hoverable bg-dark border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title">Job Sites</h5>
+                    <i class="bi bi-building fs-1 text-info"></i>
+                </div>
+                <p class="display-4 mb-0">{{ job_sites_count|default('0') }}</p>
+                <small class="text-muted">Active in system</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3 mb-md-0">
+        <div class="card hoverable bg-dark border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title">PM Allocations</h5>
+                    <i class="bi bi-cash-coin fs-1 text-warning"></i>
+                </div>
+                <p class="display-4 mb-0">{{ pm_allocations_count|default('0') }}</p>
+                <small class="text-muted">Current month</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Feature Access -->
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="card bg-dark border-0 shadow-sm h-100">
+            <div class="card-header bg-dark d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Quick Access</h5>
+                <span class="badge bg-secondary">Core Features</span>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <!-- NEW FEATURES Section -->
+                    <div class="col-12 mb-2">
+                        <h6 class="text-warning mb-3 border-bottom pb-2">NEW FEATURES</h6>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <a href="/attendance/" class="card hoverable bg-dark border-success border-1 text-decoration-none">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="card-title text-success"><i class="bi bi-calendar-check me-2"></i> Weekly Attendance Report</h5>
+                                        <p class="card-text text-muted small">Comprehensive weekly attendance with cross-validation</p>
+                                    </div>
+                                    <i class="bi bi-arrow-right text-success"></i>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <a href="/file-upload/" class="card hoverable bg-dark border-success border-1 text-decoration-none">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="card-title text-success"><i class="bi bi-cloud-upload me-2"></i> Modern File Upload</h5>
+                                        <p class="card-text text-muted small">Drag-and-drop multi-file upload with autodetection</p>
+                                    </div>
+                                    <i class="bi bi-arrow-right text-success"></i>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    <!-- STANDARD FEATURES Section -->
+                    <div class="col-12 mt-2 mb-2">
+                        <h6 class="text-secondary mb-3 border-bottom pb-2">STANDARD FEATURES</h6>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <a href="/driver-reports/" class="card hoverable bg-dark border-0 text-decoration-none">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="card-title"><i class="bi bi-person-badge me-2"></i> Driver Reports</h5>
+                                        <p class="card-text text-muted small">View and export driver attendance and activity</p>
+                                    </div>
+                                    <i class="bi bi-arrow-right"></i>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <a href="{{ url_for('asset_map.asset_map') }}" class="card hoverable bg-dark border-0 text-decoration-none">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="card-title"><i class="bi bi-geo-alt me-2"></i> Asset Map</h5>
+                                        <p class="card-text text-muted small">Interactive map of all asset locations</p>
+                                    </div>
+                                    <i class="bi bi-arrow-right"></i>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <a href="{{ url_for('billing.pm_allocation') }}" class="card hoverable bg-dark border-0 text-decoration-none">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="card-title"><i class="bi bi-receipt me-2"></i> PM Allocations</h5>
+                                        <p class="card-text text-muted small">Manage monthly billing and allocations</p>
+                                    </div>
+                                    <i class="bi bi-arrow-right"></i>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <a href="/exports/daily_reports/" class="card hoverable bg-dark border-0 text-decoration-none">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="card-title"><i class="bi bi-download me-2"></i> Export Reports</h5>
+                                        <p class="card-text text-muted small">Generate and download comprehensive reports</p>
+                                    </div>
+                                    <i class="bi bi-arrow-right"></i>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-4">
+        <div class="card bg-dark border-0 shadow-sm h-100">
+            <div class="card-header bg-dark d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">System Status</h5>
+                <span class="badge bg-info">Realtime</span>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item bg-dark border-bottom py-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="bi bi-database me-2"></i> Database
+                            <p class="mb-0 text-muted small">PostgreSQL</p>
+                        </div>
+                        <span class="badge {% if database_status == 'connected' %}bg-success{% else %}bg-danger{% endif %}">
+                            {{ database_status|default('disconnected')|upper }}
+                        </span>
+                    </li>
+                    <li class="list-group-item bg-dark border-bottom py-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="bi bi-cloud me-2"></i> Gauge API
+                            <p class="mb-0 text-muted small">Data Service</p>
+                        </div>
+                        <span class="badge 
+                        {% if api_status == 'connected' %}bg-success
+                        {% elif api_status == 'warning' %}bg-warning
+                        {% elif api_status == 'not_configured' %}bg-secondary
+                        {% else %}bg-danger{% endif %}">
+                            {{ api_status|default('not_configured')|upper }}
+                        </span>
+                    </li>
+                    <li class="list-group-item bg-dark border-bottom py-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="bi bi-hdd me-2"></i> Storage System
+                            <p class="mb-0 text-muted small">File Storage</p>
+                        </div>
+                        <span class="badge {% if storage_status == 'connected' %}bg-success{% else %}bg-danger{% endif %}">
+                            {{ storage_status|default('disconnected')|upper }}
+                        </span>
+                    </li>
+                    <li class="list-group-item bg-dark border-bottom py-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="bi bi-clock-history me-2"></i> Last Sync
+                        </div>
+                        <span class="small">{{ last_sync_time|default('Never') }}</span>
+                    </li>
+                    <li class="list-group-item bg-dark d-flex justify-content-between align-items-center py-3">
+                        <div>
+                            <i class="bi bi-shield-check me-2"></i> GENIUS CORE
+                            <p class="mb-0 text-muted small">Data Validation Engine</p>
+                        </div>
+                        <span class="badge bg-info">ACTIVE</span>
+                    </li>
+                </ul>
+                
+                <!-- Quick Actions -->
+                <div class="mt-4">
+                    <h6 class="mb-3">Quick Actions</h6>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary btn-sm" type="button">
+                            <i class="bi bi-arrow-clockwise me-2"></i> Sync Now
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" type="button">
+                            <i class="bi bi-speedometer me-2"></i> Run Diagnostics
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row">
+    <div class="col-12">
+        <div class="card bg-dark border-0 shadow-sm">
+            <div class="card-header bg-dark d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Recent Activity</h5>
+                <a href="#" class="btn btn-sm btn-outline-secondary">View All</a>
+            </div>
+            <div class="card-body">
+                {% if notifications %}
+                <ul class="list-group list-group-flush">
+                    {% for notification in notifications %}
+                    <li class="list-group-item bg-dark border-bottom py-3">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">
+                                {% if notification.type == 'info' %}
+                                <i class="bi bi-info-circle text-info me-2"></i>
+                                {% elif notification.type == 'warning' %}
+                                <i class="bi bi-exclamation-triangle text-warning me-2"></i>
+                                {% elif notification.type == 'error' %}
+                                <i class="bi bi-exclamation-octagon text-danger me-2"></i>
+                                {% else %}
+                                <i class="bi bi-bell text-primary me-2"></i>
+                                {% endif %}
+                                {{ notification.title }}
+                            </h6>
+                            <small class="text-muted">{{ notification.time }}</small>
+                        </div>
+                        <p class="mb-1 text-muted">{{ notification.message }}</p>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-activity fs-1 text-muted mb-3"></i>
+                    <p class="text-muted">No recent activities to display.</p>
+                    <p class="small text-muted">System events will appear here as they occur.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

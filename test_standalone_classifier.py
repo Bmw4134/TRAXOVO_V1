@@ -1,18 +1,10 @@
 """
-TRAXORA GENIUS CORE | Driver Classifier Agent
-
-This agent analyzes driver data to classify drivers based on rigorous criteria including:
-- Vehicle type must be 'Pickup Truck'
-- Usage type must be 'On-Road'
-- Job site ID must be valid (not null, 0, or 'Unknown')
-
-The agent maintains complete traceability of classification decisions, supporting
-both the GENIUS CORE architecture and HARDLINE MODE for maximum data integrity.
+Standalone test for driver classifier agent
 """
-import logging
 import json
-import time
 import os
+import time
+import logging
 from datetime import datetime
 
 # Configure logging
@@ -117,9 +109,6 @@ def handle(data, config=None):
     # Calculate processing time
     processing_time = time.time() - start_time
     
-    # Log usage statistics
-    log_usage(len(data) if data else 0, len(classified_drivers), skipped_drivers, skip_reasons, processing_time)
-    
     # Prepare result structure
     result = {
         "classified_drivers": classified_drivers,
@@ -137,77 +126,136 @@ def handle(data, config=None):
     
     return result
 
-def run(data, config=None):
-    """
-    Alias for handle() function for backward compatibility
+def test_driver_classification():
+    """Test driver classification with various test cases"""
     
-    Args:
-        data (list): List of driver data to classify
-        config (dict, optional): Configuration parameters
-        
-    Returns:
-        dict: Classification results
-    """
-    return handle(data, config)
-
-def batch_classify_drivers(data_batch, config=None):
-    """
-    Process a batch of driver data for classification
-    
-    Args:
-        data_batch (list): Batch of driver data to classify
-        config (dict, optional): Configuration parameters
-        
-    Returns:
-        dict: Classification results
-    """
-    return handle(data_batch, config)
-
-def log_usage(input_count, output_count, skipped_records, skip_reasons, processing_time):
-    """
-    Log agent usage statistics
-    
-    Args:
-        input_count (int): Number of input records
-        output_count (int): Number of output records
-        skipped_records (list): List of skipped records
-        skip_reasons (dict): Counts of skip reasons
-        processing_time (float): Processing time in seconds
-    """
-    usage_log = {
-        "agent": "driver_classifier",
-        "timestamp": datetime.now().isoformat(),
-        "input_count": input_count,
-        "output_count": output_count,
-        "skipped_count": len(skipped_records),
-        "skip_reasons": skip_reasons,
-        "processing_time": round(processing_time, 3),
-        "records_per_second": round(input_count / processing_time, 2) if processing_time > 0 else 0
-    }
-    
-    logger.info(f"Agent usage: {json.dumps(usage_log)}")
-    
-    # Ensure log directory exists
-    try:
-        os.makedirs("logs", exist_ok=True)
-        with open("logs/agent_usage.log", "a") as f:
-            f.write(json.dumps(usage_log) + "\n")
-    except Exception as e:
-        logger.warning(f"Could not write to agent usage log: {e}")
-
-if __name__ == "__main__":
-    # Example usage
+    # Create test data with various combinations of criteria
     test_data = [
-        {"driver_id": 1, "name": "John Doe", "vehicle_type": "pickup truck", "usage_type": "on-road", "jobsite_id": 101},
-        {"driver_id": 2, "name": "Jane Smith", "vehicle_type": "sedan", "usage_type": "on-road", "jobsite_id": 102},
-        {"driver_id": 3, "name": "Bob Johnson", "vehicle_type": "pickup truck", "usage_type": "off-road", "jobsite_id": 103},
-        {"driver_id": 4, "name": "Alice Brown", "vehicle_type": "pickup truck", "usage_type": "on-road", "jobsite_id": 0},
-        {"driver_id": 5, "name": "Charlie Davis", "vehicle_type": "pickup truck", "usage_type": "on-road", "jobsite_id": 105},
-        {"driver_id": 6, "name": "Eve Wilson", "vehicle_type": "pickup truck", "usage_type": "on-road", "jobsite_id": "Unknown"},
-        {"driver_id": 7, "name": "Frank Miller", "vehicle_type": "pickup truck", "usage_type": "on-road", "jobsite_id": 107}
+        # Valid record - should pass all criteria
+        {
+            "driver_id": 1, 
+            "name": "John Doe", 
+            "vehicle_type": "Pickup Truck", 
+            "usage_type": "On-Road", 
+            "jobsite_id": 101,
+            "jobsite_name": "Main Construction Site"
+        },
+        
+        # Invalid vehicle type
+        {
+            "driver_id": 2, 
+            "name": "Jane Smith", 
+            "vehicle_type": "Sedan", 
+            "usage_type": "On-Road", 
+            "jobsite_id": 102,
+            "jobsite_name": "Downtown Project"
+        },
+        
+        # Invalid usage type
+        {
+            "driver_id": 3, 
+            "name": "Bob Johnson", 
+            "vehicle_type": "Pickup Truck", 
+            "usage_type": "Off-Road", 
+            "jobsite_id": 103,
+            "jobsite_name": "Mountain Site"
+        },
+        
+        # Invalid jobsite ID (zero)
+        {
+            "driver_id": 4, 
+            "name": "Alice Brown", 
+            "vehicle_type": "Pickup Truck", 
+            "usage_type": "On-Road", 
+            "jobsite_id": 0,
+            "jobsite_name": "Unassigned"
+        },
+        
+        # Valid record
+        {
+            "driver_id": 5, 
+            "name": "Charlie Davis", 
+            "vehicle_type": "Pickup Truck", 
+            "usage_type": "On-Road", 
+            "jobsite_id": 105,
+            "jobsite_name": "Bridge Project"
+        },
+        
+        # Invalid jobsite ID ("Unknown")
+        {
+            "driver_id": 6, 
+            "name": "Eve Wilson", 
+            "vehicle_type": "Pickup Truck", 
+            "usage_type": "On-Road", 
+            "jobsite_id": "Unknown",
+            "jobsite_name": "Unknown Location"
+        },
+        
+        # Valid record
+        {
+            "driver_id": 7, 
+            "name": "Frank Miller", 
+            "vehicle_type": "Pickup Truck", 
+            "usage_type": "On-Road", 
+            "jobsite_id": 107,
+            "jobsite_name": "Highway Extension"
+        },
+        
+        # Case sensitivity test
+        {
+            "driver_id": 8, 
+            "name": "Grace Taylor", 
+            "vehicle_type": "pickup truck", 
+            "usage_type": "on-road", 
+            "jobsite_id": 108,
+            "jobsite_name": "City Center"
+        },
+        
+        # Whitespace test
+        {
+            "driver_id": 9, 
+            "name": "Henry Clark", 
+            "vehicle_type": " Pickup Truck ", 
+            "usage_type": " On-Road ", 
+            "jobsite_id": 109,
+            "jobsite_name": "Suburban Development"
+        },
+        
+        # Mixed case with special characters
+        {
+            "driver_id": 10, 
+            "name": "Ivy Martin", 
+            "vehicle_type": "Pick-up Truck", 
+            "usage_type": "ON-road", 
+            "jobsite_id": 110,
+            "jobsite_name": "Corporate HQ"
+        }
     ]
     
+    # Run the classification
     result = handle(test_data)
-    print(f"Classified {result['count']} drivers out of {len(test_data)}")
-    print(f"Skip Reasons: {result['metrics']['skip_reasons']}")
-    print(json.dumps(result, indent=2))
+    
+    # Print summary
+    print("\n=== DRIVER CLASSIFICATION TEST RESULTS ===")
+    print(f"Total drivers tested: {result['metrics']['total_processed']}")
+    print(f"Classified drivers: {result['metrics']['classified_count']}")
+    print(f"Skipped drivers: {result['metrics']['skipped_count']}")
+    print("\nSkip reasons:")
+    for reason, count in result['metrics']['skip_reasons'].items():
+        if count > 0:
+            print(f"  - {reason}: {count}")
+    
+    print("\nClassified drivers:")
+    for driver in result['classified_drivers']:
+        print(f"  - Driver {driver['driver_id']}: {driver['name']} (Vehicle: {driver['vehicle_type']}, Job Site: {driver.get('jobsite_name', driver['jobsite_id'])})")
+    
+    # Write full results to file for detailed inspection
+    with open("test_driver_classification_results.json", "w") as f:
+        json.dump(result, f, indent=2)
+    
+    print("\nFull results written to test_driver_classification_results.json")
+    
+    return result
+
+if __name__ == "__main__":
+    test_driver_classification()

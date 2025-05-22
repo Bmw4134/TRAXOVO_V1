@@ -264,8 +264,8 @@ def generate_compliance_report(drivers_data, job_sites_data, validation_data, in
     # Calculate job site compliance
     job_site_count = len(job_sites_data)
     compliant_sites = sum(1 for js in job_sites_data if 
-                           js.get('on_time_count', 0) / js.get('driver_count', 1) >= 0.8 
-                           if js.get('driver_count', 0) > 0 else False)
+                           (js.get('on_time_count', 0) / js.get('driver_count', 1) >= 0.8 
+                           if js.get('driver_count', 0) > 0 else False))
     site_compliance = round((compliant_sites / job_site_count * 100) if job_site_count > 0 else 0)
     
     # Overall compliance score is a weighted average of time, location, and site compliance

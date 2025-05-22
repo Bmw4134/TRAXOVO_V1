@@ -76,6 +76,81 @@ def process_mtd_files(
     logger.info(f"Completed processing MTD files for date: {report_date}")
     return report_data
 
+def find_header_row(file_path: str) -> Tuple[Optional[List[str]], int, Dict[str, int]]:
+    """
+    Find the actual header row in a CSV file that might have metadata at the top
+    
+    Args:
+        file_path: Path to the CSV file
+        
+    Returns:
+        Tuple of (header row, header row index, column mapping)
+    """
+    with open(file_path, 'r', encoding='utf-8-sig') as f:
+        reader = csv.reader(f)
+        
+        # Try to find the actual header row by scanning for known header terms
+        header = None
+        header_row_idx = 0
+        
+        for row_idx, row in enumerate(reader):
+            # Skip empty rows
+            if not row or (len(row) == 1 and not row[0].strip()):
+                continue
+                
+            # Look for keywords that indicate a header row
+            row_text = ' '.join(row).lower()
+            if 'contact' in row_text or 'eventdatetime' in row_text or 'msgtype' in row_text or 'reasonx' in row_text:
+                header = row
+                header_row_idx = row_idx
+                break
+        
+        # If we can't find a header row, try heuristics like looking for the longest row
+        if not header:
+            # Reset file pointer and try different approach
+            f.seek(0)
+            reader = csv.reader(f)
+            
+            max_columns = 0
+            for row_idx, row in enumerate(reader):
+                if len(row) > max_columns:
+                    max_columns = len(row)
+                    header = row
+                    header_row_idx = row_idx
+            
+            logger.info(f"Using longest row as header: {header}")
+    
+    # Map column indices
+    column_map = {}
+    
+    if header:
+        logger.info(f"Found header row ({header_row_idx}): {header}")
+        for i, col in enumerate(header):
+            col_lower = col.lower()
+            
+            # Map standard column names
+            if col_lower == 'contact' or 'driver' in col_lower or col_lower == 'contactname':
+                column_map['driver'] = i
+                logger.info(f"Found driver column: {col} at position {i}")
+                
+            elif col_lower == 'msgtype' or col_lower == 'reasonx' or 'event' in col_lower:
+                column_map['event'] = i
+                logger.info(f"Found event column: {col} at position {i}")
+                
+            elif col_lower == 'eventdatetime' or col_lower == 'eventdatetimex' or 'timestamp' in col_lower:
+                column_map['time'] = i
+                logger.info(f"Found time column: {col} at position {i}")
+                
+            elif col_lower == 'assetlabel' or 'asset' in col_lower:
+                column_map['asset'] = i
+                logger.info(f"Found asset column: {col} at position {i}")
+                
+            elif col_lower == 'locationx' or 'location' in col_lower or 'address' in col_lower:
+                column_map['location'] = i
+                logger.info(f"Found location column: {col} at position {i}")
+    
+    return header, header_row_idx, column_map
+
 def process_driving_history_files(
     file_paths: List[str],
     target_date: datetime.date,
@@ -102,116 +177,101 @@ def process_driving_history_files(
         try:
             logger.info(f"Processing driving history file: {file_path}")
             
-            # Process file in chunks
-            chunk_size = 10000  # Adjust based on memory constraints
+            # Find header row and column mapping
+            header, header_row_idx, column_map = find_header_row(file_path)
             
-            try:
-                # First pass: get total count and identify column names
-                with open(file_path, 'r', encoding='utf-8-sig') as f:
-                    # Read first line to identify columns
-                    reader = csv.reader(f)
-                    header = next(reader)
+            if not header or not all(k in column_map for k in ['driver', 'event', 'time']):
+                missing_cols = [k for k in ['driver', 'event', 'time'] if k not in column_map]
+                logger.warning(f"Missing required columns in {file_path}: {', '.join(missing_cols)}")
+                continue
+            
+            # Process the file row by row
+            with open(file_path, 'r', encoding='utf-8-sig') as f:
+                reader = csv.reader(f)
+                
+                # Skip to header row
+                for _ in range(header_row_idx + 1):
+                    next(reader, None)
+                
+                # Process data rows
+                rows_processed = 0
+                for row in reader:
+                    rows_processed += 1
                     
-                    # Identify key columns
-                    driver_col = None
-                    event_col = None
-                    time_col = None
-                    
-                    for i, col in enumerate(header):
-                        col_lower = col.lower()
-                        if any(name in col_lower for name in ['driver name', 'driver', 'contact', 'person']):
-                            driver_col = i
-                        if any(name in col_lower for name in ['event', 'action', 'type']):
-                            event_col = i
-                        if any(name in col_lower for name in ['event date time', 'eventdatetimex', 'timestamp']):
-                            time_col = i
-                    
-                    if driver_col is None or event_col is None or time_col is None:
-                        logger.warning(f"Missing required columns in {file_path}")
+                    # Skip rows that don't have enough columns
+                    if len(row) <= max(column_map.values()):
                         continue
-                        
-                    # Count total rows (but don't load them into memory)
-                    row_count = sum(1 for _ in reader) + 1  # +1 for header
-                    total_records += row_count - 1  # Exclude header
-                    logger.info(f"Total records in file: {row_count - 1}")
-            
-                # Second pass: process relevant rows only
-                with open(file_path, 'r', encoding='utf-8-sig') as f:
-                    reader = csv.reader(f)
-                    next(reader)  # Skip header
                     
-                    for row in reader:
-                        if len(row) <= max(driver_col, event_col, time_col):
-                            # Skip malformed rows
+                    # Extract time
+                    try:
+                        time_str = row[column_map['time']]
+                        if not time_str:
                             continue
                             
-                        try:
-                            # Parse timestamp
-                            timestamp_str = row[time_col]
-                            timestamp = parse_timestamp(timestamp_str)
-                            
-                            if timestamp and timestamp.date() == target_date:
-                                # This record matches our target date
-                                filtered_records += 1
-                                
-                                # Extract driver name
-                                driver_name = row[driver_col].strip()
-                                if not driver_name:
-                                    continue
-                                    
-                                # Normalize driver name
-                                normalized_name = normalize_name(driver_name)
-                                
-                                # Get or create driver record
-                                if normalized_name not in driver_data:
-                                    driver_data[normalized_name] = {
-                                        'name': driver_name,
-                                        'normalized_name': normalized_name,
-                                        'key_on_time': None,
-                                        'key_off_time': None,
-                                        'minutes_late': 0,
-                                        'minutes_early_end': 0,
-                                        'status': 'unknown',
-                                        'data_sources': ['driving_history'],
-                                        'events': []
-                                    }
-                                elif 'driving_history' not in driver_data[normalized_name]['data_sources']:
-                                    driver_data[normalized_name]['data_sources'].append('driving_history')
-                                
-                                # Extract event type
-                                event_type = row[event_col].strip().lower()
-                                
-                                # Record event
-                                driver_data[normalized_name]['events'].append({
-                                    'timestamp': timestamp,
-                                    'event_type': event_type,
-                                    'source': 'driving_history'
-                                })
-                                
-                                # Update key times based on event type
-                                if 'key on' in event_type or 'keyon' in event_type:
-                                    # This is a key on event
-                                    if (driver_data[normalized_name]['key_on_time'] is None or 
-                                        timestamp < driver_data[normalized_name]['key_on_time']):
-                                        driver_data[normalized_name]['key_on_time'] = timestamp
-                                        
-                                elif 'key off' in event_type or 'keyoff' in event_type:
-                                    # This is a key off event
-                                    if (driver_data[normalized_name]['key_off_time'] is None or 
-                                        timestamp > driver_data[normalized_name]['key_off_time']):
-                                        driver_data[normalized_name]['key_off_time'] = timestamp
-                                        
-                        except Exception as e:
-                            logger.warning(f"Error processing row: {e}")
+                        timestamp = parse_timestamp(time_str)
+                        if not timestamp:
                             continue
+                            
+                        if timestamp.date() != target_date:
+                            continue
+                            
+                        filtered_records += 1
+                        
+                        # Extract driver name
+                        driver_name = row[column_map['driver']].strip()
+                        if not driver_name:
+                            continue
+                            
+                        # Extract event type
+                        event_type = row[column_map['event']].strip().lower()
+                        
+                        # Normalize name for consistent matching
+                        normalized_name = normalize_name(driver_name)
+                        
+                        # Create or update driver record
+                        if normalized_name not in driver_data:
+                            driver_data[normalized_name] = {
+                                'name': driver_name,
+                                'normalized_name': normalized_name,
+                                'key_on_time': None,
+                                'key_off_time': None,
+                                'minutes_late': 0,
+                                'minutes_early_end': 0,
+                                'status': 'unknown',
+                                'data_sources': ['driving_history'],
+                                'events': [],
+                                'asset_ids': []
+                            }
+                        elif 'driving_history' not in driver_data[normalized_name]['data_sources']:
+                            driver_data[normalized_name]['data_sources'].append('driving_history')
+                        
+                        # Record event
+                        driver_data[normalized_name]['events'].append({
+                            'timestamp': timestamp,
+                            'event_type': event_type,
+                            'source': 'driving_history'
+                        })
+                        
+                        # Update key times based on event
+                        if 'key on' in event_type or 'keyon' in event_type:
+                            if (driver_data[normalized_name]['key_on_time'] is None or 
+                                timestamp < driver_data[normalized_name]['key_on_time']):
+                                driver_data[normalized_name]['key_on_time'] = timestamp
+                        
+                        elif 'key off' in event_type or 'keyoff' in event_type:
+                            if (driver_data[normalized_name]['key_off_time'] is None or 
+                                timestamp > driver_data[normalized_name]['key_off_time']):
+                                driver_data[normalized_name]['key_off_time'] = timestamp
+                                
+                    except Exception as e:
+                        logger.warning(f"Error processing row: {e}")
+                        continue
+                
+                total_records += rows_processed
+                logger.info(f"Processed {rows_processed} rows")
             
-            except Exception as e:
-                logger.error(f"Error processing file {file_path}: {e}")
-                import traceback
-                logger.error(traceback.format_exc())
-        
         except Exception as e:
-            logger.error(f"Fatal error processing file {file_path}: {e}")
+            logger.error(f"Error processing file {file_path}: {str(e)}")
             import traceback
             logger.error(traceback.format_exc())
     
@@ -248,121 +308,121 @@ def process_activity_detail_files(
         try:
             logger.info(f"Processing activity detail file: {file_path}")
             
-            # Process file in chunks
-            chunk_size = 10000  # Adjust based on memory constraints
+            # Find header row and column mapping
+            header, header_row_idx, column_map = find_header_row(file_path)
             
-            try:
-                # First pass: get total count and identify column names
-                with open(file_path, 'r', encoding='utf-8-sig') as f:
-                    # Read first line to identify columns
-                    reader = csv.reader(f)
-                    header = next(reader)
+            if not header or not all(k in column_map for k in ['driver', 'time']):
+                missing_cols = [k for k in ['driver', 'time'] if k not in column_map]
+                logger.warning(f"Missing required columns in {file_path}: {', '.join(missing_cols)}")
+                continue
+            
+            # Process the file row by row
+            with open(file_path, 'r', encoding='utf-8-sig') as f:
+                reader = csv.reader(f)
+                
+                # Skip to header row
+                for _ in range(header_row_idx + 1):
+                    next(reader, None)
+                
+                # Process data rows
+                rows_processed = 0
+                for row in reader:
+                    rows_processed += 1
                     
-                    # Identify key columns
-                    driver_col = None
-                    asset_col = None
-                    time_col = None
-                    location_col = None
-                    
-                    for i, col in enumerate(header):
-                        col_lower = col.lower()
-                        if any(name in col_lower for name in ['driver name', 'driver', 'contact', 'person']):
-                            driver_col = i
-                        if any(name in col_lower for name in ['asset label', 'unit', 'assetlabel', 'unitid']):
-                            asset_col = i
-                        if any(name in col_lower for name in ['event date time', 'eventdatetimex', 'timestamp']):
-                            time_col = i
-                        if any(name in col_lower for name in ['location', 'address', 'loc']):
-                            location_col = i
-                    
-                    if driver_col is None or asset_col is None or time_col is None:
-                        logger.warning(f"Missing required columns in {file_path}")
+                    # Skip rows that don't have enough columns
+                    if len(row) <= max(column_map.values()):
                         continue
-                        
-                    # Count total rows (but don't load them into memory)
-                    row_count = sum(1 for _ in reader) + 1  # +1 for header
-                    total_records += row_count - 1  # Exclude header
-                    logger.info(f"Total records in file: {row_count - 1}")
-            
-                # Second pass: process relevant rows only
-                with open(file_path, 'r', encoding='utf-8-sig') as f:
-                    reader = csv.reader(f)
-                    next(reader)  # Skip header
                     
-                    for row in reader:
-                        if len(row) <= max(driver_col, asset_col, time_col):
-                            # Skip malformed rows
+                    # Extract time
+                    try:
+                        time_str = row[column_map['time']]
+                        if not time_str:
                             continue
                             
-                        try:
-                            # Parse timestamp
-                            timestamp_str = row[time_col]
-                            timestamp = parse_timestamp(timestamp_str)
-                            
-                            if timestamp and timestamp.date() == target_date:
-                                # This record matches our target date
-                                filtered_records += 1
-                                
-                                # Extract driver name
-                                driver_name = row[driver_col].strip()
-                                if not driver_name:
-                                    continue
-                                    
-                                # Normalize driver name
-                                normalized_name = normalize_name(driver_name)
-                                
-                                # Get or create driver record
-                                if normalized_name not in driver_data:
-                                    driver_data[normalized_name] = {
-                                        'name': driver_name,
-                                        'normalized_name': normalized_name,
-                                        'key_on_time': None,
-                                        'key_off_time': None,
-                                        'minutes_late': 0,
-                                        'minutes_early_end': 0,
-                                        'status': 'unknown',
-                                        'data_sources': ['activity_detail'],
-                                        'events': [],
-                                        'asset_ids': []
-                                    }
-                                elif 'activity_detail' not in driver_data[normalized_name]['data_sources']:
-                                    driver_data[normalized_name]['data_sources'].append('activity_detail')
-                                
-                                # Extract asset ID
-                                asset_id = row[asset_col].strip()
-                                if asset_id and asset_id not in driver_data[normalized_name].get('asset_ids', []):
-                                    if 'asset_ids' not in driver_data[normalized_name]:
-                                        driver_data[normalized_name]['asset_ids'] = []
-                                    driver_data[normalized_name]['asset_ids'].append(asset_id)
-                                
-                                # Extract location if available
-                                location = None
-                                if location_col is not None and location_col < len(row):
-                                    location = row[location_col].strip()
-                                
-                                # Record event
-                                event_data = {
-                                    'timestamp': timestamp,
-                                    'asset_id': asset_id,
-                                    'source': 'activity_detail'
-                                }
-                                
-                                if location:
-                                    event_data['location'] = location
-                                    
-                                driver_data[normalized_name]['events'].append(event_data)
-                                
-                        except Exception as e:
-                            logger.warning(f"Error processing row: {e}")
+                        timestamp = parse_timestamp(time_str)
+                        if not timestamp:
                             continue
+                            
+                        if timestamp.date() != target_date:
+                            continue
+                            
+                        filtered_records += 1
+                        
+                        # Extract driver name
+                        driver_name = row[column_map['driver']].strip()
+                        if not driver_name:
+                            continue
+                        
+                        # Normalize name for consistent matching
+                        normalized_name = normalize_name(driver_name)
+                        
+                        # Create or update driver record
+                        if normalized_name not in driver_data:
+                            driver_data[normalized_name] = {
+                                'name': driver_name,
+                                'normalized_name': normalized_name,
+                                'key_on_time': None,
+                                'key_off_time': None,
+                                'minutes_late': 0,
+                                'minutes_early_end': 0,
+                                'status': 'unknown',
+                                'data_sources': ['activity_detail'],
+                                'events': [],
+                                'asset_ids': []
+                            }
+                        elif 'activity_detail' not in driver_data[normalized_name]['data_sources']:
+                            driver_data[normalized_name]['data_sources'].append('activity_detail')
+                        
+                        # Extract asset ID if available
+                        if 'asset' in column_map:
+                            asset_id = row[column_map['asset']].strip()
+                            if asset_id and asset_id not in driver_data[normalized_name]['asset_ids']:
+                                driver_data[normalized_name]['asset_ids'].append(asset_id)
+                        
+                        # Extract location if available
+                        location = None
+                        if 'location' in column_map:
+                            location = row[column_map['location']].strip()
+                        
+                        # Extract event type if available
+                        event_type = None
+                        if 'event' in column_map:
+                            event_type = row[column_map['event']].strip().lower()
+                        
+                        # Record event
+                        event_data = {
+                            'timestamp': timestamp,
+                            'source': 'activity_detail'
+                        }
+                        
+                        if location:
+                            event_data['location'] = location
+                            
+                        if event_type:
+                            event_data['event_type'] = event_type
+                            
+                            # Update key times based on event
+                            if event_type and ('key on' in event_type or 'keyon' in event_type):
+                                if (driver_data[normalized_name]['key_on_time'] is None or 
+                                    timestamp < driver_data[normalized_name]['key_on_time']):
+                                    driver_data[normalized_name]['key_on_time'] = timestamp
+                            
+                            elif event_type and ('key off' in event_type or 'keyoff' in event_type):
+                                if (driver_data[normalized_name]['key_off_time'] is None or 
+                                    timestamp > driver_data[normalized_name]['key_off_time']):
+                                    driver_data[normalized_name]['key_off_time'] = timestamp
+                        
+                        driver_data[normalized_name]['events'].append(event_data)
+                                
+                    except Exception as e:
+                        logger.warning(f"Error processing row: {e}")
+                        continue
+                
+                total_records += rows_processed
+                logger.info(f"Processed {rows_processed} rows")
             
-            except Exception as e:
-                logger.error(f"Error processing file {file_path}: {e}")
-                import traceback
-                logger.error(traceback.format_exc())
-        
         except Exception as e:
-            logger.error(f"Fatal error processing file {file_path}: {e}")
+            logger.error(f"Error processing file {file_path}: {str(e)}")
             import traceback
             logger.error(traceback.format_exc())
     
@@ -495,7 +555,10 @@ def normalize_name(name: str) -> str:
     """
     if not name:
         return ""
-        
+    
+    # Remove parentheses and numbers that might indicate IDs
+    name = re.sub(r'\s*\(\d+\)', '', name)
+    
     # Convert to lowercase and remove extra spaces
     normalized = name.lower().strip()
     
@@ -517,21 +580,29 @@ def parse_timestamp(timestamp_str: str) -> Optional[datetime]:
     if not timestamp_str or pd.isna(timestamp_str):
         return None
     
+    # Check for potential date/time indicators
+    timestamp_str = timestamp_str.strip()
+    
     # Possible timestamp formats from various exports
     formats = [
         '%Y-%m-%d %H:%M:%S',  # 2025-05-15 08:30:00
         '%m/%d/%Y %H:%M:%S',  # 05/15/2025 08:30:00
         '%m/%d/%Y %I:%M:%S %p',  # 05/15/2025 08:30:00 AM
+        '%m/%d/%Y %I:%M:%S %p CT',  # 05/15/2025 08:30:00 AM CT
         '%Y-%m-%dT%H:%M:%S',  # 2025-05-15T08:30:00
         '%Y-%m-%dT%H:%M:%S.%f',  # 2025-05-15T08:30:00.000
         '%m/%d/%Y %I:%M %p',  # 05/15/2025 08:30 AM
+        '%m/%d/%Y %I:%M %p CT',  # 05/15/2025 08:30 AM CT
         '%Y-%m-%d %I:%M %p',  # 2025-05-15 08:30 AM
     ]
+    
+    # Clean the timestamp string (remove timezone indicators)
+    clean_timestamp = re.sub(r'\s+[A-Z]{2,3}$', '', timestamp_str)
     
     # Try each format
     for fmt in formats:
         try:
-            return datetime.strptime(timestamp_str, fmt)
+            return datetime.strptime(clean_timestamp, fmt)
         except ValueError:
             continue
     
@@ -541,31 +612,3 @@ def parse_timestamp(timestamp_str: str) -> Optional[datetime]:
     except:
         logger.warning(f"Failed to parse timestamp: {timestamp_str}")
         return None
-
-def extract_job_number(text: str) -> Optional[str]:
-    """
-    Extract a job number from text
-    
-    Args:
-        text: Text to extract job number from
-        
-    Returns:
-        str: Extracted job number or None if not found
-    """
-    if not text:
-        return None
-    
-    # Look for patterns like "Job 1234" or "1234-56"
-    job_patterns = [
-        r'job\s+(\d{4})',  # Job 1234
-        r'job\s+(\d{4}-\d{2})',  # Job 1234-56
-        r'(\d{4}-\d{2})',  # 1234-56
-        r'(\d{4})',  # 1234
-    ]
-    
-    for pattern in job_patterns:
-        match = re.search(pattern, text, re.IGNORECASE)
-        if match:
-            return match.group(1)
-    
-    return None

@@ -1,0 +1,8 @@
+mode: development
+logging_level: DEBUG
+database:
+  name: traxora_dev.db
+  seed_on_startup: true
+feature_flags:
+  enable_driver_chunking: true
+  enable_async_tasks: true

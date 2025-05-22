@@ -179,12 +179,16 @@ def get_driver_status(start_time_str, end_time_str, job_site=None):
         logger.error(f"Error determining driver status: {str(e)}")
         return 'unknown'
 
-def process_mtd_files(driving_history_paths, activity_detail_paths, report_date):
+def process_mtd_files(driving_history_paths, activity_detail_paths, assets_time_paths=None, report_date=None):
     """Process MTD files and generate report data"""
     try:
+        import time
+        start_time = time.time()
+        
         logger.info(f"Processing MTD files for date: {report_date}")
         logger.info(f"Driving History files: {driving_history_paths}")
         logger.info(f"Activity Detail files: {activity_detail_paths}")
+        logger.info(f"Assets Time On Site files: {assets_time_paths}")
         
         # Parse all files
         driving_history_data = []
@@ -195,24 +199,36 @@ def process_mtd_files(driving_history_paths, activity_detail_paths, report_date)
         for file_path in activity_detail_paths:
             activity_detail_data.extend(parse_csv_file(file_path))
             
+        assets_time_data = []
+        if assets_time_paths:
+            for file_path in assets_time_paths:
+                assets_time_data.extend(parse_csv_file(file_path))
+                
         # Normalize column names
         driving_history_data = normalize_column_names(driving_history_data)
         activity_detail_data = normalize_column_names(activity_detail_data)
-        
+        if assets_time_data:
+            assets_time_data = normalize_column_names(assets_time_data)
+            
         # Extract date columns
         dh_date_column = next((col for col in driving_history_data[0].keys() 
                               if 'date' in col.lower()), None) if driving_history_data else None
                               
         ad_date_column = next((col for col in activity_detail_data[0].keys() 
                               if 'date' in col.lower()), None) if activity_detail_data else None
+                              
+        at_date_column = next((col for col in assets_time_data[0].keys() 
+                              if 'date' in col.lower()), None) if assets_time_data else None
         
         # Filter data by target date
-        filtered_dh_data = filter_data_by_date(driving_history_data, report_date, dh_date_column) if dh_date_column else driving_history_data
-        filtered_ad_data = filter_data_by_date(activity_detail_data, report_date, ad_date_column) if ad_date_column else activity_detail_data
+        filtered_dh_data = filter_data_by_date(driving_history_data, report_date, dh_date_column) if dh_date_column and report_date else driving_history_data
+        filtered_ad_data = filter_data_by_date(activity_detail_data, report_date, ad_date_column) if ad_date_column and report_date else activity_detail_data
+        filtered_at_data = filter_data_by_date(assets_time_data, report_date, at_date_column) if at_date_column and report_date and assets_time_data else assets_time_data
         
         # Extract driver and job site information
         drivers = {}
         job_sites = {}
+        assets = {}
         
         # Process driving history data
         for item in filtered_dh_data:
@@ -233,7 +249,10 @@ def process_mtd_files(driving_history_paths, activity_detail_paths, report_date)
                     'job_site': job_site,
                     'status': get_driver_status(start_time, end_time, job_site),
                     'gear_status': 'Complete',
-                    'location_verified': True
+                    'location_verified': True,
+                    'assets_time': 'Unknown', 
+                    'time_on_site': 'Unknown',
+                    'data_sources': ['Driving History']
                 }
                 
             if job_site and job_site not in job_sites:
@@ -254,8 +273,47 @@ def process_mtd_files(driving_history_paths, activity_detail_paths, report_date)
         # Process activity detail data to enhance driver information
         for item in filtered_ad_data:
             driver_name = item.get('driver_name') or item.get('driver') or item.get('name')
-            if not driver_name or driver_name not in drivers:
+            if not driver_name:
                 continue
+                
+            # Create driver record if it doesn't exist (in case not in driving history)
+            if driver_name not in drivers:
+                start_time = item.get('start_time') or item.get('first_start') or item.get('on_time')
+                end_time = item.get('end_time') or item.get('last_stop') or item.get('off_time')
+                job_site = item.get('job_site') or item.get('location') or item.get('site')
+                
+                drivers[driver_name] = {
+                    'id': len(drivers) + 1,
+                    'name': driver_name,
+                    'start_time': start_time,
+                    'end_time': end_time,
+                    'job_site': job_site,
+                    'status': get_driver_status(start_time, end_time, job_site),
+                    'gear_status': 'Unknown',
+                    'location_verified': False,
+                    'assets_time': 'Unknown',
+                    'time_on_site': 'Unknown',
+                    'data_sources': ['Activity Detail']
+                }
+                
+                if job_site and job_site not in job_sites:
+                    job_sites[job_site] = {
+                        'id': len(job_sites) + 1,
+                        'name': job_site,
+                        'driver_count': 1,
+                        'on_time_count': 1 if drivers[driver_name]['status'] == 'on_time' else 0,
+                        'location': job_site,
+                        'foreman': 'Unknown',
+                        'project_code': f"PRJ-{len(job_sites) + 1:03d}"
+                    }
+                elif job_site:
+                    job_sites[job_site]['driver_count'] += 1
+                    if drivers[driver_name]['status'] == 'on_time':
+                        job_sites[job_site]['on_time_count'] += 1
+            else:
+                # Add data source if not already present
+                if 'Activity Detail' not in drivers[driver_name]['data_sources']:
+                    drivers[driver_name]['data_sources'].append('Activity Detail')
                 
             # Update driver information with activity details
             gear_status = item.get('gear_status') or item.get('equipment_status')
@@ -265,6 +323,54 @@ def process_mtd_files(driving_history_paths, activity_detail_paths, report_date)
             location_verified = item.get('location_verified') or item.get('verified')
             if location_verified:
                 drivers[driver_name]['location_verified'] = str(location_verified).lower() in ['true', 'yes', '1']
+                
+        # Process assets time on site data to further enhance driver information
+        if filtered_at_data:
+            for item in filtered_at_data:
+                driver_name = item.get('driver_name') or item.get('driver') or item.get('operator')
+                if not driver_name:
+                    continue
+                    
+                # Extract or calculate the time on site
+                time_on_site = item.get('time_on_site') or item.get('duration') or item.get('hours')
+                asset_id = item.get('asset_id') or item.get('equipment_id') or item.get('id')
+                asset_name = item.get('asset_name') or item.get('equipment') or item.get('name')
+                
+                # Track assets by ID
+                if asset_id and asset_id not in assets:
+                    assets[asset_id] = {
+                        'id': asset_id,
+                        'name': asset_name,
+                        'drivers': [driver_name],
+                        'total_time': time_on_site if time_on_site else 0
+                    }
+                elif asset_id:
+                    assets[asset_id]['drivers'].append(driver_name)
+                    if time_on_site:
+                        assets[asset_id]['total_time'] += float(time_on_site) if isinstance(time_on_site, (int, float, str)) else 0
+                
+                # Create driver record if it doesn't exist (unique to assets time data)
+                if driver_name not in drivers:
+                    drivers[driver_name] = {
+                        'id': len(drivers) + 1,
+                        'name': driver_name,
+                        'start_time': 'Unknown',
+                        'end_time': 'Unknown',
+                        'job_site': item.get('job_site') or item.get('location') or 'Unknown',
+                        'status': 'unknown',
+                        'gear_status': 'Unknown',
+                        'location_verified': False,
+                        'assets_time': asset_name if asset_name else 'Unknown',
+                        'time_on_site': time_on_site if time_on_site else 'Unknown',
+                        'data_sources': ['Assets Time']
+                    }
+                else:
+                    # Update driver record with asset time data
+                    if 'Assets Time' not in drivers[driver_name]['data_sources']:
+                        drivers[driver_name]['data_sources'].append('Assets Time')
+                    
+                    drivers[driver_name]['assets_time'] = asset_name if asset_name else drivers[driver_name]['assets_time']
+                    drivers[driver_name]['time_on_site'] = time_on_site if time_on_site else drivers[driver_name]['time_on_site']
         
         # Count status totals
         total_drivers = len(drivers)
@@ -272,12 +378,26 @@ def process_mtd_files(driving_history_paths, activity_detail_paths, report_date)
         late_count = sum(1 for d in drivers.values() if d['status'] == 'late')
         early_end_count = sum(1 for d in drivers.values() if d['status'] == 'early_end')
         not_on_job_count = sum(1 for d in drivers.values() if d['status'] == 'not_on_job')
+        unknown_count = sum(1 for d in drivers.values() if d['status'] == 'unknown')
         
         # Calculate percentages
         on_time_percent = round((on_time_count / total_drivers * 100) if total_drivers > 0 else 0)
         late_percent = round((late_count / total_drivers * 100) if total_drivers > 0 else 0)
         early_end_percent = round((early_end_count / total_drivers * 100) if total_drivers > 0 else 0)
         not_on_job_percent = round((not_on_job_count / total_drivers * 100) if total_drivers > 0 else 0)
+        unknown_percent = round((unknown_count / total_drivers * 100) if total_drivers > 0 else 0)
+        
+        # Prepare data sources list
+        data_sources = []
+        if filtered_dh_data:
+            data_sources.append('Driving History')
+        if filtered_ad_data:
+            data_sources.append('Activity Detail')
+        if filtered_at_data:
+            data_sources.append('Assets Time On Site')
+            
+        # Calculate processing time
+        processing_time = round(time.time() - start_time, 2)
         
         # Build final report data
         report_data = {
@@ -287,14 +407,17 @@ def process_mtd_files(driving_history_paths, activity_detail_paths, report_date)
             'late_count': late_count,
             'early_end_count': early_end_count,
             'not_on_job_count': not_on_job_count,
+            'unknown_count': unknown_count,
             'on_time_percent': on_time_percent,
             'late_percent': late_percent,
             'early_end_percent': early_end_percent,
             'not_on_job_percent': not_on_job_percent,
+            'unknown_percent': unknown_percent,
             'drivers': list(drivers.values()),
             'job_sites': list(job_sites.values()),
-            'processing_time': '2.4 seconds',
-            'data_sources': ['Driving History', 'Activity Detail'],
+            'assets': list(assets.values()),
+            'processing_time': f"{processing_time} seconds",
+            'data_sources': data_sources,
             'validation_status': 'GENIUS CORE Validated',
             'created_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         }

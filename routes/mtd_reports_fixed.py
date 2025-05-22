@@ -77,17 +77,23 @@ def simple_upload_files():
             
         driving_history_files = request.files.getlist('driving_history_files')
         activity_detail_files = request.files.getlist('activity_detail_files')
+        report_date = request.form.get('report_date')
         
         if not driving_history_files[0].filename and not activity_detail_files[0].filename:
             flash('No selected file', 'danger')
+            return redirect(request.url)
+        
+        if not report_date:
+            flash('Please select a target report date', 'danger')
             return redirect(request.url)
             
         # Create directories if they don't exist
         upload_dir = os.path.join(current_app.root_path, 'uploads', 'mtd_reports')
         os.makedirs(upload_dir, exist_ok=True)
         
-        # Process uploaded files
-        saved_files = []
+        # Save and track uploaded files
+        driving_history_paths = []
+        activity_detail_paths = []
         
         # Save driving history files
         for file in driving_history_files:
@@ -97,7 +103,7 @@ def simple_upload_files():
                 new_filename = f"driving_history_{timestamp}_{filename}"
                 file_path = os.path.join(upload_dir, new_filename)
                 file.save(file_path)
-                saved_files.append(file_path)
+                driving_history_paths.append(file_path)
                 logger.info(f"Saved driving history file: {file_path}")
         
         # Save activity detail files
@@ -108,14 +114,29 @@ def simple_upload_files():
                 new_filename = f"activity_detail_{timestamp}_{filename}"
                 file_path = os.path.join(upload_dir, new_filename)
                 file.save(file_path)
-                saved_files.append(file_path)
+                activity_detail_paths.append(file_path)
                 logger.info(f"Saved activity detail file: {file_path}")
         
-        if saved_files:
-            flash(f'Successfully uploaded {len(saved_files)} files', 'success')
-            return redirect(url_for('mtd_reports.simple_reports'))
+        # Process the files if we have both types
+        if driving_history_paths and activity_detail_paths:
+            try:
+                # Process the data and generate a report
+                report_data = process_mtd_files(driving_history_paths, activity_detail_paths, report_date)
+                
+                # Save the report data to a JSON file
+                report_file = os.path.join(upload_dir, f'report_{report_date}.json')
+                with open(report_file, 'w') as f:
+                    json.dump(report_data, f)
+                
+                flash(f'Successfully processed data for {report_date}', 'success')
+                return redirect(url_for('mtd_reports.show_report', date=report_date))
+            except Exception as e:
+                logger.error(f"Error processing MTD files: {str(e)}")
+                flash(f'Error processing files: {str(e)}', 'danger')
+                return redirect(url_for('mtd_reports.simple_reports'))
         else:
-            flash('No files were uploaded', 'warning')
+            flash('Please upload both driving history and activity detail files', 'warning')
+            return redirect(request.url)
         
     return render_template('mtd_reports/simple_upload.html')
 
@@ -155,141 +176,51 @@ def simple_reports():
 def show_report(date):
     """Show MTD report with improved error handling"""
     try:
-        # Generate dynamic data based on the date
-        if date == '2025-05-20':
-            total_drivers = 42
-            on_time_count = 35
-            late_count = 7
-            early_end_count = 5
-            not_on_job_count = 3
-        elif date == '2025-05-19':
-            total_drivers = 38
-            on_time_count = 29
-            late_count = 9
-            early_end_count = 4
-            not_on_job_count = 6
-        elif date == '2025-05-18':
-            total_drivers = 44
-            on_time_count = 32
-            late_count = 12
-            early_end_count = 8
-            not_on_job_count = 5
-        else:
-            # Default values
-            total_drivers = 40
-            on_time_count = 30
-            late_count = 10
-            early_end_count = 6
-            not_on_job_count = 4
-            
-        # Calculate percentages
-        on_time_percent = round((on_time_count / total_drivers) * 100)
-        late_percent = round((late_count / total_drivers) * 100)
-        early_end_percent = round((early_end_count / total_drivers) * 100)
-        not_on_job_percent = round((not_on_job_count / total_drivers) * 100)
-            
-        # Create report data with dynamic values
-        report_data = {
-            'date': date,
-            'total_drivers': total_drivers,
-            'on_time_count': on_time_count,
-            'late_count': late_count,
-            'early_end_count': early_end_count,
-            'not_on_job_count': not_on_job_count,
-            'on_time_percent': on_time_percent,
-            'late_percent': late_percent,
-            'early_end_percent': early_end_percent,
-            'not_on_job_percent': not_on_job_percent,
-            'drivers': [
-                {
-                    'id': 1,
-                    'name': 'John Smith',
-                    'status': 'on_time',
-                    'start_time': '07:15:00',
-                    'end_time': '16:30:00',
-                    'job_site': 'Midtown Project',
-                    'gear_status': 'Complete',
-                    'location_verified': True
-                },
-                {
-                    'id': 2,
-                    'name': 'Maria Garcia',
-                    'status': 'late',
-                    'start_time': '08:45:00',
-                    'end_time': '17:00:00',
-                    'job_site': 'Downtown Construction',
-                    'gear_status': 'Partial',
-                    'location_verified': True
-                },
-                {
-                    'id': 3,
-                    'name': 'Robert Johnson',
-                    'status': 'on_time',
-                    'start_time': '07:05:00',
-                    'end_time': '16:15:00',
-                    'job_site': 'Highway Expansion',
-                    'gear_status': 'Complete',
-                    'location_verified': True
-                },
-                {
-                    'id': 4,
-                    'name': 'David Williams',
-                    'status': 'early_end',
-                    'start_time': '07:10:00',
-                    'end_time': '15:20:00',
-                    'job_site': 'Downtown Construction',
-                    'gear_status': 'Complete',
-                    'location_verified': True
-                },
-                {
-                    'id': 5,
-                    'name': 'Sarah Miller',
-                    'status': 'not_on_job',
-                    'start_time': '07:30:00',
-                    'end_time': '16:45:00',
-                    'job_site': 'Incorrect Location',
-                    'gear_status': 'Missing',
-                    'location_verified': False
-                }
-            ],
-            'job_sites': [
-                {
-                    'id': 1,
-                    'name': 'Midtown Project',
-                    'driver_count': 15,
-                    'on_time_count': 12,
-                    'location': '123 Main St',
-                    'foreman': 'Michael Roberts',
-                    'project_code': 'MD-2025-042'
-                },
-                {
-                    'id': 2,
-                    'name': 'Downtown Construction',
-                    'driver_count': 18,
-                    'on_time_count': 14,
-                    'location': '456 Market Ave',
-                    'foreman': 'Jennifer Adams',
-                    'project_code': 'DT-2025-078'
-                },
-                {
-                    'id': 3,
-                    'name': 'Highway Expansion',
-                    'driver_count': 9,
-                    'on_time_count': 9,
-                    'location': 'Interstate 45',
-                    'foreman': 'Thomas Wilson',
-                    'project_code': 'HW-2025-103'
-                }
-            ],
-            'processing_time': '2.4 seconds',
-            'data_sources': ['Driving History', 'Activity Detail'],
-            'validation_status': 'GENIUS CORE Validated',
-            'created_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        }
+        # Load report data from the saved JSON file
+        upload_dir = os.path.join(current_app.root_path, 'uploads', 'mtd_reports')
+        report_file = os.path.join(upload_dir, f'report_{date}.json')
         
-        return render_template('mtd_reports/enhanced_report.html', 
-                              report=report_data,
-                              date=date)
+        # Check if the report file exists
+        if os.path.exists(report_file):
+            # Load the JSON data
+            with open(report_file, 'r') as f:
+                report_data = json.load(f)
+                
+            # Return the enhanced report view with the real data
+            return render_template('mtd_reports/enhanced_report.html', 
+                                  report=report_data,
+                                  date=date)
+        else:
+            # If no report file exists, check if we need to generate one
+            # Look for available Driving History and Activity Detail files
+            files = os.listdir(upload_dir)
+            driving_history_files = [os.path.join(upload_dir, f) for f in files if f.startswith('driving_history_')]
+            activity_detail_files = [os.path.join(upload_dir, f) for f in files if f.startswith('activity_detail_')]
+            
+            if driving_history_files and activity_detail_files:
+                # We have files available, try to generate a report
+                try:
+                    # Process the data and generate a report
+                    report_data = process_mtd_files(driving_history_files, activity_detail_files, date)
+                    
+                    # Save the report data to a JSON file
+                    with open(report_file, 'w') as f:
+                        json.dump(report_data, f)
+                    
+                    # Return the enhanced report view
+                    flash('Generated new report from available files', 'success')
+                    return render_template('mtd_reports/enhanced_report.html', 
+                                          report=report_data,
+                                          date=date)
+                except Exception as e:
+                    logger.error(f"Error generating report on-demand: {str(e)}")
+                    flash(f'Error generating report: {str(e)}', 'danger')
+                    return redirect(url_for('mtd_reports.simple_reports'))
+            else:
+                # No files available, show a placeholder
+                logger.info(f"No report file or source files available for date: {date}")
+                flash('No report available for this date. Please upload files first.', 'warning')
+                return redirect(url_for('mtd_reports.simple_upload_files'))
                               
     except Exception as e:
         logger.error(f"Error showing report: {str(e)}")

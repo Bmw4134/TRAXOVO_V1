@@ -664,37 +664,79 @@ class DriverReportPipeline:
             # Normalize column names
             df.columns = [str(col).strip().lower().replace(' ', '_') for col in df.columns]
             
-            # Find relevant columns
+            # Find relevant columns with special handling for GAUGE API format
             driver_col = None
             asset_col = None
             datetime_col = None
             event_col = None
             location_col = None
             
-            for col in ['driver', 'driver_name', 'employee', 'employee_name', 'operator']:
-                if col in df.columns:
-                    driver_col = col
-                    break
+            # Debug column names
+            logger.info(f"Available columns: {df.columns.tolist()}")
             
-            for col in ['asset', 'asset_id', 'equipment', 'equipment_id', 'vehicle', 'vehicle_id']:
-                if col in df.columns:
-                    asset_col = col
-                    break
+            # Special case for GAUGE API format
+            if 'contact' in df.columns:
+                driver_col = 'contact'
+                logger.info(f"Found driver column: 'contact'")
             
-            for col in ['datetime', 'date_time', 'timestamp', 'time']:
-                if col in df.columns:
-                    datetime_col = col
-                    break
+            if 'textbox53' in df.columns and len(df) > 0:
+                # Special handling for the Textbox53 column which contains asset+driver info
+                # The first part before the dash usually has the asset ID
+                try:
+                    sample_values = df['textbox53'].dropna().head(5).tolist()
+                    if any(' - ' in str(val) for val in sample_values):
+                        logger.info(f"Processing asset/driver info from Textbox53 column")
+                        # Extract the asset ID (first part before the dash)
+                        df['asset_id'] = df['textbox53'].apply(
+                            lambda x: str(x).split(' - ')[0].strip() if pd.notna(x) and ' - ' in str(x) else None
+                        )
+                        asset_col = 'asset_id'
+                except Exception as e:
+                    logger.error(f"Error processing Textbox53: {e}")
             
-            for col in ['event', 'event_type', 'action', 'status']:
-                if col in df.columns:
-                    event_col = col
-                    break
+            # Standard column detection if not found above
+            if driver_col is None:
+                for col in ['driver', 'driver_name', 'employee', 'employee_name', 'operator']:
+                    if col in df.columns:
+                        driver_col = col
+                        break
             
-            for col in ['location', 'site', 'job_site', 'place', 'area']:
-                if col in df.columns:
-                    location_col = col
-                    break
+            if asset_col is None:
+                for col in ['asset', 'asset_id', 'assetlabel', 'equipment', 'equipment_id', 'vehicle', 'vehicle_id']:
+                    if col in df.columns:
+                        asset_col = col
+                        break
+            
+            # Event datetime column - check for known GAUGE API columns first
+            if 'eventdatetime' in df.columns:
+                datetime_col = 'eventdatetime'
+            else:
+                for col in ['datetime', 'date_time', 'timestamp', 'time', 'eventdatetimex']:
+                    if col in df.columns:
+                        datetime_col = col
+                        break
+            
+            # Event type column - check for known GAUGE API columns first
+            if 'msgtype' in df.columns:
+                event_col = 'msgtype'
+            elif 'reasonx' in df.columns:
+                event_col = 'reasonx'
+            else:
+                for col in ['event', 'event_type', 'action', 'status']:
+                    if col in df.columns:
+                        event_col = col
+                        break
+            
+            # Location column - check for known GAUGE API columns first
+            if 'location' in df.columns:
+                location_col = 'location'
+            elif 'locationx' in df.columns:
+                location_col = 'locationx'
+            else:
+                for col in ['site', 'job_site', 'place', 'area']:
+                    if col in df.columns:
+                        location_col = col
+                        break
             
             # Process all rows
             if driver_col and asset_col:
@@ -705,8 +747,32 @@ class DriverReportPipeline:
                 driver_events = {}
                 
                 for _, row in df.iterrows():
-                    driver_name = str(row[driver_col]).strip() if pd.notna(row[driver_col]) else None
-                    asset_id = str(row[asset_col]).strip() if pd.notna(row[asset_col]) else None
+                    # Extract driver name with special handling for GAUGE API format
+                    driver_name = None
+                    if driver_col and pd.notna(row[driver_col]):
+                        driver_raw = str(row[driver_col]).strip()
+                        
+                        # Handle format like "Ammar Elhamad (210003)"
+                        if '(' in driver_raw and ')' in driver_raw:
+                            # Extract just the name part before the ID
+                            driver_name = driver_raw.split('(')[0].strip()
+                        else:
+                            driver_name = driver_raw
+                    
+                    # Extract asset ID with special handling for GAUGE API format
+                    asset_id = None
+                    if asset_col and pd.notna(row[asset_col]):
+                        asset_raw = str(row[asset_col]).strip()
+                        
+                        # Check for formats like "#210003 - AMMAR I. ELHAMAD FORD F150..."
+                        if ' - ' in asset_raw:
+                            # Get just the ID part before the dash
+                            asset_id = asset_raw.split(' - ')[0].strip()
+                            # Clean up any leading '#' if present
+                            if asset_id.startswith('#'):
+                                asset_id = asset_id[1:].strip()
+                        else:
+                            asset_id = asset_raw
                     
                     # Skip empty or invalid values
                     if not driver_name or not asset_id:
@@ -715,10 +781,20 @@ class DriverReportPipeline:
                     if driver_name.lower() in ['nan', 'none', 'null', ''] or asset_id.lower() in ['nan', 'none', 'null', '']:
                         continue
                     
-                    # Get event details
+                    # Get event details with special handling for timestamp formats
                     event_time = None
                     if datetime_col and pd.notna(row[datetime_col]):
-                        event_time = self.parse_time(row[datetime_col])
+                        try:
+                            time_str = str(row[datetime_col]).strip()
+                            # Clean up timezone indicators if present
+                            if ' CT' in time_str:
+                                time_str = time_str.replace(' CT', '')
+                            if ' UTC' in time_str:
+                                time_str = time_str.replace(' UTC', '')
+                                
+                            event_time = self.parse_time(time_str)
+                        except Exception as e:
+                            logger.warning(f"Error parsing datetime: {e}, value: {row[datetime_col]}")
                     
                     event_type = None
                     if event_col and pd.notna(row[event_col]):
@@ -824,54 +900,116 @@ class DriverReportPipeline:
         """
         logger.info(f"Extracting Activity Detail from: {self.activity_detail_path}")
         
-        if not os.path.exists(self.activity_detail_path):
-            logger.warning(f"Activity Detail file not found: {self.activity_detail_path}")
+        # Try to find Activity Detail files in various locations
+        activity_detail_files = []
+        
+        # First check the explicitly set path
+        if os.path.exists(self.activity_detail_path):
+            activity_detail_files.append(self.activity_detail_path)
+        else:
+            # Look for activity detail files in the data directory
+            for filename in os.listdir('data'):
+                if 'activity' in filename.lower() and 'detail' in filename.lower():
+                    activity_detail_files.append(os.path.join('data', filename))
+            
+            # If still not found, look in attached_assets
+            if not activity_detail_files:
+                activity_detail_files = [f for f in glob.glob('attached_assets/*.csv') if 'activity' in f.lower()]
+        
+        if not activity_detail_files:
+            logger.warning("No activity detail files found")
             return False
         
-        try:
-            # Use our new robust CSV parser to handle complex formats and Excel files
-            from utils.robust_csv import parse_activity_detail
+        # Process each activity detail file
+        for file_path in activity_detail_files:
+            logger.info(f"Processing activity detail file: {file_path}")
             
-            # Parse the file using the enhanced robust parser
-            df = parse_activity_detail(self.activity_detail_path)
-            
-            if df.empty:
-                logger.warning("No data found in Activity Detail file")
-                return False
-            
-            # Log the raw data to help with debugging
-            logger.info(f"Raw Activity Detail data columns: {list(df.columns)}")
-            logger.info(f"Raw Activity Detail data shape: {df.shape}")
-            
-            # For the specific format in the CSV you provided, look for relevant columns
-            # The data might be using different column names than we expect
-            
-            # Look for driver/contact information
-            if 'Contact' not in df.columns and len(df) > 0:
-                for col in df.columns:
-                    if col in ['AssetLabel', 'EventDateTimex', 'Reasonx']:
-                        continue  # Skip these known header columns
-                    
-                    # Sample the first few rows
-                    sample_values = df[col].dropna().head(10).astype(str).tolist()
-                    
-                    # Check if any values look like driver/contact names 
-                    if any(' ' in str(val) and len(str(val).split()) >= 2 for val in sample_values):
-                        logger.info(f"Identified likely Contact/Driver column: {col}")
-                        df['Contact'] = df[col]
-                        break
-            
-            # Look for a timestamp/date column
-            if 'StartTime' not in df.columns and 'EventDateTime' not in df.columns and len(df) > 0:
-                for col in df.columns:
-                    # Sample the first few rows
-                    sample_values = df[col].dropna().head(10).astype(str).tolist()
-                    
-                    # Check if any values look like timestamps
-                    if any('/' in str(val) and ':' in str(val) for val in sample_values):
-                        logger.info(f"Identified likely EventDateTime/StartTime column: {col}")
-                        df['StartTime'] = df[col]
-                        break
+            try:
+                # Use our new robust CSV parser to handle complex formats
+                if utils.robust_csv and hasattr(utils.robust_csv, 'parse_activity_detail'):
+                    df = utils.robust_csv.parse_activity_detail(file_path)
+                else:
+                    # Fallback to pandas read_csv
+                    df = pd.read_csv(file_path)
+                
+                if df is None or df.empty:
+                    logger.warning(f"No data found in file: {file_path}")
+                    continue
+                
+                logger.info(f"Found {len(df)} rows in activity detail file")
+                
+                # Normalize column names to lowercase
+                df.columns = [str(col).strip().lower().replace(' ', '_') for col in df.columns]
+                
+                # Log columns for debugging
+                logger.info(f"Activity Detail columns after normalization: {df.columns.tolist()}")
+                
+                # Find relevant columns with special handling for GAUGE API format
+                driver_col = None
+                asset_col = None
+                location_col = None
+                start_time_col = None
+                end_time_col = None
+                event_col = None
+                
+                # Look for standard GAUGE API columns
+                if 'contact' in df.columns:
+                    driver_col = 'contact'
+                    logger.info(f"Found driver column: 'contact'")
+                
+                if 'assetlabel' in df.columns:
+                    asset_col = 'assetlabel' 
+                    logger.info(f"Found asset column: 'assetlabel'")
+                
+                if 'locationx' in df.columns:
+                    location_col = 'locationx'
+                    logger.info(f"Found location column: 'locationx'")
+                elif 'location' in df.columns:
+                    location_col = 'location'
+                
+                if 'eventdatetimex' in df.columns:
+                    # In the GAUGE format, this is the single timestamp column
+                    start_time_col = 'eventdatetimex'
+                    end_time_col = 'eventdatetimex'  # We'll use event type to determine if this is start or end
+                    logger.info(f"Using eventdatetimex for both start and end times")
+                
+                if 'reasonx' in df.columns:
+                    event_col = 'reasonx'
+                    logger.info(f"Found event column: 'reasonx'")
+                
+                # If driver column is not found, try to infer it
+                if driver_col is None:
+                    for col in df.columns:
+                        if col in ['driver', 'driver_name', 'employee', 'employee_name', 'operator']:
+                            driver_col = col
+                            break
+                
+                # If asset column is not found, try to infer it
+                if asset_col is None:
+                    for col in df.columns:
+                        if col in ['asset', 'asset_id', 'equipment', 'equipment_id', 'vehicle', 'vehicle_id']:
+                            asset_col = col
+                            break
+                
+                # If location column is not found, try to infer it
+                if location_col is None:
+                    for col in df.columns:
+                        if col in ['site', 'job_site', 'place', 'area']:
+                            location_col = col
+                            break
+                
+                # If time columns not found, try to infer them
+                if start_time_col is None:
+                    for col in df.columns:
+                        if col in ['start_time', 'time_in', 'arrival', 'eventdatetime']:
+                            start_time_col = col
+                            break
+                
+                if end_time_col is None:
+                    for col in df.columns:
+                        if col in ['end_time', 'time_out', 'departure']:
+                            end_time_col = col
+                            break
             
             # Look for location information
             if 'Location' not in df.columns and len(df) > 0:
@@ -902,37 +1040,69 @@ class DriverReportPipeline:
             # Normalize column names
             df.columns = [str(col).strip().lower().replace(' ', '_') for col in df.columns]
             
-            # Find relevant columns
+            # Find relevant columns with special handling for GAUGE API format
             driver_col = None
             asset_col = None
             location_col = None
             start_time_col = None
             end_time_col = None
             
-            for col in ['driver', 'driver_name', 'employee', 'employee_name', 'operator']:
-                if col in df.columns:
-                    driver_col = col
-                    break
+            # Debug column names
+            logger.info(f"Available Activity Detail columns: {df.columns.tolist()}")
             
-            for col in ['asset', 'asset_id', 'equipment', 'equipment_id', 'vehicle', 'vehicle_id']:
-                if col in df.columns:
-                    asset_col = col
-                    break
+            # Special case for GAUGE API format - check common column names first
+            if 'contact' in df.columns:
+                driver_col = 'contact'
+                logger.info(f"Found driver column in Activity Detail: 'contact'")
             
-            for col in ['location', 'site', 'job_site', 'place', 'area']:
-                if col in df.columns:
-                    location_col = col
-                    break
+            if 'assetlabel' in df.columns:
+                asset_col = 'assetlabel'
+                logger.info(f"Found asset column in Activity Detail: 'assetlabel'")
             
-            for col in ['start_time', 'time_in', 'arrival']:
-                if col in df.columns:
-                    start_time_col = col
-                    break
+            # Handle known columns in the GAUGE API Activity Detail format
+            if 'locationx' in df.columns:
+                location_col = 'locationx'
+                logger.info(f"Found location column in Activity Detail: 'locationx'")
+            elif 'location' in df.columns:
+                location_col = 'location'
+                
+            # Look for datetime columns in the GAUGE API format
+            if 'eventdatetimex' in df.columns:
+                # In the GAUGE format, this is the single timestamp column
+                start_time_col = 'eventdatetimex'
+                end_time_col = 'eventdatetimex'  # We'll check events to determine start/end
+                logger.info(f"Using eventdatetimex for both start and end times in Activity Detail")
             
-            for col in ['end_time', 'time_out', 'departure']:
-                if col in df.columns:
-                    end_time_col = col
-                    break
+            # Standard column detection if not found above
+            if driver_col is None:
+                for col in ['driver', 'driver_name', 'employee', 'employee_name', 'operator']:
+                    if col in df.columns:
+                        driver_col = col
+                        break
+            
+            if asset_col is None:
+                for col in ['asset', 'asset_id', 'equipment', 'equipment_id', 'vehicle', 'vehicle_id']:
+                    if col in df.columns:
+                        asset_col = col
+                        break
+            
+            if location_col is None:
+                for col in ['location', 'site', 'job_site', 'place', 'area']:
+                    if col in df.columns:
+                        location_col = col
+                        break
+            
+            if start_time_col is None:
+                for col in ['start_time', 'time_in', 'arrival']:
+                    if col in df.columns:
+                        start_time_col = col
+                        break
+            
+            if end_time_col is None:
+                for col in ['end_time', 'time_out', 'departure']:
+                    if col in df.columns:
+                        end_time_col = col
+                        break
             
             # Process all rows
             if driver_col and asset_col:

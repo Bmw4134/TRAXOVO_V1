@@ -260,24 +260,8 @@ def save_driver_reports_to_db(report_data, date_obj):
             report.is_valid = driver_data.get('identity_verified', False)
             
             # Add location data if available
-            if 'locations' in driver_data and driver_data['locations']:
-                # Just store the first location for now
-                try:
-                    # Location info might be complex - simplify for storage
-                    location_str = str(driver_data['locations'][0])
-                    
-                    # If we had actual GPS coordinates, we would store them here
-                    # For now, just add some placeholder values based on driver ID
-                    # In a real implementation, we would extract coordinates from telematics
-                    import random
-                    report.first_location_lat = 37.7749 + (random.random() * 0.1)
-                    report.first_location_lon = -122.4194 + (random.random() * 0.1)
-                    
-                    if len(driver_data['locations']) > 1:
-                        report.last_location_lat = 37.7749 + (random.random() * 0.1)
-                        report.last_location_lon = -122.4194 + (random.random() * 0.1)
-                except:
-                    pass
+            # Skip location data for now as it's causing model compatibility issues
+            # We'll implement proper GPS coordinate extraction in a future update
             
             db.session.add(report)
         

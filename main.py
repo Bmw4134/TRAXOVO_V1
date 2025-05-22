@@ -52,6 +52,13 @@ try:
 except ImportError:
     logger.warning("React Upload module not found")
 
+try:
+    from routes.attendance_report import attendance_report_bp
+    app.register_blueprint(attendance_report_bp)
+    logger.info("Attendance Report blueprint registered")
+except ImportError:
+    logger.warning("Attendance Report module not found")
+
 @app.route('/')
 def dashboard():
     """Homepage shows dashboard"""

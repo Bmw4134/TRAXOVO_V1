@@ -35,6 +35,12 @@ TIME_PATTERNS = [
     r"(\d{1,2}):(\d{2})(?:\s*[A-Z]{1,3})?"
 ]
 
+# Asset/Vehicle ID column aliases (exact matches or contains)
+ASSET_ID_COLUMN_ALIASES = [
+    'asset_id', 'assetid', 'vehicle_id', 'vehicleid', 'asset', 'vehicle', 
+    'asset no', 'vehicle no', 'unit', 'unit no', 'equipment', 'equipment no'
+]
+
 def is_fluff_row(row: Union[List, Dict]) -> bool:
     """
     Check if a row is a fluff row (header, separator, etc.)
@@ -68,7 +74,7 @@ def is_fluff_row(row: Union[List, Dict]) -> bool:
     
     return False
 
-def normalize_time(time_str: str) -> str:
+def normalize_time(time_str: Optional[str]) -> Optional[str]:
     """
     Normalize time strings to 24-hour format
     
@@ -138,9 +144,184 @@ def detect_tabular_sheet(df: pd.DataFrame) -> bool:
     
     return True
 
+def identify_asset_id_column(df: pd.DataFrame) -> Optional[str]:
+    """
+    Identify the asset/vehicle ID column in a DataFrame
+    
+    Args:
+        df: The DataFrame to analyze
+        
+    Returns:
+        str: The name of the asset ID column, or None if not found
+    """
+    # First, try to find an exact match in column names
+    for col in df.columns:
+        col_lower = str(col).lower()
+        
+        # Check for exact matches
+        if col_lower in ASSET_ID_COLUMN_ALIASES:
+            return col
+        
+        # Check for partial matches
+        for alias in ASSET_ID_COLUMN_ALIASES:
+            if alias in col_lower:
+                return col
+    
+    # If no matches found, try to use the first column if it seems like an ID column
+    if len(df.columns) > 0:
+        first_col = df.columns[0]
+        # Check if the first column contains ID-like values (alphanumeric with dashes or spaces)
+        if df[first_col].dtype == 'object' and pd.notna(df[first_col]).sum() > 0:
+            sample_values = df[first_col].dropna().astype(str)
+            if all(re.match(r'^[A-Za-z0-9\-\s]+$', val) for val in sample_values.iloc[:5]):
+                return first_col
+    
+    return None
+
+def fill_down_asset_ids(df: pd.DataFrame, file_path: str) -> Tuple[pd.DataFrame, List[Dict]]:
+    """
+    Fill down blank asset IDs in the first column of a DataFrame,
+    using Excel-style filling (last known value)
+    
+    Args:
+        df: The DataFrame to process
+        file_path: Path to the original file (for logging)
+        
+    Returns:
+        tuple: (Processed DataFrame, List of fill-down patches)
+    """
+    # Skip if the DataFrame is empty
+    if df.empty:
+        return df, []
+    
+    # Try to identify the asset ID column
+    asset_id_col = identify_asset_id_column(df)
+    if not asset_id_col:
+        # If we can't find a specific asset ID column, use the first column
+        if len(df.columns) > 0:
+            asset_id_col = df.columns[0]
+        else:
+            # No columns at all, just return the DataFrame unchanged
+            return df, []
+    
+    # Track filled rows
+    filled_rows = []
+    
+    # Make a copy of the DataFrame to avoid modifying the original
+    df_filled = df.copy()
+    
+    # Get the index of the asset ID column for the nullity check
+    col_idx = list(df.columns).index(asset_id_col)
+    
+    # Keep track of the last valid asset ID
+    last_valid_id = None
+    
+    # Iterate through rows and fill down asset IDs
+    for idx, row in df.iterrows():
+        # Check if the asset ID is missing
+        current_id = row[asset_id_col]
+        
+        if pd.isna(current_id) or str(current_id).strip() == '':
+            # Check if there's data in adjacent columns (indicates a valid row that needs filling)
+            has_data_in_other_cols = False
+            for col_name, value in row.items():
+                if col_name != asset_id_col and not (pd.isna(value) or str(value).strip() == ''):
+                    has_data_in_other_cols = True
+                    break
+            
+            # Only fill down if there's data in other columns and we have a valid ID to use
+            if has_data_in_other_cols and last_valid_id is not None:
+                # Fill down the asset ID
+                df_filled.at[idx, asset_id_col] = last_valid_id
+                
+                # Record this fill-down for logging
+                filled_rows.append({
+                    "file": os.path.basename(file_path),
+                    "row": idx + 2,  # Excel/CSV row number (1-based, +1 for header)
+                    "type": "filldown_patch",
+                    "column": asset_id_col,
+                    "filled_value": last_valid_id
+                })
+        else:
+            # Update the last valid ID
+            last_valid_id = current_id
+    
+    # Log the filled rows
+    if filled_rows:
+        logger.info(f"Filled down {len(filled_rows)} blank {asset_id_col} cells in {os.path.basename(file_path)}")
+    
+    return df_filled, filled_rows
+
+def process_dataframe(df: pd.DataFrame, file_path: str) -> Tuple[List[Dict], List[Dict]]:
+    """
+    Process a DataFrame to extract records and handle missing asset IDs
+    
+    Args:
+        df: The DataFrame to process
+        file_path: Path to the original file (for logging)
+        
+    Returns:
+        tuple: (List of data records, List of skipped rows and fill-down patches)
+    """
+    # Fill down blank asset IDs in the asset ID column
+    df_filled, filled_rows = fill_down_asset_ids(df, file_path)
+    
+    # Extract records from the processed DataFrame
+    records = []
+    skipped_rows = []
+    
+    for idx, row in df_filled.iterrows():
+        row_dict = row.to_dict()
+        
+        # Skip fluff rows
+        if is_fluff_row(row_dict):
+            skipped_rows.append({
+                "file": os.path.basename(file_path),
+                "row": idx + 2,  # Excel/CSV row number (1-based, +1 for header)
+                "reason": "fluff_row",
+                "content": {k: str(v) if not pd.isna(v) else "" for k, v in row_dict.items()}
+            })
+            continue
+        
+        # Clean and normalize values
+        clean_row = {}
+        for key, value in row_dict.items():
+            if pd.isna(value):
+                continue
+            
+            # Convert to string for further processing
+            if isinstance(value, (int, float)):
+                # Keep numbers as is
+                clean_row[key] = value
+            elif isinstance(value, (datetime.date, datetime.datetime)):
+                # Format dates consistently
+                clean_row[key] = value.isoformat()
+            else:
+                value_str = str(value).strip()
+                
+                # Skip error values for numeric fields
+                if any(num_key in str(key).lower() for num_key in ["amount", "count", "total", "id", "number"]) and \
+                   any(err_val in value_str.lower() for err_val in ["error", "n/a", "none", "unknown"]):
+                    continue
+                
+                # Normalize time values
+                if "time" in str(key).lower() and re.search(r"\d{1,2}:\d{2}", value_str):
+                    clean_row[key] = normalize_time(value_str)
+                else:
+                    clean_row[key] = value_str
+        
+        # Add the cleaned record if it's not empty
+        if clean_row:
+            records.append(clean_row)
+    
+    # Combine skipped rows and filled rows for logging
+    all_log_entries = filled_rows + skipped_rows
+    
+    return records, all_log_entries
+
 def load_csv_file(file_path: str) -> List[Dict]:
     """
-    Load data from a CSV file, skipping fluff rows
+    Load data from a CSV file, handling blank asset IDs and skipping fluff rows
     
     Args:
         file_path: Path to the CSV file
@@ -150,77 +331,19 @@ def load_csv_file(file_path: str) -> List[Dict]:
     """
     logger.info(f"Loading CSV file: {file_path}")
     
-    data = []
-    skipped_rows = []
-    
     try:
-        # First read header row
-        with open(file_path, 'r', newline='', encoding='utf-8-sig') as f:
-            reader = csv.reader(f)
-            headers = next(reader)
-            
-            # Skip if header row is fluff
-            if is_fluff_row(headers):
-                # Try to find the first non-fluff row to use as headers
-                for row in reader:
-                    if not is_fluff_row(row):
-                        headers = row
-                        break
-            
-            # Normalize headers
-            headers = [h.strip() for h in headers]
+        # Read the CSV file into a DataFrame
+        df = pd.read_csv(file_path)
         
-        # Now read the data rows
-        with open(file_path, 'r', newline='', encoding='utf-8-sig') as f:
-            reader = csv.reader(f)
-            next(reader)  # Skip header
-            
-            row_num = 1  # Start from 1 for easier human reading (0 is header)
-            for row in reader:
-                row_num += 1
-                
-                # Skip fluff rows
-                if is_fluff_row(row):
-                    skipped_rows.append({
-                        "file": os.path.basename(file_path),
-                        "row": row_num,
-                        "reason": "fluff_row",
-                        "content": row
-                    })
-                    continue
-                
-                # Create record from row data
-                record = {}
-                for i, value in enumerate(row):
-                    if i < len(headers):
-                        # Skip empty values
-                        if value is None or value.strip() == "":
-                            continue
-                            
-                        # Normalize value
-                        header = headers[i]
-                        
-                        # Handle special cases
-                        if "time" in header.lower():
-                            value = normalize_time(value)
-                        elif "error" in value.lower() or value.lower() in ["n/a", "none", "unknown"]:
-                            # Replace error strings with None for numeric fields
-                            # For non-numeric fields, keep the original value
-                            if any(num_key in header.lower() for num_key in ["amount", "count", "total", "id", "number"]):
-                                value = None
-                            
-                        record[header] = value
-                
-                # Only add records with actual content
-                if record:
-                    data.append(record)
+        # Process the DataFrame to extract records
+        records, log_entries = process_dataframe(df, file_path)
         
-        logger.info(f"Loaded {len(data)} records from CSV, skipped {len(skipped_rows)} rows")
+        logger.info(f"Loaded {len(records)} records from CSV file {os.path.basename(file_path)}")
         
-        # Log skipped rows
-        log_skipped_rows(skipped_rows)
+        # Log skipped rows and fill-down patches
+        log_skipped_rows(log_entries)
         
-        return data
+        return records
     
     except Exception as e:
         logger.error(f"Error loading CSV file {file_path}: {str(e)}")
@@ -238,15 +361,33 @@ def load_excel_file(file_path: str) -> List[Dict]:
     """
     logger.info(f"Loading Excel file: {file_path}")
     
-    data = []
-    skipped_rows = []
-    
     try:
         # List all sheets in the Excel file
         excel = pd.ExcelFile(file_path)
         sheet_names = excel.sheet_names
         
-        # Select the best sheet for tabular data
+        # Check if "DrivingHistory" is in any sheet name
+        driving_history_sheets = [sheet for sheet in sheet_names if "driving" in sheet.lower() or "history" in sheet.lower()]
+        
+        # If we found a DrivingHistory sheet, prioritize it
+        if driving_history_sheets:
+            sheet_to_use = driving_history_sheets[0]
+            logger.info(f"Found DrivingHistory sheet: {sheet_to_use}")
+            
+            # Read the sheet
+            df = pd.read_excel(file_path, sheet_name=sheet_to_use)
+            
+            # Process the DataFrame to extract records
+            records, log_entries = process_dataframe(df, file_path)
+            
+            logger.info(f"Loaded {len(records)} records from Excel sheet '{sheet_to_use}' in {os.path.basename(file_path)}")
+            
+            # Log skipped rows and fill-down patches
+            log_skipped_rows(log_entries)
+            
+            return records
+        
+        # Otherwise, select the best sheet for tabular data
         best_sheet = None
         best_score = 0
         
@@ -279,69 +420,28 @@ def load_excel_file(file_path: str) -> List[Dict]:
         # Read the best sheet
         df = pd.read_excel(file_path, sheet_name=best_sheet)
         
-        # Convert to dictionary records, skipping fluff rows
-        for index, row in df.iterrows():
-            row_dict = row.to_dict()
-            
-            if is_fluff_row(row_dict):
-                skipped_rows.append({
-                    "file": os.path.basename(file_path),
-                    "sheet": best_sheet,
-                    "row": index + 2,  # Excel row number (1-based, +1 for header)
-                    "reason": "fluff_row",
-                    "content": row_dict
-                })
-                continue
-            
-            # Clean and normalize values
-            clean_row = {}
-            for key, value in row_dict.items():
-                if pd.isna(value):
-                    continue
-                
-                # Convert to string for further processing
-                if isinstance(value, (int, float)):
-                    # Keep numbers as is
-                    clean_row[key] = value
-                elif isinstance(value, (datetime.date, datetime.datetime)):
-                    # Format dates consistently
-                    clean_row[key] = value.isoformat()
-                else:
-                    value_str = str(value).strip()
-                    
-                    # Skip error values for numeric fields
-                    if any(num_key in str(key).lower() for num_key in ["amount", "count", "total", "id", "number"]) and \
-                       any(err_val in value_str.lower() for err_val in ["error", "n/a", "none", "unknown"]):
-                        continue
-                    
-                    # Normalize time values
-                    if "time" in str(key).lower() and re.search(r"\d{1,2}:\d{2}", value_str):
-                        clean_row[key] = normalize_time(value_str)
-                    else:
-                        clean_row[key] = value_str
-            
-            if clean_row:
-                data.append(clean_row)
+        # Process the DataFrame to extract records
+        records, log_entries = process_dataframe(df, file_path)
         
-        logger.info(f"Loaded {len(data)} records from Excel, skipped {len(skipped_rows)} rows")
+        logger.info(f"Loaded {len(records)} records from Excel sheet '{best_sheet}' in {os.path.basename(file_path)}")
         
-        # Log skipped rows
-        log_skipped_rows(skipped_rows)
+        # Log skipped rows and fill-down patches
+        log_skipped_rows(log_entries)
         
-        return data
+        return records
     
     except Exception as e:
         logger.error(f"Error loading Excel file {file_path}: {str(e)}")
         return []
 
-def log_skipped_rows(skipped_rows: List[Dict]) -> None:
+def log_skipped_rows(log_entries: List[Dict]) -> None:
     """
-    Log skipped rows to a JSONL file
+    Log skipped rows and fill-down patches to a JSONL file
     
     Args:
-        skipped_rows: List of skipped row records
+        log_entries: List of log entries (skipped rows and fill-down patches)
     """
-    if not skipped_rows:
+    if not log_entries:
         return
     
     try:
@@ -350,10 +450,10 @@ def log_skipped_rows(skipped_rows: List[Dict]) -> None:
         
         # Write to the skipped rows log
         with open("logs/skipped_rows.jsonl", "a") as f:
-            for row in skipped_rows:
-                f.write(json.dumps(row) + "\n")
+            for entry in log_entries:
+                f.write(json.dumps(entry) + "\n")
     except Exception as e:
-        logger.error(f"Error logging skipped rows: {str(e)}")
+        logger.error(f"Error logging entries: {str(e)}")
 
 def load_data_file(file_path: str) -> List[Dict]:
     """
@@ -369,7 +469,14 @@ def load_data_file(file_path: str) -> List[Dict]:
         logger.error(f"File not found: {file_path}")
         return []
     
+    file_name = os.path.basename(file_path)
     file_ext = os.path.splitext(file_path)[1].lower()
+    
+    # Check if filename contains driving history or asset time keywords
+    is_driving_history = any(keyword in file_name.lower() 
+                            for keyword in ['driving', 'history', 'timesite', 'timeonsite', 'driver'])
+    
+    logger.info(f"Loading {'DrivingHistory' if is_driving_history else 'regular'} file: {file_name}")
     
     if file_ext == ".csv":
         return load_csv_file(file_path)

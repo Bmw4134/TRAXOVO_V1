@@ -17,6 +17,14 @@ from agents.geo_validator_agent import handle as geo_validator
 from agents.report_generator_agent import handle as report_generator
 from agents.output_formatter_agent import handle as output_formatter
 
+# Define agent mapping
+AGENT_MAPPING = {
+    "driver_classifier": driver_classifier,
+    "geo_validator": geo_validator,
+    "report_generator": report_generator,
+    "output_formatter": output_formatter
+}
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -278,6 +286,41 @@ def get_controller(config_path=None):
     if _instance is None:
         _instance = AgentController(config_path)
     return _instance
+    
+def handle(agent_name, data, config=None):
+    """
+    Unified interface to handle requests to any agent
+    
+    Args:
+        agent_name (str): Name of the agent to use
+        data (any): Data to process
+        config (dict): Optional configuration
+        
+    Returns:
+        dict: Results from the agent
+    """
+    if agent_name not in AGENT_MAPPING:
+        logger.error(f"Unknown agent: {agent_name}")
+        return {
+            "success": False,
+            "error": f"Unknown agent: {agent_name}",
+            "available_agents": list(AGENT_MAPPING.keys())
+        }
+        
+    try:
+        logger.info(f"Routing request to {agent_name} agent")
+        agent_func = AGENT_MAPPING[agent_name]
+        if config:
+            return agent_func(data, config)
+        else:
+            return agent_func(data)
+    except Exception as e:
+        logger.error(f"Error in {agent_name} agent: {e}")
+        return {
+            "success": False,
+            "error": str(e),
+            "agent": agent_name
+        }
 
 if __name__ == "__main__":
     # Example usage

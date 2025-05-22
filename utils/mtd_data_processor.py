@@ -6,6 +6,7 @@ Driving History and Activity Detail files.
 """
 import os
 import csv
+import time
 import logging
 import pandas as pd
 from datetime import datetime, timedelta
@@ -13,6 +14,27 @@ from datetime import datetime, timedelta
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
+
+def safe_float(value, default=0.0):
+    """
+    Safely convert a value to float, handling 'Unknown' strings and other non-numeric values.
+    
+    Args:
+        value: The value to convert
+        default: Default value to return if conversion fails (default: 0.0)
+        
+    Returns:
+        float: The converted value or default
+    """
+    if value == 'Unknown' or value is None:
+        return default
+        
+    try:
+        return float(value)
+    except (ValueError, TypeError):
+        logger.debug(f"Converting non-numeric value '{value}' to {default}")
+        return default
 
 def parse_csv_file(file_path):
     """Parse a CSV file into a list of dictionaries"""
@@ -47,6 +69,8 @@ def normalize_column_names(data):
     for item in data:
         normalized_item = {}
         for key, value in item.items():
+            if key is None:
+                continue  # Skip None keys to prevent AttributeError
             # Convert to lowercase and replace spaces with underscores
             normalized_key = key.lower().replace(' ', '_')
             normalized_item[normalized_key] = value
@@ -179,8 +203,22 @@ def get_driver_status(start_time_str, end_time_str, job_site=None):
         logger.error(f"Error determining driver status: {str(e)}")
         return 'unknown'
 
-def process_mtd_files(driving_history_paths, activity_detail_paths, assets_time_paths=None, report_date=None):
-    """Process MTD files and generate report data"""
+def process_mtd_files(driving_history_paths, activity_detail_paths, assets_time_paths=None, report_date=None, 
+                     vehicle_filter=None, filter_zeros=True):
+    """
+    Process MTD files and generate report data
+    
+    Args:
+        driving_history_paths (list): List of paths to driving history CSV files
+        activity_detail_paths (list): List of paths to activity detail CSV files
+        assets_time_paths (list, optional): List of paths to assets time CSV files
+        report_date (str, optional): Target date for the report
+        vehicle_filter (dict, optional): Filters for vehicle type, e.g. {'category': 'Pickup Truck', 'type': 'On-Road'}
+        filter_zeros (bool): Whether to filter out job sites or drivers with zero counts
+        
+    Returns:
+        dict: Processed report data
+    """
     try:
         import time
         start_time = time.time()
@@ -190,25 +228,73 @@ def process_mtd_files(driving_history_paths, activity_detail_paths, assets_time_
         logger.info(f"Activity Detail files: {activity_detail_paths}")
         logger.info(f"Assets Time On Site files: {assets_time_paths}")
         
+        if vehicle_filter:
+            logger.info(f"Applying vehicle filter: {vehicle_filter}")
+        
         # Parse all files
         driving_history_data = []
         for file_path in driving_history_paths:
-            driving_history_data.extend(parse_csv_file(file_path))
+            try:
+                data = parse_csv_file(file_path)
+                if data:
+                    driving_history_data.extend(data)
+            except Exception as e:
+                logger.error(f"Error parsing driving history file {file_path}: {str(e)}")
             
         activity_detail_data = []
         for file_path in activity_detail_paths:
-            activity_detail_data.extend(parse_csv_file(file_path))
+            try:
+                data = parse_csv_file(file_path)
+                if data:
+                    activity_detail_data.extend(data)
+            except Exception as e:
+                logger.error(f"Error parsing activity detail file {file_path}: {str(e)}")
             
         assets_time_data = []
         if assets_time_paths:
             for file_path in assets_time_paths:
-                assets_time_data.extend(parse_csv_file(file_path))
+                if isinstance(file_path, str) and os.path.exists(file_path):
+                    try:
+                        data = parse_csv_file(file_path)
+                        if data:
+                            assets_time_data.extend(data)
+                    except Exception as e:
+                        logger.error(f"Error parsing assets time file {file_path}: {str(e)}")
+                        
+        # Check if we have any valid data
+        if not driving_history_data and not activity_detail_data and not assets_time_data:
+            logger.error("No valid data found in any of the provided files")
+            return {
+                'date': report_date,
+                'total_drivers': 0,
+                'drivers': [],
+                'job_sites': [],
+                'error': "No valid data found in provided files",
+                'processing_time': f"{time.time() - start_time:.2f} seconds",
+                'data_sources': [],
+                'validation_status': 'ERROR: No Valid Data',
+                'created_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            }
                 
         # Normalize column names
-        driving_history_data = normalize_column_names(driving_history_data)
-        activity_detail_data = normalize_column_names(activity_detail_data)
+        try:
+            driving_history_data = normalize_column_names(driving_history_data)
+        except Exception as e:
+            logger.error(f"Error normalizing driving history data: {str(e)}")
+            driving_history_data = []
+            
+        try:
+            activity_detail_data = normalize_column_names(activity_detail_data)
+        except Exception as e:
+            logger.error(f"Error normalizing activity detail data: {str(e)}")
+            activity_detail_data = []
+            
         if assets_time_data:
-            assets_time_data = normalize_column_names(assets_time_data)
+            try:
+                assets_time_data = normalize_column_names(assets_time_data)
+            except Exception as e:
+                logger.error(f"Error normalizing assets time data: {str(e)}")
+                assets_time_data = []
             
         # Extract date columns
         dh_date_column = next((col for col in driving_history_data[0].keys() 
@@ -232,43 +318,80 @@ def process_mtd_files(driving_history_paths, activity_detail_paths, assets_time_
         
         # Process driving history data
         for item in filtered_dh_data:
-            driver_name = item.get('driver_name') or item.get('driver') or item.get('name')
-            if not driver_name:
+            try:
+                # Extract driver name with robust fallback
+                driver_name = item.get('driver_name') or item.get('driver') or item.get('name') or item.get('driver_id') or 'Unknown'
+                if not driver_name or driver_name == 'Unknown':
+                    logger.warning(f"Skipping record with missing driver name: {item}")
+                    continue
+                
+                # Apply vehicle type filter if specified
+                if vehicle_filter:
+                    vehicle_category = item.get('category') or item.get('vehicle_category') or item.get('asset_category') or ''
+                    vehicle_type = item.get('type') or item.get('vehicle_type') or item.get('asset_type') or ''
+                    is_pickup = 'pickup' in vehicle_category.lower() if vehicle_category else False
+                    is_on_road = 'road' in vehicle_type.lower() if vehicle_type else False
+                    
+                    # If filters are specified but not matched, skip this record
+                    if 'category' in vehicle_filter and 'pickup' in vehicle_filter['category'].lower() and not is_pickup:
+                        continue
+                    if 'type' in vehicle_filter and 'on-road' in vehicle_filter['type'].lower() and not is_on_road:
+                        continue
+                    
+                # Extract timing data with robust fallback
+                start_time = item.get('start_time') or item.get('first_start') or item.get('on_time') or 'Unknown'
+                end_time = item.get('end_time') or item.get('last_stop') or item.get('off_time') or 'Unknown'
+                job_site = item.get('job_site') or item.get('location') or item.get('site') or 'Unknown Location'
+                
+                # Calculate status
+                status = get_driver_status(start_time, end_time, job_site)
+                
+                # Track driver information
+                if driver_name not in drivers:
+                    drivers[driver_name] = {
+                        'id': len(drivers) + 1,
+                        'name': driver_name,
+                        'start_time': start_time,
+                        'end_time': end_time,
+                        'job_site': job_site,
+                        'status': status,
+                        'gear_status': 'Complete',
+                        'location_verified': True,
+                        'assets_time': 'Unknown', 
+                        'time_on_site': 'Unknown',
+                        'vehicle_category': item.get('category', 'Unknown'),
+                        'vehicle_type': item.get('type', 'Unknown'),
+                        'data_sources': ['Driving History']
+                    }
+                
+                # Track job site information
+                if job_site and job_site != 'Unknown Location' and job_site not in job_sites:
+                    job_sites[job_site] = {
+                        'id': len(job_sites) + 1,
+                        'name': job_site,
+                        'driver_count': 1,
+                        'on_time_count': 1 if status == 'on_time' else 0,
+                        'late_count': 1 if status == 'late' else 0,
+                        'early_end_count': 1 if status == 'early_end' else 0,
+                        'not_on_job_count': 1 if status == 'not_on_job' else 0,
+                        'location': job_site,
+                        'foreman': item.get('foreman', 'Unknown'),
+                        'project_code': item.get('project_code') or item.get('job_number') or f"PRJ-{len(job_sites) + 1:03d}"
+                    }
+                elif job_site and job_site != 'Unknown Location':
+                    # Update existing job site counts
+                    job_sites[job_site]['driver_count'] += 1
+                    if status == 'on_time':
+                        job_sites[job_site]['on_time_count'] += 1
+                    elif status == 'late':
+                        job_sites[job_site]['late_count'] = job_sites[job_site].get('late_count', 0) + 1
+                    elif status == 'early_end':
+                        job_sites[job_site]['early_end_count'] = job_sites[job_site].get('early_end_count', 0) + 1
+                    elif status == 'not_on_job':
+                        job_sites[job_site]['not_on_job_count'] = job_sites[job_site].get('not_on_job_count', 0) + 1
+            except Exception as e:
+                logger.error(f"Error processing driving history item: {str(e)}")
                 continue
-                
-            start_time = item.get('start_time') or item.get('first_start') or item.get('on_time')
-            end_time = item.get('end_time') or item.get('last_stop') or item.get('off_time')
-            job_site = item.get('job_site') or item.get('location') or item.get('site')
-            
-            if driver_name not in drivers:
-                drivers[driver_name] = {
-                    'id': len(drivers) + 1,
-                    'name': driver_name,
-                    'start_time': start_time,
-                    'end_time': end_time,
-                    'job_site': job_site,
-                    'status': get_driver_status(start_time, end_time, job_site),
-                    'gear_status': 'Complete',
-                    'location_verified': True,
-                    'assets_time': 'Unknown', 
-                    'time_on_site': 'Unknown',
-                    'data_sources': ['Driving History']
-                }
-                
-            if job_site and job_site not in job_sites:
-                job_sites[job_site] = {
-                    'id': len(job_sites) + 1,
-                    'name': job_site,
-                    'driver_count': 1,
-                    'on_time_count': 1 if drivers[driver_name]['status'] == 'on_time' else 0,
-                    'location': job_site,
-                    'foreman': 'Unknown',
-                    'project_code': f"PRJ-{len(job_sites) + 1:03d}"
-                }
-            elif job_site:
-                job_sites[job_site]['driver_count'] += 1
-                if drivers[driver_name]['status'] == 'on_time':
-                    job_sites[job_site]['on_time_count'] += 1
         
         # Process activity detail data to enhance driver information
         for item in filtered_ad_data:
@@ -396,8 +519,9 @@ def process_mtd_files(driving_history_paths, activity_detail_paths, assets_time_
         if filtered_at_data:
             data_sources.append('Assets Time On Site')
             
-        # Calculate processing time
-        processing_time = round(time.time() - start_time, 2)
+        # Calculate processing time - using safe conversion to handle any string issues
+        end_processing_time = time.time()
+        processing_time = round(end_processing_time - safe_float(start_time, end_processing_time), 2)
         
         # Build final report data
         report_data = {

@@ -88,38 +88,64 @@ def setup_logging():
 
 def load_appropriate_agents():
     """
-    Load the appropriate agent implementations based on runtime mode.
+    Load the appropriate agent function modules based on runtime mode.
     
     Returns:
-        dict: Dictionary of loaded agent modules
+        dict: Dictionary of loaded agent modules with their functions
     """
     agents = {}
     
     try:
         if config['mode'] == 'dev':
-            # Import development agents
-            from dev.agents.driver_classifier import DriverClassifier
-            from dev.agents.geo_validator import GeoValidator
-            from dev.agents.report_generator import ReportGenerator
+            # Import development agent functions
+            import dev.agents.driver_classifier as dev_driver_classifier
+            import dev.agents.geo_validator as dev_geo_validator
+            import dev.agents.report_generator as dev_report_generator
             
             agents = {
-                'driver_classifier': DriverClassifier(strict=False),
-                'geo_validator': GeoValidator(strict=False),
-                'report_generator': ReportGenerator(strict=False)
+                'driver_classifier': {
+                    'classify_driver': dev_driver_classifier.classify_driver,
+                    'batch_classify_drivers': dev_driver_classifier.batch_classify_drivers,
+                    'strict': False
+                },
+                'geo_validator': {
+                    'validate_location': dev_geo_validator.validate_location,
+                    'batch_validate_locations': dev_geo_validator.batch_validate_locations,
+                    'strict': False
+                },
+                'report_generator': {
+                    'generate_driver_report': dev_report_generator.generate_driver_report,
+                    'generate_jobsite_report': dev_report_generator.generate_jobsite_report,
+                    'export_report_to_json': dev_report_generator.export_report_to_json,
+                    'strict': False
+                }
             }
-            logger.info("Loaded development agent modules")
+            logger.info("Loaded development agent function modules")
         else:
-            # Import production agents
-            from prod.agents.driver_classifier import DriverClassifier
-            from prod.agents.geo_validator import GeoValidator
-            from prod.agents.report_generator import ReportGenerator
+            # Import production agent functions
+            import prod.agents.driver_classifier as prod_driver_classifier
+            import prod.agents.geo_validator as prod_geo_validator
+            import prod.agents.report_generator as prod_report_generator
             
             agents = {
-                'driver_classifier': DriverClassifier(strict=True),
-                'geo_validator': GeoValidator(strict=True),
-                'report_generator': ReportGenerator(strict=True)
+                'driver_classifier': {
+                    'classify_driver': prod_driver_classifier.classify_driver,
+                    'batch_classify_drivers': prod_driver_classifier.batch_classify_drivers,
+                    'strict': True
+                },
+                'geo_validator': {
+                    'validate_location': prod_geo_validator.validate_location,
+                    'batch_validate_locations': prod_geo_validator.batch_validate_locations,
+                    'strict': True
+                },
+                'report_generator': {
+                    'generate_driver_report': prod_report_generator.generate_driver_report,
+                    'generate_jobsite_report': prod_report_generator.generate_jobsite_report,
+                    'export_report_to_json': prod_report_generator.export_report_to_json,
+                    'strict': True
+                }
             }
-            logger.info("Loaded production agent modules")
+            logger.info("Loaded production agent function modules")
     except ImportError as e:
         logger.warning(f"Could not load all agents: {str(e)}")
         logger.info("Using available agents only")

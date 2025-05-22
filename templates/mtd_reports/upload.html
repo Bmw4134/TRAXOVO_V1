@@ -1,0 +1,84 @@
+{% extends "basic_base.html" %}
+
+{% block title %}Upload MTD Files{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">Upload Month-to-Date Files</h2>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('mtd_reports.upload_files') }}" method="post" enctype="multipart/form-data">
+                        <div class="mb-4">
+                            <div class="alert alert-info">
+                                <i class="fa fa-info-circle"></i> This uploader is specifically optimized for large Month-to-Date files
+                                that may cause memory issues with the standard processor.
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card mb-3">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Driving History Files</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label class="form-label">Select Driving History Files</label>
+                                            <input type="file" name="driving_history" class="form-control" multiple>
+                                            <div class="form-text">Upload one or more Driving History CSV files (MTD format supported)</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card mb-3">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Activity Detail Files</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label class="form-label">Select Activity Detail Files</label>
+                                            <input type="file" name="activity_detail" class="form-control" multiple>
+                                            <div class="form-text">Upload one or more Activity Detail CSV files (MTD format supported)</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Target Date Selection</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Select Report Date</label>
+                                            <input type="date" name="report_date" class="form-control" required>
+                                            <div class="form-text">Select the specific date to extract from the MTD file</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('mtd_reports.dashboard') }}" class="btn btn-secondary me-md-2">
+                                <i class="fa fa-arrow-left"></i> Back
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-upload"></i> Upload & Process Files
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

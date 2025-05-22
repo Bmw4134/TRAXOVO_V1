@@ -15,6 +15,7 @@ from routes.billing import billing_bp
 from routes.system_health import system_health_bp
 from routes.map_standalone import map_standalone_bp
 from routes.direct_map_route import direct_map
+from routes.mtd_reports import mtd_reports_bp
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -27,6 +28,7 @@ app.register_blueprint(billing_bp)
 app.register_blueprint(system_health_bp)
 app.register_blueprint(map_standalone_bp)
 app.register_blueprint(direct_map)
+app.register_blueprint(mtd_reports_bp)
 
 @app.route('/')
 def dashboard():

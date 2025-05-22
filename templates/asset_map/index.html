@@ -197,17 +197,31 @@
                     return response.json();
                 })
                 .then(data => {
-                    console.log('Assets loaded:', data);
+                    console.log('Assets loaded:', data.length);
                     
                     // Clear existing markers
                     Object.values(assetMarkers).forEach(marker => map.removeLayer(marker));
                     assetMarkers = {};
                     
+                    // Log total counts
+                    console.log('DOM loaded, initializing direct map');
+                    
                     // Add markers for assets
+                    let validAssets = 0;
+                    let invalidAssets = 0;
+                    
                     data.forEach(asset => {
-                        if (!asset.latitude || !asset.longitude) return;
+                        // Check for valid coordinates
+                        if (!asset.latitude || !asset.longitude || 
+                            isNaN(parseFloat(asset.latitude)) || isNaN(parseFloat(asset.longitude))) {
+                            invalidAssets++;
+                            console.log('Asset missing valid coordinates:', asset.name || asset.id, 
+                                       'Lat:', asset.latitude, 'Long:', asset.longitude);
+                            return;
+                        }
                         
-                        var marker = L.marker([asset.latitude, asset.longitude], {
+                        validAssets++;
+                        var marker = L.marker([parseFloat(asset.latitude), parseFloat(asset.longitude)], {
                             icon: createAssetIcon(asset.status)
                         }).addTo(map);
                         

@@ -95,19 +95,45 @@ def api_assets():
             
             # Transform API data to our format
             assets_data = []
+            assets_without_coords = 0
+            assets_with_valid_coords = 0
+            
             for item in api_data:
+                # Extract coordinates, ensuring they're valid floats
+                latitude = item.get('Latitude') or item.get('latitude')
+                longitude = item.get('Longitude') or item.get('longitude')
+                
+                # Try to convert to float if they're strings
+                try:
+                    if latitude is not None:
+                        latitude = float(latitude)
+                    if longitude is not None:
+                        longitude = float(longitude)
+                except (ValueError, TypeError):
+                    latitude = None
+                    longitude = None
+                
+                # Skip assets without coordinates or with invalid coordinates
+                if latitude is None or longitude is None or not (-90 <= latitude <= 90) or not (-180 <= longitude <= 180):
+                    assets_without_coords += 1
+                    continue
+                
+                assets_with_valid_coords += 1
+                
                 asset = {
                     'id': item.get('id') or item.get('AssetId'),
                     'asset_id': item.get('AssetId') or item.get('id'),
                     'name': item.get('Name') or item.get('AssetName'),
                     'type': item.get('Type') or item.get('AssetType'),
-                    'latitude': item.get('Latitude') or item.get('latitude'),
-                    'longitude': item.get('Longitude') or item.get('longitude'),
+                    'latitude': latitude,
+                    'longitude': longitude,
                     'last_update': datetime.now().isoformat(),
                     'driver': item.get('Driver') or item.get('DriverName'),
                     'status': 'active'
                 }
                 assets_data.append(asset)
+                
+            logger.info(f"Assets with valid coordinates: {assets_with_valid_coords}, without coordinates: {assets_without_coords}")
                 
             # Apply filters directly on API data
             if asset_type:

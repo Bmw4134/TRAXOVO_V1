@@ -332,8 +332,84 @@ def load_csv_file(file_path: str) -> List[Dict]:
     logger.info(f"Loading CSV file: {file_path}")
     
     try:
-        # Read the CSV file into a DataFrame
-        df = pd.read_csv(file_path)
+        # First attempt - standard approach
+        try:
+            # Try reading with default settings
+            df = pd.read_csv(file_path)
+        except Exception as csv_error:
+            logger.warning(f"Standard CSV parsing failed: {str(csv_error)}")
+            
+            # Second attempt - try with more flexible settings
+            try:
+                df = pd.read_csv(
+                    file_path, 
+                    delimiter=None,  # Auto-detect delimiter
+                    engine='python',  # More flexible parsing engine
+                    on_bad_lines='skip'  # Skip problematic lines
+                )
+            except Exception as flex_error:
+                logger.warning(f"Flexible CSV parsing failed: {str(flex_error)}")
+                
+                # Third attempt - most permissive approach
+                try:
+                    # Read in small chunks to handle problematic files
+                    pieces = []
+                    for chunk in pd.read_csv(
+                        file_path, 
+                        chunksize=100,
+                        engine='python',
+                        on_bad_lines='skip',
+                        error_bad_lines=False,
+                        warn_bad_lines=True
+                    ):
+                        pieces.append(chunk)
+                    
+                    # Combine chunks if we got any
+                    if pieces:
+                        df = pd.concat(pieces, ignore_index=True)
+                    else:
+                        logger.error("Failed to extract any data from CSV")
+                        return []
+                except Exception as chunk_error:
+                    logger.error(f"All CSV parsing approaches failed: {str(chunk_error)}")
+                    
+                    # Last resort - manual parsing of header + content
+                    try:
+                        with open(file_path, 'r') as f:
+                            lines = f.readlines()
+                        
+                        # Find potential header row (look for key column names)
+                        header_keywords = ['driver', 'asset', 'vehicle', 'time', 'date']
+                        header_row = 0
+                        
+                        for i, line in enumerate(lines[:20]):  # Check first 20 lines
+                            if any(keyword in line.lower() for keyword in header_keywords):
+                                header_row = i
+                                break
+                        
+                        # Try comma, tab, and semicolon as delimiters
+                        for delimiter in [',', '\t', ';']:
+                            try:
+                                df = pd.read_csv(
+                                    file_path,
+                                    delimiter=delimiter,
+                                    header=header_row,
+                                    encoding='utf-8',
+                                    on_bad_lines='skip',
+                                    skiprows=lambda x: x < header_row
+                                )
+                                if not df.empty:
+                                    break
+                            except:
+                                continue
+                        
+                        if 'df' not in locals() or df.empty:
+                            logger.error("Could not parse CSV file with any method")
+                            return []
+                            
+                    except Exception as manual_error:
+                        logger.error(f"Manual CSV parsing failed: {str(manual_error)}")
+                        return []
         
         # Process the DataFrame to extract records
         records, log_entries = process_dataframe(df, file_path)

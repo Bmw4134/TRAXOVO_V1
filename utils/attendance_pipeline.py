@@ -1,569 +1,782 @@
 """
-Attendance Data Pipeline
+TRAXORA GENIUS CORE | Attendance Pipeline
 
-This module processes raw attendance data from various sources,
-normalizes it, and prepares it for consumption by the UI and reporting tools.
+This module provides the comprehensive attendance pipeline that combines multiple data sources,
+performs cross-validation and classification for attendance reporting.
+
+Key components:
+1. Multi-source integration (TimeOnSite, DrivingHistory, ActivityDetail, Timecard)
+2. Driver + Date join keys
+3. Advanced classification (On Time, Late, No Show, Early End)
+4. Timecard cross-validation
+5. Exportable reports (Weekly summary, Daily details)
 """
-
 import os
-import pandas as pd
 import json
 import logging
-from datetime import datetime, timedelta
-import re
-from pathlib import Path
+import pandas as pd
+import numpy as np
+from typing import Dict, List, Any, Optional, Tuple, Union
+from datetime import datetime, time, timedelta
+import pytz
 
-# Import structured logger
-from utils.structured_logger import get_pipeline_logger
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-# Get pipeline-specific logger
-logger = get_pipeline_logger()
+# Constants for attendance classification
+STANDARD_START_TIME = time(7, 0)  # 7:00 AM
+LATE_THRESHOLD = time(7, 15)      # 7:15 AM
+EARLY_END_TIME = time(15, 30)     # 3:30 PM
+STANDARD_END_TIME = time(16, 0)   # 4:00 PM
+MINIMUM_HOURS = 8.0               # Minimum expected hours
 
-# Constants and configuration
-DEFAULT_START_TIME = "07:00"
-LATE_THRESHOLD_MINUTES = 15
-TIMEZONE_UTC_OFFSET = -5  # CDT/CST timezone (UTC-5)
+# Central timezone for standardization
+CENTRAL_TZ = pytz.timezone('US/Central')
 
-def find_latest_activity_file():
-    """Find the latest activity detail file in the attached_assets directory"""
-    activity_files = []
-    
-    try:
-        # Check attached_assets directory for files
-        assets_dir = Path("attached_assets")
-        if not assets_dir.exists():
-            logger.warning(f"Directory not found: {assets_dir}")
-            return None
-        
-        # Look for ActivityDetail files with fault tolerance
-        for file in assets_dir.glob("ActivityDetail*.csv"):
-            # Validate file exists and is readable
-            if os.path.isfile(file) and os.access(file, os.R_OK):
-                activity_files.append(str(file))
-            else:
-                logger.warning(f"File exists but not readable: {file}")
-        
-        if not activity_files:
-            logger.warning("No ActivityDetail files found")
-            return None
-        
-        # Return the latest file based on modification time
-        latest_file = max(activity_files, key=os.path.getmtime)
-        logger.info(f"Found latest activity file: {latest_file}")
-        return latest_file
-        
-    except Exception as e:
-        logger.error(f"Error finding latest activity file: {str(e)}")
-        # Return fallback file path if it exists
-        fallback_file = "attached_assets/ActivityDetail.csv"
-        if os.path.exists(fallback_file):
-            logger.info(f"Using fallback activity file: {fallback_file}")
-            return fallback_file
-        return None
-
-
-def find_latest_driving_history_file():
-    """Find the latest driving history file in the attached_assets directory"""
-    driving_files = []
-    
-    try:
-        # Check attached_assets directory for files
-        assets_dir = Path("attached_assets")
-        if not assets_dir.exists():
-            logger.warning(f"Directory not found: {assets_dir}")
-            return None
-        
-        # Look for DrivingHistory files with fault tolerance
-        for file in assets_dir.glob("DrivingHistory*.csv"):
-            # Validate file exists and is readable
-            if os.path.isfile(file) and os.access(file, os.R_OK):
-                driving_files.append(str(file))
-            else:
-                logger.warning(f"File exists but not readable: {file}")
-        
-        if not driving_files:
-            logger.warning("No DrivingHistory files found")
-            return None
-        
-        # Return the latest file based on modification time
-        latest_file = max(driving_files, key=os.path.getmtime)
-        logger.info(f"Found latest driving history file: {latest_file}")
-        return latest_file
-        
-    except Exception as e:
-        logger.error(f"Error finding latest driving history file: {str(e)}")
-        # Return fallback file path if it exists
-        fallback_file = "attached_assets/DrivingHistory.csv"
-        if os.path.exists(fallback_file):
-            logger.info(f"Using fallback driving history file: {fallback_file}")
-            return fallback_file
-        return None
-
-
-def find_latest_fleet_utilization_file():
-    """Find the latest fleet utilization file in the attached_assets directory"""
-    fleet_files = []
-    
-    # Check attached_assets directory for files
-    assets_dir = Path("attached_assets")
-    if not assets_dir.exists():
-        logger.warning(f"Directory not found: {assets_dir}")
+def normalize_name(name: Optional[str]) -> Optional[str]:
+    """Normalize driver name for consistent matching"""
+    if not name:
         return None
     
-    # Look for FleetUtilization files
-    for file in assets_dir.glob("FleetUtilization*.xlsx"):
-        fleet_files.append(str(file))
+    # Convert to string, strip whitespace, and convert to lowercase
+    name = str(name).strip().lower()
     
-    if not fleet_files:
-        logger.warning("No FleetUtilization files found")
-        return None
+    # Remove common prefixes/suffixes
+    name = name.replace('driver:', '').replace('id:', '')
     
-    # Return the latest file based on modification time
-    latest_file = max(fleet_files, key=os.path.getmtime)
-    logger.info(f"Found latest fleet utilization file: {latest_file}")
-    return latest_file
+    return name
 
-
-# Import timezone normalizer
-from utils.timezone_normalizer import normalize_time_string
-
-def normalize_time(time_str):
-    """
-    Normalize time string to HH:MM format.
-    
-    Args:
-        time_str (str): Time string in various formats
-        
-    Returns:
-        str: Normalized time string in HH:MM format or None if invalid
-    """
+def normalize_time(time_str: Optional[Union[str, time, datetime]]) -> Optional[time]:
+    """Normalize time string to time object for consistent comparison"""
     if not time_str or pd.isna(time_str):
         return None
     
-    # Use timezone normalizer to standardize time handling
-    normalized_time, is_next_day = normalize_time_string(time_str)
-    
-    # Add next-day indicator if detected
-    if normalized_time and is_next_day:
-        normalized_time += " (+1)"
-        logger.info(f"Detected next-day time: {time_str} -> {normalized_time}")
-    
-    return normalized_time
-
-
-def parse_activity_detail(file_path):
-    """
-    Parse activity detail file to extract driver activity data.
-    
-    Args:
-        file_path (str): Path to the ActivityDetail CSV file
-        
-    Returns:
-        list: List of driver activity records
-    """
     try:
-        if not file_path or not os.path.exists(file_path):
-            logger.error(f"Activity detail file not found: {file_path}")
-            return []
+        # Handle various time formats
+        if isinstance(time_str, time):
+            return time_str
+        elif isinstance(time_str, datetime):
+            return time_str.time()
         
-        # First, find the actual header row
-        with open(file_path, 'r') as f:
-            header_row = None
-            for i, line in enumerate(f):
-                if 'AssetLabel' in line or 'EventDateTime' in line:
-                    header_row = i
-                    break
+        # Clean up the string
+        time_str = str(time_str).strip().upper()
         
-        if header_row is None:
-            logger.error(f"Could not find header row in activity detail file: {file_path}")
-            return []
+        # Remove timezone info if present
+        if " " in time_str and any(tz in time_str for tz in ["CST", "CDT", "CT"]):
+            time_str = time_str.split(" ")[0]
         
-        # Read the CSV file with the correct header row
-        logger.info(f"Reading activity detail file: {file_path}")
-        df = pd.read_csv(file_path, skiprows=header_row)
+        # Handle AM/PM format
+        if "AM" in time_str or "PM" in time_str:
+            # Try direct parsing
+            try:
+                dt = datetime.strptime(time_str, "%I:%M %p")
+                return dt.time()
+            except ValueError:
+                try:
+                    dt = datetime.strptime(time_str, "%I:%M:%S %p")
+                    return dt.time()
+                except ValueError:
+                    try:
+                        dt = datetime.strptime(time_str, "%I%p")
+                        return dt.time()
+                    except ValueError:
+                        pass
         
-        # Log the columns we found
-        logger.info(f"Found columns in activity detail file: {', '.join(df.columns)}")
+        # Try 24-hour format
+        try:
+            if ":" in time_str:
+                parts = time_str.split(":")
+                if len(parts) == 2:
+                    return time(int(parts[0]), int(parts[1]))
+                elif len(parts) == 3:
+                    return time(int(parts[0]), int(parts[1]), int(parts[2]))
+        except ValueError:
+            pass
         
-        # Convert to records
-        records = []
-        current_asset = None
-        current_driver = None
-        
-        for _, row in df.iterrows():
-            # Get asset label which contains driver info
-            asset_label = row.get('AssetLabel', '')
-            if pd.notna(asset_label) and asset_label:
-                current_asset = asset_label
-                # Try to extract driver name from asset label
-                if ' - ' in asset_label and '+' in asset_label:
-                    parts = asset_label.split(' - ', 1)
-                    if len(parts) > 1:
-                        driver_part = parts[1].split('+')[0].strip()
-                        # Assume the first two words are the driver's first and last name
-                        name_parts = driver_part.split()
-                        if len(name_parts) >= 2:
-                            current_driver = f"{name_parts[0]} {name_parts[1]}"
-            
-            # Skip rows without event data
-            event_time = row.get('EventDateTimex', '')
-            if not pd.notna(event_time) or not event_time:
+        # Try more specific formats
+        for fmt in [
+            "%H:%M:%S", "%H:%M", "%I:%M %p", "%I:%M:%S %p", 
+            "%I%p", "%H%M", "%I%M%p"
+        ]:
+            try:
+                dt = datetime.strptime(time_str, fmt)
+                return dt.time()
+            except ValueError:
                 continue
-                
-            # Get event reason and location
-            reason = row.get('Reasonx', '')
-            location = row.get('Locationx', '')
-            
-            # Skip if no location or reason
-            if not pd.notna(location) or not location or not pd.notna(reason) or not reason:
-                continue
-                
-            # Only process relevant events
-            if not (pd.notna(reason) and reason in ['Key On', 'Key Off', 'Heartbeat', 'Idle Ended', 'Idling']):
-                continue
-                
-            # Skip rows without a driver
-            if not current_driver:
-                continue
-            
-            # Create record
-            record = {
-                'driver_name': current_driver,
-                'asset_id': current_asset,
-                'job_site': location,
-                'actual_start': normalize_time(event_time) if reason in ['Key On', 'Heartbeat'] else None,
-                'actual_end': normalize_time(event_time) if reason == 'Key Off' else None,
-                'data_source': 'activity_detail'
-            }
-            
-            # Only add records with at least one time value
-            if record['actual_start'] or record['actual_end']:
-                records.append(record)
         
-        logger.info(f"Parsed {len(records)} records from activity detail file")
-        return records
+        logger.warning(f"Could not parse time string: {time_str}")
+        return None
     except Exception as e:
-        logger.error(f"Error parsing activity detail file: {e}", exc_info=True)
-        return []
+        logger.error(f"Error normalizing time '{time_str}': {str(e)}")
+        return None
 
-
-def parse_driving_history(file_path):
-    """
-    Parse driving history file to extract driver movement data.
+def normalize_date(date_str: Optional[Union[str, datetime]]) -> Optional[str]:
+    """Normalize date to YYYY-MM-DD format for consistent comparison"""
+    if not date_str or pd.isna(date_str):
+        return None
     
-    Args:
-        file_path (str): Path to the DrivingHistory CSV file
-        
-    Returns:
-        list: List of driver movement records
-    """
     try:
-        if not file_path or not os.path.exists(file_path):
-            logger.error(f"Driving history file not found: {file_path}")
-            return []
+        # Handle datetime objects
+        if isinstance(date_str, datetime):
+            return date_str.strftime('%Y-%m-%d')
         
-        # Read the CSV file with custom format handling
-        logger.info(f"Reading driving history file: {file_path}")
+        # Clean string
+        date_str = str(date_str).strip()
         
-        # First, try to determine the actual header row
-        with open(file_path, 'r') as f:
-            header_row = None
-            for i, line in enumerate(f):
-                if 'Textbox53' in line or 'Contact' in line or 'EventDateTime' in line:
-                    header_row = i
-                    break
+        # Remove time component if present
+        if "T" in date_str:
+            date_str = date_str.split("T")[0]
+        elif " " in date_str:
+            date_str = date_str.split(" ")[0]
         
-        if header_row is None:
-            logger.error(f"Could not find header row in driving history file: {file_path}")
-            return []
-        
-        # Now read the file with the correct header row
-        df = pd.read_csv(file_path, skiprows=header_row)
-        
-        # Log the columns we found
-        logger.info(f"Found columns in driving history file: {', '.join(df.columns)}")
-        
-        # Process the data
-        records = []
-        current_vehicle = None
-        current_driver = None
-        
-        for _, row in df.iterrows():
-            # Check if this is a vehicle/driver header row
-            if pd.notna(row.get('Textbox53')) and isinstance(row.get('Textbox53'), str) and '+' in row.get('Textbox53'):
-                current_vehicle = row.get('Textbox53', '').strip()
-                # Try to extract driver name from vehicle
-                if ' - ' in current_vehicle:
-                    driver_part = current_vehicle.split(' - ', 1)[1]
-                    if ' ' in driver_part:
-                        # Assumes format like "#210073 - BIKHYAT ADHIKARI TOYOTA 4 RUNNER 2022 Personal Vehicle +"
-                        name_parts = driver_part.split(' ')
-                        if len(name_parts) >= 2:
-                            current_driver = f"{name_parts[0]} {name_parts[1]}"
+        # Try various formats
+        for fmt in ["%Y-%m-%d", "%m/%d/%Y", "%d/%m/%Y", "%m-%d-%Y", "%Y/%m/%d"]:
+            try:
+                date_obj = datetime.strptime(date_str, fmt)
+                return date_obj.strftime('%Y-%m-%d')
+            except ValueError:
                 continue
-            
-            # Get contact info which contains driver name
-            contact = row.get('Contact', '')
-            if pd.notna(contact) and contact:
-                # Extract driver name from contact format "Ammar Elhamad (210003)"
-                if '(' in contact:
-                    current_driver = contact.split('(')[0].strip()
-            
-            # Skip rows without event data
-            event_time = row.get('EventDateTime', '')
-            if not pd.notna(event_time) or not event_time:
-                continue
-                
-            msg_type = row.get('MsgType', '')
-            location = row.get('Location', '')
-            
-            # Only process key events
-            if not (pd.notna(msg_type) and msg_type in ['Key On', 'Key Off', 'Arrived', 'Departed']):
-                continue
-                
-            # Skip rows without driver or location
-            if not current_driver or not location:
-                continue
-            
-            # Create a record based on event type
-            if msg_type == 'Key On' or msg_type == 'Arrived':
-                record = {
-                    'driver_name': current_driver,
-                    'asset_id': current_vehicle if current_vehicle else '',
-                    'job_site': location,
-                    'actual_start': normalize_time(event_time),
-                    'data_source': 'driving_history'
-                }
-                records.append(record)
-                
-            elif msg_type == 'Key Off' or msg_type == 'Departed':
-                record = {
-                    'driver_name': current_driver,
-                    'asset_id': current_vehicle if current_vehicle else '',
-                    'job_site': location,
-                    'actual_end': normalize_time(event_time),
-                    'data_source': 'driving_history'
-                }
-                records.append(record)
         
-        logger.info(f"Parsed {len(records)} records from driving history file")
-        return records
-    
+        logger.warning(f"Could not parse date string: {date_str}")
+        return None
     except Exception as e:
-        logger.error(f"Error parsing driving history file: {e}", exc_info=True)
-        return []
+        logger.error(f"Error normalizing date '{date_str}': {str(e)}")
+        return None
 
-
-def parse_fleet_utilization(file_path):
-    """
-    Parse fleet utilization file to extract scheduled times.
+def calculate_hours(time_in: Optional[time], time_out: Optional[time]) -> Optional[float]:
+    """Calculate hours between time_in and time_out"""
+    if not time_in or not time_out:
+        return None
     
-    Args:
-        file_path (str): Path to the FleetUtilization Excel file
-        
-    Returns:
-        list: List of scheduled time records
-    """
     try:
-        if not file_path or not os.path.exists(file_path):
-            logger.error(f"Fleet utilization file not found: {file_path}")
-            return []
+        # Create today's datetime with the given times
+        today = datetime.today().date()
+        dt_in = datetime.combine(today, time_in)
+        dt_out = datetime.combine(today, time_out)
         
-        # Read the Excel file
-        logger.info(f"Reading fleet utilization file: {file_path}")
-        df = pd.read_excel(file_path)
+        # Handle overnight shifts
+        if dt_out < dt_in:
+            dt_out = datetime.combine(today + timedelta(days=1), time_out)
         
-        # Check if the file has required columns
-        required_columns = ['Asset', 'Operator', 'Scheduled Start', 'Scheduled End']
-        if not all(col in df.columns for col in required_columns):
-            logger.error(f"Fleet utilization file missing required columns: {file_path}")
-            return []
+        # Calculate duration in hours
+        duration = (dt_out - dt_in).total_seconds() / 3600
         
-        # Convert to records
-        records = []
-        for _, row in df.iterrows():
-            # Extract driver name and asset
-            driver_name = row.get('Operator', '').strip()
-            asset = row.get('Asset', '').strip()
-            
-            # Skip empty records
-            if not driver_name or not asset:
-                continue
-            
-            # Parse times
-            scheduled_start = normalize_time(row.get('Scheduled Start'))
-            scheduled_end = normalize_time(row.get('Scheduled End'))
-            
-            # Create record
-            record = {
-                'driver_name': driver_name,
-                'asset_id': asset,
-                'scheduled_start': scheduled_start,
-                'scheduled_end': scheduled_end,
-                'data_source': 'fleet_utilization'
-            }
-            
-            records.append(record)
+        # Cap unreasonable values
+        if duration > 24:
+            logger.warning(f"Calculated duration ({duration:.2f} hrs) exceeds 24 hours, capping at 12")
+            duration = 12.0
         
-        logger.info(f"Parsed {len(records)} records from fleet utilization file")
-        return records
+        return round(duration, 2)
     except Exception as e:
-        logger.error(f"Error parsing fleet utilization file: {e}", exc_info=True)
-        return []
+        logger.error(f"Error calculating hours: {str(e)}")
+        return None
 
-
-def merge_attendance_records(activity_records, driving_records, schedule_records):
+def classify_attendance(time_in: Optional[time], time_out: Optional[time], 
+                       timecard_hours: Optional[float] = None) -> Dict:
     """
-    Merge attendance records from different sources.
+    Classify attendance based on time in, time out, and timecard hours.
+    
+    Returns a dict with:
+    - status: on_time, late, no_show, early_end, or unclassified
+    - reason: Explanation for the classification
+    - flags: List of flags for this record
+    """
+    result = {
+        "status": "unclassified",
+        "reason": "Insufficient data to classify",
+        "flags": []
+    }
+    
+    # No data case
+    if time_in is None and time_out is None and (timecard_hours is None or timecard_hours <= 0):
+        result["status"] = "no_show"
+        result["reason"] = "No time records found for this date"
+        result["flags"].append("missing_time_records")
+        return result
+    
+    # Calculate hours if we have both times
+    calculated_hours = None
+    if time_in and time_out:
+        calculated_hours = calculate_hours(time_in, time_out)
+    
+    # Handle time in classification
+    if time_in:
+        if time_in <= STANDARD_START_TIME:
+            result["status"] = "on_time"
+            result["reason"] = f"Arrived on time (before {STANDARD_START_TIME.strftime('%I:%M %p')})"
+        elif time_in <= LATE_THRESHOLD:
+            result["status"] = "on_time"
+            result["reason"] = f"Arrived within grace period (before {LATE_THRESHOLD.strftime('%I:%M %p')})"
+            result["flags"].append("within_grace_period")
+        else:
+            result["status"] = "late"
+            result["reason"] = f"Arrived late (after {LATE_THRESHOLD.strftime('%I:%M %p')})"
+            result["flags"].append("late_arrival")
+    else:
+        # Have time out but no time in
+        if time_out:
+            result["status"] = "unclassified"
+            result["reason"] = "Missing arrival time"
+            result["flags"].append("missing_time_in")
+        else:
+            result["status"] = "no_show"
+            result["reason"] = "No time records found"
+            result["flags"].append("missing_time_records")
+    
+    # Check for early end if we have end time
+    if time_out and time_in and result["status"] != "no_show":
+        if time_out < EARLY_END_TIME:
+            result["status"] = "early_end"
+            result["reason"] = f"Left early (before {EARLY_END_TIME.strftime('%I:%M %p')})"
+            result["flags"].append("early_departure")
+        
+        # If hours are less than minimum expected
+        if calculated_hours and calculated_hours < MINIMUM_HOURS:
+            result["flags"].append("insufficient_hours")
+            
+            # If status is already problematic, don't override
+            if result["status"] not in ["late", "early_end", "no_show"]:
+                result["status"] = "early_end"
+                result["reason"] = f"Insufficient hours: {calculated_hours:.1f} (minimum {MINIMUM_HOURS})"
+    
+    # Cross-check with timecard hours if available
+    if timecard_hours is not None and timecard_hours > 0:
+        # If timecard shows sufficient hours but our classification says otherwise
+        if timecard_hours >= MINIMUM_HOURS and calculated_hours and calculated_hours < MINIMUM_HOURS:
+            result["flags"].append("timecard_mismatch")
+            result["flags"].append("timecard_shows_sufficient_hours")
+        
+        # If timecard shows insufficient hours but our classification is on_time
+        if timecard_hours < MINIMUM_HOURS and result["status"] == "on_time" and not "insufficient_hours" in result["flags"]:
+            result["flags"].append("timecard_mismatch")
+            result["flags"].append("timecard_shows_insufficient_hours")
+    
+    return result
+
+def combine_attendance_data(time_on_site_data: List[Dict], driving_history_data: List[Dict], 
+                           activity_detail_data: Optional[List[Dict]] = None, 
+                           timecard_data: Optional[List[Dict]] = None) -> List[Dict]:
+    """
+    Combine attendance data from multiple sources using driver+date as join keys.
     
     Args:
-        activity_records (list): Records from activity detail file
-        driving_records (list): Records from driving history file
-        schedule_records (list): Records from fleet utilization file
+        time_on_site_data: List of TimeOnSite records
+        driving_history_data: List of DrivingHistory records
+        activity_detail_data: Optional list of ActivityDetail records
+        timecard_data: Optional list of Timecard records
         
     Returns:
-        list: Merged attendance records
+        List of combined attendance records with classification
     """
-    # Create a dictionary to store merged records by driver name
-    merged_records = {}
+    logger.info("Combining attendance data from multiple sources")
     
-    # Process schedule records first (they contain the expected times)
-    for record in schedule_records:
-        driver_name = record.get('driver_name')
-        if not driver_name:
+    # Convert lists to DataFrames for easier manipulation
+    tos_df = pd.DataFrame(time_on_site_data) if time_on_site_data else pd.DataFrame()
+    dh_df = pd.DataFrame(driving_history_data) if driving_history_data else pd.DataFrame()
+    ad_df = pd.DataFrame(activity_detail_data) if activity_detail_data else pd.DataFrame()
+    tc_df = pd.DataFrame(timecard_data) if timecard_data else pd.DataFrame()
+    
+    # Normalize driver names and dates for consistent joining
+    for df in [tos_df, dh_df, ad_df, tc_df]:
+        if not df.empty:
+            if 'driver_name' in df.columns:
+                df['driver_name_norm'] = df['driver_name'].apply(normalize_name)
+            elif 'employee_name' in df.columns:
+                df['driver_name_norm'] = df['employee_name'].apply(normalize_name)
+                df['driver_name'] = df['employee_name']
+            
+            if 'date' in df.columns:
+                df['date_norm'] = df['date'].apply(normalize_date)
+    
+    # Dictionary to store combined records by driver+date key
+    combined_records = {}
+    
+    # Process all data sources to find all unique driver+date combinations
+    for df, source_name in [(tos_df, 'TimeOnSite'), (dh_df, 'DrivingHistory'), 
+                           (ad_df, 'ActivityDetail'), (tc_df, 'Timecard')]:
+        if df.empty:
             continue
         
-        merged_records[driver_name] = {
-            'driver_name': driver_name,
-            'asset_id': record.get('asset_id'),
-            'scheduled_start': record.get('scheduled_start'),
-            'scheduled_end': record.get('scheduled_end'),
-            'data_sources': ['fleet_utilization']
+        for _, row in df.iterrows():
+            driver_name = row.get('driver_name')
+            driver_name_norm = row.get('driver_name_norm')
+            date = row.get('date')
+            date_norm = row.get('date_norm')
+            
+            if not driver_name_norm or not date_norm:
+                continue
+            
+            # Create key for this driver+date combo
+            key = f"{driver_name_norm}_{date_norm}"
+            
+            # Initialize record if it doesn't exist
+            if key not in combined_records:
+                combined_records[key] = {
+                    'driver_name': driver_name,
+                    'driver_name_norm': driver_name_norm,
+                    'date': date,
+                    'date_norm': date_norm,
+                    'sources': [],
+                    'time_in': None,
+                    'time_out': None,
+                    'job_site': None,
+                    'asset_id': None,
+                    'timecard_hours': None,
+                    'timecard_job': None,
+                    'calculated_hours': None,
+                    'classification': {},
+                    'raw_data': {}
+                }
+            
+            # Add source to the list
+            if source_name not in combined_records[key]['sources']:
+                combined_records[key]['sources'].append(source_name)
+            
+            # Store the raw data for reference
+            combined_records[key]['raw_data'][source_name] = row.to_dict()
+    
+    # Process data from each source to populate fields
+    for key, record in combined_records.items():
+        # Process TimeOnSite data (most accurate for time windows)
+        if 'TimeOnSite' in record['sources']:
+            row = record['raw_data']['TimeOnSite']
+            
+            time_in = normalize_time(row.get('time_in'))
+            time_out = normalize_time(row.get('time_out'))
+            
+            if time_in:
+                record['time_in'] = time_in
+                record['time_in_raw'] = row.get('time_in')
+            
+            if time_out:
+                record['time_out'] = time_out
+                record['time_out_raw'] = row.get('time_out')
+            
+            if row.get('job_site'):
+                record['job_site'] = row.get('job_site')
+            
+            if row.get('asset_id'):
+                record['asset_id'] = row.get('asset_id')
+        
+        # Process DrivingHistory data (good for movement windows)
+        if 'DrivingHistory' in record['sources']:
+            row = record['raw_data']['DrivingHistory']
+            
+            # Only update if not already set
+            if not record['time_in']:
+                time_in = normalize_time(row.get('time_in'))
+                if time_in:
+                    record['time_in'] = time_in
+                    record['time_in_raw'] = row.get('time_in')
+            
+            if not record['time_out']:
+                time_out = normalize_time(row.get('time_out'))
+                if time_out:
+                    record['time_out'] = time_out
+                    record['time_out_raw'] = row.get('time_out')
+            
+            if not record['job_site'] and row.get('job_site'):
+                record['job_site'] = row.get('job_site')
+            
+            if not record['asset_id'] and row.get('asset_id'):
+                record['asset_id'] = row.get('asset_id')
+        
+        # Process ActivityDetail data (good for context)
+        if 'ActivityDetail' in record['sources']:
+            row = record['raw_data']['ActivityDetail']
+            
+            # Only update if not already set
+            if not record['time_in']:
+                time_in = normalize_time(row.get('time_in'))
+                if time_in:
+                    record['time_in'] = time_in
+                    record['time_in_raw'] = row.get('time_in')
+            
+            if not record['time_out']:
+                time_out = normalize_time(row.get('time_out'))
+                if time_out:
+                    record['time_out'] = time_out
+                    record['time_out_raw'] = row.get('time_out')
+            
+            if not record['job_site'] and row.get('job_site'):
+                record['job_site'] = row.get('job_site')
+            
+            if not record['asset_id'] and row.get('asset_id'):
+                record['asset_id'] = row.get('asset_id')
+        
+        # Process Timecard data (for cross-validation)
+        if 'Timecard' in record['sources']:
+            row = record['raw_data']['Timecard']
+            
+            # Extract hours
+            if row.get('hours'):
+                try:
+                    record['timecard_hours'] = float(row.get('hours'))
+                except (ValueError, TypeError):
+                    pass
+            
+            # Extract job information
+            if row.get('job'):
+                record['timecard_job'] = row.get('job')
+            
+            # Try to get time if no other source provided
+            if not record['time_in'] and row.get('time_in'):
+                time_in = normalize_time(row.get('time_in'))
+                if time_in:
+                    record['time_in'] = time_in
+                    record['time_in_raw'] = row.get('time_in')
+            
+            if not record['time_out'] and row.get('time_out'):
+                time_out = normalize_time(row.get('time_out'))
+                if time_out:
+                    record['time_out'] = time_out
+                    record['time_out_raw'] = row.get('time_out')
+        
+        # Calculate hours if we have both times
+        if record['time_in'] and record['time_out']:
+            record['calculated_hours'] = calculate_hours(record['time_in'], record['time_out'])
+        
+        # Classify attendance
+        record['classification'] = classify_attendance(
+            record['time_in'],
+            record['time_out'],
+            record['timecard_hours']
+        )
+        
+        # Cross-validate job site with timecard
+        if record['job_site'] and record['timecard_job']:
+            # Normalize for comparison
+            js = str(record['job_site']).strip().upper()
+            tj = str(record['timecard_job']).strip().upper()
+            
+            # Check if there's a job number mismatch
+            if js != tj and not js in tj and not tj in js:
+                record['classification']['flags'].append('job_site_mismatch')
+    
+    # Convert dictionary to list
+    combined_list = list(combined_records.values())
+    
+    # Remove raw_data to reduce size
+    for record in combined_list:
+        if 'raw_data' in record:
+            del record['raw_data']
+    
+    logger.info(f"Combined {len(combined_list)} attendance records from multiple sources")
+    return combined_list
+
+def generate_weekly_summary(attendance_records: List[Dict]) -> List[Dict]:
+    """
+    Generate weekly summary by driver from attendance records.
+    
+    Args:
+        attendance_records: List of combined attendance records
+        
+    Returns:
+        List of weekly summary records by driver
+    """
+    if not attendance_records:
+        return []
+    
+    # Group by driver name
+    drivers = {}
+    for record in attendance_records:
+        driver_name = record['driver_name']
+        if driver_name not in drivers:
+            drivers[driver_name] = []
+        drivers[driver_name].append(record)
+    
+    # Generate summary for each driver
+    weekly_summary = []
+    
+    for driver_name, records in drivers.items():
+        # Sort records by date
+        records.sort(key=lambda x: x['date'])
+        
+        # Calculate date range
+        dates = [r['date'] for r in records]
+        first_date = min(dates) if dates else None
+        last_date = max(dates) if dates else None
+        
+        # Count statuses
+        status_counts = {
+            'on_time': 0,
+            'late': 0,
+            'early_end': 0,
+            'no_show': 0,
+            'unclassified': 0
         }
-    
-    # Process activity records (they contain actual start times)
-    for record in activity_records:
-        driver_name = record.get('driver_name')
-        if not driver_name:
-            continue
         
-        if driver_name in merged_records:
-            # Update existing record
-            merged_records[driver_name]['actual_start'] = record.get('actual_start')
-            merged_records[driver_name]['job_site'] = record.get('job_site')
-            if 'activity_detail' not in merged_records[driver_name].get('data_sources', []):
-                merged_records[driver_name]['data_sources'].append('activity_detail')
-        else:
-            # Create new record
-            merged_records[driver_name] = {
-                'driver_name': driver_name,
-                'job_site': record.get('job_site'),
-                'actual_start': record.get('actual_start'),
-                'data_sources': ['activity_detail']
-            }
-    
-    # Process driving records (they contain both start and end times)
-    for record in driving_records:
-        driver_name = record.get('driver_name')
-        if not driver_name:
-            continue
+        for record in records:
+            status = record['classification']['status']
+            if status in status_counts:
+                status_counts[status] += 1
         
-        if driver_name in merged_records:
-            # Update existing record
-            if not merged_records[driver_name].get('actual_start'):
-                merged_records[driver_name]['actual_start'] = record.get('actual_start')
-            if not merged_records[driver_name].get('actual_end'):
-                merged_records[driver_name]['actual_end'] = record.get('actual_end')
-            if not merged_records[driver_name].get('job_site'):
-                merged_records[driver_name]['job_site'] = record.get('job_site')
-            if 'driving_history' not in merged_records[driver_name].get('data_sources', []):
-                merged_records[driver_name]['data_sources'].append('driving_history')
-        else:
-            # Create new record
-            merged_records[driver_name] = {
-                'driver_name': driver_name,
-                'job_site': record.get('job_site'),
-                'actual_start': record.get('actual_start'),
-                'actual_end': record.get('actual_end'),
-                'data_sources': ['driving_history']
-            }
-    
-    # Import timezone calculation utility
-    from utils.timezone_normalizer import calculate_time_difference_minutes
-    
-    # Calculate lateness and early departure
-    for driver_name, record in merged_records.items():
-        # Default scheduled start if not available
-        if not record.get('scheduled_start'):
-            record['scheduled_start'] = DEFAULT_START_TIME
+        # Compile flag counts
+        flag_counts = {}
+        for record in records:
+            for flag in record['classification'].get('flags', []):
+                flag_counts[flag] = flag_counts.get(flag, 0) + 1
         
-        # Calculate lateness
-        if record.get('scheduled_start') and record.get('actual_start'):
-            try:
-                # Use the timezone utility to calculate the difference
-                minutes_late = calculate_time_difference_minutes(
-                    record['scheduled_start'], 
-                    record['actual_start']
-                )
-                
-                # Only positive values (late arrivals)
-                if minutes_late and minutes_late > 0:
-                    record['late_minutes'] = minutes_late
-                    logger.info(f"Driver {driver_name} is {minutes_late} minutes late: "
-                               f"scheduled {record['scheduled_start']}, actual {record['actual_start']}")
-            except Exception as e:
-                logger.warning(f"Could not calculate lateness for driver {driver_name}: {e}")
+        # Create summary record
+        summary = {
+            'driver_name': driver_name,
+            'week_start': first_date,
+            'week_end': last_date,
+            'total_days': len(records),
+            'on_time_days': status_counts['on_time'],
+            'late_days': status_counts['late'],
+            'early_end_days': status_counts['early_end'],
+            'no_show_days': status_counts['no_show'],
+            'unclassified_days': status_counts['unclassified'],
+            'flag_counts': flag_counts,
+            'flags': [],
+            'daily_records': records
+        }
         
-        # Calculate early departure
-        if record.get('scheduled_end') and record.get('actual_end'):
-            try:
-                # Use the timezone utility to calculate the difference
-                minutes_early = calculate_time_difference_minutes(
-                    record['actual_end'], 
-                    record['scheduled_end']
-                )
-                
-                # Only positive values (early departures)
-                if minutes_early and minutes_early > 0:
-                    record['early_minutes'] = minutes_early
-                    logger.info(f"Driver {driver_name} left {minutes_early} minutes early: "
-                               f"scheduled {record['scheduled_end']}, actual {record['actual_end']}")
-            except Exception as e:
-                logger.warning(f"Could not calculate early departure for driver {driver_name}: {e}")
+        # Set summary flags
+        if summary['late_days'] > 0:
+            summary['flags'].append('has_late_days')
+        if summary['early_end_days'] > 0:
+            summary['flags'].append('has_early_end_days')
+        if summary['no_show_days'] > 0:
+            summary['flags'].append('has_no_show_days')
+        
+        # Flag attendance patterns
+        if summary['late_days'] >= 2:
+            summary['flags'].append('multiple_late_days')
+        if summary['early_end_days'] >= 2:
+            summary['flags'].append('multiple_early_end_days')
+        if summary['no_show_days'] >= 1:
+            summary['flags'].append('has_absence')
+        
+        # Flag timecard issues
+        if flag_counts.get('timecard_mismatch', 0) > 0:
+            summary['flags'].append('timecard_mismatches')
+        if flag_counts.get('job_site_mismatch', 0) > 0:
+            summary['flags'].append('job_mismatches')
+        if flag_counts.get('insufficient_hours', 0) > 0:
+            summary['flags'].append('insufficient_hours')
+        
+        weekly_summary.append(summary)
     
-    # Convert to list
-    merged_list = list(merged_records.values())
-    logger.info(f"Merged {len(merged_list)} attendance records")
-    
-    return merged_list
+    return weekly_summary
 
-
-def process_attendance_data(date_str=None):
+def export_attendance_reports(attendance_records: List[Dict], export_dir: str = "exports") -> Dict[str, str]:
     """
-    Process attendance data for a specific date.
+    Generate export files (CSV and JSON) from attendance records.
     
     Args:
-        date_str (str): Date string in format YYYY-MM-DD, defaults to today
+        attendance_records: List of combined attendance records
+        export_dir: Directory to save export files
         
     Returns:
-        list: Processed attendance records
+        Dictionary with paths to export files
     """
-    logger.info(f"Processing attendance data for date: {date_str or 'today'}")
+    if not attendance_records:
+        return {'error': 'No attendance records to export'}
     
-    # Find the latest input files
-    activity_file = find_latest_activity_file()
-    driving_file = find_latest_driving_history_file()
-    fleet_file = find_latest_fleet_utilization_file()
+    # Ensure export directory exists
+    os.makedirs(export_dir, exist_ok=True)
     
-    # Parse the input files
-    activity_records = parse_activity_detail(activity_file)
-    driving_records = parse_driving_history(driving_file)
-    schedule_records = parse_fleet_utilization(fleet_file)
+    # Generate timestamp for filenames
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     
-    # Merge the records
-    merged_records = merge_attendance_records(activity_records, driving_records, schedule_records)
+    # Generate weekly summary
+    weekly_summary = generate_weekly_summary(attendance_records)
     
-    # Log processing summary
-    logger.info(f"Processed attendance data: {len(merged_records)} total records")
+    # Prepare detailed records for CSV export
+    detailed_records = []
+    for record in attendance_records:
+        # Format times for CSV
+        time_in_str = record['time_in'].strftime('%I:%M %p') if record['time_in'] else ''
+        time_out_str = record['time_out'].strftime('%I:%M %p') if record['time_out'] else ''
+        
+        # Flatten the record for CSV export
+        flat_record = {
+            'driver_name': record['driver_name'],
+            'date': record['date'],
+            'job_site': record['job_site'] or '',
+            'time_in': time_in_str,
+            'time_out': time_out_str,
+            'status': record['classification']['status'],
+            'reason': record['classification']['reason'],
+            'flags': ','.join(record['classification']['flags']),
+            'sources': ','.join(record['sources']),
+            'calculated_hours': record.get('calculated_hours', ''),
+            'timecard_hours': record.get('timecard_hours', ''),
+            'timecard_job': record.get('timecard_job', '')
+        }
+        detailed_records.append(flat_record)
     
-    return merged_records
+    # Export detailed records to CSV
+    detailed_csv_path = os.path.join(export_dir, f"attendance_detailed_{timestamp}.csv")
+    pd.DataFrame(detailed_records).to_csv(detailed_csv_path, index=False)
+    
+    # Prepare weekly summary for CSV export
+    summary_records = []
+    for summary in weekly_summary:
+        # Create a flattened version without daily records
+        flat_summary = {
+            'driver_name': summary['driver_name'],
+            'week_start': summary['week_start'],
+            'week_end': summary['week_end'],
+            'total_days': summary['total_days'],
+            'on_time_days': summary['on_time_days'],
+            'late_days': summary['late_days'],
+            'early_end_days': summary['early_end_days'],
+            'no_show_days': summary['no_show_days'],
+            'unclassified_days': summary['unclassified_days'],
+            'flags': ','.join(summary['flags'])
+        }
+        
+        # Add flag counts
+        for flag, count in summary['flag_counts'].items():
+            flat_summary[f'flag_{flag}'] = count
+        
+        summary_records.append(flat_summary)
+    
+    # Export weekly summary to CSV
+    summary_csv_path = os.path.join(export_dir, f"attendance_summary_{timestamp}.csv")
+    pd.DataFrame(summary_records).to_csv(summary_csv_path, index=False)
+    
+    # Export full data to JSON with special datetime handling
+    class DateTimeEncoder(json.JSONEncoder):
+        def default(self, obj):
+            if isinstance(obj, (datetime, time)):
+                return obj.isoformat()
+            return super().default(obj)
+    
+    # Export detailed records to JSON
+    detailed_json_path = os.path.join(export_dir, f"attendance_detailed_{timestamp}.json")
+    with open(detailed_json_path, 'w') as f:
+        json.dump(attendance_records, f, cls=DateTimeEncoder, indent=2)
+    
+    # Export weekly summary to JSON
+    summary_json_path = os.path.join(export_dir, f"attendance_summary_{timestamp}.json")
+    with open(summary_json_path, 'w') as f:
+        json.dump(weekly_summary, f, cls=DateTimeEncoder, indent=2)
+    
+    # Return paths to export files
+    return {
+        'detailed_csv': detailed_csv_path,
+        'summary_csv': summary_csv_path,
+        'detailed_json': detailed_json_path,
+        'summary_json': summary_json_path
+    }
+
+def process_weekly_attendance_report(
+    time_on_site_files: List[str], 
+    driving_history_files: List[str],
+    activity_detail_files: Optional[List[str]] = None,
+    timecard_files: Optional[List[str]] = None
+) -> Dict:
+    """
+    Process a complete weekly attendance report from multiple file sources.
+    
+    Args:
+        time_on_site_files: List of paths to TimeOnSite files
+        driving_history_files: List of paths to DrivingHistory files
+        activity_detail_files: Optional list of paths to ActivityDetail files
+        timecard_files: Optional list of paths to Timecard files
+        
+    Returns:
+        Dictionary with processing results including export paths
+    """
+    from utils.enhanced_data_ingestion import load_csv_file, load_excel_file
+    
+    logger.info("Starting weekly attendance report processing")
+    
+    # Load all data files
+    time_on_site_data = []
+    driving_history_data = []
+    activity_detail_data = []
+    timecard_data = []
+    
+    # Process TimeOnSite files
+    for file_path in time_on_site_files:
+        logger.info(f"Processing TimeOnSite file: {os.path.basename(file_path)}")
+        
+        # Determine file type
+        if file_path.lower().endswith(('.csv', '.txt')):
+            records = load_csv_file(file_path)
+        elif file_path.lower().endswith(('.xlsx', '.xls')):
+            records = load_excel_file(file_path)
+        else:
+            logger.warning(f"Unsupported file format: {file_path}")
+            continue
+        
+        time_on_site_data.extend(records)
+    
+    # Process DrivingHistory files
+    for file_path in driving_history_files:
+        logger.info(f"Processing DrivingHistory file: {os.path.basename(file_path)}")
+        
+        # Determine file type
+        if file_path.lower().endswith(('.csv', '.txt')):
+            records = load_csv_file(file_path)
+        elif file_path.lower().endswith(('.xlsx', '.xls')):
+            records = load_excel_file(file_path)
+        else:
+            logger.warning(f"Unsupported file format: {file_path}")
+            continue
+        
+        driving_history_data.extend(records)
+    
+    # Process ActivityDetail files if provided
+    if activity_detail_files:
+        for file_path in activity_detail_files:
+            logger.info(f"Processing ActivityDetail file: {os.path.basename(file_path)}")
+            
+            # Determine file type
+            if file_path.lower().endswith(('.csv', '.txt')):
+                records = load_csv_file(file_path)
+            elif file_path.lower().endswith(('.xlsx', '.xls')):
+                records = load_excel_file(file_path)
+            else:
+                logger.warning(f"Unsupported file format: {file_path}")
+                continue
+            
+            activity_detail_data.extend(records)
+    
+    # Process Timecard files if provided
+    if timecard_files:
+        for file_path in timecard_files:
+            logger.info(f"Processing Timecard file: {os.path.basename(file_path)}")
+            
+            # Determine file type
+            if file_path.lower().endswith(('.csv', '.txt')):
+                records = load_csv_file(file_path)
+            elif file_path.lower().endswith(('.xlsx', '.xls')):
+                records = load_excel_file(file_path)
+            else:
+                logger.warning(f"Unsupported file format: {file_path}")
+                continue
+            
+            timecard_data.extend(records)
+    
+    # Combine all data sources
+    attendance_records = combine_attendance_data(
+        time_on_site_data,
+        driving_history_data,
+        activity_detail_data,
+        timecard_data
+    )
+    
+    # Generate weekly summary
+    weekly_summary = generate_weekly_summary(attendance_records)
+    
+    # Export reports
+    export_paths = export_attendance_reports(attendance_records)
+    
+    # Return processing results
+    return {
+        'time_on_site_count': len(time_on_site_data),
+        'driving_history_count': len(driving_history_data),
+        'activity_detail_count': len(activity_detail_data),
+        'timecard_count': len(timecard_data),
+        'attendance_records': len(attendance_records),
+        'weekly_summary': len(weekly_summary),
+        'export_paths': export_paths,
+        'success': True
+    }

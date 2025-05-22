@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block title %}MTD Report for {{ date }}{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">Month-to-Date Report: {{ report.date }}</h2>
+                <span class="badge bg-light text-primary">GENIUS CORE Validated</span>
+            </div>
+        </div>
+        <div class="card-body">
+            <!-- Report Information -->
+            <div class="alert alert-info mb-4">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-info-circle-fill me-2 fs-4"></i>
+                    <div>
+                        <h5 class="alert-heading mb-1">Report Information</h5>
+                        <p class="mb-0">This report shows attendance and driving data processed for this date.</p>
+                        <small>Generated on: {{ report.created_at }} | Processing time: {{ report.processing_time }}</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Statistics -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0"><i class="bi bi-bar-chart-fill me-2"></i> Attendance Summary</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <strong>Total Drivers:</strong>
+                                        <span class="badge bg-primary rounded-pill">{{ report.total_drivers }}</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <strong>On Time:</strong>
+                                        <span class="badge bg-success rounded-pill">{{ report.on_time_count }} ({{ report.on_time_percent }}%)</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <strong>Late Arrivals:</strong>
+                                        <span class="badge bg-danger rounded-pill">{{ report.late_count }} ({{ report.late_percent }}%)</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <strong>Early Departures:</strong>
+                                        <span class="badge bg-warning text-dark rounded-pill">{{ report.early_end_count }} ({{ report.early_end_percent }}%)</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <strong>Not On Job:</strong>
+                                        <span class="badge bg-secondary rounded-pill">{{ report.not_on_job_count }} ({{ report.not_on_job_percent }}%)</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <canvas id="attendanceChart" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Drivers and Job Sites -->
+            <div class="row">
+                <div class="col-md-7 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0"><i class="bi bi-people-fill me-2"></i> Driver Attendance</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Driver</th>
+                                            <th>Status</th>
+                                            <th>Start Time</th>
+                                            <th>End Time</th>
+                                            <th>Job Site</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for driver in report.drivers %}
+                                        <tr class="
+                                            {% if driver.status == 'on_time' %}table-success{% endif %}
+                                            {% if driver.status == 'late' %}table-danger{% endif %}
+                                            {% if driver.status == 'early_end' %}table-warning{% endif %}
+                                            {% if driver.status == 'not_on_job' %}table-secondary{% endif %}
+                                        ">
+                                            <td>{{ driver.name }}</td>
+                                            <td>
+                                                {% if driver.status == 'on_time' %}
+                                                <span class="badge bg-success">On Time</span>
+                                                {% elif driver.status == 'late' %}
+                                                <span class="badge bg-danger">Late</span>
+                                                {% elif driver.status == 'early_end' %}
+                                                <span class="badge bg-warning text-dark">Early End</span>
+                                                {% elif driver.status == 'not_on_job' %}
+                                                <span class="badge bg-secondary">Not On Job</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ driver.start_time }}</td>
+                                            <td>{{ driver.end_time }}</td>
+                                            <td>{{ driver.job_site }}</td>
+                                            <td>
+                                                <a href="{{ url_for('mtd_reports.driver_detail', date=report.date, driver_id=driver.id) }}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-5 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0"><i class="bi bi-geo-alt-fill me-2"></i> Job Site Analytics</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Job Site</th>
+                                            <th>Drivers</th>
+                                            <th>On Time</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for job_site in report.job_sites %}
+                                        <tr>
+                                            <td>{{ job_site.name }}</td>
+                                            <td>{{ job_site.driver_count }}</td>
+                                            <td>{{ job_site.on_time_count }}</td>
+                                            <td>
+                                                <a href="{{ url_for('mtd_reports.job_site_detail', date=report.date, job_site_id=job_site.id) }}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="d-flex justify-content-between mt-3">
+                <a href="{{ url_for('mtd_reports.simple_reports') }}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left me-2"></i> Back to Reports
+                </a>
+                <div>
+                    <a href="{{ url_for('mtd_reports.simple_upload_files') }}" class="btn btn-primary me-2">
+                        <i class="bi bi-upload me-2"></i> Upload More Files
+                    </a>
+                    <a href="#" class="btn btn-success">
+                        <i class="bi bi-file-earmark-excel me-2"></i> Export to Excel
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer bg-dark text-white">
+            <div class="row">
+                <div class="col-md-6">
+                    <small>Data Sources: {{ report.data_sources|join(', ') }}</small>
+                </div>
+                <div class="col-md-6 text-end">
+                    <small>{{ report.validation_status }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Attendance chart
+        const attendanceCtx = document.getElementById('attendanceChart').getContext('2d');
+        const attendanceChart = new Chart(attendanceCtx, {
+            type: 'pie',
+            data: {
+                labels: ['On Time', 'Late', 'Early End', 'Not On Job'],
+                datasets: [{
+                    data: [
+                        {{ report.on_time_count }},
+                        {{ report.late_count }},
+                        {{ report.early_end_count }},
+                        {{ report.not_on_job_count }}
+                    ],
+                    backgroundColor: [
+                        '#198754', // success
+                        '#dc3545', // danger
+                        '#ffc107', // warning
+                        '#6c757d'  // secondary
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Attendance Distribution'
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -78,15 +78,21 @@ class AgentController:
             else:
                 config_path = 'dev_config.yaml'
         
+        # First check if the file exists to avoid YAML import errors
+        if not os.path.exists(config_path):
+            logger.warning(f"Configuration file {config_path} not found, using defaults")
+            return default_config
+            
         try:
-            if os.path.exists(config_path):
-                with open(config_path, 'r') as f:
-                    config = yaml.safe_load(f)
-                logger.info(f"Loaded configuration from {config_path}")
-                return config
-            else:
-                logger.warning(f"Configuration file {config_path} not found, using defaults")
-                return default_config
+            # Only import yaml if we need it
+            import yaml
+            with open(config_path, 'r') as f:
+                config = yaml.safe_load(f)
+            logger.info(f"Loaded configuration from {config_path}")
+            return config
+        except ImportError:
+            logger.warning("YAML module not available, using default configuration")
+            return default_config
         except Exception as e:
             logger.error(f"Error loading configuration: {e}")
             return default_config

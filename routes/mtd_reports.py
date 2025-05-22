@@ -251,12 +251,41 @@ def process_report():
                         'days': []
                     }
                     
-                    # Process each day in the interval
+                    # Process each day in the interval - limit to 3 days max for performance
                     current_date = datetime.strptime(interval['start'], '%Y-%m-%d')
                     end_date = datetime.strptime(interval['end'], '%Y-%m-%d')
                     
-                    while current_date <= end_date:
-                        date_str = current_date.strftime('%Y-%m-%d')
+                    # Limit the number of days to process to prevent timeout
+                    days_to_process = []
+                    max_days = 3  # Limit to 3 days per interval for performance
+                    
+                    # Calculate sample days across the interval
+                    if (end_date - current_date).days > max_days:
+                        # Process start, middle and end dates as a sample
+                        total_days = (end_date - current_date).days + 1
+                        interval_step = max(1, total_days // max_days)
+                        
+                        sample_date = current_date
+                        while sample_date <= end_date:
+                            days_to_process.append(sample_date)
+                            sample_date += timedelta(days=interval_step)
+                            
+                        # Ensure end date is included if not already
+                        if days_to_process[-1] != end_date:
+                            if len(days_to_process) >= max_days:
+                                days_to_process[-1] = end_date
+                            else:
+                                days_to_process.append(end_date)
+                    else:
+                        # Process all days if within limit
+                        sample_date = current_date
+                        while sample_date <= end_date:
+                            days_to_process.append(sample_date)
+                            sample_date += timedelta(days=1)
+                    
+                    # Process the selected days
+                    for sample_date in days_to_process:
+                        date_str = sample_date.strftime('%Y-%m-%d')
                         
                         try:
                             # Process individual day
@@ -269,7 +298,7 @@ def process_report():
                             # Add day to interval report
                             interval_report['days'].append({
                                 'date': date_str,
-                                'label': current_date.strftime('%A, %B %d'),
+                                'label': sample_date.strftime('%A, %B %d'),
                                 'total_drivers': day_report.get('total_drivers', 0),
                                 'on_time_count': day_report.get('on_time_count', 0),
                                 'late_count': day_report.get('late_count', 0),
@@ -278,8 +307,8 @@ def process_report():
                             })
                         except Exception as e:
                             logger.error(f"Error processing date {date_str}: {str(e)}")
-                            
-                        current_date += timedelta(days=1)
+                            import traceback
+                            logger.error(traceback.format_exc())
                     
                     # Calculate interval summary
                     total_drivers = sum(day.get('total_drivers', 0) for day in interval_report['days'])

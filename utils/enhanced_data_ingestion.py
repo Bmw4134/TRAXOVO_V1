@@ -455,6 +455,18 @@ def log_skipped_rows(log_entries: List[Dict]) -> None:
     except Exception as e:
         logger.error(f"Error logging entries: {str(e)}")
 
+def process_file(file_path: str) -> List[Dict]:
+    """
+    Process a data file (CSV or Excel) and return structured records
+    
+    Args:
+        file_path: Path to the data file
+        
+    Returns:
+        list: List of data records (dictionaries)
+    """
+    return load_data_file(file_path)
+
 def load_data_file(file_path: str) -> List[Dict]:
     """
     Load data from a file (CSV or Excel), detecting the file type

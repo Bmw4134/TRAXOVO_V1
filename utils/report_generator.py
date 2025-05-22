@@ -1,738 +1,516 @@
 """
-Report Generator
+TRAXORA GENIUS CORE | Report Generator Module
 
-This module handles generating PDF and Excel reports from the daily driver report data,
-as well as email delivery of these reports.
+This module builds categorized outputs like:
+- PMR (NOJ) - Not On Job reports
+- PMR (LATE) - Late reports
+- PMR (EARLY) - Early End reports
+- Full Daily Driver Report with summary metrics
+
+All reports include detailed traceability, validation info, and confidence scores.
+
+Also includes enhanced Activity Detail metrics for full visibility.
 """
-
 import os
-import pandas as pd
 import logging
-from datetime import datetime
-import traceback
 import json
-from fpdf import FPDF
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail, Email, To, Content, Attachment, FileContent, FileName, FileType, Disposition
-import base64
+from datetime import datetime, date, time
+import pandas as pd
 
-# Import the unified data processor
-from utils.unified_data_processor import generate_daily_driver_report
-
-# Set up logging
+# Configure logging
 logger = logging.getLogger(__name__)
-file_handler = logging.FileHandler('logs/report_generator.log')
-file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-logger.addHandler(file_handler)
-logger.setLevel(logging.INFO)
 
-# Set up email logging
-email_logger = logging.getLogger('email_report_dispatch')
-email_file_handler = logging.FileHandler('logs/email_report_dispatch.log')
-email_file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-email_logger.addHandler(email_file_handler)
-email_logger.setLevel(logging.INFO)
+# Status constants
+STATUS_ON_TIME = 'On Time'
+STATUS_LATE = 'Late'
+STATUS_EARLY_END = 'Early End'
+STATUS_NOT_ON_JOB = 'Not On Job'
+STATUS_UNKNOWN = 'Unknown'
 
-def generate_pdf_report(date_str, report_data=None):
-    """
-    Generate a PDF report for a specific date
+class ReportGenerator:
+    """Report generator for driver reporting pipeline"""
     
-    Args:
-        date_str (str): Date in YYYY-MM-DD format
-        report_data (dict): Report data (if None, will be generated)
-        
-    Returns:
-        str: Path to generated PDF file
-    """
-    try:
-        # Create export directory
-        pdf_dir = os.path.join('exports', 'pdf_reports')
-        os.makedirs(pdf_dir, exist_ok=True)
-        
-        # Generate report data if not provided
-        if not report_data:
-            report_data = generate_daily_driver_report(date_str)
-        
-        # Parse date
-        date_obj = datetime.strptime(date_str, '%Y-%m-%d')
-        formatted_date = date_obj.strftime('%A, %B %d, %Y')
-        
-        # Extract summary counts
-        total_drivers = report_data['summary']['total_drivers']
-        on_time_drivers = report_data['summary']['on_time_drivers']
-        late_drivers = report_data['summary']['late_drivers']
-        early_end_drivers = report_data['summary']['early_end_drivers']
-        not_on_job_drivers = report_data['summary']['not_on_job_drivers']
-        
-        # Create PDF
-        pdf = FPDF()
-        pdf.add_page()
-        
-        # Set document properties
-        pdf.set_title(f"Daily Driver Report - {formatted_date}")
-        pdf.set_author("TRAXORA Fleet Management System")
-        
-        # Add header
-        pdf.set_font("Arial", "B", 16)
-        pdf.cell(0, 10, f"Daily Driver Report - {formatted_date}", 0, 1, "C")
-        pdf.ln(5)
-        
-        # Add summary section
-        pdf.set_font("Arial", "B", 14)
-        pdf.cell(0, 10, "Summary", 0, 1, "L")
-        
-        pdf.set_font("Arial", "", 11)
-        
-        # Summary table
-        col_width = 95
-        row_height = 8
-        
-        # Header row
-        pdf.set_fill_color(240, 240, 240)
-        pdf.set_font("Arial", "B", 10)
-        pdf.cell(col_width, row_height, "Metric", 1, 0, "L", True)
-        pdf.cell(col_width, row_height, "Count", 1, 1, "C", True)
-        
-        # Data rows
-        pdf.set_font("Arial", "", 10)
-        
-        # Total drivers
-        pdf.cell(col_width, row_height, "Total Drivers", 1, 0, "L")
-        pdf.cell(col_width, row_height, str(total_drivers), 1, 1, "C")
-        
-        # On time drivers
-        pdf.cell(col_width, row_height, "On Time Drivers", 1, 0, "L")
-        pdf.cell(col_width, row_height, str(on_time_drivers), 1, 1, "C")
-        
-        # Late drivers
-        pdf.cell(col_width, row_height, "Late Drivers", 1, 0, "L")
-        pdf.cell(col_width, row_height, str(late_drivers), 1, 1, "C")
-        
-        # Early end drivers
-        pdf.cell(col_width, row_height, "Early End Drivers", 1, 0, "L")
-        pdf.cell(col_width, row_height, str(early_end_drivers), 1, 1, "C")
-        
-        # Not on job drivers
-        pdf.cell(col_width, row_height, "Not On Job Drivers", 1, 0, "L")
-        pdf.cell(col_width, row_height, str(not_on_job_drivers), 1, 1, "C")
-        
-        # Calculate on-time percentage
-        on_time_percent = round((on_time_drivers / total_drivers * 100) if total_drivers > 0 else 0, 1)
-        
-        # On time percentage
-        pdf.cell(col_width, row_height, "On Time Percentage", 1, 0, "L")
-        pdf.cell(col_width, row_height, f"{on_time_percent}%", 1, 1, "C")
-        
-        pdf.ln(5)
-        
-        # Add late drivers section if any
-        if late_drivers > 0 and report_data.get('late_drivers'):
-            pdf.set_font("Arial", "B", 14)
-            pdf.cell(0, 10, "Late Drivers", 0, 1, "L")
-            
-            # Column widths for late drivers
-            col_widths = [40, 25, 35, 35, 30, 25]
-            total_width = sum(col_widths)
-            
-            # Table header
-            pdf.set_fill_color(240, 240, 240)
-            pdf.set_font("Arial", "B", 8)
-            pdf.cell(col_widths[0], row_height, "Driver", 1, 0, "L", True)
-            pdf.cell(col_widths[1], row_height, "Asset", 1, 0, "L", True)
-            pdf.cell(col_widths[2], row_height, "Scheduled Start", 1, 0, "C", True)
-            pdf.cell(col_widths[3], row_height, "Actual Start", 1, 0, "C", True)
-            pdf.cell(col_widths[4], row_height, "Minutes Late", 1, 0, "C", True)
-            pdf.cell(col_widths[5], row_height, "Job Site", 1, 1, "L", True)
-            
-            # Table data
-            pdf.set_font("Arial", "", 8)
-            
-            for driver in report_data['late_drivers']:
-                pdf.cell(col_widths[0], row_height, str(driver.get('driver_name', 'N/A'))[:20], 1, 0, "L")
-                pdf.cell(col_widths[1], row_height, str(driver.get('asset_id', 'N/A'))[:12], 1, 0, "L")
-                pdf.cell(col_widths[2], row_height, str(driver.get('scheduled_start', 'N/A')), 1, 0, "C")
-                pdf.cell(col_widths[3], row_height, str(driver.get('actual_start_display', 'N/A')), 1, 0, "C")
-                pdf.cell(col_widths[4], row_height, str(driver.get('minutes_late', 'N/A')), 1, 0, "C")
-                pdf.cell(col_widths[5], row_height, str(driver.get('assigned_job_site', 'N/A'))[:12], 1, 1, "L")
-            
-            pdf.ln(5)
-        
-        # Add early end drivers section if any
-        if early_end_drivers > 0 and report_data.get('early_end_drivers'):
-            pdf.set_font("Arial", "B", 14)
-            pdf.cell(0, 10, "Early End Drivers", 0, 1, "L")
-            
-            # Column widths for early end drivers
-            col_widths = [40, 25, 35, 35, 30, 25]
-            
-            # Table header
-            pdf.set_fill_color(240, 240, 240)
-            pdf.set_font("Arial", "B", 8)
-            pdf.cell(col_widths[0], row_height, "Driver", 1, 0, "L", True)
-            pdf.cell(col_widths[1], row_height, "Asset", 1, 0, "L", True)
-            pdf.cell(col_widths[2], row_height, "Scheduled End", 1, 0, "C", True)
-            pdf.cell(col_widths[3], row_height, "Actual End", 1, 0, "C", True)
-            pdf.cell(col_widths[4], row_height, "Minutes Early", 1, 0, "C", True)
-            pdf.cell(col_widths[5], row_height, "Job Site", 1, 1, "L", True)
-            
-            # Table data
-            pdf.set_font("Arial", "", 8)
-            
-            for driver in report_data['early_end_drivers']:
-                pdf.cell(col_widths[0], row_height, str(driver.get('driver_name', 'N/A'))[:20], 1, 0, "L")
-                pdf.cell(col_widths[1], row_height, str(driver.get('asset_id', 'N/A'))[:12], 1, 0, "L")
-                pdf.cell(col_widths[2], row_height, str(driver.get('scheduled_end', 'N/A')), 1, 0, "C")
-                pdf.cell(col_widths[3], row_height, str(driver.get('actual_end_display', 'N/A')), 1, 0, "C")
-                pdf.cell(col_widths[4], row_height, str(driver.get('minutes_early', 'N/A')), 1, 0, "C")
-                pdf.cell(col_widths[5], row_height, str(driver.get('assigned_job_site', 'N/A'))[:12], 1, 1, "L")
-            
-            pdf.ln(5)
-        
-        # Add not on job drivers section if any
-        if not_on_job_drivers > 0 and report_data.get('not_on_job_drivers'):
-            pdf.set_font("Arial", "B", 14)
-            pdf.cell(0, 10, "Not On Job Drivers", 0, 1, "L")
-            
-            # Column widths for not on job drivers
-            col_widths = [45, 25, 45, 75]
-            
-            # Table header
-            pdf.set_fill_color(240, 240, 240)
-            pdf.set_font("Arial", "B", 8)
-            pdf.cell(col_widths[0], row_height, "Driver", 1, 0, "L", True)
-            pdf.cell(col_widths[1], row_height, "Asset", 1, 0, "L", True)
-            pdf.cell(col_widths[2], row_height, "Job Site", 1, 0, "L", True)
-            pdf.cell(col_widths[3], row_height, "Reason", 1, 1, "L", True)
-            
-            # Table data
-            pdf.set_font("Arial", "", 8)
-            
-            for driver in report_data['not_on_job_drivers']:
-                pdf.cell(col_widths[0], row_height, str(driver.get('driver_name', 'N/A'))[:20], 1, 0, "L")
-                pdf.cell(col_widths[1], row_height, str(driver.get('asset_id', 'N/A'))[:12], 1, 0, "L")
-                pdf.cell(col_widths[2], row_height, str(driver.get('assigned_job_site', 'N/A'))[:20], 1, 0, "L")
-                pdf.cell(col_widths[3], row_height, str(driver.get('status_reason', 'Unknown'))[:35], 1, 1, "L")
-        
-        # Add footer
-        pdf.set_y(-20)
-        pdf.set_font("Arial", "I", 8)
-        pdf.cell(0, 10, f"Generated by TRAXORA Fleet Management System on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", 0, 0, "C")
-        
-        # Save PDF
-        pdf_path = os.path.join(pdf_dir, f"daily_report_{date_str}.pdf")
-        pdf.output(pdf_path)
-        
-        logger.info(f"Generated PDF report for {date_str}")
-        
-        # Update report data with PDF file path
-        if 'files' not in report_data:
-            report_data['files'] = {}
-        
-        report_data['files']['pdf_path'] = os.path.join('pdf_reports', f"daily_report_{date_str}.pdf")
-        report_data['files']['pdf_exists'] = True
-        
-        # Update the JSON file
-        json_dir = os.path.join('exports', 'daily_reports')
-        json_path = os.path.join(json_dir, f"daily_report_{date_str}.json")
-        
-        with open(json_path, 'w') as f:
-            json.dump(report_data, f, indent=2, default=str)
-        
-        return pdf_path
-    
-    except Exception as e:
-        logger.error(f"Error generating PDF report for {date_str}: {e}")
-        logger.error(traceback.format_exc())
-        return None
+    def __init__(self, date_str=None, output_dir=None):
+        """
+        Initialize report generator
 
-def generate_excel_report(date_str, report_data=None):
-    """
-    Generate an Excel report for a specific date
+        Args:
+            date_str (str, optional): Date string in YYYY-MM-DD format
+            output_dir (str, optional): Output directory for reports
+        """
+        self.target_date = datetime.now().date()
+        if date_str:
+            try:
+                self.target_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            except ValueError:
+                logger.warning(f"Invalid date format: {date_str}, using current date")
+        
+        self.date_str = self.target_date.strftime('%Y-%m-%d')
+        self.output_dir = output_dir or os.path.join('reports', self.date_str)
+        
+        # Create output directory if it doesn't exist
+        os.makedirs(self.output_dir, exist_ok=True)
+        
+        # Initialize report data
+        self.report_data = {
+            'date': self.date_str,
+            'generated_at': datetime.now().isoformat(),
+            'summary': {
+                'total_drivers': 0,
+                'on_time': 0,
+                'late': 0,
+                'early_end': 0,
+                'not_on_job': 0,
+                'unknown': 0,
+                'avg_minutes_late': 0,
+                'avg_minutes_early_end': 0
+            },
+            'drivers': [],
+            'job_sites': {},
+            'activity_metrics': {
+                'activity_types': {},
+                'activity_counts': {}
+            }
+        }
     
-    Args:
-        date_str (str): Date in YYYY-MM-DD format
-        report_data (dict): Report data (if None, will be generated)
+    def add_driver_data(self, driver_data, classification):
+        """
+        Add driver data to report
+
+        Args:
+            driver_data (dict): Driver data
+            classification (dict): Classification results for the driver
+
+        Returns:
+            None
+        """
+        # Extract driver info
+        driver_info = {
+            'driver_name': driver_data.get('name', 'Unknown'),
+            'normalized_name': driver_data.get('normalized_name', ''),
+            'asset_id': next(iter(driver_data.get('assets', [])), None),
+            'assets': list(driver_data.get('assets', [])),
+            'status': classification.get('status', STATUS_UNKNOWN),
+            'minutes_late': classification.get('minutes_late', 0),
+            'minutes_early_end': classification.get('minutes_early_end', 0),
+            'data_sources': list(driver_data.get('sources', {}).keys()),
+            'validation_score': classification.get('validation_score', 0),
+            'reasons': classification.get('reasons', []),
+            'first_seen': driver_data.get('first_seen', '').isoformat() if driver_data.get('first_seen') else None,
+            'last_seen': driver_data.get('last_seen', '').isoformat() if driver_data.get('last_seen') else None,
+            'scheduled_start': driver_data.get('scheduled_start', '').isoformat() if driver_data.get('scheduled_start') else None,
+            'scheduled_end': driver_data.get('scheduled_end', '').isoformat() if driver_data.get('scheduled_end') else None,
+            'assigned_job': driver_data.get('assigned_job', None),
+            'actual_job': driver_data.get('actual_job', None),
+            'locations': [],
+            'activity_metrics': {}
+        }
         
-    Returns:
-        str: Path to generated Excel file
-    """
-    try:
-        # Create export directory
-        excel_dir = os.path.join('exports', 'excel_reports')
-        os.makedirs(excel_dir, exist_ok=True)
+        # Add locations from driving records
+        for record in driver_data.get('driving_records', []):
+            if record.get('latitude') and record.get('longitude'):
+                driver_info['locations'].append({
+                    'timestamp': record.get('timestamp', '').isoformat() if record.get('timestamp') else None,
+                    'latitude': record.get('latitude'),
+                    'longitude': record.get('longitude'),
+                    'event': record.get('event', '')
+                })
         
-        # Generate report data if not provided
-        if not report_data:
-            report_data = generate_daily_driver_report(date_str)
+        # Add activity metrics
+        if 'Activity Detail' in driver_data.get('sources', {}):
+            activity_source = driver_data['sources']['Activity Detail']
+            driver_info['activity_metrics'] = {
+                'total_activities': activity_source.get('records', 0),
+                'activity_types': activity_source.get('activity_types', {}),
+                'files': list(activity_source.get('files', set()))
+            }
+            
+            # Track activity types for summary
+            for activity_type, count in activity_source.get('activity_types', {}).items():
+                if activity_type not in self.report_data['activity_metrics']['activity_types']:
+                    self.report_data['activity_metrics']['activity_types'][activity_type] = 0
+                self.report_data['activity_metrics']['activity_types'][activity_type] += count
         
-        # Parse date
-        date_obj = datetime.strptime(date_str, '%Y-%m-%d')
-        formatted_date = date_obj.strftime('%A, %B %d, %Y')
+        # Add to report data
+        self.report_data['drivers'].append(driver_info)
+        
+        # Update summary counts
+        self.report_data['summary']['total_drivers'] += 1
+        status_key = classification.get('status', STATUS_UNKNOWN).lower().replace(' ', '_')
+        if status_key in self.report_data['summary']:
+            self.report_data['summary'][status_key] += 1
+        
+        # Track job sites
+        if driver_data.get('assigned_job'):
+            job_number = driver_data['assigned_job']
+            if job_number not in self.report_data['job_sites']:
+                self.report_data['job_sites'][job_number] = {
+                    'job_number': job_number,
+                    'drivers': [],
+                    'statuses': {
+                        'on_time': 0,
+                        'late': 0,
+                        'early_end': 0,
+                        'not_on_job': 0,
+                        'unknown': 0
+                    }
+                }
+            
+            # Add driver to job site
+            self.report_data['job_sites'][job_number]['drivers'].append(driver_info['driver_name'])
+            
+            # Update job site status counts
+            status_key = classification.get('status', STATUS_UNKNOWN).lower().replace(' ', '_')
+            if status_key in self.report_data['job_sites'][job_number]['statuses']:
+                self.report_data['job_sites'][job_number]['statuses'][status_key] += 1
+    
+    def generate_summary(self):
+        """
+        Generate summary statistics for the report
+
+        Returns:
+            dict: Summary statistics
+        """
+        # Calculate averages
+        total_late = sum(driver.get('minutes_late', 0) for driver in self.report_data['drivers'] if driver.get('status') == STATUS_LATE)
+        late_count = self.report_data['summary'].get('late', 0)
+        
+        total_early = sum(driver.get('minutes_early_end', 0) for driver in self.report_data['drivers'] if driver.get('status') == STATUS_EARLY_END)
+        early_count = self.report_data['summary'].get('early_end', 0)
+        
+        if late_count > 0:
+            self.report_data['summary']['avg_minutes_late'] = total_late / late_count
+        
+        if early_count > 0:
+            self.report_data['summary']['avg_minutes_early_end'] = total_early / early_count
+        
+        # Add additional activity metrics
+        self.report_data['summary']['activity_metrics'] = {
+            'total_activities': sum(driver.get('activity_metrics', {}).get('total_activities', 0) for driver in self.report_data['drivers']),
+            'unique_activity_types': len(self.report_data['activity_metrics']['activity_types'])
+        }
+        
+        # Add job site stats
+        self.report_data['summary']['job_sites'] = {
+            'total': len(self.report_data['job_sites']),
+            'with_late_drivers': sum(1 for job in self.report_data['job_sites'].values() if job['statuses']['late'] > 0),
+            'with_not_on_job': sum(1 for job in self.report_data['job_sites'].values() if job['statuses']['not_on_job'] > 0)
+        }
+        
+        return self.report_data['summary']
+    
+    def save_json_report(self, filename=None):
+        """
+        Save report data as JSON
+
+        Args:
+            filename (str, optional): Output filename
+
+        Returns:
+            str: Path to saved file
+        """
+        # Generate summary first
+        self.generate_summary()
+        
+        # Default filename
+        if not filename:
+            filename = f"driver_report_{self.date_str}.json"
+        
+        # Ensure output directory exists
+        os.makedirs(self.output_dir, exist_ok=True)
+        
+        # Full output path
+        output_path = os.path.join(self.output_dir, filename)
+        
+        # Save to file
+        with open(output_path, 'w') as f:
+            json.dump(self.report_data, f, indent=2)
+        
+        logger.info(f"Saved JSON report to {output_path}")
+        return output_path
+    
+    def save_excel_report(self, filename=None):
+        """
+        Save report data as Excel
+
+        Args:
+            filename (str, optional): Output filename
+
+        Returns:
+            str: Path to saved file
+        """
+        # Generate summary first
+        self.generate_summary()
+        
+        # Default filename
+        if not filename:
+            filename = f"driver_report_{self.date_str}.xlsx"
+        
+        # Ensure output directory exists
+        os.makedirs(self.output_dir, exist_ok=True)
+        
+        # Full output path
+        output_path = os.path.join(self.output_dir, filename)
         
         # Create Excel writer
-        excel_path = os.path.join(excel_dir, f"daily_report_{date_str}.xlsx")
-        writer = pd.ExcelWriter(excel_path, engine='openpyxl')
-        
-        # Create summary sheet
-        summary_data = {
-            'Metric': [
-                'Total Drivers',
-                'On Time Drivers',
-                'Late Drivers',
-                'Early End Drivers',
-                'Not On Job Drivers',
-                'On Time Percentage'
-            ],
-            'Count': [
-                report_data['summary']['total_drivers'],
-                report_data['summary']['on_time_drivers'],
-                report_data['summary']['late_drivers'],
-                report_data['summary']['early_end_drivers'],
-                report_data['summary']['not_on_job_drivers'],
-                f"{round((report_data['summary']['on_time_drivers'] / report_data['summary']['total_drivers'] * 100) if report_data['summary']['total_drivers'] > 0 else 0, 1)}%"
-            ]
-        }
-        
-        summary_df = pd.DataFrame(summary_data)
-        summary_df.to_excel(writer, sheet_name='Summary', index=False)
-        
-        # Create late drivers sheet if any
-        if report_data['summary']['late_drivers'] > 0 and report_data.get('late_drivers'):
-            late_drivers_data = []
-            
-            for driver in report_data['late_drivers']:
-                late_drivers_data.append({
-                    'Driver': driver.get('driver_name', 'N/A'),
-                    'Asset': driver.get('asset_id', 'N/A'),
-                    'Scheduled Start': driver.get('scheduled_start', 'N/A'),
-                    'Actual Start': driver.get('actual_start_display', 'N/A'),
-                    'Minutes Late': driver.get('minutes_late', 'N/A'),
-                    'Job Site': driver.get('assigned_job_site', 'N/A')
-                })
-            
-            if late_drivers_data:
-                late_drivers_df = pd.DataFrame(late_drivers_data)
-                late_drivers_df.to_excel(writer, sheet_name='Late Drivers', index=False)
-        
-        # Create early end drivers sheet if any
-        if report_data['summary']['early_end_drivers'] > 0 and report_data.get('early_end_drivers'):
-            early_end_data = []
-            
-            for driver in report_data['early_end_drivers']:
-                early_end_data.append({
-                    'Driver': driver.get('driver_name', 'N/A'),
-                    'Asset': driver.get('asset_id', 'N/A'),
-                    'Scheduled End': driver.get('scheduled_end', 'N/A'),
-                    'Actual End': driver.get('actual_end_display', 'N/A'),
-                    'Minutes Early': driver.get('minutes_early', 'N/A'),
-                    'Job Site': driver.get('assigned_job_site', 'N/A')
-                })
-            
-            if early_end_data:
-                early_end_df = pd.DataFrame(early_end_data)
-                early_end_df.to_excel(writer, sheet_name='Early End Drivers', index=False)
-        
-        # Create not on job drivers sheet if any
-        if report_data['summary']['not_on_job_drivers'] > 0 and report_data.get('not_on_job_drivers'):
-            not_on_job_data = []
-            
-            for driver in report_data['not_on_job_drivers']:
-                not_on_job_data.append({
-                    'Driver': driver.get('driver_name', 'N/A'),
-                    'Asset': driver.get('asset_id', 'N/A'),
-                    'Job Site': driver.get('assigned_job_site', 'N/A'),
-                    'Status': driver.get('status', 'Unknown'),
-                    'Reason': driver.get('status_reason', 'Unknown')
-                })
-            
-            if not_on_job_data:
-                not_on_job_df = pd.DataFrame(not_on_job_data)
-                not_on_job_df.to_excel(writer, sheet_name='Not On Job Drivers', index=False)
-        
-        # Create all drivers sheet
-        all_drivers_data = []
-        
-        for driver in report_data.get('all_drivers', []):
-            all_drivers_data.append({
-                'Driver': driver.get('driver_name', 'N/A'),
-                'Asset': driver.get('asset_id', 'N/A'),
-                'Status': driver.get('status', 'Unknown'),
-                'Scheduled Start': driver.get('scheduled_start', 'N/A'),
-                'Actual Start': driver.get('actual_start_display', 'N/A'),
-                'Scheduled End': driver.get('scheduled_end', 'N/A'),
-                'Actual End': driver.get('actual_end_display', 'N/A'),
-                'Job Site': driver.get('assigned_job_site', 'N/A'),
-                'Reason': driver.get('status_reason', 'N/A')
-            })
-        
-        if all_drivers_data:
-            all_drivers_df = pd.DataFrame(all_drivers_data)
-            all_drivers_df.to_excel(writer, sheet_name='All Drivers', index=False)
-        
-        # Save Excel file
-        writer.close()
-        
-        logger.info(f"Generated Excel report for {date_str}")
-        
-        # Update report data with Excel file path
-        if 'files' not in report_data:
-            report_data['files'] = {}
-        
-        report_data['files']['excel_path'] = os.path.join('excel_reports', f"daily_report_{date_str}.xlsx")
-        report_data['files']['excel_exists'] = True
-        
-        # Update the JSON file
-        json_dir = os.path.join('exports', 'daily_reports')
-        json_path = os.path.join(json_dir, f"daily_report_{date_str}.json")
-        
-        with open(json_path, 'w') as f:
-            json.dump(report_data, f, indent=2, default=str)
-        
-        return excel_path
-    
-    except Exception as e:
-        logger.error(f"Error generating Excel report for {date_str}: {e}")
-        logger.error(traceback.format_exc())
-        return None
-
-def generate_email_html(report_data, date_str):
-    """
-    Generate HTML content for the daily report email
-    
-    Args:
-        report_data (dict): Report data
-        date_str (str): Date in YYYY-MM-DD format
-        
-    Returns:
-        str: HTML content
-    """
-    try:
-        # Parse date
-        date_obj = datetime.strptime(date_str, '%Y-%m-%d')
-        formatted_date = date_obj.strftime('%A, %B %d, %Y')
-        
-        # Extract summary counts
-        total_drivers = report_data['summary']['total_drivers']
-        on_time_drivers = report_data['summary']['on_time_drivers']
-        late_drivers = report_data['summary']['late_drivers']
-        early_end_drivers = report_data['summary']['early_end_drivers']
-        not_on_job_drivers = report_data['summary']['not_on_job_drivers']
-        
-        # Calculate on-time percentage
-        on_time_percent = round((on_time_drivers / total_drivers * 100) if total_drivers > 0 else 0, 1)
-        
-        # Generate summary HTML
-        summary_html = f"""
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-            <tr style="background-color: #f2f2f2;">
-                <th style="text-align: left; padding: 8px; border: 1px solid #ddd;">Metric</th>
-                <th style="text-align: right; padding: 8px; border: 1px solid #ddd;">Count</th>
-            </tr>
-            <tr>
-                <td style="text-align: left; padding: 8px; border: 1px solid #ddd;">Total Drivers</td>
-                <td style="text-align: right; padding: 8px; border: 1px solid #ddd;">{total_drivers}</td>
-            </tr>
-            <tr>
-                <td style="text-align: left; padding: 8px; border: 1px solid #ddd;">On Time Drivers</td>
-                <td style="text-align: right; padding: 8px; border: 1px solid #ddd;">{on_time_drivers}</td>
-            </tr>
-            <tr>
-                <td style="text-align: left; padding: 8px; border: 1px solid #ddd;">Late Drivers</td>
-                <td style="text-align: right; padding: 8px; border: 1px solid #ddd;">{late_drivers}</td>
-            </tr>
-            <tr>
-                <td style="text-align: left; padding: 8px; border: 1px solid #ddd;">Early End Drivers</td>
-                <td style="text-align: right; padding: 8px; border: 1px solid #ddd;">{early_end_drivers}</td>
-            </tr>
-            <tr>
-                <td style="text-align: left; padding: 8px; border: 1px solid #ddd;">Not On Job Drivers</td>
-                <td style="text-align: right; padding: 8px; border: 1px solid #ddd;">{not_on_job_drivers}</td>
-            </tr>
-            <tr>
-                <td style="text-align: left; padding: 8px; border: 1px solid #ddd;">On Time Percentage</td>
-                <td style="text-align: right; padding: 8px; border: 1px solid #ddd;">{on_time_percent}%</td>
-            </tr>
-        </table>
-        """
-        
-        # Generate issue tables if there are issues
-        issue_tables = ""
-        
-        # Late drivers table
-        if late_drivers > 0 and 'late_drivers' in report_data:
-            late_table = """
-            <h3 style="color: #ff9900;">Late Drivers</h3>
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-                <tr style="background-color: #f2f2f2;">
-                    <th style="text-align: left; padding: 8px; border: 1px solid #ddd;">Driver</th>
-                    <th style="text-align: left; padding: 8px; border: 1px solid #ddd;">Asset</th>
-                    <th style="text-align: left; padding: 8px; border: 1px solid #ddd;">Scheduled Start</th>
-                    <th style="text-align: left; padding: 8px; border: 1px solid #ddd;">Actual Start</th>
-                    <th style="text-align: left; padding: 8px; border: 1px solid #ddd;">Minutes Late</th>
-                    <th style="text-align: left; padding: 8px; border: 1px solid #ddd;">Job Site</th>
-                </tr>
-            """
-            
-            for driver in report_data['late_drivers']:
-                late_table += f"""
-                <tr>
-                    <td style="text-align: left; padding: 8px; border: 1px solid #ddd;">{driver.get('driver_name', 'N/A')}</td>
-                    <td style="text-align: left; padding: 8px; border: 1px solid #ddd;">{driver.get('asset_id', 'N/A')}</td>
-                    <td style="text-align: left; padding: 8px; border: 1px solid #ddd;">{driver.get('scheduled_start', 'N/A')}</td>
-                    <td style="text-align: left; padding: 8px; border: 1px solid #ddd;">{driver.get('actual_start_display', 'N/A')}</td>
-                    <td style="text-align: left; padding: 8px; border: 1px solid #ddd;">{driver.get('minutes_late', 'N/A')}</td>
-                    <td style="text-align: left; padding: 8px; border: 1px solid #ddd;">{driver.get('assigned_job_site', 'N/A')}</td>
-                </tr>
-                """
-            
-            late_table += "</table>"
-            issue_tables += late_table
-        
-        # Early end drivers table
-        if early_end_drivers > 0 and 'early_end_drivers' in report_data:
-            early_table = """
-            <h3 style="color: #3399ff;">Early End Drivers</h3>
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-                <tr style="background-color: #f2f2f2;">
-                    <th style="text-align: left; padding: 8px; border: 1px solid #ddd;">Driver</th>
-                    <th style="text-align: left; padding: 8px; border: 1px solid #ddd;">Asset</th>
-                    <th style="text-align: left; padding: 8px; border: 1px solid #ddd;">Scheduled End</th>
-                    <th style="text-align: left; padding: 8px; border: 1px solid #ddd;">Actual End</th>
-                    <th style="text-align: left; padding: 8px; border: 1px solid #ddd;">Minutes Early</th>
-                    <th style="text-align: left; padding: 8px; border: 1px solid #ddd;">Job Site</th>
-                </tr>
-            """
-            
-            for driver in report_data['early_end_drivers']:
-                early_table += f"""
-                <tr>
-                    <td style="text-align: left; padding: 8px; border: 1px solid #ddd;">{driver.get('driver_name', 'N/A')}</td>
-                    <td style="text-align: left; padding: 8px; border: 1px solid #ddd;">{driver.get('asset_id', 'N/A')}</td>
-                    <td style="text-align: left; padding: 8px; border: 1px solid #ddd;">{driver.get('scheduled_end', 'N/A')}</td>
-                    <td style="text-align: left; padding: 8px; border: 1px solid #ddd;">{driver.get('actual_end_display', 'N/A')}</td>
-                    <td style="text-align: left; padding: 8px; border: 1px solid #ddd;">{driver.get('minutes_early', 'N/A')}</td>
-                    <td style="text-align: left; padding: 8px; border: 1px solid #ddd;">{driver.get('assigned_job_site', 'N/A')}</td>
-                </tr>
-                """
-            
-            early_table += "</table>"
-            issue_tables += early_table
-        
-        # Not on job drivers table
-        if not_on_job_drivers > 0 and 'not_on_job_drivers' in report_data:
-            noj_table = """
-            <h3 style="color: #ff3333;">Not On Job Drivers</h3>
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-                <tr style="background-color: #f2f2f2;">
-                    <th style="text-align: left; padding: 8px; border: 1px solid #ddd;">Driver</th>
-                    <th style="text-align: left; padding: 8px; border: 1px solid #ddd;">Asset</th>
-                    <th style="text-align: left; padding: 8px; border: 1px solid #ddd;">Job Site</th>
-                    <th style="text-align: left; padding: 8px; border: 1px solid #ddd;">Reason</th>
-                </tr>
-            """
-            
-            for driver in report_data['not_on_job_drivers']:
-                noj_table += f"""
-                <tr>
-                    <td style="text-align: left; padding: 8px; border: 1px solid #ddd;">{driver.get('driver_name', 'N/A')}</td>
-                    <td style="text-align: left; padding: 8px; border: 1px solid #ddd;">{driver.get('asset_id', 'N/A')}</td>
-                    <td style="text-align: left; padding: 8px; border: 1px solid #ddd;">{driver.get('assigned_job_site', 'N/A')}</td>
-                    <td style="text-align: left; padding: 8px; border: 1px solid #ddd;">{driver.get('status_reason', 'Unknown')}</td>
-                </tr>
-                """
-            
-            noj_table += "</table>"
-            issue_tables += noj_table
-        
-        # Build complete HTML
-        html_content = f"""
-        <html>
-            <head>
-                <style>
-                    body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
-                    h1 {{ color: #0056b3; margin-bottom: 20px; }}
-                    h2 {{ color: #0056b3; margin-top: 30px; margin-bottom: 10px; }}
-                    h3 {{ margin-top: 20px; margin-bottom: 10px; }}
-                    table {{ border-collapse: collapse; width: 100%; margin-bottom: 30px; }}
-                    th, td {{ border: 1px solid #ddd; padding: 8px; }}
-                    th {{ background-color: #f2f2f2; text-align: left; }}
-                    tr:nth-child(even) {{ background-color: #f9f9f9; }}
-                    .summary {{ margin-bottom: 30px; }}
-                    .note {{ color: #666; font-style: italic; }}
-                </style>
-            </head>
-            <body>
-                <h1>Daily Driver Report - {formatted_date}</h1>
-                
-                <div class="summary">
-                    <h2>Summary</h2>
-                    {summary_html}
-                </div>
-                
-                {issue_tables}
-                
-                <div class="note">
-                    <p>This report is generated automatically by the TRAXORA Fleet Management System.</p>
-                    <p>For questions or assistance, please contact the Fleet Management team.</p>
-                    <p>PDF and Excel reports are attached for detailed analysis.</p>
-                </div>
-            </body>
-        </html>
-        """
-        
-        return html_content
-    
-    except Exception as e:
-        logger.error(f"Error generating email HTML: {e}")
-        logger.error(traceback.format_exc())
-        return f"<html><body><h1>Error generating report</h1><p>{str(e)}</p></body></html>"
-
-def email_report(date_str, recipients, report_data=None):
-    """
-    Email the daily driver report to specified recipients
-    
-    Args:
-        date_str (str): Date in YYYY-MM-DD format
-        recipients (list or str): List of email addresses or comma-separated string
-        report_data (dict): Report data (if None, will be generated)
-        
-    Returns:
-        bool: Success status
-    """
-    try:
-        # Get SendGrid API key from environment
-        sendgrid_api_key = os.environ.get('SENDGRID_API_KEY')
-        
-        if not sendgrid_api_key:
-            email_logger.error("SendGrid API key not found in environment")
-            return False
-        
-        # Generate report data if not provided
-        if not report_data:
-            report_data = generate_daily_driver_report(date_str)
-        
-        # Generate PDF and Excel reports if not already generated
-        pdf_path = generate_pdf_report(date_str, report_data)
-        excel_path = generate_excel_report(date_str, report_data)
-        
-        # Parse date
-        date_obj = datetime.strptime(date_str, '%Y-%m-%d')
-        formatted_date = date_obj.strftime('%A, %B %d, %Y')
-        
-        # Generate email HTML
-        html_content = generate_email_html(report_data, date_str)
-        
-        # Prepare recipient list
-        if isinstance(recipients, str):
-            recipients = [email.strip() for email in recipients.split(',') if email.strip()]
-        
-        # Initialize SendGrid client
-        sg = SendGridAPIClient(sendgrid_api_key)
-        
-        # Prepare email
-        from_email = Email("telematics@ragleinc.com", "Ragle Fleet Telematics")
-        subject = f"Daily Driver Report - {formatted_date}"
-        
-        # Create mail for each recipient
-        for recipient in recipients:
-            mail = Mail(
-                from_email=from_email,
-                to_emails=To(recipient),
-                subject=subject,
-                html_content=Content("text/html", html_content)
-            )
-            
-            # Attach PDF if available
-            if pdf_path and os.path.exists(pdf_path):
-                with open(pdf_path, 'rb') as f:
-                    pdf_data = base64.b64encode(f.read()).decode()
-                    
-                    pdf_attachment = Attachment()
-                    pdf_attachment.file_content = FileContent(pdf_data)
-                    pdf_attachment.file_name = FileName(f"daily_report_{date_str}.pdf")
-                    pdf_attachment.file_type = FileType("application/pdf")
-                    pdf_attachment.disposition = Disposition("attachment")
-                    
-                    mail.attachment = pdf_attachment
-            
-            # Attach Excel if available
-            if excel_path and os.path.exists(excel_path):
-                with open(excel_path, 'rb') as f:
-                    excel_data = base64.b64encode(f.read()).decode()
-                    
-                    excel_attachment = Attachment()
-                    excel_attachment.file_content = FileContent(excel_data)
-                    excel_attachment.file_name = FileName(f"daily_report_{date_str}.xlsx")
-                    excel_attachment.file_type = FileType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-                    excel_attachment.disposition = Disposition("attachment")
-                    
-                    mail.attachment = excel_attachment
-            
-            # Send email
-            try:
-                response = sg.send(mail)
-                email_logger.info(f"Sent email to {recipient} for date {date_str}")
-                email_logger.info(f"Status code: {response.status_code}")
-            except Exception as e:
-                email_logger.error(f"Error sending email to {recipient}: {e}")
-                email_logger.error(traceback.format_exc())
-        
-        return True
-    
-    except Exception as e:
-        email_logger.error(f"Error emailing report: {e}")
-        email_logger.error(traceback.format_exc())
-        return False
-
-def process_date(date_str, email=False, recipients=None):
-    """
-    Process a specific date - generate report, PDF, Excel, and optionally email
-    
-    Args:
-        date_str (str): Date in YYYY-MM-DD format
-        email (bool): Whether to email the report
-        recipients (str or list): Email recipients
-        
-    Returns:
-        dict: Processing results
-    """
-    try:
-        # Generate report data
-        report_data = generate_daily_driver_report(date_str)
-        
-        if not report_data:
-            logger.error(f"Failed to generate report data for {date_str}")
-            return {
-                'status': 'error',
-                'message': 'Failed to generate report data'
+        with pd.ExcelWriter(output_path, engine='openpyxl') as writer:
+            # Summary sheet
+            summary_data = {
+                'Metric': [
+                    'Date',
+                    'Generated At',
+                    'Total Drivers',
+                    'On Time',
+                    'Late',
+                    'Early End',
+                    'Not On Job',
+                    'Unknown',
+                    'Avg Minutes Late',
+                    'Avg Minutes Early End',
+                    'Total Activities',
+                    'Unique Activity Types',
+                    'Total Job Sites',
+                    'Job Sites with Late Drivers',
+                    'Job Sites with Not On Job'
+                ],
+                'Value': [
+                    self.report_data['date'],
+                    self.report_data['generated_at'],
+                    self.report_data['summary']['total_drivers'],
+                    self.report_data['summary']['on_time'],
+                    self.report_data['summary']['late'],
+                    self.report_data['summary']['early_end'],
+                    self.report_data['summary']['not_on_job'],
+                    self.report_data['summary']['unknown'],
+                    round(self.report_data['summary']['avg_minutes_late'], 1),
+                    round(self.report_data['summary']['avg_minutes_early_end'], 1),
+                    self.report_data['summary']['activity_metrics']['total_activities'],
+                    self.report_data['summary']['activity_metrics']['unique_activity_types'],
+                    self.report_data['summary']['job_sites']['total'],
+                    self.report_data['summary']['job_sites']['with_late_drivers'],
+                    self.report_data['summary']['job_sites']['with_not_on_job']
+                ]
             }
+            
+            summary_df = pd.DataFrame(summary_data)
+            summary_df.to_excel(writer, sheet_name='Summary', index=False)
+            
+            # Driver data sheet
+            driver_data = []
+            for driver in self.report_data['drivers']:
+                driver_data.append({
+                    'Driver Name': driver['driver_name'],
+                    'Status': driver['status'],
+                    'Asset ID': driver['asset_id'],
+                    'Minutes Late': driver['minutes_late'],
+                    'Minutes Early End': driver['minutes_early_end'],
+                    'First Seen': driver['first_seen'],
+                    'Last Seen': driver['last_seen'],
+                    'Assigned Job': driver['assigned_job'],
+                    'Actual Job': driver['actual_job'],
+                    'Validation Score': driver['validation_score'],
+                    'Data Sources': ', '.join(driver['data_sources']),
+                    'Activity Count': driver.get('activity_metrics', {}).get('total_activities', 0)
+                })
+            
+            if driver_data:
+                driver_df = pd.DataFrame(driver_data)
+                driver_df.to_excel(writer, sheet_name='Driver Data', index=False)
+            
+            # Late drivers sheet
+            late_drivers = [driver for driver in self.report_data['drivers'] if driver['status'] == STATUS_LATE]
+            if late_drivers:
+                late_data = [{
+                    'Driver Name': driver['driver_name'],
+                    'Minutes Late': driver['minutes_late'],
+                    'Asset ID': driver['asset_id'],
+                    'Assigned Job': driver['assigned_job'],
+                    'First Seen': driver['first_seen'],
+                    'Scheduled Start': driver['scheduled_start'],
+                    'Validation Score': driver['validation_score'],
+                    'Reasons': ', '.join(driver['reasons'])
+                } for driver in late_drivers]
+                
+                late_df = pd.DataFrame(late_data)
+                late_df.to_excel(writer, sheet_name='Late Drivers', index=False)
+            
+            # Early end drivers sheet
+            early_drivers = [driver for driver in self.report_data['drivers'] if driver['status'] == STATUS_EARLY_END]
+            if early_drivers:
+                early_data = [{
+                    'Driver Name': driver['driver_name'],
+                    'Minutes Early': driver['minutes_early_end'],
+                    'Asset ID': driver['asset_id'],
+                    'Assigned Job': driver['assigned_job'],
+                    'Last Seen': driver['last_seen'],
+                    'Scheduled End': driver['scheduled_end'],
+                    'Validation Score': driver['validation_score'],
+                    'Reasons': ', '.join(driver['reasons'])
+                } for driver in early_drivers]
+                
+                early_df = pd.DataFrame(early_data)
+                early_df.to_excel(writer, sheet_name='Early End Drivers', index=False)
+            
+            # Not on job drivers sheet
+            noj_drivers = [driver for driver in self.report_data['drivers'] if driver['status'] == STATUS_NOT_ON_JOB]
+            if noj_drivers:
+                noj_data = [{
+                    'Driver Name': driver['driver_name'],
+                    'Asset ID': driver['asset_id'],
+                    'Assigned Job': driver['assigned_job'],
+                    'Actual Job': driver['actual_job'],
+                    'First Seen': driver['first_seen'],
+                    'Last Seen': driver['last_seen'],
+                    'Validation Score': driver['validation_score'],
+                    'Reasons': ', '.join(driver['reasons'])
+                } for driver in noj_drivers]
+                
+                noj_df = pd.DataFrame(noj_data)
+                noj_df.to_excel(writer, sheet_name='Not On Job Drivers', index=False)
+            
+            # Job sites sheet
+            job_sites_data = []
+            for job_number, job_data in self.report_data['job_sites'].items():
+                job_sites_data.append({
+                    'Job Number': job_number,
+                    'Total Drivers': len(job_data['drivers']),
+                    'On Time': job_data['statuses']['on_time'],
+                    'Late': job_data['statuses']['late'],
+                    'Early End': job_data['statuses']['early_end'],
+                    'Not On Job': job_data['statuses']['not_on_job'],
+                    'Unknown': job_data['statuses']['unknown']
+                })
+            
+            if job_sites_data:
+                job_sites_df = pd.DataFrame(job_sites_data)
+                job_sites_df.to_excel(writer, sheet_name='Job Sites', index=False)
+            
+            # Activity types sheet
+            activity_types_data = []
+            for activity_type, count in self.report_data['activity_metrics']['activity_types'].items():
+                activity_types_data.append({
+                    'Activity Type': activity_type,
+                    'Count': count
+                })
+            
+            if activity_types_data:
+                activity_types_df = pd.DataFrame(activity_types_data)
+                activity_types_df.to_excel(writer, sheet_name='Activity Types', index=False)
         
-        # Generate PDF and Excel reports
-        pdf_path = generate_pdf_report(date_str, report_data)
-        excel_path = generate_excel_report(date_str, report_data)
-        
-        result = {
-            'status': 'success',
-            'date': date_str,
-            'pdf_path': pdf_path,
-            'excel_path': excel_path,
-            'summary': report_data['summary']
-        }
-        
-        # Email report if requested
-        if email and recipients:
-            email_success = email_report(date_str, recipients, report_data)
-            result['email'] = {
-                'status': 'success' if email_success else 'error',
-                'recipients': recipients
-            }
-        
-        return result
+        logger.info(f"Saved Excel report to {output_path}")
+        return output_path
     
-    except Exception as e:
-        logger.error(f"Error processing date {date_str}: {e}")
-        logger.error(traceback.format_exc())
-        return {
-            'status': 'error',
-            'message': str(e)
+    def generate_categorized_reports(self):
+        """
+        Generate categorized reports for different driver statuses
+
+        Returns:
+            dict: Paths to generated report files
+        """
+        # Generate summary first
+        self.generate_summary()
+        
+        # Ensure output directory exists
+        os.makedirs(self.output_dir, exist_ok=True)
+        
+        report_paths = {}
+        
+        # PMR (LATE) report
+        late_drivers = [driver for driver in self.report_data['drivers'] if driver['status'] == STATUS_LATE]
+        if late_drivers:
+            late_report = {
+                'date': self.date_str,
+                'generated_at': datetime.now().isoformat(),
+                'report_type': 'PMR (LATE)',
+                'total_drivers': len(late_drivers),
+                'avg_minutes_late': sum(driver['minutes_late'] for driver in late_drivers) / len(late_drivers),
+                'drivers': late_drivers
+            }
+            
+            late_report_path = os.path.join(self.output_dir, f"pmr_late_{self.date_str}.json")
+            with open(late_report_path, 'w') as f:
+                json.dump(late_report, f, indent=2)
+            
+            report_paths['late'] = late_report_path
+        
+        # PMR (EARLY) report
+        early_drivers = [driver for driver in self.report_data['drivers'] if driver['status'] == STATUS_EARLY_END]
+        if early_drivers:
+            early_report = {
+                'date': self.date_str,
+                'generated_at': datetime.now().isoformat(),
+                'report_type': 'PMR (EARLY)',
+                'total_drivers': len(early_drivers),
+                'avg_minutes_early': sum(driver['minutes_early_end'] for driver in early_drivers) / len(early_drivers),
+                'drivers': early_drivers
+            }
+            
+            early_report_path = os.path.join(self.output_dir, f"pmr_early_{self.date_str}.json")
+            with open(early_report_path, 'w') as f:
+                json.dump(early_report, f, indent=2)
+            
+            report_paths['early'] = early_report_path
+        
+        # PMR (NOJ) report
+        noj_drivers = [driver for driver in self.report_data['drivers'] if driver['status'] == STATUS_NOT_ON_JOB]
+        if noj_drivers:
+            noj_report = {
+                'date': self.date_str,
+                'generated_at': datetime.now().isoformat(),
+                'report_type': 'PMR (NOJ)',
+                'total_drivers': len(noj_drivers),
+                'drivers': noj_drivers
+            }
+            
+            noj_report_path = os.path.join(self.output_dir, f"pmr_noj_{self.date_str}.json")
+            with open(noj_report_path, 'w') as f:
+                json.dump(noj_report, f, indent=2)
+            
+            report_paths['not_on_job'] = noj_report_path
+        
+        # Activity Detail Summary
+        activity_summary = {
+            'date': self.date_str,
+            'generated_at': datetime.now().isoformat(),
+            'report_type': 'Activity Detail Summary',
+            'total_activities': self.report_data['summary']['activity_metrics']['total_activities'],
+            'unique_activity_types': self.report_data['summary']['activity_metrics']['unique_activity_types'],
+            'activity_types': self.report_data['activity_metrics']['activity_types'],
+            'driver_activities': {
+                driver['driver_name']: driver.get('activity_metrics', {})
+                for driver in self.report_data['drivers']
+                if driver.get('activity_metrics', {}).get('total_activities', 0) > 0
+            }
         }
+        
+        activity_report_path = os.path.join(self.output_dir, f"activity_summary_{self.date_str}.json")
+        with open(activity_report_path, 'w') as f:
+            json.dump(activity_summary, f, indent=2)
+        
+        report_paths['activity'] = activity_report_path
+        
+        logger.info(f"Generated categorized reports: {', '.join(report_paths.keys())}")
+        return report_paths
+    
+    def generate_all_reports(self):
+        """
+        Generate all report formats
+
+        Returns:
+            dict: Paths to all generated report files
+        """
+        report_paths = {}
+        
+        # Save JSON report
+        json_path = self.save_json_report()
+        report_paths['json'] = json_path
+        
+        # Save Excel report
+        excel_path = self.save_excel_report()
+        report_paths['excel'] = excel_path
+        
+        # Generate categorized reports
+        categorized_paths = self.generate_categorized_reports()
+        report_paths.update(categorized_paths)
+        
+        return report_paths

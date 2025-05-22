@@ -20,8 +20,11 @@
                     </p>
 
                     <div class="text-center mt-4">
-                        <a href="{{ url_for('mtd_reports.upload_files') }}" class="btn btn-primary btn-lg">
+                        <a href="{{ url_for('mtd_reports.upload_files') }}" class="btn btn-primary btn-lg me-2">
                             <i class="fa fa-upload"></i> Upload MTD Files
+                        </a>
+                        <a href="{{ url_for('mtd_reports.list_reports') }}" class="btn btn-success btn-lg">
+                            <i class="fa fa-list"></i> View Reports
                         </a>
                     </div>
                 </div>

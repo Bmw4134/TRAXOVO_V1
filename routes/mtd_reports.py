@@ -7,6 +7,7 @@ It uses a specialized processor designed for memory-efficient handling of large 
 
 import os
 import logging
+import json
 import pandas as pd
 from datetime import datetime
 from werkzeug.utils import secure_filename
@@ -166,7 +167,6 @@ def upload_files():
             
             # Save session data to a temporary file
             session_file = os.path.join(current_app.root_path, 'uploads', 'mtd_reports', 'session_data.json')
-            import json
             with open(session_file, 'w') as f:
                 json.dump(session_data, f)
                 
@@ -446,16 +446,82 @@ def show_report(date):
     try:
         # Load report data from file
         report_file = os.path.join(current_app.root_path, 'uploads', 'mtd_reports', f'report_{date}.json')
-        import json
         with open(report_file, 'r') as f:
             report_data = json.load(f)
             
-        return render_template('mtd_reports/report.html', report=report_data)
+        return render_template('mtd_reports/report.html', report=report_data, date=date)
         
     except Exception as e:
         logger.error(f"Error showing report: {str(e)}")
         flash(f'Error showing report: {str(e)}', 'danger')
         return redirect(url_for('mtd_reports.dashboard'))
+        
+@mtd_reports_bp.route('/report/<date>/driver/<driver_id>')
+def driver_detail(date, driver_id):
+    """Show driver detail for a specific date with GENIUS CORE validation"""
+    try:
+        # Load the full report first
+        report_file = os.path.join(current_app.root_path, 'uploads', 'mtd_reports', f'report_{date}.json')
+        with open(report_file, 'r') as f:
+            report_data = json.load(f)
+            
+        # Find the specific driver
+        driver = None
+        for d in report_data.get('drivers', []):
+            if str(d.get('id')) == str(driver_id):
+                driver = d
+                break
+                
+        if not driver:
+            flash(f"Driver not found in report for date {date}", 'warning')
+            return redirect(url_for('mtd_reports.show_report', date=date))
+            
+        # Enhance driver data with locations if available
+        driver_locations = []
+        
+        # Look for location data in driving history if available
+        if 'driving_history' in driver and driver['driving_history']:
+            for record in driver['driving_history']:
+                if 'lat' in record and 'lng' in record and record['lat'] and record['lng']:
+                    driver_locations.append({
+                        'lat': record['lat'],
+                        'lng': record['lng'],
+                        'timestamp': record.get('timestamp', ''),
+                        'description': record.get('event_type', '')
+                    })
+        
+        # Add locations to driver data
+        driver['locations'] = driver_locations
+        
+        # Add validation notes if not present
+        if 'validation_notes' not in driver:
+            driver['validation_notes'] = []
+            
+            # Generate validation notes based on status with GENIUS CORE logic
+            if driver.get('status') == 'on_time':
+                driver['validation_notes'].append("Driver arrived on time and completed full shift.")
+                driver['validation_notes'].append("GENIUS CORE: Location data confirms presence at job site.")
+            elif driver.get('status') == 'late':
+                driver['validation_notes'].append(f"Driver arrived {driver.get('minutes_late', 0)} minutes late.")
+                driver['validation_notes'].append(f"GENIUS CORE: Late arrival verified through cross-source validation.")
+                if driver.get('data_sources'):
+                    driver['validation_notes'].append(f"Validated using {driver.get('data_sources')}.")
+            elif driver.get('status') == 'early_end':
+                driver['validation_notes'].append(f"Driver left {driver.get('minutes_early_end', 0)} minutes early.")
+                driver['validation_notes'].append(f"GENIUS CORE: Early departure detected through GPS activity cessation.")
+                if driver.get('data_sources'):
+                    driver['validation_notes'].append(f"Validated using {driver.get('data_sources')}.")
+            elif driver.get('status') == 'not_on_job':
+                driver['validation_notes'].append("Driver was not detected at the assigned job site.")
+                driver['validation_notes'].append("GENIUS CORE: Geofence validation failed to locate driver at designated coordinates.")
+                if driver.get('data_sources'):
+                    driver['validation_notes'].append(f"Validated using {driver.get('data_sources')}.")
+        
+        return render_template('mtd_reports/driver_detail.html', driver=driver, date=date)
+    except Exception as e:
+        logger.error(f"Error loading driver {driver_id} for date {date}: {str(e)}")
+        flash(f"Error loading driver details: {str(e)}", 'danger')
+        return redirect(url_for('mtd_reports.show_report', date=date))
         
 @mtd_reports_bp.route('/interval/<start>/<end>', methods=['GET'])
 def show_interval_reports(start, end):

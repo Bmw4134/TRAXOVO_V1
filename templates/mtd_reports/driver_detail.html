@@ -1,194 +1,238 @@
-{% extends "basic_base.html" %}
+{% extends 'base.html' %}
 
-{% block title %}Driver Attendance Detail{% endblock %}
+{% block title %}Driver Detail - {{ driver.name }}{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h2 class="mb-0">Driver Detail: {{ driver.name }}</h2>
-                    <div>
-                        <a href="{{ url_for('mtd_reports.show_report', date=report_date) }}" class="btn btn-light">
-                            <i class="fa fa-arrow-left"></i> Back to Report
-                        </a>
-                    </div>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('mtd_reports.dashboard') }}">MTD Reports</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('mtd_reports.show_report', date=date) }}">Report {{ date }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ driver.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">
+                <i class="bi bi-person-badge me-2"></i>
+                Driver Details - {{ driver.name }}
+            </h4>
+            <span class="badge {% if driver.status == 'on_time' %}bg-success{% elif driver.status == 'late' %}bg-warning{% elif driver.status == 'early_end' %}bg-warning{% elif driver.status == 'not_on_job' %}bg-danger{% else %}bg-secondary{% endif %}">
+                {{ driver.status|replace('_', ' ')|title }}
+            </span>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Driver Information</h5>
+                    <table class="table table-striped">
+                        <tr>
+                            <th>Name:</th>
+                            <td>{{ driver.name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Employee ID:</th>
+                            <td>{{ driver.employee_id if driver.employee_id else 'Not available' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Status:</th>
+                            <td>
+                                <span class="badge {% if driver.status == 'on_time' %}bg-success{% elif driver.status == 'late' %}bg-warning{% elif driver.status == 'early_end' %}bg-warning{% elif driver.status == 'not_on_job' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                    {{ driver.status|replace('_', ' ')|title }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Assigned Job:</th>
+                            <td>{{ driver.assigned_job if driver.assigned_job else 'Not assigned' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Data Sources:</th>
+                            <td>{{ driver.data_sources if driver.data_sources else 'Not available' }}</td>
+                        </tr>
+                    </table>
                 </div>
-                <div class="card-body">
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header bg-dark text-white">
-                                    <h5 class="mb-0">Driver Information</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row mb-2">
-                                        <div class="col-md-4 fw-bold">Name:</div>
-                                        <div class="col-md-8">{{ driver.name }}</div>
-                                    </div>
-                                    <div class="row mb-2">
-                                        <div class="col-md-4 fw-bold">Status:</div>
-                                        <div class="col-md-8">
-                                            {% if driver.status == 'on_time' %}
-                                                <span class="badge bg-success">On Time</span>
-                                            {% elif driver.status == 'late' %}
-                                                <span class="badge bg-danger">Late</span>
-                                            {% elif driver.status == 'early_end' %}
-                                                <span class="badge bg-warning text-dark">Early End</span>
-                                            {% elif driver.status == 'not_on_job' %}
-                                                <span class="badge bg-secondary">Not On Job</span>
-                                            {% else %}
-                                                <span class="badge bg-info">Unknown</span>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    <div class="row mb-2">
-                                        <div class="col-md-4 fw-bold">Job Site:</div>
-                                        <div class="col-md-8">{{ driver.job_site|default('Not Assigned', true) }}</div>
-                                    </div>
-                                    <div class="row mb-2">
-                                        <div class="col-md-4 fw-bold">Asset:</div>
-                                        <div class="col-md-8">{{ driver.asset|default('Not Assigned', true) }}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header bg-dark text-white">
-                                    <h5 class="mb-0">Schedule Information</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row mb-2">
-                                        <div class="col-md-5 fw-bold">Scheduled Start:</div>
-                                        <div class="col-md-7">{{ driver.scheduled_start|default('Not Available', true) }}</div>
-                                    </div>
-                                    <div class="row mb-2">
-                                        <div class="col-md-5 fw-bold">Scheduled End:</div>
-                                        <div class="col-md-7">{{ driver.scheduled_end|default('Not Available', true) }}</div>
-                                    </div>
-                                    <div class="row mb-2">
-                                        <div class="col-md-5 fw-bold">Actual Start:</div>
-                                        <div class="col-md-7">
-                                            {% if driver.actual_start %}
-                                                {{ driver.actual_start }}
-                                                {% if driver.minutes_late > 0 %}
-                                                    <span class="text-danger">({{ driver.minutes_late }} min late)</span>
-                                                {% endif %}
-                                            {% else %}
-                                                <span class="text-muted">Not Recorded</span>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    <div class="row mb-2">
-                                        <div class="col-md-5 fw-bold">Actual End:</div>
-                                        <div class="col-md-7">
-                                            {% if driver.actual_end %}
-                                                {{ driver.actual_end }}
-                                                {% if driver.minutes_early_end > 0 %}
-                                                    <span class="text-warning">({{ driver.minutes_early_end }} min early)</span>
-                                                {% endif %}
-                                            {% else %}
-                                                <span class="text-muted">Not Recorded</span>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="col-md-6">
+                    <h5>Attendance Details</h5>
+                    <table class="table table-striped">
+                        <tr>
+                            <th>Scheduled Start:</th>
+                            <td>{{ driver.scheduled_start if driver.scheduled_start else 'Not available' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Scheduled End:</th>
+                            <td>{{ driver.scheduled_end if driver.scheduled_end else 'Not available' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Actual Start:</th>
+                            <td>{{ driver.actual_start if driver.actual_start else 'Not available' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Actual End:</th>
+                            <td>{{ driver.actual_end if driver.actual_end else 'Not available' }}</td>
+                        </tr>
+                        {% if driver.minutes_late and driver.minutes_late > 0 %}
+                        <tr>
+                            <th>Minutes Late:</th>
+                            <td class="text-warning">{{ driver.minutes_late }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if driver.minutes_early_end and driver.minutes_early_end > 0 %}
+                        <tr>
+                            <th>Minutes Early End:</th>
+                            <td class="text-warning">{{ driver.minutes_early_end }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                </div>
+            </div>
 
-                    <div class="card mb-4">
-                        <div class="card-header bg-dark text-white">
-                            <h5 class="mb-0">Activity Timeline</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="timeline">
-                                {% for event in driver.events %}
-                                <div class="timeline-item">
-                                    <div class="timeline-marker {% if event.event_type == 'Key On' %}bg-success{% elif event.event_type == 'Key Off' %}bg-danger{% else %}bg-info{% endif %}"></div>
-                                    <div class="timeline-content">
-                                        <div class="d-flex justify-content-between">
-                                            <h6 class="fw-bold mb-1">{{ event.event_type }}</h6>
-                                            <span class="text-muted">{{ event.time }}</span>
-                                        </div>
-                                        <p class="mb-0">{{ event.location|default('Location not recorded', true) }}</p>
-                                        {% if event.details %}
-                                        <p class="text-secondary mb-0"><small>{{ event.details }}</small></p>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                {% else %}
-                                <div class="alert alert-info">
-                                    <i class="fa fa-info-circle me-2"></i> No activity events recorded for this driver.
-                                </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-
+            <!-- GENIUS CORE Validation Notes -->
+            <div class="row mt-4">
+                <div class="col-12">
                     <div class="card">
-                        <div class="card-header bg-dark text-white">
-                            <h5 class="mb-0">Activity Map</h5>
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-check-circle-fill me-2"></i>
+                                GENIUS CORE Validation
+                            </h5>
                         </div>
                         <div class="card-body">
-                            {% if driver.has_geo_data %}
-                            <div id="map" style="height: 400px;"></div>
+                            {% if driver.validation_notes %}
+                                <ul class="list-group">
+                                    {% for note in driver.validation_notes %}
+                                        <li class="list-group-item">{{ note }}</li>
+                                    {% endfor %}
+                                </ul>
                             {% else %}
-                            <div class="alert alert-info">
-                                <i class="fa fa-info-circle me-2"></i> No location data available for this driver.
-                            </div>
+                                <p>No validation notes available.</p>
                             {% endif %}
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Activity Timeline -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-clock-history me-2"></i>
+                                Activity Timeline
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% if driver.driving_history %}
+                                <div class="timeline">
+                                    {% for record in driver.driving_history %}
+                                        <div class="timeline-item">
+                                            <div class="timeline-marker"></div>
+                                            <div class="timeline-content">
+                                                <h6 class="timeline-title">
+                                                    {{ record.event_type if record.event_type else 'Activity' }} - 
+                                                    {{ record.timestamp if record.timestamp else 'Time not recorded' }}
+                                                </h6>
+                                                <p>{{ record.location if record.location else 'Location not recorded' }}</p>
+                                                {% if record.asset %}
+                                                    <small class="text-muted">Vehicle: {{ record.asset }}</small>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% elif driver.activity_detail %}
+                                <div class="timeline">
+                                    {% for record in driver.activity_detail %}
+                                        <div class="timeline-item">
+                                            <div class="timeline-marker"></div>
+                                            <div class="timeline-content">
+                                                <h6 class="timeline-title">
+                                                    {{ record.reason if record.reason else 'Activity' }} - 
+                                                    {{ record.timestamp if record.timestamp else 'Time not recorded' }}
+                                                </h6>
+                                                <p>{{ record.location if record.location else 'Location not recorded' }}</p>
+                                                {% if record.asset %}
+                                                    <small class="text-muted">Vehicle: {{ record.asset }}</small>
+                                                {% endif %}
+                                                {% if record.speed %}
+                                                    <small class="text-muted">Speed: {{ record.speed }} {{ record.unit }}</small>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p>No activity records available.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Location Map -->
+            {% if driver.locations and driver.locations|length > 0 %}
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-geo-alt-fill me-2"></i>
+                                Location Map
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="map" style="height: 400px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        <div class="card-footer">
+            <a href="{{ url_for('mtd_reports.show_report', date=date) }}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Back to Report
+            </a>
         </div>
     </div>
 </div>
 
-{% if driver.has_geo_data %}
+{% if driver.locations and driver.locations|length > 0 %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Initialize map
-        const map = L.map('map').setView([driver.geo_center.lat, driver.geo_center.lng], 12);
-        
-        // Add OpenStreetMap tile layer
+        // Initialize the map
+        var map = L.map('map').setView([
+            {{ driver.locations[0].lat }}, 
+            {{ driver.locations[0].lng }}
+        ], 13);
+
+        // Add the OpenStreetMap tiles
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
-        
-        // Add markers for each event with location data
-        const markers = [];
-        {% for event in driver.events %}
-        {% if event.latitude and event.longitude %}
-        const marker = L.marker([{{ event.latitude }}, {{ event.longitude }}])
-            .addTo(map)
-            .bindPopup(`
-                <strong>{{ event.event_type }}</strong><br>
-                {{ event.time }}<br>
-                {{ event.location|default('Unknown location', true) }}
-            `);
-        markers.push(marker);
-        {% endif %}
+
+        // Add markers for each location
+        var markers = [];
+        {% for location in driver.locations %}
+            var marker = L.marker([{{ location.lat }}, {{ location.lng }}]).addTo(map);
+            marker.bindPopup("<b>{{ location.timestamp }}</b><br>{{ location.description|default('Activity') }}");
+            markers.push(marker);
         {% endfor %}
+
+        // Create a polyline to show the path
+        var latlngs = [
+            {% for location in driver.locations %}
+                [{{ location.lat }}, {{ location.lng }}],
+            {% endfor %}
+        ];
         
-        // Add route line if we have multiple points
-        if (markers.length > 1) {
-            const points = [
-                {% for event in driver.events %}
-                {% if event.latitude and event.longitude %}
-                [{{ event.latitude }}, {{ event.longitude }}],
-                {% endif %}
-                {% endfor %}
-            ];
-            
-            const polyline = L.polyline(points, {color: '#3388ff', weight: 3, opacity: 0.7}).addTo(map);
-            map.fitBounds(polyline.getBounds());
-        } else if (markers.length === 1) {
-            map.setView([markers[0].getLatLng().lat, markers[0].getLatLng().lng], 14);
-        }
+        var polyline = L.polyline(latlngs, {color: 'blue'}).addTo(map);
+        
+        // Fit the map to contain all markers
+        var group = new L.featureGroup(markers);
+        map.fitBounds(group.getBounds());
     });
 </script>
 {% endif %}
@@ -196,23 +240,25 @@
 <style>
     .timeline {
         position: relative;
-        padding-left: 3rem;
-        margin-bottom: 0;
+        padding: 1rem;
+        margin: 0 auto;
+        max-width: 1200px;
     }
     
     .timeline:before {
         content: '';
         position: absolute;
-        left: 1rem;
-        top: 0;
         height: 100%;
         width: 2px;
-        background-color: #e9ecef;
+        background: #dee2e6;
+        left: 50px;
+        top: 0;
     }
     
     .timeline-item {
         position: relative;
-        padding-bottom: 1.5rem;
+        margin-bottom: 1.5rem;
+        padding-left: 70px;
     }
     
     .timeline-marker {
@@ -220,8 +266,23 @@
         width: 16px;
         height: 16px;
         border-radius: 50%;
-        left: -2.4rem;
-        top: 0.25rem;
+        background: #6c757d;
+        left: 43px;
+        top: 0;
+        z-index: 1;
+    }
+    
+    .timeline-content {
+        position: relative;
+        padding: 0.5rem 1rem;
+        border-radius: 0.25rem;
+        background: #f8f9fa;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    }
+    
+    .timeline-title {
+        margin-top: 0;
+        margin-bottom: 0.5rem;
     }
 </style>
 {% endblock %}

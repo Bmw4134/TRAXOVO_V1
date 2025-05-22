@@ -231,10 +231,10 @@ def allowed_file(filename):
 
 def process_driver_files(driving_history_path, activity_detail_path, asset_list_path=None, verify_with_asset_list=True):
     """
-    Process driver files and generate daily report.
+    Process driver files and generate daily report using GENIUS CORE CONTINUITY MODE.
     
-    This is a simplified implementation that would be expanded in the actual application
-    to include the full GENIUS CORE logic for driver attendance tracking.
+    This implementation uses the complete driver pipeline following the exact workbook logic
+    hierarchy, cross-validating all sources with proper matchback.
     
     Args:
         driving_history_path: Path to the driving history file
@@ -292,27 +292,87 @@ def process_driver_files(driving_history_path, activity_detail_path, asset_list_
             logger.warning("Could not determine date from file, using today's date")
             date_obj = datetime.now().date()
         
-        logger.info(f"Processing data for date: {date_obj}")
+        date_str_formatted = date_obj.strftime('%Y-%m-%d')
+        logger.info(f"Processing data for date: {date_str_formatted}")
         
-        # In a real implementation, this is where we would execute the full GENIUS CORE
-        # driver attendance tracking logic, including:
-        # 1. Normalizing driver names
-        # 2. Matching drivers across files
-        # 3. Verifying against the asset list
-        # 4. Classifying drivers (on time, late, early end, not on job)
-        # 5. Saving the results to the database
+        # Copy files to appropriate directories for pipeline processing
+        import shutil
+        from pathlib import Path
         
-        # For this prototype, we'll simulate the result
-        # In a real implementation, this would be replaced with actual processing logic
-        simulate_daily_report(date_obj)
+        # Create directories if they don't exist
+        data_dir = Path('data')
+        driving_history_dir = data_dir / 'driving_history'
+        activity_detail_dir = data_dir / 'activity_detail'
+        asset_list_dir = data_dir / 'asset_list'
+        
+        driving_history_dir.mkdir(parents=True, exist_ok=True)
+        activity_detail_dir.mkdir(parents=True, exist_ok=True)
+        asset_list_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Copy files with appropriate naming for the pipeline
+        driving_history_target = driving_history_dir / f'DrivingHistory_{date_str_formatted.replace("-", "")}.csv'
+        activity_detail_target = activity_detail_dir / f'ActivityDetail_{date_str_formatted.replace("-", "")}.csv'
+        
+        shutil.copy(driving_history_path, driving_history_target)
+        shutil.copy(activity_detail_path, activity_detail_target)
+        
+        if asset_list_path:
+            asset_list_target = asset_list_dir / f'AssetList_{date_str_formatted.replace("-", "")}.csv'
+            shutil.copy(asset_list_path, asset_list_target)
+        
+        # Import our daily report pipeline and process the data
+        from daily_report_pipeline_revision import DriverReportPipeline
+        
+        # Run the pipeline for the specific date
+        pipeline = DriverReportPipeline(date_str_formatted)
+        
+        # Execute the pipeline
+        pipeline.extract_equipment_billing_data()
+        pipeline.extract_driving_history()
+        pipeline.extract_activity_detail()
+        pipeline.process_drivers()
+        report_data = pipeline.generate_report()
+        
+        # Create reports directory if it doesn't exist
+        reports_dir = Path('reports/daily_drivers')
+        exports_dir = Path('exports/daily_reports')
+        reports_dir.mkdir(parents=True, exist_ok=True)
+        exports_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Save the report data to JSON file
+        import json
+        json_path = reports_dir / f'daily_report_{date_str_formatted}.json'
+        with open(json_path, 'w') as f:
+            json.dump(report_data, f, indent=2)
+        
+        # Save as Excel for easy viewing
+        import pandas as pd
+        excel_path = reports_dir / f'daily_report_{date_str_formatted}.xlsx'
+        df = pd.DataFrame(report_data['drivers'])
+        df.to_excel(excel_path, index=False)
+        
+        # Copy to exports directory
+        export_json_path = exports_dir / f'daily_report_{date_str_formatted}.json'
+        export_excel_path = exports_dir / f'daily_report_{date_str_formatted}.xlsx'
+        shutil.copy(json_path, export_json_path)
+        shutil.copy(excel_path, export_excel_path)
+        
+        # Create report entries in the database
+        save_driver_reports_to_db(report_data, date_obj)
         
         return {
             'success': True,
-            'date': date_obj.strftime('%Y-%m-%d'),
-            'message': 'Files processed successfully'
+            'date': date_str_formatted,
+            'message': 'Files processed successfully',
+            'report_path': str(json_path),
+            'export_path': str(export_json_path),
+            'driver_count': len(report_data['drivers']),
+            'summary': report_data['summary']
         }
     except Exception as e:
         logger.error(f"Error processing driver files: {str(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
         return {'error': str(e)}
 
 def load_file(file_path):

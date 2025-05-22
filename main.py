@@ -15,7 +15,7 @@ from routes.billing import billing_bp
 from routes.system_health import system_health_bp
 from routes.map_standalone import map_standalone_bp
 from routes.direct_map_route import direct_map
-from routes.mtd_reports import mtd_reports_bp
+from routes.mtd_reports_fixed import mtd_reports_bp
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)

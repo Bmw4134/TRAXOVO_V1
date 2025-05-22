@@ -21,10 +21,39 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Sample data paths
+# Sample data paths - use actual CSV files from attached_assets or convert from Excel
 DRIVING_HISTORY_PATH = "attached_assets/DrivingHistory.csv"
 ACTIVITY_DETAIL_PATH = "attached_assets/ActivityDetail.csv"
 DATE_STR = datetime.now().strftime('%Y-%m-%d')  # Use today's date for testing
+
+# Check if files exist, if not look for common alternatives
+if not os.path.exists(DRIVING_HISTORY_PATH):
+    alternatives = [
+        "attached_assets/DrivingHistory (13).csv",
+        "attached_assets/DrivingHistory.csv",
+        "attached_assets/DrivingHistory.xlsx", 
+        "attached_assets/Driving_History.csv",
+        "attached_assets/DrivingHistory_latest.csv"
+    ]
+    for alt in alternatives:
+        if os.path.exists(alt):
+            DRIVING_HISTORY_PATH = alt
+            logger.info(f"Using alternative driving history file: {alt}")
+            break
+
+if not os.path.exists(ACTIVITY_DETAIL_PATH):
+    alternatives = [
+        "attached_assets/ActivityDetail (9).csv",
+        "attached_assets/ActivityDetail (7).csv",
+        "attached_assets/ActivityDetail (6).csv",
+        "attached_assets/ActivityDetail.xlsx",
+        "attached_assets/Activity_Detail.csv"
+    ]
+    for alt in alternatives:
+        if os.path.exists(alt):
+            ACTIVITY_DETAIL_PATH = alt
+            logger.info(f"Using alternative activity detail file: {alt}")
+            break
 
 def ensure_dirs():
     """Ensure all required directories exist"""

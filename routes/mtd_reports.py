@@ -55,6 +55,69 @@ def dashboard():
     """MTD Reports Dashboard"""
     return render_template('mtd_reports/dashboard.html')
 
+@mtd_reports_bp.route('/reports')
+def list_reports():
+    """List all available reports"""
+    # Find all single date reports
+    upload_dir = os.path.join(current_app.root_path, 'uploads', 'mtd_reports')
+    single_reports = []
+    interval_reports = []
+    
+    # Look for single date report files
+    for filename in os.listdir(upload_dir):
+        if filename.startswith('report_') and filename.endswith('.json'):
+            try:
+                date_str = filename.replace('report_', '').replace('.json', '')
+                report_path = os.path.join(upload_dir, filename)
+                with open(report_path, 'r') as f:
+                    report_data = json.load(f)
+                
+                # Extract summary data
+                report_summary = {
+                    'date': date_str,
+                    'total_drivers': report_data.get('total_drivers', 0),
+                    'on_time_count': report_data.get('on_time_count', 0),
+                    'late_count': report_data.get('late_count', 0),
+                    'early_end_count': report_data.get('early_end_count', 0),
+                    'not_on_job_count': report_data.get('not_on_job_count', 0),
+                    'on_time_percent': report_data.get('on_time_percent', 0),
+                    'late_percent': report_data.get('late_percent', 0),
+                    'early_end_percent': report_data.get('early_end_percent', 0),
+                    'not_on_job_percent': report_data.get('not_on_job_percent', 0)
+                }
+                single_reports.append(report_summary)
+            except Exception as e:
+                logger.error(f"Error loading report {filename}: {str(e)}")
+    
+    # Sort reports by date (newest first)
+    single_reports.sort(key=lambda x: x['date'], reverse=True)
+    
+    # Look for interval report files
+    for filename in os.listdir(upload_dir):
+        if filename.startswith('interval_index_') and filename.endswith('.json'):
+            try:
+                report_path = os.path.join(upload_dir, filename)
+                with open(report_path, 'r') as f:
+                    report_data = json.load(f)
+                
+                # Extract summary data
+                report_summary = {
+                    'start_date': report_data.get('start_date'),
+                    'end_date': report_data.get('end_date'),
+                    'interval_type': report_data.get('interval_type', 'daily'),
+                    'periods': len(report_data.get('reports', []))
+                }
+                interval_reports.append(report_summary)
+            except Exception as e:
+                logger.error(f"Error loading interval report {filename}: {str(e)}")
+    
+    # Sort interval reports by start date (newest first)
+    interval_reports.sort(key=lambda x: x['start_date'], reverse=True)
+    
+    return render_template('mtd_reports/reports_list.html', 
+                          single_reports=single_reports,
+                          interval_reports=interval_reports)
+
 @mtd_reports_bp.route('/upload', methods=['GET', 'POST'])
 def upload_files():
     """Upload MTD files"""

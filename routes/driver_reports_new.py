@@ -247,13 +247,13 @@ def generate_report():
             job_assignments = process_job_assignments_file(equipment_billing_files[0])
         
         # Run the driver pipeline
-        pipeline = DriverPipeline(
-            date_str=report_date,
-            driving_history_files=driving_history_files,
-            activity_detail_files=activity_detail_files,
-            assets_on_site_files=assets_on_site_files,
-            job_assignments=job_assignments
-        )
+        pipeline = DriverPipeline(config={
+            'date_str': report_date,
+            'driving_history_files': driving_history_files,
+            'activity_detail_files': activity_detail_files,
+            'assets_on_site_files': assets_on_site_files,
+            'job_assignments': job_assignments
+        })
         
         # Generate detailed report
         pipeline.run()

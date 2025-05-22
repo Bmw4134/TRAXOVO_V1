@@ -1,0 +1,74 @@
+BEFORE THAT, HOW DO I USE THE DRIVER REPORTING DASHBOARD?
+
+3 minutes ago
+BW
+
+bmwatson34
+Using the Driver Reporting Dashboard
+The Driver Reporting Dashboard you see is designed for tracking driver attendance and performance. Here's how to use its key features:
+
+1. Generate a New Report
+Click the New Report button in the top right corner
+On the next screen, you'll need to upload the required data files:
+Driving History CSV files (containing GPS data)
+Activity Detail CSV files (containing asset activity)
+Assets On Site files (optional)
+Equipment Billing file (optional, for job assignments)
+Select the report date using the date picker
+Click Generate Report to process the data
+2. View Metrics
+The dashboard shows four key metrics at the top:
+
+On Time: Number of drivers who arrived on time
+Late: Number of drivers who arrived late (with average minutes)
+Early End: Number of drivers who left early (with average minutes)
+Not On Job: Number of drivers not at their assigned job sites
+3. Timecard Comparison
+This feature compares GPS data with employee timecards:
+
+Click "Upload Timecard Data"
+Select your GroundWorks timecard Excel file
+Set the date range you want to analyze
+Click "Upload & Compare" to see discrepancies
+4. Access Previous Reports
+In the "Recent Reports" section, you'll see a list of previously generated reports that you can:
+
+View detailed information
+Download in different formats (Excel, PDF, JSON)
+See driver-specific performance
+5. Report Types
+Once reports are generated, you can download specialized reports:
+
+Summary Report: Overall attendance metrics
+Late Start Report: Details on late drivers
+Early End Report: Details on early departures
+Not On Job Report: Drivers at incorrect locations
+Activity Detail Report: Comprehensive asset usage
+To get started, you'll need to click "New Report" and upload your first set of driving history and activity detail files. Would you like me to help you prepare these files for upload?
+
+WILL IT WORK IF I GIVE IT MONTH TO DATE FILES?
+
+2 minutes ago
+BW
+
+bmwatson34
+Yes, the Driver Reporting Dashboard should work with month-to-date (MTD) files. Here's what you need to know:
+
+File Compatibility: The system is designed to process month-to-date data from multiple sources. It can handle larger datasets that span across days or weeks.
+
+Processing Approach: When you upload MTD files, the system will:
+
+Parse all records across the date range
+Group and organize data by date
+Apply the appropriate classification logic to each day's records
+Important Considerations:
+
+Make sure your MTD files include the date/timestamp column for proper sorting
+The system may take longer to process larger MTD files
+When generating a report for a specific date, it will extract only the relevant records
+Best Practices:
+
+If your MTD files are very large, consider selecting a specific date range when uploading
+Ensure all your files use consistent formatting for driver names and asset IDs
+For detailed daily analysis, you might get more precise results by uploading daily files
+When you click "New Report" and upload your MTD files, the system will intelligently process the data and provide metrics focused on the date you select. Would you like to try generating a report with your MTD files now?

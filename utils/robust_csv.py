@@ -527,8 +527,21 @@ def parse_activity_detail(file_path):
                     
             # If still not found, try to extract job number from job site
             if 'Job Site' in df.columns and 'Job Number' not in df.columns and isinstance(df['Job Site'], pd.Series):
-                job_number_pattern = r'.*?(\d{4,6})'  # Typically job numbers are 4-6 digits
-                df['Job Number'] = df['Job Site'].astype(str).str.extract(job_number_pattern, expand=False)
+                # Create Job Number column with empty strings
+                df['Job Number'] = ''
+                
+                # Only try to extract job numbers if the Job Site column has data
+                if not df['Job Site'].isna().all() and len(df['Job Site']) > 0:
+                    try:
+                        job_number_pattern = r'.*?(\d{4,6})'  # Typically job numbers are 4-6 digits
+                        job_numbers = df['Job Site'].astype(str).str.extract(job_number_pattern, expand=False)
+                        # Only update if extraction was successful
+                        if job_numbers is not None and not job_numbers.isna().all():
+                            df['Job Number'] = job_numbers
+                    except Exception as e:
+                        # If extraction fails, continue with empty job numbers
+                        print(f"Warning: Could not extract job numbers from Job Site: {e}")
+                        pass
         
         # Parse date and time information
         time_columns = ['Start Time', 'End Time']

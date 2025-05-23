@@ -121,14 +121,12 @@ except Exception as e:
 
 @app.route('/attendance/')
 @app.route('/attendance')
-def attendance_redirect():
-    """Redirect attendance route to enhanced weekly report"""
-    return redirect('/enhanced-weekly-report/')
-
-@app.route('/enhanced-weekly-report/')
-def enhanced_weekly_fallback():
-    """Fallback route for enhanced weekly report"""
-    return render_template('enhanced_weekly_report/dashboard.html')
+def attendance_main():
+    """Main GPS-based weekly driver report interface"""
+    return render_template('enhanced_weekly_report/dashboard.html', 
+                          title="GPS-Based Weekly Driver Report",
+                          week_start="May 18, 2025",
+                          week_end="May 24, 2025")
 
 @app.route('/')
 def dashboard():

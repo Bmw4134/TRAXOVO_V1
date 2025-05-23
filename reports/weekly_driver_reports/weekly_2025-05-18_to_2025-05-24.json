@@ -1,0 +1,159 @@
+{
+  "start_date": "2025-05-18",
+  "end_date": "2025-05-24",
+  "daily_reports": {
+    "2025-05-18": {
+      "date": "2025-05-18",
+      "drivers": {},
+      "job_sites": {},
+      "attendance": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 0,
+        "total": 0
+      }
+    },
+    "2025-05-19": {
+      "date": "2025-05-19",
+      "drivers": {},
+      "job_sites": {},
+      "attendance": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 0,
+        "total": 0
+      }
+    },
+    "2025-05-20": {
+      "date": "2025-05-20",
+      "drivers": {},
+      "job_sites": {},
+      "attendance": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 0,
+        "total": 0
+      }
+    },
+    "2025-05-21": {
+      "date": "2025-05-21",
+      "drivers": {},
+      "job_sites": {},
+      "attendance": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 0,
+        "total": 0
+      }
+    },
+    "2025-05-22": {
+      "date": "2025-05-22",
+      "drivers": {},
+      "job_sites": {},
+      "attendance": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 0,
+        "total": 0
+      }
+    },
+    "2025-05-23": {
+      "date": "2025-05-23",
+      "drivers": {},
+      "job_sites": {},
+      "attendance": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 0,
+        "total": 0
+      }
+    },
+    "2025-05-24": {
+      "date": "2025-05-24",
+      "drivers": {},
+      "job_sites": {},
+      "attendance": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 0,
+        "total": 0
+      }
+    }
+  },
+  "summary": {
+    "total_drivers": 0,
+    "attendance_totals": {
+      "late_start": 0,
+      "early_end": 0,
+      "not_on_job": 0,
+      "on_time": 0,
+      "total_tracked": 0
+    },
+    "attendance_percentages": {
+      "late_start": 0,
+      "early_end": 0,
+      "not_on_job": 0,
+      "on_time": 0
+    },
+    "daily_totals": {
+      "2025-05-18": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 0,
+        "total": 0
+      },
+      "2025-05-19": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 0,
+        "total": 0
+      },
+      "2025-05-20": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 0,
+        "total": 0
+      },
+      "2025-05-21": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 0,
+        "total": 0
+      },
+      "2025-05-22": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 0,
+        "total": 0
+      },
+      "2025-05-23": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 0,
+        "total": 0
+      },
+      "2025-05-24": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 0,
+        "total": 0
+      }
+    }
+  },
+  "driver_data": {},
+  "job_data": {}
+}

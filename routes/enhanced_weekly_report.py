@@ -244,8 +244,13 @@ def view_report(start_date, end_date):
             return redirect(url_for('enhanced_weekly_report_bp.dashboard'))
         
         # Load report data
-        with open(report_path, 'r') as f:
-            report = json.load(f)
+        try:
+            with open(report_path, 'r') as f:
+                report = json.load(f)
+        except Exception as e:
+            logger.error(f"Error loading report JSON: {str(e)}")
+            flash(f"Error loading report data: {str(e)}", "danger")
+            return redirect(url_for('enhanced_weekly_report_bp.dashboard'))
         
         # Process dates for display
         start = datetime.strptime(start_date, '%Y-%m-%d').date()
@@ -331,15 +336,16 @@ def view_report(start_date, end_date):
         # Prepare overall summary
         summary = report.get('summary', {})
         
+        # Using the simplified template to avoid rendering issues
         return render_template(
-            'enhanced_weekly_report/view.html',
+            'enhanced_weekly_report/view_simple.html',
             start_date=start_date,
             end_date=end_date,
             start_formatted=start_formatted,
             end_formatted=end_formatted,
             daily_stats=daily_stats,
             driver_stats=driver_stats_list,
-            summary=summary
+            report={'summary': summary}
         )
     
     except Exception as e:

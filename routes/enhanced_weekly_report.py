@@ -251,6 +251,12 @@ def view_report(start_date, end_date):
             logger.error(f"Error loading report JSON: {str(e)}")
             flash(f"Error loading report data: {str(e)}", "danger")
             return redirect(url_for('enhanced_weekly_report_bp.dashboard'))
+            
+        # Add download URLs to the template context
+        download_urls = {
+            'csv': url_for('enhanced_weekly_report_bp.download_report', start_date=start_date, end_date=end_date, format='csv'),
+            'json': url_for('enhanced_weekly_report_bp.download_report', start_date=start_date, end_date=end_date, format='json')
+        }
         
         # Process dates for display
         start = datetime.strptime(start_date, '%Y-%m-%d').date()

@@ -103,7 +103,7 @@ except ImportError:
     
 # Register Enhanced Weekly Report blueprint
 try:
-    from routes.enhanced_weekly_report import enhanced_weekly_report_bp
+    from routes.enhanced_weekly_report import bp as enhanced_weekly_report_bp
     app.register_blueprint(enhanced_weekly_report_bp)
     logger.info("Enhanced Weekly Report blueprint registered")
 except ImportError:

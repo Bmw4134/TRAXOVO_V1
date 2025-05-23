@@ -200,6 +200,7 @@ class WeeklyDriverProcessor:
         daily_report = {
             'date': date_str,
             'drivers': {},
+            'driver_records': [],  # List of driver records for the view template
             'job_sites': {},
             'attendance': {
                 'on_time': 0,
@@ -221,6 +222,17 @@ class WeeklyDriverProcessor:
             
             # Add driver to daily report
             daily_report['drivers'][driver_name] = driver_record
+            
+            # Add to driver_records list (used by the view template)
+            formatted_record = {
+                'driver_name': driver_name,
+                'attendance_status': driver_record.get('status', 'unknown'),
+                'job_site': driver_record.get('job_site', 'Unknown'),
+                'first_seen': driver_record.get('first_seen', ''),
+                'last_seen': driver_record.get('last_seen', ''),
+                'total_time': driver_record.get('total_time', 0)
+            }
+            daily_report['driver_records'].append(formatted_record)
             
             # Update job site data
             job_site = driver_record.get('job_site')
@@ -268,6 +280,16 @@ class WeeklyDriverProcessor:
                 self.driver_data[driver_name]['summary'][status] += 1
             self.driver_data[driver_name]['summary']['total'] += 1
         
+        # Log how many driver records we found for debugging
+        logger.info(f"Date {date_str}: Processed {len(daily_report['driver_records'])} driver records")
+        
+        # Log a few sample driver names for verification if we have any
+        if daily_report['driver_records']:
+            sample_drivers = [rec['driver_name'] for rec in daily_report['driver_records'][:5]]
+            logger.info(f"Date {date_str}: Sample drivers: {', '.join(sample_drivers)}")
+        else:
+            logger.warning(f"Date {date_str}: No driver records found")
+            
         return daily_report
     
     def _filter_driving_records(self, date_str):

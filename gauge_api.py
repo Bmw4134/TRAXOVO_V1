@@ -178,15 +178,18 @@ class GaugeAPI:
                 test_url = f"{self.api_url}/AssetList/{self.asset_list_id}"
                 self.fallback_endpoints_tried.append(test_url)
                 
-                response = requests.get(
+                # Add a session with properly configured SSL context
+                session = requests.Session()
+                session.verify = False  # Disable SSL verification due to TLS handshake issue
+                
+                response = session.get(
                     test_url,
                     auth=(self.username, self.password),
                     headers={
                         "Content-Type": "application/json",
                         "Accept": "application/json"
                     },
-                    timeout=30,
-                    verify=False
+                    timeout=30
                 )
                 
                 if response.status_code in [200, 201, 202, 203]:
@@ -342,8 +345,11 @@ class GaugeAPI:
             direct_url = f"{self.api_url}/AssetList/{self.asset_list_id}"
             logger.info(f"Trying direct AssetList endpoint: {direct_url}")
             
-            # Use basic auth for this endpoint since it worked during authentication
-            response = requests.get(
+            # Use basic auth with a properly configured session
+            session = requests.Session()
+            session.verify = False  # Disable SSL verification due to TLS handshake issue
+            
+            response = session.get(
                 direct_url,
                 auth=(self.username, self.password),
                 headers={
@@ -354,8 +360,7 @@ class GaugeAPI:
                     "active": "true",  # Only active assets
                     "hasGPS": "true"   # Only assets with GPS devices
                 },
-                timeout=60,  # Increased timeout for large asset lists
-                verify=False
+                timeout=60  # Increased timeout for large asset lists
             )
             
             if response.status_code in [200, 201, 202, 203]:

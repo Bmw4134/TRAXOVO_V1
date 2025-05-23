@@ -27,11 +27,11 @@ asset_jobsite_association = Table(
     Column('job_site_id', Integer, ForeignKey('job_sites.id'))
 )
 
-driver_asset_assignment = Table(
+driver_asset_assignments = Table(
     'driver_asset_assignments',
     db.Model.metadata,
-    Column('driver_id', Integer, ForeignKey('drivers.id')),
-    Column('asset_id', Integer, ForeignKey('assets.id')),
+    Column('driver_id', Integer, ForeignKey('drivers.id'), primary_key=True),
+    Column('asset_id', Integer, ForeignKey('assets.id'), primary_key=True),
     Column('start_date', DateTime),
     Column('end_date', DateTime),
     Column('is_active', Boolean, default=True)
@@ -117,7 +117,7 @@ class Driver(db.Model):
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     
     organization = relationship('Organization', back_populates='drivers')
-    assigned_assets = relationship('Asset', secondary=driver_asset_assignment, back_populates='drivers')
+    assigned_assets = relationship('Asset', secondary=driver_asset_assignments, back_populates='drivers')
     job_site_id = Column(Integer, ForeignKey('job_sites.id'))
     job_site = relationship('JobSite', foreign_keys=[job_site_id])
     job_sites = relationship('JobSite', secondary=driver_jobsite_association, back_populates='drivers')
@@ -155,7 +155,7 @@ class Asset(db.Model):
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     
     organization = relationship('Organization', back_populates='assets')
-    drivers = relationship('Driver', secondary=driver_asset_assignment, back_populates='assigned_assets')
+    drivers = relationship('Driver', secondary=driver_asset_assignments, back_populates='assigned_assets')
     locations = relationship('AssetLocation', back_populates='asset')
     job_sites = relationship('JobSite', secondary=asset_jobsite_association, back_populates='assets')
     

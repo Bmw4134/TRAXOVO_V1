@@ -172,3 +172,13 @@ def server_error(e):
     """Handle 500 errors"""
     logger.error(f"Server error: {str(e)}")
     return render_template('500.html'), 500
+
+# Register Enhanced Weekly Report Blueprint
+try:
+    from routes.enhanced_weekly_report import enhanced_weekly_report_bp
+    app.register_blueprint(enhanced_weekly_report_bp)
+    logger.info("Enhanced Weekly Report blueprint registered successfully")
+except ImportError as e:
+    logger.warning(f"Enhanced Weekly Report module not found: {e}")
+except Exception as e:
+    logger.error(f"Error registering Enhanced Weekly Report blueprint: {e}")

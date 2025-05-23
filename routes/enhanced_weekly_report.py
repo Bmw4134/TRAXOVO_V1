@@ -260,9 +260,41 @@ def view_report(start_date, end_date):
         start_formatted = start.strftime('%b %d, %Y')
         end_formatted = end.strftime('%b %d, %Y')
         
+        # Generate the full date range for the week
+        date_range = []
+        current_date = start
+        while current_date <= end:
+            date_range.append(current_date.strftime('%Y-%m-%d'))
+            current_date += timedelta(days=1)
+        
+        # Initialize daily driver records with an empty array for each day
+        daily_driver_records = {}
+        for date_str in date_range:
+            # Add driver_records if missing from the report structure
+            if date_str in report.get('daily_reports', {}):
+                daily_report = report['daily_reports'][date_str]
+                if 'driver_records' not in daily_report or not daily_report['driver_records']:
+                    # If driver_records is missing, build it from drivers
+                    driver_records = []
+                    for driver_name, driver_info in daily_report.get('drivers', {}).items():
+                        record = {
+                            'driver_name': driver_name,
+                            'attendance_status': driver_info.get('status', 'unknown'),
+                            'job_site': driver_info.get('job_site', 'Unknown'),
+                            'first_seen': driver_info.get('first_seen', ''),
+                            'last_seen': driver_info.get('last_seen', ''),
+                            'total_time': driver_info.get('hours_on_site', 0)
+                        }
+                        driver_records.append(record)
+                    daily_report['driver_records'] = driver_records
+                
+                daily_driver_records[date_str] = daily_report.get('driver_records', [])
+            else:
+                daily_driver_records[date_str] = []
+        
         # Calculate summary statistics
         daily_stats = []
-        for date_str, daily_report in report.get('daily_reports', {}).items():
+        for date_str in date_range:
             date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
             date_formatted = date_obj.strftime('%A, %b %d')
             
@@ -275,7 +307,7 @@ def view_report(start_date, end_date):
                 'total': 0
             }
             
-            for driver_record in daily_report.get('driver_records', []):
+            for driver_record in daily_driver_records.get(date_str, []):
                 status = driver_record.get('attendance_status', 'unknown')
                 if status in status_counts:
                     status_counts[status] += 1
@@ -295,7 +327,8 @@ def view_report(start_date, end_date):
                 'late_start': status_counts['late_start'],
                 'early_end': status_counts['early_end'],
                 'not_on_job': status_counts['not_on_job'],
-                'on_time_pct': on_time_pct
+                'on_time_pct': on_time_pct,
+                'driver_records': daily_driver_records.get(date_str, [])
             })
         
         # Sort by date
@@ -303,8 +336,8 @@ def view_report(start_date, end_date):
         
         # Process driver summary stats
         driver_stats = {}
-        for date_str, daily_report in report.get('daily_reports', {}).items():
-            for driver_record in daily_report.get('driver_records', []):
+        for date_str in date_range:
+            for driver_record in daily_driver_records.get(date_str, []):
                 driver_name = driver_record.get('driver_name', 'Unknown')
                 status = driver_record.get('attendance_status', 'unknown')
                 
@@ -315,12 +348,22 @@ def view_report(start_date, end_date):
                         'on_time': 0,
                         'late_start': 0,
                         'early_end': 0,
-                        'not_on_job': 0
+                        'not_on_job': 0,
+                        'daily_records': []
                     }
                 
                 driver_stats[driver_name]['total_days'] += 1
                 if status in driver_stats[driver_name]:
                     driver_stats[driver_name][status] += 1
+                
+                # Add the daily record for this driver
+                driver_stats[driver_name]['daily_records'].append({
+                    'date': date_str,
+                    'status': status,
+                    'first_seen': driver_record.get('first_seen', '').split(' ')[1] if ' ' in driver_record.get('first_seen', '') else '',
+                    'last_seen': driver_record.get('last_seen', '').split(' ')[1] if ' ' in driver_record.get('last_seen', '') else '',
+                    'job_site': driver_record.get('job_site', '')
+                })
         
         # Calculate percentages for each driver
         for driver_name, stats in driver_stats.items():

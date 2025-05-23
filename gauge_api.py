@@ -38,6 +38,75 @@ class GaugeAPI:
         
         logger.info(f"Gauge API initialized with URL: {self.api_url} (Asset List ID: {self.asset_list_id})")
     
+    def _is_trackable_asset(self, asset):
+        """
+        Determines if an asset is trackable (has GPS and is active)
+        
+        Args:
+            asset: Asset dict from API
+            
+        Returns:
+            bool: True if asset is trackable with GPS
+        """
+        # Always check if the asset has some kind of status field
+        status_field = asset.get('status', None) or asset.get('Status', None) or asset.get('asset_status', None)
+        if status_field and isinstance(status_field, str) and status_field.lower() not in ['active', 'available', 'on site']:
+            return False
+        
+        # Check if the asset has GPS capabilities
+        # Different APIs may use different field names
+        has_gps = False
+        
+        # Look for typical GPS indicator fields
+        gps_fields = [
+            'has_gps', 'hasGPS', 'has_telematics', 'IsGpsEnabled', 'gps_enabled',
+            'gps_device', 'telematicsDeviceId', 'gps_device_id', 'GPS'
+        ]
+        
+        for field in gps_fields:
+            if field in asset and asset[field]:
+                has_gps = True
+                break
+                
+        # If no explicit GPS field, check for lat/lng coordinates
+        if not has_gps:
+            lat = asset.get('latitude', None) or asset.get('Latitude', None) or asset.get('lat', None)
+            lng = asset.get('longitude', None) or asset.get('Longitude', None) or asset.get('lng', None)
+            
+            if lat is not None and lng is not None:
+                # Ensure they're not zero coordinates
+                try:
+                    lat_val = float(lat)
+                    lng_val = float(lng)
+                    if lat_val != 0 or lng_val != 0:
+                        has_gps = True
+                except (ValueError, TypeError):
+                    pass
+        
+        # Check if this is a pickup truck or similar vehicle that would have a driver
+        is_vehicle = False
+        
+        # Common fields that might indicate vehicle type
+        type_fields = [
+            'type', 'Type', 'asset_type', 'AssetType', 'category', 'Category', 
+            'class', 'Class', 'vehicle_type', 'VehicleType'
+        ]
+        
+        vehicle_keywords = [
+            'truck', 'pickup', 'vehicle', 'car', 'van', 'suv', 'semi', 
+            'tractor', 'forklift', 'dozer', 'crane'
+        ]
+        
+        for field in type_fields:
+            if field in asset and asset[field]:
+                value = str(asset[field]).lower()
+                if any(keyword in value for keyword in vehicle_keywords):
+                    is_vehicle = True
+                    break
+        
+        # If it's a vehicle with GPS, it's trackable
+        return has_gps and (is_vehicle or 'vehicle' in str(asset).lower())
+    
     def check_connection(self):
         """Check if connection to the Gauge API is available"""
         try:
@@ -367,8 +436,10 @@ class GaugeAPI:
                             if isinstance(data, list):
                                 # Handle array response
                                 if len(data) > 0:
-                                    all_assets.extend(data)
-                                    logger.info(f"Retrieved {len(data)} assets from page {page}")
+                                    # Filter for only active assets with GPS
+                                    trackable_assets = [asset for asset in data if self._is_trackable_asset(asset)]
+                                    all_assets.extend(trackable_assets)
+                                    logger.info(f"Retrieved {len(trackable_assets)} trackable assets from page {page} (out of {len(data)} total)")
                                     # If we got fewer than page_size, we're done
                                     has_more = len(data) >= page_size
                                 else:
@@ -377,18 +448,24 @@ class GaugeAPI:
                                 # Handle object response with items/data array
                                 if "assets" in data and isinstance(data["assets"], list):
                                     assets = data["assets"]
-                                    all_assets.extend(assets)
-                                    logger.info(f"Retrieved {len(assets)} assets from page {page}")
+                                    # Filter for only active assets with GPS
+                                    trackable_assets = [asset for asset in assets if self._is_trackable_asset(asset)]
+                                    all_assets.extend(trackable_assets)
+                                    logger.info(f"Retrieved {len(trackable_assets)} trackable assets from page {page} (out of {len(assets)} total)")
                                     has_more = len(assets) >= page_size
                                 elif "items" in data and isinstance(data["items"], list):
                                     assets = data["items"]
-                                    all_assets.extend(assets)
-                                    logger.info(f"Retrieved {len(assets)} assets from page {page}")
+                                    # Filter for only active assets with GPS
+                                    trackable_assets = [asset for asset in assets if self._is_trackable_asset(asset)]
+                                    all_assets.extend(trackable_assets)
+                                    logger.info(f"Retrieved {len(trackable_assets)} trackable assets from page {page} (out of {len(assets)} total)")
                                     has_more = len(assets) >= page_size
                                 elif "data" in data and isinstance(data["data"], list):
                                     assets = data["data"]
-                                    all_assets.extend(assets)
-                                    logger.info(f"Retrieved {len(assets)} assets from page {page}")
+                                    # Filter for only active assets with GPS
+                                    trackable_assets = [asset for asset in assets if self._is_trackable_asset(asset)]
+                                    all_assets.extend(trackable_assets)
+                                    logger.info(f"Retrieved {len(trackable_assets)} trackable assets from page {page} (out of {len(assets)} total)")
                                     has_more = len(assets) >= page_size
                                 else:
                                     # If response format is unknown, assume no more pages

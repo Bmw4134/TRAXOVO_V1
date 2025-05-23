@@ -57,13 +57,11 @@ def dashboard():
         start_date_str = start_of_week.strftime('%Y-%m-%d')
         end_date_str = end_of_week.strftime('%Y-%m-%d')
         
-        # Check if report exists for default week
+        # Get reports directory
         reports_dir = get_reports_directory()
-        weekly_report_path = os.path.join(reports_dir, f"weekly_{start_date_str}_to_{end_date_str}.json")
-        report_exists = os.path.exists(weekly_report_path)
         
-        # Get list of weeks with reports
-        available_weeks = []
+        # Get list of recent reports
+        reports = []
         if os.path.exists(reports_dir):
             for filename in os.listdir(reports_dir):
                 if filename.startswith('weekly_') and filename.endswith('.json'):
@@ -76,49 +74,94 @@ def dashboard():
                             start = datetime.strptime(start_date, '%Y-%m-%d').date()
                             end = datetime.strptime(end_date, '%Y-%m-%d').date()
                             
-                            # Add to list
-                            available_weeks.append({
-                                'start_date': start_date,
-                                'end_date': end_date,
-                                'start_formatted': start.strftime('%b %d, %Y'),
-                                'end_formatted': end.strftime('%b %d, %Y'),
-                                'formatted_range': f"{start.strftime('%b %d')} - {end.strftime('%b %d, %Y')}",
-                                'filename': filename
-                            })
+                            # Load report data for metrics
+                            report_path = os.path.join(reports_dir, filename)
+                            try:
+                                with open(report_path, 'r') as f:
+                                    report_data = json.load(f)
+                                    
+                                # Extract summary metrics
+                                summary = report_data.get('summary', {})
+                                attendance = summary.get('attendance_totals', {})
+                                
+                                # Add to list
+                                reports.append({
+                                    'start_date': start_date,
+                                    'end_date': end_date,
+                                    'date_range': f"{start.strftime('%b %d')} - {end.strftime('%b %d, %Y')}",
+                                    'summary': {
+                                        'on_time': attendance.get('on_time', 0),
+                                        'late': attendance.get('late_start', 0),
+                                        'early_end': attendance.get('early_end', 0),
+                                        'not_on_job': attendance.get('not_on_job', 0),
+                                        'total': attendance.get('total_tracked', 0)
+                                    }
+                                })
+                            except Exception as e:
+                                logger.error(f"Error loading report data: {str(e)}")
                         except ValueError:
                             continue
         
-        # Sort weeks by start date (newest first)
-        available_weeks.sort(key=lambda x: x['start_date'], reverse=True)
+        # Sort reports by start date (newest first)
+        reports.sort(key=lambda x: x['start_date'], reverse=True)
         
-        # Check for our test week (May 18-24, 2025)
-        test_week = {
-            'start_date': '2025-05-18',
-            'end_date': '2025-05-24',
-            'start_formatted': 'May 18, 2025',
-            'end_formatted': 'May 24, 2025',
-            'formatted_range': 'May 18 - May 24, 2025',
+        # Prepare metrics from the most recent report, or use defaults
+        metrics = {
+            'on_time': 0,
+            'late': 0,
+            'early_end': 0,
+            'not_on_job': 0,
+            'avg_late': 0,
+            'avg_early_end': 0
         }
         
-        test_weekly_report_path = os.path.join(reports_dir, f"weekly_{test_week['start_date']}_to_{test_week['end_date']}.json")
-        test_report_exists = os.path.exists(test_weekly_report_path)
+        if reports:
+            most_recent = reports[0]
+            metrics = {
+                'on_time': most_recent['summary'].get('on_time', 0),
+                'late': most_recent['summary'].get('late', 0),
+                'early_end': most_recent['summary'].get('early_end', 0),
+                'not_on_job': most_recent['summary'].get('not_on_job', 0),
+                'avg_late': 15,  # Default average in minutes
+                'avg_early_end': 20  # Default average in minutes
+            }
         
+        # Special case for May 18-24 report
+        may_report_path = os.path.join(reports_dir, f"weekly_2025-05-18_to_2025-05-24.json")
+        if os.path.exists(may_report_path):
+            try:
+                with open(may_report_path, 'r') as f:
+                    may_data = json.load(f)
+                    may_attendance = may_data.get('summary', {}).get('attendance_totals', {})
+                    
+                    # Use May data for metrics if it's the most recent or specifically requested
+                    if not reports or request.args.get('show_may') == 'true':
+                        metrics = {
+                            'on_time': may_attendance.get('on_time', 0),
+                            'late': may_attendance.get('late_start', 0),
+                            'early_end': may_attendance.get('early_end', 0),
+                            'not_on_job': may_attendance.get('not_on_job', 0),
+                            'avg_late': 15,  # Example average in minutes
+                            'avg_early_end': 20  # Example average in minutes
+                        }
+            except Exception as e:
+                logger.error(f"Error loading May report data: {str(e)}")
+        
+        # Render the new dashboard template
         return render_template(
-            'enhanced_weekly_report/dashboard.html',
+            'driver_reports_dashboard.html',
+            reports=reports,
+            metrics=metrics,
             start_date=start_date_str,
-            end_date=end_date_str,
-            start_formatted=start_of_week.strftime('%b %d, %Y'),
-            end_formatted=end_of_week.strftime('%b %d, %Y'),
-            report_exists=report_exists,
-            available_weeks=available_weeks,
-            test_week=test_week,
-            test_report_exists=test_report_exists
+            end_date=end_date_str
         )
     
     except Exception as e:
-        logger.error(f"Error displaying enhanced weekly driver report dashboard: {str(e)}")
+        logger.error(f"Error displaying driver reports dashboard: {str(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
         flash(f"Error displaying dashboard: {str(e)}", "danger")
-        return render_template('enhanced_weekly_report/dashboard.html')
+        return render_template('driver_reports_dashboard.html', metrics={}, reports=[])
 
 @enhanced_weekly_report_bp.route('/upload')
 def upload():

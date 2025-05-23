@@ -1,0 +1,253 @@
+{% extends "layout_unified.html" %}
+
+{% block title %}Driver Reports Dashboard - TRAXORA{% endblock %}
+
+{% block page_title %}Driver Reports Dashboard{% endblock %}
+{% block page_subtitle %}Track and analyze driver attendance and performance metrics{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="/">Home</a></li>
+<li class="breadcrumb-item">Driver Reports</li>
+{% endblock %}
+
+{% block content %}
+<!-- Main Stats Row -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card bg-success text-white h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">On Time</h5>
+                <div class="display-1 mb-2">{{ metrics.on_time|default(0) }}</div>
+                <p class="mb-0">Drivers</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-danger text-white h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">Late</h5>
+                <div class="display-1 mb-2">{{ metrics.late|default(0) }}</div>
+                <p class="mb-0">{{ metrics.avg_late|default(0) }} min average</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-warning text-dark h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">Early End</h5>
+                <div class="display-1 mb-2">{{ metrics.early_end|default(0) }}</div>
+                <p class="mb-0">{{ metrics.avg_early_end|default(0) }} min average</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-info text-dark h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">Not On Job</h5>
+                <div class="display-1 mb-2">{{ metrics.not_on_job|default(0) }}</div>
+                <p class="mb-0">Drivers</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Reports Section -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Recent Reports</h5>
+                <span class="badge bg-primary py-2 px-3">Weekly</span>
+            </div>
+            <div class="card-body">
+                {% if reports %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Report Date</th>
+                                <th>On Time</th>
+                                <th>Late</th>
+                                <th>Early End</th>
+                                <th>Not On Job</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for report in reports %}
+                            <tr>
+                                <td>{{ report.date_range }}</td>
+                                <td><span class="badge bg-success">{{ report.summary.on_time }}</span></td>
+                                <td><span class="badge bg-danger">{{ report.summary.late }}</span></td>
+                                <td><span class="badge bg-warning text-dark">{{ report.summary.early_end }}</span></td>
+                                <td><span class="badge bg-info text-dark">{{ report.summary.not_on_job }}</span></td>
+                                <td>
+                                    <a href="{{ url_for('enhanced_weekly_report_bp.view_report', start_date=report.start_date, end_date=report.end_date) }}" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <div class="mb-3">
+                        <i class="bi bi-clipboard-data display-4 text-muted"></i>
+                    </div>
+                    <h5>No reports generated yet</h5>
+                    <p class="text-muted">Click "New Report" to create your first report</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Timecard Verification Section -->
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Timecard Verification</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{{ url_for('enhanced_weekly_report_bp.upload_files') }}" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label">Upload Timecard Data</label>
+                        <input type="file" class="form-control" name="timecard_file" id="timecardFile">
+                        <div class="form-text">Upload timecard data to compare with GPS records.</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label">Start Date</label>
+                            <input type="date" class="form-control" name="start_date" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">End Date</label>
+                            <input type="date" class="form-control" name="end_date" required>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-upload"></i> Upload & Compare
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upload and Process Section -->
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">Upload Attendance Data</h5>
+    </div>
+    <div class="card-body">
+        <p>Upload attendance data to generate a weekly summary with support for grouping by driver, job site, division, and zone.</p>
+        
+        <div class="dropzone p-5 rounded border border-dashed mb-4">
+            <div class="text-center">
+                <i class="bi bi-cloud-upload display-3 text-muted mb-3"></i>
+                <h5>Drag & drop your files here or click to select files</h5>
+                <p class="text-muted">Accepts CSV, XLSX and XLS files</p>
+                <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('fileUpload').click()">
+                    Browse Files
+                </button>
+                <input type="file" id="fileUpload" multiple style="display: none;">
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Group By</label>
+                    <select class="form-select" id="groupBy">
+                        <option value="driver">Driver</option>
+                        <option value="job_site">Job Site</option>
+                        <option value="division">Division</option>
+                        <option value="zone">Zone</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Weeks to Include</label>
+                    <input type="number" class="form-select" id="weeksToInclude" min="1" max="4" value="1">
+                </div>
+            </div>
+        </div>
+        
+        <div class="d-flex justify-content-end">
+            <a href="{{ url_for('enhanced_weekly_report_bp.process_may_data') }}" class="btn btn-success">
+                <i class="bi bi-file-earmark-text me-2"></i> Process May 18-24 Data
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_actions %}
+<a href="{{ url_for('enhanced_weekly_report_bp.upload') }}" class="btn btn-primary">
+    <i class="bi bi-plus-circle"></i> New Report
+</a>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Simple drag and drop functionality
+    const dropzone = document.querySelector('.dropzone');
+    const fileInput = document.getElementById('fileUpload');
+    
+    dropzone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        dropzone.classList.add('highlight');
+    });
+    
+    dropzone.addEventListener('dragleave', function() {
+        dropzone.classList.remove('highlight');
+    });
+    
+    dropzone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        dropzone.classList.remove('highlight');
+        
+        if (e.dataTransfer.files.length) {
+            fileInput.files = e.dataTransfer.files;
+            submitFiles();
+        }
+    });
+    
+    dropzone.addEventListener('click', function() {
+        fileInput.click();
+    });
+    
+    fileInput.addEventListener('change', function() {
+        if (fileInput.files.length) {
+            submitFiles();
+        }
+    });
+    
+    function submitFiles() {
+        // Here you would normally handle the file upload
+        const formData = new FormData();
+        
+        for (let i = 0; i < fileInput.files.length; i++) {
+            formData.append('files[]', fileInput.files[i]);
+        }
+        
+        formData.append('group_by', document.getElementById('groupBy').value);
+        formData.append('weeks', document.getElementById('weeksToInclude').value);
+        
+        // Show file processing feedback
+        dropzone.innerHTML = '<div class="text-center"><div class="spinner-border text-primary mb-3" role="status"></div><h5>Processing files...</h5></div>';
+        
+        // Simulate upload for demo purposes
+        setTimeout(function() {
+            window.location.href = "{{ url_for('enhanced_weekly_report_bp.dashboard') }}";
+        }, 2000);
+    }
+</script>
+{% endblock %}

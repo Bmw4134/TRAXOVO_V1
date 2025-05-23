@@ -109,7 +109,6 @@ class Driver(db.Model):
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     
     organization = relationship('Organization', back_populates='drivers')
-    # Remove the problematic relationship for now
     job_site_id = Column(Integer, ForeignKey('job_sites.id'))
     job_site = relationship('JobSite', foreign_keys=[job_site_id])
     job_sites = relationship('JobSite', secondary=driver_jobsite_association, back_populates='drivers')

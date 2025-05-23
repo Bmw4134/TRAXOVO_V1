@@ -153,13 +153,39 @@
     <!-- Sidebar Toggle Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize collapsible sidebar
             const sidebarToggle = document.getElementById('sidebarToggle');
             if (sidebarToggle) {
+                // Check if sidebar state was previously saved
+                if (localStorage.getItem('sidebarToggled') === 'true') {
+                    document.body.classList.add('sb-toggled');
+                }
+                
+                // Add click event listener
                 sidebarToggle.addEventListener('click', e => {
                     e.preventDefault();
                     document.body.classList.toggle('sb-toggled');
+                    
+                    // Save state to localStorage
+                    localStorage.setItem('sidebarToggled', 
+                        document.body.classList.contains('sb-toggled'));
                 });
             }
+            
+            // Add mobile detection for responsive behavior
+            function handleWindowResize() {
+                if (window.innerWidth < 768) {
+                    document.body.classList.add('sb-toggled');
+                } else if (localStorage.getItem('sidebarToggled') !== 'true') {
+                    document.body.classList.remove('sb-toggled');
+                }
+            }
+            
+            // Initial check on page load
+            handleWindowResize();
+            
+            // Listen for window resize events
+            window.addEventListener('resize', handleWindowResize);
         });
     </script>
     

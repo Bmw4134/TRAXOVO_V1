@@ -1,4 +1,4 @@
-{% extends "layout_unified.html" %}
+{% extends "base.html" %}
 
 {% block title %}Weekly Driver Report: {{ start_formatted }} - {{ end_formatted }} - TRAXORA GENIUS CORE{% endblock %}
 
@@ -83,6 +83,12 @@
 {% endblock %}
 
 {% block content %}
+<!-- Back to Dashboard link -->
+<div class="back-link mb-3">
+    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Dashboard
+    </a>
+</div>
 <!-- Date Range Navigation -->
 <div class="row mb-4">
     <div class="col-12">

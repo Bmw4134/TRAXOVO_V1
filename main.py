@@ -119,9 +119,14 @@ except ImportError:
 
 # Register Enhanced Weekly Report Blueprint
 try:
-    from routes.enhanced_weekly_report import enhanced_weekly_report_bp
-    app.register_blueprint(enhanced_weekly_report_bp)
-    logger.info("Enhanced Weekly Report blueprint registered successfully")
+    from app import app
+    # Check if the blueprint is already registered to avoid duplicate registration
+    if not any(bp.name == 'enhanced_weekly_report_bp' for bp in app.blueprints.values()):
+        from routes.enhanced_weekly_report import enhanced_weekly_report_bp
+        app.register_blueprint(enhanced_weekly_report_bp)
+        logger.info("Enhanced Weekly Report blueprint registered successfully")
+    else:
+        logger.info("Enhanced Weekly Report blueprint already registered")
 except ImportError:
     logger.warning("Enhanced Weekly Report module not found")
 except Exception as e:

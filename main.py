@@ -41,6 +41,14 @@ app.register_blueprint(map_standalone_bp)
 app.register_blueprint(direct_map)
 app.register_blueprint(mtd_reports_bp)
 
+# Register standalone driver reports dashboard
+try:
+    from create_driver_reports_route import create_driver_reports_blueprint
+    app.register_blueprint(create_driver_reports_blueprint())
+    logger.info("Driver reports dashboard (modern UI) registered")
+except Exception as e:
+    logger.warning(f"Error registering driver reports dashboard: {str(e)}")
+
 # Register new UI Dashboard
 try:
     from routes.dashboard import dashboard_bp

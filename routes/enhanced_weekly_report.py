@@ -356,13 +356,25 @@ def view_report(start_date, end_date):
                 if status in driver_stats[driver_name]:
                     driver_stats[driver_name][status] += 1
                 
-                # Add the daily record for this driver
+                # Add the daily record for this driver - handle None values safely
+                first_seen_time = ''
+                if driver_record.get('first_seen'):
+                    first_seen_parts = driver_record.get('first_seen', '').split(' ')
+                    if len(first_seen_parts) > 1:
+                        first_seen_time = first_seen_parts[1]
+                
+                last_seen_time = ''
+                if driver_record.get('last_seen'):
+                    last_seen_parts = driver_record.get('last_seen', '').split(' ')
+                    if len(last_seen_parts) > 1:
+                        last_seen_time = last_seen_parts[1]
+                
                 driver_stats[driver_name]['daily_records'].append({
                     'date': date_str,
                     'status': status,
-                    'first_seen': driver_record.get('first_seen', '').split(' ')[1] if ' ' in driver_record.get('first_seen', '') else '',
-                    'last_seen': driver_record.get('last_seen', '').split(' ')[1] if ' ' in driver_record.get('last_seen', '') else '',
-                    'job_site': driver_record.get('job_site', '')
+                    'first_seen': first_seen_time,
+                    'last_seen': last_seen_time,
+                    'job_site': driver_record.get('job_site', 'Unknown Job Site')
                 })
         
         # Calculate percentages for each driver

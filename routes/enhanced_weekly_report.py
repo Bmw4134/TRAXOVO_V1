@@ -11,7 +11,7 @@ import logging
 from datetime import datetime, timedelta
 from flask import (
     Blueprint, render_template, request, redirect, url_for, 
-    flash, jsonify, current_app, abort, send_file
+    flash, jsonify, current_app, abort, send_file, session
 )
 from werkzeug.utils import secure_filename
 
@@ -31,8 +31,10 @@ def get_reports_directory():
     return reports_dir
 
 def get_attached_assets_directory():
-    """Get attached_assets directory"""
-    return os.path.join(current_app.root_path, 'attached_assets')
+    """Get attached_assets directory, creating it if needed"""
+    attached_assets_dir = os.path.join(os.getcwd(), 'attached_assets')
+    os.makedirs(attached_assets_dir, exist_ok=True)
+    return attached_assets_dir
 
 @enhanced_weekly_report_bp.route('/')
 def dashboard():
@@ -169,9 +171,9 @@ def upload_files():
 def process_may_data():
     """Process May 18-24 data for the enhanced weekly report"""
     try:
-        # Define date range to process
-        start_date = '2025-05-18'
-        end_date = '2025-05-24'
+        # Define date range to process - work week is Sunday-Saturday
+        start_date = '2025-05-18'  # Sunday
+        end_date = '2025-05-24'    # Saturday
         logger.info(f"Processing May data from {start_date} to {end_date}")
         
         # Get file paths for data files
@@ -234,58 +236,60 @@ def process_may_data():
                 return redirect(url_for('enhanced_weekly_report_bp.dashboard'))
         
         # Process the weekly report with the files we found
-        report = process_weekly_report(
-            start_date, 
-            end_date, 
-            driving_history_path=driving_history_path,
-            activity_detail_path=activity_detail_path,
-            time_on_site_path=time_on_site_path,
-            timecard_paths=timecard_paths,
-            from_attached_assets=from_attached_assets
-        )
-        
-        # Make sure the report is populated with data (fallback to synthetic if needed)
-        if not report or 'summary' not in report or not report['summary'].get('driver_attendance'):
-            logger.warning("No data found in report - using fallback data")
+        try:
+            # Import the processor here to ensure any dependencies are loaded
+            from utils.weekly_driver_processor import WeeklyDriverProcessor
             
-            # Create basic report structure if needed
-            if not report:
-                report = {}
+            # Initialize the weekly driver processor with our date range
+            processor = WeeklyDriverProcessor(start_date, end_date)
             
-            # Add summary with sample data if needed
-            if 'summary' not in report:
-                report['summary'] = {
-                    'total_drivers': 12,
-                    'attendance_totals': {
-                        'late_starts': 12,
-                        'early_ends': 8,
-                        'not_on_job': 10,
-                        'on_time': 42,
-                        'total_tracked': 72
-                    },
-                    'attendance_percentages': {
-                        'late_starts': 17,
-                        'early_ends': 11,
-                        'not_on_job': 14,
-                        'on_time': 58
-                    }
-                }
+            # Load the files into the processor
+            processor.load_files(
+                driving_history_path=driving_history_path,
+                activity_detail_path=activity_detail_path,
+                time_on_site_path=time_on_site_path,
+                timecard_paths=timecard_paths
+            )
             
-            # Always update these values to ensure the UI shows reasonable data
-            report['summary']['total_drivers'] = 12
-            report['summary']['attendance_totals'] = {
-                'late_starts': 12,
-                'early_ends': 8,
-                'not_on_job': 10,
-                'on_time': 42,
-                'total_tracked': 72
-            }
-            report['summary']['attendance_percentages'] = {
-                'late_starts': 17,
-                'early_ends': 11,
-                'not_on_job': 14,
-                'on_time': 58
-            }
+            # Process the data - this runs the full classification pipeline
+            logger.info("Starting data processing for May 18-24 week...")
+            report = processor.process()
+            
+            # Process the data and check if it's valid
+            if not report or 'summary' not in report or not report.get('daily_reports'):
+                logger.error("Report processing failed: empty or invalid report data")
+                flash("Report processing failed: No data could be analyzed. Check log for details.", "danger")
+                return redirect(url_for('enhanced_weekly_report_bp.dashboard'))
+            
+            # Calculate some statistics for the flash message
+            attendance_data = report['summary'].get('attendance_totals', {})
+            total_tracked = attendance_data.get('total_tracked', 0)
+            on_time = attendance_data.get('on_time', 0)
+            late_starts = attendance_data.get('late_starts', 0)
+            early_ends = attendance_data.get('early_ends', 0)
+            not_on_job = attendance_data.get('not_on_job', 0)
+            
+            # Calculate percentages
+            on_time_pct = int(on_time / total_tracked * 100) if total_tracked > 0 else 0
+            
+            logger.info(f"Successfully processed report: {len(report['daily_reports'])} days, {report['summary']['total_drivers']} drivers")
+            logger.info(f"Attendance stats: {on_time}/{total_tracked} on time ({on_time_pct}%)")
+            
+            # Store the report in the session for quick access
+            session['weekly_report'] = report
+            
+            # Show a success message with some stats
+            flash(f"May 18-24 report processed successfully! Analyzed {total_tracked} driver-days with {on_time_pct}% on-time rate.", "success")
+            
+            # Redirect to the report view
+            return redirect(url_for('enhanced_weekly_report_bp.view_report', start_date=start_date, end_date=end_date))
+            
+        except Exception as e:
+            logger.error(f"Error during report processing: {str(e)}")
+            import traceback
+            logger.error(traceback.format_exc())
+            flash(f"Report processing error: {str(e)}", "danger")
+            return redirect(url_for('enhanced_weekly_report_bp.dashboard'))
         
         # Save the report
         report_path = os.path.join(

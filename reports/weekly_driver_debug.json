@@ -1,0 +1,106 @@
+{
+  "timestamp": "2025-05-23T16:11:50.392557",
+  "file_results": {
+    "driving_history": {
+      "file_path": "/home/runner/workspace/attached_assets/DrivingHistory (13).csv",
+      "headers": [
+        "StartDate",
+        "ReportParameters_1",
+        "Values_1"
+      ],
+      "row_count": 63392,
+      "driver_column": null,
+      "driver_count": 0
+    },
+    "activity_detail": {
+      "file_path": "/home/runner/workspace/attached_assets/ActivityDetail (13).csv",
+      "headers": [
+        "StartDate",
+        "ReportParameters_1",
+        "Values_1"
+      ],
+      "row_count": 20356,
+      "driver_column": null,
+      "driver_count": 0
+    },
+    "time_on_site": {
+      "file_path": "/home/runner/workspace/attached_assets/AssetsTimeOnSite (3).csv",
+      "headers": [
+        "StartDate",
+        "ReportParameters_1",
+        "Values_1"
+      ],
+      "row_count": 20387,
+      "driver_column": null,
+      "driver_count": 0
+    },
+    "timecard1": {
+      "file_path": "/home/runner/workspace/attached_assets/Timecards - 2025-05-18 - 2025-05-24 (3).xlsx",
+      "shape": [
+        1706,
+        22
+      ],
+      "columns": [
+        "Id",
+        "EmployeeNo",
+        "Employee",
+        "ProjectNo",
+        "ProjectDescription",
+        "CostCode",
+        "CostCodeDescription",
+        "PhaseNo",
+        "Hours",
+        "Date",
+        "Status",
+        "Notes",
+        "Crew",
+        "CrewType",
+        "CreatedBy",
+        "CreatedOn",
+        "ReviewedBy",
+        "ReviewedOn",
+        "ApprovedBy",
+        "ApprovedOn",
+        "ExportedBy",
+        "ExportedOn"
+      ],
+      "date_column": "Date",
+      "driver_column": "Employee",
+      "driver_count": 241
+    },
+    "timecard2": {
+      "file_path": "/home/runner/workspace/attached_assets/Timecards - 2025-05-18 - 2025-05-24 (4).xlsx",
+      "shape": [
+        30,
+        22
+      ],
+      "columns": [
+        "Id",
+        "EmployeeNo",
+        "Employee",
+        "ProjectNo",
+        "ProjectDescription",
+        "CostCode",
+        "CostCodeDescription",
+        "PhaseNo",
+        "Hours",
+        "Date",
+        "Status",
+        "Notes",
+        "Crew",
+        "CrewType",
+        "CreatedBy",
+        "CreatedOn",
+        "ReviewedBy",
+        "ReviewedOn",
+        "ApprovedBy",
+        "ApprovedOn",
+        "ExportedBy",
+        "ExportedOn"
+      ],
+      "date_column": "Date",
+      "driver_column": "Employee",
+      "driver_count": 8
+    }
+  }
+}

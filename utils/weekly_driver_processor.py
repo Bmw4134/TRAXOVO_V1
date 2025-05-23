@@ -52,6 +52,10 @@ class WeeklyDriverProcessor:
         self.job_data = {}     # Maps job sites to their daily driver records
         self.daily_reports = {}  # Daily report data by date
         
+        # Debug info
+        logger.info(f"Weekly Driver Processor initialized for date range: {self.start_date} to {self.end_date}")
+        logger.info(f"Date range contains {len(self.date_range)} days")
+        
         logger.info(f"Initialized Weekly Driver Processor for {start_date} to {end_date}")
     
     def _generate_date_range(self):
@@ -115,6 +119,21 @@ class WeeklyDriverProcessor:
             list: List of dictionaries with the CSV data
         """
         try:
+            # Check if this is a Gauge CSV file with metadata at the top
+            from utils.csv_parser_fix import parse_gauge_csv, parse_time_on_site_csv
+            
+            # Determine file type based on filename
+            if 'DrivingHistory' in file_path:
+                logger.info(f"Using specialized parser for DrivingHistory file: {file_path}")
+                return parse_gauge_csv(file_path, self.date_range)
+            elif 'ActivityDetail' in file_path:
+                logger.info(f"Using specialized parser for ActivityDetail file: {file_path}")
+                return parse_gauge_csv(file_path, self.date_range)
+            elif 'TimeOnSite' in file_path:
+                logger.info(f"Using specialized parser for TimeOnSite file: {file_path}")
+                return parse_time_on_site_csv(file_path, self.date_range)
+            
+            # Default CSV reading for other files
             with open(file_path, 'r', newline='', encoding='utf-8-sig') as csvfile:
                 # Try to auto-detect the delimiter
                 dialect = csv.Sniffer().sniff(csvfile.read(4096))

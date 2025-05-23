@@ -167,58 +167,71 @@ def upload_files():
 
 @enhanced_weekly_report_bp.route('/process-may-data')
 def process_may_data():
-    """Process May 18-23 data for the enhanced weekly report"""
+    """Process May 18-24 data for the enhanced weekly report"""
     try:
-        # Use attached_assets directory for data files
-        from_attached_assets = True
-        
-        # Define start and end dates
+        # Define date range to process
         start_date = '2025-05-18'
-        end_date = '2025-05-23'
+        end_date = '2025-05-24'
+        logger.info(f"Processing May data from {start_date} to {end_date}")
         
-        # Get file paths for data files - we'll scan for these in the directory
-        driving_history_path = None
-        activity_detail_path = None
-        time_on_site_path = None
+        # Get file paths for data files
+        driving_history_paths = []
+        activity_detail_paths = []
+        time_on_site_paths = []
         timecard_paths = []
         
+        # Get the attached_assets directory path
+        attached_assets_dir = get_attached_assets_directory()
+        logger.info(f"Looking for data files in: {attached_assets_dir}")
+        
         # List all files in attached_assets directory and find matching files
-        attached_assets_dir = os.path.join(os.getcwd(), 'attached_assets')
         if os.path.exists(attached_assets_dir):
             files = os.listdir(attached_assets_dir)
-            logger.info(f"Files in attached_assets directory:")
+            logger.info(f"Found {len(files)} files in attached_assets directory")
             
             for file in files:
-                logger.info(f"- {file}")
+                file_path = os.path.join(attached_assets_dir, file)
+                
+                # Skip directories and non-data files
+                if os.path.isdir(file_path) or not os.path.isfile(file_path):
+                    continue
                 
                 # Find driving history files
                 if file.startswith("DrivingHistory") and file.endswith(".csv"):
-                    driving_history_path = file
+                    driving_history_paths.append(file_path)
                     logger.info(f"Found driving history file: {file}")
                 
                 # Find activity detail files
                 elif file.startswith("ActivityDetail") and file.endswith(".csv"):
-                    activity_detail_path = file
+                    activity_detail_paths.append(file_path)
                     logger.info(f"Found activity detail file: {file}")
                 
                 # Find assets time on site files
                 elif file.startswith("AssetsTimeOnSite") and file.endswith(".csv"):
-                    time_on_site_path = file
+                    time_on_site_paths.append(file_path)
                     logger.info(f"Found time on site file: {file}")
                 
                 # Find timecard files
                 elif file.startswith("Timecards") and file.endswith(".xlsx"):
-                    timecard_paths.append(file)
+                    timecard_paths.append(file_path)
                     logger.info(f"Found timecard file: {file}")
-        else:
-            logger.error(f"Attached assets directory not found: {attached_assets_dir}")
-            flash("Error: Attached assets directory not found", 'danger')
-            return redirect(url_for('enhanced_weekly_report.dashboard'))
             
-        # Check if we found all required files
-        if not driving_history_path or not time_on_site_path:
-            logger.warning(f"Missing required files - using fallback data generation")
-            flash("Some required data files were not found. Using sample data for UI testing.", 'warning')
+            # Use the most recent files if multiple are found
+            driving_history_path = driving_history_paths[-1] if driving_history_paths else None
+            activity_detail_path = activity_detail_paths[-1] if activity_detail_paths else None
+            time_on_site_path = time_on_site_paths[-1] if time_on_site_paths else None
+            
+            # Log which files we're using
+            logger.info(f"Using driving history: {driving_history_path}")
+            logger.info(f"Using activity detail: {activity_detail_path}")
+            logger.info(f"Using time on site: {time_on_site_path}")
+            logger.info(f"Using {len(timecard_paths)} timecard files")
+            
+            # Check if we found all required files
+            if not driving_history_path or not time_on_site_path:
+                logger.error("Missing required data files")
+                flash("Cannot process report: Missing driving history or time on site data files", "danger")
+                return redirect(url_for('enhanced_weekly_report_bp.dashboard'))
         
         # Process the weekly report with the files we found
         report = process_weekly_report(

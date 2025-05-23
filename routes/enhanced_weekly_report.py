@@ -90,13 +90,13 @@ def dashboard():
         # Sort weeks by start date (newest first)
         available_weeks.sort(key=lambda x: x['start_date'], reverse=True)
         
-        # Check for our test week (May 18-23, 2025)
+        # Check for our test week (May 18-24, 2025)
         test_week = {
             'start_date': '2025-05-18',
-            'end_date': '2025-05-23',
+            'end_date': '2025-05-24',
             'start_formatted': 'May 18, 2025',
-            'end_formatted': 'May 23, 2025',
-            'formatted_range': 'May 18 - May 23, 2025',
+            'end_formatted': 'May 24, 2025',
+            'formatted_range': 'May 18 - May 24, 2025',
         }
         
         test_weekly_report_path = os.path.join(reports_dir, f"weekly_{test_week['start_date']}_to_{test_week['end_date']}.json")
@@ -128,7 +128,7 @@ def upload():
     except Exception as e:
         logger.error(f"Error displaying upload form: {str(e)}")
         flash(f"Error displaying upload form: {str(e)}", "danger")
-        return redirect(url_for('enhanced_weekly_report.dashboard'))
+        return redirect(url_for('enhanced_weekly_report_bp.dashboard'))
 
 @enhanced_weekly_report_bp.route('/upload/files', methods=['POST'])
 def upload_files():
@@ -138,7 +138,7 @@ def upload_files():
         report_date = request.form.get('report_date')
         if not report_date:
             flash("Report date is required", "danger")
-            return redirect(url_for('enhanced_weekly_report.upload'))
+            return redirect(url_for('enhanced_weekly_report_bp.upload'))
         
         # Create upload directory if it doesn't exist
         upload_dir = os.path.join(current_app.root_path, 'uploads', 'weekly_driver_reports', report_date)
@@ -148,7 +148,7 @@ def upload_files():
         files = request.files.getlist('files[]')
         if not files or not files[0].filename:
             flash("No files selected", "danger")
-            return redirect(url_for('enhanced_weekly_report.upload'))
+            return redirect(url_for('enhanced_weekly_report_bp.upload'))
         
         # Save files
         saved_files = []
@@ -160,12 +160,12 @@ def upload_files():
                 saved_files.append(filename)
         
         flash(f"Successfully uploaded {len(saved_files)} files", "success")
-        return redirect(url_for('enhanced_weekly_report.dashboard'))
+        return redirect(url_for('enhanced_weekly_report_bp.dashboard'))
     
     except Exception as e:
         logger.error(f"Error uploading files: {str(e)}")
         flash(f"Error uploading files: {str(e)}", "danger")
-        return redirect(url_for('enhanced_weekly_report.upload'))
+        return redirect(url_for('enhanced_weekly_report_bp.upload'))
 
 @enhanced_weekly_report_bp.route('/process-may-data')
 def process_may_data():
@@ -231,99 +231,6 @@ def process_may_data():
         logger.error(traceback.format_exc())
         flash(f"Error processing May data: {str(e)}", "danger")
         return redirect(url_for('enhanced_weekly_report_bp.dashboard'))
-            
-            # Log which files we're using
-            logger.info(f"Using driving history: {driving_history_path}")
-            logger.info(f"Using activity detail: {activity_detail_path}")
-            logger.info(f"Using time on site: {time_on_site_path}")
-            logger.info(f"Using {len(timecard_paths)} timecard files")
-            
-            # Check if we found all required files
-            if not driving_history_path or not time_on_site_path:
-                logger.error("Missing required data files")
-                flash("Cannot process report: Missing driving history or time on site data files", "danger")
-                return redirect(url_for('enhanced_weekly_report_bp.dashboard'))
-        
-        # Process the weekly report with the files we found
-        try:
-            # Import the processor here to ensure any dependencies are loaded
-            from utils.weekly_driver_processor import WeeklyDriverProcessor
-            
-            # Initialize the weekly driver processor with our date range
-            processor = WeeklyDriverProcessor(start_date, end_date)
-            
-            # Load the files into the processor
-            processor.load_files(
-                driving_history_path=driving_history_path,
-                activity_detail_path=activity_detail_path,
-                time_on_site_path=time_on_site_path,
-                timecard_paths=timecard_paths
-            )
-            
-            # Process the data - this runs the full classification pipeline
-            logger.info("Starting data processing for May 18-24 week...")
-            report = processor.process()
-            
-            # Process the data and check if it's valid
-            if not report or 'summary' not in report or not report.get('daily_reports'):
-                logger.error("Report processing failed: empty or invalid report data")
-                flash("Report processing failed: No data could be analyzed. Check log for details.", "danger")
-                return redirect(url_for('enhanced_weekly_report_bp.dashboard'))
-            
-            # Calculate some statistics for the flash message
-            attendance_data = report['summary'].get('attendance_totals', {})
-            total_tracked = attendance_data.get('total_tracked', 0)
-            on_time = attendance_data.get('on_time', 0)
-            late_starts = attendance_data.get('late_starts', 0)
-            early_ends = attendance_data.get('early_ends', 0)
-            not_on_job = attendance_data.get('not_on_job', 0)
-            
-            # Calculate percentages
-            on_time_pct = int(on_time / total_tracked * 100) if total_tracked > 0 else 0
-            
-            logger.info(f"Successfully processed report: {len(report['daily_reports'])} days, {report['summary']['total_drivers']} drivers")
-            logger.info(f"Attendance stats: {on_time}/{total_tracked} on time ({on_time_pct}%)")
-            
-            # Store the report in the session for quick access
-            session['weekly_report'] = report
-            
-            # Show a success message with some stats
-            flash(f"May 18-24 report processed successfully! Analyzed {total_tracked} driver-days with {on_time_pct}% on-time rate.", "success")
-            
-            # Redirect to the report view
-            return redirect(url_for('enhanced_weekly_report_bp.view_report', start_date=start_date, end_date=end_date))
-            
-        except Exception as e:
-            logger.error(f"Error during report processing: {str(e)}")
-            import traceback
-            logger.error(traceback.format_exc())
-            flash(f"Report processing error: {str(e)}", "danger")
-            return redirect(url_for('enhanced_weekly_report_bp.dashboard'))
-        
-        # Save the report
-        report_path = os.path.join(
-            os.getcwd(), 
-            'reports', 
-            'weekly_driver_reports', 
-            f'weekly_{start_date}_to_{end_date}.json'
-        )
-        
-        os.makedirs(os.path.dirname(report_path), exist_ok=True)
-        
-        with open(report_path, 'w') as f:
-            json.dump(report, f, indent=2)
-        
-        logger.info(f"Report saved to {report_path}")
-        flash("Weekly report processed successfully!", 'success')
-        
-        return redirect(url_for('enhanced_weekly_report.view_report', start_date=start_date, end_date=end_date))
-    
-    except Exception as e:
-        logger.error(f"Error processing May data: {str(e)}")
-        import traceback
-        logger.error(traceback.format_exc())
-        flash(f"Error processing May data: {str(e)}", 'danger')
-        return redirect(url_for('enhanced_weekly_report.dashboard'))
 
 @enhanced_weekly_report_bp.route('/view/<start_date>/<end_date>')
 def view_report(start_date, end_date):
@@ -333,64 +240,153 @@ def view_report(start_date, end_date):
         report_path = os.path.join(get_reports_directory(), f"weekly_{start_date}_to_{end_date}.json")
         
         if not os.path.exists(report_path):
-            flash("Report not found", "danger")
-            return redirect(url_for('enhanced_weekly_report.dashboard'))
+            flash("Report not found. Please process the data first.", "warning")
+            return redirect(url_for('enhanced_weekly_report_bp.dashboard'))
         
+        # Load report data
         with open(report_path, 'r') as f:
             report = json.load(f)
         
-        # Parse dates for display
+        # Process dates for display
         start = datetime.strptime(start_date, '%Y-%m-%d').date()
         end = datetime.strptime(end_date, '%Y-%m-%d').date()
         
-        # Get dates in range
-        date_range = []
-        current_date = start
-        while current_date <= end:
-            date_str = current_date.strftime('%Y-%m-%d')
-            formatted_date = current_date.strftime('%a, %b %d')
+        # Format for display
+        start_formatted = start.strftime('%b %d, %Y')
+        end_formatted = end.strftime('%b %d, %Y')
+        
+        # Calculate summary statistics
+        daily_stats = []
+        for date_str, daily_report in report.get('daily_reports', {}).items():
+            date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
+            date_formatted = date_obj.strftime('%A, %b %d')
             
-            date_range.append({
+            # Count attendance by status
+            status_counts = {
+                'on_time': 0,
+                'late_start': 0,
+                'early_end': 0,
+                'not_on_job': 0,
+                'total': 0
+            }
+            
+            for driver_record in daily_report.get('driver_records', []):
+                status = driver_record.get('attendance_status', 'unknown')
+                if status in status_counts:
+                    status_counts[status] += 1
+                status_counts['total'] += 1
+            
+            # Calculate percentages
+            if status_counts['total'] > 0:
+                on_time_pct = int(status_counts['on_time'] / status_counts['total'] * 100)
+            else:
+                on_time_pct = 0
+            
+            daily_stats.append({
                 'date': date_str,
-                'formatted': formatted_date,
-                'has_data': True  # Always assume has data for UI purposes
+                'formatted_date': date_formatted,
+                'total_drivers': status_counts['total'],
+                'on_time': status_counts['on_time'],
+                'late_start': status_counts['late_start'],
+                'early_end': status_counts['early_end'],
+                'not_on_job': status_counts['not_on_job'],
+                'on_time_pct': on_time_pct
             })
-            
-            current_date += timedelta(days=1)
+        
+        # Sort by date
+        daily_stats.sort(key=lambda x: x['date'])
+        
+        # Process driver summary stats
+        driver_stats = {}
+        for date_str, daily_report in report.get('daily_reports', {}).items():
+            for driver_record in daily_report.get('driver_records', []):
+                driver_name = driver_record.get('driver_name', 'Unknown')
+                status = driver_record.get('attendance_status', 'unknown')
+                
+                if driver_name not in driver_stats:
+                    driver_stats[driver_name] = {
+                        'name': driver_name,
+                        'total_days': 0,
+                        'on_time': 0,
+                        'late_start': 0,
+                        'early_end': 0,
+                        'not_on_job': 0
+                    }
+                
+                driver_stats[driver_name]['total_days'] += 1
+                if status in driver_stats[driver_name]:
+                    driver_stats[driver_name][status] += 1
+        
+        # Calculate percentages for each driver
+        for driver_name, stats in driver_stats.items():
+            if stats['total_days'] > 0:
+                stats['on_time_pct'] = int(stats['on_time'] / stats['total_days'] * 100)
+            else:
+                stats['on_time_pct'] = 0
+        
+        # Convert to list and sort
+        driver_stats_list = list(driver_stats.values())
+        driver_stats_list.sort(key=lambda x: x['name'])
+        
+        # Prepare overall summary
+        summary = report.get('summary', {})
         
         return render_template(
             'enhanced_weekly_report/view.html',
-            report=report,
             start_date=start_date,
             end_date=end_date,
-            start_formatted=start.strftime('%b %d, %Y'),
-            end_formatted=end.strftime('%b %d, %Y'),
-            date_range=date_range
+            start_formatted=start_formatted,
+            end_formatted=end_formatted,
+            daily_stats=daily_stats,
+            driver_stats=driver_stats_list,
+            summary=summary
         )
     
     except Exception as e:
-        logger.error(f"Error viewing enhanced weekly report: {str(e)}")
-        flash(f"Error viewing weekly report: {str(e)}", "danger")
-        return redirect(url_for('enhanced_weekly_report.dashboard'))
+        logger.error(f"Error viewing weekly report: {str(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
+        flash(f"Error viewing report: {str(e)}", "danger")
+        return redirect(url_for('enhanced_weekly_report_bp.dashboard'))
 
 @enhanced_weekly_report_bp.route('/api/day/<date>')
 def api_day_data(date):
     """API endpoint to get data for a specific day"""
     try:
-        # Get daily report from file
-        daily_report_path = os.path.join(get_reports_directory(), date, f"driver_report_{date}.json")
+        # Get the report from the request parameters or session
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
         
-        if not os.path.exists(daily_report_path):
-            return jsonify({"error": "Report not found"}), 404
+        if not start_date or not end_date:
+            # If not provided, try to get from session
+            if 'weekly_report' in session:
+                report_info = session['weekly_report']
+                start_date = report_info.get('start_date')
+                end_date = report_info.get('end_date')
+            else:
+                return jsonify({'error': 'Report date range not provided'}), 400
         
-        with open(daily_report_path, 'r') as f:
+        # Get report from file
+        report_path = os.path.join(get_reports_directory(), f"weekly_{start_date}_to_{end_date}.json")
+        
+        if not os.path.exists(report_path):
+            return jsonify({'error': 'Report not found'}), 404
+        
+        # Load report data
+        with open(report_path, 'r') as f:
             report = json.load(f)
         
-        return jsonify(report)
+        # Get daily report for the requested date
+        daily_report = report.get('daily_reports', {}).get(date)
+        
+        if not daily_report:
+            return jsonify({'error': 'Date not found in report'}), 404
+        
+        return jsonify(daily_report)
     
     except Exception as e:
-        logger.error(f"Error getting day data: {str(e)}")
-        return jsonify({"error": f"Error getting day data: {str(e)}"}), 500
+        logger.error(f"API error getting day data: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 
 @enhanced_weekly_report_bp.route('/api/weekly/<start_date>/<end_date>')
 def api_weekly_data(start_date, end_date):
@@ -400,16 +396,17 @@ def api_weekly_data(start_date, end_date):
         report_path = os.path.join(get_reports_directory(), f"weekly_{start_date}_to_{end_date}.json")
         
         if not os.path.exists(report_path):
-            return jsonify({"error": "Report not found"}), 404
+            return jsonify({'error': 'Report not found'}), 404
         
+        # Load report data
         with open(report_path, 'r') as f:
             report = json.load(f)
         
         return jsonify(report)
     
     except Exception as e:
-        logger.error(f"Error getting weekly data: {str(e)}")
-        return jsonify({"error": f"Error getting weekly data: {str(e)}"}), 500
+        logger.error(f"API error getting weekly data: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 
 @enhanced_weekly_report_bp.route('/download/<start_date>/<end_date>/<format>')
 def download_report(start_date, end_date, format):
@@ -419,67 +416,87 @@ def download_report(start_date, end_date, format):
         report_path = os.path.join(get_reports_directory(), f"weekly_{start_date}_to_{end_date}.json")
         
         if not os.path.exists(report_path):
-            flash("Report not found", "danger")
-            return redirect(url_for('enhanced_weekly_report.dashboard'))
+            flash("Report not found. Please process the data first.", "warning")
+            return redirect(url_for('enhanced_weekly_report_bp.dashboard'))
         
+        # Load report data
         with open(report_path, 'r') as f:
             report = json.load(f)
         
+        # Format date range for filename
+        start = datetime.strptime(start_date, '%Y-%m-%d').date()
+        end = datetime.strptime(end_date, '%Y-%m-%d').date()
+        date_range = f"{start.strftime('%m%d')}-{end.strftime('%m%d')}"
+        
         if format == 'json':
-            # Send JSON file
+            # Create a JSON file for download
+            download_path = os.path.join(get_reports_directory(), f"traxora_driver_report_{date_range}.json")
+            
+            with open(download_path, 'w') as f:
+                json.dump(report, f, indent=2)
+            
             return send_file(
-                report_path,
+                download_path,
                 as_attachment=True,
-                download_name=f"weekly_driver_report_{start_date}_to_{end_date}.json",
+                download_name=f"traxora_driver_report_{date_range}.json",
                 mimetype='application/json'
             )
-        elif format == 'csv':
-            # Create CSV file from report data
-            csv_path = os.path.join(get_reports_directory(), f"weekly_{start_date}_to_{end_date}.csv")
             
-            try:
-                # Create CSV file with driver data
-                with open(csv_path, 'w', newline='') as csvfile:
-                    import csv
-                    writer = csv.writer(csvfile)
-                    
-                    # Write header
-                    writer.writerow(['Date', 'Driver', 'Job Site', 'Status', 'First Key On', 'Last Key Off', 'Late Minutes', 'Early Minutes'])
-                    
-                    # Write driver data for each day
-                    if 'daily_reports' in report:
-                        for date_str, daily_report in report['daily_reports'].items():
-                            formatted_date = datetime.strptime(date_str, '%Y-%m-%d').strftime('%m/%d/%Y')
-                            
-                            if 'driver_records' in daily_report:
-                                for driver_name, driver_record in daily_report['driver_records'].items():
-                                    writer.writerow([
-                                        formatted_date,
-                                        driver_name,
-                                        driver_record.get('job_site', 'N/A'),
-                                        driver_record.get('status', 'Unknown'),
-                                        driver_record.get('first_key_on', '') or '',
-                                        driver_record.get('last_key_off', '') or '',
-                                        driver_record.get('late_minutes', 0),
-                                        driver_record.get('early_minutes', 0)
-                                    ])
+        elif format == 'csv':
+            # Create a flattened CSV file with all daily data
+            import csv
+            
+            download_path = os.path.join(get_reports_directory(), f"traxora_driver_report_{date_range}.csv")
+            
+            # Combine all daily records into a flat structure
+            rows = []
+            
+            # Column headers
+            headers = [
+                'Date', 'Driver Name', 'Attendance Status',
+                'First Start Time', 'Last End Time', 'Total Hours',
+                'Job Site', 'Vehicle ID', 'Notes'
+            ]
+            
+            # Add data rows
+            for date_str, daily_report in report.get('daily_reports', {}).items():
+                date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
+                formatted_date = date_obj.strftime('%m/%d/%Y')
                 
-                # Send CSV file
-                return send_file(
-                    csv_path,
-                    as_attachment=True,
-                    download_name=f"weekly_driver_report_{start_date}_to_{end_date}.csv",
-                    mimetype='text/csv'
-                )
-            except Exception as csv_error:
-                logger.error(f"Error creating CSV file: {str(csv_error)}")
-                flash(f"Error creating CSV file: {str(csv_error)}", "danger")
-                return redirect(url_for('enhanced_weekly_report.view_report', start_date=start_date, end_date=end_date))
+                for driver in daily_report.get('driver_records', []):
+                    rows.append([
+                        formatted_date,
+                        driver.get('driver_name', 'Unknown'),
+                        driver.get('attendance_status', 'Unknown'),
+                        driver.get('first_start_time', ''),
+                        driver.get('last_end_time', ''),
+                        driver.get('total_hours', ''),
+                        driver.get('job_site', ''),
+                        driver.get('vehicle_id', ''),
+                        driver.get('notes', '')
+                    ])
+            
+            # Sort by date and driver name
+            rows.sort(key=lambda x: (x[0], x[1]))
+            
+            # Write CSV
+            with open(download_path, 'w', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(headers)
+                writer.writerows(rows)
+            
+            return send_file(
+                download_path,
+                as_attachment=True,
+                download_name=f"traxora_driver_report_{date_range}.csv",
+                mimetype='text/csv'
+            )
+            
         else:
-            flash(f"Unsupported format: {format}", "danger")
-            return redirect(url_for('enhanced_weekly_report.view_report', start_date=start_date, end_date=end_date))
+            flash(f"Unsupported download format: {format}", "danger")
+            return redirect(url_for('enhanced_weekly_report_bp.view_report', start_date=start_date, end_date=end_date))
     
     except Exception as e:
-        logger.error(f"Error downloading weekly report: {str(e)}")
-        flash(f"Error downloading weekly report: {str(e)}", "danger")
-        return redirect(url_for('enhanced_weekly_report.dashboard'))
+        logger.error(f"Error downloading report: {str(e)}")
+        flash(f"Error downloading report: {str(e)}", "danger")
+        return redirect(url_for('enhanced_weekly_report_bp.view_report', start_date=start_date, end_date=end_date))

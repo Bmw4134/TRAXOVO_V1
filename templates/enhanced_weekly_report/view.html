@@ -66,7 +66,7 @@
 
 {% block breadcrumb %}
 <li class="breadcrumb-item"><a href="/">Home</a></li>
-<li class="breadcrumb-item"><a href="{{ url_for('enhanced_weekly_report.dashboard') }}">Enhanced Weekly Driver Reports</a></li>
+<li class="breadcrumb-item"><a href="{{ url_for('enhanced_weekly_report_bp.dashboard') }}">Enhanced Weekly Driver Reports</a></li>
 <li class="breadcrumb-item active" aria-current="page">{{ start_formatted }} - {{ end_formatted }}</li>
 {% endblock %}
 
@@ -74,10 +74,10 @@
 {% block page_subtitle %}Date range analysis with GENIUS CORE validation{% endblock %}
 
 {% block page_actions %}
-<a href="{{ url_for('enhanced_weekly_report.download_report', start_date=start_date, end_date=end_date, format='csv') }}" class="btn btn-outline-success">
+<a href="{{ url_for('enhanced_weekly_report_bp.download_report', start_date=start_date, end_date=end_date, format='csv') }}" class="btn btn-outline-success">
     <i class="bi bi-download me-2"></i> Download CSV
 </a>
-<a href="{{ url_for('enhanced_weekly_report.download_report', start_date=start_date, end_date=end_date, format='json') }}" class="btn btn-outline-primary ms-2">
+<a href="{{ url_for('enhanced_weekly_report_bp.download_report', start_date=start_date, end_date=end_date, format='json') }}" class="btn btn-outline-primary ms-2">
     <i class="bi bi-download me-2"></i> Download JSON
 </a>
 {% endblock %}

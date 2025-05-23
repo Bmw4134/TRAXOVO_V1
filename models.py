@@ -27,7 +27,13 @@ asset_jobsite_association = Table(
     Column('job_site_id', Integer, ForeignKey('job_sites.id'))
 )
 
-# Temporarily removing driver_asset_assignments to fix navigation issues
+# Create a proper many-to-many association table for driver-asset relationship
+driver_asset_association = Table(
+    'driver_asset_association',
+    db.Model.metadata,
+    Column('driver_id', Integer, ForeignKey('drivers.id')),
+    Column('asset_id', Integer, ForeignKey('assets.id'))
+)
 
 class User(UserMixin, db.Model):
     """User model for authentication and system access"""
@@ -113,6 +119,8 @@ class Driver(db.Model):
     job_site = relationship('JobSite', foreign_keys=[job_site_id])
     job_sites = relationship('JobSite', secondary=driver_jobsite_association, back_populates='drivers')
     driver_reports = relationship('DriverReport', back_populates='driver')
+    # Add the relationship to assets
+    assigned_assets = relationship('Asset', secondary=driver_asset_association, backref='assigned_drivers')
     
     def __repr__(self):
         return f"<Driver {self.full_name}>"

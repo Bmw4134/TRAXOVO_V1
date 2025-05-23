@@ -141,7 +141,19 @@ class WeeklyDriverProcessor:
                 
                 # Read the CSV file
                 reader = csv.DictReader(csvfile, dialect=dialect)
-                return list(reader)
+                data = list(reader)
+                
+                # 🚨 STRICT COLUMN ENFORCEMENT
+                if data and len(data) > 0:
+                    first_row = data[0]
+                    required_cols = ["Contact", "Locationx", "EventDateTime"]
+                    missing = [col for col in required_cols if col not in first_row]
+                    if missing:
+                        logger.error(f"Missing required columns: {missing}")
+                        raise ValueError(f"Missing required columns: {missing}")
+                    logger.info(f"📄 [VALID] Processing {len(data)} rows with required columns")
+                
+                return data
         except Exception as e:
             logger.error(f"Error loading CSV file {file_path}: {str(e)}")
             return []

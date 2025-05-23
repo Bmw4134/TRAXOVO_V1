@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}TRAXORA Fleet Management{% endblock %}</title>
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+        <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
     <!-- Font Awesome for icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <!-- Custom styles -->
@@ -93,13 +93,13 @@
                 <a href="{{ url_for('driver_reports_dashboard.dashboard') }}" class="list-group-item list-group-item-action">
                     <span class="sidebar-icon"><i class="fas fa-user-clock"></i></span> Driver Reports
                 </a>
-                <a href="{{ url_for('asset_map_bp.map') }}" class="list-group-item list-group-item-action">
+                <a href="{{ url_for('asset_map.asset_map') }}" class="list-group-item list-group-item-action">
                     <span class="sidebar-icon"><i class="fas fa-map-marked-alt"></i></span> Asset Map
                 </a>
-                <a href="{{ url_for('billing_bp.billing_dashboard') }}" class="list-group-item list-group-item-action">
+                <a href="{{ url_for('billing.billing_dashboard') if 'billing.billing_dashboard' in current_app.view_functions else '#' }}" class="list-group-item list-group-item-action">
                     <span class="sidebar-icon"><i class="fas fa-file-invoice-dollar"></i></span> Billing
                 </a>
-                <a href="{{ url_for('system_health_bp.health_dashboard') }}" class="list-group-item list-group-item-action">
+                <a href="{{ url_for('system_health.health_dashboard') if 'system_health.health_dashboard' in current_app.view_functions else '#' }}" class="list-group-item list-group-item-action">
                     <span class="sidebar-icon"><i class="fas fa-heartbeat"></i></span> System Health
                 </a>
                 <div class="border-top my-3"></div>

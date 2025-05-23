@@ -84,32 +84,119 @@ class WeeklyDriverProcessor:
         logger.info("Loading files for weekly driver report")
         
         # Set base directory for file paths
-        base_dir = 'attached_assets' if from_attached_assets else self.upload_dir
+        base_dir = os.path.join(os.getcwd(), 'attached_assets') if from_attached_assets else self.upload_dir
+        
+        # Log base directory
+        logger.info(f"Base directory for files: {base_dir}")
+        
+        # Check if base directory exists
+        if not os.path.exists(base_dir):
+            logger.error(f"Base directory not found: {base_dir}")
+            return
+        
+        # List files in the directory
+        logger.info(f"Files in directory: {os.listdir(base_dir)}")
         
         # Load driving history data
         if driving_history_path:
-            path = os.path.join(base_dir, driving_history_path) if not from_attached_assets else driving_history_path
+            path = os.path.join(base_dir, driving_history_path)
             logger.info(f"Loading driving history from: {path}")
-            self.load_driving_history(path)
+            
+            if not os.path.exists(path):
+                logger.error(f"File not found: {path}")
+                # Try with different path formats
+                alt_path = os.path.join(base_dir, f"{driving_history_path.replace(' ', '')}")
+                if os.path.exists(alt_path):
+                    logger.info(f"Found alternative path: {alt_path}")
+                    path = alt_path
+                else:
+                    # Search for similar files
+                    for filename in os.listdir(base_dir):
+                        if "DrivingHistory" in filename and filename.endswith(".csv"):
+                            logger.info(f"Found matching file: {filename}")
+                            path = os.path.join(base_dir, filename)
+                            break
+            
+            if os.path.exists(path):
+                self.load_driving_history(path)
+            else:
+                logger.error(f"Could not find any driving history file")
         
         # Load activity detail data
         if activity_detail_path:
-            path = os.path.join(base_dir, activity_detail_path) if not from_attached_assets else activity_detail_path
+            path = os.path.join(base_dir, activity_detail_path)
             logger.info(f"Loading activity detail from: {path}")
-            self.load_activity_detail(path)
+            
+            if not os.path.exists(path):
+                logger.error(f"File not found: {path}")
+                # Try with different path formats
+                alt_path = os.path.join(base_dir, f"{activity_detail_path.replace(' ', '')}")
+                if os.path.exists(alt_path):
+                    logger.info(f"Found alternative path: {alt_path}")
+                    path = alt_path
+                else:
+                    # Search for similar files
+                    for filename in os.listdir(base_dir):
+                        if "ActivityDetail" in filename and filename.endswith(".csv"):
+                            logger.info(f"Found matching file: {filename}")
+                            path = os.path.join(base_dir, filename)
+                            break
+            
+            if os.path.exists(path):
+                self.load_activity_detail(path)
+            else:
+                logger.error(f"Could not find any activity detail file")
         
         # Load time on site data
         if time_on_site_path:
-            path = os.path.join(base_dir, time_on_site_path) if not from_attached_assets else time_on_site_path
+            path = os.path.join(base_dir, time_on_site_path)
             logger.info(f"Loading time on site from: {path}")
-            self.load_time_on_site(path)
+            
+            if not os.path.exists(path):
+                logger.error(f"File not found: {path}")
+                # Try with different path formats
+                alt_path = os.path.join(base_dir, f"{time_on_site_path.replace(' ', '')}")
+                if os.path.exists(alt_path):
+                    logger.info(f"Found alternative path: {alt_path}")
+                    path = alt_path
+                else:
+                    # Search for similar files
+                    for filename in os.listdir(base_dir):
+                        if "AssetsTimeOnSite" in filename and filename.endswith(".csv"):
+                            logger.info(f"Found matching file: {filename}")
+                            path = os.path.join(base_dir, filename)
+                            break
+            
+            if os.path.exists(path):
+                self.load_time_on_site(path)
+            else:
+                logger.error(f"Could not find any time on site file")
         
         # Load timecard data
         if timecard_paths:
             for timecard_path in timecard_paths:
-                path = os.path.join(base_dir, timecard_path) if not from_attached_assets else timecard_path
+                path = os.path.join(base_dir, timecard_path)
                 logger.info(f"Loading timecard from: {path}")
-                self.load_timecard(path)
+                
+                if not os.path.exists(path):
+                    logger.error(f"File not found: {path}")
+                    # Try with different path formats
+                    alt_path = os.path.join(base_dir, f"{timecard_path.replace(' ', '')}")
+                    if os.path.exists(alt_path):
+                        logger.info(f"Found alternative path: {alt_path}")
+                        path = alt_path
+                    else:
+                        # Search for similar files
+                        for filename in os.listdir(base_dir):
+                            if "Timecards" in filename and filename.endswith(".xlsx"):
+                                logger.info(f"Found matching file: {filename}")
+                                path = os.path.join(base_dir, filename)
+                                break
+                
+                if os.path.exists(path):
+                    self.load_timecard(path)
+                else:
+                    logger.error(f"Could not find timecard file")
     
     def load_driving_history(self, file_path):
         """

@@ -1,0 +1,360 @@
+{% extends "layout_unified.html" %}
+
+{% block title %}Upload Data Files - Enhanced Weekly Report{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="/">Home</a></li>
+<li class="breadcrumb-item"><a href="{{ url_for('enhanced_weekly_report.dashboard') }}">Enhanced Weekly Driver Reports</a></li>
+<li class="breadcrumb-item active" aria-current="page">Upload Data Files</li>
+{% endblock %}
+
+{% block page_title %}Upload Data Files{% endblock %}
+{% block page_subtitle %}Upload GPS data, vehicle records, and timecard files for weekly driver reports{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-7">
+        <div class="card bg-dark border-0 shadow-sm mb-4">
+            <div class="card-header bg-dark d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Upload Files</h5>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('enhanced_weekly_report.upload_files') }}" method="post" enctype="multipart/form-data">
+                    <div class="mb-4">
+                        <label for="report_date" class="form-label">Report Date</label>
+                        <input type="date" class="form-control" id="report_date" name="report_date" value="{{ today }}" required>
+                        <small class="text-muted">Select the date for which you're uploading files. Defaults to today.</small>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label d-block">Files to Upload</label>
+                        
+                        <div class="dropzone-container p-4 border border-dashed rounded mb-3 text-center">
+                            <div id="dropzone" class="dropzone">
+                                <div class="dz-message">
+                                    <i class="bi bi-cloud-arrow-up fs-1 mb-2 text-primary-subtle"></i>
+                                    <h5>Drag & Drop Files Here</h5>
+                                    <span class="text-muted">or</span>
+                                    <button type="button" class="btn btn-outline-primary mt-3" id="selectFiles">Browse Files</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="file-list" class="list-group mb-3 bg-dark"></div>
+                        
+                        <div class="alert alert-info">
+                            <h6 class="alert-heading mb-2"><i class="bi bi-info-circle me-2"></i> Required Files:</h6>
+                            <ul class="mb-0">
+                                <li><strong>DrivingHistory CSVs:</strong> Driver GPS tracking data</li>
+                                <li><strong>AssetsTimeOnSite CSVs:</strong> Asset location data</li>
+                                <li><strong>ActivityDetail CSVs (Optional):</strong> Enhanced location data</li>
+                                <li><strong>Timecard Files (Optional):</strong> HR payroll validation</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-outline-secondary" onclick="window.history.back()">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="upload-btn">Upload Files</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-5">
+        <div class="card bg-dark border-0 shadow-sm mb-4">
+            <div class="card-header bg-dark">
+                <h5 class="card-title mb-0">File Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6><i class="bi bi-file-earmark-text"></i> Required File Types</h6>
+                    <div class="list-group list-group-flush bg-dark">
+                        <div class="list-group-item bg-dark d-flex align-items-center border-0 px-0 py-2">
+                            <div class="me-3 text-primary">
+                                <i class="bi bi-file-earmark-bar-graph fs-4"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">Driving History (CSV)</h6>
+                                <small class="text-muted">Asset location data</small>
+                            </div>
+                        </div>
+                        <div class="list-group-item bg-dark d-flex align-items-center border-0 px-0 py-2">
+                            <div class="me-3 text-info">
+                                <i class="bi bi-geo fs-4"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">Assets Time On Site (CSV)</h6>
+                                <small class="text-muted">Asset location data</small>
+                            </div>
+                        </div>
+                        <div class="list-group-item bg-dark d-flex align-items-center border-0 px-0 py-2">
+                            <div class="me-3 text-warning">
+                                <i class="bi bi-activity fs-4"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">Activity Detail (CSV)</h6>
+                                <small class="text-muted">Enhanced location data (optional)</small>
+                            </div>
+                        </div>
+                        <div class="list-group-item bg-dark d-flex align-items-center border-0 px-0 py-2">
+                            <div class="me-3 text-success">
+                                <i class="bi bi-file-earmark-spreadsheet fs-4"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">Timecard File (XLSX)</h6>
+                                <small class="text-muted">For payroll validation (optional)</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <div class="d-flex">
+                        <div class="me-2">
+                            <i class="bi bi-exclamation-triangle-fill fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="alert-heading mb-1">Important:</h6>
+                            <p class="mb-0">Make sure the files include the data date range for automatic date detection. Multiple files of each type can be uploaded.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card bg-dark border-0 shadow-sm">
+            <div class="card-header bg-dark">
+                <h5 class="card-title mb-0">Automated Report Process</h5>
+            </div>
+            <div class="card-body">
+                <div class="position-relative mb-4">
+                    <div class="timeline-process">
+                        <div class="timeline-item active">
+                            <div class="timeline-point"></div>
+                            <div class="timeline-content">
+                                <h6 class="mb-1">Once files are uploaded, the system will automatically:</h6>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-point"></div>
+                            <div class="timeline-content">
+                                <p>Parse all GPS tracking and timecard data</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-point"></div>
+                            <div class="timeline-content">
+                                <p>Match drivers to their assigned job sites</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-point"></div>
+                            <div class="timeline-content">
+                                <p>Calculate arrival and departure times</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-point"></div>
+                            <div class="timeline-content">
+                                <p>Classify drivers (On Time, Late, Early End, Not On Job)</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-point"></div>
+                            <div class="timeline-content">
+                                <p>Generate an Excel report in the exact same format you used to create manually</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .border-dashed {
+        border-style: dashed !important;
+    }
+    
+    .dropzone-container {
+        min-height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .timeline-process {
+        position: relative;
+        padding-left: 30px;
+    }
+    
+    .timeline-process:before {
+        content: '';
+        position: absolute;
+        left: 10px;
+        top: 0;
+        height: 100%;
+        width: 2px;
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .timeline-item {
+        position: relative;
+        margin-bottom: 20px;
+    }
+    
+    .timeline-point {
+        position: absolute;
+        left: -30px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background-color: #495057;
+        border: 2px solid #212529;
+        top: 2px;
+    }
+    
+    .timeline-item.active .timeline-point {
+        background-color: #28a745;
+    }
+    
+    .timeline-content p {
+        margin-bottom: 0;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileList = document.getElementById('file-list');
+        const uploadBtn = document.getElementById('upload-btn');
+        const selectFilesBtn = document.getElementById('selectFiles');
+        const dropzone = document.getElementById('dropzone');
+        
+        // Create a hidden file input
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.multiple = true;
+        fileInput.style.display = 'none';
+        fileInput.name = 'files[]';
+        document.body.appendChild(fileInput);
+        
+        // Open file dialog when select button is clicked
+        selectFilesBtn.addEventListener('click', function() {
+            fileInput.click();
+        });
+        
+        // Handle file selection
+        fileInput.addEventListener('change', function() {
+            handleFiles(this.files);
+        });
+        
+        // Handle drag and drop
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropzone.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight() {
+            dropzone.classList.add('bg-dark-subtle');
+        }
+        
+        function unhighlight() {
+            dropzone.classList.remove('bg-dark-subtle');
+        }
+        
+        dropzone.addEventListener('drop', function(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        });
+        
+        function handleFiles(files) {
+            const filesArray = Array.from(files);
+            
+            // Clear existing list
+            fileList.innerHTML = '';
+            
+            // Add files to list
+            filesArray.forEach(file => {
+                const listItem = document.createElement('div');
+                listItem.className = 'list-group-item bg-dark d-flex justify-content-between align-items-center border-dark border-opacity-50';
+                
+                // Determine icon based on file type
+                let iconClass = 'bi-file-earmark';
+                if (file.name.endsWith('.csv')) {
+                    iconClass = 'bi-file-earmark-text';
+                } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                    iconClass = 'bi-file-earmark-spreadsheet';
+                }
+                
+                listItem.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <i class="bi ${iconClass} me-3 fs-5"></i>
+                        <div>
+                            <div>${file.name}</div>
+                            <small class="text-muted">${formatFileSize(file.size)}</small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-danger remove-file">
+                        <i class="bi bi-x"></i>
+                    </button>
+                `;
+                
+                fileList.appendChild(listItem);
+                
+                // Add file to hidden input for form submission
+                // This is a simplified version, in production you'd use FormData for actual upload
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'file_names[]';
+                hiddenInput.value = file.name;
+                listItem.appendChild(hiddenInput);
+            });
+            
+            // Add remove event listeners
+            document.querySelectorAll('.remove-file').forEach(button => {
+                button.addEventListener('click', function() {
+                    this.closest('.list-group-item').remove();
+                    updateUploadButton();
+                });
+            });
+            
+            updateUploadButton();
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        function updateUploadButton() {
+            uploadBtn.disabled = fileList.children.length === 0;
+        }
+        
+        // Initialize button state
+        updateUploadButton();
+    });
+</script>
+{% endblock %}

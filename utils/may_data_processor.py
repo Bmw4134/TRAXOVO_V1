@@ -1307,6 +1307,65 @@ def process_may_weekly_report(attached_assets_dir, weekly_processor_function, re
                 else:
                     employee_data = {}
                 
+                # Determine timecard status by comparing with timecard data if available
+                timecard_status = 'unknown'
+                status_source = 'gps'
+                
+                # Look for timecard data for this driver and date
+                if 'timecard_data' in all_files:
+                    try:
+                        # Extract timecard data for comparison
+                        import pandas as pd
+                        timecard_file = all_files.get('timecard_data')
+                        if isinstance(timecard_file, str) and os.path.exists(timecard_file):
+                            timecard_df = pd.read_excel(timecard_file)
+                            
+                            # Look for common date and name column patterns in timecard
+                            date_col = None
+                            emp_col = None
+                            hours_col = None
+                            
+                            for possible_col in ['Date', 'Work Date', 'WorkDate']:
+                                if possible_col in timecard_df.columns:
+                                    date_col = possible_col
+                                    break
+                                    
+                            for possible_col in ['Employee', 'Name', 'EmployeeName', 'Employee Name']:
+                                if possible_col in timecard_df.columns:
+                                    emp_col = possible_col
+                                    break
+                                    
+                            for possible_col in ['Hours', 'Hours Worked', 'Total Hours']:
+                                if possible_col in timecard_df.columns:
+                                    hours_col = possible_col
+                                    break
+                            
+                            # If we found all required columns, look for this driver on this date
+                            if date_col and emp_col and hours_col:
+                                # Try to find driver in timecard by name
+                                timecard_entries = timecard_df[
+                                    (timecard_df[emp_col].str.contains(driver_name, case=False, na=False)) & 
+                                    (pd.to_datetime(timecard_df[date_col], errors='coerce').dt.strftime('%Y-%m-%d') == date_str)
+                                ]
+                                
+                                if not timecard_entries.empty:
+                                    # We found timecard entries for this driver on this date
+                                    timecard_hours = timecard_entries[hours_col].sum()
+                                    
+                                    if timecard_hours > 0:
+                                        timecard_status = 'present'
+                                        
+                                        # Compare GPS time with timecard hours
+                                        gps_hours = float(total_time) if total_time else 0
+                                        
+                                        # If GPS hours are within 1 hour of timecard hours, use timecard as source
+                                        if abs(gps_hours - timecard_hours) <= 1.0:
+                                            status_source = 'timecard_verified'
+                                    else:
+                                        timecard_status = 'absent'
+                    except Exception as e:
+                        logger.error(f"Error processing timecard data: {str(e)}")
+                
                 # Add to driver_records list (used by the view template)
                 formatted_record = {
                     'driver_name': driver_name,
@@ -1316,7 +1375,7 @@ def process_may_weekly_report(attached_assets_dir, weekly_processor_function, re
                     'first_seen': first_seen,
                     'last_seen': last_seen,
                     'total_time': total_time,
-                    'timecard_status': timecard_status or 'unknown',
+                    'timecard_status': timecard_status,
                     'status_source': status_source
                 }
                 daily_report['driver_records'].append(formatted_record)

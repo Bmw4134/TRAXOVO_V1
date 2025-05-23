@@ -490,7 +490,75 @@ def download_report(start_date, end_date, format):
         with open(report_path, 'r') as f:
             report = json.load(f)
         
-        # Format date range for filename
+        # Process data into a flat format for CSV export
+        if format.lower() == 'csv':
+            try:
+                # Convert to CSV using pandas
+                import pandas as pd
+                from io import StringIO
+                from flask import Response
+                
+                # Prepare a flattened data structure for CSV
+                flat_data = []
+                
+                # Add daily driver records for each day
+                for date_str, daily_report in report.get('daily_reports', {}).items():
+                    for record in daily_report.get('driver_records', []):
+                        flat_record = {
+                            'Date': date_str,
+                            'Driver Name': record.get('driver_name', ''),
+                            'Employee ID': record.get('employee_id', ''),
+                            'Status': record.get('attendance_status', ''),
+                            'Job Site': record.get('job_site', ''),
+                            'First Seen': record.get('first_seen', ''),
+                            'Last Seen': record.get('last_seen', ''),
+                            'Hours': record.get('total_time', 0),
+                            'Timecard Status': record.get('timecard_status', ''),
+                            'Source': record.get('status_source', 'gps')
+                        }
+                        flat_data.append(flat_record)
+                
+                # Convert to DataFrame and then to CSV
+                df = pd.DataFrame(flat_data)
+                csv_data = df.to_csv(index=False)
+                
+                # Create response with CSV data
+                response = Response(
+                    csv_data,
+                    mimetype='text/csv',
+                    headers={
+                        'Content-Disposition': f'attachment; filename=weekly_driver_report_{start_date}_to_{end_date}.csv'
+                    }
+                )
+                return response
+                
+            except Exception as e:
+                logger.error(f"Error generating CSV: {str(e)}")
+                flash(f"Error generating CSV: {str(e)}", 'danger')
+                return redirect(url_for('enhanced_weekly_report_bp.view_report', start_date=start_date, end_date=end_date))
+        
+        # JSON format
+        elif format.lower() == 'json':
+            # Return the JSON data directly
+            from flask import Response
+            response = Response(
+                json.dumps(report, indent=2),
+                mimetype='application/json',
+                headers={
+                    'Content-Disposition': f'attachment; filename=weekly_driver_report_{start_date}_to_{end_date}.json'
+                }
+            )
+            return response
+        
+        # Invalid format
+        else:
+            flash('Invalid download format. Please choose CSV or JSON.', 'warning')
+            return redirect(url_for('enhanced_weekly_report_bp.view_report', start_date=start_date, end_date=end_date))
+    
+    except Exception as e:
+        logger.error(f"Error downloading report: {str(e)}")
+        flash(f"Error downloading report: {str(e)}", "danger")
+        return redirect(url_for('enhanced_weekly_report_bp.view_report', start_date=start_date, end_date=end_date))
         start = datetime.strptime(start_date, '%Y-%m-%d').date()
         end = datetime.strptime(end_date, '%Y-%m-%d').date()
         date_range = f"{start.strftime('%m%d')}-{end.strftime('%m%d')}"

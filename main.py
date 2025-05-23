@@ -86,6 +86,21 @@ try:
 except ImportError:
     logger.warning("Attendance Report module not found")
 
+# Register weekly and daily driver reports
+try:
+    from routes.weekly_driver_report import weekly_driver_report_bp
+    app.register_blueprint(weekly_driver_report_bp)
+    logger.info("Weekly Driver Report blueprint registered")
+except ImportError:
+    logger.warning("Weekly Driver Report module not found")
+
+try:
+    from routes.daily_driver_report import daily_driver_report_bp
+    app.register_blueprint(daily_driver_report_bp)
+    logger.info("Daily Driver Report blueprint registered")
+except ImportError:
+    logger.warning("Daily Driver Report module not found")
+
 @app.route('/')
 def dashboard():
     """Homepage shows dashboard"""

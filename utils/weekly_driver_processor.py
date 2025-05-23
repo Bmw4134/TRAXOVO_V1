@@ -558,10 +558,24 @@ class WeeklyDriverProcessor:
         last_seen = None
         job_site = None
         
-        # Process driving records - use EventDateTime field
+        # Process driving records - check multiple field names
         if driver_driving_records:
-            timestamps = [r.get('EventDateTime') for r in driver_driving_records if r.get('EventDateTime')]
-            locations = [r.get('Location') for r in driver_driving_records if r.get('Location')]
+            # Try different timestamp field names
+            timestamps = []
+            for r in driver_driving_records:
+                timestamp = (r.get('EventDateTime') or r.get('DateTime') or 
+                            r.get('Timestamp') or r.get('Time'))
+                if timestamp:
+                    timestamps.append(timestamp)
+            
+            # Try different location field names
+            locations = []
+            for r in driver_driving_records:
+                location = (r.get('Location') or r.get('Locationx') or 
+                           r.get('JobSite') or r.get('Jobsite') or 
+                           r.get('Job Site') or r.get('Job'))
+                if location and isinstance(location, str) and location.strip():
+                    locations.append(location.strip())
             
             if timestamps:
                 timestamps.sort()
@@ -576,12 +590,27 @@ class WeeklyDriverProcessor:
                 for loc in locations:
                     location_counts[loc] = location_counts.get(loc, 0) + 1
                 
-                job_site = max(location_counts.items(), key=lambda x: x[1])[0]
+                if location_counts:
+                    job_site = max(location_counts.items(), key=lambda x: x[1])[0]
         
-        # Process activity records - use EventDateTimex and Locationx fields
+        # Process activity records - check multiple field names
         if driver_activity_records:
-            timestamps = [r.get('EventDateTimex') for r in driver_activity_records if r.get('EventDateTimex')]
-            locations = [r.get('Locationx') for r in driver_activity_records if r.get('Locationx')]
+            # Try different timestamp field names
+            timestamps = []
+            for r in driver_activity_records:
+                timestamp = (r.get('EventDateTimex') or r.get('EventDateTime') or 
+                            r.get('DateTime') or r.get('Timestamp') or r.get('Time'))
+                if timestamp:
+                    timestamps.append(timestamp)
+            
+            # Try different location field names
+            locations = []
+            for r in driver_activity_records:
+                location = (r.get('Locationx') or r.get('Location') or 
+                           r.get('JobSite') or r.get('Jobsite') or 
+                           r.get('Job Site') or r.get('Job'))
+                if location and isinstance(location, str) and location.strip():
+                    locations.append(location.strip())
             
             if timestamps:
                 timestamps.sort()
@@ -596,12 +625,26 @@ class WeeklyDriverProcessor:
                 for loc in locations:
                     location_counts[loc] = location_counts.get(loc, 0) + 1
                 
-                job_site = max(location_counts.items(), key=lambda x: x[1])[0]
+                if location_counts:
+                    job_site = max(location_counts.items(), key=lambda x: x[1])[0]
         
-        # Process time on site records - check for Jobsite field
+        # Process time on site records - check multiple field names
         if driver_time_on_site:
-            timestamps = [r.get('EventDateTime') for r in driver_time_on_site if r.get('EventDateTime')]
-            locations = [r.get('Jobsite') for r in driver_time_on_site if r.get('Jobsite')]
+            # Try different timestamp field names
+            timestamps = []
+            for r in driver_time_on_site:
+                timestamp = (r.get('EventDateTime') or r.get('DateTime') or 
+                            r.get('Timestamp') or r.get('Time'))
+                if timestamp:
+                    timestamps.append(timestamp)
+            
+            # Try different location field names
+            locations = []
+            for r in driver_time_on_site:
+                location = (r.get('Jobsite') or r.get('JobSite') or r.get('Location') or
+                           r.get('Locationx') or r.get('Job Site') or r.get('Job'))
+                if location and isinstance(location, str) and location.strip():
+                    locations.append(location.strip())
             
             if timestamps:
                 timestamps.sort()
@@ -616,7 +659,12 @@ class WeeklyDriverProcessor:
                 for loc in locations:
                     location_counts[loc] = location_counts.get(loc, 0) + 1
                 
-                job_site = max(location_counts.items(), key=lambda x: x[1])[0]
+                if location_counts:
+                    job_site = max(location_counts.items(), key=lambda x: x[1])[0]
+                    
+        # Default job site if none was found in any of the records
+        if not job_site:
+            job_site = "Job Site Pending"
         
         # Skip if no timestamps found
         if not first_seen or not last_seen:

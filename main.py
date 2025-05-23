@@ -119,13 +119,13 @@ except ImportError:
 
 # Register Enhanced Weekly Report Blueprint
 try:
-    from routes.enhanced_weekly_report import enhanced_weekly_report_bp
-    app.register_blueprint(enhanced_weekly_report_bp)
-    logger.info("Enhanced Weekly Report blueprint registered successfully")
-except ImportError as e:
-    logger.warning(f"Enhanced Weekly Report module not found: {e}")
+    # We're removing the explicit import since it's already registered somewhere else
+    # This prevents the duplicate registration error
+    # from routes.enhanced_weekly_report import enhanced_weekly_report_bp
+    # app.register_blueprint(enhanced_weekly_report_bp)
+    logger.info("Enhanced Weekly Report blueprint registration skipped (already registered)")
 except Exception as e:
-    logger.error(f"Error registering Enhanced Weekly Report blueprint: {e}")
+    logger.error(f"Error with Enhanced Weekly Report blueprint: {e}")
 
 @app.route('/attendance/')
 @app.route('/attendance')
@@ -133,14 +133,15 @@ def attendance_main():
     """Redirect to enhanced weekly report"""
     return redirect('/enhanced-weekly-report/')
 
-@app.route('/enhanced-weekly-report/')
-@app.route('/enhanced-weekly-report')
-def enhanced_weekly_report():
-    """Main GPS-based weekly driver report interface"""
-    return render_template('enhanced_weekly_report/dashboard.html', 
-                          title="GPS-Based Weekly Driver Report",
-                          week_start="May 18, 2025",
-                          week_end="May 24, 2025")
+# Removing this route since it's handled by the blueprint
+# @app.route('/enhanced-weekly-report/')
+# @app.route('/enhanced-weekly-report')
+# def enhanced_weekly_report():
+#     """Main GPS-based weekly driver report interface"""
+#     return render_template('enhanced_weekly_report/dashboard.html', 
+#                           title="GPS-Based Weekly Driver Report",
+#                           week_start="May 18, 2025",
+#                           week_end="May 24, 2025")
 
 @app.route('/')
 def dashboard():

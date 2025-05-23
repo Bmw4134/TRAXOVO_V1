@@ -633,6 +633,14 @@ class WeeklyDriverProcessor:
         # Classify driver attendance
         driver_record['status'] = self._classify_driver_attendance(driver_record)
         
+        # Debug logging for field mapping verification
+        logger.info(f"FIELD MAPPING DEBUG - Driver: {driver_name}")
+        logger.info(f"  Job Site Found: {job_site}")
+        logger.info(f"  Driving Records: {len(driver_driving_records)}")
+        logger.info(f"  Activity Records: {len(driver_activity_records)}")
+        logger.info(f"  Time on Site Records: {len(driver_time_on_site)}")
+        logger.info(f"  Classification: {driver_record['status']}")
+        
         return driver_record
     
     def _classify_driver_attendance(self, driver_record):

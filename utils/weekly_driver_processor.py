@@ -143,15 +143,42 @@ class WeeklyDriverProcessor:
                 reader = csv.DictReader(csvfile, dialect=dialect)
                 data = list(reader)
                 
-                # 🚨 STRICT COLUMN ENFORCEMENT
+                # 🚨 STRICT COLUMN ENFORCEMENT WITH FIELD MAPPING
                 if data and len(data) > 0:
-                    first_row = data[0]
+                    # Map alternative field names to our required ones
+                    column_mappings = {
+                        "Contact": ["Driver", "Driver Name", "DriverName"],
+                        "Locationx": ["Location", "JobSite", "Jobsite", "Job Site", "Job"],
+                        "EventDateTime": ["DateTime", "Timestamp", "Time", "EventDateTimex"]
+                    }
+                    
+                    # Apply field mappings to standardize columns
+                    for row in data:
+                        for target_col, source_cols in column_mappings.items():
+                            # If target column is missing but an alternative exists, map it
+                            if target_col not in row or not row[target_col]:
+                                for source_col in source_cols:
+                                    if source_col in row and row[source_col]:
+                                        row[target_col] = row[source_col]
+                                        break
+                    
+                    # Verify required columns exist after mapping
                     required_cols = ["Contact", "Locationx", "EventDateTime"]
-                    missing = [col for col in required_cols if col not in first_row]
+                    sample_row = data[0]  # Use first row after mapping
+                    
+                    # Check for missing columns
+                    missing = []
+                    for col in required_cols:
+                        if col not in sample_row or not sample_row[col]:
+                            missing.append(col)
+                    
                     if missing:
-                        logger.error(f"Missing required columns: {missing}")
+                        available_cols = list(sample_row.keys())
+                        logger.error(f"Missing required columns after mapping: {missing}")
+                        logger.error(f"Available columns: {available_cols}")
                         raise ValueError(f"Missing required columns: {missing}")
-                    logger.info(f"📄 [VALID] Processing {len(data)} rows with required columns")
+                    
+                    logger.info(f"📄 [VALID] Processing {len(data)} rows with required columns Contact+Locationx+EventDateTime")
                 
                 return data
         except Exception as e:
@@ -728,26 +755,34 @@ class WeeklyDriverProcessor:
         job_site = driver_record.get('job_site')
         hours_on_site = driver_record.get('hours_on_site', 0)
         
-        # Default to on_time if we can't determine otherwise
-        status = 'on_time'
+        # STRICT CLASSIFICATION - NO DEFAULTS
+        # First evaluate if driver was on job site
+        if not job_site or job_site == "Job Site Pending":
+            logger.warning(f"Driver classified as NOT_ON_JOB due to missing job site")
+            return 'not_on_job'
         
-        # Check if driver was on job
-        if not job_site:
-            status = 'not_on_job'
-        else:
-            # Check late start (after 7:30 AM)
-            if first_seen_time and first_seen_time > '07:30:00':
-                status = 'late_start'
-            
-            # Check early end (before 4:00 PM)
-            if last_seen_time and last_seen_time < '16:00:00':
-                status = 'early_end'
-            
-            # Check if hours on site is less than 7 hours
-            if hours_on_site < 7:
-                status = 'early_end'
+        # Then evaluate arrival time (late start check)
+        if first_seen_time and first_seen_time > '07:30:00':
+            minutes_late = (datetime.strptime(first_seen_time, '%H:%M:%S') - 
+                           datetime.strptime('07:30:00', '%H:%M:%S')).total_seconds() / 60
+            logger.info(f"Driver classified as LATE_START - {minutes_late:.1f} minutes late")
+            return 'late_start'
         
-        return status
+        # Then evaluate departure time (early end check)
+        if last_seen_time and last_seen_time < '16:00:00':
+            minutes_early = (datetime.strptime('16:00:00', '%H:%M:%S') - 
+                            datetime.strptime(last_seen_time, '%H:%M:%S')).total_seconds() / 60
+            logger.info(f"Driver classified as EARLY_END - {minutes_early:.1f} minutes early")
+            return 'early_end'
+        
+        # Check total hours (sanity check for early leave)
+        if hours_on_site < 7:
+            logger.info(f"Driver classified as EARLY_END - Only {hours_on_site:.1f} hours on site")
+            return 'early_end'
+        
+        # Only if all other conditions are not met, classify as on time
+        logger.info(f"Driver classified as ON_TIME ✓")
+        return 'on_time'
     
     def _generate_summary(self):
         """

@@ -1,0 +1,62 @@
+🚨 SYSTEM SNAPSHOT: TRAXORA + KAIZEN GPT (May 2025)
+
+I'm working with a prompt-based assistant (Kaizen GPT) and GPT-4.5 to co-develop this system on Replit. Below is the full scope, history, and key issues so Replit can support us more efficiently.
+
+---
+
+🧠 CORE STRUCTURE
+- System Name: TRAXORA
+- Mode: Dual-mode (DEV / PROD toggle)
+- GPT Engine: Kaizen GPT (recursive self-evolving dev agent)
+- Platform: Replit (Flask + HTML templates + CSV processing)
+
+---
+
+📊 FUNCTIONAL GOAL
+Build an intelligent dashboard that:
+1. Uploads timecard + GPS CSVs (May 18–24)
+2. Classifies drivers daily as:
+   - “On Time”
+   - “Late Start”
+   - “Early End”
+   - “Not On Job”
+3. Shows clean, unified dashboard views with trend snapshots
+
+---
+
+🔁 MODULES & FILES
+- `weekly_driver_processor.py`: Core driver classification engine
+- `routes/enhanced_weekly_report.py`: GPS-based report page
+- `templates/base.html`: Target for all view inheritance
+- `goal_tracker.json`, `session_audit.json`: Used by Kaizen GPT for audit trails
+
+---
+
+🧩 PATCHES SENT TO REPLIT (Need Confirmation They Were Extracted)
+- `traxora_ui_upgrade.zip`
+- `kaizen_ui_sync_directive.zip`
+- `kaizen_report_trace_logger.zip`
+
+Expecting these files to exist:
+- `templates/base.html`, `navbar.html`
+- `utils/route_validator.py`
+- `kaizen_trace_logger.py`
+
+---
+
+❗️ CURRENT ISSUES
+- Views have inconsistent layouts (some skip navbar or CSS)
+- Driver reports aren't classifying correctly — likely column mismatch or logic bypass
+- Routes like `/enhanced-weekly-report` may still be broken or misregistered
+- Need confirmation that classification function is wired to uploads
+
+---
+
+📆 DEADLINE: System must be working within 7 days
+
+Kaizen GPT will orchestrate patches and evolution, but I need Replit to:
+✅ Ensure routes + views + processors are connected
+✅ Confirm patch files were integrated
+✅ Fix any Flask/HTML/SQLAlchemy misconfigurations
+
+Once that’s confirmed, Kaizen GPT can auto-repair the rest.

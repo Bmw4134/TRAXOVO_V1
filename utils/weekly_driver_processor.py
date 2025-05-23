@@ -295,58 +295,127 @@ class WeeklyDriverProcessor:
     def _filter_driving_records(self, date_str):
         """Filter driving history records for a specific date"""
         filtered_records = []
+        logger.debug(f"Filtering driving records for date: {date_str}")
+        
+        # Print sample of first few records for debugging
+        if self.driving_history_data and len(self.driving_history_data) > 0:
+            logger.debug(f"Sample driving record: {self.driving_history_data[0]}")
+        
         for record in self.driving_history_data:
             # Check if record has a timestamp field
             timestamp = record.get('Timestamp')
             if not timestamp:
                 continue
             
-            # Try to parse the timestamp
+            # Try multiple date formats
             try:
-                record_date = datetime.strptime(timestamp.split()[0], '%Y-%m-%d')
-                if record_date.strftime('%Y-%m-%d') == date_str:
-                    filtered_records.append(record)
-            except (ValueError, IndexError):
+                # Try to extract just the date portion if timestamp includes time
+                if ' ' in timestamp:
+                    date_part = timestamp.split(' ')[0]
+                else:
+                    date_part = timestamp
+                
+                # Try different date formats
+                formats_to_try = ['%Y-%m-%d', '%m/%d/%Y', '%Y/%m/%d']
+                
+                for date_format in formats_to_try:
+                    try:
+                        record_date = datetime.strptime(date_part, date_format)
+                        if record_date.strftime('%Y-%m-%d') == date_str:
+                            filtered_records.append(record)
+                            break
+                    except ValueError:
+                        continue
+                        
+            except (ValueError, IndexError) as e:
+                logger.debug(f"Could not parse timestamp: {timestamp} - {str(e)}")
                 pass
         
+        logger.debug(f"Found {len(filtered_records)} driving records for date {date_str}")
         return filtered_records
     
     def _filter_activity_records(self, date_str):
         """Filter activity detail records for a specific date"""
         filtered_records = []
+        logger.debug(f"Filtering activity records for date: {date_str}")
+        
+        # Print sample of first few records for debugging
+        if self.activity_detail_data and len(self.activity_detail_data) > 0:
+            logger.debug(f"Sample activity record: {self.activity_detail_data[0]}")
+            
         for record in self.activity_detail_data:
             # Check if record has a timestamp field
             timestamp = record.get('Timestamp')
             if not timestamp:
                 continue
             
-            # Try to parse the timestamp
+            # Try multiple date formats
             try:
-                record_date = datetime.strptime(timestamp.split()[0], '%Y-%m-%d')
-                if record_date.strftime('%Y-%m-%d') == date_str:
-                    filtered_records.append(record)
-            except (ValueError, IndexError):
+                # Try to extract just the date portion if timestamp includes time
+                if ' ' in timestamp:
+                    date_part = timestamp.split(' ')[0]
+                else:
+                    date_part = timestamp
+                
+                # Try different date formats
+                formats_to_try = ['%Y-%m-%d', '%m/%d/%Y', '%Y/%m/%d']
+                
+                for date_format in formats_to_try:
+                    try:
+                        record_date = datetime.strptime(date_part, date_format)
+                        if record_date.strftime('%Y-%m-%d') == date_str:
+                            filtered_records.append(record)
+                            break
+                    except ValueError:
+                        continue
+                        
+            except (ValueError, IndexError) as e:
+                logger.debug(f"Could not parse timestamp: {timestamp} - {str(e)}")
                 pass
-        
+                
+        logger.debug(f"Found {len(filtered_records)} activity records for date {date_str}")
         return filtered_records
     
     def _filter_time_on_site_records(self, date_str):
         """Filter time on site records for a specific date"""
         filtered_records = []
+        logger.debug(f"Filtering time on site records for date: {date_str}")
+        
+        # Print sample of first few records for debugging
+        if self.time_on_site_data and len(self.time_on_site_data) > 0:
+            logger.debug(f"Sample time on site record: {self.time_on_site_data[0]}")
+            
         for record in self.time_on_site_data:
             # Check if record has a timestamp field
             timestamp = record.get('Timestamp')
             if not timestamp:
                 continue
             
-            # Try to parse the timestamp
+            # Try multiple date formats
             try:
-                record_date = datetime.strptime(timestamp.split()[0], '%Y-%m-%d')
-                if record_date.strftime('%Y-%m-%d') == date_str:
-                    filtered_records.append(record)
-            except (ValueError, IndexError):
+                # Try to extract just the date portion if timestamp includes time
+                if ' ' in timestamp:
+                    date_part = timestamp.split(' ')[0]
+                else:
+                    date_part = timestamp
+                
+                # Try different date formats
+                formats_to_try = ['%Y-%m-%d', '%m/%d/%Y', '%Y/%m/%d']
+                
+                for date_format in formats_to_try:
+                    try:
+                        record_date = datetime.strptime(date_part, date_format)
+                        if record_date.strftime('%Y-%m-%d') == date_str:
+                            filtered_records.append(record)
+                            break
+                    except ValueError:
+                        continue
+                        
+            except (ValueError, IndexError) as e:
+                logger.debug(f"Could not parse timestamp: {timestamp} - {str(e)}")
                 pass
-        
+                
+        logger.debug(f"Found {len(filtered_records)} time on site records for date {date_str}")
         return filtered_records
     
     def _filter_timecard_records(self, date_str):

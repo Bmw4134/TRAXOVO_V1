@@ -451,51 +451,61 @@ class WeeklyDriverProcessor:
         """Get a set of all drivers from the records"""
         drivers = set()
         
-        # Extract drivers from driving records (use Contact field)
+        # Extract drivers from driving records (check both Driver and Contact fields)
         for record in driving_records:
-            contact = record.get('Contact')
-            if contact:
-                # Extract driver name from "Ammar Elhamad (210003)" format
-                driver_name = self._extract_driver_name(contact)
-                if driver_name:
-                    drivers.add(driver_name)
+            driver_name = record.get('Driver') or record.get('Contact') or record.get('Driver Name')
+            if driver_name:
+                # Extract driver name from various formats
+                cleaned_name = self._extract_driver_name(driver_name)
+                if cleaned_name:
+                    drivers.add(cleaned_name)
         
-        # Extract drivers from activity records (use Contact field)
+        # Extract drivers from activity records (check both Driver and Contact fields)
         for record in activity_records:
-            contact = record.get('Contact')
-            if contact:
-                driver_name = self._extract_driver_name(contact)
-                if driver_name:
-                    drivers.add(driver_name)
+            driver_name = record.get('Driver') or record.get('Contact') or record.get('Driver Name')
+            if driver_name:
+                cleaned_name = self._extract_driver_name(driver_name)
+                if cleaned_name:
+                    drivers.add(cleaned_name)
         
-        # Extract drivers from time on site records (use Contact field)
+        # Extract drivers from time on site records (check both Driver and Contact fields)
         for record in time_on_site_records:
-            contact = record.get('Contact')
-            if contact:
-                driver_name = self._extract_driver_name(contact)
-                if driver_name:
-                    drivers.add(driver_name)
+            driver_name = record.get('Driver') or record.get('Contact') or record.get('Driver Name')
+            if driver_name:
+                cleaned_name = self._extract_driver_name(driver_name)
+                if cleaned_name:
+                    drivers.add(cleaned_name)
+        
+        # If no drivers found, use weekly report data
+        if len(drivers) == 0 and hasattr(self, 'weekly_report_data'):
+            for date, daily_data in self.weekly_report_data.get('daily_reports', {}).items():
+                for driver_name in daily_data.get('drivers', {}).keys():
+                    if driver_name and driver_name != "Unknown":
+                        drivers.add(driver_name)
         
         return drivers
     
-    def _extract_driver_name(self, contact_field):
+    def _extract_driver_name(self, name_field):
         """
-        Extract driver name from contact field format like 'Ammar Elhamad (210003)'
+        Extract driver name from various formats:
+        - 'Ammar Elhamad (210003)'
+        - 'Ammar Elhamad'
+        - etc.
         
         Args:
-            contact_field (str): Contact field from CSV
+            name_field (str): Driver or Contact field from CSV
             
         Returns:
             str: Cleaned driver name or None
         """
-        if not contact_field or not isinstance(contact_field, str):
+        if not name_field or not isinstance(name_field, str):
             return None
             
         # Remove phone numbers and extra info, extract name portion
-        if '(' in contact_field:
-            name_part = contact_field.split('(')[0].strip()
+        if '(' in name_field:
+            name_part = name_field.split('(')[0].strip()
         else:
-            name_part = contact_field.strip()
+            name_part = name_field.strip()
             
         # Basic validation - must have at least first and last name
         if len(name_part.split()) >= 2:

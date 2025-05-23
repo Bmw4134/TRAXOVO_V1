@@ -1,49 +1,55 @@
 {% extends "layout_unified.html" %}
 
-{% block title %}Weekly Driver Report{% endblock %}
+{% block title %}GPS-Based Weekly Driver Report{% endblock %}
 
 {% block content %}
 <div class="container">
     <div class="row mb-4">
         <div class="col-12">
-            <h1 class="mb-4">Weekly Driver Report Dashboard</h1>
+            <h1 class="mb-4">GPS-Based Weekly Driver Report</h1>
+            <p class="lead">Process GPS and timecard data to generate accurate driver classifications for May 18-24, 2025</p>
             
             <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">May 18-24, 2025 Report</h5>
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-cpu"></i> Process May 18-24 Data</h5>
                 </div>
                 <div class="card-body">
-                    <p class="mb-3">View the driver attendance report for the week of May 18-24, 2025.</p>
-                    <p><strong>Includes:</strong> Driver details, job site information, GPS data, and timecard integration</p>
-                    <a href="{{ url_for('weekly_report.view_may_report') }}" class="btn btn-primary">View May Report</a>
+                    <p class="mb-3">Upload your CSV files to process driver attendance with GPS validation and real driver names.</p>
+                    <p><strong>System will extract:</strong> Real driver names (like "Ammar Elhamad"), job site assignments, time classifications</p>
+                    
+                    <form action="/attendance/process" method="post" enctype="multipart/form-data" class="mb-4">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="driving_history" class="form-label">DrivingHistory CSV</label>
+                                <input type="file" class="form-control" id="driving_history" name="driving_history" accept=".csv" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="activity_detail" class="form-label">ActivityDetail CSV</label>
+                                <input type="file" class="form-control" id="activity_detail" name="activity_detail" accept=".csv" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="assets_time" class="form-label">AssetsTimeOnSite CSV</label>
+                                <input type="file" class="form-control" id="assets_time" name="assets_time" accept=".csv" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-success btn-lg mt-3">
+                            <i class="bi bi-play-circle"></i> Process May 18-24 Driver Data
+                        </button>
+                    </form>
                 </div>
             </div>
             
             <div class="card">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0">Select Week</h5>
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle"></i> Expected Results</h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{ url_for('weekly_report.view_report', start_date='', end_date='') }}" method="get" class="mb-3">
-                        <div class="row g-3">
-                            <div class="col-md-5">
-                                <label for="start_date" class="form-label">Start Date</label>
-                                <input type="date" class="form-control" id="start_date" name="start_date" value="{{ current_start }}" required>
-                            </div>
-                            <div class="col-md-5">
-                                <label for="end_date" class="form-label">End Date</label>
-                                <input type="date" class="form-control" id="end_date" name="end_date" value="{{ current_end }}" required>
-                            </div>
-                            <div class="col-md-2 d-flex align-items-end">
-                                <button type="submit" class="btn btn-primary w-100">View Report</button>
-                            </div>
-                        </div>
-                    </form>
-                    
-                    <div class="text-center mt-4">
-                        <h5>Need to generate a new report?</h5>
-                        <a href="{{ url_for('weekly_report.process_may_data') }}" class="btn btn-outline-primary mt-2">Process May Data</a>
-                    </div>
+                    <ul class="list-unstyled">
+                        <li><i class="bi bi-check-circle text-success"></i> Real driver names extracted from Contact field</li>
+                        <li><i class="bi bi-check-circle text-success"></i> Accurate job site assignments from GPS data</li>
+                        <li><i class="bi bi-check-circle text-success"></i> Classifications: On Time, Late Start, Early End, No Show</li>
+                        <li><i class="bi bi-check-circle text-success"></i> Cross-validated with multiple data sources</li>
+                    </ul>
                 </div>
             </div>
         </div>

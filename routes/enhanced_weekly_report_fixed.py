@@ -15,8 +15,7 @@ from flask import (Blueprint, current_app, flash, jsonify, redirect,
                    render_template, request, send_file, session, url_for)
 from werkzeug.utils import secure_filename
 
-from utils.may_data_processor import process_may_timecard_data
-from utils.weekly_driver_processor import process_weekly_driver_data
+from utils.weekly_driver_utils import process_may_timecard_data, process_weekly_driver_data
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)

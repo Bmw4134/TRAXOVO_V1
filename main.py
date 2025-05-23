@@ -101,13 +101,13 @@ try:
 except ImportError:
     logger.warning("Daily Driver Report module not found")
     
-# Register Enhanced Weekly Report blueprint
+# Register Weekly Driver Report (mobile-friendly version)
 try:
-    from routes.enhanced_weekly_report import bp as enhanced_weekly_report_bp
-    app.register_blueprint(enhanced_weekly_report_bp)
-    logger.info("Enhanced Weekly Report blueprint registered")
+    from routes.weekly_report import bp as weekly_report_bp
+    app.register_blueprint(weekly_report_bp)
+    logger.info("Weekly Driver Report blueprint registered")
 except ImportError:
-    logger.warning("Enhanced Weekly Report module not found")
+    logger.warning("Weekly Driver Report module not found")
 
 @app.route('/')
 def dashboard():

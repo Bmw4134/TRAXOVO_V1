@@ -1,0 +1,52 @@
+{% extends "layout_unified.html" %}
+
+{% block title %}Weekly Driver Report{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="mb-4">Weekly Driver Report Dashboard</h1>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">May 18-24, 2025 Report</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-3">View the driver attendance report for the week of May 18-24, 2025.</p>
+                    <p><strong>Includes:</strong> Driver details, job site information, GPS data, and timecard integration</p>
+                    <a href="{{ url_for('weekly_report.view_may_report') }}" class="btn btn-primary">View May Report</a>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">Select Week</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('weekly_report.view_report') }}" method="get" class="mb-3">
+                        <div class="row g-3">
+                            <div class="col-md-5">
+                                <label for="start_date" class="form-label">Start Date</label>
+                                <input type="date" class="form-control" id="start_date" name="start_date" value="{{ current_start }}" required>
+                            </div>
+                            <div class="col-md-5">
+                                <label for="end_date" class="form-label">End Date</label>
+                                <input type="date" class="form-control" id="end_date" name="end_date" value="{{ current_end }}" required>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary w-100">View Report</button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <div class="text-center mt-4">
+                        <h5>Need to generate a new report?</h5>
+                        <a href="#" class="btn btn-outline-primary mt-2">Upload Data Files</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

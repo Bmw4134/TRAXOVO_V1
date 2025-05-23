@@ -211,11 +211,15 @@ def dashboard():
             }
     
     return render_template(
-        'driver_reports/dashboard.html', 
+        'driver_reports/dashboard_new.html', 
         reports=reports,
         today=today,
         timecard_comparisons=timecard_comparisons,
-        metrics=metrics
+        metrics=metrics,
+        # Add status variables for layout_unified.html
+        api_status='connected',
+        database_status='connected',
+        storage_status='connected'
     )
 
 @driver_reports_bp.route('/generate', methods=['POST'])

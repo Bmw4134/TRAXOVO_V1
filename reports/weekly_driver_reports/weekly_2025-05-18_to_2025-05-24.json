@@ -5,3425 +5,2150 @@
     "2025-05-18": {
       "date": "2025-05-18",
       "drivers": {
-        "James Johnson": {
+        "Ammar Elhamad": {
           "status": "not_on_job",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-18 07:00:00",
-          "last_seen": "2025-05-18 17:05:00",
-          "hours_on_site": 10,
-          "total_time": 10
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
         },
-        "Thomas Martinez": {
-          "status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-18 07:17:00",
-          "last_seen": "2025-05-18 17:44:00",
-          "hours_on_site": 10,
-          "total_time": 10
+        "Matt Shaylor": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "VICK ADHIKARI": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "ROBERTO GUERRERO JR": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "Aaron Moore": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "JUAN LOPEZ-VAZQUEZ": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "JOSE J RIVERA": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "ALEJANDRO LOZANO ACOSTA": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "JUAN P RODRIGUEZ": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "JUAN RUIZ": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "URIEL GARCIA-ANDRADE": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "LORENZO APARICIO": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "Roger Doddy": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "JOVAN ESPINOZA-CASILLAS": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "RAFAEL MURATALLA": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "SEYMORE HUNT": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "ISAAC ROMERO": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "JOSE BAUTISTA": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "Nagesh Kumar": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "CHASE JONES": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "Sam Abunemeh": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
         }
       },
       "driver_records": [
         {
-          "driver_name": "James Johnson",
+          "driver_name": "Ammar Elhamad",
           "attendance_status": "not_on_job",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-18 07:00:00",
-          "last_seen": "2025-05-18 17:05:00",
-          "total_time": 10
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
         },
         {
-          "driver_name": "Thomas Martinez",
-          "attendance_status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-18 07:17:00",
-          "last_seen": "2025-05-18 17:44:00",
-          "total_time": 10
+          "driver_name": "Matt Shaylor",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "VICK ADHIKARI",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "ROBERTO GUERRERO JR",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "Aaron Moore",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "JUAN LOPEZ-VAZQUEZ",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "JOSE J RIVERA",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "ALEJANDRO LOZANO ACOSTA",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "JUAN P RODRIGUEZ",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "JUAN RUIZ",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "URIEL GARCIA-ANDRADE",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "LORENZO APARICIO",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "Roger Doddy",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "JOVAN ESPINOZA-CASILLAS",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "RAFAEL MURATALLA",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "SEYMORE HUNT",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "ISAAC ROMERO",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "JOSE BAUTISTA",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "Nagesh Kumar",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "CHASE JONES",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "Sam Abunemeh",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
         }
       ],
       "job_sites": {
-        "Bridge Repair": {
+        "Unknown Job Site": {
           "drivers": [
-            "James Johnson"
+            "Ammar Elhamad",
+            "Matt Shaylor",
+            "VICK ADHIKARI",
+            "ROBERTO GUERRERO JR",
+            "Aaron Moore",
+            "JUAN LOPEZ-VAZQUEZ",
+            "JOSE J RIVERA",
+            "ALEJANDRO LOZANO ACOSTA",
+            "JUAN P RODRIGUEZ",
+            "JUAN RUIZ",
+            "URIEL GARCIA-ANDRADE",
+            "LORENZO APARICIO",
+            "Roger Doddy",
+            "JOVAN ESPINOZA-CASILLAS",
+            "RAFAEL MURATALLA",
+            "SEYMORE HUNT",
+            "ISAAC ROMERO",
+            "JOSE BAUTISTA",
+            "Nagesh Kumar",
+            "CHASE JONES",
+            "Sam Abunemeh"
           ],
           "attendance": {
             "on_time": 0,
             "late_start": 0,
             "early_end": 0,
-            "not_on_job": 1,
-            "total": 1
-          }
-        },
-        "Airport Terminal": {
-          "drivers": [
-            "Thomas Martinez"
-          ],
-          "attendance": {
-            "on_time": 1,
-            "late_start": 0,
-            "early_end": 0,
-            "not_on_job": 0,
-            "total": 1
+            "not_on_job": 21,
+            "total": 21
           }
         }
       },
       "attendance": {
-        "on_time": 1,
+        "on_time": 0,
         "late_start": 0,
         "early_end": 0,
-        "not_on_job": 1,
-        "total": 2
+        "not_on_job": 21,
+        "total": 21
       }
     },
     "2025-05-19": {
       "date": "2025-05-19",
       "drivers": {
-        "John Smith": {
-          "status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-19 08:18:00",
-          "last_seen": "2025-05-19 17:37:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "Maria Garcia": {
-          "status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-19 07:56:00",
-          "last_seen": "2025-05-19 17:31:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "James Johnson": {
-          "status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-19 08:54:00",
-          "last_seen": "2025-05-19 17:55:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "David Wilson": {
-          "status": "early_end",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-19 08:07:00",
-          "last_seen": "2025-05-19 12:25:00",
-          "hours_on_site": 4,
-          "total_time": 4
-        },
-        "Robert Brown": {
-          "status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-19 07:44:00",
-          "last_seen": "2025-05-19 15:29:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "Michael Lee": {
-          "status": "early_end",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-19 08:40:00",
-          "last_seen": "2025-05-19 12:24:00",
-          "hours_on_site": 4,
-          "total_time": 4
-        },
-        "Susan Anderson": {
+        "Ammar Elhamad": {
           "status": "not_on_job",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-19 07:03:00",
-          "last_seen": "2025-05-19 17:57:00",
-          "hours_on_site": 10,
-          "total_time": 10
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
         },
-        "Jessica Taylor": {
-          "status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-19 07:02:00",
-          "last_seen": "2025-05-19 16:16:00",
-          "hours_on_site": 9,
-          "total_time": 9
+        "Matt Shaylor": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
         },
-        "Thomas Martinez": {
-          "status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-19 08:35:00",
-          "last_seen": "2025-05-19 16:59:00",
-          "hours_on_site": 8,
-          "total_time": 8
+        "Adam Goode": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
         },
-        "William Rodriguez": {
-          "status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-19 07:13:00",
-          "last_seen": "2025-05-19 16:06:00",
-          "hours_on_site": 9,
-          "total_time": 9
+        "VICK ADHIKARI": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
         },
-        "Daniel Davis": {
-          "status": "late_start",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-19 09:23:00",
-          "last_seen": "2025-05-19 17:28:00",
-          "hours_on_site": 9,
-          "total_time": 9
+        "Hector Bonilla": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
         },
-        "Patricia Moore": {
-          "status": "on_time",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-19 08:55:00",
-          "last_seen": "2025-05-19 16:51:00",
-          "hours_on_site": 8,
-          "total_time": 8
+        "SAUL MARTINEZ ALVAREZ": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
         },
-        "Margaret Clark": {
-          "status": "late_start",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-19 08:22:00",
-          "last_seen": "2025-05-19 16:23:00",
-          "hours_on_site": 8,
-          "total_time": 8
+        "JORGE MARTINEZ": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
         },
-        "Jennifer Lewis": {
-          "status": "late_start",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-19 08:19:00",
-          "last_seen": "2025-05-19 17:23:00",
-          "hours_on_site": 9,
-          "total_time": 9
+        "LUIS MURCIA ORELLANA": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
         },
-        "Elizabeth Hall": {
-          "status": "late_start",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-19 08:36:00",
-          "last_seen": "2025-05-19 17:35:00",
-          "hours_on_site": 9,
-          "total_time": 9
+        "ROBERTO GUERRERO JR": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
         },
-        "Sarah White": {
-          "status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-19 07:04:00",
-          "last_seen": "2025-05-19 16:54:00",
-          "hours_on_site": 9,
-          "total_time": 9
+        "Cooper Link": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
         },
-        "Kevin Thompson": {
-          "status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-19 08:26:00",
-          "last_seen": "2025-05-19 17:37:00",
-          "hours_on_site": 9,
-          "total_time": 9
+        "Aaron Moore": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
         },
-        "Matthew Harris": {
-          "status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-19 08:38:00",
-          "last_seen": "2025-05-19 16:39:00",
-          "hours_on_site": 8,
-          "total_time": 8
+        "LEROY ARNOLD": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
         },
-        "Christopher Martin": {
-          "status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-19 08:18:00",
-          "last_seen": "2025-05-19 17:47:00",
-          "hours_on_site": 9,
-          "total_time": 9
+        "JUAN LOPEZ-VAZQUEZ": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
         },
-        "Anthony Robinson": {
-          "status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-19 07:45:00",
-          "last_seen": "2025-05-19 16:30:00",
-          "hours_on_site": 9,
-          "total_time": 9
+        "JOSE J RIVERA": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "TROY MALETTE": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "ALEJANDRO LOZANO ACOSTA": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "JUAN RUIZ": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "URIEL GARCIA-ANDRADE": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "SABINO IBARRA": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "CALEB PADGETT": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "Ivan Torres": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "JOVAN ESPINOZA-CASILLAS": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "Martin Escobedo": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "ROBERT BERRYHILL": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "RAFAEL MURATALLA": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "SEYMORE HUNT": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "JAVIER MAGALLANES": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "ISAAC ROMERO": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "FRANCISCO DIAZ SERNA": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "JOSE BAUTISTA": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "Nagesh Kumar": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "Luis Morales": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "CHASE JONES": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "Johnny Pereira-Viera": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "Ramesh Bobba": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "Sam Abunemeh": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "Jared Ruhrup": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
         }
       },
       "driver_records": [
         {
-          "driver_name": "John Smith",
-          "attendance_status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-19 08:18:00",
-          "last_seen": "2025-05-19 17:37:00",
-          "total_time": 10
-        },
-        {
-          "driver_name": "Maria Garcia",
-          "attendance_status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-19 07:56:00",
-          "last_seen": "2025-05-19 17:31:00",
-          "total_time": 10
-        },
-        {
-          "driver_name": "James Johnson",
-          "attendance_status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-19 08:54:00",
-          "last_seen": "2025-05-19 17:55:00",
-          "total_time": 9
-        },
-        {
-          "driver_name": "David Wilson",
-          "attendance_status": "early_end",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-19 08:07:00",
-          "last_seen": "2025-05-19 12:25:00",
-          "total_time": 4
-        },
-        {
-          "driver_name": "Robert Brown",
-          "attendance_status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-19 07:44:00",
-          "last_seen": "2025-05-19 15:29:00",
-          "total_time": 8
-        },
-        {
-          "driver_name": "Michael Lee",
-          "attendance_status": "early_end",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-19 08:40:00",
-          "last_seen": "2025-05-19 12:24:00",
-          "total_time": 4
-        },
-        {
-          "driver_name": "Susan Anderson",
+          "driver_name": "Ammar Elhamad",
           "attendance_status": "not_on_job",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-19 07:03:00",
-          "last_seen": "2025-05-19 17:57:00",
-          "total_time": 10
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
         },
         {
-          "driver_name": "Jessica Taylor",
-          "attendance_status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-19 07:02:00",
-          "last_seen": "2025-05-19 16:16:00",
-          "total_time": 9
+          "driver_name": "Matt Shaylor",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
         },
         {
-          "driver_name": "Thomas Martinez",
-          "attendance_status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-19 08:35:00",
-          "last_seen": "2025-05-19 16:59:00",
-          "total_time": 8
+          "driver_name": "Adam Goode",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
         },
         {
-          "driver_name": "William Rodriguez",
-          "attendance_status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-19 07:13:00",
-          "last_seen": "2025-05-19 16:06:00",
-          "total_time": 9
+          "driver_name": "VICK ADHIKARI",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
         },
         {
-          "driver_name": "Daniel Davis",
-          "attendance_status": "late_start",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-19 09:23:00",
-          "last_seen": "2025-05-19 17:28:00",
-          "total_time": 9
+          "driver_name": "Hector Bonilla",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
         },
         {
-          "driver_name": "Patricia Moore",
-          "attendance_status": "on_time",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-19 08:55:00",
-          "last_seen": "2025-05-19 16:51:00",
-          "total_time": 8
+          "driver_name": "SAUL MARTINEZ ALVAREZ",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
         },
         {
-          "driver_name": "Margaret Clark",
-          "attendance_status": "late_start",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-19 08:22:00",
-          "last_seen": "2025-05-19 16:23:00",
-          "total_time": 8
+          "driver_name": "JORGE MARTINEZ",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
         },
         {
-          "driver_name": "Jennifer Lewis",
-          "attendance_status": "late_start",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-19 08:19:00",
-          "last_seen": "2025-05-19 17:23:00",
-          "total_time": 9
+          "driver_name": "LUIS MURCIA ORELLANA",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
         },
         {
-          "driver_name": "Elizabeth Hall",
-          "attendance_status": "late_start",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-19 08:36:00",
-          "last_seen": "2025-05-19 17:35:00",
-          "total_time": 9
+          "driver_name": "ROBERTO GUERRERO JR",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
         },
         {
-          "driver_name": "Sarah White",
-          "attendance_status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-19 07:04:00",
-          "last_seen": "2025-05-19 16:54:00",
-          "total_time": 9
+          "driver_name": "Cooper Link",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
         },
         {
-          "driver_name": "Kevin Thompson",
-          "attendance_status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-19 08:26:00",
-          "last_seen": "2025-05-19 17:37:00",
-          "total_time": 9
+          "driver_name": "Aaron Moore",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
         },
         {
-          "driver_name": "Matthew Harris",
-          "attendance_status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-19 08:38:00",
-          "last_seen": "2025-05-19 16:39:00",
-          "total_time": 8
+          "driver_name": "LEROY ARNOLD",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
         },
         {
-          "driver_name": "Christopher Martin",
-          "attendance_status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-19 08:18:00",
-          "last_seen": "2025-05-19 17:47:00",
-          "total_time": 9
+          "driver_name": "JUAN LOPEZ-VAZQUEZ",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
         },
         {
-          "driver_name": "Anthony Robinson",
-          "attendance_status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-19 07:45:00",
-          "last_seen": "2025-05-19 16:30:00",
-          "total_time": 9
+          "driver_name": "JOSE J RIVERA",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "TROY MALETTE",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "ALEJANDRO LOZANO ACOSTA",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "JUAN RUIZ",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "URIEL GARCIA-ANDRADE",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "SABINO IBARRA",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "CALEB PADGETT",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "Ivan Torres",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "JOVAN ESPINOZA-CASILLAS",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "Martin Escobedo",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "ROBERT BERRYHILL",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "RAFAEL MURATALLA",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "SEYMORE HUNT",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "JAVIER MAGALLANES",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "ISAAC ROMERO",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "FRANCISCO DIAZ SERNA",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "JOSE BAUTISTA",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "Nagesh Kumar",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "Luis Morales",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "CHASE JONES",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "Johnny Pereira-Viera",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "Ramesh Bobba",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "Sam Abunemeh",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
+        },
+        {
+          "driver_name": "Jared Ruhrup",
+          "attendance_status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "total_time": 0
         }
       ],
       "job_sites": {
-        "Bridge Repair": {
+        "Unknown Job Site": {
           "drivers": [
-            "John Smith",
-            "James Johnson",
-            "Thomas Martinez",
-            "Elizabeth Hall"
+            "Ammar Elhamad",
+            "Matt Shaylor",
+            "Adam Goode",
+            "VICK ADHIKARI",
+            "Hector Bonilla",
+            "SAUL MARTINEZ ALVAREZ",
+            "JORGE MARTINEZ",
+            "LUIS MURCIA ORELLANA",
+            "ROBERTO GUERRERO JR",
+            "Cooper Link",
+            "Aaron Moore",
+            "LEROY ARNOLD",
+            "JUAN LOPEZ-VAZQUEZ",
+            "JOSE J RIVERA",
+            "TROY MALETTE",
+            "ALEJANDRO LOZANO ACOSTA",
+            "JUAN RUIZ",
+            "URIEL GARCIA-ANDRADE",
+            "SABINO IBARRA",
+            "CALEB PADGETT",
+            "Ivan Torres",
+            "JOVAN ESPINOZA-CASILLAS",
+            "Martin Escobedo",
+            "ROBERT BERRYHILL",
+            "RAFAEL MURATALLA",
+            "SEYMORE HUNT",
+            "JAVIER MAGALLANES",
+            "ISAAC ROMERO",
+            "FRANCISCO DIAZ SERNA",
+            "JOSE BAUTISTA",
+            "Nagesh Kumar",
+            "Luis Morales",
+            "CHASE JONES",
+            "Johnny Pereira-Viera",
+            "Ramesh Bobba",
+            "Sam Abunemeh",
+            "Jared Ruhrup"
           ],
           "attendance": {
-            "on_time": 3,
-            "late_start": 1,
-            "early_end": 0,
-            "not_on_job": 0,
-            "total": 4
-          }
-        },
-        "Downtown Expansion": {
-          "drivers": [
-            "Maria Garcia",
-            "Matthew Harris",
-            "Anthony Robinson"
-          ],
-          "attendance": {
-            "on_time": 3,
+            "on_time": 0,
             "late_start": 0,
             "early_end": 0,
-            "not_on_job": 0,
-            "total": 3
-          }
-        },
-        "Central Station": {
-          "drivers": [
-            "David Wilson",
-            "Daniel Davis",
-            "Patricia Moore"
-          ],
-          "attendance": {
-            "on_time": 1,
-            "late_start": 1,
-            "early_end": 1,
-            "not_on_job": 0,
-            "total": 3
-          }
-        },
-        "Airport Terminal": {
-          "drivers": [
-            "Robert Brown",
-            "Michael Lee",
-            "Jessica Taylor"
-          ],
-          "attendance": {
-            "on_time": 2,
-            "late_start": 0,
-            "early_end": 1,
-            "not_on_job": 0,
-            "total": 3
-          }
-        },
-        "Highway 35 Project": {
-          "drivers": [
-            "Susan Anderson",
-            "Jennifer Lewis",
-            "Sarah White",
-            "Kevin Thompson"
-          ],
-          "attendance": {
-            "on_time": 2,
-            "late_start": 1,
-            "early_end": 0,
-            "not_on_job": 1,
-            "total": 4
-          }
-        },
-        "North Campus Construction": {
-          "drivers": [
-            "William Rodriguez",
-            "Margaret Clark",
-            "Christopher Martin"
-          ],
-          "attendance": {
-            "on_time": 2,
-            "late_start": 1,
-            "early_end": 0,
-            "not_on_job": 0,
-            "total": 3
+            "not_on_job": 37,
+            "total": 37
           }
         }
       },
       "attendance": {
-        "on_time": 13,
-        "late_start": 4,
-        "early_end": 2,
-        "not_on_job": 1,
-        "total": 20
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 37,
+        "total": 37
       }
     },
     "2025-05-20": {
       "date": "2025-05-20",
-      "drivers": {
-        "John Smith": {
-          "status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-20 07:02:00",
-          "last_seen": "2025-05-20 17:27:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "Maria Garcia": {
-          "status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-20 08:35:00",
-          "last_seen": "2025-05-20 17:50:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "James Johnson": {
-          "status": "on_time",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-20 08:02:00",
-          "last_seen": "2025-05-20 16:30:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "David Wilson": {
-          "status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-20 07:51:00",
-          "last_seen": "2025-05-20 17:46:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "Robert Brown": {
-          "status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-20 07:50:00",
-          "last_seen": "2025-05-20 17:09:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "Michael Lee": {
-          "status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-20 07:39:00",
-          "last_seen": "2025-05-20 16:35:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "Susan Anderson": {
-          "status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-20 08:29:00",
-          "last_seen": "2025-05-20 17:55:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "Jessica Taylor": {
-          "status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-20 08:06:00",
-          "last_seen": "2025-05-20 17:01:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "Thomas Martinez": {
-          "status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-20 08:50:00",
-          "last_seen": "2025-05-20 17:14:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "William Rodriguez": {
-          "status": "on_time",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-20 08:47:00",
-          "last_seen": "2025-05-20 17:51:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "Daniel Davis": {
-          "status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-20 08:36:00",
-          "last_seen": "2025-05-20 17:23:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "Patricia Moore": {
-          "status": "early_end",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-20 08:27:00",
-          "last_seen": "2025-05-20 13:37:00",
-          "hours_on_site": 5,
-          "total_time": 5
-        },
-        "Margaret Clark": {
-          "status": "late_start",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-20 09:12:00",
-          "last_seen": "2025-05-20 17:49:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "Jennifer Lewis": {
-          "status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-20 07:52:00",
-          "last_seen": "2025-05-20 16:59:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "Elizabeth Hall": {
-          "status": "not_on_job",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-20 07:23:00",
-          "last_seen": "2025-05-20 16:03:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "Sarah White": {
-          "status": "early_end",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-20 07:40:00",
-          "last_seen": "2025-05-20 10:14:00",
-          "hours_on_site": 3,
-          "total_time": 3
-        },
-        "Kevin Thompson": {
-          "status": "on_time",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-20 08:52:00",
-          "last_seen": "2025-05-20 16:28:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "Matthew Harris": {
-          "status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-20 07:20:00",
-          "last_seen": "2025-05-20 15:13:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "Christopher Martin": {
-          "status": "early_end",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-20 08:33:00",
-          "last_seen": "2025-05-20 13:04:00",
-          "hours_on_site": 5,
-          "total_time": 5
-        },
-        "Anthony Robinson": {
-          "status": "on_time",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-20 07:28:00",
-          "last_seen": "2025-05-20 15:50:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        }
-      },
-      "driver_records": [
-        {
-          "driver_name": "John Smith",
-          "attendance_status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-20 07:02:00",
-          "last_seen": "2025-05-20 17:27:00",
-          "total_time": 10
-        },
-        {
-          "driver_name": "Maria Garcia",
-          "attendance_status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-20 08:35:00",
-          "last_seen": "2025-05-20 17:50:00",
-          "total_time": 10
-        },
-        {
-          "driver_name": "James Johnson",
-          "attendance_status": "on_time",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-20 08:02:00",
-          "last_seen": "2025-05-20 16:30:00",
-          "total_time": 8
-        },
-        {
-          "driver_name": "David Wilson",
-          "attendance_status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-20 07:51:00",
-          "last_seen": "2025-05-20 17:46:00",
-          "total_time": 10
-        },
-        {
-          "driver_name": "Robert Brown",
-          "attendance_status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-20 07:50:00",
-          "last_seen": "2025-05-20 17:09:00",
-          "total_time": 10
-        },
-        {
-          "driver_name": "Michael Lee",
-          "attendance_status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-20 07:39:00",
-          "last_seen": "2025-05-20 16:35:00",
-          "total_time": 9
-        },
-        {
-          "driver_name": "Susan Anderson",
-          "attendance_status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-20 08:29:00",
-          "last_seen": "2025-05-20 17:55:00",
-          "total_time": 9
-        },
-        {
-          "driver_name": "Jessica Taylor",
-          "attendance_status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-20 08:06:00",
-          "last_seen": "2025-05-20 17:01:00",
-          "total_time": 10
-        },
-        {
-          "driver_name": "Thomas Martinez",
-          "attendance_status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-20 08:50:00",
-          "last_seen": "2025-05-20 17:14:00",
-          "total_time": 10
-        },
-        {
-          "driver_name": "William Rodriguez",
-          "attendance_status": "on_time",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-20 08:47:00",
-          "last_seen": "2025-05-20 17:51:00",
-          "total_time": 10
-        },
-        {
-          "driver_name": "Daniel Davis",
-          "attendance_status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-20 08:36:00",
-          "last_seen": "2025-05-20 17:23:00",
-          "total_time": 9
-        },
-        {
-          "driver_name": "Patricia Moore",
-          "attendance_status": "early_end",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-20 08:27:00",
-          "last_seen": "2025-05-20 13:37:00",
-          "total_time": 5
-        },
-        {
-          "driver_name": "Margaret Clark",
-          "attendance_status": "late_start",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-20 09:12:00",
-          "last_seen": "2025-05-20 17:49:00",
-          "total_time": 8
-        },
-        {
-          "driver_name": "Jennifer Lewis",
-          "attendance_status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-20 07:52:00",
-          "last_seen": "2025-05-20 16:59:00",
-          "total_time": 9
-        },
-        {
-          "driver_name": "Elizabeth Hall",
-          "attendance_status": "not_on_job",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-20 07:23:00",
-          "last_seen": "2025-05-20 16:03:00",
-          "total_time": 9
-        },
-        {
-          "driver_name": "Sarah White",
-          "attendance_status": "early_end",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-20 07:40:00",
-          "last_seen": "2025-05-20 10:14:00",
-          "total_time": 3
-        },
-        {
-          "driver_name": "Kevin Thompson",
-          "attendance_status": "on_time",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-20 08:52:00",
-          "last_seen": "2025-05-20 16:28:00",
-          "total_time": 8
-        },
-        {
-          "driver_name": "Matthew Harris",
-          "attendance_status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-20 07:20:00",
-          "last_seen": "2025-05-20 15:13:00",
-          "total_time": 8
-        },
-        {
-          "driver_name": "Christopher Martin",
-          "attendance_status": "early_end",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-20 08:33:00",
-          "last_seen": "2025-05-20 13:04:00",
-          "total_time": 5
-        },
-        {
-          "driver_name": "Anthony Robinson",
-          "attendance_status": "on_time",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-20 07:28:00",
-          "last_seen": "2025-05-20 15:50:00",
-          "total_time": 8
-        }
-      ],
-      "job_sites": {
-        "Highway 35 Project": {
-          "drivers": [
-            "John Smith",
-            "Robert Brown",
-            "Susan Anderson"
-          ],
-          "attendance": {
-            "on_time": 3,
-            "late_start": 0,
-            "early_end": 0,
-            "not_on_job": 0,
-            "total": 3
-          }
-        },
-        "Downtown Expansion": {
-          "drivers": [
-            "Maria Garcia",
-            "Michael Lee"
-          ],
-          "attendance": {
-            "on_time": 2,
-            "late_start": 0,
-            "early_end": 0,
-            "not_on_job": 0,
-            "total": 2
-          }
-        },
-        "Central Station": {
-          "drivers": [
-            "James Johnson",
-            "William Rodriguez",
-            "Patricia Moore",
-            "Margaret Clark",
-            "Sarah White",
-            "Kevin Thompson",
-            "Anthony Robinson"
-          ],
-          "attendance": {
-            "on_time": 4,
-            "late_start": 1,
-            "early_end": 2,
-            "not_on_job": 0,
-            "total": 7
-          }
-        },
-        "North Campus Construction": {
-          "drivers": [
-            "David Wilson",
-            "Jessica Taylor",
-            "Daniel Davis"
-          ],
-          "attendance": {
-            "on_time": 3,
-            "late_start": 0,
-            "early_end": 0,
-            "not_on_job": 0,
-            "total": 3
-          }
-        },
-        "Bridge Repair": {
-          "drivers": [
-            "Thomas Martinez",
-            "Jennifer Lewis",
-            "Elizabeth Hall",
-            "Matthew Harris",
-            "Christopher Martin"
-          ],
-          "attendance": {
-            "on_time": 3,
-            "late_start": 0,
-            "early_end": 1,
-            "not_on_job": 1,
-            "total": 5
-          }
-        }
-      },
+      "drivers": {},
+      "driver_records": [],
+      "job_sites": {},
       "attendance": {
-        "on_time": 15,
-        "late_start": 1,
-        "early_end": 3,
-        "not_on_job": 1,
-        "total": 20
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 0,
+        "total": 0
       }
     },
     "2025-05-21": {
       "date": "2025-05-21",
-      "drivers": {
-        "John Smith": {
-          "status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-21 08:18:00",
-          "last_seen": "2025-05-21 16:52:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "Maria Garcia": {
-          "status": "early_end",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-21 07:24:00",
-          "last_seen": "2025-05-21 10:42:00",
-          "hours_on_site": 3,
-          "total_time": 3
-        },
-        "James Johnson": {
-          "status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-21 07:12:00",
-          "last_seen": "2025-05-21 17:44:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "David Wilson": {
-          "status": "late_start",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-21 08:44:00",
-          "last_seen": "2025-05-21 17:38:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "Robert Brown": {
-          "status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-21 08:22:00",
-          "last_seen": "2025-05-21 17:33:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "Michael Lee": {
-          "status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-21 08:29:00",
-          "last_seen": "2025-05-21 17:21:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "Susan Anderson": {
-          "status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-21 07:19:00",
-          "last_seen": "2025-05-21 17:17:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "Jessica Taylor": {
-          "status": "not_on_job",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-21 08:32:00",
-          "last_seen": "2025-05-21 17:44:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "Thomas Martinez": {
-          "status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-21 07:50:00",
-          "last_seen": "2025-05-21 17:11:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "William Rodriguez": {
-          "status": "not_on_job",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-21 07:12:00",
-          "last_seen": "2025-05-21 15:28:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "Daniel Davis": {
-          "status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-21 07:51:00",
-          "last_seen": "2025-05-21 17:53:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "Patricia Moore": {
-          "status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-21 08:57:00",
-          "last_seen": "2025-05-21 17:38:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "Margaret Clark": {
-          "status": "on_time",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-21 07:53:00",
-          "last_seen": "2025-05-21 16:00:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "Jennifer Lewis": {
-          "status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-21 08:37:00",
-          "last_seen": "2025-05-21 17:32:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "Elizabeth Hall": {
-          "status": "late_start",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-21 10:09:00",
-          "last_seen": "2025-05-21 17:07:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "Sarah White": {
-          "status": "early_end",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-21 07:45:00",
-          "last_seen": "2025-05-21 12:31:00",
-          "hours_on_site": 5,
-          "total_time": 5
-        },
-        "Kevin Thompson": {
-          "status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-21 08:10:00",
-          "last_seen": "2025-05-21 16:49:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "Matthew Harris": {
-          "status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-21 08:25:00",
-          "last_seen": "2025-05-21 16:23:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "Christopher Martin": {
-          "status": "early_end",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-21 08:12:00",
-          "last_seen": "2025-05-21 11:44:00",
-          "hours_on_site": 3,
-          "total_time": 3
-        },
-        "Anthony Robinson": {
-          "status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-21 08:00:00",
-          "last_seen": "2025-05-21 17:05:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        }
-      },
-      "driver_records": [
-        {
-          "driver_name": "John Smith",
-          "attendance_status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-21 08:18:00",
-          "last_seen": "2025-05-21 16:52:00",
-          "total_time": 8
-        },
-        {
-          "driver_name": "Maria Garcia",
-          "attendance_status": "early_end",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-21 07:24:00",
-          "last_seen": "2025-05-21 10:42:00",
-          "total_time": 3
-        },
-        {
-          "driver_name": "James Johnson",
-          "attendance_status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-21 07:12:00",
-          "last_seen": "2025-05-21 17:44:00",
-          "total_time": 10
-        },
-        {
-          "driver_name": "David Wilson",
-          "attendance_status": "late_start",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-21 08:44:00",
-          "last_seen": "2025-05-21 17:38:00",
-          "total_time": 10
-        },
-        {
-          "driver_name": "Robert Brown",
-          "attendance_status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-21 08:22:00",
-          "last_seen": "2025-05-21 17:33:00",
-          "total_time": 9
-        },
-        {
-          "driver_name": "Michael Lee",
-          "attendance_status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-21 08:29:00",
-          "last_seen": "2025-05-21 17:21:00",
-          "total_time": 9
-        },
-        {
-          "driver_name": "Susan Anderson",
-          "attendance_status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-21 07:19:00",
-          "last_seen": "2025-05-21 17:17:00",
-          "total_time": 10
-        },
-        {
-          "driver_name": "Jessica Taylor",
-          "attendance_status": "not_on_job",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-21 08:32:00",
-          "last_seen": "2025-05-21 17:44:00",
-          "total_time": 10
-        },
-        {
-          "driver_name": "Thomas Martinez",
-          "attendance_status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-21 07:50:00",
-          "last_seen": "2025-05-21 17:11:00",
-          "total_time": 10
-        },
-        {
-          "driver_name": "William Rodriguez",
-          "attendance_status": "not_on_job",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-21 07:12:00",
-          "last_seen": "2025-05-21 15:28:00",
-          "total_time": 8
-        },
-        {
-          "driver_name": "Daniel Davis",
-          "attendance_status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-21 07:51:00",
-          "last_seen": "2025-05-21 17:53:00",
-          "total_time": 10
-        },
-        {
-          "driver_name": "Patricia Moore",
-          "attendance_status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-21 08:57:00",
-          "last_seen": "2025-05-21 17:38:00",
-          "total_time": 9
-        },
-        {
-          "driver_name": "Margaret Clark",
-          "attendance_status": "on_time",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-21 07:53:00",
-          "last_seen": "2025-05-21 16:00:00",
-          "total_time": 9
-        },
-        {
-          "driver_name": "Jennifer Lewis",
-          "attendance_status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-21 08:37:00",
-          "last_seen": "2025-05-21 17:32:00",
-          "total_time": 10
-        },
-        {
-          "driver_name": "Elizabeth Hall",
-          "attendance_status": "late_start",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-21 10:09:00",
-          "last_seen": "2025-05-21 17:07:00",
-          "total_time": 8
-        },
-        {
-          "driver_name": "Sarah White",
-          "attendance_status": "early_end",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-21 07:45:00",
-          "last_seen": "2025-05-21 12:31:00",
-          "total_time": 5
-        },
-        {
-          "driver_name": "Kevin Thompson",
-          "attendance_status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-21 08:10:00",
-          "last_seen": "2025-05-21 16:49:00",
-          "total_time": 8
-        },
-        {
-          "driver_name": "Matthew Harris",
-          "attendance_status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-21 08:25:00",
-          "last_seen": "2025-05-21 16:23:00",
-          "total_time": 8
-        },
-        {
-          "driver_name": "Christopher Martin",
-          "attendance_status": "early_end",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-21 08:12:00",
-          "last_seen": "2025-05-21 11:44:00",
-          "total_time": 3
-        },
-        {
-          "driver_name": "Anthony Robinson",
-          "attendance_status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-21 08:00:00",
-          "last_seen": "2025-05-21 17:05:00",
-          "total_time": 9
-        }
-      ],
-      "job_sites": {
-        "Highway 35 Project": {
-          "drivers": [
-            "John Smith",
-            "James Johnson"
-          ],
-          "attendance": {
-            "on_time": 2,
-            "late_start": 0,
-            "early_end": 0,
-            "not_on_job": 0,
-            "total": 2
-          }
-        },
-        "Bridge Repair": {
-          "drivers": [
-            "Maria Garcia",
-            "Thomas Martinez"
-          ],
-          "attendance": {
-            "on_time": 1,
-            "late_start": 0,
-            "early_end": 1,
-            "not_on_job": 0,
-            "total": 2
-          }
-        },
-        "Downtown Expansion": {
-          "drivers": [
-            "David Wilson",
-            "Robert Brown",
-            "Daniel Davis",
-            "Jennifer Lewis"
-          ],
-          "attendance": {
-            "on_time": 3,
-            "late_start": 1,
-            "early_end": 0,
-            "not_on_job": 0,
-            "total": 4
-          }
-        },
-        "Airport Terminal": {
-          "drivers": [
-            "Michael Lee",
-            "Elizabeth Hall",
-            "Sarah White",
-            "Kevin Thompson",
-            "Matthew Harris",
-            "Christopher Martin",
-            "Anthony Robinson"
-          ],
-          "attendance": {
-            "on_time": 4,
-            "late_start": 1,
-            "early_end": 2,
-            "not_on_job": 0,
-            "total": 7
-          }
-        },
-        "North Campus Construction": {
-          "drivers": [
-            "Susan Anderson",
-            "Jessica Taylor",
-            "William Rodriguez",
-            "Patricia Moore"
-          ],
-          "attendance": {
-            "on_time": 2,
-            "late_start": 0,
-            "early_end": 0,
-            "not_on_job": 2,
-            "total": 4
-          }
-        },
-        "Central Station": {
-          "drivers": [
-            "Margaret Clark"
-          ],
-          "attendance": {
-            "on_time": 1,
-            "late_start": 0,
-            "early_end": 0,
-            "not_on_job": 0,
-            "total": 1
-          }
-        }
-      },
+      "drivers": {},
+      "driver_records": [],
+      "job_sites": {},
       "attendance": {
-        "on_time": 13,
-        "late_start": 2,
-        "early_end": 3,
-        "not_on_job": 2,
-        "total": 20
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 0,
+        "total": 0
       }
     },
     "2025-05-22": {
       "date": "2025-05-22",
-      "drivers": {
-        "John Smith": {
-          "status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-22 08:55:00",
-          "last_seen": "2025-05-22 16:21:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "Maria Garcia": {
-          "status": "early_end",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-22 08:08:00",
-          "last_seen": "2025-05-22 11:16:00",
-          "hours_on_site": 3,
-          "total_time": 3
-        },
-        "James Johnson": {
-          "status": "not_on_job",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-22 07:31:00",
-          "last_seen": "2025-05-22 17:09:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "David Wilson": {
-          "status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-22 07:05:00",
-          "last_seen": "2025-05-22 15:33:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "Robert Brown": {
-          "status": "early_end",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-22 08:40:00",
-          "last_seen": "2025-05-22 11:29:00",
-          "hours_on_site": 3,
-          "total_time": 3
-        },
-        "Michael Lee": {
-          "status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-22 07:37:00",
-          "last_seen": "2025-05-22 15:17:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "Susan Anderson": {
-          "status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-22 07:30:00",
-          "last_seen": "2025-05-22 15:45:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "Jessica Taylor": {
-          "status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-22 08:10:00",
-          "last_seen": "2025-05-22 17:26:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "Thomas Martinez": {
-          "status": "late_start",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-22 10:52:00",
-          "last_seen": "2025-05-22 17:46:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "William Rodriguez": {
-          "status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-22 07:39:00",
-          "last_seen": "2025-05-22 17:26:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "Daniel Davis": {
-          "status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-22 07:03:00",
-          "last_seen": "2025-05-22 17:06:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "Patricia Moore": {
-          "status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-22 07:23:00",
-          "last_seen": "2025-05-22 15:27:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "Margaret Clark": {
-          "status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-22 07:02:00",
-          "last_seen": "2025-05-22 16:57:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "Jennifer Lewis": {
-          "status": "not_on_job",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-22 08:18:00",
-          "last_seen": "2025-05-22 16:52:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "Elizabeth Hall": {
-          "status": "late_start",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-22 10:40:00",
-          "last_seen": "2025-05-22 17:45:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "Sarah White": {
-          "status": "on_time",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-22 07:58:00",
-          "last_seen": "2025-05-22 15:55:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "Kevin Thompson": {
-          "status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-22 08:07:00",
-          "last_seen": "2025-05-22 17:32:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "Matthew Harris": {
-          "status": "late_start",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-22 10:52:00",
-          "last_seen": "2025-05-22 17:42:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "Christopher Martin": {
-          "status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-22 08:15:00",
-          "last_seen": "2025-05-22 17:21:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "Anthony Robinson": {
-          "status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-22 07:39:00",
-          "last_seen": "2025-05-22 15:17:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        }
-      },
-      "driver_records": [
-        {
-          "driver_name": "John Smith",
-          "attendance_status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-22 08:55:00",
-          "last_seen": "2025-05-22 16:21:00",
-          "total_time": 8
-        },
-        {
-          "driver_name": "Maria Garcia",
-          "attendance_status": "early_end",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-22 08:08:00",
-          "last_seen": "2025-05-22 11:16:00",
-          "total_time": 3
-        },
-        {
-          "driver_name": "James Johnson",
-          "attendance_status": "not_on_job",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-22 07:31:00",
-          "last_seen": "2025-05-22 17:09:00",
-          "total_time": 10
-        },
-        {
-          "driver_name": "David Wilson",
-          "attendance_status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-22 07:05:00",
-          "last_seen": "2025-05-22 15:33:00",
-          "total_time": 8
-        },
-        {
-          "driver_name": "Robert Brown",
-          "attendance_status": "early_end",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-22 08:40:00",
-          "last_seen": "2025-05-22 11:29:00",
-          "total_time": 3
-        },
-        {
-          "driver_name": "Michael Lee",
-          "attendance_status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-22 07:37:00",
-          "last_seen": "2025-05-22 15:17:00",
-          "total_time": 8
-        },
-        {
-          "driver_name": "Susan Anderson",
-          "attendance_status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-22 07:30:00",
-          "last_seen": "2025-05-22 15:45:00",
-          "total_time": 8
-        },
-        {
-          "driver_name": "Jessica Taylor",
-          "attendance_status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-22 08:10:00",
-          "last_seen": "2025-05-22 17:26:00",
-          "total_time": 9
-        },
-        {
-          "driver_name": "Thomas Martinez",
-          "attendance_status": "late_start",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-22 10:52:00",
-          "last_seen": "2025-05-22 17:46:00",
-          "total_time": 8
-        },
-        {
-          "driver_name": "William Rodriguez",
-          "attendance_status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-22 07:39:00",
-          "last_seen": "2025-05-22 17:26:00",
-          "total_time": 10
-        },
-        {
-          "driver_name": "Daniel Davis",
-          "attendance_status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-22 07:03:00",
-          "last_seen": "2025-05-22 17:06:00",
-          "total_time": 10
-        },
-        {
-          "driver_name": "Patricia Moore",
-          "attendance_status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-22 07:23:00",
-          "last_seen": "2025-05-22 15:27:00",
-          "total_time": 8
-        },
-        {
-          "driver_name": "Margaret Clark",
-          "attendance_status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-22 07:02:00",
-          "last_seen": "2025-05-22 16:57:00",
-          "total_time": 9
-        },
-        {
-          "driver_name": "Jennifer Lewis",
-          "attendance_status": "not_on_job",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-22 08:18:00",
-          "last_seen": "2025-05-22 16:52:00",
-          "total_time": 8
-        },
-        {
-          "driver_name": "Elizabeth Hall",
-          "attendance_status": "late_start",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-22 10:40:00",
-          "last_seen": "2025-05-22 17:45:00",
-          "total_time": 8
-        },
-        {
-          "driver_name": "Sarah White",
-          "attendance_status": "on_time",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-22 07:58:00",
-          "last_seen": "2025-05-22 15:55:00",
-          "total_time": 8
-        },
-        {
-          "driver_name": "Kevin Thompson",
-          "attendance_status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-22 08:07:00",
-          "last_seen": "2025-05-22 17:32:00",
-          "total_time": 10
-        },
-        {
-          "driver_name": "Matthew Harris",
-          "attendance_status": "late_start",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-22 10:52:00",
-          "last_seen": "2025-05-22 17:42:00",
-          "total_time": 10
-        },
-        {
-          "driver_name": "Christopher Martin",
-          "attendance_status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-22 08:15:00",
-          "last_seen": "2025-05-22 17:21:00",
-          "total_time": 10
-        },
-        {
-          "driver_name": "Anthony Robinson",
-          "attendance_status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-22 07:39:00",
-          "last_seen": "2025-05-22 15:17:00",
-          "total_time": 8
-        }
-      ],
-      "job_sites": {
-        "Downtown Expansion": {
-          "drivers": [
-            "John Smith",
-            "Elizabeth Hall"
-          ],
-          "attendance": {
-            "on_time": 1,
-            "late_start": 1,
-            "early_end": 0,
-            "not_on_job": 0,
-            "total": 2
-          }
-        },
-        "Bridge Repair": {
-          "drivers": [
-            "Maria Garcia",
-            "Michael Lee",
-            "Margaret Clark",
-            "Jennifer Lewis",
-            "Christopher Martin"
-          ],
-          "attendance": {
-            "on_time": 3,
-            "late_start": 0,
-            "early_end": 1,
-            "not_on_job": 1,
-            "total": 5
-          }
-        },
-        "Airport Terminal": {
-          "drivers": [
-            "James Johnson",
-            "Susan Anderson",
-            "Jessica Taylor",
-            "Patricia Moore",
-            "Matthew Harris"
-          ],
-          "attendance": {
-            "on_time": 3,
-            "late_start": 1,
-            "early_end": 0,
-            "not_on_job": 1,
-            "total": 5
-          }
-        },
-        "Highway 35 Project": {
-          "drivers": [
-            "David Wilson",
-            "Kevin Thompson"
-          ],
-          "attendance": {
-            "on_time": 2,
-            "late_start": 0,
-            "early_end": 0,
-            "not_on_job": 0,
-            "total": 2
-          }
-        },
-        "North Campus Construction": {
-          "drivers": [
-            "Robert Brown",
-            "William Rodriguez",
-            "Daniel Davis",
-            "Anthony Robinson"
-          ],
-          "attendance": {
-            "on_time": 3,
-            "late_start": 0,
-            "early_end": 1,
-            "not_on_job": 0,
-            "total": 4
-          }
-        },
-        "Central Station": {
-          "drivers": [
-            "Thomas Martinez",
-            "Sarah White"
-          ],
-          "attendance": {
-            "on_time": 1,
-            "late_start": 1,
-            "early_end": 0,
-            "not_on_job": 0,
-            "total": 2
-          }
-        }
-      },
+      "drivers": {},
+      "driver_records": [],
+      "job_sites": {},
       "attendance": {
-        "on_time": 13,
-        "late_start": 3,
-        "early_end": 2,
-        "not_on_job": 2,
-        "total": 20
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 0,
+        "total": 0
       }
     },
     "2025-05-23": {
       "date": "2025-05-23",
-      "drivers": {
-        "John Smith": {
-          "status": "early_end",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-23 07:01:00",
-          "last_seen": "2025-05-23 11:50:00",
-          "hours_on_site": 4,
-          "total_time": 4
-        },
-        "Maria Garcia": {
-          "status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-23 08:29:00",
-          "last_seen": "2025-05-23 17:11:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "James Johnson": {
-          "status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-23 08:31:00",
-          "last_seen": "2025-05-23 17:14:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "David Wilson": {
-          "status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-23 07:12:00",
-          "last_seen": "2025-05-23 15:42:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "Robert Brown": {
-          "status": "not_on_job",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-23 08:34:00",
-          "last_seen": "2025-05-23 17:22:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "Michael Lee": {
-          "status": "not_on_job",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-23 07:52:00",
-          "last_seen": "2025-05-23 17:43:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "Susan Anderson": {
-          "status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-23 08:02:00",
-          "last_seen": "2025-05-23 16:09:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "Jessica Taylor": {
-          "status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-23 07:01:00",
-          "last_seen": "2025-05-23 16:19:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "Thomas Martinez": {
-          "status": "early_end",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-23 07:12:00",
-          "last_seen": "2025-05-23 12:02:00",
-          "hours_on_site": 5,
-          "total_time": 5
-        },
-        "William Rodriguez": {
-          "status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-23 07:49:00",
-          "last_seen": "2025-05-23 15:25:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "Daniel Davis": {
-          "status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-23 07:03:00",
-          "last_seen": "2025-05-23 17:45:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "Patricia Moore": {
-          "status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-23 08:15:00",
-          "last_seen": "2025-05-23 17:37:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "Margaret Clark": {
-          "status": "on_time",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-23 08:23:00",
-          "last_seen": "2025-05-23 17:00:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "Jennifer Lewis": {
-          "status": "late_start",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-23 10:29:00",
-          "last_seen": "2025-05-23 17:17:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "Elizabeth Hall": {
-          "status": "on_time",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-23 07:50:00",
-          "last_seen": "2025-05-23 15:00:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "Sarah White": {
-          "status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-23 07:58:00",
-          "last_seen": "2025-05-23 15:44:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "Kevin Thompson": {
-          "status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-23 08:36:00",
-          "last_seen": "2025-05-23 17:48:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "Matthew Harris": {
-          "status": "not_on_job",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-23 07:16:00",
-          "last_seen": "2025-05-23 15:59:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "Christopher Martin": {
-          "status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-23 07:36:00",
-          "last_seen": "2025-05-23 15:40:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "Anthony Robinson": {
-          "status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-23 08:21:00",
-          "last_seen": "2025-05-23 16:05:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        }
-      },
-      "driver_records": [
-        {
-          "driver_name": "John Smith",
-          "attendance_status": "early_end",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-23 07:01:00",
-          "last_seen": "2025-05-23 11:50:00",
-          "total_time": 4
-        },
-        {
-          "driver_name": "Maria Garcia",
-          "attendance_status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-23 08:29:00",
-          "last_seen": "2025-05-23 17:11:00",
-          "total_time": 9
-        },
-        {
-          "driver_name": "James Johnson",
-          "attendance_status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-23 08:31:00",
-          "last_seen": "2025-05-23 17:14:00",
-          "total_time": 10
-        },
-        {
-          "driver_name": "David Wilson",
-          "attendance_status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-23 07:12:00",
-          "last_seen": "2025-05-23 15:42:00",
-          "total_time": 8
-        },
-        {
-          "driver_name": "Robert Brown",
-          "attendance_status": "not_on_job",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-23 08:34:00",
-          "last_seen": "2025-05-23 17:22:00",
-          "total_time": 9
-        },
-        {
-          "driver_name": "Michael Lee",
-          "attendance_status": "not_on_job",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-23 07:52:00",
-          "last_seen": "2025-05-23 17:43:00",
-          "total_time": 10
-        },
-        {
-          "driver_name": "Susan Anderson",
-          "attendance_status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-23 08:02:00",
-          "last_seen": "2025-05-23 16:09:00",
-          "total_time": 8
-        },
-        {
-          "driver_name": "Jessica Taylor",
-          "attendance_status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-23 07:01:00",
-          "last_seen": "2025-05-23 16:19:00",
-          "total_time": 9
-        },
-        {
-          "driver_name": "Thomas Martinez",
-          "attendance_status": "early_end",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-23 07:12:00",
-          "last_seen": "2025-05-23 12:02:00",
-          "total_time": 5
-        },
-        {
-          "driver_name": "William Rodriguez",
-          "attendance_status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-23 07:49:00",
-          "last_seen": "2025-05-23 15:25:00",
-          "total_time": 8
-        },
-        {
-          "driver_name": "Daniel Davis",
-          "attendance_status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-23 07:03:00",
-          "last_seen": "2025-05-23 17:45:00",
-          "total_time": 10
-        },
-        {
-          "driver_name": "Patricia Moore",
-          "attendance_status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-23 08:15:00",
-          "last_seen": "2025-05-23 17:37:00",
-          "total_time": 9
-        },
-        {
-          "driver_name": "Margaret Clark",
-          "attendance_status": "on_time",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-23 08:23:00",
-          "last_seen": "2025-05-23 17:00:00",
-          "total_time": 9
-        },
-        {
-          "driver_name": "Jennifer Lewis",
-          "attendance_status": "late_start",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-23 10:29:00",
-          "last_seen": "2025-05-23 17:17:00",
-          "total_time": 9
-        },
-        {
-          "driver_name": "Elizabeth Hall",
-          "attendance_status": "on_time",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-23 07:50:00",
-          "last_seen": "2025-05-23 15:00:00",
-          "total_time": 8
-        },
-        {
-          "driver_name": "Sarah White",
-          "attendance_status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-23 07:58:00",
-          "last_seen": "2025-05-23 15:44:00",
-          "total_time": 8
-        },
-        {
-          "driver_name": "Kevin Thompson",
-          "attendance_status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-23 08:36:00",
-          "last_seen": "2025-05-23 17:48:00",
-          "total_time": 9
-        },
-        {
-          "driver_name": "Matthew Harris",
-          "attendance_status": "not_on_job",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-23 07:16:00",
-          "last_seen": "2025-05-23 15:59:00",
-          "total_time": 8
-        },
-        {
-          "driver_name": "Christopher Martin",
-          "attendance_status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-23 07:36:00",
-          "last_seen": "2025-05-23 15:40:00",
-          "total_time": 8
-        },
-        {
-          "driver_name": "Anthony Robinson",
-          "attendance_status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-23 08:21:00",
-          "last_seen": "2025-05-23 16:05:00",
-          "total_time": 8
-        }
-      ],
-      "job_sites": {
-        "North Campus Construction": {
-          "drivers": [
-            "John Smith",
-            "Susan Anderson",
-            "Kevin Thompson"
-          ],
-          "attendance": {
-            "on_time": 2,
-            "late_start": 0,
-            "early_end": 1,
-            "not_on_job": 0,
-            "total": 3
-          }
-        },
-        "Bridge Repair": {
-          "drivers": [
-            "Maria Garcia",
-            "Sarah White",
-            "Anthony Robinson"
-          ],
-          "attendance": {
-            "on_time": 3,
-            "late_start": 0,
-            "early_end": 0,
-            "not_on_job": 0,
-            "total": 3
-          }
-        },
-        "Airport Terminal": {
-          "drivers": [
-            "James Johnson",
-            "Daniel Davis"
-          ],
-          "attendance": {
-            "on_time": 2,
-            "late_start": 0,
-            "early_end": 0,
-            "not_on_job": 0,
-            "total": 2
-          }
-        },
-        "Highway 35 Project": {
-          "drivers": [
-            "David Wilson",
-            "Patricia Moore",
-            "Christopher Martin"
-          ],
-          "attendance": {
-            "on_time": 3,
-            "late_start": 0,
-            "early_end": 0,
-            "not_on_job": 0,
-            "total": 3
-          }
-        },
-        "Downtown Expansion": {
-          "drivers": [
-            "Robert Brown",
-            "Michael Lee",
-            "Jessica Taylor",
-            "William Rodriguez",
-            "Jennifer Lewis"
-          ],
-          "attendance": {
-            "on_time": 2,
-            "late_start": 1,
-            "early_end": 0,
-            "not_on_job": 2,
-            "total": 5
-          }
-        },
-        "Central Station": {
-          "drivers": [
-            "Thomas Martinez",
-            "Margaret Clark",
-            "Elizabeth Hall",
-            "Matthew Harris"
-          ],
-          "attendance": {
-            "on_time": 2,
-            "late_start": 0,
-            "early_end": 1,
-            "not_on_job": 1,
-            "total": 4
-          }
-        }
-      },
+      "drivers": {},
+      "driver_records": [],
+      "job_sites": {},
       "attendance": {
-        "on_time": 14,
-        "late_start": 1,
-        "early_end": 2,
-        "not_on_job": 3,
-        "total": 20
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 0,
+        "total": 0
       }
     },
     "2025-05-24": {
       "date": "2025-05-24",
-      "drivers": {
-        "Maria Garcia": {
-          "status": "late_start",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-24 09:17:00",
-          "last_seen": "2025-05-24 17:55:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "Susan Anderson": {
-          "status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-24 07:16:00",
-          "last_seen": "2025-05-24 17:08:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "William Rodriguez": {
-          "status": "on_time",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-24 08:53:00",
-          "last_seen": "2025-05-24 17:14:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "Jennifer Lewis": {
-          "status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-24 07:07:00",
-          "last_seen": "2025-05-24 17:16:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "Matthew Harris": {
-          "status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-24 08:13:00",
-          "last_seen": "2025-05-24 16:51:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        }
-      },
-      "driver_records": [
-        {
-          "driver_name": "Maria Garcia",
-          "attendance_status": "late_start",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-24 09:17:00",
-          "last_seen": "2025-05-24 17:55:00",
-          "total_time": 8
-        },
-        {
-          "driver_name": "Susan Anderson",
-          "attendance_status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-24 07:16:00",
-          "last_seen": "2025-05-24 17:08:00",
-          "total_time": 10
-        },
-        {
-          "driver_name": "William Rodriguez",
-          "attendance_status": "on_time",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-24 08:53:00",
-          "last_seen": "2025-05-24 17:14:00",
-          "total_time": 10
-        },
-        {
-          "driver_name": "Jennifer Lewis",
-          "attendance_status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-24 07:07:00",
-          "last_seen": "2025-05-24 17:16:00",
-          "total_time": 10
-        },
-        {
-          "driver_name": "Matthew Harris",
-          "attendance_status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-24 08:13:00",
-          "last_seen": "2025-05-24 16:51:00",
-          "total_time": 8
-        }
-      ],
-      "job_sites": {
-        "Airport Terminal": {
-          "drivers": [
-            "Maria Garcia",
-            "Matthew Harris"
-          ],
-          "attendance": {
-            "on_time": 1,
-            "late_start": 1,
-            "early_end": 0,
-            "not_on_job": 0,
-            "total": 2
-          }
-        },
-        "Downtown Expansion": {
-          "drivers": [
-            "Susan Anderson"
-          ],
-          "attendance": {
-            "on_time": 1,
-            "late_start": 0,
-            "early_end": 0,
-            "not_on_job": 0,
-            "total": 1
-          }
-        },
-        "Central Station": {
-          "drivers": [
-            "William Rodriguez"
-          ],
-          "attendance": {
-            "on_time": 1,
-            "late_start": 0,
-            "early_end": 0,
-            "not_on_job": 0,
-            "total": 1
-          }
-        },
-        "Highway 35 Project": {
-          "drivers": [
-            "Jennifer Lewis"
-          ],
-          "attendance": {
-            "on_time": 1,
-            "late_start": 0,
-            "early_end": 0,
-            "not_on_job": 0,
-            "total": 1
-          }
-        }
-      },
+      "drivers": {},
+      "driver_records": [],
+      "job_sites": {},
       "attendance": {
-        "on_time": 4,
-        "late_start": 1,
+        "on_time": 0,
+        "late_start": 0,
         "early_end": 0,
         "not_on_job": 0,
-        "total": 5
+        "total": 0
       }
     }
   },
   "summary": {
-    "total_drivers": 25,
+    "total_drivers": 48,
     "attendance_totals": {
-      "on_time": 73,
-      "late_start": 12,
-      "early_end": 12,
-      "not_on_job": 10,
-      "total_tracked": 107
+      "on_time": 0,
+      "late_start": 0,
+      "early_end": 0,
+      "not_on_job": 58,
+      "total_tracked": 58
     }
   },
   "driver_data": {
-    "John Smith": {
-      "name": "John Smith",
-      "days": {
-        "2025-05-19": {
-          "status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-19 08:18:00",
-          "last_seen": "2025-05-19 17:37:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "2025-05-20": {
-          "status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-20 07:02:00",
-          "last_seen": "2025-05-20 17:27:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "2025-05-21": {
-          "status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-21 08:18:00",
-          "last_seen": "2025-05-21 16:52:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "2025-05-22": {
-          "status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-22 08:55:00",
-          "last_seen": "2025-05-22 16:21:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "2025-05-23": {
-          "status": "early_end",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-23 07:01:00",
-          "last_seen": "2025-05-23 11:50:00",
-          "hours_on_site": 4,
-          "total_time": 4
-        }
-      },
+    "JOSE C. RAMIREZ": {
+      "name": "JOSE C. RAMIREZ",
+      "days": {},
       "summary": {
-        "on_time": 4,
+        "on_time": 0,
         "late_start": 0,
-        "early_end": 1,
+        "early_end": 0,
         "not_on_job": 0,
-        "total": 5
+        "total": 0
       }
     },
-    "Maria Garcia": {
-      "name": "Maria Garcia",
+    "TROY MALETTE": {
+      "name": "TROY MALETTE",
       "days": {
         "2025-05-19": {
-          "status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-19 07:56:00",
-          "last_seen": "2025-05-19 17:31:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "2025-05-20": {
-          "status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-20 08:35:00",
-          "last_seen": "2025-05-20 17:50:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "2025-05-21": {
-          "status": "early_end",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-21 07:24:00",
-          "last_seen": "2025-05-21 10:42:00",
-          "hours_on_site": 3,
-          "total_time": 3
-        },
-        "2025-05-22": {
-          "status": "early_end",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-22 08:08:00",
-          "last_seen": "2025-05-22 11:16:00",
-          "hours_on_site": 3,
-          "total_time": 3
-        },
-        "2025-05-23": {
-          "status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-23 08:29:00",
-          "last_seen": "2025-05-23 17:11:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "2025-05-24": {
-          "status": "late_start",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-24 09:17:00",
-          "last_seen": "2025-05-24 17:55:00",
-          "hours_on_site": 8,
-          "total_time": 8
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
         }
       },
       "summary": {
-        "on_time": 3,
-        "late_start": 1,
-        "early_end": 2,
-        "not_on_job": 0,
-        "total": 6
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 1,
+        "total": 1
       }
     },
-    "James Johnson": {
-      "name": "James Johnson",
+    "LORENZO APARICIO": {
+      "name": "LORENZO APARICIO",
       "days": {
         "2025-05-18": {
           "status": "not_on_job",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-18 07:00:00",
-          "last_seen": "2025-05-18 17:05:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "2025-05-19": {
-          "status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-19 08:54:00",
-          "last_seen": "2025-05-19 17:55:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "2025-05-20": {
-          "status": "on_time",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-20 08:02:00",
-          "last_seen": "2025-05-20 16:30:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "2025-05-21": {
-          "status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-21 07:12:00",
-          "last_seen": "2025-05-21 17:44:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "2025-05-22": {
-          "status": "not_on_job",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-22 07:31:00",
-          "last_seen": "2025-05-22 17:09:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "2025-05-23": {
-          "status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-23 08:31:00",
-          "last_seen": "2025-05-23 17:14:00",
-          "hours_on_site": 10,
-          "total_time": 10
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
         }
       },
       "summary": {
-        "on_time": 4,
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 1,
+        "total": 1
+      }
+    },
+    "Aaron Moore": {
+      "name": "Aaron Moore",
+      "days": {
+        "2025-05-18": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "2025-05-19": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        }
+      },
+      "summary": {
+        "on_time": 0,
         "late_start": 0,
         "early_end": 0,
         "not_on_job": 2,
-        "total": 6
+        "total": 2
       }
     },
-    "David Wilson": {
-      "name": "David Wilson",
-      "days": {
-        "2025-05-19": {
-          "status": "early_end",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-19 08:07:00",
-          "last_seen": "2025-05-19 12:25:00",
-          "hours_on_site": 4,
-          "total_time": 4
-        },
-        "2025-05-20": {
-          "status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-20 07:51:00",
-          "last_seen": "2025-05-20 17:46:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "2025-05-21": {
-          "status": "late_start",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-21 08:44:00",
-          "last_seen": "2025-05-21 17:38:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "2025-05-22": {
-          "status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-22 07:05:00",
-          "last_seen": "2025-05-22 15:33:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "2025-05-23": {
-          "status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-23 07:12:00",
-          "last_seen": "2025-05-23 15:42:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        }
-      },
-      "summary": {
-        "on_time": 3,
-        "late_start": 1,
-        "early_end": 1,
-        "not_on_job": 0,
-        "total": 5
-      }
-    },
-    "Robert Brown": {
-      "name": "Robert Brown",
-      "days": {
-        "2025-05-19": {
-          "status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-19 07:44:00",
-          "last_seen": "2025-05-19 15:29:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "2025-05-20": {
-          "status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-20 07:50:00",
-          "last_seen": "2025-05-20 17:09:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "2025-05-21": {
-          "status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-21 08:22:00",
-          "last_seen": "2025-05-21 17:33:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "2025-05-22": {
-          "status": "early_end",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-22 08:40:00",
-          "last_seen": "2025-05-22 11:29:00",
-          "hours_on_site": 3,
-          "total_time": 3
-        },
-        "2025-05-23": {
-          "status": "not_on_job",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-23 08:34:00",
-          "last_seen": "2025-05-23 17:22:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        }
-      },
-      "summary": {
-        "on_time": 3,
-        "late_start": 0,
-        "early_end": 1,
-        "not_on_job": 1,
-        "total": 5
-      }
-    },
-    "Michael Lee": {
-      "name": "Michael Lee",
-      "days": {
-        "2025-05-19": {
-          "status": "early_end",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-19 08:40:00",
-          "last_seen": "2025-05-19 12:24:00",
-          "hours_on_site": 4,
-          "total_time": 4
-        },
-        "2025-05-20": {
-          "status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-20 07:39:00",
-          "last_seen": "2025-05-20 16:35:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "2025-05-21": {
-          "status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-21 08:29:00",
-          "last_seen": "2025-05-21 17:21:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "2025-05-22": {
-          "status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-22 07:37:00",
-          "last_seen": "2025-05-22 15:17:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "2025-05-23": {
-          "status": "not_on_job",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-23 07:52:00",
-          "last_seen": "2025-05-23 17:43:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        }
-      },
-      "summary": {
-        "on_time": 3,
-        "late_start": 0,
-        "early_end": 1,
-        "not_on_job": 1,
-        "total": 5
-      }
-    },
-    "Susan Anderson": {
-      "name": "Susan Anderson",
-      "days": {
-        "2025-05-19": {
-          "status": "not_on_job",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-19 07:03:00",
-          "last_seen": "2025-05-19 17:57:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "2025-05-20": {
-          "status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-20 08:29:00",
-          "last_seen": "2025-05-20 17:55:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "2025-05-21": {
-          "status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-21 07:19:00",
-          "last_seen": "2025-05-21 17:17:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "2025-05-22": {
-          "status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-22 07:30:00",
-          "last_seen": "2025-05-22 15:45:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "2025-05-23": {
-          "status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-23 08:02:00",
-          "last_seen": "2025-05-23 16:09:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "2025-05-24": {
-          "status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-24 07:16:00",
-          "last_seen": "2025-05-24 17:08:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        }
-      },
-      "summary": {
-        "on_time": 5,
-        "late_start": 0,
-        "early_end": 0,
-        "not_on_job": 1,
-        "total": 6
-      }
-    },
-    "Jessica Taylor": {
-      "name": "Jessica Taylor",
-      "days": {
-        "2025-05-19": {
-          "status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-19 07:02:00",
-          "last_seen": "2025-05-19 16:16:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "2025-05-20": {
-          "status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-20 08:06:00",
-          "last_seen": "2025-05-20 17:01:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "2025-05-21": {
-          "status": "not_on_job",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-21 08:32:00",
-          "last_seen": "2025-05-21 17:44:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "2025-05-22": {
-          "status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-22 08:10:00",
-          "last_seen": "2025-05-22 17:26:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "2025-05-23": {
-          "status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-23 07:01:00",
-          "last_seen": "2025-05-23 16:19:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        }
-      },
-      "summary": {
-        "on_time": 4,
-        "late_start": 0,
-        "early_end": 0,
-        "not_on_job": 1,
-        "total": 5
-      }
-    },
-    "Thomas Martinez": {
-      "name": "Thomas Martinez",
+    "Ammar Elhamad": {
+      "name": "Ammar Elhamad",
       "days": {
         "2025-05-18": {
-          "status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-18 07:17:00",
-          "last_seen": "2025-05-18 17:44:00",
-          "hours_on_site": 10,
-          "total_time": 10
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
         },
         "2025-05-19": {
-          "status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-19 08:35:00",
-          "last_seen": "2025-05-19 16:59:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "2025-05-20": {
-          "status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-20 08:50:00",
-          "last_seen": "2025-05-20 17:14:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "2025-05-21": {
-          "status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-21 07:50:00",
-          "last_seen": "2025-05-21 17:11:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "2025-05-22": {
-          "status": "late_start",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-22 10:52:00",
-          "last_seen": "2025-05-22 17:46:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "2025-05-23": {
-          "status": "early_end",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-23 07:12:00",
-          "last_seen": "2025-05-23 12:02:00",
-          "hours_on_site": 5,
-          "total_time": 5
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
         }
       },
       "summary": {
-        "on_time": 4,
-        "late_start": 1,
-        "early_end": 1,
-        "not_on_job": 0,
-        "total": 6
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 2,
+        "total": 2
       }
     },
-    "William Rodriguez": {
-      "name": "William Rodriguez",
+    "Chris Robertson": {
+      "name": "Chris Robertson",
+      "days": {},
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 0,
+        "total": 0
+      }
+    },
+    "ALEJANDRO LOZANO ACOSTA": {
+      "name": "ALEJANDRO LOZANO ACOSTA",
       "days": {
-        "2025-05-19": {
-          "status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-19 07:13:00",
-          "last_seen": "2025-05-19 16:06:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "2025-05-20": {
-          "status": "on_time",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-20 08:47:00",
-          "last_seen": "2025-05-20 17:51:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "2025-05-21": {
+        "2025-05-18": {
           "status": "not_on_job",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-21 07:12:00",
-          "last_seen": "2025-05-21 15:28:00",
-          "hours_on_site": 8,
-          "total_time": 8
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
         },
-        "2025-05-22": {
-          "status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-22 07:39:00",
-          "last_seen": "2025-05-22 17:26:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "2025-05-23": {
-          "status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-23 07:49:00",
-          "last_seen": "2025-05-23 15:25:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "2025-05-24": {
-          "status": "on_time",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-24 08:53:00",
-          "last_seen": "2025-05-24 17:14:00",
-          "hours_on_site": 10,
-          "total_time": 10
+        "2025-05-19": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
         }
       },
       "summary": {
-        "on_time": 5,
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 2,
+        "total": 2
+      }
+    },
+    "JOSE J RIVERA": {
+      "name": "JOSE J RIVERA",
+      "days": {
+        "2025-05-18": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "2025-05-19": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        }
+      },
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 2,
+        "total": 2
+      }
+    },
+    "JAVIER MAGALLANES": {
+      "name": "JAVIER MAGALLANES",
+      "days": {
+        "2025-05-19": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        }
+      },
+      "summary": {
+        "on_time": 0,
         "late_start": 0,
         "early_end": 0,
         "not_on_job": 1,
-        "total": 6
+        "total": 1
       }
     },
-    "Daniel Davis": {
-      "name": "Daniel Davis",
-      "days": {
-        "2025-05-19": {
-          "status": "late_start",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-19 09:23:00",
-          "last_seen": "2025-05-19 17:28:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "2025-05-20": {
-          "status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-20 08:36:00",
-          "last_seen": "2025-05-20 17:23:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "2025-05-21": {
-          "status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-21 07:51:00",
-          "last_seen": "2025-05-21 17:53:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "2025-05-22": {
-          "status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-22 07:03:00",
-          "last_seen": "2025-05-22 17:06:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "2025-05-23": {
-          "status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-23 07:03:00",
-          "last_seen": "2025-05-23 17:45:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        }
-      },
+    "Phillip Sabaj": {
+      "name": "Phillip Sabaj",
+      "days": {},
       "summary": {
-        "on_time": 4,
-        "late_start": 1,
-        "early_end": 0,
-        "not_on_job": 0,
-        "total": 5
-      }
-    },
-    "Patricia Moore": {
-      "name": "Patricia Moore",
-      "days": {
-        "2025-05-19": {
-          "status": "on_time",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-19 08:55:00",
-          "last_seen": "2025-05-19 16:51:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "2025-05-20": {
-          "status": "early_end",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-20 08:27:00",
-          "last_seen": "2025-05-20 13:37:00",
-          "hours_on_site": 5,
-          "total_time": 5
-        },
-        "2025-05-21": {
-          "status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-21 08:57:00",
-          "last_seen": "2025-05-21 17:38:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "2025-05-22": {
-          "status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-22 07:23:00",
-          "last_seen": "2025-05-22 15:27:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "2025-05-23": {
-          "status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-23 08:15:00",
-          "last_seen": "2025-05-23 17:37:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        }
-      },
-      "summary": {
-        "on_time": 4,
+        "on_time": 0,
         "late_start": 0,
-        "early_end": 1,
-        "not_on_job": 0,
-        "total": 5
-      }
-    },
-    "Margaret Clark": {
-      "name": "Margaret Clark",
-      "days": {
-        "2025-05-19": {
-          "status": "late_start",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-19 08:22:00",
-          "last_seen": "2025-05-19 16:23:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "2025-05-20": {
-          "status": "late_start",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-20 09:12:00",
-          "last_seen": "2025-05-20 17:49:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "2025-05-21": {
-          "status": "on_time",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-21 07:53:00",
-          "last_seen": "2025-05-21 16:00:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "2025-05-22": {
-          "status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-22 07:02:00",
-          "last_seen": "2025-05-22 16:57:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "2025-05-23": {
-          "status": "on_time",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-23 08:23:00",
-          "last_seen": "2025-05-23 17:00:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        }
-      },
-      "summary": {
-        "on_time": 3,
-        "late_start": 2,
         "early_end": 0,
         "not_on_job": 0,
-        "total": 5
+        "total": 0
       }
     },
-    "Jennifer Lewis": {
-      "name": "Jennifer Lewis",
+    "Adam Goode": {
+      "name": "Adam Goode",
       "days": {
         "2025-05-19": {
-          "status": "late_start",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-19 08:19:00",
-          "last_seen": "2025-05-19 17:23:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "2025-05-20": {
-          "status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-20 07:52:00",
-          "last_seen": "2025-05-20 16:59:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "2025-05-21": {
-          "status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-21 08:37:00",
-          "last_seen": "2025-05-21 17:32:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "2025-05-22": {
           "status": "not_on_job",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-22 08:18:00",
-          "last_seen": "2025-05-22 16:52:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "2025-05-23": {
-          "status": "late_start",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-23 10:29:00",
-          "last_seen": "2025-05-23 17:17:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "2025-05-24": {
-          "status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-24 07:07:00",
-          "last_seen": "2025-05-24 17:16:00",
-          "hours_on_site": 10,
-          "total_time": 10
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
         }
       },
       "summary": {
-        "on_time": 3,
-        "late_start": 2,
+        "on_time": 0,
+        "late_start": 0,
         "early_end": 0,
         "not_on_job": 1,
-        "total": 6
+        "total": 1
       }
     },
-    "Elizabeth Hall": {
-      "name": "Elizabeth Hall",
+    "JUAN LOPEZ-VAZQUEZ": {
+      "name": "JUAN LOPEZ-VAZQUEZ",
       "days": {
-        "2025-05-19": {
-          "status": "late_start",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-19 08:36:00",
-          "last_seen": "2025-05-19 17:35:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "2025-05-20": {
+        "2025-05-18": {
           "status": "not_on_job",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-20 07:23:00",
-          "last_seen": "2025-05-20 16:03:00",
-          "hours_on_site": 9,
-          "total_time": 9
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
         },
-        "2025-05-21": {
-          "status": "late_start",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-21 10:09:00",
-          "last_seen": "2025-05-21 17:07:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "2025-05-22": {
-          "status": "late_start",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-22 10:40:00",
-          "last_seen": "2025-05-22 17:45:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "2025-05-23": {
-          "status": "on_time",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-23 07:50:00",
-          "last_seen": "2025-05-23 15:00:00",
-          "hours_on_site": 8,
-          "total_time": 8
+        "2025-05-19": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
         }
       },
       "summary": {
-        "on_time": 1,
-        "late_start": 3,
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 2,
+        "total": 2
+      }
+    },
+    "SAUL MARTINEZ ALVAREZ": {
+      "name": "SAUL MARTINEZ ALVAREZ",
+      "days": {
+        "2025-05-19": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        }
+      },
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
         "early_end": 0,
         "not_on_job": 1,
-        "total": 5
+        "total": 1
       }
     },
-    "Sarah White": {
-      "name": "Sarah White",
+    "LEROY ARNOLD": {
+      "name": "LEROY ARNOLD",
       "days": {
         "2025-05-19": {
-          "status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-19 07:04:00",
-          "last_seen": "2025-05-19 16:54:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "2025-05-20": {
-          "status": "early_end",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-20 07:40:00",
-          "last_seen": "2025-05-20 10:14:00",
-          "hours_on_site": 3,
-          "total_time": 3
-        },
-        "2025-05-21": {
-          "status": "early_end",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-21 07:45:00",
-          "last_seen": "2025-05-21 12:31:00",
-          "hours_on_site": 5,
-          "total_time": 5
-        },
-        "2025-05-22": {
-          "status": "on_time",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-22 07:58:00",
-          "last_seen": "2025-05-22 15:55:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "2025-05-23": {
-          "status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-23 07:58:00",
-          "last_seen": "2025-05-23 15:44:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        }
-      },
-      "summary": {
-        "on_time": 3,
-        "late_start": 0,
-        "early_end": 2,
-        "not_on_job": 0,
-        "total": 5
-      }
-    },
-    "Kevin Thompson": {
-      "name": "Kevin Thompson",
-      "days": {
-        "2025-05-19": {
-          "status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-19 08:26:00",
-          "last_seen": "2025-05-19 17:37:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "2025-05-20": {
-          "status": "on_time",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-20 08:52:00",
-          "last_seen": "2025-05-20 16:28:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "2025-05-21": {
-          "status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-21 08:10:00",
-          "last_seen": "2025-05-21 16:49:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "2025-05-22": {
-          "status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-22 08:07:00",
-          "last_seen": "2025-05-22 17:32:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "2025-05-23": {
-          "status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-23 08:36:00",
-          "last_seen": "2025-05-23 17:48:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        }
-      },
-      "summary": {
-        "on_time": 5,
-        "late_start": 0,
-        "early_end": 0,
-        "not_on_job": 0,
-        "total": 5
-      }
-    },
-    "Matthew Harris": {
-      "name": "Matthew Harris",
-      "days": {
-        "2025-05-19": {
-          "status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-19 08:38:00",
-          "last_seen": "2025-05-19 16:39:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "2025-05-20": {
-          "status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-20 07:20:00",
-          "last_seen": "2025-05-20 15:13:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "2025-05-21": {
-          "status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-21 08:25:00",
-          "last_seen": "2025-05-21 16:23:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "2025-05-22": {
-          "status": "late_start",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-22 10:52:00",
-          "last_seen": "2025-05-22 17:42:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "2025-05-23": {
           "status": "not_on_job",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-23 07:16:00",
-          "last_seen": "2025-05-23 15:59:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "2025-05-24": {
-          "status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-24 08:13:00",
-          "last_seen": "2025-05-24 16:51:00",
-          "hours_on_site": 8,
-          "total_time": 8
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
         }
       },
       "summary": {
-        "on_time": 4,
-        "late_start": 1,
+        "on_time": 0,
+        "late_start": 0,
         "early_end": 0,
         "not_on_job": 1,
-        "total": 6
+        "total": 1
       }
     },
-    "Christopher Martin": {
-      "name": "Christopher Martin",
+    "VICK ADHIKARI": {
+      "name": "VICK ADHIKARI",
       "days": {
+        "2025-05-18": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
         "2025-05-19": {
-          "status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-19 08:18:00",
-          "last_seen": "2025-05-19 17:47:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "2025-05-20": {
-          "status": "early_end",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-20 08:33:00",
-          "last_seen": "2025-05-20 13:04:00",
-          "hours_on_site": 5,
-          "total_time": 5
-        },
-        "2025-05-21": {
-          "status": "early_end",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-21 08:12:00",
-          "last_seen": "2025-05-21 11:44:00",
-          "hours_on_site": 3,
-          "total_time": 3
-        },
-        "2025-05-22": {
-          "status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-22 08:15:00",
-          "last_seen": "2025-05-22 17:21:00",
-          "hours_on_site": 10,
-          "total_time": 10
-        },
-        "2025-05-23": {
-          "status": "on_time",
-          "job_site": "Highway 35 Project",
-          "first_seen": "2025-05-23 07:36:00",
-          "last_seen": "2025-05-23 15:40:00",
-          "hours_on_site": 8,
-          "total_time": 8
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
         }
       },
       "summary": {
-        "on_time": 3,
+        "on_time": 0,
         "late_start": 0,
-        "early_end": 2,
-        "not_on_job": 0,
-        "total": 5
+        "early_end": 0,
+        "not_on_job": 2,
+        "total": 2
       }
     },
-    "Anthony Robinson": {
-      "name": "Anthony Robinson",
+    "Matt Shaylor": {
+      "name": "Matt Shaylor",
       "days": {
+        "2025-05-18": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
         "2025-05-19": {
-          "status": "on_time",
-          "job_site": "Downtown Expansion",
-          "first_seen": "2025-05-19 07:45:00",
-          "last_seen": "2025-05-19 16:30:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "2025-05-20": {
-          "status": "on_time",
-          "job_site": "Central Station",
-          "first_seen": "2025-05-20 07:28:00",
-          "last_seen": "2025-05-20 15:50:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "2025-05-21": {
-          "status": "on_time",
-          "job_site": "Airport Terminal",
-          "first_seen": "2025-05-21 08:00:00",
-          "last_seen": "2025-05-21 17:05:00",
-          "hours_on_site": 9,
-          "total_time": 9
-        },
-        "2025-05-22": {
-          "status": "on_time",
-          "job_site": "North Campus Construction",
-          "first_seen": "2025-05-22 07:39:00",
-          "last_seen": "2025-05-22 15:17:00",
-          "hours_on_site": 8,
-          "total_time": 8
-        },
-        "2025-05-23": {
-          "status": "on_time",
-          "job_site": "Bridge Repair",
-          "first_seen": "2025-05-23 08:21:00",
-          "last_seen": "2025-05-23 16:05:00",
-          "hours_on_site": 8,
-          "total_time": 8
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
         }
       },
       "summary": {
-        "on_time": 5,
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 2,
+        "total": 2
+      }
+    },
+    "JORGE MARTINEZ": {
+      "name": "JORGE MARTINEZ",
+      "days": {
+        "2025-05-19": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        }
+      },
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 1,
+        "total": 1
+      }
+    },
+    "Hector Bonilla": {
+      "name": "Hector Bonilla",
+      "days": {
+        "2025-05-19": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        }
+      },
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 1,
+        "total": 1
+      }
+    },
+    "Martin Escobedo": {
+      "name": "Martin Escobedo",
+      "days": {
+        "2025-05-19": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        }
+      },
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 1,
+        "total": 1
+      }
+    },
+    "RAFAEL MURATALLA": {
+      "name": "RAFAEL MURATALLA",
+      "days": {
+        "2025-05-18": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "2025-05-19": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        }
+      },
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 2,
+        "total": 2
+      }
+    },
+    "SEYMORE HUNT": {
+      "name": "SEYMORE HUNT",
+      "days": {
+        "2025-05-18": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "2025-05-19": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        }
+      },
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 2,
+        "total": 2
+      }
+    },
+    "JUAN P RODRIGUEZ": {
+      "name": "JUAN P RODRIGUEZ",
+      "days": {
+        "2025-05-18": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        }
+      },
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 1,
+        "total": 1
+      }
+    },
+    "URIEL GARCIA-ANDRADE": {
+      "name": "URIEL GARCIA-ANDRADE",
+      "days": {
+        "2025-05-18": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "2025-05-19": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        }
+      },
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 2,
+        "total": 2
+      }
+    },
+    "JUAN RUIZ": {
+      "name": "JUAN RUIZ",
+      "days": {
+        "2025-05-18": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "2025-05-19": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        }
+      },
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 2,
+        "total": 2
+      }
+    },
+    "Johnny Pereira-Viera": {
+      "name": "Johnny Pereira-Viera",
+      "days": {
+        "2025-05-19": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        }
+      },
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 1,
+        "total": 1
+      }
+    },
+    "FRANCISCO DIAZ SERNA": {
+      "name": "FRANCISCO DIAZ SERNA",
+      "days": {
+        "2025-05-19": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        }
+      },
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 1,
+        "total": 1
+      }
+    },
+    "ROBERT BERRYHILL": {
+      "name": "ROBERT BERRYHILL",
+      "days": {
+        "2025-05-19": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        }
+      },
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 1,
+        "total": 1
+      }
+    },
+    "ANTHONY HARDIMON": {
+      "name": "ANTHONY HARDIMON",
+      "days": {},
+      "summary": {
+        "on_time": 0,
         "late_start": 0,
         "early_end": 0,
         "not_on_job": 0,
-        "total": 5
+        "total": 0
+      }
+    },
+    "LUIS MURCIA ORELLANA": {
+      "name": "LUIS MURCIA ORELLANA",
+      "days": {
+        "2025-05-19": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        }
+      },
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 1,
+        "total": 1
+      }
+    },
+    "SABINO IBARRA": {
+      "name": "SABINO IBARRA",
+      "days": {
+        "2025-05-19": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        }
+      },
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 1,
+        "total": 1
+      }
+    },
+    "Roger Doddy": {
+      "name": "Roger Doddy",
+      "days": {
+        "2025-05-18": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        }
+      },
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 1,
+        "total": 1
+      }
+    },
+    "ISAAC ROMERO": {
+      "name": "ISAAC ROMERO",
+      "days": {
+        "2025-05-18": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "2025-05-19": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        }
+      },
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 2,
+        "total": 2
+      }
+    },
+    "JOSE BAUTISTA": {
+      "name": "JOSE BAUTISTA",
+      "days": {
+        "2025-05-18": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "2025-05-19": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        }
+      },
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 2,
+        "total": 2
+      }
+    },
+    "Nagesh Kumar": {
+      "name": "Nagesh Kumar",
+      "days": {
+        "2025-05-18": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "2025-05-19": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        }
+      },
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 2,
+        "total": 2
+      }
+    },
+    "Juan Berjes Ruiz": {
+      "name": "Juan Berjes Ruiz",
+      "days": {},
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 0,
+        "total": 0
+      }
+    },
+    "Sam Abunemeh": {
+      "name": "Sam Abunemeh",
+      "days": {
+        "2025-05-18": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "2025-05-19": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        }
+      },
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 2,
+        "total": 2
+      }
+    },
+    "JOVAN ESPINOZA-CASILLAS": {
+      "name": "JOVAN ESPINOZA-CASILLAS",
+      "days": {
+        "2025-05-18": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "2025-05-19": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        }
+      },
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 2,
+        "total": 2
+      }
+    },
+    "Jared Ruhrup": {
+      "name": "Jared Ruhrup",
+      "days": {
+        "2025-05-19": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        }
+      },
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 1,
+        "total": 1
+      }
+    },
+    "ROBERTO GUERRERO JR": {
+      "name": "ROBERTO GUERRERO JR",
+      "days": {
+        "2025-05-18": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "2025-05-19": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        }
+      },
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 2,
+        "total": 2
+      }
+    },
+    "CALEB PADGETT": {
+      "name": "CALEB PADGETT",
+      "days": {
+        "2025-05-19": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        }
+      },
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 1,
+        "total": 1
+      }
+    },
+    "Korbin Gee": {
+      "name": "Korbin Gee",
+      "days": {},
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 0,
+        "total": 0
+      }
+    },
+    "COREY TORGERSON": {
+      "name": "COREY TORGERSON",
+      "days": {},
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 0,
+        "total": 0
+      }
+    },
+    "Ramesh Bobba": {
+      "name": "Ramesh Bobba",
+      "days": {
+        "2025-05-19": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        }
+      },
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 1,
+        "total": 1
+      }
+    },
+    "Ivan Torres": {
+      "name": "Ivan Torres",
+      "days": {
+        "2025-05-19": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        }
+      },
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 1,
+        "total": 1
+      }
+    },
+    "CHASE JONES": {
+      "name": "CHASE JONES",
+      "days": {
+        "2025-05-18": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        },
+        "2025-05-19": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        }
+      },
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 2,
+        "total": 2
+      }
+    },
+    "ALBERTO ZUNIGA": {
+      "name": "ALBERTO ZUNIGA",
+      "days": {},
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 0,
+        "total": 0
+      }
+    },
+    "Cooper Link": {
+      "name": "Cooper Link",
+      "days": {
+        "2025-05-19": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        }
+      },
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 1,
+        "total": 1
+      }
+    },
+    "Luis Morales": {
+      "name": "Luis Morales",
+      "days": {
+        "2025-05-19": {
+          "status": "not_on_job",
+          "job_site": "Unknown Job Site",
+          "first_seen": null,
+          "last_seen": null,
+          "hours_on_site": 0,
+          "total_time": 0
+        }
+      },
+      "summary": {
+        "on_time": 0,
+        "late_start": 0,
+        "early_end": 0,
+        "not_on_job": 1,
+        "total": 1
       }
     }
   },

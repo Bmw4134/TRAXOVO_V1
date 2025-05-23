@@ -4,7 +4,7 @@
 
 {% block breadcrumb %}
 <li class="breadcrumb-item"><a href="/">Home</a></li>
-<li class="breadcrumb-item"><a href="{{ url_for('enhanced_weekly_report.dashboard') }}">Enhanced Weekly Driver Reports</a></li>
+<li class="breadcrumb-item"><a href="{{ url_for('enhanced_weekly_report_bp.dashboard') }}">Enhanced Weekly Driver Reports</a></li>
 <li class="breadcrumb-item active" aria-current="page">Upload Data Files</li>
 {% endblock %}
 
@@ -19,7 +19,7 @@
                 <h5 class="card-title mb-0">Upload Files</h5>
             </div>
             <div class="card-body">
-                <form action="{{ url_for('enhanced_weekly_report.upload_files') }}" method="post" enctype="multipart/form-data">
+                <form action="{{ url_for('enhanced_weekly_report_bp.upload_files') }}" method="post" enctype="multipart/form-data">
                     <div class="mb-4">
                         <label for="report_date" class="form-label">Report Date</label>
                         <input type="date" class="form-control" id="report_date" name="report_date" value="{{ today }}" required>

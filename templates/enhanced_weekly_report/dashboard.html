@@ -1,6 +1,6 @@
 {% extends "layout_unified.html" %}
 
-{% block title %}Enhanced Weekly Driver Reports - TRAXORA GENIUS CORE{% endblock %}
+{% block title %}Enhanced Weekly Driver Reports{% endblock %}
 
 {% block breadcrumb %}
 <li class="breadcrumb-item"><a href="/">Home</a></li>
@@ -8,94 +8,121 @@
 {% endblock %}
 
 {% block page_title %}Enhanced Weekly Driver Reports{% endblock %}
-{% block page_subtitle %}Comprehensive weekly attendance analysis with cross-source validation{% endblock %}
-
-{% block page_actions %}
-<a href="{{ url_for('enhanced_weekly_report.process_test_data') }}" class="btn btn-primary" onclick="event.preventDefault(); document.getElementById('process-test-form').submit();">
-    <i class="bi bi-file-earmark-plus me-2"></i> Process May 18-23 Data
-</a>
-{% endblock %}
+{% block page_subtitle %}Comprehensive weekly driver attendance and performance tracking across multiple days{% endblock %}
 
 {% block content %}
-<form id="process-test-form" action="{{ url_for('enhanced_weekly_report.process_test_data') }}" method="post" style="display: none;"></form>
-
-<!-- Test Week Card -->
 <div class="row mb-4">
-    <div class="col-12">
+    <div class="col-md-12">
         <div class="card bg-dark border-0 shadow-sm">
             <div class="card-header bg-dark d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">Test Week: {{ test_week.start_formatted }} - {{ test_week.end_formatted }}</h5>
-                {% if test_report_exists %}
-                <a href="{{ url_for('enhanced_weekly_report.view_report', start_date=test_week.start_date, end_date=test_week.end_date) }}" class="btn btn-sm btn-success">
-                    <i class="bi bi-eye me-1"></i> View Report
-                </a>
-                {% else %}
-                <span class="badge bg-warning">Report Not Generated</span>
-                {% endif %}
+                <h5 class="card-title mb-0">Weekly Report Generator</h5>
+                <div>
+                    <a href="{{ url_for('enhanced_weekly_report_bp.upload') }}" class="btn btn-primary">
+                        <i class="bi bi-upload me-1"></i> Upload Files
+                    </a>
+                    <a href="{{ url_for('enhanced_weekly_report_bp.process_may_data') }}" class="btn btn-success ms-2">
+                        <i class="bi bi-lightning-charge me-1"></i> Process May Week (5/18 - 5/24)
+                    </a>
+                </div>
             </div>
             <div class="card-body">
-                {% if test_report_exists %}
-                <p class="text-success">
-                    <i class="bi bi-check-circle-fill me-2"></i> The weekly driver report for May 18-23, 2025 has been generated. Click the button above to view the report.
-                </p>
-                {% else %}
-                <p class="text-muted">
-                    Process the test data for May 18-23, 2025 to generate a comprehensive weekly driver report.
-                    This includes all required data sources for proper classification of driver attendance.
-                </p>
-
-                <div class="alert alert-info">
-                    <h6 class="alert-heading mb-2"><i class="bi bi-info-circle me-2"></i> Test Data Files:</h6>
-                    <ul class="mb-0">
-                        <li><strong>DrivingHistory (19).csv:</strong> Driver GPS tracking data</li>
-                        <li><strong>ActivityDetail (13).csv:</strong> Enhanced location data</li>
-                        <li><strong>AssetsTimeOnSite (8).csv:</strong> Asset location data</li>
-                        <li><strong>Timecard data:</strong> Available for cross-validation</li>
-                    </ul>
+                <div class="row">
+                    <div class="col-md-6">
+                        <form action="{{ url_for('enhanced_weekly_report_bp.view_report', start_date='', end_date='') }}" method="get" id="date-range-form" class="mb-4">
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-5">
+                                    <label for="start_date" class="form-label">Start Date</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
+                                        <input type="date" class="form-control" id="start_date" name="start_date" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    <label for="end_date" class="form-label">End Date</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
+                                        <input type="date" class="form-control" id="end_date" name="end_date" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="bi bi-search me-1"></i> View
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="alert alert-info mb-0">
+                            <div class="d-flex">
+                                <div class="me-3">
+                                    <i class="bi bi-info-circle fs-4"></i>
+                                </div>
+                                <div>
+                                    <h6 class="alert-heading mb-1">Quick Access</h6>
+                                    <p class="mb-2">You can view reports by selecting a date range or use the quick access buttons for common date ranges.</p>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-info quick-date" data-days="7">Last 7 Days</button>
+                                        <button class="btn btn-outline-info quick-date" data-days="14">Last 14 Days</button>
+                                        <button class="btn btn-outline-info quick-date" data-days="30">Last 30 Days</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-
-                <button type="submit" form="process-test-form" class="btn btn-primary mt-3">
-                    <i class="bi bi-file-earmark-plus me-2"></i> Process May 18-23 Data
-                </button>
-                {% endif %}
             </div>
         </div>
     </div>
 </div>
 
-<!-- Available Reports Section -->
-<div class="row mb-4">
-    <div class="col-12">
+<div class="row">
+    <div class="col-md-12">
         <div class="card bg-dark border-0 shadow-sm">
             <div class="card-header bg-dark">
                 <h5 class="card-title mb-0">Available Weekly Reports</h5>
             </div>
-            <div class="card-body p-0">
-                {% if available_weeks %}
+            <div class="card-body">
+                {% if reports %}
                 <div class="table-responsive">
-                    <table class="table table-dark table-hover mb-0">
+                    <table class="table table-dark table-hover">
                         <thead>
                             <tr>
                                 <th>Week</th>
-                                <th>Date Range</th>
-                                <th class="text-end">Actions</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Total Drivers</th>
+                                <th>On Time %</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for week in available_weeks %}
+                            {% for report in reports %}
                             <tr>
-                                <td>Week of {{ week.start_formatted }}</td>
-                                <td>{{ week.formatted_range }}</td>
-                                <td class="text-end">
-                                    <a href="{{ url_for('enhanced_weekly_report.view_report', start_date=week.start_date, end_date=week.end_date) }}" class="btn btn-sm btn-outline-info">
-                                        <i class="bi bi-eye"></i> View
-                                    </a>
-                                    <a href="{{ url_for('enhanced_weekly_report.download_report', start_date=week.start_date, end_date=week.end_date, format='csv') }}" class="btn btn-sm btn-outline-success ms-1">
-                                        <i class="bi bi-download"></i> CSV
-                                    </a>
-                                    <a href="{{ url_for('enhanced_weekly_report.download_report', start_date=week.start_date, end_date=week.end_date, format='json') }}" class="btn btn-sm btn-outline-primary ms-1">
-                                        <i class="bi bi-download"></i> JSON
-                                    </a>
+                                <td>{{ report.week_name }}</td>
+                                <td>{{ report.start_date }}</td>
+                                <td>{{ report.end_date }}</td>
+                                <td>{{ report.total_drivers }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                            <div class="progress-bar bg-success" style="width: {{ report.on_time_percentage }}%"></div>
+                                        </div>
+                                        <span>{{ report.on_time_percentage }}%</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ url_for('enhanced_weekly_report_bp.view_report', start_date=report.start_date, end_date=report.end_date) }}" class="btn btn-outline-primary">
+                                            <i class="bi bi-eye"></i> View
+                                        </a>
+                                        <a href="{{ url_for('enhanced_weekly_report_bp.download_report', start_date=report.start_date, end_date=report.end_date, format='xlsx') }}" class="btn btn-outline-success">
+                                            <i class="bi bi-file-earmark-excel"></i> Excel
+                                        </a>
+                                        <a href="{{ url_for('enhanced_weekly_report_bp.download_report', start_date=report.start_date, end_date=report.end_date, format='pdf') }}" class="btn btn-outline-danger">
+                                            <i class="bi bi-file-earmark-pdf"></i> PDF
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -104,8 +131,12 @@
                 </div>
                 {% else %}
                 <div class="text-center py-5">
-                    <i class="bi bi-calendar-x text-muted fs-1 mb-3"></i>
-                    <p class="text-muted mb-0">No weekly reports have been generated yet.</p>
+                    <i class="bi bi-file-earmark-x fs-1 text-muted mb-3"></i>
+                    <h5>No reports available</h5>
+                    <p class="text-muted">Upload driver data files to generate weekly reports.</p>
+                    <a href="{{ url_for('enhanced_weekly_report_bp.upload') }}" class="btn btn-primary mt-2">
+                        <i class="bi bi-upload me-1"></i> Upload Files
+                    </a>
                 </div>
                 {% endif %}
             </div>
@@ -113,126 +144,28 @@
     </div>
 </div>
 
-<!-- Weekly Report Features -->
-<div class="row mb-4">
-    <div class="col-lg-12 mb-4">
+<div class="row mt-4">
+    <div class="col-md-6 mb-4">
         <div class="card bg-dark border-0 shadow-sm">
             <div class="card-header bg-dark">
-                <h5 class="card-title mb-0"><i class="bi bi-info-circle me-2"></i> Weekly Report Features</h5>
+                <h5 class="card-title mb-0">Driver Performance Trends</h5>
             </div>
             <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="d-flex mb-3">
-                            <div class="flex-shrink-0">
-                                <div class="bg-success rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
-                                    <i class="bi bi-calendar-week text-white fs-4"></i>
-                                </div>
-                            </div>
-                            <div class="ms-3">
-                                <h5 class="mb-1">Multi-Day Analysis</h5>
-                                <p class="text-muted mb-0">Analyze driver attendance patterns across an entire week with detailed breakdowns for each day.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="d-flex mb-3">
-                            <div class="flex-shrink-0">
-                                <div class="bg-info rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
-                                    <i class="bi bi-search text-white fs-4"></i>
-                                </div>
-                            </div>
-                            <div class="ms-3">
-                                <h5 class="mb-1">Full Drill-Down</h5>
-                                <p class="text-muted mb-0">Detailed views of individual drivers and days with complete event history and classifications.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="d-flex mb-3">
-                            <div class="flex-shrink-0">
-                                <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
-                                    <i class="bi bi-exclamation-triangle text-dark fs-4"></i>
-                                </div>
-                            </div>
-                            <div class="ms-3">
-                                <h5 class="mb-1">Chronic Issues Detection</h5>
-                                <p class="text-muted mb-0">Automatic detection of recurring attendance issues across multiple days.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="d-flex mb-3">
-                            <div class="flex-shrink-0">
-                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
-                                    <i class="bi bi-building text-white fs-4"></i>
-                                </div>
-                            </div>
-                            <div class="ms-3">
-                                <h5 class="mb-1">Job Site Analytics</h5>
-                                <p class="text-muted mb-0">Attendance analytics by job site to identify location-based attendance patterns.</p>
-                            </div>
-                        </div>
-                    </div>
+                <div class="text-center py-5">
+                    <canvas id="driverTrendsChart" height="250"></canvas>
                 </div>
             </div>
         </div>
     </div>
-</div>
-
-<!-- How It Works -->
-<div class="row mb-4">
-    <div class="col-12">
+    
+    <div class="col-md-6 mb-4">
         <div class="card bg-dark border-0 shadow-sm">
             <div class="card-header bg-dark">
-                <h5 class="card-title mb-0"><i class="bi bi-question-circle me-2"></i> How It Works</h5>
+                <h5 class="card-title mb-0">Job Site Completion Rate</h5>
             </div>
             <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="card bg-dark bg-opacity-50 border-0 shadow-sm h-100">
-                            <div class="card-body text-center p-4">
-                                <div class="rounded-circle bg-dark d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 64px; height: 64px;">
-                                    <span class="fs-3 fw-bold text-success">1</span>
-                                </div>
-                                <h5 class="card-title">Data Collection</h5>
-                                <p class="card-text text-muted">System processes GPS tracking data, activity details, and time-on-site records for all assets.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card bg-dark bg-opacity-50 border-0 shadow-sm h-100">
-                            <div class="card-body text-center p-4">
-                                <div class="rounded-circle bg-dark d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 64px; height: 64px;">
-                                    <span class="fs-3 fw-bold text-success">2</span>
-                                </div>
-                                <h5 class="card-title">Cross-Validation</h5>
-                                <p class="card-text text-muted">GENIUS CORE applies strict validation between data sources to ensure accuracy and consistency.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card bg-dark bg-opacity-50 border-0 shadow-sm h-100">
-                            <div class="card-body text-center p-4">
-                                <div class="rounded-circle bg-dark d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 64px; height: 64px;">
-                                    <span class="fs-3 fw-bold text-success">3</span>
-                                </div>
-                                <h5 class="card-title">Classification</h5>
-                                <p class="card-text text-muted">Drivers are classified as On Time, Late Start, Early End, or Not On Job based on validated data.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card bg-dark bg-opacity-50 border-0 shadow-sm h-100">
-                            <div class="card-body text-center p-4">
-                                <div class="rounded-circle bg-dark d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 64px; height: 64px;">
-                                    <span class="fs-3 fw-bold text-success">4</span>
-                                </div>
-                                <h5 class="card-title">Report Generation</h5>
-                                <p class="card-text text-muted">Comprehensive reports with daily breakdowns, trends, and actionable insights are generated.</p>
-                            </div>
-                        </div>
-                    </div>
+                <div class="text-center py-5">
+                    <canvas id="jobSiteChart" height="250"></canvas>
                 </div>
             </div>
         </div>
@@ -241,7 +174,152 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
 <script>
-    // Any JavaScript here
+    document.addEventListener('DOMContentLoaded', function() {
+        // Date range handling
+        const dateRangeForm = document.getElementById('date-range-form');
+        const startDateInput = document.getElementById('start_date');
+        const endDateInput = document.getElementById('end_date');
+        
+        // Set default dates to current week
+        const today = new Date();
+        const dayOfWeek = today.getDay();
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1)); // Monday
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 4); // Friday
+        
+        startDateInput.value = formatDate(startOfWeek);
+        endDateInput.value = formatDate(endOfWeek);
+        
+        // Quick date buttons
+        document.querySelectorAll('.quick-date').forEach(button => {
+            button.addEventListener('click', function() {
+                const days = parseInt(this.dataset.days);
+                const end = new Date();
+                const start = new Date();
+                start.setDate(end.getDate() - days + 1);
+                
+                startDateInput.value = formatDate(start);
+                endDateInput.value = formatDate(end);
+                
+                dateRangeForm.submit();
+            });
+        });
+        
+        // Update form action on submit
+        dateRangeForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const startDate = startDateInput.value;
+            const endDate = endDateInput.value;
+            window.location.href = "{{ url_for('enhanced_weekly_report_bp.view_report', start_date='', end_date='') }}".replace('//', '/').replace('//', '/') + startDate + '/' + endDate;
+        });
+        
+        // Helper function to format date as YYYY-MM-DD
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        // Example charts
+        const driverTrendsCtx = document.getElementById('driverTrendsChart').getContext('2d');
+        const driverTrendsChart = new Chart(driverTrendsCtx, {
+            type: 'line',
+            data: {
+                labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+                datasets: [
+                    {
+                        label: 'On Time',
+                        data: [85, 82, 88, 90, 86],
+                        borderColor: 'rgba(40, 167, 69, 0.8)',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: 'Late Start',
+                        data: [10, 12, 8, 7, 9],
+                        borderColor: 'rgba(255, 193, 7, 0.8)',
+                        backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: 'Early End',
+                        data: [3, 5, 2, 2, 4],
+                        borderColor: 'rgba(220, 53, 69, 0.8)',
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        const jobSiteCtx = document.getElementById('jobSiteChart').getContext('2d');
+        const jobSiteChart = new Chart(jobSiteCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Site A', 'Site B', 'Site C', 'Site D', 'Site E'],
+                datasets: [
+                    {
+                        label: 'On Time Rate',
+                        data: [92, 85, 78, 90, 88],
+                        backgroundColor: [
+                            'rgba(32, 201, 151, 0.8)',
+                            'rgba(13, 110, 253, 0.8)',
+                            'rgba(108, 117, 125, 0.8)',
+                            'rgba(253, 126, 20, 0.8)',
+                            'rgba(102, 16, 242, 0.8)'
+                        ],
+                        borderWidth: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
 </script>
 {% endblock %}

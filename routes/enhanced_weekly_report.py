@@ -22,7 +22,7 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 # Create blueprint
-enhanced_weekly_report_bp = Blueprint('enhanced_weekly_report', __name__, url_prefix='/enhanced-weekly-report')
+enhanced_weekly_report_bp = Blueprint('enhanced_weekly_report_bp', __name__, url_prefix='/enhanced-weekly-report')
 
 def get_reports_directory():
     """Get reports directory, creating it if needed"""

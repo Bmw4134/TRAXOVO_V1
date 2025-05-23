@@ -130,6 +130,13 @@ def process_test_data():
         driving_history_path = os.path.join(attached_assets_dir, "DrivingHistory (19).csv")
         activity_detail_path = os.path.join(attached_assets_dir, "ActivityDetail (13).csv")
         time_on_site_path = os.path.join(attached_assets_dir, "AssetsTimeOnSite (8).csv")
+        timecard_path = os.path.join(attached_assets_dir, "Timecards - 2025-05-18 - 2025-05-24 (3).xlsx")
+        
+        logger.info(f"Checking for files in {attached_assets_dir}")
+        logger.info(f"Driving History: {os.path.exists(driving_history_path)}")
+        logger.info(f"Activity Detail: {os.path.exists(activity_detail_path)}")
+        logger.info(f"Time On Site: {os.path.exists(time_on_site_path)}")
+        logger.info(f"Timecard: {os.path.exists(timecard_path)}")
         
         if not os.path.exists(driving_history_path):
             flash("DrivingHistory file not found in attached_assets", "danger")
@@ -146,9 +153,18 @@ def process_test_data():
         # Process the weekly report
         logger.info("Processing test data for May 18-23, 2025")
         
-        # Create report directory if needed
+        # List all files in the attached_assets directory
+        logger.info("Files in attached_assets directory:")
+        for filename in os.listdir(attached_assets_dir):
+            if filename.endswith('.csv') or filename.endswith('.xlsx'):
+                logger.info(f"- {filename}")
+        
+        # Create report directories if needed
         reports_dir = get_reports_directory()
         os.makedirs(reports_dir, exist_ok=True)
+        
+        data_dir = os.path.join(current_app.root_path, 'data', 'weekly_driver_reports')
+        os.makedirs(data_dir, exist_ok=True)
         
         # Process report
         weekly_report = process_weekly_report(
@@ -157,18 +173,26 @@ def process_test_data():
             driving_history_path="DrivingHistory (19).csv",
             activity_detail_path="ActivityDetail (13).csv",
             time_on_site_path="AssetsTimeOnSite (8).csv",
+            timecard_paths=["Timecards - 2025-05-18 - 2025-05-24 (3).xlsx", "Timecards - 2025-05-18 - 2025-05-24 (4).xlsx"],
             from_attached_assets=True
         )
         
         if weekly_report:
-            flash("Successfully processed test data for May 18-23, 2025", "success")
+            # Count drivers in the report for validation
+            driver_count = 0
+            if 'summary' in weekly_report and 'driver_attendance' in weekly_report['summary']:
+                driver_count = len(weekly_report['summary']['driver_attendance'])
+            
+            flash(f"Successfully processed test data for May 18-23, 2025 with {driver_count} drivers", "success")
             return redirect(url_for('enhanced_weekly_report.view_report', start_date=start_date, end_date=end_date))
         else:
-            flash("Error processing test data", "danger")
+            flash("Error processing test data - no report was generated", "danger")
             return redirect(url_for('enhanced_weekly_report.dashboard'))
     
     except Exception as e:
         logger.error(f"Error processing test data: {str(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
         flash(f"Error processing test data: {str(e)}", "danger")
         return redirect(url_for('enhanced_weekly_report.dashboard'))
 

@@ -14,6 +14,16 @@
             <h1 class="mb-4">GPS-Based Weekly Driver Report</h1>
             <p class="lead">Process GPS and timecard data to generate accurate driver classifications for May 18-24, 2025</p>
             
+            <div class="alert alert-info">
+                <h4 class="alert-heading"><i class="bi bi-info-circle"></i> Demonstration Mode Available</h4>
+                <p>We've set up a demonstration using your May 18-24 data from the attached files.</p>
+                <hr>
+                <a href="{{ url_for('enhanced_weekly_report_bp.demo_may_week') }}" class="btn btn-primary">
+                    <i class="bi bi-play-circle"></i> View May 18-24 Automated Report
+                </a>
+                <p class="mt-2 small">This processes your real data without requiring manual uploads.</p>
+            </div>
+
             <div class="card mb-4">
                 <div class="card-header bg-success text-white">
                     <h5 class="mb-0"><i class="bi bi-cpu"></i> Process May 18-24 Data</h5>

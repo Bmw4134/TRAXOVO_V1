@@ -37,6 +37,35 @@ def get_attached_assets_directory():
     os.makedirs(attached_assets_dir, exist_ok=True)
     return attached_assets_dir
 
+@enhanced_weekly_report_bp.route('/demo-may-week')
+def demo_may_week():
+    """Process and display May 18-24 demo data"""
+    try:
+        from utils.demo_processor import process_may_week_report, get_formatted_dates
+        
+        # Process demo report
+        report_data = process_may_week_report()
+        
+        if not report_data:
+            flash("Error processing demo data. Please check the logs for details.", "danger")
+            return redirect(url_for('enhanced_weekly_report_bp.dashboard'))
+        
+        # Get formatted dates
+        start_formatted, end_formatted = get_formatted_dates()
+        
+        # Format start and end dates
+        return render_template('enhanced_weekly_report/view.html',
+                              report=report_data,
+                              start_date="2025-05-18",
+                              end_date="2025-05-24",
+                              start_formatted=start_formatted,
+                              end_formatted=end_formatted,
+                              date_range=report_data.get('date_range', []))
+    except Exception as e:
+        logger.error(f"Error processing demo report: {str(e)}")
+        flash(f"An error occurred while processing the demo report: {str(e)}", "danger")
+        return redirect(url_for('enhanced_weekly_report_bp.dashboard'))
+
 @enhanced_weekly_report_bp.route('/')
 def dashboard():
     """Enhanced weekly driver report dashboard"""

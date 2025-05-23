@@ -1,0 +1,306 @@
+{% extends "layout_unified.html" %}
+
+{% block title %}Generate Weekly Report - TRAXORA GENIUS CORE{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="/">Home</a></li>
+<li class="breadcrumb-item"><a href="{{ url_for('weekly_driver_report.dashboard') }}">Weekly Driver Reports</a></li>
+<li class="breadcrumb-item active" aria-current="page">Generate Report</li>
+{% endblock %}
+
+{% block page_title %}Generate Weekly Driver Report{% endblock %}
+{% block page_subtitle %}Process GPS data and timecard records to create a comprehensive weekly report{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-7 mb-4">
+        <div class="card bg-dark border-0 shadow-sm">
+            <div class="card-header bg-dark">
+                <h5 class="card-title mb-0">Report Parameters</h5>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('weekly_driver_report.generate_report') }}" method="post" id="generate-form">
+                    <div class="mb-4">
+                        <label class="form-label">Select Date Range</label>
+                        <div class="row">
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <label for="start_date" class="form-label small text-muted">Start Date</label>
+                                <input type="date" class="form-control" id="start_date" name="start_date" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="end_date" class="form-label small text-muted">End Date</label>
+                                <input type="date" class="form-control" id="end_date" name="end_date" required>
+                            </div>
+                        </div>
+                        <div class="form-text">
+                            Select a date range of up to 14 days. Typically, this would be a Sunday-Saturday week range.
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info mb-4">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0">
+                                <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+                            </div>
+                            <div>
+                                <h6 class="alert-heading mb-2">File Processing Information</h6>
+                                <p class="mb-0">
+                                    The system will use all uploaded files with dates matching the selected range. Make sure you've 
+                                    uploaded the necessary files before generating the report.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Select Report Options</label>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="timecard_validation" name="timecard_validation" checked>
+                            <label class="form-check-label" for="timecard_validation">
+                                Include timecard validation
+                            </label>
+                        </div>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="job_site_analysis" name="job_site_analysis" checked>
+                            <label class="form-check-label" for="job_site_analysis">
+                                Include job site analysis
+                            </label>
+                        </div>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="driver_trends" name="driver_trends" checked>
+                            <label class="form-check-label" for="driver_trends">
+                                Include driver attendance trends
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-warning mb-4 d-none" id="no-files-warning">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0">
+                                <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+                            </div>
+                            <div>
+                                <h6 class="alert-heading mb-2">No Files Found</h6>
+                                <p class="mb-0">
+                                    No files were found for the selected date range. Please upload your data files before 
+                                    generating the report.
+                                </p>
+                                <div class="mt-2">
+                                    <a href="{{ url_for('weekly_driver_report.upload_files') }}" class="btn btn-sm btn-outline-light">
+                                        <i class="bi bi-upload me-1"></i> Upload Files
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-success mb-4 report-processing-alert d-none">
+                        <div class="d-flex align-items-center">
+                            <div class="spinner-border spinner-border-sm me-3" role="status">
+                                <span class="visually-hidden">Processing...</span>
+                            </div>
+                            <div>
+                                <h6 class="alert-heading mb-1">Generating Report</h6>
+                                <p class="mb-0">Please wait while your report is being generated...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('weekly_driver_report.dashboard') }}" class="btn btn-outline-secondary">
+                            Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary" id="generate-button">
+                            <i class="bi bi-file-earmark-plus me-2"></i> Generate Report
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-5 mb-4">
+        <div class="card bg-dark border-0 shadow-sm mb-4">
+            <div class="card-header bg-dark">
+                <h5 class="card-title mb-0">Quick Date Ranges</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush bg-dark mb-0">
+                    <a href="#" class="list-group-item list-group-item-action bg-dark" id="this-week">
+                        <div class="d-flex align-items-center">
+                            <div class="rounded bg-primary bg-opacity-10 p-2 me-3">
+                                <i class="bi bi-calendar-week text-primary"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">Current Week</h6>
+                                <p class="text-muted small mb-0" id="this-week-dates"></p>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <a href="#" class="list-group-item list-group-item-action bg-dark" id="last-week">
+                        <div class="d-flex align-items-center">
+                            <div class="rounded bg-info bg-opacity-10 p-2 me-3">
+                                <i class="bi bi-calendar-minus text-info"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">Last Week</h6>
+                                <p class="text-muted small mb-0" id="last-week-dates"></p>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <a href="#" class="list-group-item list-group-item-action bg-dark" id="custom-range">
+                        <div class="d-flex align-items-center">
+                            <div class="rounded bg-success bg-opacity-10 p-2 me-3">
+                                <i class="bi bi-calendar-range text-success"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">Custom Range</h6>
+                                <p class="text-muted small mb-0">Select custom start and end dates</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card bg-dark border-0 shadow-sm">
+            <div class="card-header bg-dark">
+                <h5 class="card-title mb-0">What's Included</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="mb-2">Driver Classification</h6>
+                    <ul class="mb-0 ps-3">
+                        <li>On Time: Drivers who arrived at their assigned job site on time</li>
+                        <li>Late: Drivers who arrived late to their assigned job site</li>
+                        <li>Early End: Drivers who left before the end of their shift</li>
+                        <li>Not On Job: Drivers who were not at their assigned job site</li>
+                    </ul>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="mb-2">Timecard Validation</h6>
+                    <ul class="mb-0 ps-3">
+                        <li>Cross-check between GPS data and timecard hours</li>
+                        <li>Identify discrepancies in reported hours</li>
+                    </ul>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="mb-2">Job Site Analysis</h6>
+                    <ul class="mb-0 ps-3">
+                        <li>Attendance rates by job site</li>
+                        <li>Driver assignments and compliance</li>
+                    </ul>
+                </div>
+                
+                <div class="alert alert-info mb-0">
+                    <i class="bi bi-info-circle-fill me-2"></i>
+                    <strong>Note:</strong> 
+                    Processing time depends on the amount of data. Reports for a full week may take a few minutes to generate.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const startDateInput = document.getElementById('start_date');
+        const endDateInput = document.getElementById('end_date');
+        const generateForm = document.getElementById('generate-form');
+        const generateButton = document.getElementById('generate-button');
+        const processingAlert = document.querySelector('.report-processing-alert');
+        const noFilesWarning = document.getElementById('no-files-warning');
+        
+        // Set current week as default
+        const today = new Date();
+        const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+        
+        // Calculate current week (Sunday to Saturday)
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(today.getDate() - currentDay); // Go back to Sunday
+        
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6); // Go forward to Saturday
+        
+        // Format dates for display
+        const formatDate = (date) => {
+            return date.toISOString().split('T')[0];
+        };
+        
+        const formatDisplayDate = (date) => {
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        };
+        
+        // Set default dates
+        startDateInput.value = formatDate(startOfWeek);
+        endDateInput.value = formatDate(endOfWeek);
+        
+        // Set up quick date ranges
+        const thisWeekElement = document.getElementById('this-week');
+        const lastWeekElement = document.getElementById('last-week');
+        const customRangeElement = document.getElementById('custom-range');
+        
+        // Show date ranges
+        document.getElementById('this-week-dates').textContent = 
+            `${formatDisplayDate(startOfWeek)} - ${formatDisplayDate(endOfWeek)}`;
+        
+        const lastWeekStart = new Date(startOfWeek);
+        lastWeekStart.setDate(lastWeekStart.getDate() - 7);
+        
+        const lastWeekEnd = new Date(endOfWeek);
+        lastWeekEnd.setDate(lastWeekEnd.getDate() - 7);
+        
+        document.getElementById('last-week-dates').textContent = 
+            `${formatDisplayDate(lastWeekStart)} - ${formatDisplayDate(lastWeekEnd)}`;
+        
+        // Click events for quick date ranges
+        thisWeekElement.addEventListener('click', function(e) {
+            e.preventDefault();
+            startDateInput.value = formatDate(startOfWeek);
+            endDateInput.value = formatDate(endOfWeek);
+        });
+        
+        lastWeekElement.addEventListener('click', function(e) {
+            e.preventDefault();
+            startDateInput.value = formatDate(lastWeekStart);
+            endDateInput.value = formatDate(lastWeekEnd);
+        });
+        
+        customRangeElement.addEventListener('click', function(e) {
+            e.preventDefault();
+            // Just focus on the start date input
+            startDateInput.focus();
+        });
+        
+        // Show processing message on form submit
+        generateForm.addEventListener('submit', function(e) {
+            // Validate date range
+            const start = new Date(startDateInput.value);
+            const end = new Date(endDateInput.value);
+            
+            if (start > end) {
+                e.preventDefault();
+                alert('Start date must be before end date');
+                return false;
+            }
+            
+            const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+            if (diffDays > 14) {
+                e.preventDefault();
+                alert('Date range should not exceed 14 days');
+                return false;
+            }
+            
+            // Show processing message
+            processingAlert.classList.remove('d-none');
+            generateButton.disabled = true;
+        });
+    });
+</script>
+{% endblock %}

@@ -451,25 +451,57 @@ class WeeklyDriverProcessor:
         """Get a set of all drivers from the records"""
         drivers = set()
         
-        # Extract drivers from driving records
+        # Extract drivers from driving records (use Contact field)
         for record in driving_records:
-            driver = record.get('Driver')
-            if driver:
-                drivers.add(driver)
+            contact = record.get('Contact')
+            if contact:
+                # Extract driver name from "Ammar Elhamad (210003)" format
+                driver_name = self._extract_driver_name(contact)
+                if driver_name:
+                    drivers.add(driver_name)
         
-        # Extract drivers from activity records
+        # Extract drivers from activity records (use Contact field)
         for record in activity_records:
-            driver = record.get('Driver')
-            if driver:
-                drivers.add(driver)
+            contact = record.get('Contact')
+            if contact:
+                driver_name = self._extract_driver_name(contact)
+                if driver_name:
+                    drivers.add(driver_name)
         
-        # Extract drivers from time on site records
+        # Extract drivers from time on site records (use Contact field)
         for record in time_on_site_records:
-            driver = record.get('Driver')
-            if driver:
-                drivers.add(driver)
+            contact = record.get('Contact')
+            if contact:
+                driver_name = self._extract_driver_name(contact)
+                if driver_name:
+                    drivers.add(driver_name)
         
         return drivers
+    
+    def _extract_driver_name(self, contact_field):
+        """
+        Extract driver name from contact field format like 'Ammar Elhamad (210003)'
+        
+        Args:
+            contact_field (str): Contact field from CSV
+            
+        Returns:
+            str: Cleaned driver name or None
+        """
+        if not contact_field or not isinstance(contact_field, str):
+            return None
+            
+        # Remove phone numbers and extra info, extract name portion
+        if '(' in contact_field:
+            name_part = contact_field.split('(')[0].strip()
+        else:
+            name_part = contact_field.strip()
+            
+        # Basic validation - must have at least first and last name
+        if len(name_part.split()) >= 2:
+            return name_part
+            
+        return None
     
     def _process_driver(self, driver_name, date_str, driving_records, activity_records, time_on_site_records):
         """
@@ -485,10 +517,27 @@ class WeeklyDriverProcessor:
         Returns:
             dict: Driver record with attendance classification
         """
-        # Filter records for this driver
-        driver_driving_records = [r for r in driving_records if r.get('Driver') == driver_name]
-        driver_activity_records = [r for r in activity_records if r.get('Driver') == driver_name]
-        driver_time_on_site = [r for r in time_on_site_records if r.get('Driver') == driver_name]
+        # Filter records for this driver using Contact field and extract driver names
+        driver_driving_records = []
+        for r in driving_records:
+            contact = r.get('Contact', '')
+            extracted_name = self._extract_driver_name(contact)
+            if extracted_name == driver_name:
+                driver_driving_records.append(r)
+        
+        driver_activity_records = []
+        for r in activity_records:
+            contact = r.get('Contact', '')
+            extracted_name = self._extract_driver_name(contact)
+            if extracted_name == driver_name:
+                driver_activity_records.append(r)
+        
+        driver_time_on_site = []
+        for r in time_on_site_records:
+            contact = r.get('Contact', '')
+            extracted_name = self._extract_driver_name(contact)
+            if extracted_name == driver_name:
+                driver_time_on_site.append(r)
         
         # Skip if no records found for this driver
         if not driver_driving_records and not driver_activity_records and not driver_time_on_site:
@@ -499,20 +548,10 @@ class WeeklyDriverProcessor:
         last_seen = None
         job_site = None
         
-        # Process driving records
+        # Process driving records - use EventDateTime field
         if driver_driving_records:
-            timestamps = [r.get('Timestamp') for r in driver_driving_records if r.get('Timestamp')]
-            if timestamps:
-                timestamps.sort()
-                if not first_seen or timestamps[0] < first_seen:
-                    first_seen = timestamps[0]
-                if not last_seen or timestamps[-1] > last_seen:
-                    last_seen = timestamps[-1]
-        
-        # Process activity records
-        if driver_activity_records:
-            timestamps = [r.get('Timestamp') for r in driver_activity_records if r.get('Timestamp')]
-            locations = [r.get('Location') for r in driver_activity_records if r.get('Location')]
+            timestamps = [r.get('EventDateTime') for r in driver_driving_records if r.get('EventDateTime')]
+            locations = [r.get('Location') for r in driver_driving_records if r.get('Location')]
             
             if timestamps:
                 timestamps.sort()
@@ -529,9 +568,29 @@ class WeeklyDriverProcessor:
                 
                 job_site = max(location_counts.items(), key=lambda x: x[1])[0]
         
-        # Process time on site records
+        # Process activity records - use EventDateTimex and Locationx fields
+        if driver_activity_records:
+            timestamps = [r.get('EventDateTimex') for r in driver_activity_records if r.get('EventDateTimex')]
+            locations = [r.get('Locationx') for r in driver_activity_records if r.get('Locationx')]
+            
+            if timestamps:
+                timestamps.sort()
+                if not first_seen or timestamps[0] < first_seen:
+                    first_seen = timestamps[0]
+                if not last_seen or timestamps[-1] > last_seen:
+                    last_seen = timestamps[-1]
+            
+            if locations and not job_site:
+                # Use the most common location as the job site
+                location_counts = {}
+                for loc in locations:
+                    location_counts[loc] = location_counts.get(loc, 0) + 1
+                
+                job_site = max(location_counts.items(), key=lambda x: x[1])[0]
+        
+        # Process time on site records - check for Jobsite field
         if driver_time_on_site:
-            timestamps = [r.get('Timestamp') for r in driver_time_on_site if r.get('Timestamp')]
+            timestamps = [r.get('EventDateTime') for r in driver_time_on_site if r.get('EventDateTime')]
             locations = [r.get('Jobsite') for r in driver_time_on_site if r.get('Jobsite')]
             
             if timestamps:

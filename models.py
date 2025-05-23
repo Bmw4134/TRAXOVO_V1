@@ -109,10 +109,7 @@ class Driver(db.Model):
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     
     organization = relationship('Organization', back_populates='drivers')
-    # Define assigned_assets with explicit join condition
-    assigned_assets = relationship('Asset', 
-                                 primaryjoin="and_(Driver.id==Asset.id)",
-                                 viewonly=True)
+    # Remove the problematic relationship for now
     job_site_id = Column(Integer, ForeignKey('job_sites.id'))
     job_site = relationship('JobSite', foreign_keys=[job_site_id])
     job_sites = relationship('JobSite', secondary=driver_jobsite_association, back_populates='drivers')
@@ -150,10 +147,7 @@ class Asset(db.Model):
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     
     organization = relationship('Organization', back_populates='assets')
-    # Add back the drivers relationship with explicit join condition
-    drivers = relationship('Driver', 
-                          primaryjoin="and_(Asset.id==Driver.id)",
-                          viewonly=True)
+    # Remove the problematic relationship for now
     locations = relationship('AssetLocation', back_populates='asset')
     job_sites = relationship('JobSite', secondary=asset_jobsite_association, back_populates='assets')
     

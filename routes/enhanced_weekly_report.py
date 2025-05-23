@@ -120,7 +120,7 @@ def dashboard():
         flash(f"Error displaying dashboard: {str(e)}", "danger")
         return render_template('enhanced_weekly_report/dashboard.html')
 
-@bp.route('/upload')
+@enhanced_weekly_report_bp.route('/upload')
 def upload():
     """Display upload form for weekly driver report data files"""
     try:

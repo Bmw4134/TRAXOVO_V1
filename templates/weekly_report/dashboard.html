@@ -24,7 +24,7 @@
                     <h5 class="mb-0">Select Week</h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{ url_for('weekly_report.view_report') }}" method="get" class="mb-3">
+                    <form action="{{ url_for('weekly_report.view_report', start_date='', end_date='') }}" method="get" class="mb-3">
                         <div class="row g-3">
                             <div class="col-md-5">
                                 <label for="start_date" class="form-label">Start Date</label>

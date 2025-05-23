@@ -71,7 +71,7 @@ def index():
     except Exception as e:
         logger.error(f"Error in weekly report index: {str(e)}")
         flash(f"Error loading weekly report dashboard: {str(e)}", "danger")
-        return render_template('enhanced_weekly_report/dashboard.html')
+        return render_template('weekly_report/dashboard.html')
 
 @bp.route('/view/may')
 def view_may_report():
@@ -153,7 +153,7 @@ def show_report(start_date, end_date):
         }
         
         return render_template(
-            'enhanced_weekly_report/view.html',
+            'weekly_report/view.html',
             report=report_data,
             start_date=start_date,
             end_date=end_date,

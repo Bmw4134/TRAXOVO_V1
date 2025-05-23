@@ -1,319 +1,549 @@
 """
-TRAXORA | Multi-Source Processor Utility
+Multi-Source Processor Module
 
-This module combines data from multiple report sources (TimeOnSite, ActivityDetail, DrivingHistory)
-using driver ID and date as join keys to create comprehensive attendance records.
+This module provides functionality for processing and combining data from multiple sources
+to create a unified dataset for the driver attendance report.
 """
+
+import os
+import json
 import logging
-from datetime import datetime
-from typing import List, Dict, Any, Optional
+from datetime import datetime, timedelta
+from fuzzywuzzy import fuzz, process
 
 # Configure logging
 logger = logging.getLogger(__name__)
 
-def combine_attendance_sources(
-    time_on_site_data: List[Dict[str, Any]], 
-    activity_detail_data: List[Dict[str, Any]], 
-    driving_history_data: List[Dict[str, Any]]
-) -> List[Dict[str, Any]]:
+def combine_attendance_sources(driving_history=None, time_on_site=None, activity_detail=None):
     """
-    Combine data from multiple sources using driver ID + date as the join key.
+    Combine data from multiple sources.
     
     Args:
-        time_on_site_data: List of processed TimeOnSite records
-        activity_detail_data: List of processed ActivityDetail records
-        driving_history_data: List of processed DrivingHistory records
+        driving_history: Driving history data
+        time_on_site: Time on site data
+        activity_detail: Activity detail data
         
     Returns:
-        List of combined attendance records with data from all sources
+        list: Combined data
     """
-    logger.info("Combining attendance data from multiple sources")
+    combined_data = []
     
-    # Create a dictionary to store combined records by driver+date key
-    combined_records = {}
+    # Process driving history
+    if driving_history:
+        for record in driving_history:
+            processed_record = process_driving_history_record(record)
+            if processed_record:
+                combined_data.append(processed_record)
     
-    # Process TimeOnSite data (site presence windows)
-    for record in time_on_site_data:
-        # Extract driver info and date
-        driver_id = normalize_driver_id(record.get('driver_id') or record.get('employee_id') or record.get('driver_name'))
-        record_date = extract_date(record)
-        
-        if not driver_id or not record_date:
-            continue
-            
-        # Create join key
-        join_key = f"{driver_id}_{record_date}"
-        
-        # Initialize combined record if not exists
-        if join_key not in combined_records:
-            combined_records[join_key] = {
-                'driver_id': driver_id,
-                'driver_name': record.get('driver_name', ''),
-                'date': record_date,
-                'job_site': record.get('job_site', ''),
-                'job_number': record.get('job_number', ''),
-                'time_on_site': {},
-                'activity_detail': {},
-                'driving_history': {},
-                'source_count': 0
-            }
-            
-        # Add TimeOnSite data
-        combined_records[join_key]['time_on_site'] = {
-            'arrival_time': record.get('arrival_time'),
-            'departure_time': record.get('departure_time'),
-            'duration': record.get('duration'),
-            'site_name': record.get('site_name') or record.get('job_site')
-        }
-        combined_records[join_key]['source_count'] += 1
+    # Process time on site
+    if time_on_site:
+        for record in time_on_site:
+            processed_record = process_time_on_site_record(record)
+            if processed_record:
+                combined_data.append(processed_record)
     
-    # Process ActivityDetail data (movement/activity context)
-    for record in activity_detail_data:
-        # Extract driver info and date
-        driver_id = normalize_driver_id(record.get('driver_id') or record.get('employee_id') or record.get('driver_name'))
-        record_date = extract_date(record)
-        
-        if not driver_id or not record_date:
-            continue
-            
-        # Create join key
-        join_key = f"{driver_id}_{record_date}"
-        
-        # Initialize combined record if not exists
-        if join_key not in combined_records:
-            combined_records[join_key] = {
-                'driver_id': driver_id, 
-                'driver_name': record.get('driver_name', ''),
-                'date': record_date,
-                'job_site': record.get('job_site', ''),
-                'job_number': record.get('job_number', ''),
-                'time_on_site': {},
-                'activity_detail': {},
-                'driving_history': {},
-                'source_count': 0
-            }
-            
-        # Add ActivityDetail data
-        combined_records[join_key]['activity_detail'] = {
-            'event_type': record.get('event_type'),
-            'activity': record.get('activity'),
-            'start_time': record.get('start_time'),
-            'end_time': record.get('end_time'),
-            'location': record.get('location') or record.get('job_site')
-        }
-        combined_records[join_key]['source_count'] += 1
+    # Process activity detail
+    if activity_detail:
+        for record in activity_detail:
+            processed_record = process_activity_detail_record(record)
+            if processed_record:
+                combined_data.append(processed_record)
     
-    # Process DrivingHistory data (arrive/depart sequence)
-    for record in driving_history_data:
-        # Extract driver info and date
-        driver_id = normalize_driver_id(record.get('driver_id') or record.get('employee_id') or record.get('driver_name'))
-        record_date = extract_date(record)
-        
-        if not driver_id or not record_date:
-            continue
-            
-        # Create join key
-        join_key = f"{driver_id}_{record_date}"
-        
-        # Initialize combined record if not exists
-        if join_key not in combined_records:
-            combined_records[join_key] = {
-                'driver_id': driver_id,
-                'driver_name': record.get('driver_name', ''),
-                'date': record_date,
-                'job_site': record.get('job_site', ''),
-                'job_number': record.get('job_number', ''),
-                'time_on_site': {},
-                'activity_detail': {},
-                'driving_history': {},
-                'source_count': 0
-            }
-            
-        # Add DrivingHistory data
-        combined_records[join_key]['driving_history'] = {
-            'first_start': record.get('first_start'),
-            'last_stop': record.get('last_stop'),
-            'total_driving': record.get('total_driving'),
-            'trip_count': record.get('trip_count'),
-            'start_location': record.get('start_location'),
-            'end_location': record.get('end_location')
-        }
-        combined_records[join_key]['source_count'] += 1
+    # Merge records for the same driver
+    merged_data = merge_driver_records(combined_data)
     
-    # Consolidate and enhance records with cross-validation
-    consolidated_records = []
-    for join_key, record in combined_records.items():
-        # Get the most accurate job site name across sources
-        job_site = get_best_job_site_name(record)
-        if job_site:
-            record['job_site'] = job_site
-            
-        # Get the most accurate driver name across sources
-        driver_name = get_best_driver_name(record)
-        if driver_name:
-            record['driver_name'] = driver_name
-            
-        # Add classification based on combined data
-        record['classification'] = classify_attendance(record)
-        
-        # Add additional flags for verification
-        record['has_time_on_site'] = bool(record['time_on_site'].get('arrival_time'))
-        record['has_activity'] = bool(record['activity_detail'].get('event_type'))
-        record['has_driving'] = bool(record['driving_history'].get('first_start'))
-        
-        # Add record to consolidated list
-        consolidated_records.append(record)
-    
-    logger.info(f"Combined {len(consolidated_records)} attendance records from multiple sources")
-    return consolidated_records
+    return merged_data
 
-def normalize_driver_id(driver_id: Optional[str]) -> Optional[str]:
-    """Normalize driver ID for consistent matching"""
-    if not driver_id:
-        return None
+def process_driving_history_record(record):
+    """
+    Process a driving history record.
+    
+    Args:
+        record: The record to process
         
-    # Strip whitespace and convert to lowercase
-    driver_id = str(driver_id).strip().lower()
-    
-    # Remove common prefixes/suffixes
-    driver_id = driver_id.replace('driver:', '').replace('id:', '')
-    
-    return driver_id
-
-def extract_date(record: Dict[str, Any]) -> Optional[str]:
-    """Extract date string from record in YYYY-MM-DD format"""
-    # Check for explicit date field
-    if 'date' in record:
-        date_val = record['date']
-        if isinstance(date_val, str):
-            # Try to parse and standardize the date
-            try:
-                date_obj = datetime.strptime(date_val, '%Y-%m-%d')
-                return date_obj.strftime('%Y-%m-%d')
-            except ValueError:
+    Returns:
+        dict: Processed record or None if invalid
+    """
+    try:
+        # Check if this is a valid record
+        required_fields = []
+        
+        # For Gauge API data
+        if ('Driver' in record or 'driver' in record or 'driver_name' in record or 'DriverName' in record):
+            # Extract driver name
+            driver_name = None
+            for field in ['Driver', 'driver', 'driver_name', 'DriverName']:
+                if field in record and record[field]:
+                    driver_name = record[field]
+                    break
+            
+            if not driver_name:
+                return None
+            
+            # Extract timestamp
+            timestamp = None
+            for field in ['timestamp', 'Timestamp', 'event_time', 'EventTime', 'time', 'Time']:
+                if field in record and record[field]:
+                    timestamp = record[field]
+                    break
+            
+            if not timestamp:
+                return None
+            
+            # Parse timestamp
+            if isinstance(timestamp, str):
                 try:
-                    # Try alternate format MM/DD/YYYY
-                    date_obj = datetime.strptime(date_val, '%m/%d/%Y')
-                    return date_obj.strftime('%Y-%m-%d')
-                except ValueError:
-                    pass
-    
-    # Try to extract from timestamp fields
-    for field in ['arrival_time', 'start_time', 'timestamp', 'first_start']:
-        if field in record and record[field]:
-            try:
-                date_str = str(record[field])
-                if 'T' in date_str:
-                    # ISO format with time
-                    date_obj = datetime.fromisoformat(date_str.split('T')[0])
-                    return date_obj.strftime('%Y-%m-%d')
-                elif ' ' in date_str:
-                    # Date with time
-                    date_part = date_str.split(' ')[0]
-                    if '-' in date_part:
-                        # YYYY-MM-DD
-                        return date_part
-                    elif '/' in date_part:
-                        # MM/DD/YYYY
-                        date_obj = datetime.strptime(date_part, '%m/%d/%Y')
-                        return date_obj.strftime('%Y-%m-%d')
-            except (ValueError, TypeError):
-                continue
-    
-    return None
-
-def get_best_job_site_name(record: Dict[str, Any]) -> Optional[str]:
-    """Get the most accurate job site name from all sources"""
-    # Collect all possible job site names from different sources
-    job_sites = []
-    
-    # From the main record
-    if record.get('job_site'):
-        job_sites.append(record['job_site'])
-    
-    # From time_on_site data
-    if record['time_on_site'].get('site_name'):
-        job_sites.append(record['time_on_site']['site_name'])
-    
-    # From activity_detail data
-    if record['activity_detail'].get('location'):
-        job_sites.append(record['activity_detail']['location'])
-    
-    # From driving_history data
-    if record['driving_history'].get('end_location'):
-        job_sites.append(record['driving_history']['end_location'])
-    
-    # Return the longest non-empty job site name (likely the most specific)
-    valid_sites = [site for site in job_sites if site and len(str(site)) > 0]
-    if valid_sites:
-        return max(valid_sites, key=len)
-    
-    return None
-
-def get_best_driver_name(record: Dict[str, Any]) -> Optional[str]:
-    """Get the most accurate driver name from all sources"""
-    # Use the existing driver name if available
-    if record.get('driver_name'):
-        return record['driver_name']
-    
-    # No other source has better driver name information
-    return None
-
-def classify_attendance(record: Dict[str, Any]) -> str:
-    """
-    Classify attendance based on combined data from all sources
-    Uses strict rules for classification with verification across sources
-    """
-    # No data from any source
-    if record['source_count'] == 0:
-        return 'Unknown'
-    
-    # Check for time on site data (most reliable for attendance)
-    if record['has_time_on_site']:
-        arrival_time = record['time_on_site'].get('arrival_time')
-        departure_time = record['time_on_site'].get('departure_time')
-        
-        # Validate with driving history if available
-        if record['has_driving']:
-            first_start = record['driving_history'].get('first_start')
+                    # Try different formats
+                    formats = [
+                        '%Y-%m-%d %H:%M:%S',
+                        '%m/%d/%Y %H:%M:%S',
+                        '%Y-%m-%dT%H:%M:%S',
+                        '%Y-%m-%dT%H:%M:%S.%f'
+                    ]
+                    
+                    parsed_time = None
+                    for fmt in formats:
+                        try:
+                            parsed_time = datetime.strptime(timestamp, fmt)
+                            break
+                        except ValueError:
+                            continue
+                    
+                    if not parsed_time:
+                        return None
+                    
+                    timestamp = parsed_time
+                except Exception:
+                    return None
+            elif not isinstance(timestamp, datetime):
+                return None
             
-            # Late arrival (arrived after 7:00 AM)
-            if arrival_time and isinstance(arrival_time, str) and 'T' in arrival_time:
-                time_part = arrival_time.split('T')[1]
-                if time_part > '07:00:00':
-                    return 'Late'
+            # Extract location
+            location = None
+            for field in ['location', 'Location', 'address', 'Address', 'place', 'Place']:
+                if field in record and record[field]:
+                    location = record[field]
+                    break
+            
+            # Extract event type
+            event_type = None
+            for field in ['event_type', 'EventType', 'event', 'Event', 'action', 'Action']:
+                if field in record and record[field]:
+                    event_type = record[field]
+                    break
+            
+            # Create processed record
+            processed_record = {
+                'source': 'driving_history',
+                'driver_name': driver_name,
+                'timestamp': timestamp,
+                'location': location,
+                'event_type': event_type
+            }
+            
+            # Extract additional fields
+            for field in record:
+                if field not in processed_record and record[field] is not None:
+                    processed_record[field] = record[field]
+            
+            return processed_record
         
-        # Early departure (left before 3:30 PM)
-        if departure_time and isinstance(departure_time, str) and 'T' in departure_time:
-            time_part = departure_time.split('T')[1]
-            if time_part < '15:30:00':
-                return 'Early End'
-        
-        # On time (has time on site and no late/early flags)
-        return 'On Time'
+        return None
     
-    # No time on site data but has driving history
-    elif record['has_driving']:
-        # Check driving times for attendance classification
-        first_start = record['driving_history'].get('first_start')
-        last_stop = record['driving_history'].get('last_stop')
-        
-        # No actual driving detected
-        if not first_start or not last_stop:
-            return 'No Show'
-        
-        # Some driving but incomplete day
-        return 'Partial'
+    except Exception as e:
+        logger.error(f"Error processing driving history record: {str(e)}")
+        return None
+
+def process_time_on_site_record(record):
+    """
+    Process a time on site record.
     
-    # Has activity but no time on site or driving
-    elif record['has_activity']:
-        event_type = record['activity_detail'].get('event_type')
+    Args:
+        record: The record to process
         
-        # Check if any meaningful activity was recorded
-        if event_type and event_type.lower() not in ['idle', 'inactive', 'off duty']:
-            return 'Activity Only'
+    Returns:
+        dict: Processed record or None if invalid
+    """
+    try:
+        # Check if this is a valid record
+        required_fields = []
         
-        return 'Inactive'
+        # For Gauge API data
+        if ('Asset' in record or 'asset' in record or 'asset_id' in record or 'AssetID' in record):
+            # Extract asset information
+            asset_id = None
+            for field in ['Asset', 'asset', 'asset_id', 'AssetID', 'id', 'ID']:
+                if field in record and record[field]:
+                    asset_id = record[field]
+                    break
+            
+            if not asset_id:
+                return None
+            
+            # Extract asset name
+            asset_name = None
+            for field in ['asset_name', 'AssetName', 'name', 'Name', 'asset_description', 'AssetDescription']:
+                if field in record and record[field]:
+                    asset_name = record[field]
+                    break
+            
+            # Extract driver information
+            driver_name = None
+            for field in ['driver', 'Driver', 'operator', 'Operator', 'driver_name', 'DriverName']:
+                if field in record and record[field]:
+                    driver_name = record[field]
+                    break
+            
+            # Extract on time and off time
+            on_time = None
+            off_time = None
+            
+            for field in ['on_time', 'OnTime', 'start_time', 'StartTime', 'arrival_time', 'ArrivalTime']:
+                if field in record and record[field]:
+                    on_time = record[field]
+                    break
+            
+            for field in ['off_time', 'OffTime', 'end_time', 'EndTime', 'departure_time', 'DepartureTime']:
+                if field in record and record[field]:
+                    off_time = record[field]
+                    break
+            
+            # Extract job site information
+            job_site = None
+            for field in ['job_site', 'JobSite', 'site', 'Site', 'location', 'Location']:
+                if field in record and record[field]:
+                    job_site = record[field]
+                    break
+            
+            # Extract job number
+            job_number = None
+            for field in ['job_number', 'JobNumber', 'job_id', 'JobID', 'job', 'Job']:
+                if field in record and record[field]:
+                    job_number = record[field]
+                    break
+            
+            # Create processed record
+            processed_record = {
+                'source': 'time_on_site',
+                'asset_id': asset_id,
+                'asset_name': asset_name,
+                'driver_name': driver_name,
+                'start_time': on_time,
+                'end_time': off_time,
+                'job_site': job_site,
+                'job_number': job_number,
+                'location': job_site
+            }
+            
+            # Extract additional fields
+            for field in record:
+                if field not in processed_record and record[field] is not None:
+                    processed_record[field] = record[field]
+            
+            return processed_record
+        
+        return None
     
-    # No meaningful data found
-    return 'Unknown'
+    except Exception as e:
+        logger.error(f"Error processing time on site record: {str(e)}")
+        return None
+
+def process_activity_detail_record(record):
+    """
+    Process an activity detail record.
+    
+    Args:
+        record: The record to process
+        
+    Returns:
+        dict: Processed record or None if invalid
+    """
+    try:
+        # Check if this is a valid record
+        required_fields = []
+        
+        # For Gauge API data
+        if ('Activity' in record or 'activity' in record or 'activity_id' in record or 'ActivityID' in record):
+            # Extract activity information
+            activity_id = None
+            for field in ['Activity', 'activity', 'activity_id', 'ActivityID', 'id', 'ID']:
+                if field in record and record[field]:
+                    activity_id = record[field]
+                    break
+            
+            if not activity_id:
+                return None
+            
+            # Extract asset information
+            asset_id = None
+            for field in ['asset_id', 'AssetID', 'asset', 'Asset']:
+                if field in record and record[field]:
+                    asset_id = record[field]
+                    break
+            
+            # Extract driver information
+            driver_name = None
+            for field in ['driver', 'Driver', 'operator', 'Operator', 'driver_name', 'DriverName']:
+                if field in record and record[field]:
+                    driver_name = record[field]
+                    break
+            
+            # Extract timestamp
+            timestamp = None
+            for field in ['timestamp', 'Timestamp', 'time', 'Time', 'date', 'Date']:
+                if field in record and record[field]:
+                    timestamp = record[field]
+                    break
+            
+            # Extract location
+            location = None
+            for field in ['location', 'Location', 'address', 'Address', 'place', 'Place']:
+                if field in record and record[field]:
+                    location = record[field]
+                    break
+            
+            # Extract job site information
+            job_site = None
+            for field in ['job_site', 'JobSite', 'site', 'Site']:
+                if field in record and record[field]:
+                    job_site = record[field]
+                    break
+            
+            # Create processed record
+            processed_record = {
+                'source': 'activity_detail',
+                'activity_id': activity_id,
+                'asset_id': asset_id,
+                'driver_name': driver_name,
+                'timestamp': timestamp,
+                'location': location or job_site
+            }
+            
+            # Extract additional fields
+            for field in record:
+                if field not in processed_record and record[field] is not None:
+                    processed_record[field] = record[field]
+            
+            return processed_record
+        
+        return None
+    
+    except Exception as e:
+        logger.error(f"Error processing activity detail record: {str(e)}")
+        return None
+
+def merge_driver_records(records):
+    """
+    Merge records for the same driver.
+    
+    Args:
+        records: List of records
+        
+    Returns:
+        list: Merged records
+    """
+    # Create a map of driver names to records
+    driver_records = {}
+    
+    for record in records:
+        # Skip records without driver name
+        if not record.get('driver_name'):
+            continue
+        
+        # Normalize driver name for consistent matching
+        driver_name = normalize_driver_name(record['driver_name'])
+        
+        # If this driver already has records, merge the new record
+        if driver_name in driver_records:
+            driver_records[driver_name].append(record)
+        else:
+            driver_records[driver_name] = [record]
+    
+    # Process each driver's records
+    merged_records = []
+    
+    for driver_name, driver_data in driver_records.items():
+        # Sort records by timestamp
+        driver_data.sort(key=lambda x: x.get('timestamp') if isinstance(x.get('timestamp'), datetime) else datetime.min)
+        
+        # Create a merged record
+        merged_record = {
+            'driver_name': driver_name,
+            'sources': [record.get('source') for record in driver_data],
+            'locations': []
+        }
+        
+        # Process time-related fields
+        start_times = []
+        end_times = []
+        timestamps = []
+        
+        for record in driver_data:
+            # Collect start times
+            if record.get('start_time'):
+                if isinstance(record['start_time'], datetime):
+                    start_times.append(record['start_time'])
+                elif isinstance(record['start_time'], str):
+                    try:
+                        # Try to parse the time string
+                        parsed_time = datetime.strptime(record['start_time'], '%H:%M:%S')
+                        start_times.append(parsed_time)
+                    except ValueError:
+                        try:
+                            parsed_time = datetime.strptime(record['start_time'], '%H:%M')
+                            start_times.append(parsed_time)
+                        except ValueError:
+                            pass
+            
+            # Collect end times
+            if record.get('end_time'):
+                if isinstance(record['end_time'], datetime):
+                    end_times.append(record['end_time'])
+                elif isinstance(record['end_time'], str):
+                    try:
+                        # Try to parse the time string
+                        parsed_time = datetime.strptime(record['end_time'], '%H:%M:%S')
+                        end_times.append(parsed_time)
+                    except ValueError:
+                        try:
+                            parsed_time = datetime.strptime(record['end_time'], '%H:%M')
+                            end_times.append(parsed_time)
+                        except ValueError:
+                            pass
+            
+            # Collect timestamps
+            if record.get('timestamp') and isinstance(record['timestamp'], datetime):
+                timestamps.append(record['timestamp'])
+            
+            # Collect locations
+            if record.get('location') and record['location'] not in merged_record['locations']:
+                merged_record['locations'].append(record['location'])
+            
+            # Copy other fields if not already set
+            for field, value in record.items():
+                if field not in ['driver_name', 'source', 'sources', 'timestamp', 'start_time', 'end_time', 'location', 'locations'] and value is not None:
+                    if field not in merged_record:
+                        merged_record[field] = value
+        
+        # Determine start and end times
+        if start_times:
+            # Use the earliest start time
+            merged_record['start_time'] = min(start_times).strftime('%H:%M:%S')
+        elif timestamps:
+            # Use the earliest timestamp as start time
+            merged_record['start_time'] = min(timestamps).strftime('%H:%M:%S')
+        
+        if end_times:
+            # Use the latest end time
+            merged_record['end_time'] = max(end_times).strftime('%H:%M:%S')
+        elif timestamps:
+            # Use the latest timestamp as end time
+            merged_record['end_time'] = max(timestamps).strftime('%H:%M:%S')
+        
+        # Add the merged record
+        merged_records.append(merged_record)
+    
+    return merged_records
+
+def normalize_driver_name(name):
+    """
+    Normalize driver name for consistent matching.
+    
+    Args:
+        name: Driver name
+        
+    Returns:
+        str: Normalized name
+    """
+    if not name:
+        return ''
+    
+    # Convert to string
+    name = str(name).strip()
+    
+    # Convert to lowercase
+    name = name.lower()
+    
+    # Remove common titles
+    titles = ['mr.', 'mrs.', 'ms.', 'miss', 'dr.', 'prof.']
+    for title in titles:
+        if name.startswith(title + ' '):
+            name = name[len(title) + 1:]
+    
+    # Remove special characters and double spaces
+    name = ''.join(c for c in name if c.isalnum() or c.isspace())
+    name = ' '.join(name.split())
+    
+    return name.strip()
+
+def get_closest_driver_match(target_name, driver_list, threshold=80):
+    """
+    Get the closest driver name match from a list.
+    
+    Args:
+        target_name: Target driver name
+        driver_list: List of driver names
+        threshold: Matching threshold (0-100)
+        
+    Returns:
+        str: Closest match or None if no match above threshold
+    """
+    if not target_name or not driver_list:
+        return None
+    
+    # Normalize target name
+    target_name = normalize_driver_name(target_name)
+    
+    # Normalize driver list
+    normalized_list = [normalize_driver_name(name) for name in driver_list]
+    
+    # Find the closest match
+    if target_name in normalized_list:
+        # Exact match
+        index = normalized_list.index(target_name)
+        return driver_list[index]
+    else:
+        # Fuzzy match
+        match, score = process.extractOne(target_name, normalized_list)
+        
+        if score >= threshold:
+            index = normalized_list.index(match)
+            return driver_list[index]
+    
+    return None
+
+def get_closest_location_match(target_location, location_list, threshold=80):
+    """
+    Get the closest location match from a list.
+    
+    Args:
+        target_location: Target location
+        location_list: List of locations
+        threshold: Matching threshold (0-100)
+        
+    Returns:
+        str: Closest match or None if no match above threshold
+    """
+    if not target_location or not location_list:
+        return None
+    
+    # Normalize target location
+    target_location = str(target_location).lower().strip()
+    
+    # Normalize location list
+    normalized_list = [str(loc).lower().strip() for loc in location_list]
+    
+    # Find the closest match
+    if target_location in normalized_list:
+        # Exact match
+        index = normalized_list.index(target_location)
+        return location_list[index]
+    else:
+        # Fuzzy match
+        match, score = process.extractOne(target_location, normalized_list)
+        
+        if score >= threshold:
+            index = normalized_list.index(match)
+            return location_list[index]
+    
+    return None

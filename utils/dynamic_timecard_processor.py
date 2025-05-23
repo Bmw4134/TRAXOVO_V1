@@ -1,754 +1,455 @@
 """
 Dynamic Timecard Processor
 
-This module processes dynamic Excel timecard workbooks with formulas intact,
-evaluates the Excel logic, and prepares the data for comparison with GPS records.
+This module provides functionality for processing timecard data from Excel files,
+with formula evaluation capabilities to accurately extract driver hours.
 """
 
 import os
+import re
 import logging
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
-import openpyxl
 from formulas import Parser
+from openpyxl import load_workbook
+from fuzzywuzzy import fuzz, process
 
 # Configure logging
 logger = logging.getLogger(__name__)
 
-class DynamicTimecardProcessor:
-    """
-    Process dynamic Excel timecard workbooks with formulas intact
-    """
-    
-    def __init__(self, file_path):
-        """Initialize processor with file path"""
-        self.file_path = file_path
-        self.workbook = None
-        self.formula_workbook = None
-        self.sheets = {}
-        self.dataframes = {}
-    
-    def load_workbook(self):
-        """Load workbook with formulas intact"""
-        try:
-            # Load with formulas intact
-            logger.info(f"Loading workbook with formulas intact: {self.file_path}")
-            self.workbook = openpyxl.load_workbook(self.file_path, data_only=False)
-            
-            # Also load with data_only for comparison
-            data_wb = openpyxl.load_workbook(self.file_path, data_only=True)
-            
-            # Store sheet names
-            self.sheets = {sheet_name: sheet for sheet_name, sheet in 
-                           zip(self.workbook.sheetnames, self.workbook.worksheets)}
-            
-            # Setup formula parser
-            self.setup_formula_parser()
-            
-            return True
-        
-        except Exception as e:
-            logger.error(f"Error loading workbook: {str(e)}")
-            return False
-    
-    def setup_formula_parser(self):
-        """Set up formula parser"""
-        try:
-            # Create a formula parser with the workbook
-            self.formula_parser = Parser()
-            
-            # Load all cell formulas
-            for sheet_name, sheet in self.sheets.items():
-                for row in sheet.iter_rows():
-                    for cell in row:
-                        if cell.data_type == 'f':  # If cell contains formula
-                            formula = cell.value
-                            cell_ref = f"{sheet_name}!{cell.coordinate}"
-                            self.formula_parser.add(f"={formula}", cell_ref)
-            
-            # Compile the parser
-            self.formula_parser.compile()
-            
-        except Exception as e:
-            logger.error(f"Error setting up formula parser: {str(e)}")
-    
-    def evaluate_formula(self, sheet_name, cell_reference):
-        """Evaluate formula at specified cell reference"""
-        try:
-            cell_ref = f"{sheet_name}!{cell_reference}"
-            value = self.formula_parser.calculate(cell_ref)
-            return value
-        except Exception as e:
-            logger.error(f"Error evaluating formula {cell_ref}: {str(e)}")
-            return None
-    
-    def extract_hours_data(self):
-        """Extract hours data from the workbook"""
-        try:
-            # Look for the Hours sheet or section
-            hours_sheet = None
-            hours_df = None
-            
-            # Try to find hours data in various ways
-            for sheet_name in self.workbook.sheetnames:
-                if 'hour' in sheet_name.lower():
-                    hours_sheet = sheet_name
-                    break
-            
-            if not hours_sheet:
-                # If no specific hours sheet, look for hours data in all sheets
-                for sheet_name in self.workbook.sheetnames:
-                    sheet = self.workbook[sheet_name]
-                    
-                    # Search for Hours header
-                    for row in sheet.iter_rows():
-                        for cell in row:
-                            if cell.value and isinstance(cell.value, str) and 'hour' in cell.value.lower():
-                                hours_sheet = sheet_name
-                                break
-                        if hours_sheet:
-                            break
-            
-            if hours_sheet:
-                # Convert sheet to dataframe
-                sheet = self.workbook[hours_sheet]
-                data = []
-                for row in sheet.iter_rows(values_only=True):
-                    data.append(row)
-                
-                if data:
-                    # Try to infer header row
-                    header_row = 0
-                    for i, row in enumerate(data):
-                        if row and any(isinstance(cell, str) and ('name' in cell.lower() or 'date' in cell.lower()) for cell in row if cell):
-                            header_row = i
-                            break
-                    
-                    # Extract headers
-                    headers = data[header_row]
-                    # Clean up headers
-                    headers = [str(h).strip() if h else f"Column_{i}" for i, h in enumerate(headers)]
-                    
-                    # Extract data rows
-                    data_rows = data[header_row+1:]
-                    
-                    # Convert to dataframe
-                    hours_df = pd.DataFrame(data_rows, columns=headers)
-                    
-                    # Clean up dataframe
-                    hours_df = hours_df.replace('', np.nan).dropna(how='all')
-                    
-                    # Store in dataframes dict
-                    self.dataframes['hours'] = hours_df
-                    logger.info(f"Extracted hours data: {hours_df.shape[0]} rows")
-                
-                else:
-                    logger.warning(f"No data found in hours sheet: {hours_sheet}")
-            
-            else:
-                logger.warning("No hours sheet found in workbook")
-            
-            return hours_df
-        
-        except Exception as e:
-            logger.error(f"Error extracting hours data: {str(e)}")
-            return None
-    
-    def extract_quantities_data(self):
-        """Extract quantities data from the workbook"""
-        try:
-            # Look for the Quantities sheet or section
-            quantities_sheet = None
-            quantities_df = None
-            
-            # Try to find quantities data in various ways
-            for sheet_name in self.workbook.sheetnames:
-                if 'quantit' in sheet_name.lower():
-                    quantities_sheet = sheet_name
-                    break
-            
-            if not quantities_sheet:
-                # If no specific quantities sheet, look for quantities data in all sheets
-                for sheet_name in self.workbook.sheetnames:
-                    sheet = self.workbook[sheet_name]
-                    
-                    # Search for Quantities header
-                    for row in sheet.iter_rows():
-                        for cell in row:
-                            if cell.value and isinstance(cell.value, str) and 'quantit' in cell.value.lower():
-                                quantities_sheet = sheet_name
-                                break
-                        if quantities_sheet:
-                            break
-            
-            if quantities_sheet:
-                # Convert sheet to dataframe
-                sheet = self.workbook[quantities_sheet]
-                data = []
-                for row in sheet.iter_rows(values_only=True):
-                    data.append(row)
-                
-                if data:
-                    # Try to infer header row
-                    header_row = 0
-                    for i, row in enumerate(data):
-                        if row and any(isinstance(cell, str) and ('item' in str(cell).lower() or 'quant' in str(cell).lower()) for cell in row if cell):
-                            header_row = i
-                            break
-                    
-                    # Extract headers
-                    headers = data[header_row]
-                    # Clean up headers
-                    headers = [str(h).strip() if h else f"Column_{i}" for i, h in enumerate(headers)]
-                    
-                    # Extract data rows
-                    data_rows = data[header_row+1:]
-                    
-                    # Convert to dataframe
-                    quantities_df = pd.DataFrame(data_rows, columns=headers)
-                    
-                    # Clean up dataframe
-                    quantities_df = quantities_df.replace('', np.nan).dropna(how='all')
-                    
-                    # Store in dataframes dict
-                    self.dataframes['quantities'] = quantities_df
-                    logger.info(f"Extracted quantities data: {quantities_df.shape[0]} rows")
-                
-                else:
-                    logger.warning(f"No data found in quantities sheet: {quantities_sheet}")
-            
-            else:
-                logger.warning("No quantities sheet found in workbook")
-            
-            return quantities_df
-        
-        except Exception as e:
-            logger.error(f"Error extracting quantities data: {str(e)}")
-            return None
-    
-    def extract_zero_hours_data(self):
-        """Extract zero hours/timecard data from the workbook"""
-        try:
-            # Look for the Zero Hours sheet or section
-            zero_hours_sheet = None
-            zero_hours_df = None
-            
-            # Try to find zero hours data in various ways
-            for sheet_name in self.workbook.sheetnames:
-                if 'zero' in sheet_name.lower() or 'time' in sheet_name.lower():
-                    zero_hours_sheet = sheet_name
-                    break
-            
-            if not zero_hours_sheet:
-                # If no specific zero hours sheet, look for zero hours data in all sheets
-                for sheet_name in self.workbook.sheetnames:
-                    sheet = self.workbook[sheet_name]
-                    
-                    # Search for Zero Hours header
-                    for row in sheet.iter_rows():
-                        for cell in row:
-                            if cell.value and isinstance(cell.value, str) and ('zero' in cell.value.lower() or 'timecard' in cell.value.lower()):
-                                zero_hours_sheet = sheet_name
-                                break
-                        if zero_hours_sheet:
-                            break
-            
-            if zero_hours_sheet:
-                # Convert sheet to dataframe
-                sheet = self.workbook[zero_hours_sheet]
-                data = []
-                for row in sheet.iter_rows(values_only=True):
-                    data.append(row)
-                
-                if data:
-                    # Try to infer header row
-                    header_row = 0
-                    for i, row in enumerate(data):
-                        if row and any(isinstance(cell, str) and ('name' in str(cell).lower() or 'zero' in str(cell).lower()) for cell in row if cell):
-                            header_row = i
-                            break
-                    
-                    # Extract headers
-                    headers = data[header_row]
-                    # Clean up headers
-                    headers = [str(h).strip() if h else f"Column_{i}" for i, h in enumerate(headers)]
-                    
-                    # Extract data rows
-                    data_rows = data[header_row+1:]
-                    
-                    # Convert to dataframe
-                    zero_hours_df = pd.DataFrame(data_rows, columns=headers)
-                    
-                    # Clean up dataframe
-                    zero_hours_df = zero_hours_df.replace('', np.nan).dropna(how='all')
-                    
-                    # Store in dataframes dict
-                    self.dataframes['zero_hours'] = zero_hours_df
-                    logger.info(f"Extracted zero hours data: {zero_hours_df.shape[0]} rows")
-                
-                else:
-                    logger.warning(f"No data found in zero hours sheet: {zero_hours_sheet}")
-            
-            else:
-                logger.warning("No zero hours sheet found in workbook")
-            
-            return zero_hours_df
-        
-        except Exception as e:
-            logger.error(f"Error extracting zero hours data: {str(e)}")
-            return None
-    
-    def process_workbook(self):
-        """Process the workbook and extract all relevant data"""
-        try:
-            if not self.workbook:
-                if not self.load_workbook():
-                    return False
-            
-            # Extract hours data
-            hours_df = self.extract_hours_data()
-            
-            # Extract quantities data
-            quantities_df = self.extract_quantities_data()
-            
-            # Extract zero hours data
-            zero_hours_df = self.extract_zero_hours_data()
-            
-            return True
-        
-        except Exception as e:
-            logger.error(f"Error processing workbook: {str(e)}")
-            return False
-    
-    def prepare_data_for_comparison(self, date_str=None):
-        """
-        Prepare data for comparison with GPS records
-        
-        Args:
-            date_str: Specific date to filter for (YYYY-MM-DD)
-        
-        Returns:
-            DataFrame: Combined data for comparison
-        """
-        try:
-            # Process workbook if not already done
-            if not self.dataframes:
-                if not self.process_workbook():
-                    return None
-            
-            # Initialize combined dataframe
-            combined_data = []
-            
-            # Process hours data
-            if 'hours' in self.dataframes:
-                hours_df = self.dataframes['hours']
-                
-                # Extract driver/employee information
-                if hours_df is not None and not hours_df.empty:
-                    # Identify columns for driver name, job, and hours
-                    name_col = None
-                    job_col = None
-                    date_col = None
-                    hours_cols = []
-                    
-                    for col in hours_df.columns:
-                        col_lower = col.lower()
-                        if 'name' in col_lower or 'employee' in col_lower or 'driver' in col_lower:
-                            name_col = col
-                        elif 'job' in col_lower or 'project' in col_lower:
-                            job_col = col
-                        elif 'date' in col_lower:
-                            date_col = col
-                        elif 'hour' in col_lower or 'time' in col_lower:
-                            hours_cols.append(col)
-                    
-                    # If date column is not found, try to infer date from workbook
-                    if not date_col and date_str:
-                        # Use provided date
-                        report_date = datetime.strptime(date_str, '%Y-%m-%d')
-                    else:
-                        # Use current date
-                        report_date = datetime.now()
-                    
-                    # Process each row
-                    for idx, row in hours_df.iterrows():
-                        driver_name = row[name_col] if name_col and not pd.isna(row[name_col]) else f"Unknown Driver {idx}"
-                        job_number = row[job_col] if job_col and not pd.isna(row[job_col]) else ""
-                        
-                        # Format driver name (Last, First -> First Last)
-                        if driver_name and isinstance(driver_name, str) and ',' in driver_name:
-                            last, first = driver_name.split(',', 1)
-                            driver_name = f"{first.strip()} {last.strip()}"
-                        
-                        # Extract date
-                        if date_col and not pd.isna(row[date_col]):
-                            try:
-                                if isinstance(row[date_col], datetime):
-                                    entry_date = row[date_col]
-                                else:
-                                    # Try to parse date string
-                                    entry_date = pd.to_datetime(row[date_col])
-                            except:
-                                # Use report date as fallback
-                                entry_date = report_date
-                        else:
-                            entry_date = report_date
-                        
-                        # Extract hours
-                        total_hours = 0
-                        for hours_col in hours_cols:
-                            if not pd.isna(row[hours_col]):
-                                try:
-                                    hours_val = float(row[hours_col])
-                                    total_hours += hours_val
-                                except:
-                                    pass
-                        
-                        # Skip rows with zero hours unless specifically keeping them
-                        if total_hours == 0:
-                            continue
-                        
-                        # Create record
-                        record = {
-                            'driver_name': driver_name,
-                            'job_number': job_number,
-                            'date': entry_date,
-                            'reported_hours': total_hours,
-                            'source': 'hours',
-                            'status': 'active'
-                        }
-                        
-                        combined_data.append(record)
-            
-            # Process zero hours data (absences, PTO, etc.)
-            if 'zero_hours' in self.dataframes:
-                zero_df = self.dataframes['zero_hours']
-                
-                # Extract driver/employee information
-                if zero_df is not None and not zero_df.empty:
-                    # Identify columns for driver name, job, and reason
-                    name_col = None
-                    job_col = None
-                    date_col = None
-                    reason_col = None
-                    
-                    for col in zero_df.columns:
-                        col_lower = col.lower()
-                        if 'name' in col_lower or 'employee' in col_lower or 'driver' in col_lower:
-                            name_col = col
-                        elif 'job' in col_lower or 'project' in col_lower:
-                            job_col = col
-                        elif 'date' in col_lower:
-                            date_col = col
-                        elif 'reason' in col_lower or 'status' in col_lower or 'comment' in col_lower:
-                            reason_col = col
-                    
-                    # If date column is not found, try to infer date from workbook
-                    if not date_col and date_str:
-                        # Use provided date
-                        report_date = datetime.strptime(date_str, '%Y-%m-%d')
-                    else:
-                        # Use current date
-                        report_date = datetime.now()
-                    
-                    # Process each row
-                    for idx, row in zero_df.iterrows():
-                        driver_name = row[name_col] if name_col and not pd.isna(row[name_col]) else f"Unknown Driver {idx}"
-                        job_number = row[job_col] if job_col and not pd.isna(row[job_col]) else ""
-                        reason = row[reason_col] if reason_col and not pd.isna(row[reason_col]) else "No reason provided"
-                        
-                        # Format driver name (Last, First -> First Last)
-                        if driver_name and isinstance(driver_name, str) and ',' in driver_name:
-                            last, first = driver_name.split(',', 1)
-                            driver_name = f"{first.strip()} {last.strip()}"
-                        
-                        # Extract date
-                        if date_col and not pd.isna(row[date_col]):
-                            try:
-                                if isinstance(row[date_col], datetime):
-                                    entry_date = row[date_col]
-                                else:
-                                    # Try to parse date string
-                                    entry_date = pd.to_datetime(row[date_col])
-                            except:
-                                # Use report date as fallback
-                                entry_date = report_date
-                        else:
-                            entry_date = report_date
-                        
-                        # Create record
-                        record = {
-                            'driver_name': driver_name,
-                            'job_number': job_number,
-                            'date': entry_date,
-                            'reported_hours': 0,
-                            'source': 'timecard_absence',
-                            'status': 'absent',
-                            'reason': reason
-                        }
-                        
-                        combined_data.append(record)
-            
-            # Convert to DataFrame
-            combined_df = pd.DataFrame(combined_data)
-            
-            # Filter by date if specified
-            if combined_df is not None and not combined_df.empty and date_str:
-                try:
-                    filter_date = datetime.strptime(date_str, '%Y-%m-%d').date()
-                    combined_df = combined_df[combined_df['date'].dt.date == filter_date]
-                except Exception as e:
-                    logger.error(f"Error filtering by date: {str(e)}")
-            
-            logger.info(f"Prepared {len(combined_data)} records for comparison")
-            return combined_df
-        
-        except Exception as e:
-            logger.error(f"Error preparing data for comparison: {str(e)}")
-            return None
-
-
 def process_dynamic_timecard(file_path, start_date=None, end_date=None):
     """
-    Process a dynamic timecard Excel file with formulas
+    Process timecard data from an Excel file with formula support.
     
     Args:
-        file_path: Path to Excel file
-        start_date: Start date in YYYY-MM-DD format
-        end_date: End date in YYYY-MM-DD format
-    
+        file_path: Path to the Excel file
+        start_date: Start date for filtering (optional)
+        end_date: End date for filtering (optional)
+        
     Returns:
         DataFrame: Processed timecard data
     """
     try:
-        logger.info(f"Processing dynamic timecard: {file_path}")
+        logger.info(f"Processing timecard file: {file_path}")
         
-        # Initialize processor
-        processor = DynamicTimecardProcessor(file_path)
+        # Load Excel file with openpyxl for formula extraction
+        wb = load_workbook(file_path, data_only=False)
         
-        # Process workbook
-        if not processor.process_workbook():
-            logger.error("Failed to process workbook")
+        # Get all sheet names
+        sheet_names = wb.sheetnames
+        
+        # Try to find the relevant sheet
+        timecard_sheet = None
+        for name in sheet_names:
+            name_lower = name.lower()
+            if any(term in name_lower for term in ['timecard', 'time card', 'hours', 'daily']):
+                timecard_sheet = name
+                break
+        
+        # If no specific sheet found, use the first one
+        if not timecard_sheet and sheet_names:
+            timecard_sheet = sheet_names[0]
+        
+        if not timecard_sheet:
+            logger.error("No suitable sheet found in the timecard file")
             return None
         
-        # Calculate date range
-        if start_date and end_date:
-            start = datetime.strptime(start_date, '%Y-%m-%d')
-            end = datetime.strptime(end_date, '%Y-%m-%d')
-            date_range = [start + timedelta(days=x) for x in range((end - start).days + 1)]
-        else:
-            # Default to current date
-            date_range = [datetime.now()]
+        # Load the sheet
+        sheet = wb[timecard_sheet]
         
-        # Process each date
-        all_data = []
-        for date in date_range:
-            date_str = date.strftime('%Y-%m-%d')
-            logger.info(f"Processing timecard data for date: {date_str}")
-            
-            # Prepare data for specific date
-            date_data = processor.prepare_data_for_comparison(date_str)
-            
-            if date_data is not None and not date_data.empty:
-                all_data.append(date_data)
+        # Try to detect the structure of the timecard
+        # First, find headers
+        header_row = detect_header_row(sheet)
         
-        # Combine all data
-        if all_data:
-            combined_df = pd.concat(all_data, ignore_index=True)
-            logger.info(f"Processed timecard data: {combined_df.shape[0]} total records")
-            return combined_df
-        else:
-            logger.warning("No timecard data found for specified date range")
-            return None
+        if header_row is None:
+            logger.warning("Could not detect header row in timecard")
+            # Try using pandas to read the file
+            return process_with_pandas(file_path, start_date, end_date)
+        
+        # Get column headers
+        columns = []
+        for col in range(1, sheet.max_column + 1):
+            cell_value = sheet.cell(row=header_row, column=col).value
+            columns.append(cell_value if cell_value else f"Column{col}")
+        
+        # Clean and normalize column names
+        columns = [clean_column_name(col) for col in columns]
+        
+        # Try to identify key columns
+        date_col = employee_col = hours_col = job_col = None
+        
+        for i, col in enumerate(columns):
+            col_lower = col.lower()
+            if any(term in col_lower for term in ['date', 'day', 'workday']):
+                date_col = i
+            elif any(term in col_lower for term in ['employee', 'name', 'driver', 'operator']):
+                employee_col = i
+            elif any(term in col_lower for term in ['hours', 'time', 'duration']):
+                hours_col = i
+            elif any(term in col_lower for term in ['job', 'project', 'site', 'location']):
+                job_col = i
+        
+        # If key columns not found, try using pandas
+        if date_col is None or employee_col is None:
+            logger.warning("Could not identify key columns in timecard")
+            return process_with_pandas(file_path, start_date, end_date)
+        
+        # Extract data
+        data = []
+        
+        for row in range(header_row + 1, sheet.max_row + 1):
+            # Skip empty rows
+            if all(sheet.cell(row=row, column=col).value is None for col in range(1, sheet.max_column + 1)):
+                continue
+            
+            row_data = {}
+            
+            # Extract values for each column
+            for i, col_name in enumerate(columns):
+                col = i + 1
+                cell = sheet.cell(row=row, column=col)
+                cell_value = cell.value
+                
+                # Handle formulas
+                if isinstance(cell_value, str) and cell_value.startswith('='):
+                    cell_value = evaluate_formula(cell_value, wb, sheet, row, col)
+                
+                row_data[col_name] = cell_value
+            
+            data.append(row_data)
+        
+        # Convert to DataFrame
+        df = pd.DataFrame(data)
+        
+        # Clean up the DataFrame
+        df = clean_timecard_dataframe(df, date_col, employee_col, hours_col, job_col, columns)
+        
+        # Filter by date if requested
+        if start_date or end_date:
+            df = filter_by_date(df, start_date, end_date)
+        
+        return df
     
     except Exception as e:
-        logger.error(f"Error processing dynamic timecard: {str(e)}")
-        return None
+        logger.error(f"Error processing timecard file: {str(e)}")
+        # Fall back to pandas
+        return process_with_pandas(file_path, start_date, end_date)
 
-
-def compare_dynamic_timecards_with_gps(timecard_file, gps_data, target_date=None):
+def detect_header_row(sheet):
     """
-    Compare dynamic timecard data with GPS records
+    Detect the header row in the sheet.
     
     Args:
-        timecard_file: Path to timecard Excel file
-        gps_data: Dictionary of GPS data by date
-        target_date: Specific date to compare (YYYY-MM-DD)
-    
+        sheet: The Excel sheet
+        
     Returns:
-        list: Comparison results
+        int: Header row index or None if not found
+    """
+    # Check the first 10 rows
+    for row in range(1, min(11, sheet.max_row + 1)):
+        # Count non-empty cells
+        non_empty = sum(1 for col in range(1, min(20, sheet.max_column + 1))
+                        if sheet.cell(row=row, column=col).value is not None)
+        
+        # Check if this row has several non-empty cells
+        if non_empty >= 3:
+            # Check if cells contain header-like text
+            header_like = 0
+            for col in range(1, min(20, sheet.max_column + 1)):
+                cell_value = sheet.cell(row=row, column=col).value
+                if cell_value is not None:
+                    cell_str = str(cell_value).lower()
+                    if any(term in cell_str for term in ['date', 'name', 'employee', 'hours', 'job', 'time', 'driver']):
+                        header_like += 1
+            
+            if header_like >= 2:
+                return row
+    
+    # If no clear header found, use the first row with data
+    for row in range(1, min(11, sheet.max_row + 1)):
+        non_empty = sum(1 for col in range(1, min(20, sheet.max_column + 1))
+                        if sheet.cell(row=row, column=col).value is not None)
+        if non_empty >= 3:
+            return row
+    
+    return None
+
+def clean_column_name(name):
+    """
+    Clean and normalize column name.
+    
+    Args:
+        name: Column name
+        
+    Returns:
+        str: Cleaned column name
+    """
+    if name is None:
+        return "unnamed"
+    
+    # Convert to string
+    name = str(name).strip()
+    
+    # Remove special characters and replace spaces with underscores
+    name = re.sub(r'[^\w\s]', '', name)
+    name = name.replace(' ', '_')
+    
+    # Convert to lowercase
+    name = name.lower()
+    
+    # Ensure the name is not empty
+    if not name:
+        return "unnamed"
+    
+    return name
+
+def evaluate_formula(formula, workbook, sheet, row, col):
+    """
+    Evaluate an Excel formula.
+    
+    Args:
+        formula: The formula to evaluate
+        workbook: The Excel workbook
+        sheet: The current sheet
+        row: Current row
+        col: Current column
+        
+    Returns:
+        The evaluated formula result
     """
     try:
-        logger.info(f"Comparing dynamic timecard with GPS data for date: {target_date}")
+        # Try using the formulas library
+        parser = Parser()
+        parsed = parser.parse(formula)
         
-        # Process timecard data
-        timecard_data = process_dynamic_timecard(
-            timecard_file, 
-            start_date=target_date, 
-            end_date=target_date
-        )
+        # Get the cell address
+        cell_address = f"{chr(64 + col)}{row}"
+        sheet_name = sheet.title
         
-        if timecard_data is None or timecard_data.empty:
-            logger.warning(f"No timecard data found for date: {target_date}")
-            return []
+        # Set up the formula in the parser context
+        parser.set_cell_value(f"{sheet_name}!{cell_address}", formula)
         
-        # Get GPS data for target date
-        date_gps_data = gps_data.get(target_date, {})
-        if not date_gps_data:
-            logger.warning(f"No GPS data found for date: {target_date}")
-            return []
+        # Evaluate
+        result = parser.evaluate(f"{sheet_name}!{cell_address}")
         
-        # Initialize comparison results
-        comparisons = []
+        # If result is a number, return it
+        if isinstance(result, (int, float)):
+            return result
         
-        # Extract driver records from GPS data
-        gps_drivers = {}
-        if 'driver_records' in date_gps_data:
-            for record in date_gps_data['driver_records']:
-                driver_name = record.get('driver_name', '')
-                if driver_name:
-                    # Format key for matching
-                    key = driver_name.lower()
-                    
-                    # Store record
-                    gps_drivers[key] = {
-                        'driver_name': driver_name,
-                        'classification': record.get('classification', ''),
-                        'job_number': record.get('job_number', ''),
-                        'job_name': record.get('job_name', ''),
-                        'start_time': record.get('start_time', ''),
-                        'end_time': record.get('end_time', ''),
-                        'gps_hours': record.get('hours', 0),
-                        'late_minutes': record.get('late_minutes', 0),
-                        'early_end_minutes': record.get('early_end_minutes', 0)
-                    }
+        # Otherwise, try to convert to number
+        try:
+            return float(result)
+        except (ValueError, TypeError):
+            pass
         
-        # Process each timecard record
-        for _, row in timecard_data.iterrows():
-            driver_name = row['driver_name']
-            job_number = row['job_number']
-            reported_hours = row['reported_hours']
-            status = row['status']
-            
-            # Format key for matching
-            key = driver_name.lower()
-            
-            # Find matching GPS record
-            gps_record = gps_drivers.get(key, None)
-            
-            if gps_record:
-                # Driver found in GPS data
-                gps_hours = gps_record['gps_hours']
-                classification = gps_record['classification']
-                gps_job = gps_record['job_number'] or gps_record['job_name']
-                
-                # Calculate discrepancies
-                hours_diff = reported_hours - gps_hours if reported_hours and gps_hours else 0
-                job_mismatch = job_number and gps_job and job_number != gps_job
-                
-                # Determine issues
-                issues = []
-                
-                if status == 'absent' and classification != 'not_found':
-                    issues.append("Driver marked absent but GPS activity detected")
-                
-                if status != 'absent':
-                    if classification == 'not_found':
-                        issues.append("Driver on timecard but no GPS activity")
-                    elif classification == 'not_on_job':
-                        issues.append("Driver not at assigned job site")
-                    elif classification == 'late':
-                        issues.append(f"Driver arrived late ({gps_record['late_minutes']} minutes)")
-                    elif classification == 'early_end':
-                        issues.append(f"Driver left early ({gps_record['early_end_minutes']} minutes)")
-                
-                if abs(hours_diff) > 0.5:  # More than 30 minutes difference
-                    issues.append(f"Hours discrepancy: {abs(hours_diff):.1f} hours")
-                
-                if job_mismatch:
-                    issues.append(f"Job mismatch: Timecard {job_number} vs GPS {gps_job}")
-                
-                # Create comparison record
-                comparison = {
-                    'driver_name': driver_name,
-                    'date': target_date,
-                    'timecard_job': job_number,
-                    'gps_job': gps_job,
-                    'timecard_hours': reported_hours,
-                    'gps_hours': gps_hours,
-                    'hours_diff': hours_diff,
-                    'gps_start': gps_record['start_time'],
-                    'gps_end': gps_record['end_time'],
-                    'classification': classification,
-                    'timecard_status': status,
-                    'has_discrepancy': len(issues) > 0,
-                    'issues': issues,
-                    'total_variance': abs(hours_diff) * 60  # Convert to minutes
-                }
-                
-            else:
-                # Driver not found in GPS data
-                if status == 'absent':
-                    # Correctly marked as absent
-                    issues = []
-                else:
-                    # On timecard but no GPS data
-                    issues = ["Driver on timecard but no GPS activity"]
-                
-                # Create comparison record
-                comparison = {
-                    'driver_name': driver_name,
-                    'date': target_date,
-                    'timecard_job': job_number,
-                    'gps_job': '',
-                    'timecard_hours': reported_hours,
-                    'gps_hours': 0,
-                    'hours_diff': reported_hours,
-                    'gps_start': '',
-                    'gps_end': '',
-                    'classification': 'not_found',
-                    'timecard_status': status,
-                    'has_discrepancy': len(issues) > 0,
-                    'issues': issues,
-                    'total_variance': reported_hours * 60  # Convert to minutes
-                }
-            
-            comparisons.append(comparison)
-        
-        # Check for drivers in GPS data but not on timecard
-        for key, gps_record in gps_drivers.items():
-            # Format key for matching
-            driver_name = gps_record['driver_name']
-            driver_found = any(comp['driver_name'].lower() == driver_name.lower() for comp in comparisons)
-            
-            if not driver_found:
-                # Driver in GPS data but not on timecard
-                issues = ["Driver has GPS activity but not on timecard"]
-                
-                # Create comparison record
-                comparison = {
-                    'driver_name': driver_name,
-                    'date': target_date,
-                    'timecard_job': '',
-                    'gps_job': gps_record['job_number'] or gps_record['job_name'],
-                    'timecard_hours': 0,
-                    'gps_hours': gps_record['gps_hours'],
-                    'hours_diff': -gps_record['gps_hours'],
-                    'gps_start': gps_record['start_time'],
-                    'gps_end': gps_record['end_time'],
-                    'classification': gps_record['classification'],
-                    'timecard_status': 'missing',
-                    'has_discrepancy': True,
-                    'issues': issues,
-                    'total_variance': gps_record['gps_hours'] * 60  # Convert to minutes
-                }
-                
-                comparisons.append(comparison)
-        
-        logger.info(f"Comparison completed: {len(comparisons)} records")
-        return comparisons
+        return result
     
     except Exception as e:
-        logger.error(f"Error comparing timecard with GPS data: {str(e)}")
-        return []
+        logger.debug(f"Formula evaluation failed: {str(e)}")
+        
+        # Fall back to manual evaluation for simple formulas
+        try:
+            # Handle SUM
+            if "SUM" in formula:
+                # Extract the range
+                match = re.search(r'SUM\((.*?)\)', formula)
+                if match:
+                    range_str = match.group(1)
+                    # Very simple case: SUM(X1:X10)
+                    if ":" in range_str:
+                        start, end = range_str.split(":")
+                        # For now, only handle same column
+                        if start[0] == end[0]:
+                            col_letter = start[0]
+                            start_row = int(start[1:])
+                            end_row = int(end[1:])
+                            col_idx = ord(col_letter) - 64
+                            
+                            # Sum the values
+                            total = 0
+                            for r in range(start_row, end_row + 1):
+                                val = sheet.cell(row=r, column=col_idx).value
+                                if isinstance(val, (int, float)):
+                                    total += val
+                            
+                            return total
+            
+            # Handle basic arithmetic
+            if "+" in formula or "-" in formula or "*" in formula or "/" in formula:
+                # Remove the = sign
+                expr = formula[1:]
+                # Replace cell references with their values
+                for cell_ref in re.findall(r'[A-Z]+[0-9]+', expr):
+                    col_letter = ''.join(c for c in cell_ref if c.isalpha())
+                    row_number = int(''.join(c for c in cell_ref if c.isdigit()))
+                    col_idx = 0
+                    for i, c in enumerate(col_letter):
+                        col_idx = col_idx * 26 + (ord(c) - 64)
+                    
+                    cell_value = sheet.cell(row=row_number, column=col_idx).value
+                    if cell_value is None:
+                        cell_value = 0
+                    
+                    expr = expr.replace(cell_ref, str(cell_value))
+                
+                # Evaluate the expression
+                return eval(expr)
+        
+        except Exception:
+            pass
+        
+        # If all else fails, return None
+        return None
+
+def clean_timecard_dataframe(df, date_col, employee_col, hours_col, job_col, columns):
+    """
+    Clean and normalize the timecard DataFrame.
+    
+    Args:
+        df: The DataFrame to clean
+        date_col: Index of the date column
+        employee_col: Index of the employee column
+        hours_col: Index of the hours column
+        job_col: Index of the job column
+        columns: List of column names
+        
+    Returns:
+        DataFrame: Cleaned DataFrame
+    """
+    # Rename columns to standard names
+    column_mapping = {}
+    
+    if date_col is not None:
+        column_mapping[columns[date_col]] = 'date'
+    
+    if employee_col is not None:
+        column_mapping[columns[employee_col]] = 'driver_name'
+    
+    if hours_col is not None:
+        column_mapping[columns[hours_col]] = 'hours'
+    
+    if job_col is not None:
+        column_mapping[columns[job_col]] = 'job_number'
+    
+    # Apply renaming
+    df = df.rename(columns=column_mapping)
+    
+    # Convert date column to datetime
+    if 'date' in df.columns:
+        df['date'] = pd.to_datetime(df['date'], errors='coerce')
+    
+    # Ensure hours is numeric
+    if 'hours' in df.columns:
+        df['hours'] = pd.to_numeric(df['hours'], errors='coerce')
+    
+    # Drop rows with missing employee or date
+    if 'driver_name' in df.columns and 'date' in df.columns:
+        df = df.dropna(subset=['driver_name', 'date'])
+    
+    # Reset index
+    df = df.reset_index(drop=True)
+    
+    return df
+
+def filter_by_date(df, start_date=None, end_date=None):
+    """
+    Filter DataFrame by date range.
+    
+    Args:
+        df: The DataFrame to filter
+        start_date: Start date (inclusive)
+        end_date: End date (inclusive)
+        
+    Returns:
+        DataFrame: Filtered DataFrame
+    """
+    if 'date' not in df.columns:
+        return df
+    
+    # Ensure dates column is datetime
+    df['date'] = pd.to_datetime(df['date'], errors='coerce')
+    
+    # Filter by start date
+    if start_date:
+        start_dt = pd.to_datetime(start_date).normalize()
+        df = df[df['date'] >= start_dt]
+    
+    # Filter by end date
+    if end_date:
+        end_dt = pd.to_datetime(end_date).normalize()
+        df = df[df['date'] <= end_dt]
+    
+    return df
+
+def process_with_pandas(file_path, start_date=None, end_date=None):
+    """
+    Process timecard file using pandas.
+    
+    Args:
+        file_path: Path to the Excel file
+        start_date: Start date for filtering (optional)
+        end_date: End date for filtering (optional)
+        
+    Returns:
+        DataFrame: Processed timecard data
+    """
+    try:
+        # Read Excel file
+        df = pd.read_excel(file_path)
+        
+        # Clean column names
+        df.columns = [clean_column_name(col) for col in df.columns]
+        
+        # Try to identify key columns
+        date_col = employee_col = hours_col = job_col = None
+        
+        for col in df.columns:
+            col_lower = col.lower()
+            if any(term in col_lower for term in ['date', 'day', 'workday']):
+                date_col = col
+            elif any(term in col_lower for term in ['employee', 'name', 'driver', 'operator']):
+                employee_col = col
+            elif any(term in col_lower for term in ['hours', 'time', 'duration']):
+                hours_col = col
+            elif any(term in col_lower for term in ['job', 'project', 'site', 'location']):
+                job_col = col
+        
+        # Rename columns to standard names
+        column_mapping = {}
+        
+        if date_col:
+            column_mapping[date_col] = 'date'
+        
+        if employee_col:
+            column_mapping[employee_col] = 'driver_name'
+        
+        if hours_col:
+            column_mapping[hours_col] = 'hours'
+        
+        if job_col:
+            column_mapping[job_col] = 'job_number'
+        
+        # Apply renaming
+        df = df.rename(columns=column_mapping)
+        
+        # Convert date column to datetime
+        if 'date' in df.columns:
+            df['date'] = pd.to_datetime(df['date'], errors='coerce')
+        
+        # Ensure hours is numeric
+        if 'hours' in df.columns:
+            df['hours'] = pd.to_numeric(df['hours'], errors='coerce')
+        
+        # Filter by date if requested
+        if start_date or end_date:
+            df = filter_by_date(df, start_date, end_date)
+        
+        # Reset index
+        df = df.reset_index(drop=True)
+        
+        return df
+    
+    except Exception as e:
+        logger.error(f"Error processing with pandas: {str(e)}")
+        return None

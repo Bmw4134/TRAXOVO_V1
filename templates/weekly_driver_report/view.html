@@ -1,0 +1,656 @@
+{% extends "layout_unified.html" %}
+
+{% block title %}Weekly Driver Report - TRAXORA GENIUS CORE{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="/">Home</a></li>
+<li class="breadcrumb-item"><a href="{{ url_for('weekly_driver_report.dashboard') }}">Weekly Driver Reports</a></li>
+<li class="breadcrumb-item active" aria-current="page">{{ start_formatted }} - {{ end_formatted }}</li>
+{% endblock %}
+
+{% block page_title %}Weekly Driver Report{% endblock %}
+{% block page_subtitle %}{{ start_formatted }} - {{ end_formatted }}{% endblock %}
+
+{% block page_actions %}
+<a href="{{ url_for('weekly_driver_report.download_report', start_date=start_date, end_date=end_date, format='csv') }}" class="btn btn-outline-success me-2">
+    <i class="bi bi-download me-2"></i> Export CSV
+</a>
+<a href="{{ url_for('weekly_driver_report.download_report', start_date=start_date, end_date=end_date, format='json') }}" class="btn btn-outline-primary me-2">
+    <i class="bi bi-download me-2"></i> Export JSON
+</a>
+<a href="{{ url_for('weekly_driver_report.generate_report') }}" class="btn btn-outline-secondary">
+    <i class="bi bi-arrow-repeat me-2"></i> Regenerate
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Summary Cards Row -->
+<div class="row mb-4">
+    <div class="col-md-6 col-xl-3 mb-3">
+        <div class="card bg-dark border-0 shadow-sm hoverable">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-success bg-opacity-10 p-3 me-3">
+                        <i class="bi bi-check-circle text-success fs-4"></i>
+                    </div>
+                    <div>
+                        <h3 class="mb-0 fs-4">{{ report.summary.on_time_count }}</h3>
+                        <p class="text-muted mb-0">On Time ({{ report.summary.on_time_percentage|round|int }}%)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-xl-3 mb-3">
+        <div class="card bg-dark border-0 shadow-sm hoverable">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-danger bg-opacity-10 p-3 me-3">
+                        <i class="bi bi-clock-fill text-danger fs-4"></i>
+                    </div>
+                    <div>
+                        <h3 class="mb-0 fs-4">{{ report.summary.late_count }}</h3>
+                        <p class="text-muted mb-0">Late ({{ report.summary.late_percentage|round|int }}%)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-xl-3 mb-3">
+        <div class="card bg-dark border-0 shadow-sm hoverable">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-warning bg-opacity-10 p-3 me-3">
+                        <i class="bi bi-clock-history text-warning fs-4"></i>
+                    </div>
+                    <div>
+                        <h3 class="mb-0 fs-4">{{ report.summary.early_end_count }}</h3>
+                        <p class="text-muted mb-0">Early End ({{ report.summary.early_end_percentage|round|int }}%)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-xl-3 mb-3">
+        <div class="card bg-dark border-0 shadow-sm hoverable">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-info bg-opacity-10 p-3 me-3">
+                        <i class="bi bi-geo-alt-fill text-info fs-4"></i>
+                    </div>
+                    <div>
+                        <h3 class="mb-0 fs-4">{{ report.summary.not_on_job_count }}</h3>
+                        <p class="text-muted mb-0">Not On Job ({{ report.summary.not_on_job_percentage|round|int }}%)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <!-- Daily Breakdown Tabs -->
+    <div class="col-12 mb-4">
+        <div class="card bg-dark border-0 shadow-sm">
+            <div class="card-header bg-dark">
+                <h5 class="card-title mb-0">Daily Breakdown</h5>
+            </div>
+            <div class="card-body">
+                <ul class="nav nav-tabs" id="dayTabs" role="tablist">
+                    {% for day in date_range %}
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link {% if loop.index == 1 %}active{% endif %} {% if not day.has_data %}disabled{% endif %}"
+                                id="day-{{ day.date }}-tab" 
+                                data-bs-toggle="tab" 
+                                data-bs-target="#day-{{ day.date }}" 
+                                type="button" 
+                                role="tab" 
+                                aria-controls="day-{{ day.date }}" 
+                                aria-selected="{% if loop.index == 1 %}true{% else %}false{% endif %}"
+                                {% if not day.has_data %}disabled{% endif %}
+                                data-date="{{ day.date }}">
+                                {{ day.formatted }}
+                            </button>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <div class="tab-content mt-3" id="dayTabsContent">
+                    {% for day in date_range %}
+                        <div class="tab-pane fade {% if loop.index == 1 %}show active{% endif %}" 
+                            id="day-{{ day.date }}" 
+                            role="tabpanel" 
+                            aria-labelledby="day-{{ day.date }}-tab">
+                            
+                            {% if day.has_data %}
+                                <div class="day-content" data-date="{{ day.date }}">
+                                    <div class="spinner-border text-primary mx-auto d-block" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <p class="text-center text-muted">Loading data for {{ day.formatted }}...</p>
+                                </div>
+                            {% else %}
+                                <div class="text-center py-5">
+                                    <i class="bi bi-calendar-x text-muted fs-1 mb-3"></i>
+                                    <p class="text-muted mb-0">No data available for {{ day.formatted }}</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Driver Summary -->
+    <div class="col-lg-6 mb-4">
+        <div class="card bg-dark border-0 shadow-sm">
+            <div class="card-header bg-dark d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Driver Summary</h5>
+                <span class="badge bg-primary">{{ report.summary.driver_attendance|length }} Drivers</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover mb-0" id="driver-summary-table">
+                        <thead>
+                            <tr>
+                                <th>Driver</th>
+                                <th class="text-center">Days Worked</th>
+                                <th class="text-center">On Time</th>
+                                <th class="text-center">Late</th>
+                                <th class="text-center">Early End</th>
+                                <th class="text-center">Not On Job</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for driver_name, data in report.summary.driver_attendance.items() %}
+                                <tr>
+                                    <td>{{ driver_name }}</td>
+                                    <td class="text-center">{{ data.days_worked }}</td>
+                                    <td class="text-center">
+                                        {% if data.on_time_count > 0 %}
+                                            <span class="badge bg-success">{{ data.on_time_count }}</span>
+                                        {% else %}
+                                            <span class="text-muted">0</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if data.late_count > 0 %}
+                                            <span class="badge bg-danger">{{ data.late_count }}</span>
+                                        {% else %}
+                                            <span class="text-muted">0</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if data.early_end_count > 0 %}
+                                            <span class="badge bg-warning">{{ data.early_end_count }}</span>
+                                        {% else %}
+                                            <span class="text-muted">0</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if data.not_on_job_count > 0 %}
+                                            <span class="badge bg-info">{{ data.not_on_job_count }}</span>
+                                        {% else %}
+                                            <span class="text-muted">0</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Job Site Summary -->
+    <div class="col-lg-6 mb-4">
+        <div class="card bg-dark border-0 shadow-sm">
+            <div class="card-header bg-dark d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Job Site Summary</h5>
+                <span class="badge bg-primary">{{ report.summary.job_attendance|length }} Job Sites</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover mb-0" id="job-summary-table">
+                        <thead>
+                            <tr>
+                                <th>Job Site</th>
+                                <th class="text-center">Drivers</th>
+                                <th class="text-center">On Time</th>
+                                <th class="text-center">Late</th>
+                                <th class="text-center">Early End</th>
+                                <th class="text-center">Not On Job</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for job_name, data in report.summary.job_attendance.items() %}
+                                <tr>
+                                    <td>{{ job_name }}</td>
+                                    <td class="text-center">{{ data.total_drivers }}</td>
+                                    <td class="text-center">
+                                        {% if data.on_time_count > 0 %}
+                                            <span class="badge bg-success">{{ data.on_time_count }}</span>
+                                        {% else %}
+                                            <span class="text-muted">0</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if data.late_count > 0 %}
+                                            <span class="badge bg-danger">{{ data.late_count }}</span>
+                                        {% else %}
+                                            <span class="text-muted">0</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if data.early_end_count > 0 %}
+                                            <span class="badge bg-warning">{{ data.early_end_count }}</span>
+                                        {% else %}
+                                            <span class="text-muted">0</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if data.not_on_job_count > 0 %}
+                                            <span class="badge bg-info">{{ data.not_on_job_count }}</span>
+                                        {% else %}
+                                            <span class="text-muted">0</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Templates for Dynamically Loaded Content -->
+<template id="day-data-template">
+    <div class="daily-report">
+        <div class="row mb-4">
+            <div class="col-md-6 col-xl-3 mb-3">
+                <div class="card bg-dark border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <h3 class="display-4 mb-2" id="day-total-drivers">0</h3>
+                        <p class="text-muted mb-0">Total Drivers</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3 mb-3">
+                <div class="card bg-dark border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <h3 class="display-4 mb-2 text-success" id="day-on-time">0</h3>
+                        <p class="text-muted mb-0">On Time</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3 mb-3">
+                <div class="card bg-dark border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <h3 class="display-4 mb-2 text-danger" id="day-late">0</h3>
+                        <p class="text-muted mb-0">Late</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3 mb-3">
+                <div class="card bg-dark border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <h3 class="display-4 mb-2 text-warning" id="day-not-on-job">0</h3>
+                        <p class="text-muted mb-0">Not On Job</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card bg-dark border-0 shadow-sm mb-4">
+            <div class="card-header bg-dark">
+                <h5 class="card-title mb-0">Driver Records</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover mb-0" id="driver-records-table">
+                        <thead>
+                            <tr>
+                                <th>Driver</th>
+                                <th>Job</th>
+                                <th class="text-center">Status</th>
+                                <th>Start</th>
+                                <th>End</th>
+                                <th>Hours</th>
+                                <th class="text-center">GPS</th>
+                                <th>Timecard</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="driver-records-tbody">
+                            <!-- Dynamic content will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<!-- Driver Detail Modal -->
+<div class="modal fade" id="driverDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detail-driver-name">Driver Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-6 mb-3">
+                        <div class="card bg-dark border-secondary">
+                            <div class="card-header bg-dark">
+                                <h6 class="mb-0">Assignment</h6>
+                            </div>
+                            <div class="card-body">
+                                <dl class="row mb-0">
+                                    <dt class="col-sm-4">Job Number:</dt>
+                                    <dd class="col-sm-8" id="detail-job-number"></dd>
+                                    
+                                    <dt class="col-sm-4">Job Name:</dt>
+                                    <dd class="col-sm-8" id="detail-job-name"></dd>
+                                    
+                                    <dt class="col-sm-4">Status:</dt>
+                                    <dd class="col-sm-8" id="detail-status"></dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <div class="card bg-dark border-secondary">
+                            <div class="card-header bg-dark">
+                                <h6 class="mb-0">GPS Data</h6>
+                            </div>
+                            <div class="card-body">
+                                <dl class="row mb-0">
+                                    <dt class="col-sm-4">Start Time:</dt>
+                                    <dd class="col-sm-8" id="detail-start-time"></dd>
+                                    
+                                    <dt class="col-sm-4">End Time:</dt>
+                                    <dd class="col-sm-8" id="detail-end-time"></dd>
+                                    
+                                    <dt class="col-sm-4">Hours:</dt>
+                                    <dd class="col-sm-8" id="detail-hours"></dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="timecard-section" class="mb-3">
+                    <div class="card bg-dark border-secondary">
+                        <div class="card-header bg-dark">
+                            <h6 class="mb-0">Timecard Comparison</h6>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-4">Timecard Hours:</dt>
+                                <dd class="col-sm-8" id="detail-timecard-hours"></dd>
+                                
+                                <dt class="col-sm-4">Difference:</dt>
+                                <dd class="col-sm-8" id="detail-hours-diff"></dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="issues-section" class="mb-3 d-none">
+                    <div class="card bg-dark border-danger">
+                        <div class="card-header bg-dark">
+                            <h6 class="mb-0 text-danger">Issues Detected</h6>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-4">Late Minutes:</dt>
+                                <dd class="col-sm-8" id="detail-late-minutes"></dd>
+                                
+                                <dt class="col-sm-4">Early End:</dt>
+                                <dd class="col-sm-8" id="detail-early-end-minutes"></dd>
+                                
+                                <dt class="col-sm-4">GPS Verified:</dt>
+                                <dd class="col-sm-8" id="detail-gps-verified"></dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize driver detail modal
+        const driverDetailModal = new bootstrap.Modal(document.getElementById('driverDetailModal'));
+        
+        // Tab click handlers
+        const dayTabs = document.querySelectorAll('[data-bs-toggle="tab"][data-date]');
+        dayTabs.forEach(tab => {
+            tab.addEventListener('shown.bs.tab', function(event) {
+                const date = event.target.getAttribute('data-date');
+                loadDayData(date);
+            });
+        });
+        
+        // Load data for the first tab automatically
+        const firstTab = document.querySelector('[data-bs-toggle="tab"][data-date]');
+        if (firstTab) {
+            const date = firstTab.getAttribute('data-date');
+            if (date) {
+                loadDayData(date);
+            }
+        }
+        
+        // Function to load day data
+        function loadDayData(date) {
+            const container = document.querySelector(`.day-content[data-date="${date}"]`);
+            if (!container || container.getAttribute('data-loaded') === 'true') {
+                return; // Already loaded or container not found
+            }
+            
+            // Fetch data from API
+            fetch(`/weekly-driver-report/api/day/${date}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Mark as loaded
+                    container.setAttribute('data-loaded', 'true');
+                    
+                    // Clear loading indicator
+                    container.innerHTML = '';
+                    
+                    // Clone and fill the template
+                    const template = document.getElementById('day-data-template');
+                    const content = template.content.cloneNode(true);
+                    
+                    // Set summary counts
+                    const driverRecords = data.driver_records || [];
+                    const totalDrivers = driverRecords.length;
+                    const onTimeCount = driverRecords.filter(d => d.classification === 'on_time').length;
+                    const lateCount = driverRecords.filter(d => d.classification === 'late').length;
+                    const notOnJobCount = driverRecords.filter(d => d.classification === 'not_on_job').length;
+                    
+                    content.getElementById('day-total-drivers').textContent = totalDrivers;
+                    content.getElementById('day-on-time').textContent = onTimeCount;
+                    content.getElementById('day-late').textContent = lateCount;
+                    content.getElementById('day-not-on-job').textContent = notOnJobCount;
+                    
+                    // Fill driver records table
+                    const tbody = content.getElementById('driver-records-tbody');
+                    
+                    driverRecords.forEach((driver, index) => {
+                        const row = document.createElement('tr');
+                        
+                        // Determine status class
+                        let statusClass = 'bg-secondary';
+                        if (driver.classification === 'on_time') {
+                            statusClass = 'bg-success';
+                        } else if (driver.classification === 'late') {
+                            statusClass = 'bg-danger';
+                        } else if (driver.classification === 'early_end') {
+                            statusClass = 'bg-warning';
+                        } else if (driver.classification === 'not_on_job') {
+                            statusClass = 'bg-info';
+                        }
+                        
+                        // Format classification for display
+                        let classification = 'Unknown';
+                        if (driver.classification === 'on_time') {
+                            classification = 'On Time';
+                        } else if (driver.classification === 'late') {
+                            classification = 'Late';
+                        } else if (driver.classification === 'early_end') {
+                            classification = 'Early End';
+                        } else if (driver.classification === 'not_on_job') {
+                            classification = 'Not On Job';
+                        }
+                        
+                        // Create row content
+                        row.innerHTML = `
+                            <td>${driver.driver_name}</td>
+                            <td>${driver.job_number ? driver.job_number : ''} ${driver.job_name ? driver.job_name : ''}</td>
+                            <td class="text-center"><span class="badge ${statusClass}">${classification}</span></td>
+                            <td>${driver.start_time || '-'}</td>
+                            <td>${driver.end_time || '-'}</td>
+                            <td>${driver.hours !== undefined ? driver.hours.toFixed(1) : '-'}</td>
+                            <td class="text-center">
+                                ${driver.gps_verified ? 
+                                    '<i class="bi bi-check-circle-fill text-success"></i>' : 
+                                    '<i class="bi bi-x-circle-fill text-danger"></i>'}
+                            </td>
+                            <td>${driver.timecard_hours !== undefined ? driver.timecard_hours.toFixed(1) : '-'}</td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-outline-info view-driver-btn" data-index="${index}">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </td>
+                        `;
+                        
+                        tbody.appendChild(row);
+                    });
+                    
+                    // Add click handlers for driver detail buttons
+                    content.querySelectorAll('.view-driver-btn').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const index = parseInt(this.getAttribute('data-index'));
+                            const driver = driverRecords[index];
+                            showDriverDetail(driver);
+                        });
+                    });
+                    
+                    // Append the content
+                    container.appendChild(content);
+                })
+                .catch(error => {
+                    console.error('Error loading day data:', error);
+                    container.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            Error loading data for ${date}: ${error.message}
+                        </div>
+                    `;
+                });
+        }
+        
+        // Function to show driver detail modal
+        function showDriverDetail(driver) {
+            // Set modal content
+            document.getElementById('detail-driver-name').textContent = driver.driver_name;
+            document.getElementById('detail-job-number').textContent = driver.job_number || '-';
+            document.getElementById('detail-job-name').textContent = driver.job_name || '-';
+            
+            // Set status with badge
+            let statusHTML = '<span class="badge bg-secondary">Unknown</span>';
+            if (driver.classification === 'on_time') {
+                statusHTML = '<span class="badge bg-success">On Time</span>';
+            } else if (driver.classification === 'late') {
+                statusHTML = '<span class="badge bg-danger">Late</span>';
+            } else if (driver.classification === 'early_end') {
+                statusHTML = '<span class="badge bg-warning">Early End</span>';
+            } else if (driver.classification === 'not_on_job') {
+                statusHTML = '<span class="badge bg-info">Not On Job</span>';
+            }
+            document.getElementById('detail-status').innerHTML = statusHTML;
+            
+            // Set GPS data
+            document.getElementById('detail-start-time').textContent = driver.start_time || 'N/A';
+            document.getElementById('detail-end-time').textContent = driver.end_time || 'N/A';
+            document.getElementById('detail-hours').textContent = 
+                driver.hours !== undefined ? `${driver.hours.toFixed(1)} hours` : 'N/A';
+            
+            // Timecard section
+            const timecardSection = document.getElementById('timecard-section');
+            
+            if (driver.timecard_hours !== undefined) {
+                timecardSection.classList.remove('d-none');
+                document.getElementById('detail-timecard-hours').textContent = 
+                    `${driver.timecard_hours.toFixed(1)} hours`;
+                
+                const hoursDiff = driver.hours_difference || (driver.hours - driver.timecard_hours);
+                const hoursDiffElement = document.getElementById('detail-hours-diff');
+                
+                if (Math.abs(hoursDiff) > 0.5) {
+                    hoursDiffElement.innerHTML = `<span class="text-danger">${hoursDiff.toFixed(1)} hours</span>`;
+                } else if (Math.abs(hoursDiff) > 0) {
+                    hoursDiffElement.innerHTML = `<span class="text-warning">${hoursDiff.toFixed(1)} hours</span>`;
+                } else {
+                    hoursDiffElement.innerHTML = `<span class="text-success">0 hours</span>`;
+                }
+            } else {
+                timecardSection.classList.add('d-none');
+            }
+            
+            // Issues section
+            const issuesSection = document.getElementById('issues-section');
+            const hasIssues = driver.classification === 'late' || 
+                              driver.classification === 'early_end' || 
+                              driver.classification === 'not_on_job' ||
+                              !driver.gps_verified;
+            
+            if (hasIssues) {
+                issuesSection.classList.remove('d-none');
+                
+                // Late minutes
+                document.getElementById('detail-late-minutes').textContent = 
+                    driver.late_minutes ? `${driver.late_minutes} minutes` : 'N/A';
+                
+                // Early end minutes
+                document.getElementById('detail-early-end-minutes').textContent = 
+                    driver.early_end_minutes ? `${driver.early_end_minutes} minutes` : 'N/A';
+                
+                // GPS verified
+                document.getElementById('detail-gps-verified').innerHTML = 
+                    driver.gps_verified ? 
+                        '<span class="text-success">Yes</span>' : 
+                        '<span class="text-danger">No</span>';
+            } else {
+                issuesSection.classList.add('d-none');
+            }
+            
+            // Show modal
+            driverDetailModal.show();
+        }
+    });
+</script>
+{% endblock %}

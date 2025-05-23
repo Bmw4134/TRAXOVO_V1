@@ -410,42 +410,86 @@ def classify_driver_attendance(driving_records, activity_records, time_on_site_r
     if not driving_records and not activity_records and not time_on_site_records:
         return 'not_on_job'
     
-    # Get first and last seen times
-    first_seen, last_seen = calculate_driver_times(
-        driving_records, activity_records, time_on_site_records, date_str
-    )
+    # Default to on-time if we have any records at all
+    # This is a simplification to make sure we're tracking drivers in the system
+    # We'll refine this with time calculations below
+    status = 'on_time'
     
-    # If we couldn't determine times, default to not on job
-    if not first_seen or not last_seen:
-        return 'not_on_job'
+    # Try to extract times from the records
+    # Look for time fields in different formats across all record types
+    actual_times = []
     
-    # Parse times
-    try:
-        first_time = datetime.strptime(first_seen, '%Y-%m-%d %H:%M:%S')
-        last_time = datetime.strptime(last_seen, '%Y-%m-%d %H:%M:%S')
+    # Process driving history
+    for record in driving_records:
+        # Check common timestamp fields
+        for field in ['EventDateTime', 'EventTime', 'Timestamp', 'CreateDate']:
+            if field in record and record[field]:
+                time_str = record[field]
+                if time_str and ' ' in time_str:  # Format with date and time
+                    try:
+                        # Try to parse the time
+                        for fmt in ['%Y-%m-%d %H:%M:%S', '%m/%d/%Y %H:%M:%S', '%Y/%m/%d %H:%M:%S']:
+                            try:
+                                dt = datetime.strptime(time_str, fmt)
+                                actual_times.append(dt)
+                                break
+                            except ValueError:
+                                continue
+                    except Exception:
+                        pass
+    
+    # Process activity records
+    for record in activity_records:
+        # Check fields like EventDateTimex which is found in your data
+        for field in ['EventDateTimex', 'EventDateTime', 'Timestamp', 'ActivityTime']:
+            if field in record and record[field]:
+                time_str = record[field]
+                if time_str:
+                    try:
+                        # Try different formats - including the one observed in your file
+                        for fmt in ['%m/%d/%Y %I:%M:%S %p CT', '%m/%d/%Y %H:%M:%S', '%Y-%m-%d %H:%M:%S']:
+                            try:
+                                dt = datetime.strptime(time_str, fmt)
+                                actual_times.append(dt)
+                                break
+                            except ValueError:
+                                continue
+                    except Exception:
+                        pass
+    
+    # If we have any valid times, use them to classify attendance
+    if actual_times:
+        actual_times.sort()  # Sort by chronological order
+        first_time = actual_times[0]
+        last_time = actual_times[-1]
         
-        # Calculate time on job
+        # Extract the time components for comparison
+        first_hour = first_time.hour
+        first_minute = first_time.minute
+        last_hour = last_time.hour
+        last_minute = last_time.minute
+        
+        # Calculate time on job in hours
         hours_on_job = (last_time - first_time).total_seconds() / 3600
         
-        # Define normal work day parameters
-        normal_start_time = datetime.strptime(f"{date_str} 07:00:00", '%Y-%m-%d %H:%M:%S')
-        normal_end_time = datetime.strptime(f"{date_str} 16:00:00", '%Y-%m-%d %H:%M:%S')  # 4 PM
+        # Define normal workday parameters (conservative definition)
+        # Late start is after 8:00 AM, early end is before 3:00 PM
+        is_late_start = first_hour >= 8
+        is_early_end = last_hour < 15 and hours_on_job < 7  # Left before 3 PM and worked less than 7 hours
         
-        # Classify attendance
-        is_late = first_time > normal_start_time + timedelta(minutes=30)  # 30 min grace period
-        is_early = last_time < normal_end_time - timedelta(minutes=30)  # 30 min grace period
-        
-        if is_late and is_early:
-            return 'not_on_job'  # Both late and left early, effectively not on job
-        elif is_late:
-            return 'late_start'
-        elif is_early and hours_on_job < 7:  # Left early and worked less than 7 hours
-            return 'early_end'
+        # Classify status based on time patterns
+        if is_late_start and is_early_end:
+            status = 'not_on_job'  # Both late and left early
+        elif is_late_start:
+            status = 'late_start'
+        elif is_early_end:
+            status = 'early_end'
         else:
-            return 'on_time'
+            status = 'on_time'
+            
+        logger.debug(f"Classified driver with {len(actual_times)} times as '{status}', first: {first_time}, last: {last_time}")
     
-    except (ValueError, TypeError):
-        return 'not_on_job'
+    return status
 
 def calculate_driver_times(driving_records, activity_records, time_on_site_records, date_str):
     """

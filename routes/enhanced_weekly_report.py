@@ -171,57 +171,66 @@ def upload_files():
 def process_may_data():
     """Process May 18-24 data for the enhanced weekly report"""
     try:
-        # Define date range to process - work week is Sunday-Saturday
+        # Define date range for May 18-24, 2025
         start_date = '2025-05-18'  # Sunday
         end_date = '2025-05-24'    # Saturday
         logger.info(f"Processing May data from {start_date} to {end_date}")
         
-        # Get file paths for data files
-        driving_history_paths = []
-        activity_detail_paths = []
-        time_on_site_paths = []
-        timecard_paths = []
+        # Import the May data processor
+        from utils.may_data_processor import process_may_weekly_report
         
-        # Get the attached_assets directory path
+        # Get directory paths
         attached_assets_dir = get_attached_assets_directory()
+        reports_dir = get_reports_directory()
         logger.info(f"Looking for data files in: {attached_assets_dir}")
         
-        # List all files in attached_assets directory and find matching files
-        if os.path.exists(attached_assets_dir):
-            files = os.listdir(attached_assets_dir)
-            logger.info(f"Found {len(files)} files in attached_assets directory")
+        # Process the May 18-24 report using our specialized processor
+        report, errors = process_may_weekly_report(
+            attached_assets_dir=attached_assets_dir,
+            weekly_processor_function=process_weekly_report,
+            report_dir=reports_dir
+        )
+        
+        if errors:
+            # If we encountered errors, show them to the user
+            error_message = ", ".join(errors)
+            logger.error(f"Errors processing May data: {error_message}")
+            flash(f"Could not process May 18-24 report: {error_message}", "danger")
+            return redirect(url_for('enhanced_weekly_report_bp.dashboard'))
             
-            for file in files:
-                file_path = os.path.join(attached_assets_dir, file)
-                
-                # Skip directories and non-data files
-                if os.path.isdir(file_path) or not os.path.isfile(file_path):
-                    continue
-                
-                # Find driving history files
-                if file.startswith("DrivingHistory") and file.endswith(".csv"):
-                    driving_history_paths.append(file_path)
-                    logger.info(f"Found driving history file: {file}")
-                
-                # Find activity detail files
-                elif file.startswith("ActivityDetail") and file.endswith(".csv"):
-                    activity_detail_paths.append(file_path)
-                    logger.info(f"Found activity detail file: {file}")
-                
-                # Find assets time on site files
-                elif file.startswith("AssetsTimeOnSite") and file.endswith(".csv"):
-                    time_on_site_paths.append(file_path)
-                    logger.info(f"Found time on site file: {file}")
-                
-                # Find timecard files
-                elif file.startswith("Timecards") and file.endswith(".xlsx"):
-                    timecard_paths.append(file_path)
-                    logger.info(f"Found timecard file: {file}")
+        if not report:
+            # If no report was generated, show a generic error
+            logger.error("No report data was generated")
+            flash("Could not process May 18-24 report: No data was generated", "danger")
+            return redirect(url_for('enhanced_weekly_report_bp.dashboard'))
             
-            # Use the most recent files if multiple are found
-            driving_history_path = driving_history_paths[-1] if driving_history_paths else None
-            activity_detail_path = activity_detail_paths[-1] if activity_detail_paths else None
-            time_on_site_path = time_on_site_paths[-1] if time_on_site_paths else None
+        # Store report info in session for immediate access
+        session['weekly_report'] = {
+            'start_date': start_date,
+            'end_date': end_date
+        }
+        
+        # Show success message with some report statistics
+        total_drivers = report['summary']['total_drivers']
+        
+        # Calculate some statistics for the flash message
+        attendance_data = report['summary'].get('attendance_totals', {})
+        total_tracked = attendance_data.get('total_tracked', 0)
+        on_time = attendance_data.get('on_time', 0)
+        
+        # Calculate on-time percentage
+        on_time_pct = int(on_time / total_tracked * 100) if total_tracked > 0 else 0
+        
+        flash(f"Successfully processed May 18-24 report! Analyzed {total_tracked} driver-days across {total_drivers} drivers with {on_time_pct}% on-time rate.", "success")
+        
+        # Redirect to the report view
+        return redirect(url_for('enhanced_weekly_report_bp.view_report', start_date=start_date, end_date=end_date))
+    except Exception as e:
+        logger.error(f"Error processing May data: {str(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
+        flash(f"Error processing May data: {str(e)}", "danger")
+        return redirect(url_for('enhanced_weekly_report_bp.dashboard'))
             
             # Log which files we're using
             logger.info(f"Using driving history: {driving_history_path}")

@@ -109,6 +109,11 @@ try:
 except ImportError:
     logger.warning("Weekly Driver Report module not found")
 
+@app.route('/attendance')
+def attendance_redirect():
+    """Redirect attendance route to enhanced weekly report"""
+    return redirect('/enhanced-weekly-report/')
+
 @app.route('/')
 def dashboard():
     """Homepage shows dashboard"""

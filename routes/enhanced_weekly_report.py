@@ -347,7 +347,7 @@ def view_report(start_date, end_date):
         flash(f"Error viewing weekly report: {str(e)}", "danger")
         return redirect(url_for('enhanced_weekly_report.dashboard'))
 
-@enhanced_weekly_report.route('/api/day/<date>')
+@enhanced_weekly_report_bp.route('/api/day/<date>')
 def api_day_data(date):
     """API endpoint to get data for a specific day"""
     try:
@@ -366,7 +366,7 @@ def api_day_data(date):
         logger.error(f"Error getting day data: {str(e)}")
         return jsonify({"error": f"Error getting day data: {str(e)}"}), 500
 
-@enhanced_weekly_report.route('/api/weekly/<start_date>/<end_date>')
+@enhanced_weekly_report_bp.route('/api/weekly/<start_date>/<end_date>')
 def api_weekly_data(start_date, end_date):
     """API endpoint to get data for a weekly report"""
     try:
@@ -385,7 +385,7 @@ def api_weekly_data(start_date, end_date):
         logger.error(f"Error getting weekly data: {str(e)}")
         return jsonify({"error": f"Error getting weekly data: {str(e)}"}), 500
 
-@enhanced_weekly_report.route('/download/<start_date>/<end_date>/<format>')
+@enhanced_weekly_report_bp.route('/download/<start_date>/<end_date>/<format>')
 def download_report(start_date, end_date, format):
     """Download a weekly driver report in the specified format"""
     try:

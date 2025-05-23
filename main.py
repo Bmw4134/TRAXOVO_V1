@@ -122,6 +122,12 @@ except Exception as e:
 @app.route('/attendance/')
 @app.route('/attendance')
 def attendance_main():
+    """Redirect to enhanced weekly report"""
+    return redirect('/enhanced-weekly-report/')
+
+@app.route('/enhanced-weekly-report/')
+@app.route('/enhanced-weekly-report')
+def enhanced_weekly_report():
     """Main GPS-based weekly driver report interface"""
     return render_template('enhanced_weekly_report/dashboard.html', 
                           title="GPS-Based Weekly Driver Report",

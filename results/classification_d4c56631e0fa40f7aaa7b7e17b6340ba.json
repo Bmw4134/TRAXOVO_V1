@@ -1,0 +1,59 @@
+{
+  "classified_drivers": [],
+  "skipped": [
+    {
+      "StartDate": "05/18/2025",
+      "ReportParameters_1": "Company:",
+      "Values_1": "Ragle - Texas",
+      "classification": {
+        "status": "skipped",
+        "reason": "not_pickup_truck",
+        "timestamp": "2025-05-23T14:00:51.035200"
+      }
+    },
+    {
+      "StartDate": "05/18/2025",
+      "ReportParameters_1": "Asset Category:",
+      "Values_1": "Maintenance Truck - Lube , Medium Truck , Personal Vehicle , Pickup Truck",
+      "classification": {
+        "status": "skipped",
+        "reason": "not_pickup_truck",
+        "timestamp": "2025-05-23T14:00:51.035211"
+      }
+    },
+    {
+      "StartDate": "EndDate",
+      "ReportParameters_1": "ReportParameters_2",
+      "Values_1": "Values_2",
+      "classification": {
+        "status": "skipped",
+        "reason": "not_pickup_truck",
+        "timestamp": "2025-05-23T14:00:51.035213"
+      }
+    },
+    {
+      "StartDate": "05/23/2025",
+      "ReportParameters_1": "Asset Type:",
+      "Values_1": "On-Road",
+      "classification": {
+        "status": "skipped",
+        "reason": "not_pickup_truck",
+        "timestamp": "2025-05-23T14:00:51.035215"
+      }
+    }
+  ],
+  "count": 0,
+  "metrics": {
+    "total_processed": 4,
+    "classified_count": 0,
+    "skipped_count": 4,
+    "skip_reasons": {
+      "not_pickup_truck": 4,
+      "not_on_road": 0,
+      "invalid_jobsite": 0,
+      "error": 0
+    },
+    "error_count": 0,
+    "processing_time_seconds": 0.0
+  }
+}

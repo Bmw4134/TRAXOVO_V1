@@ -1,0 +1,409 @@
+{% extends "layout_unified.html" %}
+
+{% block title %}Dynamic Timecard Comparison - TRAXORA GENIUS CORE{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="/">Home</a></li>
+<li class="breadcrumb-item"><a href="/driver-reports/">Driver Reports</a></li>
+<li class="breadcrumb-item"><a href="/dynamic-timecard/">Dynamic Timecard</a></li>
+<li class="breadcrumb-item active" aria-current="page">Comparison Results</li>
+{% endblock %}
+
+{% block page_title %}Timecard vs. GPS Comparison{% endblock %}
+{% block page_subtitle %}Cross-validation of timecard data with GPS movement records{% endblock %}
+
+{% block page_actions %}
+<a href="/dynamic-timecard/" class="btn btn-outline-secondary me-2">
+    <i class="bi bi-arrow-left me-2"></i> Back
+</a>
+<button class="btn btn-outline-primary" id="export-csv-btn">
+    <i class="bi bi-download me-2"></i> Export CSV
+</button>
+{% endblock %}
+
+{% block content %}
+<!-- Summary Statistics -->
+<div class="row mb-4">
+    <div class="col-md-6 col-lg-3 mb-3 mb-lg-0">
+        <div class="card hoverable bg-dark border-info border-1">
+            <div class="card-body text-center">
+                <h3 class="display-4 mb-2">{{ summary.total_records }}</h3>
+                <p class="text-muted mb-0">Total Records</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3 mb-3 mb-lg-0">
+        <div class="card hoverable bg-dark border-danger border-1">
+            <div class="card-body text-center">
+                <h3 class="display-4 mb-2 text-danger">{{ summary.discrepancy_count }}</h3>
+                <p class="text-muted mb-0">Discrepancies Found</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3 mb-3 mb-lg-0">
+        <div class="card hoverable bg-dark border-warning border-1">
+            <div class="card-body text-center">
+                <h3 class="display-4 mb-2 text-warning">{{ summary.missing_gps }}</h3>
+                <p class="text-muted mb-0">No GPS Activity</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card hoverable bg-dark border-success border-1">
+            <div class="card-body text-center">
+                <h3 class="display-4 mb-2 text-success">{{ summary.total_records - summary.discrepancy_count }}</h3>
+                <p class="text-muted mb-0">Records Matching</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card bg-dark border-0 shadow-sm mb-4">
+    <div class="card-header bg-dark">
+        <h5 class="card-title mb-0">Filter Results</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Date</label>
+                <select class="form-select" id="date-filter">
+                    <option value="all">All Dates</option>
+                    {% for date in dates %}
+                    <option value="{{ date }}">{{ date }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Issue Type</label>
+                <select class="form-select" id="issue-filter">
+                    <option value="all">All Records</option>
+                    <option value="discrepancy">With Discrepancies</option>
+                    <option value="missing-gps">Missing GPS Data</option>
+                    <option value="missing-timecard">Missing Timecard</option>
+                    <option value="hours">Hours Discrepancy</option>
+                    <option value="job">Job Site Mismatch</option>
+                    <option value="none">No Issues (Matching)</option>
+                </select>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Driver Search</label>
+                <input type="text" class="form-control" id="driver-search" placeholder="Search by driver name">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Comparison Table -->
+<div class="card bg-dark border-0 shadow-sm">
+    <div class="card-header bg-dark d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">Detailed Comparison</h5>
+        <span class="badge bg-primary" id="filtered-count">{{ summary.total_records }} records</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0" id="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Driver</th>
+                        <th>Date</th>
+                        <th>Job</th>
+                        <th>Timecard Hours</th>
+                        <th>GPS Hours</th>
+                        <th>Variance</th>
+                        <th>GPS Times</th>
+                        <th>Status</th>
+                        <th>Issues</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for comp in comparisons %}
+                    <tr data-date="{{ comp.date }}" data-has-discrepancy="{{ comp.has_discrepancy|lower }}" data-issues="{{ comp.issues|tojson }}">
+                        <td>{{ comp.driver_name }}</td>
+                        <td>{{ comp.date }}</td>
+                        <td>
+                            {% if comp.timecard_job and comp.gps_job and comp.timecard_job != comp.gps_job %}
+                            <span class="text-warning">{{ comp.timecard_job }} ≠ {{ comp.gps_job }}</span>
+                            {% elif comp.timecard_job %}
+                            {{ comp.timecard_job }}
+                            {% elif comp.gps_job %}
+                            {{ comp.gps_job }}
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ comp.timecard_hours }}</td>
+                        <td>{{ comp.gps_hours }}</td>
+                        <td class="{% if comp.hours_diff > 0.5 or comp.hours_diff < -0.5 %}text-danger{% elif comp.hours_diff != 0 %}text-warning{% endif %}">
+                            {{ comp.hours_diff|round(2) }}
+                        </td>
+                        <td>
+                            {% if comp.gps_start and comp.gps_end %}
+                            {{ comp.gps_start }} - {{ comp.gps_end }}
+                            {% else %}
+                            <span class="text-muted">No GPS data</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if comp.timecard_status == 'absent' %}
+                            <span class="badge bg-secondary">Absent</span>
+                            {% elif comp.timecard_status == 'missing' %}
+                            <span class="badge bg-warning">Missing Timecard</span>
+                            {% elif comp.classification == 'on_time' %}
+                            <span class="badge bg-success">On Time</span>
+                            {% elif comp.classification == 'late' %}
+                            <span class="badge bg-danger">Late</span>
+                            {% elif comp.classification == 'early_end' %}
+                            <span class="badge bg-warning">Early End</span>
+                            {% elif comp.classification == 'not_on_job' %}
+                            <span class="badge bg-info">Not On Job</span>
+                            {% elif comp.classification == 'not_found' %}
+                            <span class="badge bg-secondary">No GPS Data</span>
+                            {% else %}
+                            <span class="badge bg-dark">Unknown</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if comp.issues %}
+                            <ul class="mb-0 ps-3 small">
+                                {% for issue in comp.issues %}
+                                <li>{{ issue }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <span class="text-success"><i class="bi bi-check-circle"></i> Matching</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-info view-detail-btn" data-index="{{ loop.index0 }}">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Detail Modal -->
+<div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detail-driver-name">Driver Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="card bg-dark border-secondary">
+                            <div class="card-header bg-dark">
+                                <h6 class="mb-0">Timecard Data</h6>
+                            </div>
+                            <div class="card-body">
+                                <dl class="row mb-0">
+                                    <dt class="col-sm-4">Job Number:</dt>
+                                    <dd class="col-sm-8" id="detail-timecard-job"></dd>
+                                    
+                                    <dt class="col-sm-4">Hours:</dt>
+                                    <dd class="col-sm-8" id="detail-timecard-hours"></dd>
+                                    
+                                    <dt class="col-sm-4">Status:</dt>
+                                    <dd class="col-sm-8" id="detail-timecard-status"></dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-dark border-secondary">
+                            <div class="card-header bg-dark">
+                                <h6 class="mb-0">GPS Data</h6>
+                            </div>
+                            <div class="card-body">
+                                <dl class="row mb-0">
+                                    <dt class="col-sm-4">Job Site:</dt>
+                                    <dd class="col-sm-8" id="detail-gps-job"></dd>
+                                    
+                                    <dt class="col-sm-4">GPS Hours:</dt>
+                                    <dd class="col-sm-8" id="detail-gps-hours"></dd>
+                                    
+                                    <dt class="col-sm-4">GPS Times:</dt>
+                                    <dd class="col-sm-8" id="detail-gps-times"></dd>
+                                    
+                                    <dt class="col-sm-4">Classification:</dt>
+                                    <dd class="col-sm-8" id="detail-classification"></dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card bg-dark border-danger" id="issues-card">
+                    <div class="card-header bg-dark">
+                        <h6 class="mb-0 text-danger">Issues Detected</h6>
+                    </div>
+                    <div class="card-body">
+                        <ul id="detail-issues"></ul>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Store all comparison data
+        const comparisonData = {{ comparisons|tojson }};
+        
+        // Initialize Bootstrap modal
+        const detailModal = new bootstrap.Modal(document.getElementById('detailModal'));
+        
+        // Filter elements
+        const dateFilter = document.getElementById('date-filter');
+        const issueFilter = document.getElementById('issue-filter');
+        const driverSearch = document.getElementById('driver-search');
+        const filteredCount = document.getElementById('filtered-count');
+        const tableRows = document.querySelectorAll('#comparison-table tbody tr');
+        
+        // View detail buttons
+        const viewDetailBtns = document.querySelectorAll('.view-detail-btn');
+        viewDetailBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const index = parseInt(this.getAttribute('data-index'));
+                const record = comparisonData[index];
+                
+                // Populate modal with data
+                document.getElementById('detail-driver-name').textContent = record.driver_name;
+                document.getElementById('detail-timecard-job').textContent = record.timecard_job || '-';
+                document.getElementById('detail-timecard-hours').textContent = record.timecard_hours;
+                document.getElementById('detail-timecard-status').textContent = record.timecard_status;
+                document.getElementById('detail-gps-job').textContent = record.gps_job || '-';
+                document.getElementById('detail-gps-hours').textContent = record.gps_hours;
+                document.getElementById('detail-gps-times').textContent = record.gps_start && record.gps_end ? 
+                    `${record.gps_start} - ${record.gps_end}` : 'No GPS data';
+                document.getElementById('detail-classification').textContent = record.classification;
+                
+                // Show/hide issues card
+                const issuesCard = document.getElementById('issues-card');
+                const issuesList = document.getElementById('detail-issues');
+                issuesList.innerHTML = '';
+                
+                if (record.issues && record.issues.length > 0) {
+                    record.issues.forEach(issue => {
+                        const li = document.createElement('li');
+                        li.textContent = issue;
+                        issuesList.appendChild(li);
+                    });
+                    issuesCard.classList.remove('d-none');
+                } else {
+                    issuesCard.classList.add('d-none');
+                }
+                
+                // Show modal
+                detailModal.show();
+            });
+        });
+        
+        // Apply filters
+        function applyFilters() {
+            const dateValue = dateFilter.value;
+            const issueValue = issueFilter.value;
+            const searchValue = driverSearch.value.toLowerCase();
+            let visibleCount = 0;
+            
+            tableRows.forEach(row => {
+                const date = row.getAttribute('data-date');
+                const hasDiscrepancy = row.getAttribute('data-has-discrepancy') === 'true';
+                const issues = JSON.parse(row.getAttribute('data-issues') || '[]');
+                const driverName = row.querySelector('td:first-child').textContent.toLowerCase();
+                
+                // Date filter
+                const dateMatch = dateValue === 'all' || date === dateValue;
+                
+                // Issue filter
+                let issueMatch = true;
+                if (issueValue === 'discrepancy') {
+                    issueMatch = hasDiscrepancy;
+                } else if (issueValue === 'missing-gps') {
+                    issueMatch = issues.some(issue => issue.includes('no GPS activity'));
+                } else if (issueValue === 'missing-timecard') {
+                    issueMatch = issues.some(issue => issue.includes('not on timecard'));
+                } else if (issueValue === 'hours') {
+                    issueMatch = issues.some(issue => issue.includes('Hours discrepancy'));
+                } else if (issueValue === 'job') {
+                    issueMatch = issues.some(issue => issue.includes('Job mismatch'));
+                } else if (issueValue === 'none') {
+                    issueMatch = issues.length === 0;
+                }
+                
+                // Driver search
+                const searchMatch = searchValue === '' || driverName.includes(searchValue);
+                
+                // Apply all filters
+                const visible = dateMatch && issueMatch && searchMatch;
+                row.classList.toggle('d-none', !visible);
+                
+                if (visible) {
+                    visibleCount++;
+                }
+            });
+            
+            // Update filtered count
+            filteredCount.textContent = `${visibleCount} records`;
+        }
+        
+        // Add event listeners to filters
+        dateFilter.addEventListener('change', applyFilters);
+        issueFilter.addEventListener('change', applyFilters);
+        driverSearch.addEventListener('input', applyFilters);
+        
+        // CSV Export
+        document.getElementById('export-csv-btn').addEventListener('click', function() {
+            // Get visible rows
+            const visibleRows = Array.from(tableRows).filter(row => !row.classList.contains('d-none'));
+            
+            // CSV Header
+            let csv = 'Driver,Date,Job,Timecard Hours,GPS Hours,Variance,GPS Times,Status,Issues\n';
+            
+            // Add rows
+            visibleRows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                const driver = cells[0].textContent.trim();
+                const date = cells[1].textContent.trim();
+                const job = cells[2].textContent.trim().replace(/\s+≠\s+/g, ' vs ');
+                const timecardHours = cells[3].textContent.trim();
+                const gpsHours = cells[4].textContent.trim();
+                const variance = cells[5].textContent.trim();
+                const gpsTimes = cells[6].textContent.trim();
+                const status = cells[7].textContent.trim();
+                const issues = cells[8].textContent.trim().replace(/\n/g, ' | ');
+                
+                // Escape CSV values
+                const escapeCSV = (value) => `"${value.replace(/"/g, '""')}"`;
+                
+                csv += `${escapeCSV(driver)},${escapeCSV(date)},${escapeCSV(job)},${escapeCSV(timecardHours)},${escapeCSV(gpsHours)},${escapeCSV(variance)},${escapeCSV(gpsTimes)},${escapeCSV(status)},${escapeCSV(issues)}\n`;
+            });
+            
+            // Create download link
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `timecard-comparison-${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+    });
+</script>
+{% endblock %}

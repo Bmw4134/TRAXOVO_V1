@@ -37,4 +37,5 @@ dependencies = [
     "fuzzywuzzy>=0.18.0",
     "agents>=1.4.0",
     "pyyaml>=6.0.2",
+    "formulas>=1.2.10",
 ]

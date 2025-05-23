@@ -1,0 +1,160 @@
+{% extends "layout_unified.html" %}
+
+{% block title %}Dynamic Timecard Processing - TRAXORA GENIUS CORE{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="/">Home</a></li>
+<li class="breadcrumb-item"><a href="/driver-reports/">Driver Reports</a></li>
+<li class="breadcrumb-item active" aria-current="page">Dynamic Timecard Processing</li>
+{% endblock %}
+
+{% block page_title %}Dynamic Timecard Processing{% endblock %}
+{% block page_subtitle %}Upload payroll workbooks with formulas for cross-validation with GPS data{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="card bg-dark border-0 shadow-sm">
+            <div class="card-header bg-dark d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Upload Dynamic Timecard Workbook</h5>
+                <span class="badge bg-info">Preserves Formulas</span>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-4">
+                    Upload your dynamic timecard workbook with all formulas intact. The system will:
+                </p>
+                
+                <div class="mb-4">
+                    <div class="d-flex mb-3">
+                        <span class="badge bg-primary me-2">Formula Evaluation</span>
+                        <span class="text-muted small">Evaluates Excel formulas in Python</span>
+                    </div>
+                    <div class="d-flex mb-3">
+                        <span class="badge bg-success me-2">Cross-Validation</span>
+                        <span class="text-muted small">Compares with GPS data for discrepancies</span>
+                    </div>
+                    <div class="d-flex mb-3">
+                        <span class="badge bg-info me-2">Intelligent Parsing</span>
+                        <span class="text-muted small">Auto-detects Hours, Quantities and Zero Hours sections</span>
+                    </div>
+                    <div class="d-flex mb-3">
+                        <span class="badge bg-warning me-2">Discrepancy Detection</span>
+                        <span class="text-muted small">Highlights issues between timecards and GPS data</span>
+                    </div>
+                </div>
+                
+                <form action="/dynamic-timecard/upload" method="post" enctype="multipart/form-data" id="timecard-form">
+                    <div class="mb-4">
+                        <label class="form-label">Payroll Workbook (.xlsx)</label>
+                        <input type="file" class="form-control" name="timecard_file" accept=".xlsx">
+                        <div class="form-text">
+                            Upload the Ragle Daily Hours/Quantities Review workbook with formulas
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Start Date</label>
+                            <input type="date" class="form-control" name="start_date" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">End Date</label>
+                            <input type="date" class="form-control" name="end_date" required>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info d-none" id="processing-alert">
+                        <div class="d-flex align-items-center">
+                            <div class="spinner-border spinner-border-sm me-2" role="status">
+                                <span class="visually-hidden">Processing...</span>
+                            </div>
+                            <span>Processing workbook... This may take a few moments.</span>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary" id="upload-button">
+                            <i class="bi bi-upload me-2"></i> Upload & Process Workbook
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-4">
+        <div class="card bg-dark border-0 shadow-sm">
+            <div class="card-header bg-dark">
+                <h5 class="card-title mb-0">About This Feature</h5>
+            </div>
+            <div class="card-body">
+                <p>This specialized feature handles dynamic payroll workbooks with complex formulas, designed specifically for:</p>
+                
+                <ul class="list-group list-group-flush mb-4 bg-dark">
+                    <li class="list-group-item bg-dark">
+                        <i class="bi bi-calendar-check text-success me-2"></i> Daily Hours/Quantities Review workbooks
+                    </li>
+                    <li class="list-group-item bg-dark">
+                        <i class="bi bi-calculator text-primary me-2"></i> Formulas-based Excel workbooks with interdependent data
+                    </li>
+                    <li class="list-group-item bg-dark">
+                        <i class="bi bi-table text-info me-2"></i> Multi-sheet workbooks with Hours, Quantities and Absences
+                    </li>
+                    <li class="list-group-item bg-dark">
+                        <i class="bi bi-clock-history text-warning me-2"></i> Ground Works timecard data (pre-accounting verification)
+                    </li>
+                </ul>
+                
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <strong>Important:</strong> This processor preserves all formula dependencies and evaluates them 
+                    to ensure accurate data extraction from complex workbooks.
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Uploads Card -->
+        <div class="card bg-dark border-0 shadow-sm mt-4">
+            <div class="card-header bg-dark d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Processing Options</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="/dynamic-timecard/view" class="btn btn-outline-info">
+                        <i class="bi bi-table me-2"></i> View Previous Comparison
+                    </a>
+                    <a href="/driver-reports/" class="btn btn-outline-secondary">
+                        <i class="bi bi-person-badge me-2"></i> Back to Driver Reports
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const timecardForm = document.getElementById('timecard-form');
+        const uploadButton = document.getElementById('upload-button');
+        const processingAlert = document.getElementById('processing-alert');
+        
+        // Set default dates (this week)
+        const today = new Date();
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(today.getDate() - today.getDay()); // Sunday
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6); // Saturday
+        
+        document.querySelector('input[name="start_date"]').value = startOfWeek.toISOString().split('T')[0];
+        document.querySelector('input[name="end_date"]').value = endOfWeek.toISOString().split('T')[0];
+        
+        // Form submission
+        timecardForm.addEventListener('submit', function() {
+            uploadButton.disabled = true;
+            processingAlert.classList.remove('d-none');
+        });
+    });
+</script>
+{% endblock %}

@@ -459,6 +459,22 @@ wheels = [
 ]
 
 [[package]]
+name = "formulas"
+version = "1.2.10"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+    { name = "numpy-financial" },
+    { name = "python-dateutil" },
+    { name = "regex" },
+    { name = "schedula" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/9d/22/ba360ad5f76877069a4b36cef48d2662144e6a0984f3ca5455f0ca2ab1aa/formulas-1.2.10.tar.gz", hash = "sha256:c04bb4ca9bc90d716647ec4507473e38b34bb6d13be28ceee09d2ab0ec2b4dd4", size = 74101 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3d/14/8f0cfa85bc25a9f3ea968a8484a5649350e0c65e405b18ccd60cabe21792/formulas-1.2.10-py2.py3-none-any.whl", hash = "sha256:eb029109e9d4c1abad40bbb09c18ca1476bff49da2275b8da2ab50259d08770c", size = 69029 },
+]
+
+[[package]]
 name = "fpdf"
 version = "1.7.2"
 source = { registry = "https://pypi.org/simple" }
@@ -1217,6 +1233,18 @@ wheels = [
 ]
 
 [[package]]
+name = "numpy-financial"
+version = "1.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/0f/4e/6dff3733162d4a96140f0195f3b529c2d56f90d3245c8c1b506913d11f91/numpy-financial-1.0.0.tar.gz", hash = "sha256:f84341bc62b2485d5604a73d5fac7e91975b4b9cd5f4a5a9cf608902ea00cb40", size = 13185 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/6a/be/d07585e440d58835bad8f1c9ca7823b5252ffeda4c797e653a20215fca65/numpy_financial-1.0.0-py3-none-any.whl", hash = "sha256:bae534b357516f12258862d1f0181d911032d0467f215bfcd1c264b4da579047", size = 14025 },
+]
+
+[[package]]
 name = "oauthlib"
 version = "3.2.2"
 source = { registry = "https://pypi.org/simple" }
@@ -1752,6 +1780,7 @@ dependencies = [
     { name = "flask-login" },
     { name = "flask-migrate" },
     { name = "flask-sqlalchemy" },
+    { name = "formulas" },
     { name = "fpdf" },
     { name = "fuzzywuzzy" },
     { name = "gunicorn" },
@@ -1789,6 +1818,7 @@ requires-dist = [
     { name = "flask-login", specifier = ">=0.6.3" },
     { name = "flask-migrate", specifier = ">=4.1.0" },
     { name = "flask-sqlalchemy", specifier = ">=3.1.1" },
+    { name = "formulas", specifier = ">=1.2.10" },
     { name = "fpdf", specifier = ">=1.7.2" },
     { name = "fuzzywuzzy", specifier = ">=0.18.0" },
     { name = "gunicorn", specifier = ">=23.0.0" },
@@ -1914,6 +1944,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/87/b8/01c29b924dcbbed75cc45b30c30d565d763b9c4d540545a0eeecffb8f09c/ruamel.yaml.clib-0.2.12-cp313-cp313-musllinux_1_2_aarch64.whl", hash = "sha256:4f6f3eac23941b32afccc23081e1f50612bdbe4e982012ef4f5797986828cd01", size = 709059 },
     { url = "https://files.pythonhosted.org/packages/30/8c/ed73f047a73638257aa9377ad356bea4d96125b305c34a28766f4445cc0f/ruamel.yaml.clib-0.2.12-cp313-cp313-win32.whl", hash = "sha256:6442cb36270b3afb1b4951f060eccca1ce49f3d087ca1ca4563a6eb479cb3de6", size = 98583 },
     { url = "https://files.pythonhosted.org/packages/b0/85/e8e751d8791564dd333d5d9a4eab0a7a115f7e349595417fd50ecae3395c/ruamel.yaml.clib-0.2.12-cp313-cp313-win_amd64.whl", hash = "sha256:e5b8daf27af0b90da7bb903a876477a9e6d7270be6146906b276605997c7e9a3", size = 115190 },
+]
+
+[[package]]
+name = "schedula"
+version = "1.5.62"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/96/4d/2f0bfab96413ee13a77bbe11f51152ee9a7f79d2c4afd47dcb2426f35d4e/schedula-1.5.62.tar.gz", hash = "sha256:40b96f9d0a9a92c880db22bb90cdebed980513faf602e7eb8a8a001696b490b7", size = 6049453 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f9/de/402ac62dc7f5da8661a18f76d8a9534d592793def6eba029ae1ccd14df1a/schedula-1.5.62-py2.py3-none-any.whl", hash = "sha256:3d8e17b49cb92b2b49a24e28e736a03a2ccb401db227ef4cc440441cbbcae4cb", size = 6199728 },
 ]
 
 [[package]]

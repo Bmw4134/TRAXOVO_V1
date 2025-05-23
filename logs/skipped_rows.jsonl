@@ -9,3 +9,15 @@
 {"file": "AssetsTimeOnSite (4).csv", "row": 3, "reason": "fluff_row", "content": []}
 {"file": "AssetsTimeOnSite (4).csv", "row": 6, "reason": "fluff_row", "content": []}
 {"file": "AssetsTimeOnSite (4).csv", "row": 43718, "reason": "fluff_row", "content": []}
+{"file": "Unknown_20250523134741_2.xlsx", "row": 32, "type": "filldown_patch", "column": "Unit", "filled_value": "WK"}
+{"file": "Unknown_20250523134741_2.xlsx", "row": 33, "type": "filldown_patch", "column": "Unit", "filled_value": "WK"}
+{"file": "Unknown_20250523134741_2.xlsx", "row": 34, "type": "filldown_patch", "column": "Unit", "filled_value": "WK"}
+{"file": "Unknown_20250523134741_2.xlsx", "row": 35, "type": "filldown_patch", "column": "Unit", "filled_value": "WK"}
+{"file": "Unknown_20250523134741_2.xlsx", "row": 81, "type": "filldown_patch", "column": "Unit", "filled_value": "DAY"}
+{"file": "Unknown_20250523134741_2.xlsx", "row": 82, "type": "filldown_patch", "column": "Unit", "filled_value": "DAY"}
+{"file": "Unknown_20250523134741_2.xlsx", "row": 83, "type": "filldown_patch", "column": "Unit", "filled_value": "DAY"}
+{"file": "Unknown_20250523134741_2.xlsx", "row": 84, "type": "filldown_patch", "column": "Unit", "filled_value": "DAY"}
+{"file": "Unknown_20250523134741_2.xlsx", "row": 210, "type": "filldown_patch", "column": "Unit", "filled_value": "LS"}
+{"file": "Unknown_20250523134741_2.xlsx", "row": 211, "type": "filldown_patch", "column": "Unit", "filled_value": "LS"}
+{"file": "Unknown_20250523134741_2.xlsx", "row": 212, "type": "filldown_patch", "column": "Unit", "filled_value": "LS"}
+{"file": "Unknown_20250523134741_2.xlsx", "row": 213, "type": "filldown_patch", "column": "Unit", "filled_value": "LS"}

@@ -266,34 +266,186 @@ class GaugeAPI:
             if not self.token:
                 logger.error("Not authenticated with Gauge API, cannot get assets")
                 return []
-                
+        
+        # ENHANCED ASSET RETRIEVAL - Try direct AssetList endpoint first (most reliable)
+        try:
+            # Direct AssetList endpoint with the known AssetList ID
+            direct_url = f"{self.api_url}/AssetList/{self.asset_list_id}"
+            logger.info(f"Trying direct AssetList endpoint: {direct_url}")
+            
+            # Use basic auth for this endpoint since it worked during authentication
+            response = requests.get(
+                direct_url,
+                auth=(self.username, self.password),
+                headers={
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                params={
+                    "active": "true",  # Only active assets
+                    "hasGPS": "true"   # Only assets with GPS devices
+                },
+                timeout=60,  # Increased timeout for large asset lists
+                verify=False
+            )
+            
+            if response.status_code in [200, 201, 202, 203]:
+                try:
+                    data = response.json()
+                    # Check for different response formats
+                    if isinstance(data, list) and len(data) > 0:
+                        logger.info(f"Successfully retrieved {len(data)} active GPS assets from direct AssetList endpoint")
+                        # Further filter to ensure we only have assets with GPS capability
+                        filtered_assets = [asset for asset in data if self._is_trackable_asset(asset)]
+                        logger.info(f"Filtered down to {len(filtered_assets)} trackable assets")
+                        return filtered_assets
+                    elif isinstance(data, dict) and "assets" in data:
+                        assets = data["assets"]
+                        logger.info(f"Successfully retrieved {len(assets)} assets from direct AssetList endpoint (nested)")
+                        # Filter for trackable assets
+                        filtered_assets = [asset for asset in assets if self._is_trackable_asset(asset)]
+                        logger.info(f"Filtered down to {len(filtered_assets)} trackable assets")
+                        return filtered_assets
+                    elif isinstance(data, dict) and "items" in data:
+                        assets = data["items"]
+                        logger.info(f"Successfully retrieved {len(assets)} assets from direct AssetList endpoint (items)")
+                        # Filter for trackable assets
+                        filtered_assets = [asset for asset in assets if self._is_trackable_asset(asset)]
+                        logger.info(f"Filtered down to {len(filtered_assets)} trackable assets")
+                        return filtered_assets
+                    else:
+                        logger.warning("Direct AssetList endpoint returned unexpected format")
+                except Exception as e:
+                    logger.error(f"Error parsing AssetList response: {str(e)}")
+        except Exception as e:
+            logger.warning(f"Error accessing direct AssetList endpoint: {str(e)}")
+        
+        # PAGINATION SUPPORT - Try API endpoints with pagination
+        all_assets = []
+        
         # List of possible endpoint formats to try
         endpoint_formats = [
             "/assets",
             "/api/v1/assets",
-            "/api/assets"
+            "/api/assets",
+            f"/AssetList/{self.asset_list_id}/assets",
+            f"/api/AssetList/{self.asset_list_id}",
+            "/api/v2/assets"
         ]
         
         for endpoint in endpoint_formats:
             try:
-                url = f"{self.api_url.rstrip('/')}{endpoint}"
-                logger.info(f"Trying to get assets from: {url}")
+                base_url = f"{self.api_url.rstrip('/')}{endpoint}"
+                logger.info(f"Trying to get assets with pagination from: {base_url}")
                 
-                response = requests.get(
-                    url,
-                    headers=self.get_headers(),
-                    timeout=30,
-                    verify=False  # Disable SSL verification for development environments
-                )
+                # Parameters for pagination
+                page = 1
+                page_size = 100
+                has_more = True
                 
-                if response.status_code == 200:
-                    return response.json()
-                else:
-                    logger.warning(f"Failed to get assets from {url}: {response.status_code}")
+                while has_more:
+                    # Try different pagination parameter styles
+                    params = {
+                        "page": page,
+                        "pageSize": page_size,
+                        "limit": page_size,
+                        "offset": (page - 1) * page_size
+                    }
+                    
+                    response = requests.get(
+                        base_url,
+                        params=params,
+                        headers=self.get_headers(),
+                        timeout=60,  # Increased timeout for large asset lists
+                        verify=False
+                    )
+                    
+                    if response.status_code == 200:
+                        try:
+                            data = response.json()
+                            # Handle different response formats
+                            if isinstance(data, list):
+                                # Handle array response
+                                if len(data) > 0:
+                                    all_assets.extend(data)
+                                    logger.info(f"Retrieved {len(data)} assets from page {page}")
+                                    # If we got fewer than page_size, we're done
+                                    has_more = len(data) >= page_size
+                                else:
+                                    has_more = False
+                            elif isinstance(data, dict):
+                                # Handle object response with items/data array
+                                if "assets" in data and isinstance(data["assets"], list):
+                                    assets = data["assets"]
+                                    all_assets.extend(assets)
+                                    logger.info(f"Retrieved {len(assets)} assets from page {page}")
+                                    has_more = len(assets) >= page_size
+                                elif "items" in data and isinstance(data["items"], list):
+                                    assets = data["items"]
+                                    all_assets.extend(assets)
+                                    logger.info(f"Retrieved {len(assets)} assets from page {page}")
+                                    has_more = len(assets) >= page_size
+                                elif "data" in data and isinstance(data["data"], list):
+                                    assets = data["data"]
+                                    all_assets.extend(assets)
+                                    logger.info(f"Retrieved {len(assets)} assets from page {page}")
+                                    has_more = len(assets) >= page_size
+                                else:
+                                    # If response format is unknown, assume no more pages
+                                    all_assets.append(data)
+                                    has_more = False
+                            else:
+                                # Unknown response format
+                                has_more = False
+                            
+                            page += 1
+                        except Exception as e:
+                            logger.error(f"Error parsing paginated response: {str(e)}")
+                            has_more = False
+                    else:
+                        logger.warning(f"Failed to get assets from {base_url} page {page}: {response.status_code}")
+                        has_more = False
+                
+                # If we got assets, return them
+                if all_assets:
+                    logger.info(f"Successfully retrieved {len(all_assets)} total assets from {endpoint}")
+                    return all_assets
                     
             except Exception as e:
                 logger.warning(f"Error getting assets from {endpoint}: {str(e)}")
                 continue
+        
+        # BATCH RETRIEVAL - Final fallback for batch asset retrieval
+        try:
+            logger.info("Attempting batch asset retrieval as final fallback")
+            batch_url = f"{self.api_url}/AssetList/{self.asset_list_id}/batch"
+            
+            response = requests.post(
+                batch_url,
+                auth=(self.username, self.password),
+                headers={
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                json={"fetchAll": True},
+                timeout=120,  # Extended timeout for large dataset
+                verify=False
+            )
+            
+            if response.status_code in [200, 201, 202, 203]:
+                try:
+                    data = response.json()
+                    if isinstance(data, list):
+                        logger.info(f"Successfully retrieved {len(data)} assets from batch endpoint")
+                        return data
+                    elif isinstance(data, dict) and "assets" in data:
+                        assets = data["assets"]
+                        logger.info(f"Successfully retrieved {len(assets)} assets from batch endpoint")
+                        return assets
+                except Exception as e:
+                    logger.error(f"Error parsing batch response: {str(e)}")
+        except Exception as e:
+            logger.warning(f"Error accessing batch endpoint: {str(e)}")
         
         logger.error("All attempts to get assets failed")
         return []

@@ -15,7 +15,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 
-from utils.attendance_pipeline import process_attendance_data
+from utils.attendance_pipeline_v2 import process_attendance_data_v2
 from utils.multi_source_processor import combine_attendance_sources
 
 # Configure logging
@@ -49,14 +49,14 @@ def generate_daily_report(date_str, driving_history_data=None, time_on_site_data
             output_dir = os.path.join('reports', 'daily_driver_reports')
             os.makedirs(output_dir, exist_ok=True)
         
-        # Process data
-        combined_data = combine_attendance_sources(
+        # Process data using the V2 engine
+        attendance_report = process_attendance_data_v2(
             driving_history_data, 
             time_on_site_data, 
-            activity_detail_data
+            activity_detail_data,
+            timecard_data,
+            date_str
         )
-        
-        attendance_report = process_attendance_data(combined_data, date_str, timecard_data)
         
         if not attendance_report:
             logger.warning(f"No attendance data available for date: {date_str}")

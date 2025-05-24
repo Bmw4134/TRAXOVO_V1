@@ -3,7 +3,7 @@ TRAXORA Fleet Management System - Enhanced Attendance Engine
 
 This module provides a unified interface between the TRAXORA classification system
 and the alternative attendance engine approach, allowing for seamless integration
-of both methods.
+of both methods and a UI sync verification system.
 """
 
 import os
@@ -15,6 +15,9 @@ from datetime import datetime, timedelta
 # Import both TRAXORA processor and alternative engine
 from utils.weekly_driver_processor import process_weekly_report
 import attendance_engine
+
+# Verify UI synchronization
+attendance_engine.verify_ui_has_compare_button()
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)

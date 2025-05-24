@@ -1,13 +1,15 @@
-# attendance_engine.py (ULTRA BLOCK with Advanced Control)
+# attendance_engine.py (ULTRA BLOCK with Sync Verifier)
 
 import pandas as pd
 import os
 import json
 import time
 from datetime import datetime
+from bs4 import BeautifulSoup
 
 DATA_DIR = "data"
 QUEUE_FILE = os.path.join(DATA_DIR, "input_queue.json")
+TEMPLATE_PATH = "templates/enhanced_weekly_report/dashboard.html"  # Adjust if path differs
 
 # 🔧 Setup Directories and Input Queue
 
@@ -33,6 +35,30 @@ def verify_file_sync(file_path):
     with open(file_path, 'r') as f:
         head = f.read(200)
     print(f"✅ Top of file:\n{head[:300]}")
+    
+# 🔎 UI Sync Verifier for Frontend Updates
+
+def verify_ui_has_compare_button():
+    print("🧪 Checking if 'Compare Processing Methods' button exists in dashboard UI...")
+    if not os.path.exists(TEMPLATE_PATH):
+        print("❌ Dashboard template not found.")
+        return False
+    with open(TEMPLATE_PATH, 'r') as f:
+        soup = BeautifulSoup(f.read(), 'html.parser')
+        # Find elements containing this text
+        compare_buttons = []
+        for a_tag in soup.find_all("a"):
+            if a_tag.string and "Compare Processing Methods" in a_tag.string:
+                compare_buttons.append(a_tag)
+            elif a_tag.text and "Compare Processing Methods" in a_tag.text:
+                compare_buttons.append(a_tag)
+                
+        if compare_buttons:
+            print("✅ UI is correctly wired. Button is present.")
+            return True
+        else:
+            print("🚨 UI MISMATCH: Button not found! Frontend may not reflect backend state.")
+            return False
 
 # 📌 Queue an Input File
 

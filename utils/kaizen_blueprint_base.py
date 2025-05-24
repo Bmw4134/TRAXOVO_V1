@@ -118,6 +118,9 @@ class KaizenBlueprint(Blueprint):
             str: The template name or None if not found
         """
         try:
+            if func is None:
+                return None
+                
             source = inspect.getsource(func)
             import re
             

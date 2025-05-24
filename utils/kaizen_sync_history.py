@@ -79,7 +79,8 @@ def get_history(limit=20):
     Get the sync history.
     
     Args:
-        limit (int, optional): Maximum number of entries to return
+        limit (int or None, optional): Maximum number of entries to return. 
+                                      If None, return all entries.
         
     Returns:
         list: List of history entries

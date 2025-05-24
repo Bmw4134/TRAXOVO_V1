@@ -131,6 +131,20 @@ except ImportError:
     logger.warning("Enhanced Weekly Report module not found")
 except Exception as e:
     logger.error(f"Error with Enhanced Weekly Report blueprint: {e}")
+    
+# Register System Admin Blueprint
+try:
+    # Check if the blueprint is already registered to avoid duplicate registration
+    if not any(bp.name == 'system_admin' for bp in app.blueprints.values()):
+        from routes.system_admin import system_admin_bp
+        app.register_blueprint(system_admin_bp)
+        logger.info("System Admin blueprint registered successfully")
+    else:
+        logger.info("System Admin blueprint already registered")
+except ImportError:
+    logger.warning("System Admin module not found")
+except Exception as e:
+    logger.error(f"Error with System Admin blueprint: {e}")
 
 @app.route('/attendance/')
 @app.route('/attendance')

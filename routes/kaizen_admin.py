@@ -24,7 +24,7 @@ from utils.kaizen_admin_actions import get_admin_actions, get_admin_action, clea
 logger = logging.getLogger(__name__)
 
 # Create blueprint
-kaizen_admin_bp = Blueprint('kaizen_admin', __name__, url_prefix='/kaizen-admin')
+kaizen_admin_bp = Blueprint('kaizen_admin', __name__, url_prefix='/admin/kaizen')
 
 # Global variables for watchdog status
 watchdog_thread = None
@@ -205,7 +205,7 @@ def api_sync_stats():
     
     return jsonify(stats)
 
-@kaizen_admin_bp.route('/admin-actions')
+@kaizen_admin_bp.route('/admin-actions/')
 def admin_actions():
     """Admin actions view"""
     actions = get_admin_actions(limit=None)
@@ -215,7 +215,7 @@ def admin_actions():
         actions=actions
     )
 
-@kaizen_admin_bp.route('/clear-admin-actions', methods=['POST'])
+@kaizen_admin_bp.route('/clear-admin-actions/', methods=['POST'])
 def clear_admin_actions_route():
     """Clear admin actions"""
     if clear_admin_actions():
@@ -232,7 +232,7 @@ def clear_admin_actions_route():
         
     return redirect(url_for('kaizen_admin.admin_actions'))
 
-@kaizen_admin_bp.route('/download-admin-actions')
+@kaizen_admin_bp.route('/download-admin-actions/')
 def download_admin_actions():
     """Download admin actions in JSON or CSV format"""
     format_type = request.args.get('format', 'json')
@@ -286,11 +286,19 @@ def download_admin_actions():
             }
         )
 
-@kaizen_admin_bp.route('/download-sync-history')
+@kaizen_admin_bp.route('/download-sync-history/')
 def download_sync_history():
     """Download sync history in JSON or CSV format"""
     format_type = request.args.get('format', 'json')
     history = get_history(limit=None)
+    
+    # Log this action
+    add_admin_action(
+        'download_sync_history',
+        f'Sync history downloaded in {format_type} format',
+        category='system',
+        status='success'
+    )
     
     if format_type.lower() == 'csv':
         # Create CSV output

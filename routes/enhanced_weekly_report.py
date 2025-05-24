@@ -66,6 +66,39 @@ def demo_may_week():
         flash(f"An error occurred while processing the demo report: {str(e)}", "danger")
         return redirect(url_for('enhanced_weekly_report_bp.dashboard'))
 
+@enhanced_weekly_report_bp.route('/compare-methods')
+def compare_methods():
+    """Compare TRAXORA and alternative processing methods"""
+    try:
+        from utils.comparison_processor import process_comparison
+        
+        # Process comparison
+        comparison_data = process_comparison()
+        
+        if not comparison_data:
+            flash("Error generating comparison. Please check the logs for details.", "danger")
+            return redirect(url_for('enhanced_weekly_report_bp.dashboard'))
+        
+        # Calculate start and end dates
+        start_date = "2025-05-18"
+        end_date = "2025-05-24"
+        start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
+        end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
+        start_formatted = start_datetime.strftime('%B %d, %Y')
+        end_formatted = end_datetime.strftime('%B %d, %Y')
+        
+        # Render comparison template
+        return render_template('enhanced_weekly_report/comparison.html',
+                              comparison=comparison_data,
+                              start_date=start_date,
+                              end_date=end_date,
+                              start_formatted=start_formatted,
+                              end_formatted=end_formatted)
+    except Exception as e:
+        logger.error(f"Error comparing processing methods: {str(e)}")
+        flash(f"An error occurred while comparing processing methods: {str(e)}", "danger")
+        return redirect(url_for('enhanced_weekly_report_bp.dashboard'))
+
 @enhanced_weekly_report_bp.route('/')
 def dashboard():
     """Enhanced weekly driver report dashboard"""

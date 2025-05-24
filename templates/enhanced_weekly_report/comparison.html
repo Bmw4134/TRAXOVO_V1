@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %}Processing Method Comparison: {{ start_formatted }} - {{ end_formatted }}{% endblock %}
+
+{% block content %}
+<!-- Back to Dashboard link -->
+<div class="back-link mb-3">
+    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Dashboard
+    </a>
+</div>
+
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="mb-4">Processing Method Comparison</h1>
+            <p class="lead">Comparing TRAXORA vs. Alternative Processing for {{ start_formatted }} to {{ end_formatted }}</p>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Summary Comparison</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card bg-light mb-3">
+                                <div class="card-header bg-success text-white">
+                                    <h5 class="mb-0">TRAXORA Processing</h5>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Total Drivers
+                                            <span class="badge bg-primary rounded-pill">{{ comparison.traxora_stats.total_drivers }}</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            On Time
+                                            <span class="badge bg-success rounded-pill">{{ comparison.traxora_stats.classifications.on_time }}</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Late Start
+                                            <span class="badge bg-warning text-dark rounded-pill">{{ comparison.traxora_stats.classifications.late_start }}</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Early End
+                                            <span class="badge bg-warning text-dark rounded-pill">{{ comparison.traxora_stats.classifications.early_end }}</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Not On Job
+                                            <span class="badge bg-danger rounded-pill">{{ comparison.traxora_stats.classifications.not_on_job }}</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light mb-3">
+                                <div class="card-header bg-info text-white">
+                                    <h5 class="mb-0">Alternative Processing</h5>
+                                </div>
+                                <div class="card-body">
+                                    {% if comparison.alt_stats.total_drivers > 0 %}
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Total Drivers
+                                            <span class="badge bg-primary rounded-pill">{{ comparison.alt_stats.total_drivers }}</span>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <a href="/data/alternative_report.xlsx" class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-download"></i> Download Alternative Report
+                                            </a>
+                                        </li>
+                                    </ul>
+                                    {% else %}
+                                    <div class="alert alert-warning">
+                                        <i class="bi bi-exclamation-triangle-fill"></i> Alternative processing could not be completed. Please check the logs for details.
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle"></i> Processing Method Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>TRAXORA Processing</h5>
+                            <ul class="list-group mb-3">
+                                <li class="list-group-item">
+                                    <strong>Input Files:</strong> DrivingHistory, ActivityDetail, and AssetsTimeOnSite CSVs
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>Field Mapping:</strong> Maps various column names (Driver, Contact, etc.) to standardized fields
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>Classification Logic:</strong>
+                                    <ul>
+                                        <li>Not On Job: No job site detected</li>
+                                        <li>Late Start: First seen after 7:30 AM</li>
+                                        <li>Early End: Last seen before 4:00 PM or &lt;7 hours on site</li>
+                                        <li>On Time: All other cases</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                            <a href="{{ url_for('enhanced_weekly_report_bp.demo_may_week') }}" class="btn btn-success">
+                                <i class="bi bi-eye"></i> View Full TRAXORA Report
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Alternative Processing</h5>
+                            <ul class="list-group mb-3">
+                                <li class="list-group-item">
+                                    <strong>Input Files:</strong> Primarily telematics data (GPS/location data)
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>Field Mapping:</strong> Simple column name standardization without alternative mappings
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>Processing:</strong> Calculates hours based on start/end times without detailed classification
+                                </li>
+                            </ul>
+                            <div class="alert alert-info">
+                                <i class="bi bi-lightbulb"></i> The alternative method focuses on duration calculation without detailed attendance classification.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-gear"></i> Key Differences</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>TRAXORA Processing</th>
+                                    <th>Alternative Processing</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Data Sources</td>
+                                    <td>Multiple (DrivingHistory, ActivityDetail, TimeOnSite)</td>
+                                    <td>Single (Telematics)</td>
+                                </tr>
+                                <tr>
+                                    <td>Field Handling</td>
+                                    <td>Robust mapping with fallbacks for different field names</td>
+                                    <td>Basic column standardization</td>
+                                </tr>
+                                <tr>
+                                    <td>Classification</td>
+                                    <td>Detailed (On Time, Late Start, Early End, Not On Job)</td>
+                                    <td>Basic (Hours Worked)</td>
+                                </tr>
+                                <tr>
+                                    <td>Reporting</td>
+                                    <td>Interactive web-based dashboard with detailed views</td>
+                                    <td>Basic Excel export</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="alert alert-success mt-3">
+                        <h5><i class="bi bi-check-circle"></i> TRAXORA Advantages</h5>
+                        <ul>
+                            <li>More granular classification of attendance status</li>
+                            <li>Cross-validation across multiple data sources</li>
+                            <li>Detailed tracking of job site assignments</li>
+                            <li>Web-based dashboard with real-time data access</li>
+                            <li>Integration with other TRAXORA modules</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

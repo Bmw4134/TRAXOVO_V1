@@ -221,7 +221,7 @@ def attendance_main():
 @app.route('/')
 def dashboard():
     """Homepage shows dashboard"""
-    return render_template('basic_dashboard.html',
+    return render_template('dashboard.html',
                           assets_count=get_asset_count(),
                           drivers_count=get_driver_count(),
                           job_sites_count=get_job_site_count(),

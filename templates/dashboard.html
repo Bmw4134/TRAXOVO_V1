@@ -1,184 +1,552 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard | TRAXORA{% endblock %}
+{% block title %}TRAXORA Dashboard{% endblock %}
+
+{% block head %}
+<style>
+    .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 100;
+        padding: 48px 0 0;
+        box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+        transition: all 0.3s;
+    }
+    
+    .sidebar-sticky {
+        height: calc(100vh - 48px);
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+    
+    .sidebar .nav-link {
+        font-weight: 500;
+        color: var(--bs-light);
+    }
+    
+    .sidebar .nav-link.active {
+        color: var(--bs-primary);
+    }
+    
+    .sidebar-heading {
+        font-size: .75rem;
+        text-transform: uppercase;
+    }
+    
+    .navbar-brand {
+        padding-top: .75rem;
+        padding-bottom: .75rem;
+        background-color: rgba(0, 0, 0, .25);
+        box-shadow: inset -1px 0 0 rgba(0, 0, 0, .25);
+    }
+    
+    .navbar .navbar-toggler {
+        top: .25rem;
+        right: 1rem;
+    }
+    
+    .navbar .form-control {
+        padding: .75rem 1rem;
+    }
+    
+    main {
+        padding-top: 1.5rem;
+    }
+    
+    .sidebar-collapsed {
+        margin-left: -250px;
+    }
+    
+    #content {
+        width: 100%;
+        transition: all 0.3s;
+    }
+    
+    .content-expanded {
+        margin-left: 0;
+    }
+    
+    .quick-access-card {
+        transition: transform 0.3s;
+        height: 100%;
+    }
+    
+    .quick-access-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .status-indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+    }
+    
+    .status-connected {
+        background-color: var(--bs-success);
+    }
+    
+    .status-warning {
+        background-color: var(--bs-warning);
+    }
+    
+    .status-disconnected {
+        background-color: var(--bs-danger);
+    }
+    
+    .status-not-configured {
+        background-color: var(--bs-secondary);
+    }
+    
+    .genius-core-banner {
+        background: linear-gradient(90deg, rgba(33,37,41,1) 0%, rgba(108,117,125,0.8) 100%);
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .sync-history-item {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .notification-badge {
+        font-size: 0.7rem;
+        padding: 0.25rem 0.5rem;
+        position: absolute;
+        top: -5px;
+        right: -5px;
+    }
+    
+    @media (max-width: 767.98px) {
+        .sidebar {
+            position: static;
+            height: auto;
+            padding-top: 0;
+        }
+        
+        .sidebar-sticky {
+            height: auto;
+        }
+        
+        main {
+            padding-top: 0.5rem;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container pt-4">
-  <h1 class="mb-4">TRAXORA Fleet Management Dashboard</h1>
-  
-  <!-- API Status Indicators -->
-  <div class="card mb-4">
-    <div class="card-header">
-      <h5 class="mb-0">System Status</h5>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-4">
-          <div class="d-flex align-items-center mb-3">
-            <div class="status-indicator {% if api_status.gauge_api %}bg-success{% else %}bg-danger{% endif %} me-2"></div>
-            <span>GaugeSmart API</span>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="d-flex align-items-center mb-3">
-            <div class="status-indicator {% if api_status.database %}bg-success{% else %}bg-danger{% endif %} me-2"></div>
-            <span>Database</span>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="d-flex align-items-center mb-3">
-            <div class="status-indicator {% if api_status.file_system %}bg-success{% else %}bg-danger{% endif %} me-2"></div>
-            <span>File System</span>
-          </div>
-        </div>
-      </div>
-      <div class="text-muted small mt-2">Last checked: {{ current_date }}</div>
-    </div>
-  </div>
-  
-  <!-- Module Tiles -->
-  <div class="row g-4 mb-4">
-    <!-- Daily Driver Reports -->
-    <div class="col-md-6 col-lg-3">
-      <div class="card h-100">
-        <div class="card-body text-center">
-          <div class="display-1 text-primary mb-3">
-            <i class="bi bi-people"></i>
-          </div>
-          <h5 class="card-title">Daily Driver Reports</h5>
-          <p class="card-text">Track driver attendance and generate reports</p>
-          <a href="{{ url_for('driver_module.index') }}" class="btn btn-primary">Access Module</a>
-        </div>
-      </div>
-    </div>
-    
-    <!-- PM Allocation -->
-    <div class="col-md-6 col-lg-3">
-      <div class="card h-100">
-        <div class="card-body text-center">
-          <div class="display-1 text-success mb-3">
-            <i class="bi bi-file-earmark-spreadsheet"></i>
-          </div>
-          <h5 class="card-title">PM Allocation</h5>
-          <p class="card-text">Manage billing allocations and reconciliation</p>
-          <a href="{{ url_for('pm_allocation.pm_allocation_processor') }}" class="btn btn-success">Access Module</a>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Asset Map -->
-    <div class="col-md-6 col-lg-3">
-      <div class="card h-100">
-        <div class="card-body text-center">
-          <div class="display-1 text-info mb-3">
-            <i class="bi bi-geo-alt"></i>
-          </div>
-          <h5 class="card-title">Asset Map</h5>
-          <p class="card-text">View real-time locations of all assets</p>
-          <a href="{{ url_for('asset_map.asset_map') }}" class="btn btn-info">Access Module</a>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Job Zone Assignments -->
-    <div class="col-md-6 col-lg-3">
-      <div class="card h-100">
-        <div class="card-body text-center">
-          <div class="display-1 text-warning mb-3">
-            <i class="bi bi-map"></i>
-          </div>
-          <h5 class="card-title">Job Zones</h5>
-          <p class="card-text">Manage job sites and zone assignments</p>
-          <a href="{{ url_for('reports.index') }}" class="btn btn-warning">Access Module</a>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Quick Stats -->
-  <div class="row">
-    <div class="col-md-8">
-      <div class="card">
-        <div class="card-header">
-          <h5 class="mb-0">Asset Statistics</h5>
-        </div>
-        <div class="card-body">
-          <div class="row">
-            <div class="col-md-4 text-center">
-              <div class="h1 mb-0">{{ system_stats.asset_count }}</div>
-              <p class="text-muted">Total Assets</p>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar">
+            <div class="position-sticky sidebar-sticky pt-3">
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                    <span>TRAXORA</span>
+                    <a class="link-secondary" href="#" id="sidebarToggle" aria-label="Toggle sidebar">
+                        <i class="bi bi-layout-sidebar-inset"></i>
+                    </a>
+                </h6>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('dashboard') }}">
+                            <i class="bi bi-speedometer2 me-2"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('attendance.daily_driver_report') }}">
+                            <i class="bi bi-calendar-check me-2"></i>
+                            Daily Driver Report
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/enhanced-weekly-report/">
+                            <i class="bi bi-calendar-week me-2"></i>
+                            Weekly Driver Report
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/asset-map/">
+                            <i class="bi bi-geo-alt me-2"></i>
+                            Asset Map
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/billing/">
+                            <i class="bi bi-currency-dollar me-2"></i>
+                            Equipment Billing
+                        </a>
+                    </li>
+                </ul>
+                
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                    <span>DATA</span>
+                </h6>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/upload/">
+                            <i class="bi bi-cloud-upload me-2"></i>
+                            Upload Files
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/file-processor/">
+                            <i class="bi bi-file-earmark-code me-2"></i>
+                            Process Files
+                        </a>
+                    </li>
+                </ul>
+                
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                    <span>ADMIN</span>
+                </h6>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/kaizen-admin/">
+                            <i class="bi bi-shield-check me-2"></i>
+                            Kaizen Admin
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/system-health/">
+                            <i class="bi bi-heart-pulse me-2"></i>
+                            System Health
+                        </a>
+                    </li>
+                </ul>
             </div>
-            <div class="col-md-4 text-center">
-              <div class="h1 mb-0">{{ system_stats.driver_count }}</div>
-              <p class="text-muted">Total Drivers</p>
+        </nav>
+        
+        <!-- Main content -->
+        <main id="content" class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">TRAXORA Dashboard</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="refreshDashboard">
+                            <i class="bi bi-arrow-repeat me-1"></i> Refresh
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#systemInfoModal">
+                            <i class="bi bi-info-circle me-1"></i> System Info
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div class="col-md-4 text-center">
-              <div class="h1 mb-0">0</div>
-              <p class="text-muted">Maintenance Alerts</p>
+            
+            <!-- GENIUS CORE Banner -->
+            <div class="genius-core-banner">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <i class="bi bi-cpu text-light" style="font-size: 2rem;"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-1 text-light">GENIUS CORE - CONTINUITY MODE ACTIVE</h5>
+                        <p class="mb-0 text-light-emphasis">Full data validation and matchback verification enabled for all operations.</p>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
-      </div>
+            
+            <!-- Quick Access Grid -->
+            <h4 class="mb-3">Quick Access</h4>
+            <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+                <div class="col">
+                    <div class="card quick-access-card h-100 bg-dark bg-opacity-25">
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="p-2 rounded bg-primary bg-opacity-10 me-3">
+                                    <i class="bi bi-calendar-check text-primary" style="font-size: 1.5rem;"></i>
+                                </div>
+                                <h5 class="card-title mb-0">Daily Driver Report</h5>
+                            </div>
+                            <p class="card-text flex-grow-1">View attendance reports for drivers with status classifications for On Time, Late, Early End, and Not On Job.</p>
+                            <a href="{{ url_for('attendance.daily_driver_report') }}" class="btn btn-primary mt-2">
+                                <i class="bi bi-arrow-right-circle me-1"></i> Open Report
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card quick-access-card h-100 bg-dark bg-opacity-25">
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="p-2 rounded bg-success bg-opacity-10 me-3">
+                                    <i class="bi bi-cloud-upload text-success" style="font-size: 1.5rem;"></i>
+                                </div>
+                                <h5 class="card-title mb-0">Upload Data</h5>
+                            </div>
+                            <p class="card-text flex-grow-1">Upload GPS telematics data, timecard data, and asset/driver information for processing.</p>
+                            <a href="/upload/" class="btn btn-success mt-2">
+                                <i class="bi bi-upload me-1"></i> Upload Files
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card quick-access-card h-100 bg-dark bg-opacity-25">
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="p-2 rounded bg-info bg-opacity-10 me-3">
+                                    <i class="bi bi-geo-alt text-info" style="font-size: 1.5rem;"></i>
+                                </div>
+                                <h5 class="card-title mb-0">Asset Map</h5>
+                            </div>
+                            <p class="card-text flex-grow-1">View the real-time locations of all assets on an interactive map with GPS tracking data.</p>
+                            <a href="/asset-map/" class="btn btn-info mt-2">
+                                <i class="bi bi-map me-1"></i> View Map
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <!-- System Status -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card shadow h-100">
+                        <div class="card-header bg-dark">
+                            <h5 class="mb-0">System Status</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <span class="status-indicator status-{{ database_status if database_status in ['connected', 'warning', 'disconnected'] else 'not-configured' }}"></span>
+                                        <span>Database</span>
+                                    </div>
+                                    <span class="badge bg-{{ 'success' if database_status == 'connected' else 'warning' if database_status == 'warning' else 'danger' if database_status == 'disconnected' else 'secondary' }}">
+                                        {{ database_status|title }}
+                                    </span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <span class="status-indicator status-{{ api_status if api_status in ['connected', 'warning', 'disconnected'] else 'not-configured' }}"></span>
+                                        <span>Gauge API</span>
+                                    </div>
+                                    <span class="badge bg-{{ 'success' if api_status == 'connected' else 'warning' if api_status == 'warning' else 'danger' if api_status == 'disconnected' else 'secondary' }}">
+                                        {{ api_status|title }}
+                                    </span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <span class="status-indicator status-{{ storage_status if storage_status in ['connected', 'warning', 'disconnected'] else 'not-configured' }}"></span>
+                                        <span>Storage</span>
+                                    </div>
+                                    <span class="badge bg-{{ 'success' if storage_status == 'connected' else 'warning' if storage_status == 'warning' else 'danger' if storage_status == 'disconnected' else 'secondary' }}">
+                                        {{ storage_status|title }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <p class="mb-1 text-muted small">Last Data Sync: <span class="fw-bold">{{ last_sync_time }}</span></p>
+                                <p class="mb-1 text-muted small">Assets: <span class="fw-bold">{{ assets_count }}</span></p>
+                                <p class="mb-1 text-muted small">Drivers: <span class="fw-bold">{{ drivers_count }}</span></p>
+                                <p class="mb-1 text-muted small">Job Sites: <span class="fw-bold">{{ job_sites_count }}</span></p>
+                                <p class="mb-0 text-muted small">PM Allocations: <span class="fw-bold">{{ pm_allocations_count }}</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Activity / Sync History -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card shadow h-100">
+                        <div class="card-header bg-dark d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Recent Activity</h5>
+                            <span class="badge bg-primary">{{ notifications|length }}</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="sync-history">
+                                {% for notification in notifications %}
+                                <div class="sync-history-item">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <strong>{{ notification.title }}</strong>
+                                            <p class="mb-0 text-muted small">{{ notification.message }}</p>
+                                        </div>
+                                        <div>
+                                            <span class="badge bg-{{ notification.type }}">{{ notification.type|title }}</span>
+                                            <div class="text-muted small">{{ notification.time }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            {% if not notifications %}
+                            <div class="text-center my-3">
+                                <i class="bi bi-info-circle text-muted" style="font-size: 2rem;"></i>
+                                <p class="text-muted mt-2">No recent activity</p>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="text-center mt-3">
+                                <a href="/kaizen-admin/sync-history/" class="btn btn-outline-secondary btn-sm">
+                                    <i class="bi bi-clock-history me-1"></i> View Full History
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Additional Modules Row -->
+            <h4 class="mb-3">Additional Modules</h4>
+            <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+                <div class="col">
+                    <div class="card quick-access-card h-100 bg-dark bg-opacity-25">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">Equipment Billing</h5>
+                            <p class="card-text flex-grow-1">Manage and verify monthly equipment billing allocations and PM reports.</p>
+                            <a href="/billing/" class="btn btn-outline-light mt-2">
+                                <i class="bi bi-currency-dollar me-1"></i> Open Module
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card quick-access-card h-100 bg-dark bg-opacity-25">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">Weekly Driver Report</h5>
+                            <p class="card-text flex-grow-1">View comprehensive weekly attendance reports with aggregated metrics.</p>
+                            <a href="/enhanced-weekly-report/" class="btn btn-outline-light mt-2">
+                                <i class="bi bi-calendar-week me-1"></i> Open Module
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card quick-access-card h-100 bg-dark bg-opacity-25">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">Work Zone GPS</h5>
+                            <p class="card-text flex-grow-1">Analyze work zone efficiency and asset utilization with GPS data.</p>
+                            <a href="#" class="btn btn-outline-light mt-2">
+                                <i class="bi bi-geo me-1"></i> Coming Soon
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
-    
-    <div class="col-md-4">
-      <div class="card">
-        <div class="card-header">
-          <h5 class="mb-0">Data Sync Status</h5>
-        </div>
-        <div class="card-body">
-          <p class="mb-2">Last data synchronization:</p>
-          <div class="d-flex align-items-center">
-            <div class="status-indicator bg-info me-2"></div>
-            <strong>{{ system_stats.last_sync }}</strong>
-          </div>
-          <div class="mt-3">
-            <button class="btn btn-primary btn-sm" onclick="location.href='{{ url_for('index') }}'">
-              <i class="bi bi-arrow-repeat me-1"></i> Refresh Data
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <!-- File Upload Panel -->
-  <div class="card mt-4">
-    <div class="card-header">
-      <h5 class="mb-0">Upload Data Files</h5>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-3">
-          <a href="{{ url_for('driver_module.index') }}" class="btn btn-outline-primary w-100 mb-2">
-            <i class="bi bi-upload me-1"></i> Driver Files
-          </a>
-        </div>
-        <div class="col-md-3">
-          <a href="{{ url_for('pm_allocation.pm_allocation_processor') }}" class="btn btn-outline-success w-100 mb-2">
-            <i class="bi bi-upload me-1"></i> Billing Files
-          </a>
-        </div>
-        <div class="col-md-3">
-          <a href="{{ url_for('asset_map.asset_map') }}" class="btn btn-outline-info w-100 mb-2">
-            <i class="bi bi-upload me-1"></i> Asset Files
-          </a>
-        </div>
-        <div class="col-md-3">
-          <a href="{{ url_for('reports.index') }}" class="btn btn-outline-warning w-100 mb-2">
-            <i class="bi bi-upload me-1"></i> Telematics Data
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 
-<style>
-  .status-indicator {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-  }
-</style>
+<!-- System Info Modal -->
+<div class="modal fade" id="systemInfoModal" tabindex="-1" aria-labelledby="systemInfoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="systemInfoModalLabel">System Information</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <h6>TRAXORA Fleet Management System</h6>
+                    <p class="text-muted small">Version 2.0.5 - GENIUS CORE ENABLED</p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6>System Status</h6>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Database Connection
+                            <span class="badge bg-{{ 'success' if database_status == 'connected' else 'warning' if database_status == 'warning' else 'danger' if database_status == 'disconnected' else 'secondary' }}">
+                                {{ database_status|title }}
+                            </span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Gauge API Connection
+                            <span class="badge bg-{{ 'success' if api_status == 'connected' else 'warning' if api_status == 'warning' else 'danger' if api_status == 'disconnected' else 'secondary' }}">
+                                {{ api_status|title }}
+                            </span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Storage Status
+                            <span class="badge bg-{{ 'success' if storage_status == 'connected' else 'warning' if storage_status == 'warning' else 'danger' if storage_status == 'disconnected' else 'secondary' }}">
+                                {{ storage_status|title }}
+                            </span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Last Data Sync
+                            <span class="badge bg-secondary">{{ last_sync_time }}</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="mb-3">
+                    <h6>Data Statistics</h6>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Total Assets
+                            <span class="badge bg-primary rounded-pill">{{ assets_count }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Total Drivers
+                            <span class="badge bg-primary rounded-pill">{{ drivers_count }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Total Job Sites
+                            <span class="badge bg-primary rounded-pill">{{ job_sites_count }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            PM Allocations (Current Month)
+                            <span class="badge bg-primary rounded-pill">{{ pm_allocations_count }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="/system-health/" class="btn btn-primary">Detailed Health Check</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Sidebar toggle
+        const sidebar = document.getElementById('sidebar');
+        const content = document.getElementById('content');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        
+        sidebarToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            sidebar.classList.toggle('sidebar-collapsed');
+            content.classList.toggle('content-expanded');
+        });
+        
+        // Responsive behavior for sidebar
+        function checkWidth() {
+            if (window.innerWidth < 768) {
+                sidebar.classList.add('sidebar-collapsed');
+                content.classList.add('content-expanded');
+            } else {
+                sidebar.classList.remove('sidebar-collapsed');
+                content.classList.remove('content-expanded');
+            }
+        }
+        
+        // Initial check
+        checkWidth();
+        
+        // Check on resize
+        window.addEventListener('resize', checkWidth);
+        
+        // Refresh dashboard button
+        const refreshDashboard = document.getElementById('refreshDashboard');
+        if (refreshDashboard) {
+            refreshDashboard.addEventListener('click', function(e) {
+                e.preventDefault();
+                location.reload();
+            });
+        }
+    });
+</script>
 {% endblock %}

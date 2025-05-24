@@ -1,0 +1,202 @@
+[
+  {
+    "Driver": "Carlos Martinez",
+    "Status": "On Time",
+    "JobSite": "DFW Airport Terminal D Expansion",
+    "FirstSeen": "06:45",
+    "LastSeen": "16:30",
+    "Hours": 9.75,
+    "Source": "GPS + Timecard",
+    "Date": "2025-05-24"
+  },
+  {
+    "Driver": "John Smith",
+    "Status": "Late",
+    "JobSite": "Fort Worth Medical Center",
+    "FirstSeen": "08:15",
+    "LastSeen": "16:45",
+    "Hours": 8.5,
+    "Source": "GPS + Timecard",
+    "Date": "2025-05-24"
+  },
+  {
+    "Driver": "Michael Johnson",
+    "Status": "On Time",
+    "JobSite": "DFW Airport Terminal D Expansion",
+    "FirstSeen": "06:30",
+    "LastSeen": "16:15",
+    "Hours": 9.75,
+    "Source": "GPS + Timecard",
+    "Date": "2025-05-24"
+  },
+  {
+    "Driver": "Sarah Williams",
+    "Status": "Early End",
+    "JobSite": "Plano Tech Park",
+    "FirstSeen": "07:00",
+    "LastSeen": "15:30",
+    "Hours": 8.5,
+    "Source": "GPS + Timecard",
+    "Date": "2025-05-24"
+  },
+  {
+    "Driver": "David Brown",
+    "Status": "Not On Job",
+    "JobSite": "Irving Office Complex",
+    "FirstSeen": null,
+    "LastSeen": null,
+    "Hours": 0,
+    "Source": "Timecard Only",
+    "Date": "2025-05-24"
+  },
+  {
+    "Driver": "Emily Jones",
+    "Status": "On Time",
+    "JobSite": "DFW Airport Terminal D Expansion",
+    "FirstSeen": "06:55",
+    "LastSeen": "16:20",
+    "Hours": 9.42,
+    "Source": "GPS + Timecard",
+    "Date": "2025-05-24"
+  },
+  {
+    "Driver": "Robert Garcia",
+    "Status": "On Time",
+    "JobSite": "Fort Worth Medical Center",
+    "FirstSeen": "06:45",
+    "LastSeen": "16:15",
+    "Hours": 9.5,
+    "Source": "GPS + Timecard",
+    "Date": "2025-05-24"
+  },
+  {
+    "Driver": "Jennifer Miller",
+    "Status": "Late",
+    "JobSite": "Plano Tech Park",
+    "FirstSeen": "08:00",
+    "LastSeen": "16:30",
+    "Hours": 8.5,
+    "Source": "GPS + Timecard",
+    "Date": "2025-05-24"
+  },
+  {
+    "Driver": "William Davis",
+    "Status": "Early End",
+    "JobSite": "Irving Office Complex",
+    "FirstSeen": "07:15",
+    "LastSeen": "15:45",
+    "Hours": 8.5,
+    "Source": "GPS + Timecard",
+    "Date": "2025-05-24"
+  },
+  {
+    "Driver": "Lisa Rodriguez",
+    "Status": "On Time",
+    "JobSite": "DFW Airport Terminal D Expansion",
+    "FirstSeen": "07:00",
+    "LastSeen": "16:15",
+    "Hours": 9.25,
+    "Source": "GPS + Timecard",
+    "Date": "2025-05-24"
+  },
+  {
+    "Driver": "James Wilson",
+    "Status": "Not On Job",
+    "JobSite": "Fort Worth Medical Center",
+    "FirstSeen": null,
+    "LastSeen": null,
+    "Hours": 0,
+    "Source": "Timecard Only",
+    "Date": "2025-05-24"
+  },
+  {
+    "Driver": "Patricia Moore",
+    "Status": "On Time",
+    "JobSite": "Plano Tech Park",
+    "FirstSeen": "07:05",
+    "LastSeen": "16:30",
+    "Hours": 9.42,
+    "Source": "GPS + Timecard",
+    "Date": "2025-05-24"
+  },
+  {
+    "Driver": "Thomas Taylor",
+    "Status": "Late",
+    "JobSite": "Irving Office Complex",
+    "FirstSeen": "07:45",
+    "LastSeen": "16:15",
+    "Hours": 8.5,
+    "Source": "GPS + Timecard",
+    "Date": "2025-05-24"
+  },
+  {
+    "Driver": "Jessica Anderson",
+    "Status": "Early End",
+    "JobSite": "DFW Airport Terminal D Expansion",
+    "FirstSeen": "07:00",
+    "LastSeen": "15:30",
+    "Hours": 8.5,
+    "Source": "GPS + Timecard",
+    "Date": "2025-05-24"
+  },
+  {
+    "Driver": "Daniel Thompson",
+    "Status": "On Time",
+    "JobSite": "Fort Worth Medical Center",
+    "FirstSeen": "06:50",
+    "LastSeen": "16:20",
+    "Hours": 9.5,
+    "Source": "GPS + Timecard",
+    "Date": "2025-05-24"
+  },
+  {
+    "Driver": "Nancy White",
+    "Status": "Not On Job",
+    "JobSite": "Plano Tech Park",
+    "FirstSeen": null,
+    "LastSeen": null,
+    "Hours": 0,
+    "Source": "Timecard Only",
+    "Date": "2025-05-24"
+  },
+  {
+    "Driver": "Christopher Lewis",
+    "Status": "On Time",
+    "JobSite": "Irving Office Complex",
+    "FirstSeen": "07:00",
+    "LastSeen": "16:15",
+    "Hours": 9.25,
+    "Source": "GPS + Timecard",
+    "Date": "2025-05-24"
+  },
+  {
+    "Driver": "Margaret Clark",
+    "Status": "Late",
+    "JobSite": "DFW Airport Terminal D Expansion",
+    "FirstSeen": "08:30",
+    "LastSeen": "17:00",
+    "Hours": 8.5,
+    "Source": "GPS + Timecard",
+    "Date": "2025-05-24"
+  },
+  {
+    "Driver": "Anthony Hall",
+    "Status": "On Time",
+    "JobSite": "Fort Worth Medical Center",
+    "FirstSeen": "06:45",
+    "LastSeen": "16:30",
+    "Hours": 9.75,
+    "Source": "GPS + Timecard",
+    "Date": "2025-05-24"
+  },
+  {
+    "Driver": "Sandra Lopez",
+    "Status": "Early End",
+    "JobSite": "Plano Tech Park",
+    "FirstSeen": "07:15",
+    "LastSeen": "15:45",
+    "Hours": 8.5,
+    "Source": "GPS + Timecard",
+    "Date": "2025-05-24"
+  }
+]

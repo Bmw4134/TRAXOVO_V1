@@ -1,20 +1,14 @@
 """
-TRAXORA Kaizen Admin Module
+TRAXORA Fleet Management System - Kaizen Admin Routes
 
-This module provides administrative controls for the Kaizen sync system,
-allowing for configuration, monitoring, and manual triggering of sync tests.
+This module provides routes for the Kaizen admin interface,
+allowing administrators to manage the sync enforcement system.
 """
 
 import os
-import json
 import logging
 from datetime import datetime
-from flask import Blueprint, render_template, jsonify, redirect, url_for, flash, request, current_app
-
-# Import Kaizen utilities
-import kaizen_sync_tester
-from utils.kaizen_integrity_audit import run_integrity_audit
-from utils.kaizen_watchdog import start_watchdog_service
+from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, current_app
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, 
@@ -24,109 +18,118 @@ logger = logging.getLogger(__name__)
 # Create blueprint
 kaizen_admin_bp = Blueprint('kaizen_admin', __name__, url_prefix='/admin/kaizen-core')
 
-# Global watchdog service
-watchdog_thread = None
-config = {
-    'auto_sync': True,
-    'auto_patch': True,
-    'notify_on_issues': True,
-    'strict_mode': False,
-    'last_updated': datetime.now().isoformat()
-}
-
 @kaizen_admin_bp.route('/')
 def index():
-    """Kaizen Admin dashboard"""
-    global config
-    return render_template('kaizen_admin/index.html', 
-                          timestamp=datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                          config=config,
-                          watchdog_active=watchdog_thread is not None and watchdog_thread.is_alive())
+    """Kaizen admin dashboard"""
+    return render_template('kaizen_admin/index.html')
+
+@kaizen_admin_bp.route('/sync-test')
+def sync_test():
+    """Run full stack sync test"""
+    try:
+        from utils.full_stack_sync_scanner import run_scan
+        results = run_scan()
+        return jsonify({
+            'status': 'success',
+            'results': results,
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        logger.error(f"Error running sync test: {str(e)}")
+        return jsonify({
+            'status': 'error',
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
+@kaizen_admin_bp.route('/toggle-auto-patch', methods=['POST'])
+def toggle_auto_patch():
+    """Toggle auto-patch mode"""
+    try:
+        auto_patch_enabled = request.json.get('enabled', False)
+        
+        # Store the setting in a file
+        config_path = os.path.join(current_app.root_path, 'config', 'kaizen_config.json')
+        import json
+        
+        try:
+            with open(config_path, 'r') as f:
+                config = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            config = {}
+            
+        config['auto_patch_enabled'] = auto_patch_enabled
+        
+        os.makedirs(os.path.dirname(config_path), exist_ok=True)
+        with open(config_path, 'w') as f:
+            json.dump(config, f, indent=2)
+            
+        return jsonify({
+            'status': 'success',
+            'auto_patch_enabled': auto_patch_enabled,
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        logger.error(f"Error toggling auto-patch mode: {str(e)}")
+        return jsonify({
+            'status': 'error',
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
+@kaizen_admin_bp.route('/integrity-audit')
+def integrity_audit():
+    """Run integrity audit"""
+    try:
+        from utils.kaizen_integrity_audit import run_audit
+        results = run_audit()
+        return jsonify({
+            'status': 'success',
+            'results': results,
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        logger.error(f"Error running integrity audit: {str(e)}")
+        return jsonify({
+            'status': 'error',
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
 
 @kaizen_admin_bp.route('/start-watchdog')
 def start_watchdog():
-    """Start the Kaizen Watchdog service"""
-    global watchdog_thread
-    
+    """Start the Kaizen watchdog service"""
     try:
-        if watchdog_thread is None or not watchdog_thread.is_alive():
-            watchdog_thread = start_watchdog_service()
-            flash("Kaizen Watchdog service started successfully.", "success")
-        else:
-            flash("Kaizen Watchdog service is already running.", "info")
+        from utils.kaizen_watchdog import start_watchdog as start_watchdog_service
+        result = start_watchdog_service()
+        return jsonify({
+            'status': 'success',
+            'result': result,
+            'timestamp': datetime.now().isoformat()
+        })
     except Exception as e:
-        logger.error(f"Error starting Kaizen Watchdog service: {str(e)}")
-        flash(f"Error starting Kaizen Watchdog service: {str(e)}", "danger")
-        
-    return redirect(url_for('kaizen_admin.index'))
+        logger.error(f"Error starting watchdog: {str(e)}")
+        return jsonify({
+            'status': 'error',
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
 
-@kaizen_admin_bp.route('/run-sync-test')
-def run_sync_test():
-    """Run a manual sync test"""
+@kaizen_admin_bp.route('/stop-watchdog')
+def stop_watchdog():
+    """Stop the Kaizen watchdog service"""
     try:
-        logger.info("Running sync test...")
-        kaizen_sync_tester.run_tests()
-        flash("Sync test completed successfully.", "success")
+        from utils.kaizen_watchdog import stop_watchdog as stop_watchdog_service
+        result = stop_watchdog_service()
+        return jsonify({
+            'status': 'success',
+            'result': result,
+            'timestamp': datetime.now().isoformat()
+        })
     except Exception as e:
-        logger.error(f"Error running sync test: {str(e)}")
-        flash(f"Error running sync test: {str(e)}", "danger")
-        
-    return redirect(url_for('kaizen_admin.index'))
-
-@kaizen_admin_bp.route('/run-integrity-audit')
-def run_audit():
-    """Run a manual integrity audit"""
-    try:
-        logger.info("Running integrity audit...")
-        report = run_integrity_audit()
-        
-        # Save report to a static file for access via web
-        static_dir = os.path.join('static', 'reports')
-        os.makedirs(static_dir, exist_ok=True)
-        
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        report_file = f"integrity_audit_{timestamp}.json"
-        static_path = os.path.join(static_dir, report_file)
-        
-        with open(static_path, 'w') as f:
-            json.dump(report, f, indent=2)
-            
-        flash(f"Integrity audit completed with status: {report['status']}.", 
-              "success" if report['status'] == 'PASS' else "warning")
-    except Exception as e:
-        logger.error(f"Error running integrity audit: {str(e)}")
-        flash(f"Error running integrity audit: {str(e)}", "danger")
-        
-    return redirect(url_for('kaizen_admin.index'))
-
-@kaizen_admin_bp.route('/update-config', methods=['POST'])
-def update_config():
-    """Update Kaizen configuration"""
-    global config
-    
-    try:
-        # Update configuration
-        config['auto_sync'] = 'auto_sync' in request.form
-        config['auto_patch'] = 'auto_patch' in request.form
-        config['notify_on_issues'] = 'notify_on_issues' in request.form
-        config['strict_mode'] = 'strict_mode' in request.form
-        config['last_updated'] = datetime.now().isoformat()
-        
-        flash("Configuration updated successfully.", "success")
-    except Exception as e:
-        logger.error(f"Error updating configuration: {str(e)}")
-        flash(f"Error updating configuration: {str(e)}", "danger")
-        
-    return redirect(url_for('kaizen_admin.index'))
-
-@kaizen_admin_bp.route('/api/status')
-def api_status():
-    """API endpoint for Kaizen Admin status"""
-    global config, watchdog_thread
-    
-    return jsonify({
-        'status': 'active',
-        'timestamp': datetime.now().isoformat(),
-        'config': config,
-        'watchdog_active': watchdog_thread is not None and watchdog_thread.is_alive()
-    })
+        logger.error(f"Error stopping watchdog: {str(e)}")
+        return jsonify({
+            'status': 'error',
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500

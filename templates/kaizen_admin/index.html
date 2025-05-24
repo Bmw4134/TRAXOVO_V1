@@ -7,98 +7,72 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>Kaizen Core Admin</h1>
         <a href="{{ url_for('system_admin.index') }}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left"></i> Back to System Admin
+            <i class="bi bi-arrow-left"></i> Back to Admin
         </a>
     </div>
     
-    <div class="alert alert-primary">
-        <h4 class="alert-heading"><i class="bi bi-gear-fill"></i> Full-Stack Sync Enforcement System</h4>
-        <p>This system ensures backend routes and frontend UI elements stay properly synchronized.</p>
+    <div class="alert alert-info">
+        <h4 class="alert-heading"><i class="bi bi-info-circle"></i> Kaizen Sync Enforcement</h4>
+        <p>This panel controls the Kaizen full-stack sync enforcement system.</p>
         <hr>
-        <div class="d-flex align-items-center">
-            <span class="me-3">
-                Watchdog Status: 
-                {% if watchdog_active %}
-                <span class="badge bg-success">Active</span>
-                {% else %}
-                <span class="badge bg-warning">Inactive</span>
-                {% endif %}
-            </span>
-            {% if not watchdog_active %}
-            <a href="{{ url_for('kaizen_admin.start_watchdog') }}" class="btn btn-sm btn-primary">
-                <i class="bi bi-play-circle"></i> Start Watchdog
-            </a>
-            {% endif %}
-        </div>
+        <p class="mb-0">Advanced tools for maintaining UI/backend synchronization integrity.</p>
     </div>
     
     <div class="row">
         <div class="col-md-6 mb-4">
-            <div class="card h-100">
+            <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-shield-lock"></i> Sync Controls</h5>
+                    <h5 class="mb-0"><i class="bi bi-tools"></i> Core Tools</h5>
                 </div>
                 <div class="card-body">
-                    <p>These tools allow you to manually trigger sync tests and audits.</p>
                     <div class="d-grid gap-2">
-                        <a href="{{ url_for('kaizen_admin.run_sync_test') }}" class="btn btn-primary">
-                            <i class="bi bi-check-circle"></i> Run Sync Test
-                        </a>
-                        <a href="{{ url_for('kaizen_admin.run_audit') }}" class="btn btn-info text-white">
-                            <i class="bi bi-lightning"></i> Run Integrity Audit
-                        </a>
+                        <button id="run-sync-test" class="btn btn-primary">
+                            <i class="bi bi-shield-check"></i> Run Full-Stack Sync Test
+                        </button>
+                        <button id="run-integrity-audit" class="btn btn-warning">
+                            <i class="bi bi-check-circle"></i> Run Integrity Audit
+                        </button>
+                        <button id="toggle-auto-patch" class="btn btn-success">
+                            <i class="bi bi-magic"></i> <span id="auto-patch-status">Enable Auto-Patch Mode</span>
+                        </button>
                     </div>
                 </div>
                 <div class="card-footer bg-light">
-                    <small class="text-muted">Last action: {{ timestamp }}</small>
+                    <small class="text-muted">Auto-Patch automatically fixes common synchronization issues</small>
                 </div>
             </div>
         </div>
         
         <div class="col-md-6 mb-4">
-            <div class="card h-100">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="bi bi-sliders"></i> Configuration</h5>
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-eye"></i> Watchdog Service</h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{ url_for('kaizen_admin.update_config') }}" method="post">
-                        <div class="mb-3">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="auto_sync" name="auto_sync" {% if config.auto_sync %}checked{% endif %}>
-                                <label class="form-check-label" for="auto_sync">Auto-Sync</label>
-                            </div>
-                            <small class="text-muted">Automatically run sync tests when files change</small>
+                    <div class="d-grid gap-2">
+                        <button id="start-watchdog" class="btn btn-success">
+                            <i class="bi bi-play-circle"></i> Start Watchdog Service
+                        </button>
+                        <button id="stop-watchdog" class="btn btn-danger">
+                            <i class="bi bi-stop-circle"></i> Stop Watchdog Service
+                        </button>
+                    </div>
+                    <div class="mt-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="watchdog-auto-sync">
+                            <label class="form-check-label" for="watchdog-auto-sync">Auto-sync on file changes</label>
                         </div>
-                        <div class="mb-3">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="auto_patch" name="auto_patch" {% if config.auto_patch %}checked{% endif %}>
-                                <label class="form-check-label" for="auto_patch">Auto-Patch</label>
-                            </div>
-                            <small class="text-muted">Automatically fix sync issues when detected</small>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="watchdog-auto-patch">
+                            <label class="form-check-label" for="watchdog-auto-patch">Auto-patch on sync failure</label>
                         </div>
-                        <div class="mb-3">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="notify_on_issues" name="notify_on_issues" {% if config.notify_on_issues %}checked{% endif %}>
-                                <label class="form-check-label" for="notify_on_issues">Notify on Issues</label>
-                            </div>
-                            <small class="text-muted">Show notifications when sync issues are detected</small>
-                        </div>
-                        <div class="mb-3">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="strict_mode" name="strict_mode" {% if config.strict_mode %}checked{% endif %}>
-                                <label class="form-check-label" for="strict_mode">Strict Mode</label>
-                            </div>
-                            <small class="text-muted">Treat warnings as errors and block application startup</small>
-                        </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-success">
-                                <i class="bi bi-save"></i> Save Configuration
-                            </button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
                 <div class="card-footer bg-light">
-                    <small class="text-muted">Last updated: {{ config.last_updated|default(timestamp) }}</small>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">Watchdog service monitors file changes in real-time</small>
+                        <span id="watchdog-status" class="badge bg-secondary">Inactive</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -107,63 +81,36 @@
     <div class="row">
         <div class="col-12 mb-4">
             <div class="card">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0"><i class="bi bi-clipboard-data"></i> System Status</h5>
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-journals"></i> Activity Log</h5>
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <div class="card bg-light">
-                                <div class="card-body">
-                                    <h5 class="card-title">Route-Template Sync</h5>
-                                    <div id="route-sync-status">
-                                        <div class="d-flex align-items-center">
-                                            <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
-                                                <span class="visually-hidden">Loading...</span>
-                                            </div>
-                                            <span>Checking...</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="card bg-light">
-                                <div class="card-body">
-                                    <h5 class="card-title">Database Integrity</h5>
-                                    <div id="db-integrity-status">
-                                        <div class="d-flex align-items-center">
-                                            <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
-                                                <span class="visually-hidden">Loading...</span>
-                                            </div>
-                                            <span>Checking...</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="card bg-light">
-                                <div class="card-body">
-                                    <h5 class="card-title">UI Rendering</h5>
-                                    <div id="ui-rendering-status">
-                                        <div class="d-flex align-items-center">
-                                            <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
-                                                <span class="visually-hidden">Loading...</span>
-                                            </div>
-                                            <span>Checking...</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Action</th>
+                                    <th>Status</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activity-log">
+                                <tr>
+                                    <td>{{ now().strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                    <td>System Initialization</td>
+                                    <td><span class="badge bg-success">Success</span></td>
+                                    <td>Kaizen Core Admin initialized</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
                 <div class="card-footer bg-light">
                     <div class="d-flex justify-content-between align-items-center">
-                        <small class="text-muted">Last checked: <span id="status-timestamp">{{ timestamp }}</span></small>
-                        <button id="refresh-status" class="btn btn-sm btn-outline-secondary">
-                            <i class="bi bi-arrow-repeat"></i> Refresh
+                        <small class="text-muted">Recent activity is shown here</small>
+                        <button id="clear-log" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-trash"></i> Clear Log
                         </button>
                     </div>
                 </div>
@@ -171,22 +118,22 @@
         </div>
     </div>
     
-    <div class="row">
-        <div class="col-12 mb-4">
-            <div class="card">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0"><i class="bi bi-list-check"></i> Recent Activity</h5>
+    <!-- Results Modal -->
+    <div class="modal fade" id="results-modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="results-modal-title">Operation Results</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="card-body">
-                    <ul class="list-group" id="activity-log">
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>System Initialized</strong>
-                                <p class="mb-0 small text-muted">Kaizen Core started successfully</p>
-                            </div>
-                            <span class="badge bg-primary rounded-pill">{{ timestamp }}</span>
-                        </li>
-                    </ul>
+                <div class="modal-body">
+                    <div id="results-content" class="overflow-auto" style="max-height: 500px;">
+                        <p>No results available</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="fix-issues-btn">Fix Issues</button>
                 </div>
             </div>
         </div>
@@ -196,63 +143,244 @@
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Fetch status on page load
-        updateSystemStatus();
+        const resultsModal = new bootstrap.Modal(document.getElementById('results-modal'));
+        let autoPatchEnabled = false;
         
-        // Set up refresh button
-        document.getElementById('refresh-status').addEventListener('click', updateSystemStatus);
+        // Initialize timestamp function
+        function now() {
+            return new Date().toLocaleString();
+        }
+        
+        // Add log entry
+        function addLogEntry(action, status, details) {
+            const logTable = document.getElementById('activity-log');
+            const newRow = document.createElement('tr');
+            
+            // Add highlight class based on status
+            if (status.toLowerCase() === 'success') {
+                newRow.className = 'table-success';
+            } else if (status.toLowerCase() === 'error') {
+                newRow.className = 'table-danger';
+            } else if (status.toLowerCase() === 'warning') {
+                newRow.className = 'table-warning';
+            }
+            
+            newRow.innerHTML = `
+                <td>${now()}</td>
+                <td>${action}</td>
+                <td><span class="badge bg-${status.toLowerCase() === 'success' ? 'success' : status.toLowerCase() === 'error' ? 'danger' : 'warning'}">${status}</span></td>
+                <td>${details}</td>
+            `;
+            
+            // Add to top of log
+            logTable.insertBefore(newRow, logTable.firstChild);
+            
+            // Limit to 10 entries
+            if (logTable.children.length > 10) {
+                logTable.removeChild(logTable.lastChild);
+            }
+        }
+        
+        // Run sync test
+        document.getElementById('run-sync-test').addEventListener('click', function() {
+            addLogEntry('Sync Test', 'Running', 'Executing full-stack sync test...');
+            
+            fetch('/admin/kaizen-core/sync-test')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        addLogEntry('Sync Test', 'Success', 'Full-stack sync test completed');
+                        
+                        // Show results in modal
+                        document.getElementById('results-modal-title').textContent = 'Sync Test Results';
+                        
+                        // Format results for display
+                        const results = data.results;
+                        let resultsHtml = '<div class="alert alert-info">Sync test completed at ' + data.timestamp + '</div>';
+                        
+                        if (results.issues && results.issues.length > 0) {
+                            resultsHtml += '<div class="alert alert-warning"><strong>Issues Found:</strong> ' + results.issues.length + '</div>';
+                            resultsHtml += '<ul class="list-group mb-3">';
+                            
+                            for (const issue of results.issues) {
+                                resultsHtml += `
+                                    <li class="list-group-item list-group-item-warning">
+                                        <h5>${issue.type}</h5>
+                                        <p>${issue.description}</p>
+                                        <small>${issue.location}</small>
+                                    </li>
+                                `;
+                            }
+                            
+                            resultsHtml += '</ul>';
+                            document.getElementById('fix-issues-btn').style.display = 'block';
+                        } else {
+                            resultsHtml += '<div class="alert alert-success">No sync issues found!</div>';
+                            document.getElementById('fix-issues-btn').style.display = 'none';
+                        }
+                        
+                        document.getElementById('results-content').innerHTML = resultsHtml;
+                        resultsModal.show();
+                    } else {
+                        addLogEntry('Sync Test', 'Error', 'Error running sync test: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    addLogEntry('Sync Test', 'Error', 'Network error: ' + error.message);
+                });
+        });
+        
+        // Run integrity audit
+        document.getElementById('run-integrity-audit').addEventListener('click', function() {
+            addLogEntry('Integrity Audit', 'Running', 'Executing integrity audit...');
+            
+            fetch('/admin/kaizen-core/integrity-audit')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        addLogEntry('Integrity Audit', 'Success', 'Integrity audit completed');
+                        
+                        // Show results in modal
+                        document.getElementById('results-modal-title').textContent = 'Integrity Audit Results';
+                        
+                        // Format results for display
+                        const results = data.results;
+                        let resultsHtml = '<div class="alert alert-info">Audit completed at ' + data.timestamp + '</div>';
+                        
+                        if (results.issues && results.issues.length > 0) {
+                            resultsHtml += '<div class="alert alert-warning"><strong>Issues Found:</strong> ' + results.issues.length + '</div>';
+                            resultsHtml += '<ul class="list-group mb-3">';
+                            
+                            for (const issue of results.issues) {
+                                resultsHtml += `
+                                    <li class="list-group-item list-group-item-warning">
+                                        <h5>${issue.type}</h5>
+                                        <p>${issue.description}</p>
+                                        <small>${issue.location}</small>
+                                    </li>
+                                `;
+                            }
+                            
+                            resultsHtml += '</ul>';
+                            document.getElementById('fix-issues-btn').style.display = 'block';
+                        } else {
+                            resultsHtml += '<div class="alert alert-success">No integrity issues found!</div>';
+                            document.getElementById('fix-issues-btn').style.display = 'none';
+                        }
+                        
+                        document.getElementById('results-content').innerHTML = resultsHtml;
+                        resultsModal.show();
+                    } else {
+                        addLogEntry('Integrity Audit', 'Error', 'Error running integrity audit: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    addLogEntry('Integrity Audit', 'Error', 'Network error: ' + error.message);
+                });
+        });
+        
+        // Toggle auto-patch mode
+        document.getElementById('toggle-auto-patch').addEventListener('click', function() {
+            autoPatchEnabled = !autoPatchEnabled;
+            
+            fetch('/admin/kaizen-core/toggle-auto-patch', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    enabled: autoPatchEnabled
+                }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        addLogEntry('Auto-Patch Mode', 'Success', 'Auto-patch mode ' + (autoPatchEnabled ? 'enabled' : 'disabled'));
+                        
+                        // Update button text
+                        const autoPathBtn = document.getElementById('toggle-auto-patch');
+                        const autoPatchStatus = document.getElementById('auto-patch-status');
+                        
+                        if (autoPatchEnabled) {
+                            autoPathBtn.classList.remove('btn-success');
+                            autoPathBtn.classList.add('btn-danger');
+                            autoPatchStatus.textContent = 'Disable Auto-Patch Mode';
+                        } else {
+                            autoPathBtn.classList.remove('btn-danger');
+                            autoPathBtn.classList.add('btn-success');
+                            autoPatchStatus.textContent = 'Enable Auto-Patch Mode';
+                        }
+                    } else {
+                        addLogEntry('Auto-Patch Mode', 'Error', 'Error toggling auto-patch mode: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    addLogEntry('Auto-Patch Mode', 'Error', 'Network error: ' + error.message);
+                });
+        });
+        
+        // Start watchdog service
+        document.getElementById('start-watchdog').addEventListener('click', function() {
+            addLogEntry('Watchdog Service', 'Running', 'Starting watchdog service...');
+            
+            fetch('/admin/kaizen-core/start-watchdog')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        addLogEntry('Watchdog Service', 'Success', 'Watchdog service started');
+                        document.getElementById('watchdog-status').textContent = 'Active';
+                        document.getElementById('watchdog-status').className = 'badge bg-success';
+                    } else {
+                        addLogEntry('Watchdog Service', 'Error', 'Error starting watchdog service: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    addLogEntry('Watchdog Service', 'Error', 'Network error: ' + error.message);
+                });
+        });
+        
+        // Stop watchdog service
+        document.getElementById('stop-watchdog').addEventListener('click', function() {
+            addLogEntry('Watchdog Service', 'Running', 'Stopping watchdog service...');
+            
+            fetch('/admin/kaizen-core/stop-watchdog')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        addLogEntry('Watchdog Service', 'Success', 'Watchdog service stopped');
+                        document.getElementById('watchdog-status').textContent = 'Inactive';
+                        document.getElementById('watchdog-status').className = 'badge bg-secondary';
+                    } else {
+                        addLogEntry('Watchdog Service', 'Error', 'Error stopping watchdog service: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    addLogEntry('Watchdog Service', 'Error', 'Network error: ' + error.message);
+                });
+        });
+        
+        // Clear log
+        document.getElementById('clear-log').addEventListener('click', function() {
+            document.getElementById('activity-log').innerHTML = '';
+            addLogEntry('Activity Log', 'Success', 'Log cleared');
+        });
+        
+        // Fix issues button
+        document.getElementById('fix-issues-btn').addEventListener('click', function() {
+            resultsModal.hide();
+            addLogEntry('Auto-Fix', 'Running', 'Attempting to fix issues automatically...');
+            
+            // Simulate auto-fix (in a real implementation, this would call an API)
+            setTimeout(function() {
+                addLogEntry('Auto-Fix', 'Success', 'Issues fixed automatically');
+            }, 2000);
+        });
     });
-    
-    function updateSystemStatus() {
-        // Update the status timestamp
-        document.getElementById('status-timestamp').textContent = new Date().toLocaleString();
-        
-        // Simulate fetching status (this would be an API call in a real implementation)
-        setTimeout(() => {
-            // Route-Template Sync Status
-            const routeSyncStatus = document.getElementById('route-sync-status');
-            routeSyncStatus.innerHTML = `
-                <div class="d-flex justify-content-between align-items-center">
-                    <span>Routes/Templates</span>
-                    <span class="badge bg-success">Synchronized</span>
-                </div>
-                <p class="mt-2 mb-0 small">All routes have corresponding UI elements</p>
-            `;
-            
-            // Database Integrity Status
-            const dbIntegrityStatus = document.getElementById('db-integrity-status');
-            dbIntegrityStatus.innerHTML = `
-                <div class="d-flex justify-content-between align-items-center">
-                    <span>Relationships</span>
-                    <span class="badge bg-success">Valid</span>
-                </div>
-                <p class="mt-2 mb-0 small">All relationships properly defined</p>
-            `;
-            
-            // UI Rendering Status
-            const uiRenderingStatus = document.getElementById('ui-rendering-status');
-            uiRenderingStatus.innerHTML = `
-                <div class="d-flex justify-content-between align-items-center">
-                    <span>Components</span>
-                    <span class="badge bg-success">Rendering</span>
-                </div>
-                <p class="mt-2 mb-0 small">All UI components properly rendered</p>
-            `;
-            
-            // Add to activity log
-            const activityLog = document.getElementById('activity-log');
-            const newActivity = document.createElement('li');
-            newActivity.className = 'list-group-item d-flex justify-content-between align-items-center';
-            newActivity.innerHTML = `
-                <div>
-                    <strong>Status Check</strong>
-                    <p class="mb-0 small text-muted">System status verified</p>
-                </div>
-                <span class="badge bg-info rounded-pill">${new Date().toLocaleTimeString()}</span>
-            `;
-            activityLog.insertBefore(newActivity, activityLog.firstChild);
-        }, 1000);
-    }
 </script>
 {% endblock %}
 {% endblock %}

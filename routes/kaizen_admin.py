@@ -205,6 +205,87 @@ def api_sync_stats():
     
     return jsonify(stats)
 
+@kaizen_admin_bp.route('/admin-actions')
+def admin_actions():
+    """Admin actions view"""
+    actions = get_admin_actions(limit=None)
+    
+    return render_template(
+        'kaizen_admin/admin_actions.html',
+        actions=actions
+    )
+
+@kaizen_admin_bp.route('/clear-admin-actions', methods=['POST'])
+def clear_admin_actions_route():
+    """Clear admin actions"""
+    if clear_admin_actions():
+        # Log this action
+        add_admin_action(
+            'clear_admin_actions',
+            'Admin actions history cleared',
+            category='system',
+            status='success'
+        )
+        flash('Admin actions cleared successfully', 'success')
+    else:
+        flash('Failed to clear admin actions', 'danger')
+        
+    return redirect(url_for('kaizen_admin.admin_actions'))
+
+@kaizen_admin_bp.route('/download-admin-actions')
+def download_admin_actions():
+    """Download admin actions in JSON or CSV format"""
+    format_type = request.args.get('format', 'json')
+    actions = get_admin_actions(limit=None)
+    
+    # Log this action
+    add_admin_action(
+        'download_admin_actions',
+        f'Admin actions downloaded in {format_type} format',
+        category='system',
+        status='success'
+    )
+    
+    if format_type.lower() == 'csv':
+        # Create CSV output
+        output = io.StringIO()
+        csv_writer = csv.writer(output)
+        
+        # Write headers
+        csv_writer.writerow(['ID', 'Timestamp', 'User', 'Action', 'Category', 'Status', 'Message'])
+        
+        # Write data
+        for action in actions:
+            csv_writer.writerow([
+                action.get('id', ''),
+                action.get('timestamp', ''),
+                action.get('user', ''),
+                action.get('action', ''),
+                action.get('category', ''),
+                action.get('status', ''),
+                action.get('message', '')
+            ])
+        
+        output.seek(0)
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        return Response(
+            output.getvalue(),
+            mimetype='text/csv',
+            headers={
+                'Content-Disposition': f'attachment;filename=admin_actions_{timestamp}.csv'
+            }
+        )
+    else:
+        # JSON format
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        return Response(
+            json.dumps(actions, indent=2),
+            mimetype='application/json',
+            headers={
+                'Content-Disposition': f'attachment;filename=admin_actions_{timestamp}.json'
+            }
+        )
+
 @kaizen_admin_bp.route('/download-sync-history')
 def download_sync_history():
     """Download sync history in JSON or CSV format"""

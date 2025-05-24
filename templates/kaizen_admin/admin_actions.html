@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Kaizen Core - Admin Actions{% endblock %}
+{% block title %}Kaizen Admin - Admin Actions{% endblock %}
 
 {% block content %}
 <div class="container-fluid mt-4">
@@ -8,10 +8,13 @@
         <div class="col-md-3 col-lg-3 col-xl-2">
             <!-- Sidebar -->
             <div class="card mb-4">
-                <div class="card-header">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Kaizen Core</h5>
+                    <button class="btn btn-sm d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-expanded="true">
+                        <i class="bi bi-list"></i>
+                    </button>
                 </div>
-                <div class="card-body p-0">
+                <div class="card-body p-0 collapse show" id="sidebarMenu">
                     <div class="list-group list-group-flush">
                         <a href="{{ url_for('kaizen_admin.index') }}" class="list-group-item list-group-item-action">
                             <i class="bi bi-speedometer2 me-2"></i> Dashboard
@@ -31,169 +34,131 @@
                     </div>
                 </div>
             </div>
-            
-            <!-- Actions -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Actions</h5>
-                </div>
-                <div class="card-body">
-                    <a href="{{ url_for('kaizen_admin.download_admin_actions', format='json') }}" class="btn btn-primary btn-sm w-100 mb-2">
-                        <i class="bi bi-download me-2"></i> Download JSON
-                    </a>
-                    <a href="{{ url_for('kaizen_admin.download_admin_actions', format='csv') }}" class="btn btn-primary btn-sm w-100 mb-2">
-                        <i class="bi bi-download me-2"></i> Download CSV
-                    </a>
-                    <form action="{{ url_for('kaizen_admin.clear_admin_actions') }}" method="post" onsubmit="return confirm('Are you sure you want to clear all admin actions?');">
-                        <button type="submit" class="btn btn-danger btn-sm w-100">
-                            <i class="bi bi-trash me-2"></i> Clear History
-                        </button>
-                    </form>
-                </div>
-            </div>
         </div>
         
         <div class="col-md-9 col-lg-9 col-xl-10">
             <!-- Main Content -->
             <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Admin Actions</h5>
-                    <div>
-                        <button type="button" class="btn btn-sm btn-outline-primary" id="refreshAdminActions">
-                            <i class="bi bi-arrow-repeat me-md-1"></i>
-                            <span class="d-none d-md-inline">Refresh</span>
-                        </button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
-                            <i class="bi bi-funnel me-md-1"></i>
-                            <span class="d-none d-md-inline">Filter</span>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-end">
-                            <a class="dropdown-item" href="#" data-filter="all">All Actions</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#" data-filter="template">Template Actions</a>
-                            <a class="dropdown-item" href="#" data-filter="integrity">Integrity Actions</a>
-                            <a class="dropdown-item" href="#" data-filter="sync">Sync Actions</a>
-                            <a class="dropdown-item" href="#" data-filter="system">System Actions</a>
-                        </div>
+                <div class="card-header d-md-flex justify-content-between align-items-center">
+                    <h5 class="mb-md-0 mb-2">Admin Actions History</h5>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a href="{{ url_for('kaizen_admin.download_admin_actions', format='json') }}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-download me-1"></i> Download JSON
+                        </a>
+                        <a href="{{ url_for('kaizen_admin.download_admin_actions', format='csv') }}" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-file-earmark-spreadsheet me-1"></i> Download CSV
+                        </a>
+                        <form action="{{ url_for('kaizen_admin.clear_admin_actions_route') }}" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to clear all admin actions? This cannot be undone.');">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash me-1"></i> Clear History
+                            </button>
+                        </form>
                     </div>
                 </div>
                 <div class="card-body">
-                    {% if actions %}
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover" id="adminActionsTable">
-                                <thead>
-                                    <tr>
-                                        <th>Timestamp</th>
-                                        <th>User</th>
-                                        <th>Action</th>
-                                        <th>Category</th>
-                                        <th>Status</th>
-                                        <th>Details</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>User</th>
+                                    <th>Action</th>
+                                    <th>Status</th>
+                                    <th>Category</th>
+                                    <th>Message</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if actions %}
                                     {% for action in actions %}
-                                        <tr data-category="{{ action.category }}">
-                                            <td>{{ action.timestamp }}</td>
+                                        <tr>
+                                            <td><small>{{ action.timestamp }}</small></td>
                                             <td>{{ action.user }}</td>
-                                            <td>{{ action.action }}</td>
+                                            <td><span class="badge bg-primary">{{ action.action }}</span></td>
                                             <td>
-                                                <span class="badge bg-{% if action.category == 'template' %}info{% elif action.category == 'integrity' %}primary{% elif action.category == 'sync' %}success{% elif action.category == 'system' %}secondary{% else %}dark{% endif %}">
-                                                    {{ action.category|title }}
-                                                </span>
+                                                {% if action.status == 'success' %}
+                                                    <span class="badge bg-success">Success</span>
+                                                {% elif action.status == 'warning' %}
+                                                    <span class="badge bg-warning">Warning</span>
+                                                {% elif action.status == 'error' %}
+                                                    <span class="badge bg-danger">Error</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">{{ action.status }}</span>
+                                                {% endif %}
                                             </td>
                                             <td>
-                                                <span class="badge bg-{% if action.status == 'success' %}success{% elif action.status == 'warning' %}warning{% elif action.status == 'error' %}danger{% else %}secondary{% endif %}">
-                                                    {{ action.status|title }}
-                                                </span>
+                                                {% if action.category == 'system' %}
+                                                    <span class="badge bg-info">System</span>
+                                                {% elif action.category == 'template' %}
+                                                    <span class="badge bg-primary">Template</span>
+                                                {% elif action.category == 'integrity' %}
+                                                    <span class="badge bg-success">Integrity</span>
+                                                {% elif action.category == 'sync' %}
+                                                    <span class="badge bg-warning">Sync</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">{{ action.category }}</span>
+                                                {% endif %}
                                             </td>
-                                            <td>
-                                                <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#actionDetailsModal" 
-                                                    data-details="{{ action.details|tojson }}">
-                                                    <i class="bi bi-eye"></i>
-                                                </button>
-                                            </td>
+                                            <td>{{ action.message }}</td>
                                         </tr>
                                     {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    {% else %}
-                        <div class="alert alert-info">
-                            <i class="bi bi-info-circle-fill me-2"></i>
-                            No admin actions recorded yet.
-                        </div>
-                    {% endif %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="6" class="text-center">No admin actions recorded yet.</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
+
+            <!-- Mobile-Friendly Action Cards (Visible on small screens) -->
+            <div class="d-md-none">
+                {% if actions %}
+                    {% for action in actions %}
+                        <div class="card mb-3">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span>{{ action.timestamp }}</span>
+                                <span class="badge bg-primary">{{ action.action }}</span>
+                            </div>
+                            <div class="card-body">
+                                <p class="mb-1"><strong>User:</strong> {{ action.user }}</p>
+                                <p class="mb-1"><strong>Message:</strong> {{ action.message }}</p>
+                                <p class="mb-1">
+                                    <strong>Status:</strong> 
+                                    {% if action.status == 'success' %}
+                                        <span class="badge bg-success">Success</span>
+                                    {% elif action.status == 'warning' %}
+                                        <span class="badge bg-warning">Warning</span>
+                                    {% elif action.status == 'error' %}
+                                        <span class="badge bg-danger">Error</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ action.status }}</span>
+                                    {% endif %}
+                                </p>
+                                <p class="mb-0">
+                                    <strong>Category:</strong>
+                                    {% if action.category == 'system' %}
+                                        <span class="badge bg-info">System</span>
+                                    {% elif action.category == 'template' %}
+                                        <span class="badge bg-primary">Template</span>
+                                    {% elif action.category == 'integrity' %}
+                                        <span class="badge bg-success">Integrity</span>
+                                    {% elif action.category == 'sync' %}
+                                        <span class="badge bg-warning">Sync</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ action.category }}</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="alert alert-info">No admin actions recorded yet.</div>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>
-
-<!-- Action Details Modal -->
-<div class="modal fade" id="actionDetailsModal" tabindex="-1" aria-labelledby="actionDetailsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="actionDetailsModalLabel">Action Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <pre class="bg-light p-3 rounded"><code id="actionDetailsContent"></code></pre>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-{% block scripts %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Handle details modal
-        const actionDetailsModal = document.getElementById('actionDetailsModal');
-        if (actionDetailsModal) {
-            actionDetailsModal.addEventListener('show.bs.modal', function(event) {
-                const button = event.relatedTarget;
-                const details = button.getAttribute('data-details');
-                const detailsContent = document.getElementById('actionDetailsContent');
-                
-                try {
-                    const formattedDetails = JSON.stringify(JSON.parse(details), null, 2);
-                    detailsContent.textContent = formattedDetails;
-                } catch (e) {
-                    detailsContent.textContent = details || 'No details available';
-                }
-            });
-        }
-        
-        // Handle filtering
-        const filterLinks = document.querySelectorAll('[data-filter]');
-        filterLinks.forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                const filter = this.getAttribute('data-filter');
-                const rows = document.querySelectorAll('#adminActionsTable tbody tr');
-                
-                rows.forEach(row => {
-                    if (filter === 'all' || row.getAttribute('data-category') === filter) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            });
-        });
-        
-        // Handle refresh
-        const refreshButton = document.getElementById('refreshAdminActions');
-        if (refreshButton) {
-            refreshButton.addEventListener('click', function() {
-                window.location.reload();
-            });
-        }
-    });
-</script>
-{% endblock %}
 {% endblock %}

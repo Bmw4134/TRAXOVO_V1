@@ -35,6 +35,12 @@
                     <h5 class="mb-0">Actions</h5>
                 </div>
                 <div class="card-body">
+                    <a href="{{ url_for('kaizen_admin.download_sync_history', format='json') }}" class="btn btn-primary btn-sm w-100 mb-2">
+                        <i class="bi bi-download me-2"></i> Download JSON
+                    </a>
+                    <a href="{{ url_for('kaizen_admin.download_sync_history', format='csv') }}" class="btn btn-primary btn-sm w-100 mb-2">
+                        <i class="bi bi-download me-2"></i> Download CSV
+                    </a>
                     <form action="{{ url_for('kaizen_admin.clear_history') }}" method="post" onsubmit="return confirm('Are you sure you want to clear all sync history?');">
                         <button type="submit" class="btn btn-danger btn-sm w-100">
                             <i class="bi bi-trash me-2"></i> Clear History

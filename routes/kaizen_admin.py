@@ -10,13 +10,16 @@ import time
 import json
 import logging
 import threading
+import csv
+import io
 from datetime import datetime
-from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, current_app
+from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, current_app, Response, send_file
 
 # Import Kaizen utilities
 from utils.kaizen_sync_history import get_history, clear_history_entries, get_history_entry
 from utils.kaizen_integrity_audit import run_integrity_check
 from utils.kaizen_template_generator import generate_template_for_route
+from utils.kaizen_admin_actions import get_admin_actions, get_admin_action, clear_admin_actions, add_admin_action
 
 logger = logging.getLogger(__name__)
 
@@ -201,3 +204,47 @@ def api_sync_stats():
     }
     
     return jsonify(stats)
+
+@kaizen_admin_bp.route('/download-sync-history')
+def download_sync_history():
+    """Download sync history in JSON or CSV format"""
+    format_type = request.args.get('format', 'json')
+    history = get_history(limit=None)
+    
+    if format_type.lower() == 'csv':
+        # Create CSV output
+        output = io.StringIO()
+        csv_writer = csv.writer(output)
+        
+        # Write headers
+        csv_writer.writerow(['ID', 'Timestamp', 'Type', 'Status', 'Message'])
+        
+        # Write data
+        for entry in history:
+            csv_writer.writerow([
+                entry.get('id', ''),
+                entry.get('timestamp', ''),
+                entry.get('type', ''),
+                entry.get('status', ''),
+                entry.get('message', '')
+            ])
+        
+        output.seek(0)
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        return Response(
+            output.getvalue(),
+            mimetype='text/csv',
+            headers={
+                'Content-Disposition': f'attachment;filename=sync_history_{timestamp}.csv'
+            }
+        )
+    else:
+        # JSON format
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        return Response(
+            json.dumps(history, indent=2),
+            mimetype='application/json',
+            headers={
+                'Content-Disposition': f'attachment;filename=sync_history_{timestamp}.json'
+            }
+        )

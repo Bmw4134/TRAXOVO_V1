@@ -39,4 +39,5 @@ dependencies = [
     "pyyaml>=6.0.2",
     "formulas>=1.2.10",
     "beautifulsoup4>=4.13.4",
+    "watchdog>=6.0.0",
 ]

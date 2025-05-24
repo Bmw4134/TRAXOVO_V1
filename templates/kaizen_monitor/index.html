@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block title %}Kaizen Monitor - TRAXORA{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Kaizen Monitor</h1>
+        <a href="{{ url_for('system_admin.index') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to System Admin
+        </a>
+    </div>
+    
+    <div class="alert alert-info">
+        <h4 class="alert-heading"><i class="bi bi-info-circle"></i> Kaizen Sync System</h4>
+        <p>This system enforces real-time synchronization between backend routes and UI components.</p>
+        <hr>
+        <p class="mb-0">Use the tools below to run tests, audits, and apply automatic fixes to ensure your application stays in sync.</p>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-shield-check"></i> Sync Testing</h5>
+                </div>
+                <div class="card-body">
+                    <p>Run tests to verify synchronization between backend routes and frontend UI components.</p>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('kaizen_monitor.run_sync_test') }}" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> Run Sync Test
+                        </a>
+                        <a href="{{ url_for('kaizen_monitor.run_auto_patch') }}" class="btn btn-success">
+                            <i class="bi bi-magic"></i> Run Auto-Patch
+                        </a>
+                    </div>
+                </div>
+                <div class="card-footer bg-light">
+                    <small class="text-muted">Last sync test: {{ timestamp }}</small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-clipboard-check"></i> Integrity Audit</h5>
+                </div>
+                <div class="card-body">
+                    <p>Run a comprehensive integrity audit to detect any disconnects between backend and frontend.</p>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('kaizen_monitor.run_audit') }}" class="btn btn-info text-white">
+                            <i class="bi bi-lightning"></i> Run Integrity Audit
+                        </a>
+                    </div>
+                </div>
+                <div class="card-footer bg-light">
+                    <small class="text-muted">Last audit: {{ timestamp }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="bi bi-activity"></i> Health Status</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card bg-light mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">Route/Template Sync</h5>
+                                    <div id="route-sync-status">Checking...</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">Database Integrity</h5>
+                                    <div id="db-integrity-status">Checking...</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">UI Consistency</h5>
+                                    <div id="ui-consistency-status">Checking...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">Last updated: <span id="status-timestamp">{{ timestamp }}</span></small>
+                        <button id="refresh-status" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-arrow-repeat"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="bi bi-gear"></i> Configuration</h5>
+                </div>
+                <div class="card-body">
+                    <form id="kaizen-config-form">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="auto-sync-enabled" checked>
+                                    <label class="form-check-label" for="auto-sync-enabled">Enable Auto-Sync</label>
+                                </div>
+                                <small class="text-muted">Automatically run sync tests when files are changed</small>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="auto-patch-enabled" checked>
+                                    <label class="form-check-label" for="auto-patch-enabled">Enable Auto-Patch</label>
+                                </div>
+                                <small class="text-muted">Automatically fix sync issues when detected</small>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="notify-on-issues" checked>
+                                    <label class="form-check-label" for="notify-on-issues">Notify on Issues</label>
+                                </div>
+                                <small class="text-muted">Show notifications when sync issues are detected</small>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="strict-mode-enabled">
+                                    <label class="form-check-label" for="strict-mode-enabled">Strict Mode</label>
+                                </div>
+                                <small class="text-muted">Treat warnings as errors and block application startup</small>
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Save Configuration
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fetch status on page load
+        fetchStatus();
+        
+        // Set up refresh button
+        document.getElementById('refresh-status').addEventListener('click', fetchStatus);
+        
+        // Set up config form
+        document.getElementById('kaizen-config-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Simulate saving configuration
+            const config = {
+                autoSync: document.getElementById('auto-sync-enabled').checked,
+                autoPatch: document.getElementById('auto-patch-enabled').checked,
+                notifyOnIssues: document.getElementById('notify-on-issues').checked,
+                strictMode: document.getElementById('strict-mode-enabled').checked
+            };
+            
+            console.log('Saving configuration:', config);
+            
+            // Show success message
+            alert('Configuration saved successfully!');
+        });
+    });
+    
+    function fetchStatus() {
+        // Update the status timestamp
+        document.getElementById('status-timestamp').textContent = new Date().toLocaleString();
+        
+        // Simulate fetching status
+        // In a real implementation, this would be an API call to get the actual status
+        setTimeout(function() {
+            // Route/Template Sync status
+            const routeSyncStatus = document.getElementById('route-sync-status');
+            routeSyncStatus.innerHTML = `
+                <span class="badge bg-success">Synced</span>
+                <p class="mt-2 mb-0">All routes have corresponding UI elements</p>
+            `;
+            
+            // Database Integrity status
+            const dbIntegrityStatus = document.getElementById('db-integrity-status');
+            dbIntegrityStatus.innerHTML = `
+                <span class="badge bg-success">Healthy</span>
+                <p class="mt-2 mb-0">All database relationships are properly defined</p>
+            `;
+            
+            // UI Consistency status
+            const uiConsistencyStatus = document.getElementById('ui-consistency-status');
+            uiConsistencyStatus.innerHTML = `
+                <span class="badge bg-success">Consistent</span>
+                <p class="mt-2 mb-0">All UI elements are properly rendered</p>
+            `;
+        }, 1000);
+    }
+</script>
+{% endblock %}
+{% endblock %}

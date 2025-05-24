@@ -145,6 +145,20 @@ except ImportError:
     logger.warning("System Admin module not found")
 except Exception as e:
     logger.error(f"Error with System Admin blueprint: {e}")
+    
+# Register Kaizen Monitor Blueprint
+try:
+    # Check if the blueprint is already registered to avoid duplicate registration
+    if not any(bp.name == 'kaizen_monitor' for bp in app.blueprints.values()):
+        from routes.kaizen_monitor import kaizen_monitor_bp
+        app.register_blueprint(kaizen_monitor_bp)
+        logger.info("Kaizen Monitor blueprint registered successfully")
+    else:
+        logger.info("Kaizen Monitor blueprint already registered")
+except ImportError:
+    logger.warning("Kaizen Monitor module not found")
+except Exception as e:
+    logger.error(f"Error with Kaizen Monitor blueprint: {e}")
 
 @app.route('/attendance/')
 @app.route('/attendance')

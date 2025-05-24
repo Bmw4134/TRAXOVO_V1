@@ -22,7 +22,7 @@ system_admin_bp = Blueprint('system_admin', __name__, url_prefix='/admin')
 @system_admin_bp.route('/')
 def index():
     """System admin dashboard"""
-    return render_template('system_admin/index.html')
+    return render_template('system_admin/index.html', timestamp=datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
 @system_admin_bp.route('/sync-check')
 def sync_check():

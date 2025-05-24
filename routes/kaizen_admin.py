@@ -21,7 +21,7 @@ kaizen_admin_bp = Blueprint('kaizen_admin', __name__, url_prefix='/admin/kaizen-
 @kaizen_admin_bp.route('/')
 def index():
     """Kaizen admin dashboard"""
-    return render_template('kaizen_admin/index.html')
+    return render_template('kaizen_admin/index.html', timestamp=datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
 @kaizen_admin_bp.route('/sync-test')
 def sync_test():

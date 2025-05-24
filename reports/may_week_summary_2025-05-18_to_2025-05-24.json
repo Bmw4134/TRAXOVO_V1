@@ -1,0 +1,36 @@
+{
+  "start_date": "2025-05-18",
+  "end_date": "2025-05-24",
+  "total_days": 7,
+  "successful_days": 7,
+  "details": [
+    {
+      "date": "2025-05-18",
+      "success": true
+    },
+    {
+      "date": "2025-05-19",
+      "success": true
+    },
+    {
+      "date": "2025-05-20",
+      "success": true
+    },
+    {
+      "date": "2025-05-21",
+      "success": true
+    },
+    {
+      "date": "2025-05-22",
+      "success": true
+    },
+    {
+      "date": "2025-05-23",
+      "success": true
+    },
+    {
+      "date": "2025-05-24",
+      "success": true
+    }
+  ]
+}

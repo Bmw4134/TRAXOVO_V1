@@ -14,9 +14,9 @@
     "average_late_minutes": 0,
     "average_early_end_minutes": 0
   },
-  "processed_at": "2025-05-24T06:25:50.524582",
+  "processed_at": "2025-05-24T06:32:24.558047",
   "data_sources": {
-    "driving_history": 284,
+    "driving_history": 44,
     "time_on_site": 0,
     "activity_detail": 0,
     "timecard": 1706

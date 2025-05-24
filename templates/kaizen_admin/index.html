@@ -1,386 +1,154 @@
 {% extends "base.html" %}
 
-{% block title %}Kaizen Core Admin - TRAXORA{% endblock %}
+{% block title %}Kaizen Core Admin{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Kaizen Core Admin</h1>
-        <a href="{{ url_for('system_admin.index') }}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left"></i> Back to Admin
-        </a>
-    </div>
-    
-    <div class="alert alert-info">
-        <h4 class="alert-heading"><i class="bi bi-info-circle"></i> Kaizen Sync Enforcement</h4>
-        <p>This panel controls the Kaizen full-stack sync enforcement system.</p>
-        <hr>
-        <p class="mb-0">Advanced tools for maintaining UI/backend synchronization integrity.</p>
-    </div>
-    
+<div class="container-fluid mt-4">
     <div class="row">
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-tools"></i> Core Tools</h5>
+        <div class="col-md-3">
+            <!-- Sidebar -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Kaizen Core</h5>
                 </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <button id="run-sync-test" class="btn btn-primary">
-                            <i class="bi bi-shield-check"></i> Run Full-Stack Sync Test
-                        </button>
-                        <button id="run-integrity-audit" class="btn btn-warning">
-                            <i class="bi bi-check-circle"></i> Run Integrity Audit
-                        </button>
-                        <button id="toggle-auto-patch" class="btn btn-success">
-                            <i class="bi bi-magic"></i> <span id="auto-patch-status">Enable Auto-Patch Mode</span>
-                        </button>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <a href="{{ url_for('kaizen_admin.index') }}" class="list-group-item list-group-item-action active">
+                            <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                        </a>
+                        <a href="{{ url_for('kaizen_admin.sync_history') }}" class="list-group-item list-group-item-action">
+                            <i class="bi bi-clock-history me-2"></i> Sync History
+                        </a>
+                        <a href="{{ url_for('kaizen_admin.templates') }}" class="list-group-item list-group-item-action">
+                            <i class="bi bi-file-earmark-code me-2"></i> Templates
+                        </a>
+                        <a href="{{ url_for('kaizen_admin.run_all_checks') }}" class="list-group-item list-group-item-action">
+                            <i class="bi bi-shield-check me-2"></i> Integrity Check
+                        </a>
                     </div>
                 </div>
-                <div class="card-footer bg-light">
-                    <small class="text-muted">Auto-Patch automatically fixes common synchronization issues</small>
+            </div>
+            
+            <!-- Watchdog Controls -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Watchdog Service</h5>
+                </div>
+                <div class="card-body">
+                    <p>
+                        Status: 
+                        {% if watchdog_status %}
+                            <span class="badge bg-success">Running</span>
+                        {% else %}
+                            <span class="badge bg-danger">Stopped</span>
+                        {% endif %}
+                    </p>
+                    <div class="d-grid gap-2">
+                        {% if watchdog_status %}
+                            <form action="{{ url_for('kaizen_admin.stop_watchdog_route') }}" method="post">
+                                <button type="submit" class="btn btn-danger btn-sm w-100">
+                                    <i class="bi bi-stop-circle me-2"></i> Stop Watchdog
+                                </button>
+                            </form>
+                        {% else %}
+                            <form action="{{ url_for('kaizen_admin.start_watchdog_route') }}" method="post">
+                                <button type="submit" class="btn btn-success btn-sm w-100">
+                                    <i class="bi bi-play-circle me-2"></i> Start Watchdog
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
         
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-eye"></i> Watchdog Service</h5>
+        <div class="col-md-9">
+            <!-- Main Content -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Kaizen Core Dashboard</h5>
                 </div>
                 <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <button id="start-watchdog" class="btn btn-success">
-                            <i class="bi bi-play-circle"></i> Start Watchdog Service
-                        </button>
-                        <button id="stop-watchdog" class="btn btn-danger">
-                            <i class="bi bi-stop-circle"></i> Stop Watchdog Service
-                        </button>
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        Kaizen Core provides full-stack sync enforcement to maintain integrity between routes and templates.
                     </div>
-                    <div class="mt-3">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="watchdog-auto-sync">
-                            <label class="form-check-label" for="watchdog-auto-sync">Auto-sync on file changes</label>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body text-center">
+                                    <h1 class="display-4">{{ history|length }}</h1>
+                                    <p class="lead">Sync Events</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="watchdog-auto-patch">
-                            <label class="form-check-label" for="watchdog-auto-patch">Auto-patch on sync failure</label>
+                        <div class="col-md-4">
+                            <div class="card bg-success text-white">
+                                <div class="card-body text-center">
+                                    <h1 class="display-4">{{ watchdog_status|int }}</h1>
+                                    <p class="lead">Watchdog Status</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-info text-white">
+                                <div class="card-body text-center">
+                                    <h1 class="display-4">{{ timestamp }}</h1>
+                                    <p class="lead">Last Updated</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="card-footer bg-light">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <small class="text-muted">Watchdog service monitors file changes in real-time</small>
-                        <span id="watchdog-status" class="badge bg-secondary">Inactive</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="row">
-        <div class="col-12 mb-4">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-journals"></i> Activity Log</h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Timestamp</th>
-                                    <th>Action</th>
-                                    <th>Status</th>
-                                    <th>Details</th>
-                                </tr>
-                            </thead>
-                            <tbody id="activity-log">
-                                <tr>
-                                    <td>{{ timestamp }}</td>
-                                    <td>System Initialization</td>
-                                    <td><span class="badge bg-success">Success</span></td>
-                                    <td>Kaizen Core Admin initialized</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="card-footer bg-light">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <small class="text-muted">Recent activity is shown here</small>
-                        <button id="clear-log" class="btn btn-sm btn-outline-secondary">
-                            <i class="bi bi-trash"></i> Clear Log
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Results Modal -->
-    <div class="modal fade" id="results-modal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="results-modal-title">Operation Results</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="results-content" class="overflow-auto" style="max-height: 500px;">
-                        <p>No results available</p>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="fix-issues-btn">Fix Issues</button>
+                    
+                    <h5>Recent Sync Activities</h5>
+                    {% if history %}
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Timestamp</th>
+                                        <th>Type</th>
+                                        <th>Status</th>
+                                        <th>Message</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for entry in history %}
+                                        <tr>
+                                            <td>{{ entry.timestamp }}</td>
+                                            <td>{{ entry.type }}</td>
+                                            <td>
+                                                {% if entry.status == 'success' %}
+                                                    <span class="badge bg-success">Success</span>
+                                                {% elif entry.status == 'warning' %}
+                                                    <span class="badge bg-warning">Warning</span>
+                                                {% elif entry.status == 'error' %}
+                                                    <span class="badge bg-danger">Error</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">{{ entry.status }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ entry.message }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-end">
+                            <a href="{{ url_for('kaizen_admin.sync_history') }}" class="btn btn-primary">
+                                <i class="bi bi-clock-history me-2"></i> View All History
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            No sync history available yet.
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-{% block scripts %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const resultsModal = new bootstrap.Modal(document.getElementById('results-modal'));
-        let autoPatchEnabled = false;
-        
-        // Initialize timestamp function
-        function now() {
-            return new Date().toLocaleString();
-        }
-        
-        // Add log entry
-        function addLogEntry(action, status, details) {
-            const logTable = document.getElementById('activity-log');
-            const newRow = document.createElement('tr');
-            
-            // Add highlight class based on status
-            if (status.toLowerCase() === 'success') {
-                newRow.className = 'table-success';
-            } else if (status.toLowerCase() === 'error') {
-                newRow.className = 'table-danger';
-            } else if (status.toLowerCase() === 'warning') {
-                newRow.className = 'table-warning';
-            }
-            
-            newRow.innerHTML = `
-                <td>${now()}</td>
-                <td>${action}</td>
-                <td><span class="badge bg-${status.toLowerCase() === 'success' ? 'success' : status.toLowerCase() === 'error' ? 'danger' : 'warning'}">${status}</span></td>
-                <td>${details}</td>
-            `;
-            
-            // Add to top of log
-            logTable.insertBefore(newRow, logTable.firstChild);
-            
-            // Limit to 10 entries
-            if (logTable.children.length > 10) {
-                logTable.removeChild(logTable.lastChild);
-            }
-        }
-        
-        // Run sync test
-        document.getElementById('run-sync-test').addEventListener('click', function() {
-            addLogEntry('Sync Test', 'Running', 'Executing full-stack sync test...');
-            
-            fetch('/admin/kaizen-core/sync-test')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        addLogEntry('Sync Test', 'Success', 'Full-stack sync test completed');
-                        
-                        // Show results in modal
-                        document.getElementById('results-modal-title').textContent = 'Sync Test Results';
-                        
-                        // Format results for display
-                        const results = data.results;
-                        let resultsHtml = '<div class="alert alert-info">Sync test completed at ' + data.timestamp + '</div>';
-                        
-                        if (results.issues && results.issues.length > 0) {
-                            resultsHtml += '<div class="alert alert-warning"><strong>Issues Found:</strong> ' + results.issues.length + '</div>';
-                            resultsHtml += '<ul class="list-group mb-3">';
-                            
-                            for (const issue of results.issues) {
-                                resultsHtml += `
-                                    <li class="list-group-item list-group-item-warning">
-                                        <h5>${issue.type}</h5>
-                                        <p>${issue.description}</p>
-                                        <small>${issue.location}</small>
-                                    </li>
-                                `;
-                            }
-                            
-                            resultsHtml += '</ul>';
-                            document.getElementById('fix-issues-btn').style.display = 'block';
-                        } else {
-                            resultsHtml += '<div class="alert alert-success">No sync issues found!</div>';
-                            document.getElementById('fix-issues-btn').style.display = 'none';
-                        }
-                        
-                        document.getElementById('results-content').innerHTML = resultsHtml;
-                        resultsModal.show();
-                    } else {
-                        addLogEntry('Sync Test', 'Error', 'Error running sync test: ' + data.error);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    addLogEntry('Sync Test', 'Error', 'Network error: ' + error.message);
-                });
-        });
-        
-        // Run integrity audit
-        document.getElementById('run-integrity-audit').addEventListener('click', function() {
-            addLogEntry('Integrity Audit', 'Running', 'Executing integrity audit...');
-            
-            fetch('/admin/kaizen-core/integrity-audit')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        addLogEntry('Integrity Audit', 'Success', 'Integrity audit completed');
-                        
-                        // Show results in modal
-                        document.getElementById('results-modal-title').textContent = 'Integrity Audit Results';
-                        
-                        // Format results for display
-                        const results = data.results;
-                        let resultsHtml = '<div class="alert alert-info">Audit completed at ' + data.timestamp + '</div>';
-                        
-                        if (results.issues && results.issues.length > 0) {
-                            resultsHtml += '<div class="alert alert-warning"><strong>Issues Found:</strong> ' + results.issues.length + '</div>';
-                            resultsHtml += '<ul class="list-group mb-3">';
-                            
-                            for (const issue of results.issues) {
-                                resultsHtml += `
-                                    <li class="list-group-item list-group-item-warning">
-                                        <h5>${issue.type}</h5>
-                                        <p>${issue.description}</p>
-                                        <small>${issue.location}</small>
-                                    </li>
-                                `;
-                            }
-                            
-                            resultsHtml += '</ul>';
-                            document.getElementById('fix-issues-btn').style.display = 'block';
-                        } else {
-                            resultsHtml += '<div class="alert alert-success">No integrity issues found!</div>';
-                            document.getElementById('fix-issues-btn').style.display = 'none';
-                        }
-                        
-                        document.getElementById('results-content').innerHTML = resultsHtml;
-                        resultsModal.show();
-                    } else {
-                        addLogEntry('Integrity Audit', 'Error', 'Error running integrity audit: ' + data.error);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    addLogEntry('Integrity Audit', 'Error', 'Network error: ' + error.message);
-                });
-        });
-        
-        // Toggle auto-patch mode
-        document.getElementById('toggle-auto-patch').addEventListener('click', function() {
-            autoPatchEnabled = !autoPatchEnabled;
-            
-            fetch('/admin/kaizen-core/toggle-auto-patch', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    enabled: autoPatchEnabled
-                }),
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        addLogEntry('Auto-Patch Mode', 'Success', 'Auto-patch mode ' + (autoPatchEnabled ? 'enabled' : 'disabled'));
-                        
-                        // Update button text
-                        const autoPathBtn = document.getElementById('toggle-auto-patch');
-                        const autoPatchStatus = document.getElementById('auto-patch-status');
-                        
-                        if (autoPatchEnabled) {
-                            autoPathBtn.classList.remove('btn-success');
-                            autoPathBtn.classList.add('btn-danger');
-                            autoPatchStatus.textContent = 'Disable Auto-Patch Mode';
-                        } else {
-                            autoPathBtn.classList.remove('btn-danger');
-                            autoPathBtn.classList.add('btn-success');
-                            autoPatchStatus.textContent = 'Enable Auto-Patch Mode';
-                        }
-                    } else {
-                        addLogEntry('Auto-Patch Mode', 'Error', 'Error toggling auto-patch mode: ' + data.error);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    addLogEntry('Auto-Patch Mode', 'Error', 'Network error: ' + error.message);
-                });
-        });
-        
-        // Start watchdog service
-        document.getElementById('start-watchdog').addEventListener('click', function() {
-            addLogEntry('Watchdog Service', 'Running', 'Starting watchdog service...');
-            
-            fetch('/admin/kaizen-core/start-watchdog')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        addLogEntry('Watchdog Service', 'Success', 'Watchdog service started');
-                        document.getElementById('watchdog-status').textContent = 'Active';
-                        document.getElementById('watchdog-status').className = 'badge bg-success';
-                    } else {
-                        addLogEntry('Watchdog Service', 'Error', 'Error starting watchdog service: ' + data.error);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    addLogEntry('Watchdog Service', 'Error', 'Network error: ' + error.message);
-                });
-        });
-        
-        // Stop watchdog service
-        document.getElementById('stop-watchdog').addEventListener('click', function() {
-            addLogEntry('Watchdog Service', 'Running', 'Stopping watchdog service...');
-            
-            fetch('/admin/kaizen-core/stop-watchdog')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        addLogEntry('Watchdog Service', 'Success', 'Watchdog service stopped');
-                        document.getElementById('watchdog-status').textContent = 'Inactive';
-                        document.getElementById('watchdog-status').className = 'badge bg-secondary';
-                    } else {
-                        addLogEntry('Watchdog Service', 'Error', 'Error stopping watchdog service: ' + data.error);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    addLogEntry('Watchdog Service', 'Error', 'Network error: ' + error.message);
-                });
-        });
-        
-        // Clear log
-        document.getElementById('clear-log').addEventListener('click', function() {
-            document.getElementById('activity-log').innerHTML = '';
-            addLogEntry('Activity Log', 'Success', 'Log cleared');
-        });
-        
-        // Fix issues button
-        document.getElementById('fix-issues-btn').addEventListener('click', function() {
-            resultsModal.hide();
-            addLogEntry('Auto-Fix', 'Running', 'Attempting to fix issues automatically...');
-            
-            // Simulate auto-fix (in a real implementation, this would call an API)
-            setTimeout(function() {
-                addLogEntry('Auto-Fix', 'Success', 'Issues fixed automatically');
-            }, 2000);
-        });
-    });
-</script>
-{% endblock %}
 {% endblock %}

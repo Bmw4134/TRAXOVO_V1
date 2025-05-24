@@ -1,278 +1,268 @@
 """
 TRAXORA Fleet Management System - Kaizen Template Generator
 
-This module provides automated template generation for new routes,
-ensuring UI consistency and reducing manual template creation.
+This module provides utilities for automatically generating templates for routes
+that don't have corresponding templates.
 """
 
 import os
-import logging
 import re
-from datetime import datetime
 import inspect
-from flask import current_app
+import logging
+from typing import Dict, List, Optional, Any, Union
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, 
-                   format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+from flask import Blueprint, current_app
+
+from utils.kaizen_sync_history import add_history_entry
+
 logger = logging.getLogger(__name__)
 
-class TemplateGenerator:
-    """Template generator for Kaizen blueprints"""
+def generate_template_for_route(blueprint_name, route_name, endpoint_name, template_path):
+    """
+    Generate a template for a route that doesn't have a corresponding template.
     
-    @staticmethod
-    def generate_template(blueprint_name, route_name, route_function=None):
-        """
-        Generate a template for a route
+    Args:
+        blueprint_name (str): Name of the blueprint
+        route_name (str): Name of the route
+        endpoint_name (str): Name of the endpoint function
+        template_path (str): Path to the template
         
-        Args:
-            blueprint_name (str): Name of the blueprint
-            route_name (str): Name of the route (endpoint)
-            route_function (function, optional): The route function
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    try:
+        # Ensure template directory exists
+        template_dir = os.path.dirname(os.path.join(current_app.template_folder, template_path))
+        os.makedirs(template_dir, exist_ok=True)
+        
+        # Get the blueprint object
+        blueprint = current_app.blueprints.get(blueprint_name)
+        
+        if not blueprint:
+            logger.error(f"Blueprint {blueprint_name} not found")
+            return False
             
-        Returns:
-            str: Path to the generated template
-        """
+        # Get the endpoint function
+        endpoint_func = getattr(blueprint, endpoint_name, None)
+        
+        if not endpoint_func:
+            logger.error(f"Endpoint {endpoint_name} not found in blueprint {blueprint_name}")
+            return False
+            
+        # Get the function source code to extract title
         try:
-            # Determine template directory
-            template_dir = os.path.join(current_app.template_folder, blueprint_name)
-            os.makedirs(template_dir, exist_ok=True)
+            source = inspect.getsource(endpoint_func)
+            title_match = re.search(r'"""(.+?)"""', source, re.DOTALL)
+            title = title_match.group(1).strip() if title_match else f"{endpoint_name.replace('_', ' ').title()}"
+        except Exception:
+            title = f"{endpoint_name.replace('_', ' ').title()}"
             
-            # Determine template name
-            template_name = f"{route_name}.html"
-            template_path = os.path.join(template_dir, template_name)
-            
-            # Check if template already exists
-            if os.path.exists(template_path):
-                logger.info(f"Template already exists: {template_path}")
-                return template_path
-                
-            # Generate template content
-            content = TemplateGenerator._generate_template_content(blueprint_name, route_name, route_function)
-            
-            # Write template file
-            with open(template_path, 'w') as f:
-                f.write(content)
-                
-            logger.info(f"Template generated: {template_path}")
-            
-            # Log the template generation
-            TemplateGenerator._log_template_generation(blueprint_name, route_name, template_path)
-            
-            return template_path
-        except Exception as e:
-            logger.error(f"Error generating template for {blueprint_name}.{route_name}: {str(e)}")
-            return None
-            
-    @staticmethod
-    def _generate_template_content(blueprint_name, route_name, route_function=None):
-        """
-        Generate the content for a template
-        
-        Args:
-            blueprint_name (str): Name of the blueprint
-            route_name (str): Name of the route (endpoint)
-            route_function (function, optional): The route function
-            
-        Returns:
-            str: Template content
-        """
-        # Extract docstring from route function
-        title = route_name.replace('_', ' ').title()
-        description = ""
-        
-        if route_function:
-            docstring = inspect.getdoc(route_function)
-            if docstring:
-                # Use the first line of the docstring as title if available
-                lines = docstring.strip().split('\n')
-                if lines:
-                    title = lines[0].strip()
-                    if len(lines) > 1:
-                        description = '\n'.join(lines[1:]).strip()
-        
-        # Format the template title for display
-        display_title = title
-        if display_title.endswith("dashboard"):
-            display_title = display_title.replace("dashboard", "").strip() + " Dashboard"
-            
-        # Generate sidebar content for this blueprint
-        sidebar_content = TemplateGenerator._generate_sidebar_content(blueprint_name)
-                
         # Generate template content
-        return f"""{% extends "base.html" %}
-
-{% block title %}{display_title} - TRAXORA{% endblock %}
-
-{% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar -->
-        <div class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse" id="sidebarMenu">
-            <div class="position-sticky pt-3">
-                <ul class="nav flex-column">
-                    {sidebar_content}
-                </ul>
-            </div>
-        </div>
+        content = generate_admin_template(template_path, title)
         
-        <!-- Main content -->
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="h2">{display_title}</h1>
-                <div class="btn-toolbar mb-2 mb-md-0">
-                    <div class="btn-group me-2">
-                        <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
-                    </div>
-                    <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
-                        <span data-feather="calendar"></span>
-                        This week
-                    </button>
-                </div>
-            </div>
+        # Write template to file
+        with open(os.path.join(current_app.template_folder, template_path), 'w') as f:
+            f.write(content)
             
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">Overview</h5>
-                        </div>
-                        <div class="card-body">
-                            <p class="card-text">{description if description else "Welcome to the " + display_title + " page."}</p>
-                            <p class="card-text text-muted">Auto-generated by Kaizen on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="row">
-                <div class="col-md-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">Quick Actions</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="list-group">
-                                <a href="#" class="list-group-item list-group-item-action">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h5 class="mb-1">Action 1</h5>
-                                        <small class="text-muted">Now</small>
-                                    </div>
-                                    <p class="mb-1">Example action button with description.</p>
-                                </a>
-                                <a href="#" class="list-group-item list-group-item-action">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h5 class="mb-1">Action 2</h5>
-                                        <small class="text-muted">Today</small>
-                                    </div>
-                                    <p class="mb-1">Another example action button.</p>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-md-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">Status</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <h6>System Health</h6>
-                                <div class="progress mb-2">
-                                    <div class="progress-bar bg-success" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">100%</div>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <h6>Database Status</h6>
-                                <div class="progress mb-2">
-                                    <div class="progress-bar bg-success" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">100%</div>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <h6>API Health</h6>
-                                <div class="progress mb-2">
-                                    <div class="progress-bar bg-success" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">100%</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
-</div>
-{% endblock %}
+        # Log success
+        logger.info(f"Generated template {template_path} for route {route_name}")
+        
+        # Add to history
+        add_history_entry(
+            'template_generation',
+            'success',
+            f"Generated template {template_path} for route {route_name}",
+            {
+                'blueprint': blueprint_name,
+                'route': route_name,
+                'endpoint': endpoint_name,
+                'template': template_path
+            }
+        )
+        
+        return True
+    except Exception as e:
+        logger.error(f"Failed to generate template: {str(e)}")
+        
+        # Add to history
+        add_history_entry(
+            'template_generation',
+            'error',
+            f"Failed to generate template {template_path} for route {route_name}",
+            {
+                'blueprint': blueprint_name,
+                'route': route_name,
+                'endpoint': endpoint_name,
+                'template': template_path,
+                'error': str(e)
+            }
+        )
+        
+        return False
 
-{% block scripts %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('Page loaded: {blueprint_name}.{route_name}');
-    });
-</script>
-{% endblock %}"""
+def generate_admin_template(template_path, title, content_blocks=None):
+    """
+    Generate an admin template with the Kaizen theme.
     
-    @staticmethod
-    def _generate_sidebar_content(blueprint_name):
-        """
-        Generate sidebar content for a blueprint
+    Args:
+        template_path (str): Path to the template
+        title (str): Title of the page
+        content_blocks (list): List of content blocks to include
         
-        Args:
-            blueprint_name (str): Name of the blueprint
-            
-        Returns:
-            str: Sidebar content
-        """
-        # Get all routes for this blueprint
-        blueprint_routes = []
-        for rule in current_app.url_map.iter_rules():
-            if rule.endpoint.startswith(f"{blueprint_name}."):
-                endpoint = rule.endpoint.split('.')[1]
-                if endpoint != 'static':  # Skip static routes
-                    blueprint_routes.append({
-                        'endpoint': endpoint,
-                        'url': rule.rule
-                    })
-                
-        # Generate sidebar items
-        sidebar_items = []
-        for route in blueprint_routes:
-            display_name = route['endpoint'].replace('_', ' ').title()
-            endpoint = f"{blueprint_name}.{route['endpoint']}"
-            sidebar_items.append(f"""<li class="nav-item">
-                        <a class="nav-link{% if request.endpoint == '{endpoint}' %} active{% endif %}" href="{{ url_for('{endpoint}') }}">
-                            <i class="bi bi-circle"></i>
-                            {display_name}
-                        </a>
-                    </li>""")
-                
-        return '\n                    '.join(sidebar_items)
+    Returns:
+        str: The generated template content
+    """
+    # Determine if this is a blueprint template
+    blueprint_name = os.path.dirname(template_path).split(os.path.sep)[0] if os.path.sep in template_path else ''
     
-    @staticmethod
-    def _log_template_generation(blueprint_name, route_name, template_path):
-        """
-        Log template generation to the Kaizen history
+    # Build template content
+    content = "{% extends \"base.html\" %}\n\n"
+    content += f"{{% block title %}}{title}{{%  endblock %}}\n\n"
+    content += "{% block content %}\n"
+    content += "<div class=\"container-fluid mt-4\">\n"
+    content += "    <div class=\"row\">\n"
+    
+    # Add sidebar if this is a blueprint template
+    if blueprint_name:
+        content += "        <div class=\"col-md-3\">\n"
+        content += "            <!-- Sidebar -->\n"
+        content += "            <div class=\"card mb-4\">\n"
+        content += f"                <div class=\"card-header\">\n"
+        content += f"                    <h5 class=\"mb-0\">{blueprint_name.replace('_', ' ').title()}</h5>\n"
+        content += "                </div>\n"
+        content += "                <div class=\"card-body p-0\">\n"
+        content += "                    <div class=\"list-group list-group-flush\">\n"
         
-        Args:
-            blueprint_name (str): Name of the blueprint
-            route_name (str): Name of the route (endpoint)
-            template_path (str): Path to the generated template
-        """
+        # Try to add sidebar links based on the blueprint routes
         try:
-            from utils.kaizen_sync_history import SyncHistory
+            blueprint = current_app.blueprints.get(blueprint_name)
+            if blueprint:
+                for rule in current_app.url_map.iter_rules():
+                    if rule.endpoint.startswith(f"{blueprint_name}."):
+                        endpoint = rule.endpoint.split('.')[-1]
+                        endpoint_title = endpoint.replace('_', ' ').title()
+                        
+                        if endpoint == 'index':
+                            endpoint_title = 'Dashboard'
+                            
+                        is_active = f"{blueprint_name}/{endpoint}" in template_path
+                        active_class = ' active' if is_active else ''
+                        
+                        content += f"                        <a href=\"{{{{ url_for('{rule.endpoint}') }}}}\" class=\"list-group-item list-group-item-action{active_class}\">\n"
+                        content += f"                            <i class=\"bi bi-{get_icon_for_endpoint(endpoint)} me-2\"></i> {endpoint_title}\n"
+                        content += "                        </a>\n"
+        except Exception:
+            # Fallback to basic sidebar
+            content += f"                        <a href=\"{{{{ url_for('{blueprint_name}.index') }}}}\" class=\"list-group-item list-group-item-action active\">\n"
+            content += f"                            <i class=\"bi bi-speedometer2 me-2\"></i> Dashboard\n"
+            content += "                        </a>\n"
             
-            # Create history entry
-            SyncHistory.add_entry(
-                event_type='template_generation',
-                blueprint=blueprint_name,
-                endpoint=route_name,
-                details={
-                    'template_path': template_path,
-                    'generated_at': datetime.now().isoformat(),
-                    'auto_generated': True
-                }
-            )
-        except Exception as e:
-            logger.error(f"Error logging template generation: {str(e)}")
+        content += "                    </div>\n"
+        content += "                </div>\n"
+        content += "            </div>\n"
+        content += "        </div>\n"
+        
+        content += "        <div class=\"col-md-9\">\n"
+    else:
+        content += "        <div class=\"col-md-12\">\n"
+        
+    # Add main content
+    content += "            <!-- Main Content -->\n"
+    content += "            <div class=\"card mb-4\">\n"
+    content += "                <div class=\"card-header\">\n"
+    content += f"                    <h5 class=\"mb-0\">{title}</h5>\n"
+    content += "                </div>\n"
+    content += "                <div class=\"card-body\">\n"
+    
+    # Add content blocks
+    if content_blocks:
+        for block in content_blocks:
+            content += f"                    {block}\n"
+    else:
+        content += "                    <!-- Page content goes here -->\n"
+        content += "                    <p>This is an auto-generated template. Customize it as needed.</p>\n"
+        
+    content += "                </div>\n"
+    content += "            </div>\n"
+    content += "        </div>\n"
+    content += "    </div>\n"
+    content += "</div>\n"
+    content += "{% endblock %}"
+    
+    return content
+
+def extract_template_from_route(func):
+    """
+    Extract the template name from a route function by analyzing its source code.
+    
+    Args:
+        func (function): The route function to analyze
+        
+    Returns:
+        str: The template name or None if not found
+    """
+    try:
+        source = inspect.getsource(func)
+        
+        # Check for render_template calls
+        template_match = re.search(r"render_template\s*\(\s*['\"]([^'\"]+)['\"]", source)
+        if template_match:
+            return template_match.group(1)
+            
+        return None
+    except Exception:
+        return None
+
+def get_icon_for_endpoint(endpoint):
+    """
+    Get an appropriate Bootstrap icon for an endpoint.
+    
+    Args:
+        endpoint (str): Name of the endpoint
+        
+    Returns:
+        str: Name of the Bootstrap icon
+    """
+    # Map common endpoint names to icons
+    icon_map = {
+        'index': 'speedometer2',
+        'dashboard': 'speedometer2',
+        'list': 'list-ul',
+        'create': 'plus-circle',
+        'edit': 'pencil-square',
+        'delete': 'trash',
+        'view': 'eye',
+        'detail': 'file-text',
+        'report': 'bar-chart',
+        'upload': 'upload',
+        'download': 'download',
+        'settings': 'gear',
+        'profile': 'person',
+        'users': 'people',
+        'search': 'search',
+        'login': 'box-arrow-in-right',
+        'logout': 'box-arrow-right',
+        'admin': 'shield',
+        'history': 'clock-history',
+        'sync': 'arrow-repeat',
+        'templates': 'file-earmark-code',
+        'run_checks': 'shield-check',
+        'integrity_check': 'shield-check',
+        'auto_generate': 'magic',
+        'generate': 'magic',
+        'start': 'play-circle',
+        'stop': 'stop-circle',
+        'api': 'code-slash'
+    }
+    
+    # Check for direct matches
+    if endpoint in icon_map:
+        return icon_map[endpoint]
+        
+    # Check for partial matches
+    for key, icon in icon_map.items():
+        if key in endpoint:
+            return icon
+            
+    # Return a default icon
+    return 'circle'

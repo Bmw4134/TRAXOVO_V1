@@ -1,444 +1,350 @@
 """
-TRAXORA Kaizen Integrity Audit
+TRAXORA Fleet Management System - Kaizen Integrity Audit
 
-This module performs comprehensive integrity audits on the full application stack,
-ensuring route/template consistency and identifying any disconnects between
-frontend and backend elements.
+This module provides utilities for checking the integrity of the application,
+including verifying route and template synchronization.
 """
 
 import os
-import re
+import json
+import inspect
 import logging
-import importlib
-from pathlib import Path
-from collections import defaultdict
 from datetime import datetime
+from typing import Dict, List, Optional, Any, Union
+
+from flask import current_app
 from bs4 import BeautifulSoup
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, 
-                   format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+from utils.kaizen_sync_history import add_history_entry
+
 logger = logging.getLogger(__name__)
 
-class KaizenIntegrityAudit:
+def run_integrity_check():
     """
-    Performs comprehensive integrity audits on the TRAXORA application
-    to ensure frontend/backend synchronization.
-    """
+    Run a comprehensive integrity check on the application.
     
-    def __init__(self, app_root='.'):
-        """
-        Initialize the integrity audit with the application root directory.
-        
-        Args:
-            app_root (str): Root directory of the application
-        """
-        self.app_root = Path(app_root)
-        self.routes_dir = self.app_root / 'routes'
-        self.templates_dir = self.app_root / 'templates'
-        self.main_app_file = self.app_root / 'main.py'
-        self.app_file = self.app_root / 'app.py'
-        
-        # Tracking containers
-        self.routes = []
-        self.blueprints = []
-        self.templates = []
-        self.template_references = []
-        self.orphaned_routes = []
-        self.orphaned_templates = []
-        self.conditional_elements = []
-        self.integrity_issues = []
-        
-    def scan_routes(self):
-        """
-        Scan all Python files in routes directory and main app files for route definitions.
-        """
-        logger.info("Scanning route definitions...")
-        
-        # Process route files
-        if self.routes_dir.exists():
-            for file_path in self.routes_dir.glob('**/*.py'):
-                self._process_route_file(file_path)
-                
-        # Process main app files
-        for app_file in [self.main_app_file, self.app_file]:
-            if app_file.exists():
-                self._process_route_file(app_file)
-                
-        logger.info(f"Found {len(self.routes)} routes and {len(self.blueprints)} blueprints")
-        
-    def _process_route_file(self, file_path):
-        """
-        Process a Python file to extract route and blueprint definitions.
-        
-        Args:
-            file_path (Path): Path to the Python file
-        """
-        try:
-            with open(file_path, 'r') as f:
-                content = f.read()
-                
-            # Extract blueprint definitions
-            blueprint_pattern = r'(\w+)\s*=\s*Blueprint\([\'"](\w+)[\'"],\s*[\'"]([^\'"]*)[\'"]'
-            for match in re.finditer(blueprint_pattern, content):
-                var_name = match.group(1)
-                blueprint_name = match.group(2)
-                url_prefix = match.group(3)
-                
-                self.blueprints.append({
-                    'var_name': var_name,
-                    'name': blueprint_name,
-                    'url_prefix': url_prefix,
-                    'file': str(file_path)
-                })
-                
-            # Extract route definitions
-            route_patterns = [
-                # Blueprint routes: @blueprint.route('/path')
-                r'@(\w+)\.route\([\'"]([^\'"]+)[\'"](?:,\s*methods=\[(.*?)\])?\)',
-                # App routes: @app.route('/path')
-                r'@app\.route\([\'"]([^\'"]+)[\'"](?:,\s*methods=\[(.*?)\])?\)'
-            ]
+    Returns:
+        dict: Results of the integrity check
+    """
+    results = {
+        'timestamp': datetime.now().isoformat(),
+        'checks': [],
+        'issues_count': 0,
+        'status': 'ok'
+    }
+    
+    # Check route-template synchronization
+    template_sync_results = check_template_sync()
+    results['checks'].append(template_sync_results)
+    
+    # Check template references
+    template_ref_results = check_template_references()
+    results['checks'].append(template_ref_results)
+    
+    # Calculate issues count and status
+    issues_count = 0
+    status = 'ok'
+    
+    for check in results['checks']:
+        issues_count += check.get('issues_count', 0)
+        if check.get('status') == 'critical':
+            status = 'critical'
+        elif check.get('status') == 'warning' and status != 'critical':
+            status = 'warning'
             
-            for pattern in route_patterns:
-                for match in re.finditer(pattern, content):
-                    if pattern.startswith('@app'):
-                        # App route
-                        path = match.group(1)
-                        methods = match.group(2) if match.group(2) else 'GET'
-                        blueprint = None
-                        
-                        # Get the function name
-                        func_match = re.search(rf'{re.escape(match.group(0))}\s*\ndef\s+(\w+)', content)
-                        function_name = func_match.group(1) if func_match else None
-                        
-                        self.routes.append({
-                            'path': path,
-                            'methods': methods,
-                            'blueprint': None,
-                            'function': function_name,
-                            'file': str(file_path)
-                        })
-                    else:
-                        # Blueprint route
-                        blueprint_var = match.group(1)
-                        path = match.group(2)
-                        methods = match.group(3) if match.group(3) else 'GET'
-                        
-                        # Get the function name
-                        func_match = re.search(rf'{re.escape(match.group(0))}\s*\ndef\s+(\w+)', content)
-                        function_name = func_match.group(1) if func_match else None
-                        
-                        # Find the blueprint name
-                        blueprint_name = None
-                        for bp in self.blueprints:
-                            if bp['var_name'] == blueprint_var:
-                                blueprint_name = bp['name']
-                                break
-                                
-                        self.routes.append({
-                            'path': path,
-                            'methods': methods,
-                            'blueprint': blueprint_name,
-                            'blueprint_var': blueprint_var,
-                            'function': function_name,
-                            'file': str(file_path)
-                        })
-                        
-        except Exception as e:
-            logger.error(f"Error processing route file {file_path}: {str(e)}")
-            
-    def scan_templates(self):
-        """
-        Scan all template files for URL references and conditional elements.
-        """
-        logger.info("Scanning template files...")
+    results['issues_count'] = issues_count
+    results['status'] = status
+    
+    # Log results
+    if status == 'ok':
+        logger.info(f"Integrity check passed with no issues")
+    else:
+        logger.warning(f"Integrity check found {issues_count} issues with status '{status}'")
         
-        if self.templates_dir.exists():
-            for file_path in self.templates_dir.glob('**/*.html'):
-                self._process_template_file(file_path)
-                
-        logger.info(f"Found {len(self.template_references)} template references and {len(self.conditional_elements)} conditional elements")
+    # Add to history
+    add_history_entry(
+        'integrity_check',
+        'success' if status == 'ok' else 'warning',
+        f"Integrity check completed with status '{status}' and found {issues_count} issues",
+        {'results': results}
+    )
+    
+    return results
+    
+def check_template_sync():
+    """
+    Check that all routes have corresponding templates and vice versa.
+    
+    Returns:
+        dict: Results of the template sync check
+    """
+    issues = []
+    
+    try:
+        # Get all blueprints
+        blueprints = []
+        routes_count = 0
+        templates_count = 0
         
-    def _process_template_file(self, file_path):
-        """
-        Process a template file to extract URL references and conditional elements.
-        
-        Args:
-            file_path (Path): Path to the template file
-        """
-        try:
-            self.templates.append(str(file_path))
-            
-            with open(file_path, 'r') as f:
-                content = f.read()
-                
-            # Extract url_for references
-            url_for_pattern = r'{{\s*url_for\([\'"]([^\'"]+)[\'"]'
-            for match in re.finditer(url_for_pattern, content):
-                endpoint = match.group(1)
-                
-                self.template_references.append({
-                    'type': 'url_for',
-                    'endpoint': endpoint,
-                    'file': str(file_path)
-                })
-                
-            # Extract direct href references
-            soup = BeautifulSoup(content, 'html.parser')
-            
-            for a_tag in soup.find_all('a'):
-                href = a_tag.get('href')
-                if href and not href.startswith(('http', 'https', 'mailto', '#', 'javascript')):
-                    if not href.startswith('{{'):  # Skip template variables
-                        self.template_references.append({
-                            'type': 'href',
-                            'endpoint': href,
-                            'text': a_tag.text.strip(),
-                            'file': str(file_path)
-                        })
-                        
-            # Extract form actions
-            for form in soup.find_all('form'):
-                action = form.get('action')
-                if action and not action.startswith(('http', 'https', '#', 'javascript')):
-                    if not action.startswith('{{'):  # Skip template variables
-                        self.template_references.append({
-                            'type': 'form',
-                            'endpoint': action,
-                            'method': form.get('method', 'GET'),
-                            'file': str(file_path)
-                        })
-                        
-            # Find conditional elements
-            if_blocks = re.finditer(r'{%\s*if\s+(.*?)\s*%}(.*?){%\s*endif\s*%}', content, re.DOTALL)
-            for block in if_blocks:
-                condition = block.group(1)
-                block_content = block.group(2)
-                
-                # Check if the conditional block contains links or UI elements
-                if ('href' in block_content or 'url_for' in block_content or 
-                    'button' in block_content or 'form' in block_content):
-                    self.conditional_elements.append({
-                        'condition': condition,
-                        'preview': block_content[:100] + ('...' if len(block_content) > 100 else ''),
-                        'file': str(file_path)
-                    })
-                    
-        except Exception as e:
-            logger.error(f"Error processing template file {file_path}: {str(e)}")
-            
-    def analyze_integrity(self):
-        """
-        Analyze the collected data to identify integrity issues.
-        """
-        logger.info("Analyzing application integrity...")
-        
-        # Find orphaned routes (routes without UI references)
-        for route in self.routes:
-            path = route['path']
-            blueprint = route['blueprint']
-            function = route['function']
-            
-            # Skip static files, health checks, and API routes
-            if any(skip in path.lower() for skip in ['/static', '/health', '/api']):
-                continue
-                
-            # Construct possible endpoint references
-            possible_refs = []
-            
-            # Direct path reference
-            possible_refs.append(path)
-            
-            # Function name reference
-            if function:
-                possible_refs.append(function)
-                
-            # Blueprint function reference
-            if blueprint and function:
-                possible_refs.append(f"{blueprint}.{function}")
-                
-            # Check if any reference exists in templates
-            found = False
-            for ref in self.template_references:
-                if ref['endpoint'] in possible_refs:
-                    found = True
-                    break
-                    
-            if not found:
-                self.orphaned_routes.append(route)
-                
-        # Find orphaned template references (references without routes)
-        for ref in self.template_references:
-            endpoint = ref['endpoint']
-            
-            # Skip external links, static files
-            if endpoint.startswith(('/', 'http', 'https', 'static')):
-                continue
-                
-            # Check if it's a blueprint.function reference
+        for rule in current_app.url_map.iter_rules():
+            endpoint = rule.endpoint
             if '.' in endpoint:
-                parts = endpoint.split('.')
-                blueprint_name = parts[0]
-                function_name = parts[1]
-                
-                # Find matching route
-                found = False
-                for route in self.routes:
-                    if route['blueprint'] == blueprint_name and route['function'] == function_name:
-                        found = True
-                        break
+                blueprint_name = endpoint.split('.')[0]
+                if blueprint_name not in [bp.get('name') for bp in blueprints]:
+                    blueprint = current_app.blueprints.get(blueprint_name)
+                    if blueprint:
+                        # Check for sync status method
+                        if hasattr(blueprint, 'check_sync_status'):
+                            # Use built-in sync status check
+                            sync_status = blueprint.check_sync_status()
+                            
+                            routes_count += sync_status.get('routes_count', 0)
+                            templates_count += sync_status.get('templates_count', 0)
+                            
+                            for issue in sync_status.get('issues', []):
+                                issues.append({
+                                    'blueprint': blueprint_name,
+                                    'type': issue.get('type'),
+                                    'route': issue.get('route', ''),
+                                    'template': issue.get('template', ''),
+                                    'severity': issue.get('severity', 'warning')
+                                })
+                        else:
+                            # Manual check for this blueprint
+                            blueprint_routes = []
+                            
+                            # Get routes for this blueprint
+                            for r in current_app.url_map.iter_rules():
+                                if r.endpoint.startswith(f"{blueprint_name}."):
+                                    function_name = r.endpoint.split('.')[-1]
+                                    blueprint_routes.append({
+                                        'rule': r.rule,
+                                        'function': function_name,
+                                        'methods': list(r.methods),
+                                        'endpoint': r.endpoint
+                                    })
+                                    
+                            routes_count += len(blueprint_routes)
+                            
+                            # Get templates for this blueprint
+                            blueprint_templates = []
+                            template_dir = os.path.join(current_app.template_folder, blueprint_name)
+                            if os.path.exists(template_dir):
+                                for root, _, files in os.walk(template_dir):
+                                    for file in files:
+                                        if file.endswith('.html'):
+                                            rel_path = os.path.join(os.path.relpath(root, current_app.template_folder), file)
+                                            blueprint_templates.append(rel_path)
+                                            
+                            templates_count += len(blueprint_templates)
+                            
+                            # Check for routes without templates
+                            for route in blueprint_routes:
+                                function_name = route['function']
+                                view_func = getattr(blueprint, function_name, None)
+                                
+                                if view_func:
+                                    source = inspect.getsource(view_func)
+                                    
+                                    # Check if function renders a template
+                                    if 'render_template' in source:
+                                        import re
+                                        template_match = re.search(r"render_template\s*\(\s*['\"]([^'\"]+)['\"]", source)
+                                        
+                                        if template_match:
+                                            template_path = template_match.group(1)
+                                            
+                                            # Check if template exists
+                                            if not os.path.exists(os.path.join(current_app.template_folder, template_path)):
+                                                issues.append({
+                                                    'blueprint': blueprint_name,
+                                                    'type': 'missing_template',
+                                                    'route': route['rule'],
+                                                    'template': template_path,
+                                                    'severity': 'error'
+                                                })
+                                        else:
+                                            # Render template call found but template path not found
+                                            issues.append({
+                                                'blueprint': blueprint_name,
+                                                'type': 'template_not_found_in_route',
+                                                'route': route['rule'],
+                                                'template': '',
+                                                'severity': 'warning'
+                                            })
+                                    else:
+                                        # Function doesn't render a template
+                                        issues.append({
+                                            'blueprint': blueprint_name,
+                                            'type': 'no_template_specified',
+                                            'route': route['rule'],
+                                            'template': '',
+                                            'severity': 'info'
+                                        })
                         
-                if not found:
-                    self.orphaned_templates.append(ref)
-            else:
-                # Check if it's a direct function name reference
-                found = False
-                for route in self.routes:
-                    if route['function'] == endpoint:
-                        found = True
-                        break
-                        
-                if not found:
-                    self.orphaned_templates.append(ref)
-                    
-        # Check for other integrity issues
-        self._check_blueprint_registration()
-        self._check_database_relationships()
-                    
-        logger.info(f"Found {len(self.orphaned_routes)} orphaned routes and {len(self.orphaned_templates)} orphaned template references")
-        
-    def _check_blueprint_registration(self):
-        """
-        Check if all blueprints are properly registered in the main application.
-        """
-        try:
-            if not self.main_app_file.exists():
-                return
-                
-            with open(self.main_app_file, 'r') as f:
-                content = f.read()
-                
-            for blueprint in self.blueprints:
-                bp_name = blueprint['name']
-                bp_var = blueprint['var_name']
-                
-                # Check if the blueprint is registered
-                register_pattern = rf'app\.register_blueprint\({bp_var}|.*{bp_name}.*register'
-                if not re.search(register_pattern, content):
-                    self.integrity_issues.append({
-                        'type': 'blueprint_not_registered',
-                        'message': f"Blueprint '{bp_name}' ({bp_var}) defined in {blueprint['file']} is not registered in main.py",
-                        'severity': 'error'
-                    })
-                    
-        except Exception as e:
-            logger.error(f"Error checking blueprint registration: {str(e)}")
-            
-    def _check_database_relationships(self):
-        """
-        Check database relationships for integrity issues.
-        """
-        # Find all model files
-        model_files = list(self.app_root.glob('**/models.py'))
-        if not model_files:
-            return
-            
-        try:
-            for model_file in model_files:
-                with open(model_file, 'r') as f:
-                    content = f.read()
-                    
-                # Find relationship definitions
-                rel_pattern = r'(\w+)\s*=\s*(?:db\.relationship|relationship)\([\'"](\w+)[\'"]'
-                rel_matches = re.finditer(rel_pattern, content)
-                
-                for match in rel_matches:
-                    rel_name = match.group(1)
-                    related_class = match.group(2)
-                    
-                    # Look for foreign key definition
-                    fk_pattern = r'(\w+)\s*=\s*(?:db\.Column|Column)\(.*?ForeignKey\([\'"].*?' + re.escape(related_class.lower()) + r'.*?[\'"]\)'
-                    if not re.search(fk_pattern, content, re.IGNORECASE):
-                        self.integrity_issues.append({
-                            'type': 'relationship_no_foreign_key',
-                            'message': f"Relationship '{rel_name}' to '{related_class}' in {model_file} might be missing a properly defined foreign key",
-                            'severity': 'warning'
+                        blueprints.append({
+                            'name': blueprint_name,
+                            'url_prefix': getattr(blueprint, 'url_prefix', ''),
+                            'routes_count': len(blueprint_routes) if 'blueprint_routes' in locals() else sync_status.get('routes_count', 0),
+                            'templates_count': len(blueprint_templates) if 'blueprint_templates' in locals() else sync_status.get('templates_count', 0)
                         })
-                        
-        except Exception as e:
-            logger.error(f"Error checking database relationships: {str(e)}")
+        
+        # Determine status
+        status = 'ok'
+        critical_issues = 0
+        warning_issues = 0
+        
+        for issue in issues:
+            if issue['severity'] == 'error':
+                critical_issues += 1
+            elif issue['severity'] == 'warning':
+                warning_issues += 1
+                
+        if critical_issues > 0:
+            status = 'critical'
+        elif warning_issues > 0:
+            status = 'warning'
             
-    def generate_report(self):
-        """
-        Generate a comprehensive report of the integrity audit.
-        
-        Returns:
-            dict: Audit report
-        """
-        # Run all scans and analysis
-        self.scan_routes()
-        self.scan_templates()
-        self.analyze_integrity()
-        
-        # Generate report
-        report = {
-            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            'summary': {
-                'total_routes': len(self.routes),
-                'total_blueprints': len(self.blueprints),
-                'total_templates': len(self.templates),
-                'total_template_references': len(self.template_references),
-                'orphaned_routes': len(self.orphaned_routes),
-                'orphaned_templates': len(self.orphaned_templates),
-                'conditional_elements': len(self.conditional_elements),
-                'integrity_issues': len(self.integrity_issues)
-            },
-            'routes': self.routes,
-            'blueprints': self.blueprints,
-            'orphaned_routes': self.orphaned_routes,
-            'orphaned_templates': self.orphaned_templates,
-            'conditional_elements': self.conditional_elements,
-            'integrity_issues': self.integrity_issues
+        return {
+            'name': 'template_sync',
+            'description': 'Check route-template synchronization',
+            'blueprints': blueprints,
+            'routes_count': routes_count,
+            'templates_count': templates_count,
+            'issues': issues,
+            'issues_count': len(issues),
+            'status': status
+        }
+    except Exception as e:
+        logger.error(f"Failed to check template sync: {str(e)}")
+        return {
+            'name': 'template_sync',
+            'description': 'Check route-template synchronization',
+            'error': str(e),
+            'issues_count': 1,
+            'status': 'critical'
         }
         
-        # Determine overall integrity status
-        if (len(self.orphaned_routes) == 0 and 
-            len(self.orphaned_templates) == 0 and 
-            not any(issue['severity'] == 'error' for issue in self.integrity_issues)):
-            report['status'] = 'PASS'
-        else:
-            report['status'] = 'FAIL'
-            
-        return report
-
-def run_integrity_audit(app_root='.'):
+def check_template_references():
     """
-    Run a complete integrity audit and return the report.
+    Check template references for invalid endpoints or templates.
     
-    Args:
-        app_root (str): Root directory of the application
-        
     Returns:
-        dict: Audit report
+        dict: Results of the template references check
     """
-    logger.info("Starting Kaizen Integrity Audit...")
-    audit = KaizenIntegrityAudit(app_root)
-    report = audit.generate_report()
+    issues = []
     
-    # Save report to file
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    report_file = f"integrity_audit_{timestamp}.json"
-    
-    import json
     try:
-        with open(report_file, 'w') as f:
-            json.dump(report, f, indent=2)
-        logger.info(f"Audit report saved to {report_file}")
-    except Exception as e:
-        logger.error(f"Error saving audit report: {str(e)}")
+        # Get all templates
+        templates_checked = 0
         
-    return report
-
-if __name__ == '__main__':
-    run_integrity_audit()
+        for root, _, files in os.walk(current_app.template_folder):
+            for file in files:
+                if file.endswith('.html'):
+                    template_path = os.path.join(root, file)
+                    rel_path = os.path.relpath(template_path, current_app.template_folder)
+                    
+                    # Parse template
+                    with open(template_path, 'r') as f:
+                        template_content = f.read()
+                        
+                    templates_checked += 1
+                    
+                    # Check for url_for references
+                    soup = BeautifulSoup(template_content, 'html.parser')
+                    
+                    # Check all tags with href attribute
+                    for tag in soup.find_all(href=True):
+                        href = tag['href']
+                        if 'url_for' in href:
+                            # Extract endpoint
+                            import re
+                            endpoint_match = re.search(r"url_for\s*\(\s*['\"]([^'\"]+)['\"]", href)
+                            if endpoint_match:
+                                endpoint = endpoint_match.group(1)
+                                
+                                # Check if endpoint exists
+                                if '.' in endpoint:
+                                    blueprint_name, function_name = endpoint.split('.')
+                                    blueprint = current_app.blueprints.get(blueprint_name)
+                                    
+                                    if not blueprint:
+                                        issues.append({
+                                            'template': rel_path,
+                                            'type': 'invalid_blueprint_reference',
+                                            'endpoint': endpoint,
+                                            'severity': 'error'
+                                        })
+                                    elif not hasattr(blueprint, function_name):
+                                        issues.append({
+                                            'template': rel_path,
+                                            'type': 'invalid_endpoint_reference',
+                                            'endpoint': endpoint,
+                                            'severity': 'error'
+                                        })
+                                else:
+                                    # Check for non-blueprint endpoints
+                                    if endpoint not in current_app.view_functions:
+                                        issues.append({
+                                            'template': rel_path,
+                                            'type': 'invalid_endpoint_reference',
+                                            'endpoint': endpoint,
+                                            'severity': 'error'
+                                        })
+                    
+                    # Check for include/extends tags
+                    for tag in soup.find_all(['include', 'extends']):
+                        template_ref = tag.get('src', tag.get('file', ''))
+                        if template_ref and not os.path.exists(os.path.join(current_app.template_folder, template_ref)):
+                            issues.append({
+                                'template': rel_path,
+                                'type': 'invalid_template_reference',
+                                'reference': template_ref,
+                                'severity': 'error'
+                            })
+                            
+                    # Check for Jinja extends
+                    extends_match = re.search(r"{%\s*extends\s+['\"]([^'\"]+)['\"]", template_content)
+                    if extends_match:
+                        extends_template = extends_match.group(1)
+                        if not os.path.exists(os.path.join(current_app.template_folder, extends_template)):
+                            issues.append({
+                                'template': rel_path,
+                                'type': 'invalid_extends_reference',
+                                'reference': extends_template,
+                                'severity': 'error'
+                            })
+                            
+                    # Check for Jinja includes
+                    for include_match in re.finditer(r"{%\s*include\s+['\"]([^'\"]+)['\"]", template_content):
+                        include_template = include_match.group(1)
+                        if not os.path.exists(os.path.join(current_app.template_folder, include_template)):
+                            issues.append({
+                                'template': rel_path,
+                                'type': 'invalid_include_reference',
+                                'reference': include_template,
+                                'severity': 'error'
+                            })
+        
+        # Determine status
+        status = 'ok'
+        if len(issues) > 0:
+            status = 'critical'
+            
+        return {
+            'name': 'template_references',
+            'description': 'Check template references',
+            'templates_checked': templates_checked,
+            'issues': issues,
+            'issues_count': len(issues),
+            'status': status
+        }
+    except Exception as e:
+        logger.error(f"Failed to check template references: {str(e)}")
+        return {
+            'name': 'template_references',
+            'description': 'Check template references',
+            'error': str(e),
+            'issues_count': 1,
+            'status': 'critical'
+        }

@@ -434,13 +434,26 @@
 <div class="row mb-4">
     <div class="col-12">
         <div class="card bg-dark border-0 shadow-sm">
-            <div class="card-header bg-dark d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">Weekly Driver Attendance</h5>
-                <div>
-                    <button class="btn btn-sm btn-outline-secondary me-2" onclick="toggleAllDrivers()">
-                        <i class="bi bi-people-fill me-1"></i> Toggle All
-                    </button>
-                    <input type="text" id="driverSearch" class="form-control form-control-sm d-inline-block" placeholder="Search drivers..." style="width: 200px;">
+            <div class="card-header bg-dark">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+                    <h5 class="card-title mb-md-0">Weekly Driver Attendance</h5>
+                    <div class="d-flex flex-column flex-md-row align-items-md-center gap-2">
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark border-secondary">
+                                <i class="bi bi-search text-light"></i>
+                            </span>
+                            <input type="text" class="form-control bg-dark border-secondary text-light" id="driverSearch" placeholder="Search drivers...">
+                        </div>
+                        <div class="btn-group ms-md-2 mt-2 mt-md-0">
+                            <button type="button" class="btn btn-sm btn-outline-secondary filter-btn active" data-filter="all">All</button>
+                            <button type="button" class="btn btn-sm btn-outline-success filter-btn" data-filter="on-time">On Time</button>
+                            <button type="button" class="btn btn-sm btn-outline-warning filter-btn" data-filter="late-start">Late</button>
+                            <button type="button" class="btn btn-sm btn-outline-danger filter-btn" data-filter="not-on-job">Not On Job</button>
+                        </div>
+                        <button class="btn btn-sm btn-outline-secondary ms-md-2 mt-2 mt-md-0" onclick="toggleAllDrivers()">
+                            <i class="bi bi-people-fill me-1"></i> Toggle All
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="card-body p-0">
@@ -457,7 +470,7 @@
                         </thead>
                         <tbody id="weekly-driver-list">
                             {% for driver_name, driver_data in report.summary.driver_attendance.items() %}
-                            <tr class="driver-row">
+                            <tr class="driver-row" data-status="{{ driver_data.overall_status|default('unknown')|lower|replace(' ', '-') }}">
                                 <td>{{ driver_name }}</td>
                                 {% for date in date_range %}
                                 <td class="text-center">
@@ -792,17 +805,45 @@
     function setupSearchFilter() {
         const searchInput = document.getElementById('driverSearch');
         searchInput.addEventListener('keyup', function() {
-            const searchText = this.value.toLowerCase();
-            const rows = document.querySelectorAll('#weekly-driver-list .driver-row');
-            
-            rows.forEach(row => {
-                const driverName = row.cells[0].textContent.toLowerCase();
-                if (driverName.includes(searchText)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
+            filterDrivers();
+        });
+
+        // Set up filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all buttons
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                this.classList.add('active');
+                filterDrivers();
             });
+        });
+    }
+    
+    function filterDrivers() {
+        const searchText = document.getElementById('driverSearch').value.toLowerCase();
+        const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+        const rows = document.querySelectorAll('#weekly-driver-list .driver-row');
+        
+        rows.forEach(row => {
+            const driverName = row.cells[0].textContent.toLowerCase();
+            const driverStatus = row.dataset.status;
+            
+            // Search filter
+            const matchesSearch = driverName.includes(searchText);
+            
+            // Status filter
+            let matchesStatus = true;
+            if (activeFilter !== 'all') {
+                matchesStatus = driverStatus === activeFilter;
+            }
+            
+            // Show row if it passes all filters
+            if (matchesSearch && matchesStatus) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
         });
     }
     
@@ -814,8 +855,10 @@
             row.style.display = allHidden ? '' : 'none';
         });
         
-        // Reset search input
+        // Reset filters
         document.getElementById('driverSearch').value = '';
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        document.querySelector('.filter-btn[data-filter="all"]').classList.add('active');
     }
 </script>
 {% endblock %}

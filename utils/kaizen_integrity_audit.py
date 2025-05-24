@@ -6,6 +6,7 @@ including verifying route and template synchronization.
 """
 
 import os
+import re
 import json
 import inspect
 import logging

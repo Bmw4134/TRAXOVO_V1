@@ -32,13 +32,16 @@ def sync_check():
         results = run_scan()
         
         # Get the report data
-        report = results['report']
-        html_report = results['html_report']
+        report = results.get('report', {})
+        html_report = results.get('html_report', {})
+        
+        # Safely get URL with fallback
+        html_report_url = html_report.get('url', '#')
         
         # Render the sync check page with the report data
         return render_template('system_admin/sync_check.html', 
                               report=report,
-                              html_report_url=html_report['url'],
+                              html_report_url=html_report_url,
                               timestamp=datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
     except Exception as e:
         logger.error(f"Error running sync check: {str(e)}")

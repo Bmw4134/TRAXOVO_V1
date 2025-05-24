@@ -44,8 +44,50 @@ def process_driving_history_file(file_path):
             logger.warning(f"Unsupported file format: {file_path}")
             return None
         
-        logger.info(f"Successfully loaded {len(data)} records from {file_path}")
-        return data
+        # Map fields for the special May 18-24 format
+        processed_data = []
+        for record in data:
+            # Create a standardized record with our expected field names
+            new_record = {}
+            
+            # Map Driver Name field
+            if 'Driver Name' in record:
+                new_record['Driver'] = record['Driver Name']
+            
+            # Map Date field
+            if 'Date' in record:
+                new_record['Date'] = record['Date']
+            
+            # Map Status to EventDateTime (first seen timestamp)
+            if 'First Seen' in record and record['First Seen']:
+                new_record['EventDateTime'] = record['First Seen']
+            elif 'Date' in record:
+                # If no First Seen, use the date with a default time
+                date_str = record['Date']
+                new_record['EventDateTime'] = f"{date_str} 07:00:00"
+            
+            # Map Job Site as Location
+            if 'Job Site' in record:
+                new_record['Location'] = record['Job Site']
+            
+            # Map Status field
+            if 'Status' in record:
+                new_record['Status'] = record['Status']
+            
+            # Add employee ID if available
+            if 'Employee ID' in record:
+                new_record['EmployeeID'] = record['Employee ID']
+            
+            # Add hours worked if available
+            if 'Hours' in record and record['Hours']:
+                new_record['Hours'] = record['Hours']
+            
+            # Use the record only if it has essential data
+            if 'Driver' in new_record and 'Date' in new_record:
+                processed_data.append(new_record)
+        
+        logger.info(f"Successfully processed {len(processed_data)} records from {file_path}")
+        return processed_data
     except Exception as e:
         logger.error(f"Error processing file {file_path}: {str(e)}")
         return None
@@ -62,8 +104,54 @@ def process_timecard_file(file_path):
             logger.warning(f"Unsupported file format: {file_path}")
             return None
         
-        logger.info(f"Successfully loaded {len(data)} records from {file_path}")
-        return data
+        # Map fields for the special May 18-24 format
+        processed_data = []
+        for record in data:
+            # Create a standardized record with our expected field names
+            new_record = {}
+            
+            # Map Employee Name field (try various possible field names)
+            for field in ['Employee Name', 'Employee', 'Name', 'EmployeeName']:
+                if field in record and record[field]:
+                    new_record['Employee'] = record[field]
+                    break
+            
+            # Map Date field
+            for field in ['Work Date', 'Date', 'TimeCard Date', 'WorkDate']:
+                if field in record and record[field]:
+                    new_record['Date'] = record[field]
+                    break
+            
+            # Map Start Time field
+            for field in ['Start Time', 'In', 'Clock In', 'TimeIn']:
+                if field in record and record[field]:
+                    new_record['TimeIn'] = record[field]
+                    break
+            
+            # Map End Time field
+            for field in ['End Time', 'Out', 'Clock Out', 'TimeOut']:
+                if field in record and record[field]:
+                    new_record['TimeOut'] = record[field]
+                    break
+            
+            # Map Job Code/Site field
+            for field in ['Job Code', 'Job', 'Site', 'Location', 'JobCode', 'JobSite']:
+                if field in record and record[field]:
+                    new_record['JobCode'] = record[field]
+                    break
+            
+            # Map Hours field
+            for field in ['Hours', 'Total Hours', 'RegularHours', 'Regular Hours']:
+                if field in record and record[field]:
+                    new_record['Hours'] = record[field]
+                    break
+            
+            # Use the record only if it has essential data
+            if 'Employee' in new_record and 'Date' in new_record:
+                processed_data.append(new_record)
+        
+        logger.info(f"Successfully processed {len(processed_data)} records from {file_path}")
+        return processed_data
     except Exception as e:
         logger.error(f"Error processing file {file_path}: {str(e)}")
         return None

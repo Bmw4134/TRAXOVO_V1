@@ -117,6 +117,20 @@ try:
 except ImportError:
     logger.warning("Weekly Driver Report module not found")
 
+# Register Daily Driver Report Dashboard (v2)
+try:
+    # Check if the blueprint is already registered to avoid duplicate registration
+    if not any(bp.name == 'attendance' for bp in app.blueprints.values()):
+        from routes.attendance_routes import attendance_bp
+        app.register_blueprint(attendance_bp)
+        logger.info("Attendance Dashboard blueprint registered successfully")
+    else:
+        logger.info("Attendance Dashboard blueprint already registered")
+except ImportError:
+    logger.warning("Attendance Dashboard module not found")
+except Exception as e:
+    logger.error(f"Error with Attendance Dashboard blueprint: {e}")
+
 # Register Enhanced Weekly Report Blueprint
 try:
     from app import app

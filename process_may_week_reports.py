@@ -51,18 +51,40 @@ def filter_driving_records_by_date(driving_data, date_str):
         if not record_date:
             continue
         
+        # Get driver name (may be capitalized or lowercase in the CSV)
+        driver_name = record.get('Driver Name') or record.get('driver_name', '')
+        
+        # Skip records without a driver name
+        if not driver_name or driver_name.strip() == '':
+            continue
+        
         # Check exact date match
         if record_date == date_str:
+            # Get status (may be capitalized or lowercase in the CSV)
+            status = record.get('Status') or record.get('status', 'not_on_job')
+            
+            # Normalize status values if needed
+            if status == 'on_time':
+                normalized_status = 'on_time'
+            elif status == 'late':
+                normalized_status = 'late'
+            elif status == 'early_end':
+                normalized_status = 'early_end'  
+            elif status == 'not_on_job':
+                normalized_status = 'not_on_job'
+            else:
+                normalized_status = 'not_on_job'  # Default to not_on_job for unknown status
+            
             # Create a properly mapped record
             mapped_record = {
-                'Driver': record.get('Driver Name', ''),
-                'EmployeeID': record.get('Employee ID', ''),
-                'Status': record.get('Status', 'not_on_job'),
-                'JobSite': record.get('Job Site', 'Unknown'),
-                'FirstSeen': record.get('First Seen', ''),
-                'LastSeen': record.get('Last Seen', ''),
-                'Hours': record.get('Hours', '0'),
-                'Source': record.get('Source', 'gps'),
+                'Driver': driver_name,
+                'EmployeeID': record.get('Employee ID') or record.get('employee_id', ''),
+                'Status': normalized_status,
+                'JobSite': record.get('Job Site') or record.get('job_site', 'Unknown'),
+                'FirstSeen': record.get('First Seen') or record.get('first_seen', ''),
+                'LastSeen': record.get('Last Seen') or record.get('last_seen', ''),
+                'Hours': record.get('Hours') or record.get('hours', '0'),
+                'Source': record.get('Source') or record.get('source', 'gps'),
                 'Date': date_str
             }
             

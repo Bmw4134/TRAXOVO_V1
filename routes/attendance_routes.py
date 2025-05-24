@@ -19,8 +19,8 @@ attendance_bp = Blueprint('attendance', __name__, url_prefix='/attendance')
 
 @attendance_bp.route('/')
 def index():
-    """Display the attendance dashboard index"""
-    return redirect(url_for('attendance.daily_driver_report'))
+    """Display the attendance dashboard index - redirect to enhanced weekly report"""
+    return redirect(url_for('enhanced_weekly_report_bp.demo_may_week'))
 
 @attendance_bp.route('/daily_driver_report')
 def daily_driver_report():

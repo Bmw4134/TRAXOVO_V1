@@ -67,6 +67,7 @@ def demo_may_week():
         return redirect(url_for('enhanced_weekly_report_bp.dashboard'))
 
 @enhanced_weekly_report_bp.route('/compare-methods')
+@enhanced_weekly_report_bp.route('/compare_processing_methods')
 def compare_methods():
     """Compare TRAXORA and alternative processing methods"""
     try:

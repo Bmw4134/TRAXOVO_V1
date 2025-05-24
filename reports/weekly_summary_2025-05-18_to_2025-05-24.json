@@ -1,0 +1,36 @@
+{
+  "week_start": "2025-05-18",
+  "week_end": "2025-05-24",
+  "days_processed": 7,
+  "days_successful": 7,
+  "details": [
+    {
+      "date": "2025-05-18",
+      "success": true
+    },
+    {
+      "date": "2025-05-19",
+      "success": true
+    },
+    {
+      "date": "2025-05-20",
+      "success": true
+    },
+    {
+      "date": "2025-05-21",
+      "success": true
+    },
+    {
+      "date": "2025-05-22",
+      "success": true
+    },
+    {
+      "date": "2025-05-23",
+      "success": true
+    },
+    {
+      "date": "2025-05-24",
+      "success": true
+    }
+  ]
+}

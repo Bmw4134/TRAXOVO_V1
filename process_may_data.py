@@ -3,21 +3,28 @@ Process May 18-24 Week Data
 
 This script processes the attendance data for the May 18-24, 2025 week,
 using our new Daily Driver Engine 2.0 pipeline.
+
+Run this script directly from the project root directory.
 """
 
 import os
+import sys
 import logging
 import pandas as pd
 from datetime import datetime, timedelta
 import json
 
-from attendance_pipeline_v2 import process_attendance_data_v2
-from enhanced_data_ingestion import load_csv_file, load_excel_file
-from daily_driver_report_generator import generate_daily_report
-
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Add current directory to path to import modules from utils
+sys.path.append('.')
+
+# Import required modules
+from utils.attendance_pipeline_v2 import process_attendance_data_v2
+from utils.enhanced_data_ingestion import load_csv_file, load_excel_file
+from utils.daily_driver_report_generator import generate_daily_report
 
 def ensure_dirs():
     """Ensure required directories exist"""
@@ -87,6 +94,7 @@ def process_date(date_str, driving_history_path, timecard_path):
         return False
     
     # Save JSON version for inspection
+    os.makedirs("reports/daily_driver_reports", exist_ok=True)
     json_path = os.path.join("reports", "daily_driver_reports", f"driver_report_{date_str}.json")
     with open(json_path, 'w') as f:
         json.dump(attendance_report, f, indent=2)

@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}TRAXORA System Administration{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>System Administration</h1>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-shield-check"></i> System Integrity</h5>
+                </div>
+                <div class="card-body">
+                    <p>Verify the integrity of your system with these powerful diagnostic tools.</p>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('system_admin.sync_check') }}" class="btn btn-primary">
+                            <i class="bi bi-diagram-3"></i> Full-Stack Sync Check
+                        </a>
+                        <a href="{{ url_for('system_admin.database_check') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-database-check"></i> Database Integrity Check
+                        </a>
+                        <a href="{{ url_for('system_admin.run_kaizen_sync_test') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-lightning"></i> Run Kaizen Sync Test
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-gear"></i> System Information</h5>
+                </div>
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-3 text-muted">System Status</h6>
+                    <ul class="list-group mb-4">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Database Connection
+                            <span class="badge bg-success rounded-pill">Connected</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Gauge API 
+                            <span class="badge bg-success rounded-pill">Connected</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            File System
+                            <span class="badge bg-success rounded-pill">Available</span>
+                        </li>
+                    </ul>
+                    
+                    <h6 class="card-subtitle mb-3 text-muted">Application Info</h6>
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Version
+                            <span class="badge bg-primary rounded-pill">v1.0.0</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Environment
+                            <span class="badge bg-info rounded-pill">Development</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Last Update
+                            <span class="badge bg-secondary rounded-pill">{{ now().strftime('%Y-%m-%d') }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="bi bi-tools"></i> System Maintenance</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">These tools allow you to perform maintenance operations on your TRAXORA system.</p>
+                    <div class="row">
+                        <div class="col-md-4 mb-2">
+                            <div class="d-grid">
+                                <button class="btn btn-outline-warning" disabled>
+                                    <i class="bi bi-arrow-repeat"></i> Refresh Data Cache
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <div class="d-grid">
+                                <button class="btn btn-outline-warning" disabled>
+                                    <i class="bi bi-braces"></i> Clean Temp Files
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <div class="d-grid">
+                                <button class="btn btn-outline-warning" disabled>
+                                    <i class="bi bi-shield-lock"></i> Security Audit
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-light">
+                    <small class="text-muted">Advanced maintenance tools will be available in a future update.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

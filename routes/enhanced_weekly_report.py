@@ -70,10 +70,10 @@ def demo_may_week():
 def compare_methods():
     """Compare TRAXORA and alternative processing methods"""
     try:
-        from utils.comparison_processor import process_comparison
+        from utils.enhanced_attendance_engine import process_comparison_enhanced
         
-        # Process comparison
-        comparison_data = process_comparison()
+        # Process comparison using the enhanced engine
+        comparison_data = process_comparison_enhanced()
         
         if not comparison_data:
             flash("Error generating comparison. Please check the logs for details.", "danger")

@@ -341,13 +341,36 @@ def generate_attendance_report(attendance_data: Dict[str, Any], format: str = 'j
         }
 
 def process_attendance_data_v2(driving_history_data=None, time_on_site_data=None, 
-                           activity_detail_data=None, timecard_data=None, date_str=None):
-    """Compatibility function for the old v2 API"""
+                           activity_detail_data=None, timecard_data=None, date_str=None,
+                           late_start_time="07:30:00", early_end_time="16:00:00"):
+    """
+    Compatibility function for the old v2 API with additional parameters
+    for TRAXORA-specific classification rules
+    
+    Args:
+        driving_history_data: List of driving history records
+        time_on_site_data: List of time on site records
+        activity_detail_data: List of activity detail records
+        timecard_data: List of timecard records
+        date_str: Date string in YYYY-MM-DD format
+        late_start_time: Time after which a driver is considered late (HH:MM:SS)
+        early_end_time: Time before which a driver is considered early end (HH:MM:SS)
+    
+    Returns:
+        Dict containing processed attendance data
+    """
     try:
         # Convert data to DataFrames if needed
         driving_history_df = pd.DataFrame(driving_history_data) if driving_history_data else None
         time_on_site_df = pd.DataFrame(time_on_site_data) if time_on_site_data else None
         activity_detail_df = pd.DataFrame(activity_detail_data) if activity_detail_data else None
+        
+        # Set global classification time thresholds
+        global LATE_START_TIME, EARLY_END_TIME
+        LATE_START_TIME = late_start_time
+        EARLY_END_TIME = early_end_time
+        
+        logger.info(f"Using classification times: Late Start after {LATE_START_TIME}, Early End before {EARLY_END_TIME}")
         
         # Process the attendance data
         return process_attendance_data(
@@ -358,15 +381,21 @@ def process_attendance_data_v2(driving_history_data=None, time_on_site_data=None
         )
     except Exception as e:
         logger.error(f"Error in process_attendance_data_v2: {e}")
-        return {
-            'error': str(e),
-            'date': date_str,
-            'driver_records': [],
-            'summary': {
-                'total_drivers': 0,
-                'on_time': 0,
-                'late': 0,
-                'early_end': 0,
-                'not_on_job': 0
+        import traceback
+        logger.error(traceback.format_exc())
+        
+        # Return a basic error response
+        error_response = {
+            "error": str(e),
+            "date": date_str if date_str else "unknown",
+            "drivers": [],
+            "driver_records": [],
+            "summary": {
+                "total_drivers": 0,
+                "on_time": 0,
+                "late": 0,
+                "early_end": 0,
+                "not_on_job": 0
             }
         }
+        return error_response

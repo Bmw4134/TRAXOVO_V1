@@ -163,31 +163,423 @@ def classify_attendance(start_time: Optional[datetime], end_time: Optional[datet
         result['total_hours'] = total_hours
         
     return result
+
+def process_attendance_data(date_str: str, 
+                           driving_history_df: Optional[pd.DataFrame] = None,
+                           activity_detail_df: Optional[pd.DataFrame] = None,
+                           time_on_site_df: Optional[pd.DataFrame] = None) -> Dict[str, Any]:
+    """
+    Process attendance data from multiple sources
     
-    if end_time:
-        classification['end_time'] = end_time.strftime('%H:%M:%S')
+    Args:
+        date_str: Date string (YYYY-MM-DD)
+        driving_history_df: Driving history DataFrame
+        activity_detail_df: Activity detail DataFrame
+        time_on_site_df: Time on site DataFrame
         
-        # Calculate hours worked (as decimal)
-        hours_worked = (end_time - start_time).total_seconds() / 3600
-        classification['hours'] = round(hours_worked, 2)
+    Returns:
+        dict: Processed attendance data with driver records and metadata
+    """
+    logger.info(f"Processing attendance data for date: {date_str}")
     
-    # Check if late
-    if start_time > default_start:
-        late_minutes = int((start_time - default_start).total_seconds() / 60)
-        if late_minutes >= LATE_THRESHOLD_MINUTES:
-            classification['classification'] = 'late'
-            classification['late_minutes'] = late_minutes
+    # Initialize result structure
+    result = {
+        'date': date_str,
+        'driver_records': [],
+        'metadata': {
+            'processed_at': datetime.now().isoformat(),
+            'data_sources': {
+                'driving_history': driving_history_df is not None,
+                'activity_detail': activity_detail_df is not None,
+                'time_on_site': time_on_site_df is not None
+            }
+        }
+    }
     
-    # Check if early end (only if we have both start and end times)
-    elif end_time and end_time < default_end:
-        early_end_minutes = int((default_end - end_time).total_seconds() / 60)
-        if early_end_minutes >= EARLY_END_THRESHOLD_MINUTES:
-            classification['classification'] = 'early_end'
-            classification['early_end_minutes'] = early_end_minutes
+    # Process driving history data (if available)
+    driver_data = {}
+    if driving_history_df is not None:
+        try:
+            # Extract relevant columns (adjust based on your data structure)
+            for _, row in driving_history_df.iterrows():
+                try:
+                    # Skip rows for other dates
+                    row_date = None
+                    for date_col in ['Date', 'date', 'EVENT_DATE', 'EventDate']:
+                        if date_col in row and row[date_col]:
+                            try:
+                                row_date = pd.to_datetime(row[date_col]).strftime('%Y-%m-%d')
+                                break
+                            except:
+                                continue
+                    
+                    if not row_date or row_date != date_str:
+                        continue
+                        
+                    # Extract driver name
+                    driver_name = None
+                    for name_col in ['Driver', 'DRIVER_NAME', 'DriverName', 'driver', 'driver_name']:
+                        if name_col in row and row[name_col]:
+                            driver_name = str(row[name_col])
+                            break
+                            
+                    if not driver_name:
+                        continue
+                        
+                    # Normalize driver name for consistent matching
+                    normalized_name = normalize_driver_name(driver_name)
+                    
+                    # Extract times
+                    start_time = None
+                    end_time = None
+                    
+                    # Try different time column names
+                    for start_col in ['Start Time', 'START_TIME', 'StartTime', 'start_time']:
+                        if start_col in row and row[start_col]:
+                            start_time = parse_datetime(date_str, str(row[start_col]))
+                            break
+                            
+                    for end_col in ['End Time', 'END_TIME', 'EndTime', 'end_time']:
+                        if end_col in row and row[end_col]:
+                            end_time = parse_datetime(date_str, str(row[end_col]))
+                            break
+                    
+                    # Extract job site
+                    job_site = None
+                    for job_col in ['Job Site', 'JOB_SITE', 'JobSite', 'job_site', 'Location', 'LOCATION']:
+                        if job_col in row and row[job_col]:
+                            job_site = str(row[job_col])
+                            break
+                    
+                    # Create or update driver record
+                    if normalized_name not in driver_data:
+                        driver_data[normalized_name] = {
+                            'driver_name': driver_name,
+                            'normalized_name': normalized_name,
+                            'start_time': start_time,
+                            'end_time': end_time,
+                            'job_site': job_site,
+                            'data_sources': ['driving_history']
+                        }
+                    else:
+                        # Update existing record if this one has better data
+                        if not driver_data[normalized_name]['start_time'] and start_time:
+                            driver_data[normalized_name]['start_time'] = start_time
+                            
+                        if not driver_data[normalized_name]['end_time'] and end_time:
+                            driver_data[normalized_name]['end_time'] = end_time
+                            
+                        if not driver_data[normalized_name]['job_site'] and job_site:
+                            driver_data[normalized_name]['job_site'] = job_site
+                            
+                        if 'driving_history' not in driver_data[normalized_name]['data_sources']:
+                            driver_data[normalized_name]['data_sources'].append('driving_history')
+                            
+                except Exception as e:
+                    logger.debug(f"Error processing driving history row: {str(e)}")
+                    continue
+                    
+            logger.info(f"Processed {len(driver_data)} driver records from driving history data")
+            
+        except Exception as e:
+            logger.error(f"Error processing driving history data: {str(e)}")
     
-    # If not late and not early end, classify as on time
-    elif classification['classification'] == 'not_on_job':
-        classification['classification'] = 'on_time'
+    # Process activity detail data (if available)
+    if activity_detail_df is not None:
+        try:
+            # Extract relevant columns (adjust based on your data structure)
+            for _, row in activity_detail_df.iterrows():
+                try:
+                    # Skip rows for other dates
+                    row_date = None
+                    for date_col in ['Date', 'date', 'EVENT_DATE', 'EventDate', 'ActivityDate']:
+                        if date_col in row and row[date_col]:
+                            try:
+                                row_date = pd.to_datetime(row[date_col]).strftime('%Y-%m-%d')
+                                break
+                            except:
+                                continue
+                    
+                    if not row_date or row_date != date_str:
+                        continue
+                        
+                    # Extract driver name
+                    driver_name = None
+                    for name_col in ['Driver', 'DRIVER_NAME', 'DriverName', 'driver', 'driver_name']:
+                        if name_col in row and row[name_col]:
+                            driver_name = str(row[name_col])
+                            break
+                            
+                    if not driver_name:
+                        continue
+                        
+                    # Normalize driver name for consistent matching
+                    normalized_name = normalize_driver_name(driver_name)
+                    
+                    # Extract times
+                    start_time = None
+                    end_time = None
+                    
+                    # Try different time column names
+                    for start_col in ['Start Time', 'START_TIME', 'StartTime', 'start_time']:
+                        if start_col in row and row[start_col]:
+                            start_time = parse_datetime(date_str, str(row[start_col]))
+                            break
+                            
+                    for end_col in ['End Time', 'END_TIME', 'EndTime', 'end_time']:
+                        if end_col in row and row[end_col]:
+                            end_time = parse_datetime(date_str, str(row[end_col]))
+                            break
+                    
+                    # Extract job site
+                    job_site = None
+                    for job_col in ['Job Site', 'JOB_SITE', 'JobSite', 'job_site', 'Location', 'LOCATION']:
+                        if job_col in row and row[job_col]:
+                            job_site = str(row[job_col])
+                            break
+                    
+                    # Create or update driver record
+                    if normalized_name not in driver_data:
+                        driver_data[normalized_name] = {
+                            'driver_name': driver_name,
+                            'normalized_name': normalized_name,
+                            'start_time': start_time,
+                            'end_time': end_time,
+                            'job_site': job_site,
+                            'data_sources': ['activity_detail']
+                        }
+                    else:
+                        # Update existing record if this one has better data
+                        if not driver_data[normalized_name]['start_time'] and start_time:
+                            driver_data[normalized_name]['start_time'] = start_time
+                            
+                        if not driver_data[normalized_name]['end_time'] and end_time:
+                            driver_data[normalized_name]['end_time'] = end_time
+                            
+                        if not driver_data[normalized_name]['job_site'] and job_site:
+                            driver_data[normalized_name]['job_site'] = job_site
+                            
+                        if 'activity_detail' not in driver_data[normalized_name]['data_sources']:
+                            driver_data[normalized_name]['data_sources'].append('activity_detail')
+                            
+                except Exception as e:
+                    logger.debug(f"Error processing activity detail row: {str(e)}")
+                    continue
+                    
+            logger.info(f"Processed {len(driver_data)} driver records after adding activity detail data")
+            
+        except Exception as e:
+            logger.error(f"Error processing activity detail data: {str(e)}")
+    
+    # Process time on site data (if available)
+    if time_on_site_df is not None:
+        try:
+            # Extract relevant columns (adjust based on your data structure)
+            for _, row in time_on_site_df.iterrows():
+                try:
+                    # Skip rows for other dates
+                    row_date = None
+                    for date_col in ['Date', 'date', 'EVENT_DATE', 'EventDate', 'TimeOnSiteDate']:
+                        if date_col in row and row[date_col]:
+                            try:
+                                row_date = pd.to_datetime(row[date_col]).strftime('%Y-%m-%d')
+                                break
+                            except:
+                                continue
+                    
+                    if not row_date or row_date != date_str:
+                        continue
+                        
+                    # Extract driver name
+                    driver_name = None
+                    for name_col in ['Driver', 'DRIVER_NAME', 'DriverName', 'driver', 'driver_name']:
+                        if name_col in row and row[name_col]:
+                            driver_name = str(row[name_col])
+                            break
+                            
+                    if not driver_name:
+                        continue
+                        
+                    # Normalize driver name for consistent matching
+                    normalized_name = normalize_driver_name(driver_name)
+                    
+                    # Extract times
+                    start_time = None
+                    end_time = None
+                    
+                    # Try different time column names
+                    for start_col in ['Start Time', 'START_TIME', 'StartTime', 'start_time']:
+                        if start_col in row and row[start_col]:
+                            start_time = parse_datetime(date_str, str(row[start_col]))
+                            break
+                            
+                    for end_col in ['End Time', 'END_TIME', 'EndTime', 'end_time']:
+                        if end_col in row and row[end_col]:
+                            end_time = parse_datetime(date_str, str(row[end_col]))
+                            break
+                    
+                    # Extract job site
+                    job_site = None
+                    for job_col in ['Job Site', 'JOB_SITE', 'JobSite', 'job_site', 'Location', 'LOCATION']:
+                        if job_col in row and row[job_col]:
+                            job_site = str(row[job_col])
+                            break
+                    
+                    # Create or update driver record
+                    if normalized_name not in driver_data:
+                        driver_data[normalized_name] = {
+                            'driver_name': driver_name,
+                            'normalized_name': normalized_name,
+                            'start_time': start_time,
+                            'end_time': end_time,
+                            'job_site': job_site,
+                            'data_sources': ['time_on_site']
+                        }
+                    else:
+                        # Update existing record if this one has better data
+                        if not driver_data[normalized_name]['start_time'] and start_time:
+                            driver_data[normalized_name]['start_time'] = start_time
+                            
+                        if not driver_data[normalized_name]['end_time'] and end_time:
+                            driver_data[normalized_name]['end_time'] = end_time
+                            
+                        if not driver_data[normalized_name]['job_site'] and job_site:
+                            driver_data[normalized_name]['job_site'] = job_site
+                            
+                        if 'time_on_site' not in driver_data[normalized_name]['data_sources']:
+                            driver_data[normalized_name]['data_sources'].append('time_on_site')
+                            
+                except Exception as e:
+                    logger.debug(f"Error processing time on site row: {str(e)}")
+                    continue
+                    
+            logger.info(f"Processed {len(driver_data)} driver records after adding time on site data")
+            
+        except Exception as e:
+            logger.error(f"Error processing time on site data: {str(e)}")
+    
+    # Classify attendance for each driver
+    driver_records = []
+    for normalized_name, driver_record in driver_data.items():
+        try:
+            # Classify attendance
+            classification = classify_attendance(
+                driver_record.get('start_time'),
+                driver_record.get('end_time'),
+                date_str
+            )
+            
+            # Merge classification with driver record
+            record = {
+                **driver_record,
+                'status': classification.get('status', 'unknown'),
+                'details': classification.get('details', {}),
+                'total_hours': classification.get('total_hours', 0),
+                'start_time': driver_record.get('start_time').strftime('%H:%M:%S') if driver_record.get('start_time') else None,
+                'end_time': driver_record.get('end_time').strftime('%H:%M:%S') if driver_record.get('end_time') else None,
+            }
+            
+            driver_records.append(record)
+            
+        except Exception as e:
+            logger.error(f"Error classifying attendance for driver {driver_record.get('driver_name')}: {str(e)}")
+            continue
+    
+    # Sort driver records by status and name
+    driver_records.sort(key=lambda x: (
+        {'on_time': 0, 'late': 1, 'early_end': 2, 'not_on_job': 3}.get(x.get('status', 'unknown'), 4),
+        x.get('driver_name', '')
+    ))
+    
+    # Update result with driver records
+    result['driver_records'] = driver_records
+    
+    # Add summary statistics
+    result['summary'] = {
+        'total_drivers': len(driver_records),
+        'on_time': sum(1 for r in driver_records if r.get('status') == 'on_time'),
+        'late': sum(1 for r in driver_records if r.get('status') == 'late'),
+        'early_end': sum(1 for r in driver_records if r.get('status') == 'early_end'),
+        'not_on_job': sum(1 for r in driver_records if r.get('status') == 'not_on_job'),
+    }
+    
+    logger.info(f"Completed attendance processing with {len(driver_records)} driver records")
+    
+    return result
+
+def generate_attendance_report(attendance_data: Dict[str, Any], format: str = 'json') -> Dict[str, Any]:
+    """
+    Generate attendance report from processed attendance data
+    
+    Args:
+        attendance_data: Processed attendance data
+        format: Output format (json, excel, or pdf)
+        
+    Returns:
+        dict: Report data and metadata
+    """
+    if not attendance_data:
+        logger.error("No attendance data provided")
+        return {
+            'success': False,
+            'error': 'No attendance data provided'
+        }
+    
+    # Initialize report structure
+    report = {
+        'date': attendance_data.get('date'),
+        'generated_at': datetime.now().isoformat(),
+        'summary': attendance_data.get('summary', {}),
+        'details': {
+            'on_time': [],
+            'late': [],
+            'early_end': [],
+            'not_on_job': []
+        },
+        'by_job_site': {},
+        'format': format
+    }
+    
+    # Categorize driver records by status
+    driver_records = attendance_data.get('driver_records', [])
+    for record in driver_records:
+        status = record.get('status', 'unknown')
+        if status in report['details']:
+            report['details'][status].append(record)
+        
+        # Categorize by job site
+        job_site = record.get('job_site')
+        if job_site:
+            if job_site not in report['by_job_site']:
+                report['by_job_site'][job_site] = {
+                    'total': 0,
+                    'on_time': 0,
+                    'late': 0,
+                    'early_end': 0,
+                    'not_on_job': 0,
+                    'drivers': []
+                }
+            
+            report['by_job_site'][job_site]['total'] += 1
+            report['by_job_site'][job_site][status] += 1
+            report['by_job_site'][job_site]['drivers'].append(record)
+    
+    # Sort job sites by total drivers
+    report['by_job_site'] = dict(sorted(
+        report['by_job_site'].items(),
+        key=lambda x: x[1]['total'],
+        reverse=True
+    ))
+    
+    # Add metrics
+    report['metrics'] = {
+        'on_time_percentage': round(report['summary'].get('on_time', 0) / max(report['summary'].get('total_drivers', 1), 1) * 100, 1),
+        'late_percentage': round(report['summary'].get('late', 0) / max(report['summary'].get('total_drivers', 1), 1) * 100, 1),
+        'early_end_percentage': round(report['summary'].get('early_end', 0) / max(report['summary'].get('total_drivers', 1), 1) * 100, 1),
+        'not_on_job_percentage': round(report['summary'].get('not_on_job', 0) / max(report['summary'].get('total_drivers', 1), 1) * 100, 1)
+    }
+    
+    return report
     
     return classification
 

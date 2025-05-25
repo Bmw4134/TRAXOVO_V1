@@ -16,7 +16,8 @@ from flask import (
 )
 from werkzeug.utils import secure_filename
 
-from utils.attendance_pipeline_v2 import process_attendance_data_v2
+# We'll implement our own version without dependency on the problematic module
+# from utils.attendance_pipeline_v2 import process_attendance_data_v2
 from utils.enhanced_data_ingestion import load_csv_file, load_excel_file, infer_file_type_from_path, infer_file_type
 from utils.dynamic_timecard_processor import process_dynamic_timecard
 from utils.multi_source_processor import combine_attendance_sources

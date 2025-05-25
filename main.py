@@ -48,10 +48,14 @@ try:
     logger.info("Driver reports dashboard (modern UI) registered")
 except Exception as e:
     logger.warning(f"Error registering driver reports dashboard: {str(e)}")
-    
+
 # Register automatic attendance processing module
 try:
-    from routes.auto_attendance_routes import auto_attendance_bp
+    from routes.auto_attendance_routes import auto_attendance
+    app.register_blueprint(auto_attendance)
+    logger.info("Automatic Attendance Processing module registered successfully")
+except Exception as e:
+    logger.warning(f"Error registering automatic attendance module: {str(e)}")
     app.register_blueprint(auto_attendance_bp)
     logger.info("Automatic Attendance Processing module registered successfully")
 except Exception as e:

@@ -523,7 +523,7 @@
                             </tr>
                         </thead>
                         <tbody id="weekly-driver-list">
-                            {% for driver_name, driver_data in report.summary.driver_attendance.items() %}
+                            {% for driver_name, driver_data in report.summary.get('driver_attendance', {}).items() %}
                             <tr class="driver-row" data-status="{{ driver_data.overall_status|default('unknown')|lower|replace(' ', '-') }}">
                                 <td>{{ driver_name }}</td>
                                 {% for date in date_range %}

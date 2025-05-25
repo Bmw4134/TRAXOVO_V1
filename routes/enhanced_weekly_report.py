@@ -93,6 +93,19 @@ def demo_may_week():
                 "early_ends": [],
                 "not_on_job": []
             }
+        
+        # Add attendance percentages if missing
+        if "attendance_percentages" not in report_data["summary"]:
+            report_data["summary"]["attendance_percentages"] = {
+                "on_time": 0,
+                "late_starts": 0,
+                "early_ends": 0,
+                "not_on_job": 0
+            }
+        
+        # Add driver attendance if missing
+        if "driver_attendance" not in report_data["summary"]:
+            report_data["summary"]["driver_attendance"] = {}
             
         # Make sure job_sites is available for filtering
         if "job_sites" not in report_data:

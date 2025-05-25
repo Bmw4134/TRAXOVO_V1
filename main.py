@@ -223,6 +223,20 @@ except ImportError:
     logger.warning("Daily Attendance module not found")
 except Exception as e:
     logger.error(f"Error with Daily Attendance blueprint: {e}")
+    
+# Register File Organizer Blueprint
+try:
+    # Check if the blueprint is already registered to avoid duplicate registration
+    if not any(bp.name == 'file_organizer' for bp in app.blueprints.values()):
+        from routes.file_organizer_routes import file_organizer
+        app.register_blueprint(file_organizer)
+        logger.info("File Organizer blueprint registered successfully")
+    else:
+        logger.info("File Organizer blueprint already registered")
+except ImportError:
+    logger.warning("File Organizer module not found")
+except Exception as e:
+    logger.error(f"Error with File Organizer blueprint: {e}")
 
 @app.route('/attendance/')
 @app.route('/attendance')

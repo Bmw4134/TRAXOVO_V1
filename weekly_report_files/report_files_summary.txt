@@ -1,0 +1,41 @@
+Weekly Report Files Organized: 33
+Date: 2025-05-25 14:28:22
+
+Files by category:
+- driving_history: 4 files
+  - DrivingHistory.csv
+  - DrivingHistory (13).csv
+  - DrivingHistory (14).csv
+  - DrivingHistory (19).csv
+- activity_detail: 7 files
+  - ActivityDetail (6).csv
+  - ActivityDetail.csv
+  - ActivityDetail (7).csv
+  - ActivityDetail (2).xlsx
+  - ActivityDetail (9).csv
+  - ActivityDetail (10).csv
+  - ActivityDetail (13).csv
+- assets_time: 16 files
+  - Timecards - 2025-05-04 - 2025-05-10.xlsx
+  - Timecards - 2025-04-27 - 2025-05-03.xlsx
+  - Timecards - 2025-05-11 - 2025-05-17.xlsx
+  - AssetsTimeOnSite (3).csv
+  - Timecards - 2025-05-11 - 2025-05-17 (2).xlsx
+  - SiteUsageByMonth.csv
+  - RAG-SEL TIMECARDS - APRIL 2025.xlsx
+  - AssetsTimeOnSite (4).csv
+  - Timecards - 2025-05-11 - 2025-05-17 (3).xlsx
+  - AssetsTimeOnSite (5).csv
+  - Timecards - 2025-05-18 - 2025-05-24 (1).xlsx
+  - Timecards - 2025-05-11 - 2025-05-17 (4).xlsx
+  - AssetsTimeOnSite (6).csv
+  - AssetsTimeOnSite (8).csv
+  - Timecards - 2025-05-18 - 2025-05-24 (4).xlsx
+  - Timecards - 2025-05-18 - 2025-05-24 (3).xlsx
+- daily_usage: 6 files
+  - DailyUsage.csv
+  - DAILY LATE START-EARLY END & NOJ REPORT_05.14.2025.xlsx
+  - DAILY LATE START-EARLY END & NOJ REPORT_05.13.2025.xlsx
+  - RAGLE DAILY HOURS-QUANTITIES REVIEW (1).xlsx
+  - DAILY LATE START-EARLY END & NOJ REPORT_05.12.2025.xlsx
+  - DAILY DRIVER START WORK DAY GPS AUDIT_04.25.2025.xlsx

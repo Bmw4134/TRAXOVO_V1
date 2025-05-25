@@ -1,0 +1,145 @@
+{% extends "layout_unified_enhanced.html" %}
+
+{% block title %}Report Browser{% endblock %}
+
+{% block head_content %}
+<style>
+    .report-card {
+        transition: all 0.3s ease;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .report-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .report-icon {
+        font-size: 2rem;
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+    }
+    
+    .report-list {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    .report-item {
+        transition: all 0.2s;
+        border-left: 3px solid transparent;
+    }
+    
+    .report-item:hover {
+        background-color: rgba(var(--bs-primary-rgb), 0.05);
+        border-left: 3px solid var(--bs-primary);
+    }
+    
+    .report-date {
+        min-width: 180px;
+    }
+    
+    .report-actions {
+        min-width: 100px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="fas fa-folder-open me-2"></i> Report Browser</h2>
+            <p class="text-muted">Browse and access all your existing reports without needing to re-upload data.</p>
+        </div>
+    </div>
+    
+    <div class="row">
+        {% for directory in report_dirs %}
+        <div class="col-md-6 mb-4">
+            <div class="card report-card">
+                <div class="card-header d-flex align-items-center">
+                    <div class="report-icon bg-{{ 'primary' if directory.type == 'daily' else 'success' if directory.type == 'weekly' else 'info' if directory.type == 'attendance' else 'warning' }} bg-opacity-10 me-3">
+                        <i class="fas fa-{{ directory.icon }} text-{{ 'primary' if directory.type == 'daily' else 'success' if directory.type == 'weekly' else 'info' if directory.type == 'attendance' else 'warning' }}"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-0">{{ directory.name }}</h4>
+                        <span class="text-muted">{{ directory.reports|length }} reports available</span>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="report-list">
+                        {% if directory.reports %}
+                        <ul class="list-group list-group-flush">
+                            {% for report in directory.reports %}
+                            <li class="list-group-item report-item d-flex align-items-center justify-content-between">
+                                <div class="report-date">
+                                    <strong>{{ report.formatted_date }}</strong>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <small class="text-muted">{{ report.filename }}</small>
+                                </div>
+                                <div class="report-actions">
+                                    <div class="btn-group btn-group-sm">
+                                        {% if directory.type == 'daily' %}
+                                        <a href="{{ url_for('report_browser.view_daily_driver_report', date=report.date.strftime('%Y-%m-%d')) }}" class="btn btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        {% endif %}
+                                        <a href="{{ url_for('report_browser.download_report', report_type=directory.type, filename=report.filename) }}" class="btn btn-outline-secondary">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <div class="p-4 text-center">
+                            <i class="fas fa-folder-open text-muted mb-3" style="font-size: 3rem;"></i>
+                            <p class="mb-0">No reports found in this directory</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">{{ directory.path }}</span>
+                        {% if directory.type == 'daily' %}
+                        <a href="{{ url_for('daily_driver_report.dashboard') }}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-plus me-1"></i> Create New Report
+                        </a>
+                        {% elif directory.type == 'weekly' %}
+                        <a href="{{ url_for('enhanced_weekly_report_bp.dashboard') }}" class="btn btn-sm btn-outline-success">
+                            <i class="fas fa-plus me-1"></i> Create New Report
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5><i class="fas fa-lightbulb me-2 text-warning"></i> Quick Tips</h5>
+                    <ul class="mb-0">
+                        <li>Daily Driver Reports show detailed driver attendance with identification verification</li>
+                        <li>Reports are automatically saved when generated, so you can access them later</li>
+                        <li>Use the download button to get the Excel version of any report</li>
+                        <li>For Daily Driver Reports, use the eye icon to view the enhanced report with driver verification stats</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -182,3 +182,13 @@ except ImportError as e:
     logger.warning(f"Enhanced Weekly Report module not found: {e}")
 except Exception as e:
     logger.error(f"Error registering Enhanced Weekly Report blueprint: {e}")
+
+# Register Report Browser Blueprint
+try:
+    from routes.report_browser import report_browser_bp
+    app.register_blueprint(report_browser_bp)
+    logger.info("Report Browser blueprint registered successfully")
+except ImportError as e:
+    logger.warning(f"Report Browser module not found: {e}")
+except Exception as e:
+    logger.error(f"Error registering Report Browser blueprint: {e}")

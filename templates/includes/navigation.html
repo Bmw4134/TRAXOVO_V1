@@ -1,0 +1,46 @@
+<!-- Unified Navigation Component -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <button class="btn btn-outline-light" id="sidebarToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        <a class="navbar-brand ms-3" href="{{ url_for('index') }}">
+            <img src="{{ url_for('static', filename='img/traxora_logo.png') }}" alt="TRAXORA" height="30">
+            TRAXORA
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.blueprint == None %}active{% endif %}" href="{{ url_for('index') }}">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.blueprint == 'auto_attendance' %}active{% endif %}" href="{{ url_for('auto_attendance.index') }}">Attendance Reports</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.blueprint == 'asset_map' %}active{% endif %}" href="{{ url_for('asset_map.asset_map') }}">Asset Map</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.blueprint == 'enhanced_weekly_report_bp' %}active{% endif %}" href="{{ url_for('enhanced_weekly_report_bp.demo_may_week') }}">Weekly Reports</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.blueprint == 'system_health' %}active{% endif %}" href="{{ url_for('system_health.system_health') }}">System Health</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle me-1"></i> Admin
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ url_for('system_health.system_health') }}">System Status</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{{ url_for('enhanced_weekly_report_bp.upload') }}">Upload Reports</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

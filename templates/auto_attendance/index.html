@@ -98,6 +98,7 @@
                                     <th>Start Time</th>
                                     <th>End Time</th>
                                     <th>Status</th>
+                                    <th>Contact Info</th>
                                     <th>Details</th>
                                 </tr>
                             </thead>
@@ -109,10 +110,10 @@
                                     {% if driver.classification == 'early_end' %}table-info{% endif %}
                                     {% if driver.classification == 'not_on_job' %}table-danger{% endif %}
                                 ">
-                                    <td>{{ driver.name|title }}</td>
+                                    <td>{{ driver.driver_name|title }}</td>
                                     <td>{{ driver.job_site }}</td>
-                                    <td>{{ driver.actual_start }}</td>
-                                    <td>{{ driver.actual_end }}</td>
+                                    <td>{{ driver.start_time }}</td>
+                                    <td>{{ driver.end_time }}</td>
                                     <td>
                                         {% if driver.classification == 'on_time' %}
                                             <span class="badge bg-success">On Time</span>
@@ -126,7 +127,21 @@
                                             <span class="badge bg-secondary">Unknown</span>
                                         {% endif %}
                                     </td>
-                                    <td>{{ driver.reason }}</td>
+                                    <td>
+                                        {% if driver.contact or driver.phone or driver.email %}
+                                        <div class="contact-info">
+                                            {% if driver.phone %}
+                                            <div><i class="fas fa-phone me-1"></i> {{ driver.phone }}</div>
+                                            {% endif %}
+                                            {% if driver.email %}
+                                            <div><i class="fas fa-envelope me-1"></i> {{ driver.email }}</div>
+                                            {% endif %}
+                                        </div>
+                                        {% else %}
+                                        <span class="text-muted">No contact info</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ driver.reason or "" }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

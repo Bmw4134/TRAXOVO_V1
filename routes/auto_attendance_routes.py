@@ -111,8 +111,23 @@ def index():
     # Calculate summary statistics
     summary = calculate_summary(report_data)
     
-    # Extract driver records
-    drivers = report_data.get('driver_records', []) if report_data else []
+    # Extract driver records and normalize field names for template
+    drivers = []
+    if report_data and 'driver_records' in report_data:
+        for driver in report_data.get('driver_records', []):
+            # Create normalized driver record with consistent field names
+            driver_record = {
+                'driver_name': driver.get('driver_name', ''),
+                'job_site': driver.get('job_site', ''),
+                'start_time': driver.get('start_time', driver.get('first_start', '')),
+                'end_time': driver.get('end_time', driver.get('last_end', '')),
+                'classification': driver.get('classification', ''),
+                'reason': driver.get('reason', ''),
+                'phone': driver.get('phone', ''),
+                'email': driver.get('email', ''),
+                'contact': driver.get('contact', '')
+            }
+            drivers.append(driver_record)
     
     return render_template(
         'auto_attendance/index.html',

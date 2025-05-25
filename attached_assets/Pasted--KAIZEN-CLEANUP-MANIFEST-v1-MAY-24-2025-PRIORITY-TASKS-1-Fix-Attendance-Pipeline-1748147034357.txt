@@ -1,0 +1,74 @@
+
+# KAIZEN CLEANUP MANIFEST – v1 (MAY 24, 2025)
+
+## 🧼 PRIORITY TASKS
+
+### 1. Fix Attendance Pipeline
+- Resolve syntax errors in `attendance_pipeline_v2.py`
+- Simplify logic for minimum working classification
+- Verify it works with May 18–24 dataset
+
+### 2. Template System Cleanup
+- Keep: `layout_unified.html`, `dashboard_new.html`, `asset_map/index.html`, `enhanced_weekly_report/view.html`
+- Archive: `dashboard.html`, `basic_dashboard.html`, older `weekly_report_*.html`
+- Standardize: All templates should extend `layout_unified.html`
+
+### 3. Route System Audit
+- Remove or archive unused files in `routes.bak`
+- Merge duplicate driver/attendance routes
+- Ensure each route renders one clean template
+- Verify route-to-sidebar consistency
+
+### 4. UI/UX Repair
+- Fix dark theme inconsistencies
+- Normalize spacing, sidebar structure, button formats
+- Improve mobile layout on dashboard and reports
+- Use unified Bootstrap classes and panel structure
+
+### 5. Navigation Integrity
+- Clean up top navbar entries
+- Ensure quick access cards route to live pages
+- Map `/`, `/dashboard`, `/admin`, `/system-health`, `/weekly_driver_report`, `/asset-map/` to correct handlers
+
+---
+
+## ✅ CONFIRMED WORKING
+
+- Asset Map: `/asset-map/`
+- Weekly Driver Report: `/enhanced-weekly-report/`
+- Dashboard: `/` (via `dashboard_new.html`)
+- Admin Dashboards: `/admin`, `/system-health`, `/admin/kaizen`
+
+---
+
+## 🛑 STABILITY GUARDS (DO NOT BREAK)
+
+- `asset_map/` view
+- `enhanced_weekly_report/`
+- `kaizen_monitor/` routes + system health templates
+- Gauge API map + metrics wiring
+
+---
+
+## 📦 SUGGESTED DELIVERABLES
+
+- Archive folder: `/templates/archived/`
+- Refactored pipeline: `/utils/attendance_pipeline_slim.py`
+- Unified templates: `/templates/kaizen/` (for core views)
+- Rebuild index route: `/dashboard` → `dashboard_new.html`
+
+---
+
+## 📝 IMPLEMENTATION FLOW
+
+1. Run template audit and route linting
+2. Consolidate and snapshot working logic
+3. Begin module-by-module cleanup
+4. Test and restore broken sidebar routes
+5. Lock UI baseline with Kaizen style
+
+---
+
+## 🏷 BUILD LABEL
+
+**STABLE-MAY24-CLEANUP-IN-PROGRESS**

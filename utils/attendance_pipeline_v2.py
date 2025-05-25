@@ -28,6 +28,61 @@ DEFAULT_END_TIME = "16:00:00"    # 4:00 PM cutoff for early end
 LATE_THRESHOLD_MINUTES = 1       # Any minutes after start time is late
 EARLY_END_THRESHOLD_MINUTES = 1  # Any minutes before end time is early end
 
+def parse_datetime(date_str: str, time_str: str) -> Optional[datetime]:
+    """
+    Parse date and time strings into datetime object
+    
+    Args:
+        date_str: Date string (YYYY-MM-DD)
+        time_str: Time string (various formats supported)
+        
+    Returns:
+        datetime: Parsed datetime or None if parsing failed
+    """
+    try:
+        if not date_str or not time_str:
+            return None
+        
+        # Try to standardize the date format
+        if '-' in date_str:
+            # YYYY-MM-DD
+            date_parts = date_str.split('-')
+            if len(date_parts) == 3:
+                year, month, day = date_parts
+            else:
+                return None
+        elif '/' in date_str:
+            # MM/DD/YYYY or DD/MM/YYYY
+            date_parts = date_str.split('/')
+            if len(date_parts) == 3:
+                if len(date_parts[2]) == 4:  # Year is likely the last part
+                    month, day, year = date_parts
+                else:
+                    day, month, year = date_parts
+            else:
+                return None
+        else:
+            return None
+            
+        # Standardize time format
+        if ':' in time_str:
+            # HH:MM or HH:MM:SS
+            time_parts = time_str.split(':')
+            if len(time_parts) >= 2:
+                hour, minute = time_parts[:2]
+                second = time_parts[2] if len(time_parts) > 2 else '00'
+            else:
+                return None
+        else:
+            return None
+            
+        # Construct datetime string and parse
+        dt_str = f"{year}-{month.zfill(2)}-{day.zfill(2)} {hour.zfill(2)}:{minute.zfill(2)}:{second.zfill(2)}"
+        return datetime.strptime(dt_str, '%Y-%m-%d %H:%M:%S')
+    except Exception as e:
+        logger.error(f"Error parsing datetime: {e}")
+        return None
+
 def normalize_driver_name(name: str) -> str:
     """
     Normalize driver name for consistent matching between data sources
@@ -580,8 +635,6 @@ def generate_attendance_report(attendance_data: Dict[str, Any], format: str = 'j
     }
     
     return report
-    
-    return classification
 
 def extract_job_data(record: Dict[str, Any]) -> Dict[str, Any]:
     """

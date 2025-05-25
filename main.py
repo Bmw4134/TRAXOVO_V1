@@ -202,19 +202,7 @@ except ImportError:
 except Exception as e:
     logger.error(f"Error with Kaizen Admin blueprint: {e}")
     
-# Register System Health Blueprint
-try:
-    # Check if the blueprint is already registered to avoid duplicate registration
-    if not any(bp.name == 'system_health' for bp in app.blueprints.values()):
-        from routes.system_health import system_health_bp
-        app.register_blueprint(system_health_bp)
-        logger.info("System Health blueprint registered successfully")
-    else:
-        logger.info("System Health blueprint already registered")
-except ImportError:
-    logger.warning("System Health module not found")
-except Exception as e:
-    logger.error(f"Error with System Health blueprint: {e}")
+# System Health Blueprint is registered at line 39
     
 # Register Daily Attendance Blueprint
 try:

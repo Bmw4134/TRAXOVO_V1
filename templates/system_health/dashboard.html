@@ -1,0 +1,384 @@
+{% extends "layout_unified_enhanced.html" %}
+
+{% block title %}System Health - TRAXORA{% endblock %}
+
+{% block head_content %}
+<style>
+    .status-indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+    }
+    
+    .status-good {
+        background-color: var(--bs-success);
+    }
+    
+    .status-warning {
+        background-color: var(--bs-warning);
+    }
+    
+    .status-error {
+        background-color: var(--bs-danger);
+    }
+    
+    .metric-card {
+        transition: all 0.3s ease;
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .resource-progress {
+        height: 10px;
+        border-radius: 5px;
+        margin-top: 5px;
+    }
+    
+    .log-container {
+        background-color: rgba(var(--bs-dark-rgb), 0.8);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        font-family: monospace;
+        font-size: 0.85rem;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    .log-line {
+        white-space: pre-wrap;
+        word-break: break-all;
+        margin-bottom: 0.25rem;
+        padding: 0.25rem 0;
+    }
+    
+    .log-line:not(:last-child) {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .log-error {
+        color: var(--bs-danger);
+    }
+    
+    .log-warning {
+        color: var(--bs-warning);
+    }
+    
+    .log-info {
+        color: var(--bs-info);
+    }
+    
+    .service-card {
+        transition: all 0.3s ease;
+    }
+    
+    .service-card:hover {
+        transform: translateY(-3px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">System Health</h2>
+            <p class="text-muted mb-0">Monitoring system resources, connections, and performance</p>
+        </div>
+        <div>
+            <button type="button" class="btn btn-primary" id="refresh-btn">
+                <i class="fas fa-sync-alt me-2"></i>Refresh
+            </button>
+        </div>
+    </div>
+    
+    <!-- System Info and Resource Usage -->
+    <div class="row">
+        <!-- System Info Card -->
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">System Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="text-muted mb-1">Platform</label>
+                                <h6>{{ system_info.platform }}</h6>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="text-muted mb-1">Python Version</label>
+                                <h6>{{ system_info.python_version }}</h6>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="text-muted mb-1">CPU Cores</label>
+                                <h6>{{ system_info.cpu_count }}</h6>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="text-muted mb-1">Total Memory</label>
+                                <h6>{{ system_info.memory_total }} GB</h6>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="text-muted mb-1">Uptime</label>
+                                <h6>{{ system_info.uptime }}</h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Resource Usage Card -->
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Resource Usage</h5>
+                    <span class="badge bg-info" id="update-time">Updated: {{ now }}</span>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- CPU Usage -->
+                        <div class="col-md-4">
+                            <div class="card bg-dark metric-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0">CPU Usage</h6>
+                                        <div class="status-indicator {{ 'status-good' if resource_usage.cpu_percent < 70 else ('status-warning' if resource_usage.cpu_percent < 90 else 'status-error') }}"></div>
+                                    </div>
+                                    
+                                    <h3 class="mt-3 mb-2">{{ resource_usage.cpu_percent }}%</h3>
+                                    
+                                    <div class="progress resource-progress">
+                                        <div class="progress-bar {{ 'bg-success' if resource_usage.cpu_percent < 70 else ('bg-warning' if resource_usage.cpu_percent < 90 else 'bg-danger') }}" 
+                                            role="progressbar" 
+                                            style="width: {{ resource_usage.cpu_percent }}%" 
+                                            aria-valuenow="{{ resource_usage.cpu_percent }}" 
+                                            aria-valuemin="0" 
+                                            aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Memory Usage -->
+                        <div class="col-md-4">
+                            <div class="card bg-dark metric-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0">Memory Usage</h6>
+                                        <div class="status-indicator {{ 'status-good' if resource_usage.memory_percent < 70 else ('status-warning' if resource_usage.memory_percent < 90 else 'status-error') }}"></div>
+                                    </div>
+                                    
+                                    <h3 class="mt-3 mb-2">{{ resource_usage.memory_percent }}%</h3>
+                                    
+                                    <div class="progress resource-progress">
+                                        <div class="progress-bar {{ 'bg-success' if resource_usage.memory_percent < 70 else ('bg-warning' if resource_usage.memory_percent < 90 else 'bg-danger') }}" 
+                                            role="progressbar" 
+                                            style="width: {{ resource_usage.memory_percent }}%" 
+                                            aria-valuenow="{{ resource_usage.memory_percent }}" 
+                                            aria-valuemin="0" 
+                                            aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Disk Usage -->
+                        <div class="col-md-4">
+                            <div class="card bg-dark metric-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0">Disk Usage</h6>
+                                        <div class="status-indicator {{ 'status-good' if resource_usage.disk_percent < 70 else ('status-warning' if resource_usage.disk_percent < 90 else 'status-error') }}"></div>
+                                    </div>
+                                    
+                                    <h3 class="mt-3 mb-2">{{ resource_usage.disk_percent }}%</h3>
+                                    
+                                    <div class="progress resource-progress">
+                                        <div class="progress-bar {{ 'bg-success' if resource_usage.disk_percent < 70 else ('bg-warning' if resource_usage.disk_percent < 90 else 'bg-danger') }}" 
+                                            role="progressbar" 
+                                            style="width: {{ resource_usage.disk_percent }}%" 
+                                            aria-valuenow="{{ resource_usage.disk_percent }}" 
+                                            aria-valuemin="0" 
+                                            aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Services and Database Status -->
+    <div class="row">
+        <!-- External Services -->
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">External Services</h5>
+                </div>
+                <div class="card-body">
+                    {% if external_services %}
+                    <div class="row">
+                        {% for service in external_services %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card bg-dark service-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0">{{ service.name }}</h6>
+                                        <div class="status-indicator {{ 'status-good' if service.status == 'connected' else 'status-error' }}"></div>
+                                    </div>
+                                    
+                                    <p class="text-muted mt-2 mb-0 small">{{ service.message }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-plug text-muted fs-4 mb-3"></i>
+                        <p class="mb-0">No external services are configured</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Database Status -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Database Status</h5>
+                    <div class="status-indicator {{ 'status-good' if db_status.status == 'connected' else 'status-error' }}"></div>
+                </div>
+                <div class="card-body">
+                    <div class="alert {{ 'alert-success' if db_status.status == 'connected' else 'alert-danger' }}">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0">
+                                <i class="{{ 'fas fa-check-circle' if db_status.status == 'connected' else 'fas fa-exclamation-circle' }} me-3 fs-4"></i>
+                            </div>
+                            <div>
+                                <h6 class="alert-heading mb-2">
+                                    {{ 'Database Connected' if db_status.status == 'connected' else 'Database Connection Error' }}
+                                </h6>
+                                <p class="mb-0">{{ db_status.message }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- System Logs -->
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Recent System Logs</h5>
+                    <button class="btn btn-sm btn-outline-secondary" id="refresh-logs-btn">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="log-container" id="log-container">
+                        {% if logs %}
+                            {% for log in logs %}
+                                <div class="log-line {{ 'log-error' if 'ERROR' in log else ('log-warning' if 'WARNING' in log else 'log-info') }}">
+                                    {{ log }}
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-file-alt text-muted fs-4 mb-3"></i>
+                                <p class="mb-0">No logs available</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const refreshBtn = document.getElementById('refresh-btn');
+        const refreshLogsBtn = document.getElementById('refresh-logs-btn');
+        const updateTime = document.getElementById('update-time');
+        
+        // Format current date and time for the update timestamp
+        function getFormattedDateTime() {
+            const now = new Date();
+            return now.toLocaleString();
+        }
+        
+        // Set initial update time
+        updateTime.textContent = 'Updated: ' + getFormattedDateTime();
+        
+        // Refresh whole page on button click
+        refreshBtn.addEventListener('click', function() {
+            window.location.reload();
+        });
+        
+        // Refresh just the logs via API
+        refreshLogsBtn.addEventListener('click', function() {
+            // In a real implementation, this would fetch logs via an API endpoint
+            // For now, just reload the page
+            window.location.reload();
+        });
+        
+        // Auto-refresh every 60 seconds
+        setInterval(function() {
+            fetch('/system-health/api/status')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Update resource usage indicators
+                        updateResourceUsage(data.resource_usage);
+                        // Update database status
+                        updateDatabaseStatus(data.db_status);
+                        // Update external services
+                        updateExternalServices(data.external_services);
+                        // Update time
+                        updateTime.textContent = 'Updated: ' + getFormattedDateTime();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching system status:', error);
+                });
+        }, 60000);
+        
+        function updateResourceUsage(usage) {
+            // This would update the CPU, memory and disk usage displays
+            // without requiring a full page reload
+            // Left as a placeholder for future implementation
+        }
+        
+        function updateDatabaseStatus(status) {
+            // This would update the database status card
+            // Left as a placeholder for future implementation
+        }
+        
+        function updateExternalServices(services) {
+            // This would update the external services cards
+            // Left as a placeholder for future implementation
+        }
+    });
+</script>
+{% endblock %}

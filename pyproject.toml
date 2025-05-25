@@ -42,4 +42,5 @@ dependencies = [
     "watchdog>=6.0.0",
     "pypdf2>=3.0.1",
     "tabula-py>=2.10.0",
+    "psutil>=7.0.0",
 ]

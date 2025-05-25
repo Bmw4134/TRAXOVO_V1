@@ -276,7 +276,7 @@
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/system-health" title="System Health">
+                        <a class="nav-link" href="{{ url_for('system_health.dashboard') }}" title="System Health">
                             <i class="fas fa-heartbeat"></i>
                         </a>
                     </li>
@@ -329,6 +329,12 @@
                 <a class="nav-link {% if '/daily-attendance' in request.path %}active{% endif %}" href="/daily-attendance/">
                     <i class="fas fa-clipboard-check"></i>
                     <span class="nav-link-text">Daily Attendance</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if '/reports' in request.path %}active{% endif %}" href="{{ url_for('report_browser.index') }}">
+                    <i class="fas fa-file-alt"></i>
+                    <span class="nav-link-text">Report Browser</span>
                 </a>
             </li>
             <li class="nav-item">

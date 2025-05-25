@@ -1,16 +1,17 @@
 {% extends "layout_unified.html" %}
 
-{% block title %}Upload Data | Daily Driver Report{% endblock %}
+{% block title %}Upload Files | Daily Driver Report | TRAXORA{% endblock %}
 
 {% block head_content %}
 <style>
     .file-upload-container {
-        border: 2px dashed #ccc;
-        border-radius: 10px;
+        border: 2px dashed var(--bs-border-color);
+        border-radius: 0.5rem;
         padding: 2rem;
         text-align: center;
-        transition: all 0.3s ease;
-        background-color: rgba(0,0,0,0.02);
+        transition: all 0.3s;
+        cursor: pointer;
+        margin-bottom: 1.5rem;
     }
     
     .file-upload-container:hover {
@@ -20,63 +21,30 @@
     
     .file-upload-icon {
         font-size: 3rem;
-        color: var(--bs-gray-500);
+        color: var(--bs-primary);
         margin-bottom: 1rem;
     }
     
-    .custom-file-input::-webkit-file-upload-button {
-        visibility: hidden;
+    .file-upload-text {
+        margin-bottom: 0.5rem;
     }
     
-    .custom-file-input::before {
-        content: 'Select file';
-        display: inline-block;
-        background: var(--bs-primary);
-        color: white;
-        border-radius: 5px;
-        padding: 0.375rem 0.75rem;
-        outline: none;
-        white-space: nowrap;
-        cursor: pointer;
-        font-weight: 500;
+    .file-upload-help {
+        font-size: 0.875rem;
+        color: var(--bs-secondary);
     }
     
-    .custom-file-input:hover::before {
-        background: var(--bs-primary-dark);
+    .file-upload-input {
+        display: none;
     }
     
-    .custom-file-input:active::before {
-        background: var(--bs-primary);
-    }
-    
-    .file-name {
+    .selected-file {
         margin-top: 0.5rem;
         font-weight: 500;
     }
     
-    .file-size {
-        font-size: 0.8rem;
-        color: var(--bs-gray-600);
-    }
-    
-    .data-source-card {
-        transition: all 0.3s;
-        cursor: pointer;
-        border: 2px solid transparent;
-    }
-    
-    .data-source-card:hover {
-        transform: translateY(-5px);
-    }
-    
-    .data-source-card.active {
-        border-color: var(--bs-primary);
-        background-color: rgba(var(--bs-primary-rgb), 0.05);
-    }
-    
-    .source-icon {
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
+    .date-picker-container {
+        margin-bottom: 2rem;
     }
     
     /* Mobile Optimization */
@@ -88,271 +56,158 @@
         .file-upload-icon {
             font-size: 2rem;
         }
-        
-        .custom-file-input::before {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.9rem;
-        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid px-4">
-    <!-- Page Header -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
-        <h1 class="h3 mb-3 mb-md-0">Upload Data Files</h1>
-        <a href="{{ url_for('daily_attendance.index') }}" class="btn btn-outline-primary">
-            <i class="fas fa-arrow-left"></i> Back to Dashboard
-        </a>
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="mb-3">Upload Driver Report Files</h1>
+            <p class="lead">Upload your driving history, activity detail, and assets time files to generate a daily driver report.</p>
+        </div>
     </div>
     
-    <div class="card border-0 shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold">Upload Files for Report Generation</h6>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <form action="{{ url_for('daily_attendance.upload_files') }}" method="post" enctype="multipart/form-data">
+        <div class="row mb-4">
+            <div class="col-md-6 date-picker-container">
+                <label for="date" class="form-label">Report Date</label>
+                <input type="date" class="form-control" id="date" name="date" required>
+                <div class="form-text">Select the date for which you're generating the report.</div>
+            </div>
         </div>
-        <div class="card-body">
-            <form method="POST" enctype="multipart/form-data" action="{{ url_for('daily_attendance.upload') }}">
-                <div class="mb-4">
-                    <label for="date" class="form-label">Report Date</label>
-                    <input type="date" class="form-control" id="date" name="date" required>
-                    <div class="form-text">Select the date for which you want to generate the report.</div>
+        
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="file-upload-container" id="drivingHistoryContainer">
+                    <div class="file-upload-icon">
+                        <i class="fas fa-car"></i>
+                    </div>
+                    <h5 class="file-upload-text">Driving History</h5>
+                    <p class="file-upload-help">CSV format from Gauge SmartTrak</p>
+                    <input type="file" class="file-upload-input" id="driving_history" name="driving_history" accept=".csv">
+                    <div class="selected-file" id="drivingHistoryFile"></div>
                 </div>
-                
-                <div class="row mb-4">
-                    <div class="col-md-4 mb-3 mb-md-0">
-                        <div class="card data-source-card h-100" data-target="driving_history">
-                            <div class="card-body text-center">
-                                <div class="source-icon text-primary">
-                                    <i class="fas fa-car"></i>
-                                </div>
-                                <h5 class="card-title">Driving History</h5>
-                                <p class="card-text">Upload driving history data file from Gauge or telematics system.</p>
-                                <div class="form-check">
-                                    <input class="form-check-input source-checkbox" type="checkbox" id="driving_history_check">
-                                    <label class="form-check-label" for="driving_history_check">Include this source</label>
-                                </div>
-                            </div>
-                        </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="file-upload-container" id="activityDetailContainer">
+                    <div class="file-upload-icon">
+                        <i class="fas fa-clipboard-list"></i>
                     </div>
-                    
-                    <div class="col-md-4 mb-3 mb-md-0">
-                        <div class="card data-source-card h-100" data-target="activity_detail">
-                            <div class="card-body text-center">
-                                <div class="source-icon text-success">
-                                    <i class="fas fa-clipboard-list"></i>
-                                </div>
-                                <h5 class="card-title">Activity Detail</h5>
-                                <p class="card-text">Upload activity detail data file with driver assignments and tasks.</p>
-                                <div class="form-check">
-                                    <input class="form-check-input source-checkbox" type="checkbox" id="activity_detail_check">
-                                    <label class="form-check-label" for="activity_detail_check">Include this source</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-4">
-                        <div class="card data-source-card h-100" data-target="assets_time">
-                            <div class="card-body text-center">
-                                <div class="source-icon text-info">
-                                    <i class="fas fa-clock"></i>
-                                </div>
-                                <h5 class="card-title">Assets Time on Site</h5>
-                                <p class="card-text">Upload assets time on site data with job location information.</p>
-                                <div class="form-check">
-                                    <input class="form-check-input source-checkbox" type="checkbox" id="assets_time_check">
-                                    <label class="form-check-label" for="assets_time_check">Include this source</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <h5 class="file-upload-text">Activity Detail</h5>
+                    <p class="file-upload-help">CSV format from Gauge SmartTrak</p>
+                    <input type="file" class="file-upload-input" id="activity_detail" name="activity_detail" accept=".csv">
+                    <div class="selected-file" id="activityDetailFile"></div>
                 </div>
-                
-                <div id="upload_containers" class="row mb-4">
-                    <!-- Driving History Upload -->
-                    <div class="col-md-12 mb-4 d-none" id="driving_history_container">
-                        <label class="form-label">Driving History File</label>
-                        <div class="file-upload-container">
-                            <div class="file-upload-icon">
-                                <i class="fas fa-car"></i>
-                            </div>
-                            <input type="file" name="driving_history" id="driving_history_file" class="form-control custom-file-input" accept=".csv,.xlsx,.xls">
-                            <div class="file-name mt-2" id="driving_history_name"></div>
-                            <div class="file-size" id="driving_history_size"></div>
-                            <div class="form-text mt-3">
-                                Upload a CSV or Excel file containing driving history data.
-                                <br>This file should include driver names, time stamps, and locations.
-                            </div>
-                        </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="file-upload-container" id="assetsTimeContainer">
+                    <div class="file-upload-icon">
+                        <i class="fas fa-clock"></i>
                     </div>
-                    
-                    <!-- Activity Detail Upload -->
-                    <div class="col-md-12 mb-4 d-none" id="activity_detail_container">
-                        <label class="form-label">Activity Detail File</label>
-                        <div class="file-upload-container">
-                            <div class="file-upload-icon">
-                                <i class="fas fa-clipboard-list"></i>
-                            </div>
-                            <input type="file" name="activity_detail" id="activity_detail_file" class="form-control custom-file-input" accept=".csv,.xlsx,.xls">
-                            <div class="file-name mt-2" id="activity_detail_name"></div>
-                            <div class="file-size" id="activity_detail_size"></div>
-                            <div class="form-text mt-3">
-                                Upload a CSV or Excel file containing activity detail data.
-                                <br>This file should include driver activity records with times and locations.
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Assets Time Upload -->
-                    <div class="col-md-12 mb-4 d-none" id="assets_time_container">
-                        <label class="form-label">Assets Time on Site File</label>
-                        <div class="file-upload-container">
-                            <div class="file-upload-icon">
-                                <i class="fas fa-clock"></i>
-                            </div>
-                            <input type="file" name="assets_time" id="assets_time_file" class="form-control custom-file-input" accept=".csv,.xlsx,.xls">
-                            <div class="file-name mt-2" id="assets_time_name"></div>
-                            <div class="file-size" id="assets_time_size"></div>
-                            <div class="form-text mt-3">
-                                Upload a CSV or Excel file containing assets time on site data.
-                                <br>This file should include equipment/asset records with time and location data.
-                            </div>
-                        </div>
-                    </div>
+                    <h5 class="file-upload-text">Assets Time on Site</h5>
+                    <p class="file-upload-help">CSV format from Gauge SmartTrak</p>
+                    <input type="file" class="file-upload-input" id="assets_time" name="assets_time" accept=".csv">
+                    <div class="selected-file" id="assetsTimeFile"></div>
                 </div>
-                
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i> At least one data source is required to generate a report. For the most accurate results, include all three data sources.
-                </div>
-                
-                <div class="text-end">
-                    <button type="submit" class="btn btn-primary" id="upload_btn" disabled>
-                        <i class="fas fa-cloud-upload-alt me-1"></i> Upload & Generate Report
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col">
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('daily_attendance.index') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-file-import"></i> Process Files
                     </button>
                 </div>
-            </form>
+            </div>
         </div>
-    </div>
+    </form>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    $(document).ready(function() {
-        // Select today's date by default
+    document.addEventListener('DOMContentLoaded', function() {
+        // Setup for Driving History file upload
+        const drivingHistoryContainer = document.getElementById('drivingHistoryContainer');
+        const drivingHistoryInput = document.getElementById('driving_history');
+        const drivingHistoryFile = document.getElementById('drivingHistoryFile');
+        
+        drivingHistoryContainer.addEventListener('click', function() {
+            drivingHistoryInput.click();
+        });
+        
+        drivingHistoryInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                drivingHistoryFile.textContent = this.files[0].name;
+                drivingHistoryContainer.classList.add('border-primary');
+            } else {
+                drivingHistoryFile.textContent = '';
+                drivingHistoryContainer.classList.remove('border-primary');
+            }
+        });
+        
+        // Setup for Activity Detail file upload
+        const activityDetailContainer = document.getElementById('activityDetailContainer');
+        const activityDetailInput = document.getElementById('activity_detail');
+        const activityDetailFile = document.getElementById('activityDetailFile');
+        
+        activityDetailContainer.addEventListener('click', function() {
+            activityDetailInput.click();
+        });
+        
+        activityDetailInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                activityDetailFile.textContent = this.files[0].name;
+                activityDetailContainer.classList.add('border-primary');
+            } else {
+                activityDetailFile.textContent = '';
+                activityDetailContainer.classList.remove('border-primary');
+            }
+        });
+        
+        // Setup for Assets Time file upload
+        const assetsTimeContainer = document.getElementById('assetsTimeContainer');
+        const assetsTimeInput = document.getElementById('assets_time');
+        const assetsTimeFile = document.getElementById('assetsTimeFile');
+        
+        assetsTimeContainer.addEventListener('click', function() {
+            assetsTimeInput.click();
+        });
+        
+        assetsTimeInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                assetsTimeFile.textContent = this.files[0].name;
+                assetsTimeContainer.classList.add('border-primary');
+            } else {
+                assetsTimeFile.textContent = '';
+                assetsTimeContainer.classList.remove('border-primary');
+            }
+        });
+        
+        // Set default date to today
+        const dateInput = document.getElementById('date');
         const today = new Date();
-        const formattedDate = today.toISOString().substring(0, 10);
-        $('#date').val(formattedDate);
-        
-        // Data source card selection
-        $('.data-source-card').click(function() {
-            const target = $(this).data('target');
-            const checkbox = $(this).find('.source-checkbox');
-            
-            // Toggle checkbox
-            checkbox.prop('checked', !checkbox.prop('checked'));
-            
-            // Toggle card active state
-            $(this).toggleClass('active');
-            
-            // Show/hide file upload container
-            if (checkbox.prop('checked')) {
-                $(`#${target}_container`).removeClass('d-none');
-            } else {
-                $(`#${target}_container`).addClass('d-none');
-                $(`#${target}_file`).val('');
-                $(`#${target}_name`).text('');
-                $(`#${target}_size`).text('');
-            }
-            
-            // Enable/disable submit button
-            updateSubmitButton();
-        });
-        
-        // File input change event
-        $('.custom-file-input').change(function() {
-            const fileId = $(this).attr('id');
-            const nameId = fileId.replace('file', 'name');
-            const sizeId = fileId.replace('file', 'size');
-            
-            if (this.files && this.files[0]) {
-                const file = this.files[0];
-                
-                // Display file name and size
-                $(`#${nameId}`).text(file.name);
-                
-                // Format file size
-                let size = file.size;
-                const units = ['B', 'KB', 'MB', 'GB'];
-                let unitIndex = 0;
-                
-                while (size > 1024 && unitIndex < units.length - 1) {
-                    size /= 1024;
-                    unitIndex++;
-                }
-                
-                $(`#${sizeId}`).text(`${size.toFixed(2)} ${units[unitIndex]}`);
-                
-                // Check file type
-                const fileType = file.name.split('.').pop().toLowerCase();
-                if (!['csv', 'xlsx', 'xls'].includes(fileType)) {
-                    alert('Please upload a valid CSV or Excel file.');
-                    $(this).val('');
-                    $(`#${nameId}`).text('');
-                    $(`#${sizeId}`).text('');
-                }
-            } else {
-                $(`#${nameId}`).text('');
-                $(`#${sizeId}`).text('');
-            }
-            
-            // Enable/disable submit button
-            updateSubmitButton();
-        });
-        
-        // Function to update submit button state
-        function updateSubmitButton() {
-            let filesSelected = false;
-            
-            // Check if at least one file is selected
-            $('.source-checkbox').each(function() {
-                if ($(this).prop('checked')) {
-                    const target = $(this).attr('id').replace('_check', '');
-                    const fileInput = $(`#${target}_file`);
-                    
-                    if (fileInput.val()) {
-                        filesSelected = true;
-                    }
-                }
-            });
-            
-            // Enable/disable submit button
-            $('#upload_btn').prop('disabled', !filesSelected);
-        }
-        
-        // Form submission validation
-        $('form').submit(function(e) {
-            let filesSelected = false;
-            
-            // Check if at least one file is selected
-            $('.source-checkbox').each(function() {
-                if ($(this).prop('checked')) {
-                    const target = $(this).attr('id').replace('_check', '');
-                    const fileInput = $(`#${target}_file`);
-                    
-                    if (fileInput.val()) {
-                        filesSelected = true;
-                    }
-                }
-            });
-            
-            // Prevent submission if no files selected
-            if (!filesSelected) {
-                e.preventDefault();
-                alert('Please select at least one data file to upload.');
-            }
-        });
+        const formattedDate = today.toISOString().substr(0, 10);
+        dateInput.value = formattedDate;
     });
 </script>
 {% endblock %}

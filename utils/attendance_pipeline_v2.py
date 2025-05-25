@@ -3,6 +3,13 @@ TRAXORA Fleet Management System - Attendance Pipeline V2
 
 This module provides the core attendance processing logic for the Daily Driver Engine 2.0,
 implementing strict classification for on-time, late start, early end, and not on job cases.
+
+Functions:
+- normalize_driver_name: Normalize driver name for consistent matching
+- parse_datetime: Parse date and time strings into datetime object
+- classify_attendance: Classify driver attendance based on start/end times
+- process_attendance_data: Process attendance data from multiple sources
+- generate_attendance_report: Generate complete attendance report
 """
 
 import os
@@ -101,29 +108,61 @@ def classify_attendance(start_time: Optional[datetime], end_time: Optional[datet
         date_str: Date string (YYYY-MM-DD)
         
     Returns:
-        dict: Classification details
+        dict: Classification details with status (on_time, late, early_end, not_on_job)
     """
-    # Default classification
-    classification = {
-        'classification': 'not_on_job',
-        'start_time': None,
-        'end_time': None,
-        'late_minutes': 0,
-        'early_end_minutes': 0,
-        'hours': 0
+    # Create date objects for comparison
+    try:
+        date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
+        start_cutoff = datetime.combine(date_obj, datetime.strptime(DEFAULT_START_TIME, '%H:%M:%S').time())
+        end_cutoff = datetime.combine(date_obj, datetime.strptime(DEFAULT_END_TIME, '%H:%M:%S').time())
+    except Exception as e:
+        logger.error(f"Error creating cutoff times: {str(e)}")
+        start_cutoff = None
+        end_cutoff = None
+    
+    # Initialize classification result
+    result = {
+        'status': 'unknown',
+        'start_time': start_time.strftime('%H:%M:%S') if start_time else None,
+        'end_time': end_time.strftime('%H:%M:%S') if end_time else None,
+        'expected_start': DEFAULT_START_TIME,
+        'expected_end': DEFAULT_END_TIME,
+        'details': {}
     }
     
-    # Parse default times for comparison
-    date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
-    default_start = datetime.combine(date_obj, datetime.strptime(DEFAULT_START_TIME, '%H:%M:%S').time())
-    default_end = datetime.combine(date_obj, datetime.strptime(DEFAULT_END_TIME, '%H:%M:%S').time())
-    
-    # If no start time, classify as not on job
+    # Case 1: No start time recorded - Not on job
     if not start_time:
-        return classification
+        result['status'] = 'not_on_job'
+        result['details']['reason'] = 'No start time recorded'
+        return result
+        
+    # Case 2: Start time after cutoff - Late start
+    if start_cutoff and start_time > start_cutoff:
+        result['status'] = 'late'
+        late_minutes = round((start_time - start_cutoff).total_seconds() / 60)
+        result['details']['late_by_minutes'] = late_minutes
+        result['details']['reason'] = f'Started {late_minutes} minutes after {DEFAULT_START_TIME}'
+        
+    # Case 3: End time before cutoff - Early end
+    # Only check if we have a valid end time and the driver wasn't already marked as late
+    if end_time and end_cutoff and end_time < end_cutoff and result['status'] != 'late':
+        result['status'] = 'early_end'
+        early_minutes = round((end_cutoff - end_time).total_seconds() / 60)
+        result['details']['early_by_minutes'] = early_minutes
+        result['details']['reason'] = f'Ended {early_minutes} minutes before {DEFAULT_END_TIME}'
+        
+    # Case 4: On time (default if no other conditions met)
+    if result['status'] == 'unknown':
+        result['status'] = 'on_time'
+        result['details']['reason'] = 'Started on time and ended on time'
     
-    # Format times for output
-    classification['start_time'] = start_time.strftime('%H:%M:%S')
+    # Calculate total hours
+    if start_time and end_time:
+        total_seconds = (end_time - start_time).total_seconds()
+        total_hours = round(total_seconds / 3600, 2)  # Round to 2 decimal places
+        result['total_hours'] = total_hours
+        
+    return result
     
     if end_time:
         classification['end_time'] = end_time.strftime('%H:%M:%S')

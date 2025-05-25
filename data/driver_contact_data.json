@@ -1,0 +1,27 @@
+{
+  "troy malette": {
+    "contact": "Troy Malette",
+    "phone": "555-123-4567",
+    "email": "troy.malette@traxora.com"
+  },
+  "lorenzo aparicio": {
+    "contact": "Lorenzo Aparicio",
+    "phone": "555-234-5678",
+    "email": "lorenzo.aparicio@traxora.com"
+  },
+  "john smith": {
+    "contact": "John Smith",
+    "phone": "555-345-6789",
+    "email": "john.smith@traxora.com"
+  },
+  "robert johnson": {
+    "contact": "Robert Johnson",
+    "phone": "555-456-7890",
+    "email": "robert.johnson@traxora.com"
+  },
+  "michael williams": {
+    "contact": "Michael Williams",
+    "phone": "555-567-8901",
+    "email": "michael.williams@traxora.com"
+  }
+}

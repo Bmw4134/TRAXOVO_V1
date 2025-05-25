@@ -2,408 +2,500 @@
   "date": "2025-05-24",
   "driver_records": [
     {
-      "driver_name": "TROY MALETTE",
-      "job_number": "",
-      "job_name": "",
-      "start_time": "07:00:00",
-      "end_time": "07:00:00",
-      "classification": "early_end",
-      "late_minutes": 0,
-      "early_end_minutes": 540,
-      "hours": 0.0,
-      "gps_verified": true
+      "name": "troy malette",
+      "start_time": null,
+      "end_time": null,
+      "job_site": "Unknown Job Site",
+      "sources": [
+        "driving_history"
+      ],
+      "classification": "not_on_job",
+      "expected_start": "07:30",
+      "expected_end": "16:00",
+      "actual_start": "None",
+      "actual_end": "None",
+      "reason": "No activity detected"
     },
     {
-      "driver_name": "LORENZO APARICIO",
-      "job_number": "",
-      "job_name": "",
-      "start_time": "07:00:00",
-      "end_time": "07:00:00",
-      "classification": "early_end",
-      "late_minutes": 0,
-      "early_end_minutes": 540,
-      "hours": 0.0,
-      "gps_verified": true
+      "name": "lorenzo aparicio",
+      "start_time": null,
+      "end_time": null,
+      "job_site": "Unknown Job Site",
+      "sources": [
+        "driving_history"
+      ],
+      "classification": "not_on_job",
+      "expected_start": "07:30",
+      "expected_end": "16:00",
+      "actual_start": "None",
+      "actual_end": "None",
+      "reason": "No activity detected"
     },
     {
-      "driver_name": "ALEJANDRO LOZANO ACOSTA",
-      "job_number": "",
-      "job_name": "",
-      "start_time": "07:00:00",
-      "end_time": "07:00:00",
-      "classification": "early_end",
-      "late_minutes": 0,
-      "early_end_minutes": 540,
-      "hours": 0.0,
-      "gps_verified": true
+      "name": "alejandro lozano acosta",
+      "start_time": null,
+      "end_time": null,
+      "job_site": "Unknown Job Site",
+      "sources": [
+        "driving_history"
+      ],
+      "classification": "not_on_job",
+      "expected_start": "07:30",
+      "expected_end": "16:00",
+      "actual_start": "None",
+      "actual_end": "None",
+      "reason": "No activity detected"
     },
     {
-      "driver_name": "JOSE J RIVERA",
-      "job_number": "",
-      "job_name": "",
-      "start_time": "07:00:00",
-      "end_time": "07:00:00",
-      "classification": "early_end",
-      "late_minutes": 0,
-      "early_end_minutes": 540,
-      "hours": 0.0,
-      "gps_verified": true
+      "name": "jose j rivera",
+      "start_time": null,
+      "end_time": null,
+      "job_site": "Unknown Job Site",
+      "sources": [
+        "driving_history"
+      ],
+      "classification": "not_on_job",
+      "expected_start": "07:30",
+      "expected_end": "16:00",
+      "actual_start": "None",
+      "actual_end": "None",
+      "reason": "No activity detected"
     },
     {
-      "driver_name": "JAVIER MAGALLANES",
-      "job_number": "",
-      "job_name": "",
-      "start_time": "07:00:00",
-      "end_time": "07:00:00",
-      "classification": "early_end",
-      "late_minutes": 0,
-      "early_end_minutes": 540,
-      "hours": 0.0,
-      "gps_verified": true
+      "name": "javier magallanes",
+      "start_time": null,
+      "end_time": null,
+      "job_site": "Unknown Job Site",
+      "sources": [
+        "driving_history"
+      ],
+      "classification": "not_on_job",
+      "expected_start": "07:30",
+      "expected_end": "16:00",
+      "actual_start": "None",
+      "actual_end": "None",
+      "reason": "No activity detected"
     },
     {
-      "driver_name": "Phillip Sabaj",
-      "job_number": "",
-      "job_name": "",
-      "start_time": "07:00:00",
-      "end_time": "07:00:00",
-      "classification": "early_end",
-      "late_minutes": 0,
-      "early_end_minutes": 540,
-      "hours": 0.0,
-      "gps_verified": true
+      "name": "phillip sabaj",
+      "start_time": null,
+      "end_time": null,
+      "job_site": "Unknown Job Site",
+      "sources": [
+        "driving_history"
+      ],
+      "classification": "not_on_job",
+      "expected_start": "07:30",
+      "expected_end": "16:00",
+      "actual_start": "None",
+      "actual_end": "None",
+      "reason": "No activity detected"
     },
     {
-      "driver_name": "Adam Goode",
-      "job_number": "",
-      "job_name": "",
-      "start_time": "07:00:00",
-      "end_time": "07:00:00",
-      "classification": "early_end",
-      "late_minutes": 0,
-      "early_end_minutes": 540,
-      "hours": 0.0,
-      "gps_verified": true
+      "name": "adam goode",
+      "start_time": null,
+      "end_time": null,
+      "job_site": "Unknown Job Site",
+      "sources": [
+        "driving_history"
+      ],
+      "classification": "not_on_job",
+      "expected_start": "07:30",
+      "expected_end": "16:00",
+      "actual_start": "None",
+      "actual_end": "None",
+      "reason": "No activity detected"
     },
     {
-      "driver_name": "JUAN LOPEZ-VAZQUEZ",
-      "job_number": "",
-      "job_name": "",
-      "start_time": "07:00:00",
-      "end_time": "07:00:00",
-      "classification": "early_end",
-      "late_minutes": 0,
-      "early_end_minutes": 540,
-      "hours": 0.0,
-      "gps_verified": true
+      "name": "juan lopez-vazquez",
+      "start_time": null,
+      "end_time": null,
+      "job_site": "Unknown Job Site",
+      "sources": [
+        "driving_history"
+      ],
+      "classification": "not_on_job",
+      "expected_start": "07:30",
+      "expected_end": "16:00",
+      "actual_start": "None",
+      "actual_end": "None",
+      "reason": "No activity detected"
     },
     {
-      "driver_name": "LEROY ARNOLD",
-      "job_number": "",
-      "job_name": "",
-      "start_time": "07:00:00",
-      "end_time": "07:00:00",
-      "classification": "early_end",
-      "late_minutes": 0,
-      "early_end_minutes": 540,
-      "hours": 0.0,
-      "gps_verified": true
+      "name": "leroy arnold",
+      "start_time": null,
+      "end_time": null,
+      "job_site": "Unknown Job Site",
+      "sources": [
+        "driving_history"
+      ],
+      "classification": "not_on_job",
+      "expected_start": "07:30",
+      "expected_end": "16:00",
+      "actual_start": "None",
+      "actual_end": "None",
+      "reason": "No activity detected"
     },
     {
-      "driver_name": "VICK ADHIKARI",
-      "job_number": "",
-      "job_name": "",
-      "start_time": "07:00:00",
-      "end_time": "07:00:00",
-      "classification": "early_end",
-      "late_minutes": 0,
-      "early_end_minutes": 540,
-      "hours": 0.0,
-      "gps_verified": true
+      "name": "vick adhikari",
+      "start_time": null,
+      "end_time": null,
+      "job_site": "Unknown Job Site",
+      "sources": [
+        "driving_history"
+      ],
+      "classification": "not_on_job",
+      "expected_start": "07:30",
+      "expected_end": "16:00",
+      "actual_start": "None",
+      "actual_end": "None",
+      "reason": "No activity detected"
     },
     {
-      "driver_name": "Matt Shaylor",
-      "job_number": "",
-      "job_name": "",
-      "start_time": "07:00:00",
-      "end_time": "07:00:00",
-      "classification": "early_end",
-      "late_minutes": 0,
-      "early_end_minutes": 540,
-      "hours": 0.0,
-      "gps_verified": true
+      "name": "matt shaylor",
+      "start_time": null,
+      "end_time": null,
+      "job_site": "Unknown Job Site",
+      "sources": [
+        "driving_history"
+      ],
+      "classification": "not_on_job",
+      "expected_start": "07:30",
+      "expected_end": "16:00",
+      "actual_start": "None",
+      "actual_end": "None",
+      "reason": "No activity detected"
     },
     {
-      "driver_name": "Hector Bonilla",
-      "job_number": "",
-      "job_name": "",
-      "start_time": "07:00:00",
-      "end_time": "07:00:00",
-      "classification": "early_end",
-      "late_minutes": 0,
-      "early_end_minutes": 540,
-      "hours": 0.0,
-      "gps_verified": true
+      "name": "hector bonilla",
+      "start_time": null,
+      "end_time": null,
+      "job_site": "Unknown Job Site",
+      "sources": [
+        "driving_history"
+      ],
+      "classification": "not_on_job",
+      "expected_start": "07:30",
+      "expected_end": "16:00",
+      "actual_start": "None",
+      "actual_end": "None",
+      "reason": "No activity detected"
     },
     {
-      "driver_name": "Martin Escobedo",
-      "job_number": "",
-      "job_name": "",
-      "start_time": "07:00:00",
-      "end_time": "07:00:00",
-      "classification": "early_end",
-      "late_minutes": 0,
-      "early_end_minutes": 540,
-      "hours": 0.0,
-      "gps_verified": true
+      "name": "martin escobedo",
+      "start_time": null,
+      "end_time": null,
+      "job_site": "Unknown Job Site",
+      "sources": [
+        "driving_history"
+      ],
+      "classification": "not_on_job",
+      "expected_start": "07:30",
+      "expected_end": "16:00",
+      "actual_start": "None",
+      "actual_end": "None",
+      "reason": "No activity detected"
     },
     {
-      "driver_name": "SEYMORE HUNT",
-      "job_number": "",
-      "job_name": "",
-      "start_time": "07:00:00",
-      "end_time": "07:00:00",
-      "classification": "early_end",
-      "late_minutes": 0,
-      "early_end_minutes": 540,
-      "hours": 0.0,
-      "gps_verified": true
+      "name": "seymore hunt",
+      "start_time": null,
+      "end_time": null,
+      "job_site": "Unknown Job Site",
+      "sources": [
+        "driving_history"
+      ],
+      "classification": "not_on_job",
+      "expected_start": "07:30",
+      "expected_end": "16:00",
+      "actual_start": "None",
+      "actual_end": "None",
+      "reason": "No activity detected"
     },
     {
-      "driver_name": "JUAN P RODRIGUEZ",
-      "job_number": "",
-      "job_name": "",
-      "start_time": "07:00:00",
-      "end_time": "07:00:00",
-      "classification": "early_end",
-      "late_minutes": 0,
-      "early_end_minutes": 540,
-      "hours": 0.0,
-      "gps_verified": true
+      "name": "juan p rodriguez",
+      "start_time": null,
+      "end_time": null,
+      "job_site": "Unknown Job Site",
+      "sources": [
+        "driving_history"
+      ],
+      "classification": "not_on_job",
+      "expected_start": "07:30",
+      "expected_end": "16:00",
+      "actual_start": "None",
+      "actual_end": "None",
+      "reason": "No activity detected"
     },
     {
-      "driver_name": "URIEL GARCIA-ANDRADE",
-      "job_number": "",
-      "job_name": "",
-      "start_time": "07:00:00",
-      "end_time": "07:00:00",
-      "classification": "early_end",
-      "late_minutes": 0,
-      "early_end_minutes": 540,
-      "hours": 0.0,
-      "gps_verified": true
+      "name": "uriel garcia-andrade",
+      "start_time": null,
+      "end_time": null,
+      "job_site": "Unknown Job Site",
+      "sources": [
+        "driving_history"
+      ],
+      "classification": "not_on_job",
+      "expected_start": "07:30",
+      "expected_end": "16:00",
+      "actual_start": "None",
+      "actual_end": "None",
+      "reason": "No activity detected"
     },
     {
-      "driver_name": "JUAN RUIZ",
-      "job_number": "",
-      "job_name": "",
-      "start_time": "07:00:00",
-      "end_time": "07:00:00",
-      "classification": "early_end",
-      "late_minutes": 0,
-      "early_end_minutes": 540,
-      "hours": 0.0,
-      "gps_verified": true
+      "name": "juan ruiz",
+      "start_time": null,
+      "end_time": null,
+      "job_site": "Unknown Job Site",
+      "sources": [
+        "driving_history"
+      ],
+      "classification": "not_on_job",
+      "expected_start": "07:30",
+      "expected_end": "16:00",
+      "actual_start": "None",
+      "actual_end": "None",
+      "reason": "No activity detected"
     },
     {
-      "driver_name": "Johnny Pereira-Viera",
-      "job_number": "",
-      "job_name": "",
-      "start_time": "07:00:00",
-      "end_time": "07:00:00",
-      "classification": "early_end",
-      "late_minutes": 0,
-      "early_end_minutes": 540,
-      "hours": 0.0,
-      "gps_verified": true
+      "name": "johnny pereira-viera",
+      "start_time": null,
+      "end_time": null,
+      "job_site": "Unknown Job Site",
+      "sources": [
+        "driving_history"
+      ],
+      "classification": "not_on_job",
+      "expected_start": "07:30",
+      "expected_end": "16:00",
+      "actual_start": "None",
+      "actual_end": "None",
+      "reason": "No activity detected"
     },
     {
-      "driver_name": "ROBERT BERRYHILL",
-      "job_number": "",
-      "job_name": "",
-      "start_time": "07:00:00",
-      "end_time": "07:00:00",
-      "classification": "early_end",
-      "late_minutes": 0,
-      "early_end_minutes": 540,
-      "hours": 0.0,
-      "gps_verified": true
+      "name": "robert berryhill",
+      "start_time": null,
+      "end_time": null,
+      "job_site": "Unknown Job Site",
+      "sources": [
+        "driving_history"
+      ],
+      "classification": "not_on_job",
+      "expected_start": "07:30",
+      "expected_end": "16:00",
+      "actual_start": "None",
+      "actual_end": "None",
+      "reason": "No activity detected"
     },
     {
-      "driver_name": "SABINO IBARRA",
-      "job_number": "",
-      "job_name": "",
-      "start_time": "07:00:00",
-      "end_time": "07:00:00",
-      "classification": "early_end",
-      "late_minutes": 0,
-      "early_end_minutes": 540,
-      "hours": 0.0,
-      "gps_verified": true
+      "name": "sabino ibarra",
+      "start_time": null,
+      "end_time": null,
+      "job_site": "Unknown Job Site",
+      "sources": [
+        "driving_history"
+      ],
+      "classification": "not_on_job",
+      "expected_start": "07:30",
+      "expected_end": "16:00",
+      "actual_start": "None",
+      "actual_end": "None",
+      "reason": "No activity detected"
     },
     {
-      "driver_name": "LUIS MURCIA ORELLANA",
-      "job_number": "",
-      "job_name": "",
-      "start_time": "07:00:00",
-      "end_time": "07:00:00",
-      "classification": "early_end",
-      "late_minutes": 0,
-      "early_end_minutes": 540,
-      "hours": 0.0,
-      "gps_verified": true
+      "name": "luis murcia orellana",
+      "start_time": null,
+      "end_time": null,
+      "job_site": "Unknown Job Site",
+      "sources": [
+        "driving_history"
+      ],
+      "classification": "not_on_job",
+      "expected_start": "07:30",
+      "expected_end": "16:00",
+      "actual_start": "None",
+      "actual_end": "None",
+      "reason": "No activity detected"
     },
     {
-      "driver_name": "ISAAC ROMERO",
-      "job_number": "",
-      "job_name": "",
-      "start_time": "07:00:00",
-      "end_time": "07:00:00",
-      "classification": "early_end",
-      "late_minutes": 0,
-      "early_end_minutes": 540,
-      "hours": 0.0,
-      "gps_verified": true
+      "name": "isaac romero",
+      "start_time": null,
+      "end_time": null,
+      "job_site": "Unknown Job Site",
+      "sources": [
+        "driving_history"
+      ],
+      "classification": "not_on_job",
+      "expected_start": "07:30",
+      "expected_end": "16:00",
+      "actual_start": "None",
+      "actual_end": "None",
+      "reason": "No activity detected"
     },
     {
-      "driver_name": "JOSE BAUTISTA",
-      "job_number": "",
-      "job_name": "",
-      "start_time": "07:00:00",
-      "end_time": "07:00:00",
-      "classification": "early_end",
-      "late_minutes": 0,
-      "early_end_minutes": 540,
-      "hours": 0.0,
-      "gps_verified": true
+      "name": "jose bautista",
+      "start_time": null,
+      "end_time": null,
+      "job_site": "Unknown Job Site",
+      "sources": [
+        "driving_history"
+      ],
+      "classification": "not_on_job",
+      "expected_start": "07:30",
+      "expected_end": "16:00",
+      "actual_start": "None",
+      "actual_end": "None",
+      "reason": "No activity detected"
     },
     {
-      "driver_name": "Nagesh Kumar",
-      "job_number": "",
-      "job_name": "",
-      "start_time": "07:00:00",
-      "end_time": "07:00:00",
-      "classification": "early_end",
-      "late_minutes": 0,
-      "early_end_minutes": 540,
-      "hours": 0.0,
-      "gps_verified": true
+      "name": "nagesh kumar",
+      "start_time": null,
+      "end_time": null,
+      "job_site": "Unknown Job Site",
+      "sources": [
+        "driving_history"
+      ],
+      "classification": "not_on_job",
+      "expected_start": "07:30",
+      "expected_end": "16:00",
+      "actual_start": "None",
+      "actual_end": "None",
+      "reason": "No activity detected"
     },
     {
-      "driver_name": "Cooper Link",
-      "job_number": "",
-      "job_name": "",
-      "start_time": "07:00:00",
-      "end_time": "07:00:00",
-      "classification": "early_end",
-      "late_minutes": 0,
-      "early_end_minutes": 540,
-      "hours": 0.0,
-      "gps_verified": true
+      "name": "cooper link",
+      "start_time": null,
+      "end_time": null,
+      "job_site": "Unknown Job Site",
+      "sources": [
+        "driving_history"
+      ],
+      "classification": "not_on_job",
+      "expected_start": "07:30",
+      "expected_end": "16:00",
+      "actual_start": "None",
+      "actual_end": "None",
+      "reason": "No activity detected"
     },
     {
-      "driver_name": "Sam Abunemeh",
-      "job_number": "",
-      "job_name": "",
-      "start_time": "07:00:00",
-      "end_time": "07:00:00",
-      "classification": "early_end",
-      "late_minutes": 0,
-      "early_end_minutes": 540,
-      "hours": 0.0,
-      "gps_verified": true
+      "name": "sam abunemeh",
+      "start_time": null,
+      "end_time": null,
+      "job_site": "Unknown Job Site",
+      "sources": [
+        "driving_history"
+      ],
+      "classification": "not_on_job",
+      "expected_start": "07:30",
+      "expected_end": "16:00",
+      "actual_start": "None",
+      "actual_end": "None",
+      "reason": "No activity detected"
     },
     {
-      "driver_name": "JOVAN ESPINOZA-CASILLAS",
-      "job_number": "",
-      "job_name": "",
-      "start_time": "07:00:00",
-      "end_time": "07:00:00",
-      "classification": "early_end",
-      "late_minutes": 0,
-      "early_end_minutes": 540,
-      "hours": 0.0,
-      "gps_verified": true
+      "name": "jovan espinoza-casillas",
+      "start_time": null,
+      "end_time": null,
+      "job_site": "Unknown Job Site",
+      "sources": [
+        "driving_history"
+      ],
+      "classification": "not_on_job",
+      "expected_start": "07:30",
+      "expected_end": "16:00",
+      "actual_start": "None",
+      "actual_end": "None",
+      "reason": "No activity detected"
     },
     {
-      "driver_name": "ROBERTO GUERRERO JR",
-      "job_number": "",
-      "job_name": "",
-      "start_time": "07:00:00",
-      "end_time": "07:00:00",
-      "classification": "early_end",
-      "late_minutes": 0,
-      "early_end_minutes": 540,
-      "hours": 0.0,
-      "gps_verified": true
+      "name": "roberto guerrero jr",
+      "start_time": null,
+      "end_time": null,
+      "job_site": "Unknown Job Site",
+      "sources": [
+        "driving_history"
+      ],
+      "classification": "not_on_job",
+      "expected_start": "07:30",
+      "expected_end": "16:00",
+      "actual_start": "None",
+      "actual_end": "None",
+      "reason": "No activity detected"
     },
     {
-      "driver_name": "Ramesh Bobba",
-      "job_number": "",
-      "job_name": "",
-      "start_time": "07:00:00",
-      "end_time": "07:00:00",
-      "classification": "early_end",
-      "late_minutes": 0,
-      "early_end_minutes": 540,
-      "hours": 0.0,
-      "gps_verified": true
+      "name": "ramesh bobba",
+      "start_time": null,
+      "end_time": null,
+      "job_site": "Unknown Job Site",
+      "sources": [
+        "driving_history"
+      ],
+      "classification": "not_on_job",
+      "expected_start": "07:30",
+      "expected_end": "16:00",
+      "actual_start": "None",
+      "actual_end": "None",
+      "reason": "No activity detected"
     },
     {
-      "driver_name": "CHASE JONES",
-      "job_number": "",
-      "job_name": "",
-      "start_time": "07:00:00",
-      "end_time": "07:00:00",
-      "classification": "early_end",
-      "late_minutes": 0,
-      "early_end_minutes": 540,
-      "hours": 0.0,
-      "gps_verified": true
+      "name": "chase jones",
+      "start_time": null,
+      "end_time": null,
+      "job_site": "Unknown Job Site",
+      "sources": [
+        "driving_history"
+      ],
+      "classification": "not_on_job",
+      "expected_start": "07:30",
+      "expected_end": "16:00",
+      "actual_start": "None",
+      "actual_end": "None",
+      "reason": "No activity detected"
     },
     {
-      "driver_name": "ALBERTO ZUNIGA",
-      "job_number": "",
-      "job_name": "",
-      "start_time": "07:00:00",
-      "end_time": "07:00:00",
-      "classification": "early_end",
-      "late_minutes": 0,
-      "early_end_minutes": 540,
-      "hours": 0.0,
-      "gps_verified": true
+      "name": "alberto zuniga",
+      "start_time": null,
+      "end_time": null,
+      "job_site": "Unknown Job Site",
+      "sources": [
+        "driving_history"
+      ],
+      "classification": "not_on_job",
+      "expected_start": "07:30",
+      "expected_end": "16:00",
+      "actual_start": "None",
+      "actual_end": "None",
+      "reason": "No activity detected"
     },
     {
-      "driver_name": "Ammar Elhamad",
-      "job_number": "",
-      "job_name": "",
-      "start_time": "07:00:00",
-      "end_time": "07:00:00",
-      "classification": "early_end",
-      "late_minutes": 0,
-      "early_end_minutes": 540,
-      "hours": 0.0,
-      "gps_verified": true
+      "name": "ammar elhamad",
+      "start_time": null,
+      "end_time": null,
+      "job_site": "Unknown Job Site",
+      "sources": [
+        "driving_history"
+      ],
+      "classification": "not_on_job",
+      "expected_start": "07:30",
+      "expected_end": "16:00",
+      "actual_start": "None",
+      "actual_end": "None",
+      "reason": "No activity detected"
     }
   ],
   "summary": {
     "total_drivers": 32,
-    "on_time_count": 0,
-    "late_count": 0,
-    "early_end_count": 32,
-    "not_on_job_count": 0,
-    "on_time_percentage": 0,
-    "late_percentage": 0,
-    "early_end_percentage": 100,
-    "not_on_job_percentage": 0,
-    "average_late_minutes": 0,
-    "average_early_end_minutes": 540
+    "on_time": 0,
+    "late": 0,
+    "early_end": 0,
+    "not_on_job": 32
   },
-  "processed_at": "2025-05-24T06:33:23.338341",
-  "data_sources": {
-    "driving_history": 32,
-    "time_on_site": 0,
-    "activity_detail": 0,
-    "timecard": 1706
+  "data_sources": [
+    "driving_history"
+  ],
+  "metrics": {
+    "on_time_percentage": 0.0,
+    "late_percentage": 0.0,
+    "early_end_percentage": 0.0,
+    "not_on_job_percentage": 100.0
   }
 }

@@ -209,6 +209,20 @@ except ImportError:
     logger.warning("System Health module not found")
 except Exception as e:
     logger.error(f"Error with System Health blueprint: {e}")
+    
+# Register Daily Attendance Blueprint
+try:
+    # Check if the blueprint is already registered to avoid duplicate registration
+    if not any(bp.name == 'daily_attendance' for bp in app.blueprints.values()):
+        from routes.daily_attendance_routes import daily_attendance_bp
+        app.register_blueprint(daily_attendance_bp)
+        logger.info("Daily Attendance blueprint registered successfully")
+    else:
+        logger.info("Daily Attendance blueprint already registered")
+except ImportError:
+    logger.warning("Daily Attendance module not found")
+except Exception as e:
+    logger.error(f"Error with Daily Attendance blueprint: {e}")
 
 @app.route('/attendance/')
 @app.route('/attendance')

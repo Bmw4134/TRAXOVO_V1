@@ -8,27 +8,66 @@
         <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
     <!-- Font Awesome for icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <!-- Custom styles -->
     <style>
         :root {
             --sidebar-width: 240px;
+            --primary-color: #0d6efd;
+            --success-color: #198754;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --info-color: #0dcaf0;
+            --sidebar-bg: #212529;
+            --card-bg: #2c3034;
         }
         body {
             overflow-x: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+        /* Sidebar styling */
         #sidebar-wrapper {
             width: var(--sidebar-width);
             min-height: 100vh;
             margin-left: 0;
             transition: margin 0.25s ease-out;
+            background-color: var(--sidebar-bg);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
         }
         #sidebar-wrapper .sidebar-heading {
-            padding: 0.875rem 1.25rem;
+            padding: 1rem 1.25rem;
             font-size: 1.2rem;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
         #sidebar-wrapper .list-group {
             width: var(--sidebar-width);
         }
+        #sidebar-wrapper .list-group-item {
+            border: none;
+            border-radius: 0;
+            padding: 0.75rem 1.25rem;
+            margin-bottom: 2px;
+            background-color: transparent;
+            transition: all 0.2s;
+        }
+        #sidebar-wrapper .list-group-item:hover {
+            background-color: rgba(255,255,255,0.05);
+            transform: translateX(5px);
+        }
+        #sidebar-wrapper .list-group-item.active {
+            background-color: rgba(13,110,253,0.2);
+            color: var(--primary-color);
+            border-left: 4px solid var(--primary-color);
+        }
+        .sidebar-icon {
+            width: 20px;
+            text-align: center;
+            margin-right: 10px;
+            opacity: 0.8;
+        }
+        /* Page content */
         #page-content-wrapper {
             min-width: 100vw;
             margin-left: calc(var(--sidebar-width) * -1);
@@ -40,14 +79,48 @@
         body.sb-toggled #page-content-wrapper {
             margin-left: 0;
         }
+        /* Metric cards */
         .metric-card {
             border-radius: 8px;
-            min-height: 150px;
+            min-height: 120px;
             transition: all 0.3s;
+            background-color: var(--card-bg);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
         .metric-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        /* Status indicators */
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .status-indicator.success { background-color: var(--success-color); }
+        .status-indicator.warning { background-color: var(--warning-color); }
+        .status-indicator.danger { background-color: var(--danger-color); }
+        .status-indicator.info { background-color: var(--info-color); }
+        
+        /* Mobile optimization */
+        @media (max-width: 768px) {
+            :root {
+                --sidebar-width: 100vw;
+            }
+            #sidebar-wrapper {
+                position: fixed;
+                z-index: 1000;
+                height: 100vh;
+                overflow-y: auto;
+            }
+            body:not(.sb-toggled) #page-content-wrapper {
+                margin-left: 0;
+            }
+            .metric-card {
+                min-height: 100px;
+            }
         }
         .metric-value {
             font-size: 2.5rem;

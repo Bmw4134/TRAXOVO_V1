@@ -357,28 +357,12 @@
                         <div class="col-lg-6">
                             <div class="process-step">
                                 <h5 class="mb-2">3. Driver Classification</h5>
-                                <p class="text-muted">Drivers are automatically classified into categories: On Time, Late Start, Early End, or Not On Job. The system captures exact times and calculates minutes late/early.</p>
+                                <p class="text-muted">Drivers are automatically classified into categories: On Time, Late Start, Early End, or Not On Job based on GPS data and timecard information.</p>
                             </div>
                             
                             <div class="process-step">
                                 <h5 class="mb-2">4. Report Generation</h5>
-                                <p class="text-muted">A complete Excel report is generated in the exact format needed for distribution, with summary statistics and detailed records for each driver.</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="alert alert-success mt-3 mb-0">
-                        <div class="d-flex">
-                            <div class="flex-shrink-0">
-                                <i class="fas fa-lightbulb fs-4 me-3"></i>
-                            </div>
-                            <div>
-                                <h6 class="alert-heading mb-2">Time-Saving Automation</h6>
-                                <p class="mb-0">
-                                    What used to take 1-2 hours of manual work each day is now fully automated. 
-                                    The system produces the same results with consistent classification rules and 
-                                    complete traceability to source data files.
-                                </p>
+                                <p class="text-muted">A comprehensive report is generated with metrics, detailed driver information, and exportable formats for sharing with management.</p>
                             </div>
                         </div>
                     </div>
@@ -387,25 +371,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Auto-refresh file list every 60 seconds if we're waiting for files
-        {% if not file_groups or not (file_groups.driving_history or file_groups.time_on_site) %}
-        setInterval(function() {
-            // Check if new files are available
-            fetch('/daily-driver-report/api/status/{{ today }}')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.has_files) {
-                        // Reload the page to show new files
-                        window.location.reload();
-                    }
-                });
-        }, 60000);
-        {% endif %}
-    });
-</script>
 {% endblock %}

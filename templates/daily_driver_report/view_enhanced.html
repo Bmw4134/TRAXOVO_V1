@@ -1,0 +1,504 @@
+{% extends "layout_unified_enhanced.html" %}
+
+{% block title %}Daily Driver Report: {{ formatted_date }} - TRAXORA{% endblock %}
+
+{% block head_content %}
+<style>
+    .metric-card {
+        transition: all 0.3s ease;
+        border-left: 4px solid transparent;
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    .metric-card.on-time {
+        border-left-color: var(--bs-success);
+    }
+    
+    .metric-card.late {
+        border-left-color: var(--bs-warning);
+    }
+    
+    .metric-card.early-end {
+        border-left-color: var(--bs-info);
+    }
+    
+    .metric-card.not-on-job {
+        border-left-color: var(--bs-danger);
+    }
+    
+    .driver-table th, .driver-table td {
+        vertical-align: middle;
+    }
+    
+    .classification-badge {
+        font-size: 85%;
+        font-weight: 600;
+        padding: 0.35em 0.65em;
+        border-radius: 0.375rem;
+    }
+    
+    .filter-controls {
+        background-color: var(--bs-dark);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .chart-container {
+        height: 300px;
+        width: 100%;
+        position: relative;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">Daily Driver Report</h2>
+            <p class="text-muted mb-0">{{ formatted_date }}</p>
+        </div>
+        <div class="d-flex">
+            <a href="{{ url_for('daily_driver_report.dashboard') }}" class="btn btn-outline-primary me-2">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+            <a href="{{ url_for('daily_driver_report.download_report', date=date) }}" class="btn btn-success">
+                <i class="fas fa-download me-2"></i>Download Excel
+            </a>
+        </div>
+    </div>
+    
+    <!-- Metrics Cards -->
+    <div class="row mb-4">
+        {% if report_data and report_data.summary %}
+        <div class="col-md-3 mb-3 mb-md-0">
+            <div class="card metric-card on-time">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">On Time</h6>
+                            <h3 class="mb-0">{{ report_data.summary.on_time }}</h3>
+                            <small class="text-success">{{ report_data.metrics.on_time_percentage|round|int }}% of drivers</small>
+                        </div>
+                        <div class="rounded-circle bg-success bg-opacity-10 p-3">
+                            <i class="fas fa-check text-success fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3 mb-md-0">
+            <div class="card metric-card late">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Late Start</h6>
+                            <h3 class="mb-0">{{ report_data.summary.late }}</h3>
+                            <small class="text-warning">{{ report_data.metrics.late_percentage|round|int }}% of drivers</small>
+                        </div>
+                        <div class="rounded-circle bg-warning bg-opacity-10 p-3">
+                            <i class="fas fa-clock text-warning fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3 mb-md-0">
+            <div class="card metric-card early-end">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Early End</h6>
+                            <h3 class="mb-0">{{ report_data.summary.early_end }}</h3>
+                            <small class="text-info">{{ report_data.metrics.early_end_percentage|round|int }}% of drivers</small>
+                        </div>
+                        <div class="rounded-circle bg-info bg-opacity-10 p-3">
+                            <i class="fas fa-hourglass-end text-info fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3 mb-md-0">
+            <div class="card metric-card not-on-job">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Not On Job</h6>
+                            <h3 class="mb-0">{{ report_data.summary.not_on_job }}</h3>
+                            <small class="text-danger">{{ report_data.metrics.not_on_job_percentage|round|int }}% of drivers</small>
+                        </div>
+                        <div class="rounded-circle bg-danger bg-opacity-10 p-3">
+                            <i class="fas fa-exclamation-triangle text-danger fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                No report data available. The report file exists but detailed metrics could not be loaded.
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Data Sources & Filters -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3 mb-md-0">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Data Sources</h5>
+                </div>
+                <div class="card-body">
+                    {% if report_data and report_data.data_sources %}
+                    <ul class="list-group list-group-flush bg-dark">
+                        {% if 'driving_history' in report_data.data_sources %}
+                        <li class="list-group-item bg-dark border-0 py-2 d-flex align-items-center">
+                            <span class="badge bg-success me-2"><i class="fas fa-check"></i></span>
+                            <span>Driving History Data</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if 'time_on_site' in report_data.data_sources %}
+                        <li class="list-group-item bg-dark border-0 py-2 d-flex align-items-center">
+                            <span class="badge bg-success me-2"><i class="fas fa-check"></i></span>
+                            <span>Assets Time On Site Data</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if 'activity_detail' in report_data.data_sources %}
+                        <li class="list-group-item bg-dark border-0 py-2 d-flex align-items-center">
+                            <span class="badge bg-success me-2"><i class="fas fa-check"></i></span>
+                            <span>Activity Detail Data</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if 'timecard' in report_data.data_sources %}
+                        <li class="list-group-item bg-dark border-0 py-2 d-flex align-items-center">
+                            <span class="badge bg-success me-2"><i class="fas fa-check"></i></span>
+                            <span>Timecard Data</span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                    
+                    <div class="mt-3">
+                        <h6 class="mb-2">Report Details</h6>
+                        <ul class="list-unstyled text-muted">
+                            <li><small>Generated: {{ report_data.generated_at if report_data.generated_at else 'Unknown' }}</small></li>
+                            <li><small>Total Drivers: {{ report_data.summary.total_drivers if report_data and report_data.summary else 'N/A' }}</small></li>
+                            <li><small>Classification Cutoffs:</small></li>
+                            <li><small class="ms-3">Late After: 7:30 AM</small></li>
+                            <li><small class="ms-3">Early End Before: 4:00 PM</small></li>
+                        </ul>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-file-excel text-muted fs-1 mb-3"></i>
+                        <p class="text-muted mb-0">The report exists but detailed metadata is not available.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Driver Data Visualization</h5>
+                </div>
+                <div class="card-body">
+                    {% if report_data and report_data.summary %}
+                    <div class="chart-container">
+                        <canvas id="driverClassificationChart"></canvas>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-chart-pie text-muted fs-1 mb-3"></i>
+                        <p class="text-muted mb-0">No chart data available for this report.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Driver Records Table -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Driver Records</h5>
+                <div>
+                    <button class="btn btn-sm btn-outline-primary" id="toggleFilterBtn">
+                        <i class="fas fa-filter me-2"></i>Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="filter-controls d-none" id="filterControls">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label for="classificationFilter" class="form-label">Classification</label>
+                    <select id="classificationFilter" class="form-select">
+                        <option value="all">All Classifications</option>
+                        <option value="on-time">On Time</option>
+                        <option value="late">Late Start</option>
+                        <option value="early-end">Early End</option>
+                        <option value="not-on-job">Not On Job</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-3">
+                    <label for="jobSiteFilter" class="form-label">Job Site</label>
+                    <select id="jobSiteFilter" class="form-select">
+                        <option value="all">All Job Sites</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-3">
+                    <label for="supervisorFilter" class="form-label">Supervisor</label>
+                    <select id="supervisorFilter" class="form-select">
+                        <option value="all">All Supervisors</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-3 d-flex align-items-end">
+                    <button id="resetFilters" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-undo me-2"></i>Reset Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover driver-table mb-0" id="driverTable">
+                    <thead>
+                        <tr>
+                            <th>Driver Name</th>
+                            <th>Job Number</th>
+                            <th>Job Site</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Classification</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if report_data and report_data.driver_records %}
+                        {% for driver in report_data.driver_records %}
+                        <tr data-classification="{{ driver.classification|lower|replace(' ', '-') }}" data-job-site="{{ driver.job_site }}" data-supervisor="{{ driver.supervisor }}">
+                            <td>{{ driver.name }}</td>
+                            <td>{{ driver.job_number }}</td>
+                            <td>{{ driver.job_site }}</td>
+                            <td>
+                                {% if driver.start_time %}
+                                {{ driver.start_time }}
+                                {% else %}
+                                <span class="text-muted">--:--</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if driver.end_time %}
+                                {{ driver.end_time }}
+                                {% else %}
+                                <span class="text-muted">--:--</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if driver.classification == 'On Time' %}
+                                <span class="classification-badge bg-success">On Time</span>
+                                {% elif driver.classification == 'Late' %}
+                                <span class="classification-badge bg-warning">Late ({{ driver.late_minutes }} min)</span>
+                                {% elif driver.classification == 'Early End' %}
+                                <span class="classification-badge bg-info">Early End ({{ driver.early_minutes }} min)</span>
+                                {% else %}
+                                <span class="classification-badge bg-danger">Not On Job</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if driver.notes %}
+                                <span class="text-muted">{{ driver.notes }}</span>
+                                {% else %}
+                                <span class="text-muted">--</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                <i class="fas fa-users text-muted fs-4 mb-3 d-block"></i>
+                                <p class="text-muted mb-0">No driver records available in this report.</p>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle filter controls
+        document.getElementById('toggleFilterBtn').addEventListener('click', function() {
+            const filterControls = document.getElementById('filterControls');
+            filterControls.classList.toggle('d-none');
+        });
+        
+        // Filter functionality
+        const driverTable = document.getElementById('driverTable');
+        const classificationFilter = document.getElementById('classificationFilter');
+        const jobSiteFilter = document.getElementById('jobSiteFilter');
+        const supervisorFilter = document.getElementById('supervisorFilter');
+        const resetFilters = document.getElementById('resetFilters');
+        
+        // Populate job site filter options
+        const jobSites = new Set();
+        const supervisors = new Set();
+        
+        // Collect unique job sites and supervisors
+        document.querySelectorAll('#driverTable tbody tr').forEach(row => {
+            const jobSite = row.getAttribute('data-job-site');
+            const supervisor = row.getAttribute('data-supervisor');
+            
+            if (jobSite && jobSite !== 'null' && jobSite !== 'undefined') {
+                jobSites.add(jobSite);
+            }
+            
+            if (supervisor && supervisor !== 'null' && supervisor !== 'undefined') {
+                supervisors.add(supervisor);
+            }
+        });
+        
+        // Add options to filters
+        jobSites.forEach(site => {
+            const option = document.createElement('option');
+            option.value = site;
+            option.textContent = site;
+            jobSiteFilter.appendChild(option);
+        });
+        
+        supervisors.forEach(supervisor => {
+            const option = document.createElement('option');
+            option.value = supervisor;
+            option.textContent = supervisor;
+            supervisorFilter.appendChild(option);
+        });
+        
+        // Apply filters
+        function applyFilters() {
+            const classVal = classificationFilter.value;
+            const jobSiteVal = jobSiteFilter.value;
+            const supervisorVal = supervisorFilter.value;
+            
+            document.querySelectorAll('#driverTable tbody tr').forEach(row => {
+                let show = true;
+                
+                if (classVal !== 'all' && row.getAttribute('data-classification') !== classVal) {
+                    show = false;
+                }
+                
+                if (jobSiteVal !== 'all' && row.getAttribute('data-job-site') !== jobSiteVal) {
+                    show = false;
+                }
+                
+                if (supervisorVal !== 'all' && row.getAttribute('data-supervisor') !== supervisorVal) {
+                    show = false;
+                }
+                
+                row.style.display = show ? '' : 'none';
+            });
+        }
+        
+        // Event listeners for filters
+        classificationFilter.addEventListener('change', applyFilters);
+        jobSiteFilter.addEventListener('change', applyFilters);
+        supervisorFilter.addEventListener('change', applyFilters);
+        
+        // Reset filters
+        resetFilters.addEventListener('click', function() {
+            classificationFilter.value = 'all';
+            jobSiteFilter.value = 'all';
+            supervisorFilter.value = 'all';
+            applyFilters();
+        });
+        
+        // Initialize Chart.js if report data exists
+        {% if report_data and report_data.summary %}
+        const ctx = document.getElementById('driverClassificationChart').getContext('2d');
+        
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['On Time', 'Late Start', 'Early End', 'Not On Job'],
+                datasets: [{
+                    data: [
+                        {{ report_data.summary.on_time }}, 
+                        {{ report_data.summary.late }}, 
+                        {{ report_data.summary.early_end }}, 
+                        {{ report_data.summary.not_on_job }}
+                    ],
+                    backgroundColor: [
+                        'rgba(40, 167, 69, 0.8)',
+                        'rgba(255, 193, 7, 0.8)',
+                        'rgba(23, 162, 184, 0.8)',
+                        'rgba(220, 53, 69, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(40, 167, 69, 1)',
+                        'rgba(255, 193, 7, 1)',
+                        'rgba(23, 162, 184, 1)',
+                        'rgba(220, 53, 69, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        {% endif %}
+    });
+</script>
+{% endblock %}

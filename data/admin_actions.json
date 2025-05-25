@@ -1,1 +1,14 @@
-{"actions": []}
+{
+  "actions": [
+    {
+      "id": "a9f1ccaf-6e6a-4d16-aa6c-1b79069b7bb3",
+      "timestamp": "2025-05-25 01:32:30",
+      "action": "download_sync_history",
+      "message": "Sync history downloaded in csv format",
+      "category": "system",
+      "user": "system",
+      "status": "success",
+      "details": {}
+    }
+  ]
+}

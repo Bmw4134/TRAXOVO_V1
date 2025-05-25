@@ -305,6 +305,17 @@ def upload_files():
         if not report_date:
             flash("Report date is required", "danger")
             return redirect(url_for('enhanced_weekly_report_bp.upload'))
+            
+        try:
+            # Validate date format
+            date_obj = datetime.strptime(report_date, "%Y-%m-%d")
+            # Make sure date is not in the future
+            if date_obj.date() > datetime.now().date():
+                flash("Report date cannot be in the future", "warning")
+                return redirect(url_for('enhanced_weekly_report_bp.upload'))
+        except ValueError:
+            flash("Invalid date format. Please use YYYY-MM-DD format.", "danger")
+            return redirect(url_for('enhanced_weekly_report_bp.upload'))
         
         # Create upload directory if it doesn't exist
         upload_dir = os.path.join(current_app.root_path, 'uploads', 'weekly_driver_reports', report_date)
@@ -316,15 +327,90 @@ def upload_files():
             flash("No files selected", "danger")
             return redirect(url_for('enhanced_weekly_report_bp.upload'))
         
+        # Validate file types
+        allowed_extensions = {'csv', 'xlsx', 'xls'}
+        for file in files:
+            if not file.filename or '.' not in file.filename:
+                flash(f"Invalid file: {file.filename}", "danger")
+                return redirect(url_for('enhanced_weekly_report_bp.upload'))
+            
+            extension = file.filename.rsplit('.', 1)[1].lower()
+            if extension not in allowed_extensions:
+                flash(f"File type not allowed: {file.filename}. Please upload CSV or Excel files.", "danger")
+                return redirect(url_for('enhanced_weekly_report_bp.upload'))
+        
         # Save files
         saved_files = []
+        
+        # Check for required file types
+        driving_history_file = None
+        activity_detail_file = None
+        time_on_site_file = None
+        
+        # File type detection based on content and filename
+        file_type_keywords = {
+            'driving': ['driving', 'history', 'drive'],
+            'activity': ['activity', 'detail', 'activities'],
+            'time': ['time', 'site', 'assets', 'onsite']
+        }
         for file in files:
             if file and file.filename:
                 filename = secure_filename(file.filename)
                 file_path = os.path.join(upload_dir, filename)
+                
+                # Auto-detect file type based on filename
+                file_type = None
+                file_lower = filename.lower()
+                
+                for type_key, keywords in file_type_keywords.items():
+                    if any(keyword in file_lower for keyword in keywords):
+                        file_type = type_key
+                        break
+                
+                # Save file
                 file.save(file_path)
-                saved_files.append(filename)
+                saved_files.append({
+                    'path': file_path,
+                    'name': filename,
+                    'type': file_type
+                })
+                
+                # Track file by detected type
+                if file_type == 'driving' and not driving_history_file:
+                    driving_history_file = file_path
+                elif file_type == 'activity' and not activity_detail_file:
+                    activity_detail_file = file_path
+                elif file_type == 'time' and not time_on_site_file:
+                    time_on_site_file = file_path
         
+        # Check if all required files are present
+        missing_files = []
+        if not driving_history_file:
+            missing_files.append("Driving History")
+        if not activity_detail_file:
+            missing_files.append("Activity Detail")
+        if not time_on_site_file:
+            missing_files.append("Time on Site")
+            
+        if missing_files:
+            flash(f"Missing required files: {', '.join(missing_files)}. Please upload all required files.", "warning")
+            # Continue anyway as we have a fallback mechanism
+        
+        # Save upload information
+        upload_info = {
+            'date': report_date,
+            'files': saved_files,
+            'driving_history': driving_history_file,
+            'activity_detail': activity_detail_file,
+            'time_on_site': time_on_site_file,
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        }
+        
+        # Save upload info as JSON
+        info_path = os.path.join(upload_dir, 'upload_info.json')
+        with open(info_path, 'w') as f:
+            json.dump(upload_info, f)
+            
         flash(f"Successfully uploaded {len(saved_files)} files", "success")
         return redirect(url_for('enhanced_weekly_report_bp.dashboard'))
     

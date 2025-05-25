@@ -90,23 +90,23 @@
                 <a href="{{ url_for('index') }}" class="list-group-item list-group-item-action">
                     <span class="sidebar-icon"><i class="fas fa-tachometer-alt"></i></span> Dashboard
                 </a>
-                <a href="{{ url_for('driver_reports_dashboard.dashboard') }}" class="list-group-item list-group-item-action">
+                <a href="{{ url_for('enhanced_weekly_report_bp.demo_may_week') }}" class="list-group-item list-group-item-action">
                     <span class="sidebar-icon"><i class="fas fa-user-clock"></i></span> Driver Reports
                 </a>
                 <a href="{{ url_for('asset_map.asset_map') }}" class="list-group-item list-group-item-action">
                     <span class="sidebar-icon"><i class="fas fa-map-marked-alt"></i></span> Asset Map
                 </a>
-                <a href="{{ url_for('billing.billing_dashboard') if 'billing.billing_dashboard' in current_app.view_functions else '#' }}" class="list-group-item list-group-item-action">
+                <a href="{{ url_for('billing.pm_allocation') if billing_enabled else '#' }}" class="list-group-item list-group-item-action">
                     <span class="sidebar-icon"><i class="fas fa-file-invoice-dollar"></i></span> Billing
                 </a>
-                <a href="{{ url_for('system_health.health_dashboard') if 'system_health.health_dashboard' in current_app.view_functions else '#' }}" class="list-group-item list-group-item-action">
+                <a href="{{ url_for('system_health.system_health') }}" class="list-group-item list-group-item-action">
                     <span class="sidebar-icon"><i class="fas fa-heartbeat"></i></span> System Health
                 </a>
                 <div class="border-top my-3"></div>
-                <a href="{{ url_for('direct_map.map_view') }}" class="list-group-item list-group-item-action">
-                    <span class="sidebar-icon"><i class="fas fa-map"></i></span> Direct Map
+                <a href="{{ url_for('geo_tracking_basic.map_view') }}" class="list-group-item list-group-item-action">
+                    <span class="sidebar-icon"><i class="fas fa-map"></i></span> Asset Map
                 </a>
-                <a href="{{ url_for('mtd_reports_bp.upload') }}" class="list-group-item list-group-item-action">
+                <a href="{{ url_for('enhanced_weekly_report_bp.upload') }}" class="list-group-item list-group-item-action">
                     <span class="sidebar-icon"><i class="fas fa-upload"></i></span> Upload Reports
                 </a>
             </div>

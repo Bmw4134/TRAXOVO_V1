@@ -216,7 +216,8 @@ def dashboard():
             reports=reports,
             metrics=metrics,
             start_date=start_date_str,
-            end_date=end_date_str
+            end_date=end_date_str,
+            billing_enabled=True
         )
     
     except Exception as e:
@@ -224,7 +225,7 @@ def dashboard():
         import traceback
         logger.error(traceback.format_exc())
         flash(f"Error displaying dashboard: {str(e)}", "danger")
-        return render_template('driver_reports_dashboard.html', metrics={}, reports=[])
+        return render_template('driver_reports_dashboard.html', metrics={}, reports=[], billing_enabled=True)
 
 @enhanced_weekly_report_bp.route('/upload')
 def upload():

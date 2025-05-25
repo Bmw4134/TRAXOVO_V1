@@ -70,6 +70,28 @@
         font-weight: bold;
     }
     
+    /* Preview content styles */
+    .preview-content {
+        overflow-x: auto;
+        max-height: 400px;
+        overflow-y: auto;
+        background-color: var(--bs-dark);
+        border-radius: 6px;
+        padding: 0.5rem;
+    }
+    
+    .preview-content table {
+        font-size: 0.85rem;
+        width: 100%;
+    }
+    
+    .preview-content table th {
+        position: sticky;
+        top: 0;
+        background-color: var(--bs-primary);
+        z-index: 10;
+    }
+    
     /* Mobile optimization */
     @media (max-width: 768px) {
         .file-upload-container {
@@ -78,6 +100,10 @@
         
         .file-upload-icon {
             font-size: 2rem;
+        }
+        
+        .preview-content {
+            max-height: 300px;
         }
     }
 </style>
@@ -215,6 +241,9 @@
                 </div>
                 
                 <div class="mt-3">
+                    <button type="submit" name="preview_files" value="1" class="btn btn-primary" id="previewButton">
+                        <i class="fas fa-eye me-1"></i> Preview Files
+                    </button>
                     <button type="submit" class="btn btn-success" id="submitButton">
                         <i class="fas fa-paper-plane me-1"></i> Generate Report
                     </button>
@@ -225,6 +254,145 @@
             </form>
         </div>
     </div>
+    
+    {% if is_preview %}
+    <div class="card border-0 shadow mb-4">
+        <div class="card-header py-3 card-header-custom">
+            <h6 class="m-0 font-weight-bold">File Preview</h6>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Preview Mode:</strong> Review your files before processing. This helps ensure the data is formatted correctly and contains the expected information.
+            </div>
+            
+            {% if dates_detected %}
+            <div class="alert alert-success mb-4">
+                <i class="fas fa-calendar-check me-2"></i>
+                <strong>Dates Detected:</strong> 
+                {% for date in dates_detected %}
+                <span class="badge bg-success me-1">{{ date }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <ul class="nav nav-tabs mb-4" id="previewTabs" role="tablist">
+                {% if previews.driving_history %}
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="driving-history-tab" data-bs-toggle="tab" data-bs-target="#driving-history" type="button" role="tab" aria-controls="driving-history" aria-selected="true">
+                        <i class="fas fa-car me-1"></i> Driving History
+                    </button>
+                </li>
+                {% endif %}
+                
+                {% if previews.activity_detail %}
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {% if not previews.driving_history %}active{% endif %}" id="activity-detail-tab" data-bs-toggle="tab" data-bs-target="#activity-detail" type="button" role="tab" aria-controls="activity-detail" aria-selected="false">
+                        <i class="fas fa-clipboard-list me-1"></i> Activity Detail
+                    </button>
+                </li>
+                {% endif %}
+                
+                {% if previews.assets_time %}
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {% if not previews.driving_history and not previews.activity_detail %}active{% endif %}" id="assets-time-tab" data-bs-toggle="tab" data-bs-target="#assets-time" type="button" role="tab" aria-controls="assets-time" aria-selected="false">
+                        <i class="fas fa-clock me-1"></i> Assets Time
+                    </button>
+                </li>
+                {% endif %}
+            </ul>
+            
+            <div class="tab-content" id="previewTabsContent">
+                {% if previews.driving_history %}
+                <div class="tab-pane fade show active" id="driving-history" role="tabpanel" aria-labelledby="driving-history-tab">
+                    <div class="mb-3">
+                        <h5>{{ file_info.driving_history.filename }}</h5>
+                        <div class="badge bg-info me-2">{{ file_info.driving_history.rows }} rows</div>
+                        <div class="badge bg-secondary me-2">{{ file_info.driving_history.columns }} columns</div>
+                    </div>
+                    
+                    <div class="preview-content">
+                        {{ previews.driving_history|safe }}
+                    </div>
+                    
+                    {% if file_info.driving_history.column_names %}
+                    <div class="mt-3">
+                        <h6>Columns Detected:</h6>
+                        <div>
+                            {% for column in file_info.driving_history.column_names %}
+                            <span class="badge bg-secondary me-1">{{ column }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                {% if previews.activity_detail %}
+                <div class="tab-pane fade {% if not previews.driving_history %}show active{% endif %}" id="activity-detail" role="tabpanel" aria-labelledby="activity-detail-tab">
+                    <div class="mb-3">
+                        <h5>{{ file_info.activity_detail.filename }}</h5>
+                        <div class="badge bg-info me-2">{{ file_info.activity_detail.rows }} rows</div>
+                        <div class="badge bg-secondary me-2">{{ file_info.activity_detail.columns }} columns</div>
+                    </div>
+                    
+                    <div class="preview-content">
+                        {{ previews.activity_detail|safe }}
+                    </div>
+                    
+                    {% if file_info.activity_detail.column_names %}
+                    <div class="mt-3">
+                        <h6>Columns Detected:</h6>
+                        <div>
+                            {% for column in file_info.activity_detail.column_names %}
+                            <span class="badge bg-secondary me-1">{{ column }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                {% if previews.assets_time %}
+                <div class="tab-pane fade {% if not previews.driving_history and not previews.activity_detail %}show active{% endif %}" id="assets-time" role="tabpanel" aria-labelledby="assets-time-tab">
+                    <div class="mb-3">
+                        <h5>{{ file_info.assets_time.filename }}</h5>
+                        <div class="badge bg-info me-2">{{ file_info.assets_time.rows }} rows</div>
+                        <div class="badge bg-secondary me-2">{{ file_info.assets_time.columns }} columns</div>
+                    </div>
+                    
+                    <div class="preview-content">
+                        {{ previews.assets_time|safe }}
+                    </div>
+                    
+                    {% if file_info.assets_time.column_names %}
+                    <div class="mt-3">
+                        <h6>Columns Detected:</h6>
+                        <div>
+                            {% for column in file_info.assets_time.column_names %}
+                            <span class="badge bg-secondary me-1">{{ column }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="mt-4">
+                <p class="mb-1">Ready to proceed with these files?</p>
+                <div class="d-flex">
+                    <button type="submit" form="uploadForm" class="btn btn-success me-2">
+                        <i class="fas fa-paper-plane me-1"></i> Generate Report
+                    </button>
+                    <a href="{{ url_for('daily_attendance.upload_files') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-sync me-1"></i> Select Different Files
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
     
     <div class="card border-0 shadow mb-4">
         <div class="card-header py-3 card-header-custom">

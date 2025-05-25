@@ -116,6 +116,162 @@ def api_report(date_str):
 def upload_files():
     """Upload data files for report generation"""
     if request.method == 'POST':
+        # Check if the Preview button was clicked
+        if 'preview_files' in request.form:
+            # Create a temporary directory for preview files
+            import tempfile
+            temp_dir = tempfile.mkdtemp()
+            
+            # Check if files were uploaded
+            if 'driving_history' not in request.files and 'activity_detail' not in request.files and 'assets_time' not in request.files:
+                flash('No files selected for preview', 'warning')
+                return redirect(request.url)
+            
+            # Get selected date
+            date_str = request.form.get('date')
+            process_all_dates = request.form.get('process_all_dates') == 'on'
+            
+            # Variables to store preview data
+            previews = {}
+            file_info = {}
+            dates_detected = []
+            
+            # Process driving history file for preview
+            if 'driving_history' in request.files and request.files['driving_history'].filename:
+                file = request.files['driving_history']
+                filename = file.filename
+                temp_path = os.path.join(temp_dir, filename)
+                file.save(temp_path)
+                
+                try:
+                    import pandas as pd
+                    # Try to read the file with different methods
+                    try:
+                        df = pd.read_csv(temp_path, on_bad_lines='skip')
+                    except:
+                        try:
+                            df = pd.read_csv(temp_path, sep=None, engine='python', on_bad_lines='skip')
+                        except:
+                            df = pd.read_csv(temp_path, sep=',', engine='python', 
+                                          on_bad_lines='skip', skipinitialspace=True, quotechar='"')
+                    
+                    # Get preview data
+                    preview_rows = min(5, len(df))
+                    previews['driving_history'] = df.head(preview_rows).to_html(classes='table table-sm table-striped table-dark')
+                    file_info['driving_history'] = {
+                        'filename': filename,
+                        'rows': len(df),
+                        'columns': len(df.columns),
+                        'column_names': list(df.columns)
+                    }
+                    
+                    # Try to extract dates
+                    if 'Date' in df.columns:
+                        try:
+                            df['Date'] = pd.to_datetime(df['Date'])
+                            dates = df['Date'].dt.date.unique()
+                            dates_str = [d.strftime('%Y-%m-%d') for d in dates]
+                            dates_detected.extend(dates_str)
+                            file_info['driving_history']['dates'] = dates_str
+                        except Exception as e:
+                            logger.warning(f"Error extracting dates: {str(e)}")
+                except Exception as e:
+                    previews['driving_history'] = f"<div class='alert alert-danger'>Error previewing file: {str(e)}</div>"
+                    file_info['driving_history'] = {
+                        'filename': filename,
+                        'error': str(e)
+                    }
+            
+            # Process activity detail file for preview
+            if 'activity_detail' in request.files and request.files['activity_detail'].filename:
+                file = request.files['activity_detail']
+                filename = file.filename
+                temp_path = os.path.join(temp_dir, filename)
+                file.save(temp_path)
+                
+                try:
+                    import pandas as pd
+                    # Try to read the file with different methods
+                    try:
+                        df = pd.read_csv(temp_path, on_bad_lines='skip')
+                    except:
+                        try:
+                            df = pd.read_csv(temp_path, sep=None, engine='python', on_bad_lines='skip')
+                        except:
+                            df = pd.read_csv(temp_path, sep=',', engine='python', 
+                                          on_bad_lines='skip', skipinitialspace=True, quotechar='"')
+                    
+                    # Get preview data
+                    preview_rows = min(5, len(df))
+                    previews['activity_detail'] = df.head(preview_rows).to_html(classes='table table-sm table-striped table-dark')
+                    file_info['activity_detail'] = {
+                        'filename': filename,
+                        'rows': len(df),
+                        'columns': len(df.columns),
+                        'column_names': list(df.columns)
+                    }
+                except Exception as e:
+                    previews['activity_detail'] = f"<div class='alert alert-danger'>Error previewing file: {str(e)}</div>"
+                    file_info['activity_detail'] = {
+                        'filename': filename,
+                        'error': str(e)
+                    }
+            
+            # Process assets time file for preview
+            if 'assets_time' in request.files and request.files['assets_time'].filename:
+                file = request.files['assets_time']
+                filename = file.filename
+                temp_path = os.path.join(temp_dir, filename)
+                file.save(temp_path)
+                
+                try:
+                    import pandas as pd
+                    # Try to read the file with different methods
+                    try:
+                        df = pd.read_csv(temp_path, on_bad_lines='skip')
+                    except:
+                        try:
+                            df = pd.read_csv(temp_path, sep=None, engine='python', on_bad_lines='skip')
+                        except:
+                            df = pd.read_csv(temp_path, sep=',', engine='python', 
+                                          on_bad_lines='skip', skipinitialspace=True, quotechar='"')
+                    
+                    # Get preview data
+                    preview_rows = min(5, len(df))
+                    previews['assets_time'] = df.head(preview_rows).to_html(classes='table table-sm table-striped table-dark')
+                    file_info['assets_time'] = {
+                        'filename': filename,
+                        'rows': len(df),
+                        'columns': len(df.columns),
+                        'column_names': list(df.columns)
+                    }
+                except Exception as e:
+                    previews['assets_time'] = f"<div class='alert alert-danger'>Error previewing file: {str(e)}</div>"
+                    file_info['assets_time'] = {
+                        'filename': filename,
+                        'error': str(e)
+                    }
+            
+            # Clean up the temporary directory
+            import shutil
+            shutil.rmtree(temp_dir)
+            
+            # If we detected dates from the files
+            if dates_detected and not date_str:
+                date_str = dates_detected[0]  # Use the first detected date
+                
+            # Pass everything to the template for preview
+            return render_template(
+                'daily_attendance/upload.html',
+                date=date_str,
+                process_all_dates=process_all_dates,
+                previews=previews,
+                file_info=file_info,
+                dates_detected=dates_detected,
+                is_preview=True
+            )
+        
+        # Regular processing - files were uploaded and process button was clicked
         # Check if files were uploaded
         if 'driving_history' not in request.files and 'activity_detail' not in request.files and 'assets_time' not in request.files:
             flash('No files selected', 'warning')
@@ -234,7 +390,8 @@ def upload_files():
             return redirect(url_for('daily_attendance.index', date=date_str))
     
     # GET request - show upload form
-    return render_template('daily_attendance/upload.html')
+    today = datetime.now().strftime('%Y-%m-%d')
+    return render_template('daily_attendance/upload.html', date=today)
 
 # Helper functions
 

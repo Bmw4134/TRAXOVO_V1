@@ -110,18 +110,13 @@ try:
 except ImportError:
     logger.warning("Weekly Driver Report module not found")
 
+# Only use the enhanced version of the Daily Driver Report
 try:
     from routes.daily_driver_report_enhanced import daily_driver_report_bp
     app.register_blueprint(daily_driver_report_bp)
     logger.info("Enhanced Daily Driver Report blueprint registered")
 except ImportError:
     logger.warning("Enhanced Daily Driver Report module not found")
-    try:
-        from routes.daily_driver_report import daily_driver_report_bp
-        app.register_blueprint(daily_driver_report_bp)
-        logger.info("Daily Driver Report blueprint registered")
-    except ImportError:
-        logger.warning("Daily Driver Report module not found")
     
 # Register Weekly Driver Report (mobile-friendly version)
 try:

@@ -212,6 +212,27 @@ def load_report_data(date_str):
         with open(report_file, 'r', encoding='utf-8') as f:
             report_data = json.load(f)
         
+        # Ensure all required fields exist in the report data
+        if "summary" not in report_data:
+            report_data["summary"] = {}
+            
+        summary = report_data["summary"]
+        # Ensure all required metrics exist
+        if "total_drivers" not in summary:
+            summary["total_drivers"] = len(report_data.get("drivers", []))
+        if "on_time" not in summary:
+            summary["on_time"] = sum(1 for d in report_data.get("drivers", []) if d.get("classification") == "ON_TIME")
+        if "late_start" not in summary:
+            summary["late_start"] = sum(1 for d in report_data.get("drivers", []) if d.get("classification") == "LATE_START")
+        if "early_end" not in summary:
+            summary["early_end"] = sum(1 for d in report_data.get("drivers", []) if d.get("classification") == "EARLY_END")
+        if "not_on_job" not in summary:
+            summary["not_on_job"] = sum(1 for d in report_data.get("drivers", []) if d.get("classification") == "NOT_ON_JOB")
+            
+        # For backward compatibility with old templates
+        if "late" not in summary:
+            summary["late"] = summary["late_start"]
+        
         return report_data
     
     except Exception as e:

@@ -48,7 +48,7 @@ def process_daily_attendance(date_str=None):
                         If None, process yesterday's data
     
     Returns:
-        str: Path to the generated report file, or None if failed
+        tuple: (json_path, excel_path) paths to the generated report files, or (None, None) if failed
     """
     try:
         # Get date to process
@@ -57,21 +57,23 @@ def process_daily_attendance(date_str=None):
             
         logger.info(f"Processing attendance data for {date_str}")
         
-        # Process filtered data
-        report_path = process_filtered_data(date_str)
+        # Process filtered data - now returns both JSON and Excel paths
+        json_path, excel_path = process_filtered_data(date_str)
         
-        if report_path:
-            logger.info(f"Successfully generated attendance report: {report_path}")
-            return report_path
+        if json_path and excel_path:
+            logger.info(f"Successfully generated attendance reports:")
+            logger.info(f"  - JSON: {json_path}")
+            logger.info(f"  - Excel: {excel_path}")
+            return json_path, excel_path
         else:
-            logger.error(f"Failed to generate attendance report for {date_str}")
-            return None
+            logger.error(f"Failed to generate one or more attendance reports for {date_str}")
+            return None, None
             
     except Exception as e:
         logger.error(f"Error processing daily attendance: {e}")
         import traceback
         logger.error(traceback.format_exc())
-        return None
+        return None, None
 
 def main():
     """Main function"""
@@ -88,13 +90,21 @@ def main():
         # Default to yesterday
         date_to_process = get_yesterday_date()
     
-    # Process attendance data
-    report_path = process_daily_attendance(date_to_process)
+    # Process attendance data - now returns tuple of (json_path, excel_path)
+    json_path, excel_path = process_daily_attendance(date_to_process)
     
-    if report_path:
+    if json_path and excel_path:
+        # Both reports generated successfully
+        logger.info(f"Daily attendance processing completed successfully for {date_to_process}")
+        logger.info(f"Reports available at:")
+        logger.info(f"  - JSON: {json_path}")
+        logger.info(f"  - Excel: {excel_path}")
+        logger.info(f"  - Excel Report: reports/daily_driver_reports/DAILY_DRIVER_REPORT_{date_to_process.replace('-', '_')}.xlsx")
         # Return success
         sys.exit(0)
     else:
+        # One or both reports failed
+        logger.error(f"Daily attendance processing failed for {date_to_process}")
         # Return failure
         sys.exit(1)
 

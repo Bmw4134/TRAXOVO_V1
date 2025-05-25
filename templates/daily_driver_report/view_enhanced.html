@@ -83,8 +83,8 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h6 class="text-muted mb-1">On Time</h6>
-                            <h3 class="mb-0">{{ report_data.summary.on_time }}</h3>
-                            <small class="text-success">{{ report_data.metrics.on_time_percentage|round|int }}% of drivers</small>
+                            <h3 class="mb-0">{{ report_data.summary.on_time if report_data and report_data.summary else 0 }}</h3>
+                            <small class="text-success">{{ report_data.metrics.on_time_percentage|round|int if report_data and report_data.metrics else 0 }}% of drivers</small>
                         </div>
                         <div class="rounded-circle bg-success bg-opacity-10 p-3">
                             <i class="fas fa-check text-success fs-4"></i>
@@ -100,8 +100,8 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h6 class="text-muted mb-1">Late Start</h6>
-                            <h3 class="mb-0">{{ report_data.summary.late }}</h3>
-                            <small class="text-warning">{{ report_data.metrics.late_percentage|round|int }}% of drivers</small>
+                            <h3 class="mb-0">{{ report_data.summary.late if report_data and report_data.summary else 0 }}</h3>
+                            <small class="text-warning">{{ report_data.metrics.late_percentage|round|int if report_data and report_data.metrics else 0 }}% of drivers</small>
                         </div>
                         <div class="rounded-circle bg-warning bg-opacity-10 p-3">
                             <i class="fas fa-clock text-warning fs-4"></i>
@@ -117,8 +117,8 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h6 class="text-muted mb-1">Early End</h6>
-                            <h3 class="mb-0">{{ report_data.summary.early_end }}</h3>
-                            <small class="text-info">{{ report_data.metrics.early_end_percentage|round|int }}% of drivers</small>
+                            <h3 class="mb-0">{{ report_data.summary.early_end if report_data and report_data.summary else 0 }}</h3>
+                            <small class="text-info">{{ report_data.metrics.early_end_percentage|round|int if report_data and report_data.metrics else 0 }}% of drivers</small>
                         </div>
                         <div class="rounded-circle bg-info bg-opacity-10 p-3">
                             <i class="fas fa-hourglass-end text-info fs-4"></i>

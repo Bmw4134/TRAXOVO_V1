@@ -110,8 +110,9 @@ def dashboard():
         # Check if we have all required files for automated generation
         can_generate = len(file_groups['driving_history']) > 0 or len(file_groups['time_on_site']) > 0
         
+        # Use the enhanced dashboard template
         return render_template(
-            'daily_driver_report/dashboard.html',
+            'daily_driver_report/dashboard_enhanced.html',
             today=today_str,
             today_formatted=today.strftime('%A, %B %d, %Y'),
             date_range=date_range,
@@ -124,7 +125,7 @@ def dashboard():
         logger.error(f"Error displaying daily driver report dashboard: {str(e)}")
         logger.error(traceback.format_exc())
         flash(f"Error displaying dashboard: {str(e)}", "danger")
-        return render_template('daily_driver_report/dashboard.html')
+        return render_template('daily_driver_report/dashboard_enhanced.html')
 
 @daily_driver_report_bp.route('/upload', methods=['GET', 'POST'])
 def upload_files():
@@ -191,8 +192,9 @@ def upload_files():
             flash(f"Error uploading files: {str(e)}", "danger")
             return redirect(url_for('daily_driver_report.upload_files'))
     
-    # GET request - show upload form
-    return render_template('daily_driver_report/upload.html')
+    # GET request - show enhanced upload form
+    today_date = datetime.now().strftime('%Y-%m-%d')
+    return render_template('daily_driver_report/upload_enhanced.html', today_date=today_date)
 
 @daily_driver_report_bp.route('/generate/<date>')
 def generate_report(date):

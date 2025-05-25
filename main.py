@@ -231,6 +231,20 @@ except ImportError:
     logger.warning("File Organizer module not found")
 except Exception as e:
     logger.error(f"Error with File Organizer blueprint: {e}")
+    
+# Register Driver-Asset Manager Blueprint
+try:
+    # Check if the blueprint is already registered to avoid duplicate registration
+    if not any(bp.name == 'driver_asset_manager' for bp in app.blueprints.values()):
+        from routes.driver_asset_manager import driver_asset_manager_bp
+        app.register_blueprint(driver_asset_manager_bp)
+        logger.info("Driver-Asset Manager blueprint registered successfully")
+    else:
+        logger.info("Driver-Asset Manager blueprint already registered")
+except ImportError:
+    logger.warning("Driver-Asset Manager module not found")
+except Exception as e:
+    logger.error(f"Error with Driver-Asset Manager blueprint: {e}")
 
 @app.route('/attendance/')
 @app.route('/attendance')

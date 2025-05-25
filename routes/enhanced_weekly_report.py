@@ -627,47 +627,51 @@ def download_report(start_date, end_date, format):
         with open(report_path, 'r') as f:
             report = json.load(f)
         
-        # Process data into a flat format for CSV export
+        # Prepare date formatting for filename
+        start = datetime.strptime(start_date, '%Y-%m-%d').date()
+        end = datetime.strptime(end_date, '%Y-%m-%d').date()
+        date_range = f"{start.strftime('%m%d')}-{end.strftime('%m%d')}"
+        download_path = os.path.join(get_reports_directory(), f"traxora_driver_report_{date_range}.{format}")
+        
+        # Process data into requested format
         if format.lower() == 'csv':
             try:
                 # Convert to CSV using pandas
                 import pandas as pd
-                from io import StringIO
-                from flask import Response
                 
                 # Prepare a flattened data structure for CSV
                 flat_data = []
                 
                 # Add daily driver records for each day
                 for date_str, daily_report in report.get('daily_reports', {}).items():
+                    date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
+                    formatted_date = date_obj.strftime('%m/%d/%Y')
+                    
                     for record in daily_report.get('driver_records', []):
                         flat_record = {
-                            'Date': date_str,
+                            'Date': formatted_date,
                             'Driver Name': record.get('driver_name', ''),
                             'Employee ID': record.get('employee_id', ''),
                             'Status': record.get('attendance_status', ''),
                             'Job Site': record.get('job_site', ''),
-                            'First Seen': record.get('first_seen', ''),
-                            'Last Seen': record.get('last_seen', ''),
-                            'Hours': record.get('total_time', 0),
-                            'Timecard Status': record.get('timecard_status', ''),
-                            'Source': record.get('status_source', 'gps')
+                            'First Start': record.get('first_start_time', ''),
+                            'Last End': record.get('last_end_time', ''),
+                            'Hours': record.get('total_hours', 0),
+                            'Vehicle ID': record.get('vehicle_id', ''),
+                            'Notes': record.get('notes', '')
                         }
                         flat_data.append(flat_record)
                 
                 # Convert to DataFrame and then to CSV
                 df = pd.DataFrame(flat_data)
-                csv_data = df.to_csv(index=False)
+                df.to_csv(download_path, index=False)
                 
-                # Create response with CSV data
-                response = Response(
-                    csv_data,
-                    mimetype='text/csv',
-                    headers={
-                        'Content-Disposition': f'attachment; filename=weekly_driver_report_{start_date}_to_{end_date}.csv'
-                    }
+                return send_file(
+                    download_path,
+                    as_attachment=True,
+                    download_name=f"traxora_driver_report_{date_range}.csv",
+                    mimetype='text/csv'
                 )
-                return response
                 
             except Exception as e:
                 logger.error(f"Error generating CSV: {str(e)}")
@@ -676,20 +680,186 @@ def download_report(start_date, end_date, format):
         
         # JSON format
         elif format.lower() == 'json':
-            # Return the JSON data directly
-            from flask import Response
-            response = Response(
-                json.dumps(report, indent=2),
-                mimetype='application/json',
-                headers={
-                    'Content-Disposition': f'attachment; filename=weekly_driver_report_{start_date}_to_{end_date}.json'
-                }
+            # Dump JSON file
+            with open(download_path, 'w') as f:
+                json.dump(report, f, indent=2)
+            
+            return send_file(
+                download_path,
+                as_attachment=True,
+                download_name=f"traxora_driver_report_{date_range}.json",
+                mimetype='application/json'
             )
-            return response
+            
+        # PDF format
+        elif format.lower() == 'pdf':
+            try:
+                from reportlab.lib.pagesizes import letter, landscape
+                from reportlab.lib import colors
+                from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+                from reportlab.lib.styles import getSampleStyleSheet
+                
+                doc = SimpleDocTemplate(download_path, pagesize=landscape(letter))
+                elements = []
+                
+                # Add title
+                styles = getSampleStyleSheet()
+                title = Paragraph(f"TRAXORA Driver Report: {start_date} to {end_date}", styles['Heading1'])
+                elements.append(title)
+                elements.append(Spacer(1, 12))
+                
+                # Add summary data
+                summary_data = [
+                    ['Metric', 'Count', 'Percentage'],
+                    ['On Time', str(report.get('summary', {}).get('counts', {}).get('on_time', 0)), 
+                     f"{report.get('summary', {}).get('attendance_percentages', {}).get('on_time', 0)}%"],
+                    ['Late Start', str(report.get('summary', {}).get('counts', {}).get('late_starts', 0)), 
+                     f"{report.get('summary', {}).get('attendance_percentages', {}).get('late_starts', 0)}%"],
+                    ['Early End', str(report.get('summary', {}).get('counts', {}).get('early_ends', 0)), 
+                     f"{report.get('summary', {}).get('attendance_percentages', {}).get('early_ends', 0)}%"],
+                    ['Not On Job', str(report.get('summary', {}).get('counts', {}).get('not_on_job', 0)), 
+                     f"{report.get('summary', {}).get('attendance_percentages', {}).get('not_on_job', 0)}%"],
+                    ['Total', str(report.get('summary', {}).get('total_drivers', 0)), '100%']
+                ]
+                
+                summary_table = Table(summary_data, colWidths=[200, 100, 100])
+                summary_table.setStyle(TableStyle([
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.darkblue),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                    ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                    ('BACKGROUND', (0, -1), (-1, -1), colors.lightgrey),
+                    ('GRID', (0, 0), (-1, -1), 1, colors.black)
+                ]))
+                
+                elements.append(summary_table)
+                elements.append(Spacer(1, 24))
+                
+                # Add detailed driver data
+                data_rows = [['Date', 'Driver Name', 'Status', 'Start Time', 'End Time', 'Hours', 'Job Site']]
+                
+                for date_str, daily_report in report.get('daily_reports', {}).items():
+                    date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
+                    formatted_date = date_obj.strftime('%m/%d/%Y')
+                    
+                    for driver in daily_report.get('driver_records', []):
+                        data_rows.append([
+                            formatted_date,
+                            driver.get('driver_name', 'Unknown'),
+                            driver.get('attendance_status', 'Unknown'),
+                            driver.get('first_start_time', ''),
+                            driver.get('last_end_time', ''),
+                            driver.get('total_hours', ''),
+                            driver.get('job_site', '')
+                        ])
+                
+                # Sort by date and driver name
+                data_rows[1:] = sorted(data_rows[1:], key=lambda x: (x[0], x[1]))
+                
+                detail_table = Table(data_rows, repeatRows=1)
+                detail_table.setStyle(TableStyle([
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.darkblue),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                    ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                    ('GRID', (0, 0), (-1, -1), 1, colors.black)
+                ]))
+                
+                elements.append(Paragraph("Driver Detail", styles['Heading2']))
+                elements.append(Spacer(1, 12))
+                elements.append(detail_table)
+                
+                # Build PDF
+                doc.build(elements)
+                
+                return send_file(
+                    download_path,
+                    as_attachment=True,
+                    download_name=f"traxora_driver_report_{date_range}.pdf",
+                    mimetype='application/pdf'
+                )
+                
+            except ImportError as e:
+                logger.error(f"PDF generation failed due to missing dependencies: {str(e)}")
+                flash("PDF generation failed due to missing dependencies. Using CSV format instead.", "warning")
+                format = 'csv'  # Fallback to CSV
+                # Recursively call with CSV format
+                return download_report(start_date, end_date, 'csv')
+                
+        # Excel format
+        elif format.lower() == 'excel':
+            try:
+                import pandas as pd
+                
+                # Create DataFrame
+                rows = []
+                
+                for date_str, daily_report in report.get('daily_reports', {}).items():
+                    date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
+                    formatted_date = date_obj.strftime('%m/%d/%Y')
+                    
+                    for driver in daily_report.get('driver_records', []):
+                        rows.append({
+                            'Date': formatted_date,
+                            'Driver Name': driver.get('driver_name', 'Unknown'),
+                            'Status': driver.get('attendance_status', 'Unknown'),
+                            'Start Time': driver.get('first_start_time', ''),
+                            'End Time': driver.get('last_end_time', ''),
+                            'Hours': driver.get('total_hours', ''),
+                            'Job Site': driver.get('job_site', ''),
+                            'Vehicle ID': driver.get('vehicle_id', ''),
+                            'Notes': driver.get('notes', '')
+                        })
+                
+                df = pd.DataFrame(rows)
+                
+                # Sort by date and driver name
+                df.sort_values(by=['Date', 'Driver Name'], inplace=True)
+                
+                # Create Excel writer
+                with pd.ExcelWriter(download_path, engine='openpyxl') as writer:
+                    # Write summary sheet
+                    summary_data = {
+                        'Metric': ['On Time', 'Late Start', 'Early End', 'Not On Job', 'Total'],
+                        'Count': [
+                            report.get('summary', {}).get('counts', {}).get('on_time', 0),
+                            report.get('summary', {}).get('counts', {}).get('late_starts', 0),
+                            report.get('summary', {}).get('counts', {}).get('early_ends', 0),
+                            report.get('summary', {}).get('counts', {}).get('not_on_job', 0),
+                            report.get('summary', {}).get('total_drivers', 0)
+                        ],
+                        'Percentage': [
+                            f"{report.get('summary', {}).get('attendance_percentages', {}).get('on_time', 0)}%",
+                            f"{report.get('summary', {}).get('attendance_percentages', {}).get('late_starts', 0)}%",
+                            f"{report.get('summary', {}).get('attendance_percentages', {}).get('early_ends', 0)}%",
+                            f"{report.get('summary', {}).get('attendance_percentages', {}).get('not_on_job', 0)}%",
+                            '100%'
+                        ]
+                    }
+                    
+                    summary_df = pd.DataFrame(summary_data)
+                    summary_df.to_excel(writer, sheet_name='Summary', index=False)
+                    
+                    # Write detail sheet
+                    df.to_excel(writer, sheet_name='Driver Detail', index=False)
+                
+                return send_file(
+                    download_path,
+                    as_attachment=True,
+                    download_name=f"traxora_driver_report_{date_range}.xlsx",
+                    mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                )
+                
+            except ImportError as e:
+                logger.error(f"Excel generation failed due to missing dependencies: {str(e)}")
+                flash("Excel generation failed due to missing dependencies. Using CSV format instead.", "warning")
+                return download_report(start_date, end_date, 'csv')
         
         # Invalid format
         else:
-            flash('Invalid download format. Please choose CSV or JSON.', 'warning')
+            flash(f'Unsupported download format: {format}. Please choose CSV, JSON, PDF, or Excel.', 'warning')
             return redirect(url_for('enhanced_weekly_report_bp.view_report', start_date=start_date, end_date=end_date))
     
     except Exception as e:

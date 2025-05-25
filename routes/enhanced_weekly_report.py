@@ -37,11 +37,37 @@ def get_attached_assets_directory():
     os.makedirs(attached_assets_dir, exist_ok=True)
     return attached_assets_dir
 
+@enhanced_weekly_report_bp.route('/generate-report')
+def generate_report():
+    """
+    Generate a new weekly report with current date range
+    Default to the most recent week (Monday-Sunday)
+    """
+    # Get the current date
+    today = datetime.now()
+    
+    # Find the most recent Monday
+    days_since_monday = today.weekday()
+    last_monday = today - timedelta(days=days_since_monday)
+    
+    # Set date range (Monday to Sunday)
+    start_date = last_monday.strftime('%Y-%m-%d')
+    end_date = (last_monday + timedelta(days=6)).strftime('%Y-%m-%d')
+    
+    # Store in session for future use
+    session['report_start_date'] = start_date
+    session['report_end_date'] = end_date
+    
+    # Redirect to the upload page with date range
+    return redirect(url_for('enhanced_weekly_report_bp.dashboard', 
+                           start_date=start_date, 
+                           end_date=end_date))
+
 @enhanced_weekly_report_bp.route('/demo-may-week')
 def demo_may_week():
     """Process and display May 18-24 demo data"""
     try:
-        from utils.demo_processor import process_may_week_report, get_formatted_dates
+        from utils.demo_processor import process_may_week_report
         
         # Process demo report
         report_data = process_may_week_report()
@@ -50,8 +76,11 @@ def demo_may_week():
             flash("Error processing demo data. Please check the logs for details.", "danger")
             return redirect(url_for('enhanced_weekly_report_bp.dashboard'))
         
-        # Get formatted dates
-        start_formatted, end_formatted = get_formatted_dates()
+        # Define the date range for May week
+        start_date = "2025-05-18"
+        end_date = "2025-05-24"
+        start_formatted = "May 18, 2025"
+        end_formatted = "May 24, 2025"
         
         # Format start and end dates
         return render_template('enhanced_weekly_report/view.html',

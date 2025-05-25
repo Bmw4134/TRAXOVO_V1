@@ -74,12 +74,20 @@
 {% block page_subtitle %}Date range analysis with GENIUS CORE validation{% endblock %}
 
 {% block page_actions %}
-<a href="{{ url_for('enhanced_weekly_report_bp.download_report', start_date=start_date, end_date=end_date, format='csv') }}" class="btn btn-outline-success">
-    <i class="bi bi-download me-2"></i> Download CSV
+<a href="{{ url_for('enhanced_weekly_report_bp.generate_report') }}" class="btn btn-primary me-2">
+    <i class="bi bi-play-circle me-2"></i> Generate New Report
 </a>
-<a href="{{ url_for('enhanced_weekly_report_bp.download_report', start_date=start_date, end_date=end_date, format='json') }}" class="btn btn-outline-primary ms-2">
-    <i class="bi bi-download me-2"></i> Download JSON
-</a>
+<div class="btn-group">
+    <button type="button" class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-download me-2"></i> Download Report
+    </button>
+    <ul class="dropdown-menu dropdown-menu-dark">
+        <li><a class="dropdown-item" href="{{ url_for('enhanced_weekly_report_bp.download_report', start_date=start_date, end_date=end_date, format='csv') }}">CSV Format</a></li>
+        <li><a class="dropdown-item" href="{{ url_for('enhanced_weekly_report_bp.download_report', start_date=start_date, end_date=end_date, format='json') }}">JSON Format</a></li>
+        <li><a class="dropdown-item" href="{{ url_for('enhanced_weekly_report_bp.download_report', start_date=start_date, end_date=end_date, format='pdf') }}">PDF Format</a></li>
+        <li><a class="dropdown-item" href="{{ url_for('enhanced_weekly_report_bp.download_report', start_date=start_date, end_date=end_date, format='excel') }}">Excel Format</a></li>
+    </ul>
+</div>
 {% endblock %}
 
 {% block content %}
@@ -115,6 +123,52 @@
     </div>
 </div>
 
+<!-- Filter Controls -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card bg-dark border-0 shadow-sm">
+            <div class="card-header bg-dark">
+                <h5 class="card-title mb-0">Filter Options</h5>
+            </div>
+            <div class="card-body">
+                <form id="filterForm" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="filterStatus" class="form-label">Status</label>
+                        <select id="filterStatus" class="form-select bg-dark text-light border-secondary">
+                            <option value="all">All Statuses</option>
+                            <option value="on-time">On Time</option>
+                            <option value="late">Late Start</option>
+                            <option value="early-end">Early End</option>
+                            <option value="not-on-job">Not On Job</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="filterJobSite" class="form-label">Job Site</label>
+                        <select id="filterJobSite" class="form-select bg-dark text-light border-secondary">
+                            <option value="all">All Job Sites</option>
+                            {% for job_site in report.job_sites %}
+                            <option value="{{ job_site }}">{{ job_site }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="filterDriver" class="form-label">Driver</label>
+                        <input type="text" id="filterDriver" class="form-control bg-dark text-light border-secondary" placeholder="Driver name...">
+                    </div>
+                    <div class="col-12 text-end">
+                        <button type="button" id="applyFilter" class="btn btn-primary">
+                            <i class="bi bi-funnel me-2"></i> Apply Filters
+                        </button>
+                        <button type="button" id="resetFilter" class="btn btn-outline-secondary ms-2">
+                            <i class="bi bi-arrow-counterclockwise me-2"></i> Reset Filters
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Weekly Summary -->
 <div class="row mb-4">
     <div class="col-12">
@@ -135,29 +189,29 @@
                                 <div style="height: 250px">
                                     <canvas id="attendanceChart"></canvas>
                                 </div>
-                                <div class="row mt-3 text-center">
-                                    <div class="col-3">
-                                        <div class="rounded p-2 bg-dark border border-success">
-                                            <h4 class="mb-0">{{ report.summary.attendance_percentages.on_time }}%</h4>
-                                            <small class="text-muted">On Time</small>
+                                <div class="row mt-3 text-center g-2">
+                                    <div class="col-6 col-sm-3">
+                                        <div class="metric-card on-time rounded p-2 bg-dark border border-success">
+                                            <h4 class="mb-0 fs-5 fs-md-4">{{ report.summary.attendance_percentages.on_time }}%</h4>
+                                            <small class="text-muted d-block">On Time</small>
                                         </div>
                                     </div>
-                                    <div class="col-3">
-                                        <div class="rounded p-2 bg-dark border border-warning">
-                                            <h4 class="mb-0">{{ report.summary.attendance_percentages.late_starts }}%</h4>
-                                            <small class="text-muted">Late Starts</small>
+                                    <div class="col-6 col-sm-3">
+                                        <div class="metric-card late rounded p-2 bg-dark border border-warning">
+                                            <h4 class="mb-0 fs-5 fs-md-4">{{ report.summary.attendance_percentages.late_starts }}%</h4>
+                                            <small class="text-muted d-block">Late Starts</small>
                                         </div>
                                     </div>
-                                    <div class="col-3">
-                                        <div class="rounded p-2 bg-dark border border-orange">
-                                            <h4 class="mb-0">{{ report.summary.attendance_percentages.early_ends }}%</h4>
-                                            <small class="text-muted">Early Ends</small>
+                                    <div class="col-6 col-sm-3">
+                                        <div class="metric-card early-end rounded p-2 bg-dark border border-info">
+                                            <h4 class="mb-0 fs-5 fs-md-4">{{ report.summary.attendance_percentages.early_ends }}%</h4>
+                                            <small class="text-muted d-block">Early Ends</small>
                                         </div>
                                     </div>
-                                    <div class="col-3">
-                                        <div class="rounded p-2 bg-dark border border-danger">
-                                            <h4 class="mb-0">{{ report.summary.attendance_percentages.not_on_job }}%</h4>
-                                            <small class="text-muted">Not On Job</small>
+                                    <div class="col-6 col-sm-3">
+                                        <div class="metric-card not-on-job rounded p-2 bg-dark border border-danger">
+                                            <h4 class="mb-0 fs-5 fs-md-4">{{ report.summary.attendance_percentages.not_on_job }}%</h4>
+                                            <small class="text-muted d-block">Not On Job</small>
                                         </div>
                                     </div>
                                 </div>
@@ -860,5 +914,85 @@
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         document.querySelector('.filter-btn[data-filter="all"]').classList.add('active');
     }
+    
+    // Enhanced filtering functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set up filter functionality
+        const applyFilterBtn = document.getElementById('applyFilter');
+        const resetFilterBtn = document.getElementById('resetFilter');
+        const filterStatus = document.getElementById('filterStatus');
+        const filterJobSite = document.getElementById('filterJobSite');
+        const filterDriver = document.getElementById('filterDriver');
+        
+        if (applyFilterBtn) {
+            applyFilterBtn.addEventListener('click', function() {
+                applyFilters();
+            });
+        }
+        
+        if (resetFilterBtn) {
+            resetFilterBtn.addEventListener('click', function() {
+                resetFilters();
+            });
+        }
+        
+        if (filterDriver) {
+            filterDriver.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    applyFilters();
+                }
+            });
+        }
+        
+        function applyFilters() {
+            const status = filterStatus ? filterStatus.value : 'all';
+            const jobSite = filterJobSite ? filterJobSite.value : 'all';
+            const driverName = filterDriver ? filterDriver.value.toLowerCase() : '';
+            
+            const rows = document.querySelectorAll('#weekly-driver-list .driver-row');
+            
+            rows.forEach(row => {
+                const rowStatus = row.getAttribute('data-status');
+                const rowJobSite = row.getAttribute('data-job-site');
+                const rowDriver = row.getAttribute('data-driver').toLowerCase();
+                
+                const statusMatch = status === 'all' || rowStatus === status;
+                const jobSiteMatch = jobSite === 'all' || rowJobSite === jobSite;
+                const driverMatch = driverName === '' || rowDriver.includes(driverName);
+                
+                if (statusMatch && jobSiteMatch && driverMatch) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            
+            // Update filtered count
+            const visibleCount = Array.from(rows).filter(row => row.style.display !== 'none').length;
+            const totalCount = rows.length;
+            
+            const filterInfoEl = document.getElementById('filterInfo');
+            if (filterInfoEl) {
+                filterInfoEl.textContent = `Showing ${visibleCount} of ${totalCount} records`;
+                filterInfoEl.style.display = 'block';
+            }
+        }
+        
+        function resetFilters() {
+            if (filterStatus) filterStatus.value = 'all';
+            if (filterJobSite) filterJobSite.value = 'all';
+            if (filterDriver) filterDriver.value = '';
+            
+            const rows = document.querySelectorAll('#weekly-driver-list .driver-row');
+            rows.forEach(row => {
+                row.style.display = '';
+            });
+            
+            const filterInfoEl = document.getElementById('filterInfo');
+            if (filterInfoEl) {
+                filterInfoEl.style.display = 'none';
+            }
+        }
+    });
 </script>
 {% endblock %}

@@ -63,7 +63,10 @@ def process_filtered_data(date_str):
                 'hours': record.get('Hours', 0),
                 'source': record.get('Source', 'gps'),
                 'event_datetime': record.get('EventDateTime'),
-                'location': record.get('Location')
+                'location': record.get('Location'),
+                'contact': record.get('Contact', ''),  # Add contact field
+                'phone': record.get('Phone', ''),     # Add phone field
+                'email': record.get('Email', '')      # Add email field
             }
             driving_history_data.append(driving_record)
             

@@ -123,7 +123,10 @@ def upload_files():
             temp_dir = tempfile.mkdtemp()
             
             # Check if files were uploaded
-            if 'driving_history' not in request.files and 'activity_detail' not in request.files and 'assets_time' not in request.files:
+            if ('driving_history' not in request.files or not request.files['driving_history'].filename) and \
+               ('activity_detail' not in request.files or not request.files['activity_detail'].filename) and \
+               ('assets_time' not in request.files or not request.files['assets_time'].filename) and \
+               ('pdf_report' not in request.files or not request.files['pdf_report'].filename):
                 flash('No files selected for preview', 'warning')
                 return redirect(request.url)
             
@@ -135,6 +138,93 @@ def upload_files():
             previews = {}
             file_info = {}
             dates_detected = []
+            
+            # Process PDF report file for preview if uploaded
+            if 'pdf_report' in request.files and request.files['pdf_report'].filename:
+                from utils.pdf_parser import extract_text_from_pdf, extract_structured_text, extract_table_like_data
+                
+                file = request.files['pdf_report']
+                filename = file.filename
+                temp_path = os.path.join(temp_dir, filename)
+                file.save(temp_path)
+                
+                try:
+                    # Extract text from PDF
+                    pdf_text = extract_text_from_pdf(temp_path)
+                    
+                    if pdf_text:
+                        # Get structured data
+                        structured_data = extract_structured_text(temp_path)
+                        
+                        # Try to extract table-like data
+                        tables = extract_table_like_data(temp_path)
+                        
+                        # Get preview HTML for the text content
+                        text_preview = f"<h6>Text Content (First 500 characters):</h6><pre class='text-light bg-dark p-3 rounded'>{pdf_text[:500]}...</pre>"
+                        
+                        # Generate preview for structured data
+                        structured_preview = "<h6>Detected Structured Data:</h6><div class='mb-3'>"
+                        if structured_data.get('dates'):
+                            structured_preview += "<div><strong>Dates:</strong> "
+                            for date in structured_data['dates'][:10]:  # Show first 10 dates
+                                structured_preview += f"<span class='badge bg-info me-1'>{date}</span>"
+                            structured_preview += "</div>"
+                            # Add detected dates to the list
+                            dates_detected.extend(structured_data['dates'])
+                            
+                        if structured_data.get('times'):
+                            structured_preview += "<div><strong>Times:</strong> "
+                            for time in structured_data['times'][:10]:  # Show first 10 times
+                                structured_preview += f"<span class='badge bg-secondary me-1'>{time}</span>"
+                            structured_preview += "</div>"
+                            
+                        if structured_data.get('possible_drivers'):
+                            structured_preview += "<div><strong>Possible Drivers:</strong> "
+                            for driver in structured_data['possible_drivers'][:10]:  # Show first 10 drivers
+                                structured_preview += f"<span class='badge bg-primary me-1'>{driver}</span>"
+                            structured_preview += "</div>"
+                        structured_preview += "</div>"
+                        
+                        # Combine all previews
+                        previews['pdf_report'] = text_preview + structured_preview
+                        
+                        # Extract table preview if any tables found
+                        if tables:
+                            table_preview = "<h6>Detected Tables:</h6>"
+                            
+                            for i, table in enumerate(tables[:2]):  # Show first 2 tables
+                                table_preview += f"<div class='mb-3'><p>Table {i+1}:</p><table class='table table-sm table-dark table-striped'>"
+                                
+                                # Add headers if available
+                                if table and len(table) > 0:
+                                    table_preview += "<thead><tr>"
+                                    for col in table[0]:
+                                        table_preview += f"<th>{col}</th>"
+                                    table_preview += "</tr></thead><tbody>"
+                                    
+                                    # Add rows (up to 5 rows)
+                                    for row in table[1:6]:  # First 5 data rows
+                                        table_preview += "<tr>"
+                                        for cell in row:
+                                            table_preview += f"<td>{cell}</td>"
+                                        table_preview += "</tr>"
+                                    
+                                    table_preview += "</tbody></table></div>"
+                            
+                            previews['pdf_tables'] = table_preview
+                        
+                        file_info['pdf_report'] = {
+                            'filename': filename,
+                            'size': os.path.getsize(temp_path),
+                            'page_count': len(pdf_text.split('\f')) if pdf_text else 0,
+                            'tables_detected': len(tables)
+                        }
+                except Exception as e:
+                    previews['pdf_report'] = f"<div class='alert alert-danger'>Error previewing PDF: {str(e)}</div>"
+                    file_info['pdf_report'] = {
+                        'filename': filename,
+                        'error': str(e)
+                    }
             
             # Process driving history file for preview
             if 'driving_history' in request.files and request.files['driving_history'].filename:

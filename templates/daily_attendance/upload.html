@@ -163,6 +163,42 @@
                     </div>
                 </div>
                 
+                <div class="alert alert-primary mb-4">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>NEW:</strong> You can now upload a PDF report instead of individual CSV files. 
+                    The system will automatically extract driving history, activity details, and asset time data from the PDF.
+                </div>
+                
+                <!-- PDF Report Upload -->
+                <div class="mb-4">
+                    <label class="form-label">
+                        PDF Report <span class="badge bg-success">NEW</span>
+                    </label>
+                    <div class="file-upload-container" id="pdfReportUpload">
+                        <div class="file-upload-icon">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+                        <h5 class="mb-2">PDF Report File</h5>
+                        <p class="mb-3">Upload a PDF report file for automatic data extraction</p>
+                        <button type="button" class="btn btn-primary select-file-btn" data-target="pdfReport">
+                            <i class="fas fa-file-upload me-1"></i> Select PDF File
+                        </button>
+                        <input type="file" class="file-input" id="pdfReport" name="pdf_report" accept=".pdf">
+                        <div class="file-name-display d-none" id="pdfReportName"></div>
+                        <div class="progress upload-progress" id="pdfReportProgress">
+                            <div class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                    <div class="upload-instructions">
+                        <strong>Supported format:</strong> PDF files containing driving history, activity details, and asset time data. 
+                        The system will automatically extract relevant data tables.
+                    </div>
+                </div>
+                
+                <div class="text-center mb-3">
+                    <span class="badge bg-secondary p-2">OR</span>
+                </div>
+                
                 <div class="row">
                     <!-- Driving History File -->
                     <div class="col-lg-4 mb-4">
@@ -277,9 +313,25 @@
             {% endif %}
             
             <ul class="nav nav-tabs mb-4" id="previewTabs" role="tablist">
+                {% if previews.pdf_report %}
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="pdf-report-tab" data-bs-toggle="tab" data-bs-target="#pdf-report" type="button" role="tab" aria-controls="pdf-report" aria-selected="true">
+                        <i class="fas fa-file-pdf me-1"></i> PDF Report
+                    </button>
+                </li>
+                {% endif %}
+                
+                {% if previews.pdf_tables %}
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {% if not previews.pdf_report %}active{% endif %}" id="pdf-tables-tab" data-bs-toggle="tab" data-bs-target="#pdf-tables" type="button" role="tab" aria-controls="pdf-tables" aria-selected="false">
+                        <i class="fas fa-table me-1"></i> Extracted Tables
+                    </button>
+                </li>
+                {% endif %}
+                
                 {% if previews.driving_history %}
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="driving-history-tab" data-bs-toggle="tab" data-bs-target="#driving-history" type="button" role="tab" aria-controls="driving-history" aria-selected="true">
+                    <button class="nav-link {% if not previews.pdf_report and not previews.pdf_tables %}active{% endif %}" id="driving-history-tab" data-bs-toggle="tab" data-bs-target="#driving-history" type="button" role="tab" aria-controls="driving-history" aria-selected="true">
                         <i class="fas fa-car me-1"></i> Driving History
                     </button>
                 </li>
@@ -287,7 +339,7 @@
                 
                 {% if previews.activity_detail %}
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link {% if not previews.driving_history %}active{% endif %}" id="activity-detail-tab" data-bs-toggle="tab" data-bs-target="#activity-detail" type="button" role="tab" aria-controls="activity-detail" aria-selected="false">
+                    <button class="nav-link {% if not previews.pdf_report and not previews.pdf_tables and not previews.driving_history %}active{% endif %}" id="activity-detail-tab" data-bs-toggle="tab" data-bs-target="#activity-detail" type="button" role="tab" aria-controls="activity-detail" aria-selected="false">
                         <i class="fas fa-clipboard-list me-1"></i> Activity Detail
                     </button>
                 </li>
@@ -295,7 +347,7 @@
                 
                 {% if previews.assets_time %}
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link {% if not previews.driving_history and not previews.activity_detail %}active{% endif %}" id="assets-time-tab" data-bs-toggle="tab" data-bs-target="#assets-time" type="button" role="tab" aria-controls="assets-time" aria-selected="false">
+                    <button class="nav-link {% if not previews.pdf_report and not previews.pdf_tables and not previews.driving_history and not previews.activity_detail %}active{% endif %}" id="assets-time-tab" data-bs-toggle="tab" data-bs-target="#assets-time" type="button" role="tab" aria-controls="assets-time" aria-selected="false">
                         <i class="fas fa-clock me-1"></i> Assets Time
                     </button>
                 </li>
@@ -303,6 +355,36 @@
             </ul>
             
             <div class="tab-content" id="previewTabsContent">
+                {% if previews.pdf_report %}
+                <div class="tab-pane fade show active" id="pdf-report" role="tabpanel" aria-labelledby="pdf-report-tab">
+                    <div class="mb-3">
+                        <h5>{{ file_info.pdf_report.filename }}</h5>
+                        <div class="badge bg-info me-2">{{ file_info.pdf_report.page_count }} pages</div>
+                        <div class="badge bg-secondary me-2">{{ file_info.pdf_report.size | filesizeformat }}</div>
+                        {% if file_info.pdf_report.tables_detected %}
+                        <div class="badge bg-success me-2">{{ file_info.pdf_report.tables_detected }} tables detected</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="preview-content">
+                        {{ previews.pdf_report|safe }}
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if previews.pdf_tables %}
+                <div class="tab-pane fade {% if not previews.pdf_report %}show active{% endif %}" id="pdf-tables" role="tabpanel" aria-labelledby="pdf-tables-tab">
+                    <div class="mb-3">
+                        <h5>Extracted Tables from PDF</h5>
+                        <p class="text-muted">Tables automatically extracted from the PDF document.</p>
+                    </div>
+                    
+                    <div class="preview-content">
+                        {{ previews.pdf_tables|safe }}
+                    </div>
+                </div>
+                {% endif %}
+                
                 {% if previews.driving_history %}
                 <div class="tab-pane fade show active" id="driving-history" role="tabpanel" aria-labelledby="driving-history-tab">
                     <div class="mb-3">
@@ -547,6 +629,7 @@
             const drivingHistory = document.getElementById('drivingHistory').files;
             const activityDetail = document.getElementById('activityDetail').files;
             const assetsTime = document.getElementById('assetsTime').files;
+            const pdfReport = document.getElementById('pdfReport').files;
             
             if (!date) {
                 alert('Please select a date for the report.');
@@ -554,8 +637,9 @@
                 return;
             }
             
-            if (drivingHistory.length === 0 && activityDetail.length === 0 && assetsTime.length === 0) {
-                alert('Please upload at least one data file.');
+            // Check if at least one file is uploaded (either PDF or standard files)
+            if (pdfReport.length === 0 && drivingHistory.length === 0 && activityDetail.length === 0 && assetsTime.length === 0) {
+                alert('Please upload either a PDF report or at least one data file.');
                 e.preventDefault();
                 return;
             }

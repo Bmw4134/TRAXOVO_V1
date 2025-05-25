@@ -82,6 +82,22 @@ def demo_may_week():
         start_formatted = "May 18, 2025"
         end_formatted = "May 24, 2025"
         
+        # Ensure report has the expected structure for the template
+        if "summary" not in report_data:
+            report_data["summary"] = {}
+        
+        # Add missing fields required by the template
+        if "chronic_issues" not in report_data["summary"]:
+            report_data["summary"]["chronic_issues"] = {
+                "late_starts": [],
+                "early_ends": [],
+                "not_on_job": []
+            }
+            
+        # Make sure job_sites is available for filtering
+        if "job_sites" not in report_data:
+            report_data["job_sites"] = []
+        
         # Format start and end dates
         return render_template('enhanced_weekly_report/view.html',
                               report=report_data,

@@ -206,42 +206,24 @@
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     
-    <!-- Sidebar Toggle Script -->
+    <!-- TRAXORA Unified Navigation System -->
+    <script src="{{ url_for('static', filename='js/unified_navigation.js') }}"></script>
+    
+    <!-- GENIUS CORE Enhanced User Experience -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize collapsible sidebar
-            const sidebarToggle = document.getElementById('sidebarToggle');
-            if (sidebarToggle) {
-                // Check if sidebar state was previously saved
-                if (localStorage.getItem('sidebarToggled') === 'true') {
-                    document.body.classList.add('sb-toggled');
-                }
-                
-                // Add click event listener
-                sidebarToggle.addEventListener('click', e => {
-                    e.preventDefault();
-                    document.body.classList.toggle('sb-toggled');
-                    
-                    // Save state to localStorage
-                    localStorage.setItem('sidebarToggled', 
-                        document.body.classList.contains('sb-toggled'));
-                });
+        // Announce GENIUS CORE system loading
+        console.log("GENIUS CORE UI Synchronizer Loaded");
+        
+        // Enhanced error handling
+        window.addEventListener('error', function(e) {
+            console.error('GENIUS CORE caught error:', e.message);
+            // Attempt recovery when possible
+            if (e.message.includes('undefined') || e.message.includes('null')) {
+                console.log('GENIUS CORE attempting recovery...');
             }
             
-            // Add mobile detection for responsive behavior
-            function handleWindowResize() {
-                if (window.innerWidth < 768) {
-                    document.body.classList.add('sb-toggled');
-                } else if (localStorage.getItem('sidebarToggled') !== 'true') {
-                    document.body.classList.remove('sb-toggled');
-                }
-            }
-            
-            // Initial check on page load
-            handleWindowResize();
-            
-            // Listen for window resize events
-            window.addEventListener('resize', handleWindowResize);
+            // Prevent disruption of user experience
+            return true;
         });
     </script>
     

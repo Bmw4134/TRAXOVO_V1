@@ -157,7 +157,7 @@
 {% block scripts %}
 <script>
     $(document).ready(function() {
-        // Enable DataTables for better table functionality
+        // Enable DataTables for better table functionality with responsive features
         $('table').DataTable({
             "pageLength": 25,
             "order": [[4, "asc"]], // Sort by status column
@@ -165,8 +165,54 @@
                 "search": "Filter Drivers:",
                 "lengthMenu": "Show _MENU_ drivers per page",
                 "info": "Showing _START_ to _END_ of _TOTAL_ drivers"
-            }
+            },
+            "responsive": true,
+            "autoWidth": false,
+            "columnDefs": [
+                { "responsivePriority": 1, "targets": [0, 4] }, // Driver name and status are highest priority
+                { "responsivePriority": 2, "targets": [1, 2, 3] }, // Job site and times are medium priority
+                { "responsivePriority": 3, "targets": [5, 6] } // Contact info and details are lowest priority
+            ]
+        });
+        
+        // Add swipe functionality for mobile
+        $('.card').on('touchstart', function(e) {
+            $(this).addClass('touch-focus');
+        });
+        
+        // Add tap to expand for mobile details
+        $('.contact-info').on('click', function() {
+            $(this).toggleClass('expanded');
         });
     });
 </script>
+<style>
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+        .card {
+            margin-bottom: 1rem;
+        }
+        .contact-info {
+            max-height: 1.5em;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        .contact-info.expanded {
+            max-height: 5em;
+        }
+        /* Improve touch targets for mobile */
+        .btn, .nav-link, .dropdown-item {
+            padding: 0.5rem 0.75rem;
+        }
+        /* Optimize table display for small screens */
+        .table th, .table td {
+            padding: 0.5rem;
+        }
+        .badge {
+            display: inline-block;
+            white-space: normal;
+            text-align: center;
+        }
+    }
+</style>
 {% endblock %}

@@ -1,158 +1,346 @@
 {% extends "layout_unified.html" %}
 
-{% block title %}Automatic Attendance Dashboard{% endblock %}
+{% block title %}Attendance Dashboard | TRAXORA{% endblock %}
+
+{% block head_content %}
+<style>
+    .classification-badge {
+        font-size: 0.85rem;
+        padding: 0.35em 0.65em;
+        font-weight: 600;
+    }
+    .badge-on-time {
+        background-color: var(--bs-success);
+        color: white;
+    }
+    .badge-late {
+        background-color: var(--bs-warning);
+        color: var(--bs-dark);
+    }
+    .badge-early-end {
+        background-color: var(--bs-info);
+        color: var(--bs-dark);
+    }
+    .badge-not-on-job {
+        background-color: var(--bs-danger);
+        color: white;
+    }
+    .datepicker-dropdown {
+        z-index: 1060;
+    }
+    .driver-details-row {
+        transition: all 0.3s ease;
+    }
+    .contact-collapse {
+        background-color: rgba(0,0,0,0.05);
+    }
+    .insights-card {
+        border-left: 4px solid var(--bs-primary);
+        transition: all 0.2s ease;
+    }
+    .insights-card:hover {
+        transform: translateX(5px);
+    }
+    .reliability-high {
+        border-left-color: var(--bs-success);
+    }
+    .reliability-medium {
+        border-left-color: var(--bs-warning);
+    }
+    .reliability-low {
+        border-left-color: var(--bs-danger);
+    }
+    .metric-card {
+        transition: all 0.3s ease;
+    }
+    .metric-card:hover {
+        transform: translateY(-5px);
+    }
+    .metric-card-success {
+        border-left: 4px solid var(--bs-success);
+    }
+    .metric-card-warning {
+        border-left: 4px solid var(--bs-warning);
+    }
+    .metric-card-danger {
+        border-left: 4px solid var(--bs-danger);
+    }
+    .metric-card-info {
+        border-left: 4px solid var(--bs-info);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
-    <div class="row">
-        <div class="col-12">
-            <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Daily Driver Attendance Automation</h5>
-                    <div>
-                        <form action="{{ url_for('auto_attendance.process_today') }}" method="post" class="d-inline">
-                            <button type="submit" class="btn btn-primary">Process Today</button>
-                        </form>
-                        <form action="{{ url_for('auto_attendance.process_yesterday') }}" method="post" class="d-inline ms-2">
-                            <button type="submit" class="btn btn-secondary">Process Yesterday</button>
-                        </form>
+<div class="container-fluid px-4">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-light">Automatic Attendance Dashboard</h1>
+        <div class="d-flex">
+            <div class="input-group date-selector me-2">
+                <select class="form-select" id="dateSelector">
+                    {% for date in available_dates %}
+                    <option value="{{ date }}" {% if date == selected_date %}selected{% endif %}>{{ date }}</option>
+                    {% endfor %}
+                </select>
+                <button class="btn btn-primary" id="viewDateBtn">
+                    <i class="fas fa-search"></i> View
+                </button>
+            </div>
+            <a href="{{ url_for('auto_attendance.generate_report', date=selected_date) }}" class="btn btn-outline-primary">
+                <i class="fas fa-sync-alt"></i> Regenerate
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow h-100 metric-card metric-card-success">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">On Time</div>
+                            <div class="h2 mb-0 font-weight-bold">{{ summary.on_time }}</div>
+                            <div class="mt-2 text-muted small">{{ (summary.on_time / summary.total_drivers * 100)|round|int }}% of drivers</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-success"></i>
+                        </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow h-100 metric-card metric-card-warning">
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-5">
-                            <div class="card border-0 bg-dark">
-                                <div class="card-header">
-                                    <h6 class="mb-0">Available Input Files ({{ available_files.date }})</h6>
-                                </div>
-                                <div class="card-body">
-                                    <ul class="list-group list-group-flush bg-transparent">
-                                        <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center">
-                                            Driving History
-                                            <span class="badge bg-{{ 'success' if available_files.driving_history > 0 else 'danger' }} rounded-pill">
-                                                {{ available_files.driving_history }}
-                                            </span>
-                                        </li>
-                                        <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center">
-                                            Time on Site
-                                            <span class="badge bg-{{ 'success' if available_files.time_on_site > 0 else 'danger' }} rounded-pill">
-                                                {{ available_files.time_on_site }}
-                                            </span>
-                                        </li>
-                                        <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center">
-                                            Activity Detail
-                                            <span class="badge bg-{{ 'success' if available_files.activity_detail > 0 else 'danger' }} rounded-pill">
-                                                {{ available_files.activity_detail }}
-                                            </span>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-
-                            <div class="card mt-4 border-0 bg-dark">
-                                <div class="card-header">
-                                    <h6 class="mb-0">Process Specific Date</h6>
-                                </div>
-                                <div class="card-body">
-                                    <form action="{{ url_for('auto_attendance.process_report') }}" method="post">
-                                        <div class="mb-3">
-                                            <label for="date" class="form-label">Date (YYYY-MM-DD)</label>
-                                            <input type="date" class="form-control" id="date" name="date" required>
-                                        </div>
-                                        <div class="mb-3 form-check">
-                                            <input type="checkbox" class="form-check-input" id="force" name="force">
-                                            <label class="form-check-label" for="force">Force processing even if no files found</label>
-                                        </div>
-                                        <button type="submit" class="btn btn-primary">Process</button>
-                                    </form>
-                                </div>
-                            </div>
-
-                            <div class="card mt-4 border-0 bg-dark">
-                                <div class="card-header">
-                                    <h6 class="mb-0">Process Date Range</h6>
-                                </div>
-                                <div class="card-body">
-                                    <form action="{{ url_for('auto_attendance.process_range') }}" method="post">
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <label for="start_date" class="form-label">Start Date</label>
-                                                <input type="date" class="form-control" id="start_date" name="start_date" required>
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="end_date" class="form-label">End Date</label>
-                                                <input type="date" class="form-control" id="end_date" name="end_date">
-                                            </div>
-                                        </div>
-                                        <div class="mb-3 form-check">
-                                            <input type="checkbox" class="form-check-input" id="force_range" name="force">
-                                            <label class="form-check-label" for="force_range">Force processing</label>
-                                        </div>
-                                        <button type="submit" class="btn btn-primary">Process Range</button>
-                                    </form>
-                                </div>
-                            </div>
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">Late</div>
+                            <div class="h2 mb-0 font-weight-bold">{{ summary.late }}</div>
+                            <div class="mt-2 text-muted small">{{ (summary.late / summary.total_drivers * 100)|round|int }}% of drivers</div>
                         </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                        <div class="col-md-7">
-                            <div class="card border-0 bg-dark h-100">
-                                <div class="card-header">
-                                    <h6 class="mb-0">Available Reports</h6>
-                                </div>
-                                <div class="card-body">
-                                    {% if reports %}
-                                    <div class="table-responsive">
-                                        <table class="table table-hover align-middle">
-                                            <thead>
-                                                <tr>
-                                                    <th>Date</th>
-                                                    <th>Drivers</th>
-                                                    <th>On Time</th>
-                                                    <th>Late</th>
-                                                    <th>Early End</th>
-                                                    <th>Not on Job</th>
-                                                    <th>Actions</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {% for report in reports %}
-                                                <tr>
-                                                    <td>{{ report.date }}</td>
-                                                    <td>{{ report.driver_count }}</td>
-                                                    <td>
-                                                        <span class="badge bg-success">{{ report.on_time }}</span>
-                                                        <small class="text-muted">{{ report.on_time_percentage }}%</small>
-                                                    </td>
-                                                    <td>
-                                                        <span class="badge bg-warning">{{ report.late }}</span>
-                                                    </td>
-                                                    <td>
-                                                        <span class="badge bg-info">{{ report.early_end }}</span>
-                                                    </td>
-                                                    <td>
-                                                        <span class="badge bg-danger">{{ report.not_on_job }}</span>
-                                                    </td>
-                                                    <td>
-                                                        <a href="{{ url_for('auto_attendance.view_report', date_str=report.date) }}" class="btn btn-sm btn-outline-primary">View</a>
-                                                        <a href="{{ url_for('auto_attendance.api_get_report', date_str=report.date) }}" class="btn btn-sm btn-outline-secondary" target="_blank">API</a>
-                                                    </td>
-                                                </tr>
-                                                {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    {% else %}
-                                    <div class="alert alert-info">
-                                        No reports available. Process a date to generate a report.
-                                    </div>
-                                    {% endif %}
-                                </div>
-                            </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow h-100 metric-card metric-card-info">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">Early End</div>
+                            <div class="h2 mb-0 font-weight-bold">{{ summary.early_end }}</div>
+                            <div class="mt-2 text-muted small">{{ (summary.early_end / summary.total_drivers * 100)|round|int }}% of drivers</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-sign-out-alt fa-2x text-info"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow h-100 metric-card metric-card-danger">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">Not On Job</div>
+                            <div class="h2 mb-0 font-weight-bold">{{ summary.not_on_job }}</div>
+                            <div class="mt-2 text-muted small">{{ (summary.not_on_job / summary.total_drivers * 100)|round|int }}% of drivers</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-exclamation-triangle fa-2x text-danger"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Driver Table -->
+    <div class="card border-0 shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold">Driver Attendance Report ({{ selected_date }})</h6>
+            <div>
+                <button class="btn btn-sm btn-outline-success" id="filterOnTime">
+                    <i class="fas fa-check-circle"></i> On Time
+                </button>
+                <button class="btn btn-sm btn-outline-warning" id="filterLate">
+                    <i class="fas fa-clock"></i> Late
+                </button>
+                <button class="btn btn-sm btn-outline-info" id="filterEarlyEnd">
+                    <i class="fas fa-sign-out-alt"></i> Early End
+                </button>
+                <button class="btn btn-sm btn-outline-danger" id="filterNotOnJob">
+                    <i class="fas fa-exclamation-triangle"></i> Not On Job
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" id="filterAll">
+                    <i class="fas fa-list"></i> All
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="driversTable">
+                    <thead>
+                        <tr>
+                            <th>Driver</th>
+                            <th>Job Site</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for driver in drivers %}
+                        <tr class="driver-row driver-{{ driver.classification }}">
+                            <td>{{ driver.driver_name }}</td>
+                            <td>{{ driver.job_site }}</td>
+                            <td>{{ driver.start_time }}</td>
+                            <td>{{ driver.end_time }}</td>
+                            <td>
+                                <span class="badge classification-badge badge-{{ driver.classification }}">
+                                    {% if driver.classification == 'on_time' %}
+                                    <i class="fas fa-check-circle me-1"></i> On Time
+                                    {% elif driver.classification == 'late' %}
+                                    <i class="fas fa-clock me-1"></i> Late
+                                    {% elif driver.classification == 'early_end' %}
+                                    <i class="fas fa-sign-out-alt me-1"></i> Early End
+                                    {% elif driver.classification == 'not_on_job' %}
+                                    <i class="fas fa-exclamation-triangle me-1"></i> Not On Job
+                                    {% else %}
+                                    <i class="fas fa-question-circle me-1"></i> Unknown
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary btn-contact-details" data-driver-name="{{ driver.driver_name }}">
+                                    <i class="fas fa-info-circle"></i> Details
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="driver-details-row d-none" id="details-{{ driver.driver_name|replace(' ', '-')|lower }}">
+                            <td colspan="6" class="p-0">
+                                <div class="contact-collapse p-3">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h6 class="mb-2">Contact Information</h6>
+                                            <p class="mb-1"><i class="fas fa-phone me-2 text-primary"></i> {{ driver.phone }}</p>
+                                            <p class="mb-1"><i class="fas fa-envelope me-2 text-primary"></i> {{ driver.email }}</p>
+                                            {% if driver.reason %}
+                                            <p class="mt-3"><strong>Classification Reason:</strong> {{ driver.reason }}</p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-6">
+                                            {% if driver.driver_name in driver_insights %}
+                                            {% set insight = driver_insights[driver.driver_name] %}
+                                            <div class="card insights-card reliability-{{ insight.reliability_rating|lower }} mb-0">
+                                                <div class="card-body p-3">
+                                                    <h6 class="mb-2"><i class="fas fa-chart-line me-2"></i> Driver Insights</h6>
+                                                    <p class="mb-1"><i class="fas fa-clock me-2 text-info"></i> Typical Start: {{ insight.common_start_time }}</p>
+                                                    <p class="mb-1"><i class="fas fa-map-marker-alt me-2 text-info"></i> Most Common Job: {{ insight.most_common_job_site }}</p>
+                                                    <p class="mb-1"><i class="fas fa-percentage me-2 text-info"></i> On-time Rate: {{ insight.on_time_percentage }}%</p>
+                                                    <p class="mb-0"><i class="fas fa-comment me-2 text-info"></i> {{ insight.suggestion }}</p>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Initialize DataTable
+        const table = $('#driversTable').DataTable({
+            "order": [], // No initial sorting
+            "paging": true,
+            "searching": true,
+            "info": true,
+            "responsive": true,
+            "columnDefs": [
+                { "orderable": false, "targets": 5 } // Disable sorting on actions column
+            ],
+            "language": {
+                "emptyTable": "No driver data available for this date"
+            }
+        });
+        
+        // Date selector functionality
+        $('#viewDateBtn').click(function() {
+            const selectedDate = $('#dateSelector').val();
+            window.location.href = "{{ url_for('auto_attendance.index') }}?date=" + selectedDate;
+        });
+        
+        // Contact details toggle
+        $('.btn-contact-details').click(function() {
+            const driverName = $(this).data('driver-name');
+            const detailsRow = $(`#details-${driverName.replace(/\s+/g, '-').toLowerCase()}`);
+            
+            if (detailsRow.hasClass('d-none')) {
+                // Hide all other detail rows first
+                $('.driver-details-row').addClass('d-none');
+                // Show this detail row
+                detailsRow.removeClass('d-none');
+            } else {
+                // Hide this detail row
+                detailsRow.addClass('d-none');
+            }
+        });
+        
+        // Filter buttons
+        $('#filterOnTime').click(function() {
+            table.search('On Time').draw();
+        });
+        
+        $('#filterLate').click(function() {
+            table.search('Late').draw();
+        });
+        
+        $('#filterEarlyEnd').click(function() {
+            table.search('Early End').draw();
+        });
+        
+        $('#filterNotOnJob').click(function() {
+            table.search('Not On Job').draw();
+        });
+        
+        $('#filterAll').click(function() {
+            table.search('').draw();
+        });
+        
+        // Make row highlighting on hover more interactive
+        $('#driversTable tbody').on('mouseenter', 'tr.driver-row', function() {
+            $(this).addClass('bg-light bg-opacity-25');
+        }).on('mouseleave', 'tr.driver-row', function() {
+            $(this).removeClass('bg-light bg-opacity-25');
+        });
+        
+        // GENIUS CORE data integration
+        console.log("GENIUS CORE attendance module initialized");
+        
+        // Capture error telemetry
+        window.addEventListener('error', function(e) {
+            console.error('GENIUS CORE attendance module error:', e.message);
+        });
+    });
+</script>
 {% endblock %}

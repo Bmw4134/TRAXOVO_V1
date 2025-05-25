@@ -129,12 +129,29 @@ def index():
             }
             drivers.append(driver_record)
     
+    # Get driver-specific insights from the iterative learning system
+    driver_insights = {}
+    try:
+        from utils.iterative_learning import get_driver_suggestions
+        
+        # Get insights for each driver
+        for driver in drivers:
+            driver_name = driver.get('driver_name', '')
+            if driver_name:
+                suggestions = get_driver_suggestions(driver_name)
+                if suggestions:
+                    driver_insights[driver_name] = suggestions
+    except ImportError:
+        logger.warning("Iterative learning system not available for driver insights")
+    
     return render_template(
-        'auto_attendance/index.html',
+        'auto_attendance/dashboard.html',
         available_dates=available_dates,
         selected_date=selected_date,
         drivers=drivers,
-        summary=summary
+        driver_insights=driver_insights,
+        summary=summary,
+        layout='unified'
     )
 
 @auto_attendance.route('/generate/<date>')

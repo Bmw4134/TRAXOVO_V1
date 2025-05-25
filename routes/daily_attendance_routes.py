@@ -171,15 +171,15 @@ def upload_files():
                 if driving_history_file:
                     try:
                         # Try different parsing options to handle various CSV formats
-                        df = pd.read_csv(driving_history_file, error_bad_lines=False)
+                        df = pd.read_csv(driving_history_file, on_bad_lines='skip')
                     except:
                         try:
                             # If that fails, try with more flexible parsing
-                            df = pd.read_csv(driving_history_file, sep=None, engine='python', error_bad_lines=False)
+                            df = pd.read_csv(driving_history_file, sep=None, engine='python', on_bad_lines='skip')
                         except:
                             # If all else fails, try the most permissive approach
                             df = pd.read_csv(driving_history_file, sep=',', engine='python', 
-                                            error_bad_lines=False, skipinitialspace=True, quotechar='"')
+                                            on_bad_lines='skip', skipinitialspace=True, quotechar='"')
                         
                     if 'Date' in df.columns:
                         df['Date'] = pd.to_datetime(df['Date'])

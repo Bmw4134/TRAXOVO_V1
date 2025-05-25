@@ -13,6 +13,9 @@ import json
 from pathlib import Path
 
 # Import the simplified attendance pipeline
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils.attendance_pipeline_slim import process_attendance_data_v2
 
 # Configure logging

@@ -158,13 +158,29 @@ def process_filtered_data(date_str):
             }
             driving_history_data.append(driving_record)
             
-        # Process attendance data with TRAXORA specific classification rules
-        report = process_attendance_data_v2(
-            driving_history_data=driving_history_data,
-            date_str=date_str,
-            late_start_time=LATE_START_TIME,
-            early_end_time=EARLY_END_TIME
-        )
+        # Get adaptive classification thresholds from iterative learning system
+        try:
+            from utils.iterative_learning import get_classification_thresholds, update_driver_patterns
+            
+            # Process attendance data with adaptive classification rules
+            report = process_attendance_data_v2(
+                driving_history_data=driving_history_data,
+                date_str=date_str,
+                late_start_time=get_classification_thresholds().get('late_start_time', LATE_START_TIME),
+                early_end_time=get_classification_thresholds().get('early_end_time', EARLY_END_TIME)
+            )
+            
+            # Update driver patterns after processing (this feeds the learning loop)
+            update_driver_patterns()
+        except ImportError:
+            # Fallback to standard classification if iterative learning not available
+            logger.warning("Iterative learning system not available, using default thresholds")
+            report = process_attendance_data_v2(
+                driving_history_data=driving_history_data,
+                date_str=date_str,
+                late_start_time=LATE_START_TIME,
+                early_end_time=EARLY_END_TIME
+            )
         
         # Save JSON report
         os.makedirs(REPORTS_DIR, exist_ok=True)

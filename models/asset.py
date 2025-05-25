@@ -80,6 +80,11 @@ class Asset(db.Model):
     recall_alerts = db.Column(JSON)                       # Recall alerts as JSON
     
     # Relationships
+    # Driver relationship
+    current_driver_id = db.Column(db.Integer, db.ForeignKey('drivers.id'), nullable=True)
+    current_driver = db.relationship('Driver', back_populates='assigned_assets', foreign_keys=[current_driver_id])
+    
+    # Other relationships
     # images = db.relationship('AssetImage', backref='asset', lazy='dynamic')
     # documents = db.relationship('AssetDocument', backref='asset', lazy='dynamic')
     # service_history = db.relationship('ServiceRecord', backref='asset', lazy='dynamic')

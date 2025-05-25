@@ -97,7 +97,6 @@ def calculate_summary(report_data):
         }
 
 @auto_attendance.route('/')
-@login_required
 def index():
     """Display auto attendance dashboard"""
     # Get available dates
@@ -124,7 +123,6 @@ def index():
     )
 
 @auto_attendance.route('/generate/<date>')
-@login_required
 def generate_report(date):
     """Generate/regenerate report for specific date"""
     try:
@@ -137,7 +135,6 @@ def generate_report(date):
     return redirect(url_for('auto_attendance.index', date=date))
 
 @auto_attendance.route('/api/report/<date>')
-@login_required
 def api_report(date):
     """API endpoint for getting report data"""
     report_data = get_report_data(date)

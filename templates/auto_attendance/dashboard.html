@@ -1,334 +1,158 @@
-{% extends 'layout_unified.html' %}
+{% extends "layout_unified.html" %}
 
-{% block title %}Automatic Attendance Processing - TRAXORA{% endblock %}
+{% block title %}Automatic Attendance Dashboard{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <h1 class="mb-0">
-                    <i class="bi bi-calendar-check me-2"></i>
-                    Automatic Attendance Processing
-                </h1>
-                <div>
-                    <button class="btn btn-success" type="button" data-bs-toggle="modal" data-bs-target="#processModal">
-                        <i class="bi bi-play-fill me-1"></i> Process Report
-                    </button>
-                </div>
-            </div>
-            <p class="text-muted mt-2">
-                Automatically process driver attendance data from uploaded files and generate reports.
-            </p>
-        </div>
-    </div>
-
-    {% if error %}
-    <div class="alert alert-danger" role="alert">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-        {{ error }}
-    </div>
-    {% endif %}
-
+<div class="container-fluid py-4">
     <div class="row">
-        <div class="col-md-4">
-            <div class="card metric-card bg-primary bg-opacity-10 mb-4">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="bi bi-speedometer2 me-2"></i>
-                        Quick Actions
-                    </h5>
-                    <div class="d-grid gap-2 mt-3">
-                        <form action="{{ url_for('auto_attendance_bp.process') }}" method="post">
-                            <input type="hidden" name="process_type" value="yesterday">
-                            <button type="submit" class="btn btn-primary w-100">
-                                <i class="bi bi-calendar-day me-1"></i> Process Yesterday
-                            </button>
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Daily Driver Attendance Automation</h5>
+                    <div>
+                        <form action="{{ url_for('auto_attendance.process_today') }}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-primary">Process Today</button>
                         </form>
-                        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#dateRangeModal">
-                            <i class="bi bi-calendar-range me-1"></i> Process Date Range
-                        </button>
+                        <form action="{{ url_for('auto_attendance.process_yesterday') }}" method="post" class="d-inline ms-2">
+                            <button type="submit" class="btn btn-secondary">Process Yesterday</button>
+                        </form>
                     </div>
-                </div>
-            </div>
-
-            <div class="card metric-card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="bi bi-gear me-2"></i>
-                        Processing Options
-                    </h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{ url_for('auto_attendance_bp.process') }}" method="post">
-                        <input type="hidden" name="process_type" value="single">
-                        
-                        <div class="mb-3">
-                            <label for="date" class="form-label">Select Date</label>
-                            <input type="date" class="form-control" id="date" name="date" value="{{ default_end_date }}">
-                        </div>
-                        
-                        <div class="form-check mb-3">
-                            <input class="form-check-input" type="checkbox" value="true" id="force" name="force">
-                            <label class="form-check-label" for="force">
-                                Force processing (even with missing files)
-                            </label>
-                        </div>
-                        
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-gear-fill me-1"></i> Process Date
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-8">
-            <div class="card metric-card mb-4">
-                <div class="card-header">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">
-                            <i class="bi bi-file-earmark-text me-2"></i>
-                            Available Reports
-                        </h5>
-                        <span class="badge bg-primary">{{ available_reports|length }}</span>
-                    </div>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Filename</th>
-                                    <th>Size</th>
-                                    <th>Generated</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% if available_reports %}
-                                    {% for report in available_reports %}
-                                    <tr>
-                                        <td>{{ report.date }}</td>
-                                        <td>{{ report.filename }}</td>
-                                        <td>{{ report.size_kb }} KB</td>
-                                        <td>{{ report.modified }}</td>
-                                        <td>
-                                            <a href="{{ url_for('auto_attendance_bp.download_report', filename=report.filename) }}" class="btn btn-sm btn-outline-primary">
-                                                <i class="bi bi-download"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                {% else %}
-                                    <tr>
-                                        <td colspan="5" class="text-center py-3">No reports available</td>
-                                    </tr>
-                                {% endif %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card metric-card">
-                <div class="card-header">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">
-                            <i class="bi bi-clock-history me-2"></i>
-                            Recent Processing Logs
-                        </h5>
-                        <span class="badge bg-primary">{{ processing_logs|length }}</span>
-                    </div>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                    <th>Records</th>
-                                    <th>Processing Time</th>
-                                    <th>Timestamp</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% if processing_logs %}
-                                    {% for log in processing_logs %}
-                                    <tr>
-                                        <td>{{ log.date }}</td>
-                                        <td>
-                                            {% if log.success %}
-                                                <span class="badge bg-success">Success</span>
-                                            {% else %}
-                                                <span class="badge bg-danger">Failed</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>{{ log.records_processed if log.records_processed is defined else 'N/A' }}</td>
-                                        <td>{{ log.processing_time_seconds|round(2) if log.processing_time_seconds is defined else 'N/A' }} sec</td>
-                                        <td>{{ log.timestamp }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                {% else %}
-                                    <tr>
-                                        <td colspan="5" class="text-center py-3">No processing logs available</td>
-                                    </tr>
-                                {% endif %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Process Modal -->
-<div class="modal fade" id="processModal" tabindex="-1" aria-labelledby="processModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="processModalLabel">Process Attendance Report</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form action="{{ url_for('auto_attendance_bp.process') }}" method="post" id="processModalForm">
-                    <div class="mb-3">
-                        <label class="form-label">Select Processing Option</label>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="process_type" id="processSingle" value="single" checked>
-                            <label class="form-check-label" for="processSingle">
-                                Process Single Date
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="process_type" id="processYesterday" value="yesterday">
-                            <label class="form-check-label" for="processYesterday">
-                                Process Yesterday
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="process_type" id="processRange" value="range">
-                            <label class="form-check-label" for="processRange">
-                                Process Date Range
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div id="singleDateOptions">
-                        <div class="mb-3">
-                            <label for="modalDate" class="form-label">Date</label>
-                            <input type="date" class="form-control" id="modalDate" name="date" value="{{ default_end_date }}">
-                        </div>
-                    </div>
-                    
-                    <div id="dateRangeOptions" style="display: none;">
-                        <div class="row">
-                            <div class="col">
-                                <div class="mb-3">
-                                    <label for="modalStartDate" class="form-label">Start Date</label>
-                                    <input type="date" class="form-control" id="modalStartDate" name="start_date" value="{{ default_start_date }}">
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="mb-3">
-                                    <label for="modalEndDate" class="form-label">End Date</label>
-                                    <input type="date" class="form-control" id="modalEndDate" name="end_date" value="{{ default_end_date }}">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" value="true" id="modalForce" name="force">
-                        <label class="form-check-label" for="modalForce">
-                            Force processing (even with missing files)
-                        </label>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" form="processModalForm" class="btn btn-primary">Process</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Date Range Modal -->
-<div class="modal fade" id="dateRangeModal" tabindex="-1" aria-labelledby="dateRangeModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="dateRangeModalLabel">Process Date Range</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form action="{{ url_for('auto_attendance_bp.process') }}" method="post" id="dateRangeForm">
-                    <input type="hidden" name="process_type" value="range">
-                    
                     <div class="row">
-                        <div class="col">
-                            <div class="mb-3">
-                                <label for="startDate" class="form-label">Start Date</label>
-                                <input type="date" class="form-control" id="startDate" name="start_date" value="{{ default_start_date }}">
+                        <div class="col-md-5">
+                            <div class="card border-0 bg-dark">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Available Input Files ({{ available_files.date }})</h6>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-group list-group-flush bg-transparent">
+                                        <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center">
+                                            Driving History
+                                            <span class="badge bg-{{ 'success' if available_files.driving_history > 0 else 'danger' }} rounded-pill">
+                                                {{ available_files.driving_history }}
+                                            </span>
+                                        </li>
+                                        <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center">
+                                            Time on Site
+                                            <span class="badge bg-{{ 'success' if available_files.time_on_site > 0 else 'danger' }} rounded-pill">
+                                                {{ available_files.time_on_site }}
+                                            </span>
+                                        </li>
+                                        <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center">
+                                            Activity Detail
+                                            <span class="badge bg-{{ 'success' if available_files.activity_detail > 0 else 'danger' }} rounded-pill">
+                                                {{ available_files.activity_detail }}
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="card mt-4 border-0 bg-dark">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Process Specific Date</h6>
+                                </div>
+                                <div class="card-body">
+                                    <form action="{{ url_for('auto_attendance.process_report') }}" method="post">
+                                        <div class="mb-3">
+                                            <label for="date" class="form-label">Date (YYYY-MM-DD)</label>
+                                            <input type="date" class="form-control" id="date" name="date" required>
+                                        </div>
+                                        <div class="mb-3 form-check">
+                                            <input type="checkbox" class="form-check-input" id="force" name="force">
+                                            <label class="form-check-label" for="force">Force processing even if no files found</label>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Process</button>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <div class="card mt-4 border-0 bg-dark">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Process Date Range</h6>
+                                </div>
+                                <div class="card-body">
+                                    <form action="{{ url_for('auto_attendance.process_range') }}" method="post">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="start_date" class="form-label">Start Date</label>
+                                                <input type="date" class="form-control" id="start_date" name="start_date" required>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="end_date" class="form-label">End Date</label>
+                                                <input type="date" class="form-control" id="end_date" name="end_date">
+                                            </div>
+                                        </div>
+                                        <div class="mb-3 form-check">
+                                            <input type="checkbox" class="form-check-input" id="force_range" name="force">
+                                            <label class="form-check-label" for="force_range">Force processing</label>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Process Range</button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
-                        <div class="col">
-                            <div class="mb-3">
-                                <label for="endDate" class="form-label">End Date</label>
-                                <input type="date" class="form-control" id="endDate" name="end_date" value="{{ default_end_date }}">
+
+                        <div class="col-md-7">
+                            <div class="card border-0 bg-dark h-100">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Available Reports</h6>
+                                </div>
+                                <div class="card-body">
+                                    {% if reports %}
+                                    <div class="table-responsive">
+                                        <table class="table table-hover align-middle">
+                                            <thead>
+                                                <tr>
+                                                    <th>Date</th>
+                                                    <th>Drivers</th>
+                                                    <th>On Time</th>
+                                                    <th>Late</th>
+                                                    <th>Early End</th>
+                                                    <th>Not on Job</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for report in reports %}
+                                                <tr>
+                                                    <td>{{ report.date }}</td>
+                                                    <td>{{ report.driver_count }}</td>
+                                                    <td>
+                                                        <span class="badge bg-success">{{ report.on_time }}</span>
+                                                        <small class="text-muted">{{ report.on_time_percentage }}%</small>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-warning">{{ report.late }}</span>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-info">{{ report.early_end }}</span>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-danger">{{ report.not_on_job }}</span>
+                                                    </td>
+                                                    <td>
+                                                        <a href="{{ url_for('auto_attendance.view_report', date_str=report.date) }}" class="btn btn-sm btn-outline-primary">View</a>
+                                                        <a href="{{ url_for('auto_attendance.api_get_report', date_str=report.date) }}" class="btn btn-sm btn-outline-secondary" target="_blank">API</a>
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    {% else %}
+                                    <div class="alert alert-info">
+                                        No reports available. Process a date to generate a report.
+                                    </div>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" value="true" id="rangeForce" name="force">
-                        <label class="form-check-label" for="rangeForce">
-                            Force processing (even with missing files)
-                        </label>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" form="dateRangeForm" class="btn btn-primary">Process Range</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Process Modal Options Toggle
-        const processSingle = document.getElementById('processSingle');
-        const processYesterday = document.getElementById('processYesterday');
-        const processRange = document.getElementById('processRange');
-        const singleDateOptions = document.getElementById('singleDateOptions');
-        const dateRangeOptions = document.getElementById('dateRangeOptions');
-        
-        function toggleOptions() {
-            if (processSingle.checked) {
-                singleDateOptions.style.display = 'block';
-                dateRangeOptions.style.display = 'none';
-            } else if (processYesterday.checked) {
-                singleDateOptions.style.display = 'none';
-                dateRangeOptions.style.display = 'none';
-            } else if (processRange.checked) {
-                singleDateOptions.style.display = 'none';
-                dateRangeOptions.style.display = 'block';
-            }
-        }
-        
-        processSingle.addEventListener('change', toggleOptions);
-        processYesterday.addEventListener('change', toggleOptions);
-        processRange.addEventListener('change', toggleOptions);
-    });
-</script>
 {% endblock %}

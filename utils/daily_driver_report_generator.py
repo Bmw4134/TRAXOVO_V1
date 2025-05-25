@@ -17,6 +17,11 @@ from openpyxl.utils import get_column_letter
 
 from utils.attendance_pipeline_v2 import process_attendance_data_v2
 from utils.multi_source_processor import combine_attendance_sources
+from utils.driver_identity_attendance_integration import (
+    enhance_daily_driver_report,
+    enhance_attendance_pipeline_results,
+    enhance_driver_data_from_files
+)
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -49,10 +54,15 @@ def generate_daily_report(date_str, driving_history_data=None, time_on_site_data
             output_dir = os.path.join('reports', 'daily_driver_reports')
             os.makedirs(output_dir, exist_ok=True)
         
-        # Process data using the V2 engine
+        # Enhance driver data using Secondary Asset Identifier
+        enhanced_driving_history, enhanced_time_on_site = enhance_driver_data_from_files(
+            driving_history_data, time_on_site_data
+        )
+        
+        # Process data using the V2 engine with enhanced driver data
         attendance_report = process_attendance_data_v2(
-            driving_history_data, 
-            time_on_site_data, 
+            enhanced_driving_history, 
+            enhanced_time_on_site, 
             activity_detail_data,
             timecard_data,
             date_str
@@ -61,6 +71,9 @@ def generate_daily_report(date_str, driving_history_data=None, time_on_site_data
         if not attendance_report:
             logger.warning(f"No attendance data available for date: {date_str}")
             return None, None
+            
+        # Enhance attendance report with consistent driver identity
+        attendance_report = enhance_attendance_pipeline_results(attendance_report)
         
         # Create new workbook
         wb = Workbook()

@@ -244,10 +244,13 @@ def process_report_data(date_str, driving_history_df=None, activity_detail_df=No
         
         # Process driving history data
         if driving_history_df is not None:
-            # Filter for the specified date
+            # Filter for the specified date if needed, otherwise use all data
+            # This allows us to process weekly files without requiring date filters
             if 'Date' in driving_history_df.columns:
                 driving_history_df['Date'] = pd.to_datetime(driving_history_df['Date'])
-                driving_history_df = driving_history_df[driving_history_df['Date'].dt.date == report_date.date()]
+                # Only filter if the date column has multiple values
+                if len(driving_history_df['Date'].dt.date.unique()) > 1:
+                    driving_history_df = driving_history_df[driving_history_df['Date'].dt.date == report_date.date()]
             
             # Process each driver
             for _, row in driving_history_df.iterrows():
@@ -300,10 +303,12 @@ def process_report_data(date_str, driving_history_df=None, activity_detail_df=No
         
         # Process activity detail data
         if activity_detail_df is not None:
-            # Filter for the specified date
+            # Filter for the specified date if needed, otherwise use all data
             if 'Date' in activity_detail_df.columns:
                 activity_detail_df['Date'] = pd.to_datetime(activity_detail_df['Date'])
-                activity_detail_df = activity_detail_df[activity_detail_df['Date'].dt.date == report_date.date()]
+                # Only filter if the date column has multiple values
+                if len(activity_detail_df['Date'].dt.date.unique()) > 1:
+                    activity_detail_df = activity_detail_df[activity_detail_df['Date'].dt.date == report_date.date()]
             
             # Process each record
             for _, row in activity_detail_df.iterrows():
@@ -329,10 +334,12 @@ def process_report_data(date_str, driving_history_df=None, activity_detail_df=No
         
         # Process assets time data
         if assets_time_df is not None:
-            # Filter for the specified date
+            # Filter for the specified date if needed, otherwise use all data
             if 'Date' in assets_time_df.columns:
                 assets_time_df['Date'] = pd.to_datetime(assets_time_df['Date'])
-                assets_time_df = assets_time_df[assets_time_df['Date'].dt.date == report_date.date()]
+                # Only filter if the date column has multiple values
+                if len(assets_time_df['Date'].dt.date.unique()) > 1:
+                    assets_time_df = assets_time_df[assets_time_df['Date'].dt.date == report_date.date()]
             
             # Process each record
             for _, row in assets_time_df.iterrows():

@@ -123,8 +123,10 @@ def upload_files():
         
         # Get selected date
         date_str = request.form.get('date')
-        if not date_str:
-            flash('Please select a date', 'warning')
+        process_all_dates = request.form.get('process_all_dates') == 'on'
+        
+        if not date_str and not process_all_dates:
+            flash('Please select a date or choose to process all dates in the files', 'warning')
             return redirect(request.url)
         
         # Create data directory if it doesn't exist
@@ -134,7 +136,8 @@ def upload_files():
         driving_history_file = None
         if 'driving_history' in request.files and request.files['driving_history'].filename:
             file = request.files['driving_history']
-            filename = f"driving_history_{date_str}_{file.filename}"
+            # Don't modify the original filename to keep all metadata
+            filename = file.filename
             file_path = os.path.join('data', filename)
             file.save(file_path)
             driving_history_file = file_path
@@ -143,7 +146,8 @@ def upload_files():
         activity_detail_file = None
         if 'activity_detail' in request.files and request.files['activity_detail'].filename:
             file = request.files['activity_detail']
-            filename = f"activity_detail_{date_str}_{file.filename}"
+            # Don't modify the original filename to keep all metadata
+            filename = file.filename
             file_path = os.path.join('data', filename)
             file.save(file_path)
             activity_detail_file = file_path
@@ -152,25 +156,71 @@ def upload_files():
         assets_time_file = None
         if 'assets_time' in request.files and request.files['assets_time'].filename:
             file = request.files['assets_time']
-            filename = f"assets_time_{date_str}_{file.filename}"
+            # Don't modify the original filename to keep all metadata
+            filename = file.filename
             file_path = os.path.join('data', filename)
             file.save(file_path)
             assets_time_file = file_path
         
-        # Generate report
-        result = process_daily_driver_report(
-            date_str, 
-            driving_history_file, 
-            activity_detail_file, 
-            assets_time_file
-        )
-        
-        if result["success"]:
-            flash(f'Successfully generated report for {date_str}', 'success')
+        # If processing all dates, discover dates from the files
+        processed_dates = []
+        if process_all_dates:
+            # Try to extract dates from the driving history file
+            try:
+                import pandas as pd
+                if driving_history_file:
+                    df = pd.read_csv(driving_history_file)
+                    if 'Date' in df.columns:
+                        df['Date'] = pd.to_datetime(df['Date'])
+                        dates = df['Date'].dt.date.unique()
+                        for date in dates:
+                            date_str = date.strftime('%Y-%m-%d')
+                            logger.info(f"Processing detected date: {date_str}")
+                            result = process_daily_driver_report(
+                                date_str, 
+                                driving_history_file, 
+                                activity_detail_file, 
+                                assets_time_file
+                            )
+                            if result["success"]:
+                                processed_dates.append(date_str)
+                                logger.info(f"Successfully processed date: {date_str}")
+                            else:
+                                logger.error(f"Error processing date {date_str}: {result.get('error')}")
+                else:
+                    flash('No driving history file provided for automatic date detection', 'warning')
+                    return redirect(request.url)
+                
+                if processed_dates:
+                    flash(f'Successfully processed reports for the following dates: {", ".join(processed_dates)}', 'success')
+                else:
+                    flash('No dates were processed successfully. Please check your files.', 'warning')
+                
+                # Redirect to the first processed date, or the index if none
+                if processed_dates:
+                    return redirect(url_for('daily_attendance.index', date=processed_dates[0]))
+                else:
+                    return redirect(url_for('daily_attendance.index'))
+            
+            except Exception as e:
+                logger.error(f"Error during bulk processing: {str(e)}")
+                flash(f'Error processing multiple dates: {str(e)}', 'danger')
+                return redirect(request.url)
         else:
-            flash(f'Error generating report: {result.get("error", "Unknown error")}', 'danger')
-        
-        return redirect(url_for('daily_attendance.index', date=date_str))
+            # Process a single date
+            result = process_daily_driver_report(
+                date_str, 
+                driving_history_file, 
+                activity_detail_file, 
+                assets_time_file
+            )
+            
+            if result["success"]:
+                flash(f'Successfully generated report for {date_str}', 'success')
+            else:
+                flash(f'Error generating report: {result.get("error", "Unknown error")}', 'danger')
+            
+            return redirect(url_for('daily_attendance.index', date=date_str))
     
     # GET request - show upload form
     return render_template('daily_attendance/upload.html')

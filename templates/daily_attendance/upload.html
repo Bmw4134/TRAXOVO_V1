@@ -117,10 +117,23 @@
                 <!-- Date Selection -->
                 <div class="mb-4">
                     <label for="dateInput" class="form-label">
-                        Report Date <span class="required-label">*</span>
+                        Report Date
                     </label>
-                    <input type="date" class="form-control date-selector" id="dateInput" name="date" required>
+                    <input type="date" class="form-control date-selector" id="dateInput" name="date">
                     <div class="form-text text-muted">Select the date for which you want to generate the report.</div>
+                </div>
+                
+                <!-- Process All Dates Option -->
+                <div class="mb-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="processAllDates" name="process_all_dates">
+                        <label class="form-check-label" for="processAllDates">
+                            <strong>Process all dates in the files automatically</strong>
+                        </label>
+                    </div>
+                    <div class="form-text text-muted">
+                        Enable this option to automatically process all dates found in your files (recommended for weekly reports).
+                    </div>
                 </div>
                 
                 <div class="row">

@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% block title %}Enhanced Daily Driver Reports - TRAXORA{% endblock %}
+
+{% block head %}
+<style>
+    .performance-card {
+        transition: transform 0.2s ease-in-out;
+    }
+    .performance-card:hover {
+        transform: translateY(-2px);
+    }
+    .alert-item {
+        border-left: 4px solid;
+        padding-left: 1rem;
+    }
+    .alert-warning { border-left-color: var(--traxora-warning); }
+    .alert-success { border-left-color: var(--traxora-success); }
+    .alert-info { border-left-color: var(--traxora-primary); }
+    
+    .insight-card {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border-left: 4px solid var(--traxora-primary);
+    }
+    
+    .job-site-card {
+        border: 1px solid #e2e8f0;
+        transition: all 0.2s ease;
+    }
+    .job-site-card:hover {
+        border-color: var(--traxora-primary);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">
+        <div>
+            <h1 class="h2 text-primary">Enhanced Daily Driver Reports</h1>
+            <p class="text-muted mb-0">{{ current_date }} • Real-time North Texas Operations</p>
+        </div>
+        <div class="btn-toolbar">
+            <button type="button" class="btn btn-outline-primary me-2">
+                <i class="bi bi-download me-1"></i> Export Report
+            </button>
+            <button type="button" class="btn btn-primary">
+                <i class="bi bi-arrow-repeat me-1"></i> Refresh Data
+            </button>
+        </div>
+    </div>
+
+    <!-- Performance Overview Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-lg-3 col-md-6">
+            <div class="card performance-card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-success rounded-circle p-3">
+                                <i class="bi bi-check-circle text-white" style="font-size: 1.5rem;"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h3 class="text-success mb-0">{{ performance_metrics.on_time }}</h3>
+                            <p class="text-muted mb-0 small">On Time</p>
+                            <small class="text-success">{{ performance_metrics.on_time_percentage }}% rate</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="card performance-card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-warning rounded-circle p-3">
+                                <i class="bi bi-clock text-white" style="font-size: 1.5rem;"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h3 class="text-warning mb-0">{{ performance_metrics.late_start }}</h3>
+                            <p class="text-muted mb-0 small">Late Start</p>
+                            <small class="text-muted">{{ performance_metrics.improvement_trend }} vs last week</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="card performance-card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-info rounded-circle p-3">
+                                <i class="bi bi-arrow-left-circle text-white" style="font-size: 1.5rem;"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h3 class="text-info mb-0">{{ performance_metrics.early_end }}</h3>
+                            <p class="text-muted mb-0 small">Early End</p>
+                            <small class="text-muted">Authorized departures</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="card performance-card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-danger rounded-circle p-3">
+                                <i class="bi bi-x-circle text-white" style="font-size: 1.5rem;"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h3 class="text-danger mb-0">{{ performance_metrics.not_on_job }}</h3>
+                            <p class="text-muted mb-0 small">Not On Job</p>
+                            <small class="text-muted">Require follow-up</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Job Sites and Activity -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0">Active Job Sites Performance</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        {% for site in job_sites %}
+                        <div class="col-md-6">
+                            <div class="job-site-card p-3 rounded">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="fw-bold text-primary mb-1">{{ site.name }}</h6>
+                                        <p class="text-muted mb-2 small">{{ site.drivers }} drivers active</p>
+                                        <span class="badge bg-success">{{ site.status }}</span>
+                                    </div>
+                                    <div class="text-end">
+                                        <h4 class="text-success mb-0">{{ site.on_time_rate }}%</h4>
+                                        <small class="text-muted">On-time rate</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0">Real-time Activity</h5>
+                </div>
+                <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+                    {% for alert in recent_alerts %}
+                    <div class="alert-item alert-{{ alert.type }} mb-3 p-2 rounded">
+                        <small class="text-muted">{{ alert.time }}</small>
+                        <p class="mb-1 small fw-medium">{{ alert.driver }}</p>
+                        <p class="mb-0 small">{{ alert.message }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Driver Directory -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Today's Driver Directory</h5>
+                <div class="input-group" style="width: 300px;">
+                    <input type="text" class="form-control form-control-sm" placeholder="Search drivers...">
+                    <button class="btn btn-outline-secondary btn-sm" type="button">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Driver</th>
+                            <th>Vehicle</th>
+                            <th>Job Site</th>
+                            <th>Status</th>
+                            <th>Hours</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for driver in all_drivers %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-primary rounded-circle p-2 me-2">
+                                        <i class="bi bi-person text-white small"></i>
+                                    </div>
+                                    <span class="fw-medium">{{ driver.split(' ')[0] }}</span>
+                                </div>
+                            </td>
+                            <td class="text-muted small">FORD F150 2024</td>
+                            <td><span class="badge bg-light text-dark">2024-019 DFW</span></td>
+                            <td><span class="badge bg-success">On Time</span></td>
+                            <td class="text-muted small">8.5 hrs</td>
+                            <td>
+                                <button class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

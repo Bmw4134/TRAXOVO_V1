@@ -251,109 +251,152 @@
                 </div>
             </div>
             
-            <!-- Real-Time Fleet Analytics -->
-            <div class="row mb-4">
+            <!-- Real-Time Fleet Analytics - Enhanced Design -->
+            <div class="row g-3 mb-4">
                 <div class="col-md-3">
-                    <div class="card bg-primary bg-opacity-10 border-primary">
-                        <div class="card-body text-center">
-                            <h3 class="text-primary mb-1" id="activeAssets">{{ assets_count or 716 }}</h3>
-                            <p class="text-muted mb-0">Active Assets</p>
-                            <small class="text-success">+2% this week</small>
+                    <div class="card border-0 shadow-sm bg-gradient" style="background: linear-gradient(135deg, #007bff20, #007bff10);">
+                        <div class="card-body text-center p-4">
+                            <div class="d-flex align-items-center justify-content-center mb-3">
+                                <div class="bg-primary rounded-circle p-3 me-3">
+                                    <i class="bi bi-truck text-white" style="font-size: 1.5rem;"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-primary mb-0 fw-bold">{{ assets_count or 716 }}</h2>
+                                    <p class="text-muted mb-0 small">Active Assets</p>
+                                </div>
+                            </div>
+                            <small class="text-success"><i class="bi bi-arrow-up"></i> +2% this week</small>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="card bg-success bg-opacity-10 border-success">
-                        <div class="card-body text-center">
-                            <h3 class="text-success mb-1" id="activeDrivers">{{ drivers_count or 113 }}</h3>
-                            <p class="text-muted mb-0">Active Drivers</p>
-                            <small class="text-warning">3 late today</small>
+                    <div class="card border-0 shadow-sm bg-gradient" style="background: linear-gradient(135deg, #28a74520, #28a74510);">
+                        <div class="card-body text-center p-4">
+                            <div class="d-flex align-items-center justify-content-center mb-3">
+                                <div class="bg-success rounded-circle p-3 me-3">
+                                    <i class="bi bi-people text-white" style="font-size: 1.5rem;"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-success mb-0 fw-bold">{{ drivers_count or 113 }}</h2>
+                                    <p class="text-muted mb-0 small">Active Drivers</p>
+                                </div>
+                            </div>
+                            <small class="text-warning"><i class="bi bi-clock"></i> 3 late today</small>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="card bg-warning bg-opacity-10 border-warning">
-                        <div class="card-body text-center">
-                            <h3 class="text-warning mb-1">87%</h3>
-                            <p class="text-muted mb-0">On-Time Rate</p>
-                            <small class="text-success">+5% vs last week</small>
+                    <div class="card border-0 shadow-sm bg-gradient" style="background: linear-gradient(135deg, #ffc10720, #ffc10710);">
+                        <div class="card-body text-center p-4">
+                            <div class="d-flex align-items-center justify-content-center mb-3">
+                                <div class="bg-warning rounded-circle p-3 me-3">
+                                    <i class="bi bi-speedometer2 text-white" style="font-size: 1.5rem;"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-warning mb-0 fw-bold">87%</h2>
+                                    <p class="text-muted mb-0 small">On-Time Rate</p>
+                                </div>
+                            </div>
+                            <small class="text-success"><i class="bi bi-arrow-up"></i> +5% vs last week</small>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="card bg-info bg-opacity-10 border-info">
-                        <div class="card-body text-center">
-                            <h3 class="text-info mb-1">24</h3>
-                            <p class="text-muted mb-0">Job Sites</p>
-                            <small class="text-muted">North Texas</small>
+                    <div class="card border-0 shadow-sm bg-gradient" style="background: linear-gradient(135deg, #17a2b820, #17a2b810);">
+                        <div class="card-body text-center p-4">
+                            <div class="d-flex align-items-center justify-content-center mb-3">
+                                <div class="bg-info rounded-circle p-3 me-3">
+                                    <i class="bi bi-geo-alt text-white" style="font-size: 1.5rem;"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-info mb-0 fw-bold">24</h2>
+                                    <p class="text-muted mb-0 small">Job Sites</p>
+                                </div>
+                            </div>
+                            <small class="text-muted"><i class="bi bi-pin-map"></i> North Texas</small>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Quick Access Grid -->
-            <h4 class="mb-3">Quick Access</h4>
-            <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
-                <div class="col">
-                    <div class="card quick-access-card h-100 bg-dark bg-opacity-25">
-                        <div class="card-body d-flex flex-column">
+            <!-- Quick Access Grid - Enhanced Professional Design -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="mb-0">Quick Access</h4>
+                <span class="badge bg-success">All Systems Online</span>
+            </div>
+            <div class="row g-4 mb-4">
+                <div class="col-lg-3 col-md-6">
+                    <div class="card border-0 shadow-sm quick-access-card h-100" style="background: linear-gradient(135deg, #007bff10, #007bff05);">
+                        <div class="card-body d-flex flex-column p-4">
                             <div class="d-flex align-items-center mb-3">
-                                <div class="p-2 rounded bg-primary bg-opacity-10 me-3">
-                                    <i class="bi bi-calendar-check text-primary" style="font-size: 1.5rem;"></i>
+                                <div class="bg-primary rounded-3 p-3 me-3">
+                                    <i class="bi bi-calendar-check text-white" style="font-size: 1.5rem;"></i>
                                 </div>
-                                <h5 class="card-title mb-0">Daily Driver Report</h5>
+                                <div>
+                                    <h5 class="card-title mb-1 fw-bold">Daily Driver Report</h5>
+                                    <small class="text-muted">For drivers with status</small>
+                                </div>
                             </div>
-                            <p class="card-text flex-grow-1">View attendance reports for drivers with status classifications for On Time, Late, Early End, and Not On Job.</p>
-                            <a href="{{ url_for('attendance.daily_driver_report') }}" class="btn btn-primary mt-2">
+                            <p class="card-text flex-grow-1 small">View attendance reports for On Time, Late, Early End, and Not On Job classifications.</p>
+                            <a href="/driver-reports-working/" class="btn btn-primary btn-sm">
                                 <i class="bi bi-arrow-right-circle me-1"></i> Open Report
                             </a>
                         </div>
                     </div>
                 </div>
-                <div class="col">
-                    <div class="card quick-access-card h-100 bg-dark bg-opacity-25">
-                        <div class="card-body d-flex flex-column">
+                <div class="col-lg-3 col-md-6">
+                    <div class="card border-0 shadow-sm quick-access-card h-100" style="background: linear-gradient(135deg, #ffc10710, #ffc10705);">
+                        <div class="card-body d-flex flex-column p-4">
                             <div class="d-flex align-items-center mb-3">
-                                <div class="p-2 rounded bg-warning bg-opacity-10 me-3">
-                                    <i class="bi bi-calendar-week text-warning" style="font-size: 1.5rem;"></i>
+                                <div class="bg-warning rounded-3 p-3 me-3">
+                                    <i class="bi bi-calendar-week text-white" style="font-size: 1.5rem;"></i>
                                 </div>
-                                <h5 class="card-title mb-0">Weekly Driver Report</h5>
+                                <div>
+                                    <h5 class="card-title mb-1 fw-bold">Weekly Driver Report</h5>
+                                    <small class="text-muted">May 18-24 data</small>
+                                </div>
                             </div>
-                            <p class="card-text flex-grow-1">View enhanced weekly driver reports with May 18-24 data showing all attendance patterns and classifications.</p>
-                            <a href="{{ url_for('enhanced_weekly_report_bp.demo_may_week') }}" class="btn btn-warning mt-2">
+                            <p class="card-text flex-grow-1 small">Enhanced weekly reports showing all attendance patterns and classifications.</p>
+                            <a href="/enhanced-weekly-report/" class="btn btn-warning btn-sm">
                                 <i class="bi bi-bar-chart me-1"></i> View May 18-24 Report
                             </a>
                         </div>
                     </div>
                 </div>
-                <div class="col">
-                    <div class="card quick-access-card h-100 bg-dark bg-opacity-25">
-                        <div class="card-body d-flex flex-column">
+                <div class="col-lg-3 col-md-6">
+                    <div class="card border-0 shadow-sm quick-access-card h-100" style="background: linear-gradient(135deg, #17a2b810, #17a2b805);">
+                        <div class="card-body d-flex flex-column p-4">
                             <div class="d-flex align-items-center mb-3">
-                                <div class="p-2 rounded bg-info bg-opacity-10 me-3">
-                                    <i class="bi bi-geo-alt text-info" style="font-size: 1.5rem;"></i>
+                                <div class="bg-info rounded-3 p-3 me-3">
+                                    <i class="bi bi-geo-alt text-white" style="font-size: 1.5rem;"></i>
                                 </div>
-                                <h5 class="card-title mb-0">Asset Map</h5>
+                                <div>
+                                    <h5 class="card-title mb-1 fw-bold">Asset Map</h5>
+                                    <small class="text-muted">Real-time locations</small>
+                                </div>
                             </div>
-                            <p class="card-text flex-grow-1">View the real-time locations of all assets on an interactive map with GPS tracking data.</p>
-                            <a href="/asset-map/" class="btn btn-info mt-2">
+                            <p class="card-text flex-grow-1 small">Interactive map with GPS tracking data for all assets.</p>
+                            <a href="/asset-map/" class="btn btn-info btn-sm">
                                 <i class="bi bi-map me-1"></i> View Map
                             </a>
                         </div>
                     </div>
                 </div>
-                <div class="col">
-                    <div class="card quick-access-card h-100 bg-dark bg-opacity-25">
-                        <div class="card-body d-flex flex-column">
+                <div class="col-lg-3 col-md-6">
+                    <div class="card border-0 shadow-sm quick-access-card h-100" style="background: linear-gradient(135deg, #28a74510, #28a74505);">
+                        <div class="card-body d-flex flex-column p-4">
                             <div class="d-flex align-items-center mb-3">
-                                <div class="p-2 rounded bg-success bg-opacity-10 me-3">
-                                    <i class="bi bi-cloud-upload text-success" style="font-size: 1.5rem;"></i>
+                                <div class="bg-success rounded-3 p-3 me-3">
+                                    <i class="bi bi-file-earmark-text text-white" style="font-size: 1.5rem;"></i>
                                 </div>
-                                <h5 class="card-title mb-0">Upload Data</h5>
+                                <div>
+                                    <h5 class="card-title mb-1 fw-bold">MTD Data Review</h5>
+                                    <small class="text-muted">Complete analysis</small>
+                                </div>
                             </div>
-                            <p class="card-text flex-grow-1">Upload GPS telematics data, timecard data, and asset/driver information for processing.</p>
-                            <a href="/upload/" class="btn btn-success mt-2">
-                                <i class="bi bi-upload me-1"></i> Upload Files
+                            <p class="card-text flex-grow-1 small">Review your 113 drivers and complete fleet data analysis.</p>
+                            <a href="/mtd-review/" class="btn btn-success btn-sm">
+                                <i class="bi bi-database me-1"></i> Review Data
                             </a>
                         </div>
                     </div>

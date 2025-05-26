@@ -307,6 +307,14 @@ def attendance_main():
 #                           week_start="May 18, 2025",
 #                           week_end="May 24, 2025")
 
+# Register Working Driver Reports with Real MTD Data
+try:
+    from routes.driver_reports_working import driver_reports_working_bp
+    app.register_blueprint(driver_reports_working_bp)
+    logger.info("Working Driver Reports with real MTD data registered successfully")
+except ImportError as e:
+    logger.warning(f"Working Driver Reports module not found: {e}")
+
 @app.route('/')
 def dashboard():
     """Homepage shows dashboard"""

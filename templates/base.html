@@ -2,7 +2,7 @@
 <html lang="en" data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
     <title>{% block title %}TRAXORA Fleet Management{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -21,13 +21,36 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
         
-        /* Mobile viewport fix */
+        /* Aggressive mobile viewport fix */
         @media (max-width: 768px) {
-            html, body {
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            
+            html {
                 margin: 0 !important;
                 padding: 0 !important;
                 height: 100% !important;
+                width: 100% !important;
+            }
+            
+            body {
+                margin: 0 !important;
+                padding: 0 !important;
+                height: 100% !important;
+                width: 100% !important;
                 overflow-x: hidden !important;
+                position: relative !important;
+                background-color: #f8fafc !important;
+            }
+            
+            .container, .container-fluid {
+                margin: 0 !important;
+                padding: 15px !important;
+                width: 100% !important;
+                max-width: 100% !important;
             }
         }
         .navbar-brand { 

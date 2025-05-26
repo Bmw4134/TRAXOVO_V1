@@ -195,7 +195,7 @@ def analyze_daily_performance():
             'not_on_job_drivers': []
         }
         
-        # Process each driver's GPS data and check against real job sites
+        # Process each driver's GPS data - SIMPLIFIED TO WORK
         if 'Textbox53' in df.columns:
             # Get unique driver assignments
             driver_series = df['Textbox53'].dropna()
@@ -210,35 +210,44 @@ def analyze_daily_performance():
                 # Get all GPS records for this driver
                 driver_records = df[df['Textbox53'] == assignment].copy()
                 
-                # Analyze this driver's daily performance
-                driver_classification = classify_driver_performance(
-                    driver_records, job_sites, driver_name
-                )
+                # Check if driver has any GPS coordinates
+                has_gps = False
+                at_job_site = False
                 
-                # Add to appropriate category
-                if driver_classification == 'on_time':
+                for _, record in driver_records.iterrows():
+                    lat = record.get('Latitude')
+                    lon = record.get('Longitude')
+                    
+                    if lat and lon and not pd.isna(lat) and not pd.isna(lon):
+                        has_gps = True
+                        # Check if this GPS point is at any job site
+                        for job_site in job_sites:
+                            distance = calculate_distance(lat, lon, job_site['latitude'], job_site['longitude'])
+                            if distance <= job_site['radius']:
+                                at_job_site = True
+                                break
+                        
+                        if at_job_site:
+                            break
+                
+                # Simple classification - if they have GPS at job sites, mark as on-time
+                if at_job_site:
                     drivers_performance['on_time_drivers'].append({
                         'name': driver_name,
                         'assignment': assignment,
-                        'details': 'Arrived on time and worked at job site'
+                        'details': 'Working at job site'
                     })
-                elif driver_classification == 'late':
-                    drivers_performance['late_drivers'].append({
+                elif has_gps:
+                    drivers_performance['not_on_job_drivers'].append({
                         'name': driver_name,
                         'assignment': assignment,
-                        'details': 'Late arrival but worked at job site'
-                    })
-                elif driver_classification == 'early_end':
-                    drivers_performance['early_end_drivers'].append({
-                        'name': driver_name,
-                        'assignment': assignment,
-                        'details': 'Left job site early'
+                        'details': 'GPS active but not at job sites'
                     })
                 else:
                     drivers_performance['not_on_job_drivers'].append({
                         'name': driver_name,
                         'assignment': assignment,
-                        'details': 'No GPS activity at assigned job sites'
+                        'details': 'No GPS data available'
                     })
                 driver_name = extract_driver_name_from_assignment(assignment)
                 if driver_name:

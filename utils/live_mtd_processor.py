@@ -40,8 +40,8 @@ def process_todays_mtd_files():
         if os.path.exists(driving_history_file):
             logger.info(f"Processing REAL MTD Driving History: {driving_history_file}")
             
-            # Read your actual driving history file
-            df = pd.read_csv(driving_history_file, nrows=5000)  # Process first 5000 rows efficiently
+            # Read your actual driving history file with proper structure
+            df = pd.read_csv(driving_history_file, skiprows=8, nrows=5000)  # Skip header rows to get real data
             
             # Extract driver information from your real data
             driver_columns = [col for col in df.columns if 'driver' in col.lower() or 'operator' in col.lower() or 'contact' in col.lower()]

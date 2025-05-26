@@ -448,14 +448,59 @@
             <div class="col-12">
                 <!-- Professional Dashboard Header -->
                 <div class="dashboard-header fade-in">
-                    <h1 class="dashboard-title">
-                        <i class="fas fa-users"></i>
-                        Driver Performance Dashboard
-                    </h1>
-                    <p class="dashboard-subtitle">
-                        <span class="performance-ring performance-excellent"></span>
-                        Real-time fleet monitoring for {{ data.mtd_period }} • Last updated: {{ data.last_updated }}
-                    </p>
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h1 class="dashboard-title">
+                                <i class="fas fa-users"></i>
+                                Driver Performance Dashboard
+                            </h1>
+                            <p class="dashboard-subtitle">
+                                <span class="performance-ring performance-excellent"></span>
+                                Real-time fleet monitoring for {{ data.mtd_period }} • Last updated: {{ data.last_updated }}
+                            </p>
+                        </div>
+                        
+                        <!-- Time Period Navigation -->
+                        <div class="time-period-nav">
+                            <div class="btn-group" role="group" aria-label="Time period selection">
+                                <a href="/working-reports" class="btn btn-primary">
+                                    <i class="fas fa-calendar-day me-1"></i>Daily
+                                </a>
+                                <a href="/working-reports/weekly" class="btn btn-outline-primary">
+                                    <i class="fas fa-calendar-week me-1"></i>Weekly
+                                </a>
+                                <a href="/working-reports/monthly" class="btn btn-outline-primary">
+                                    <i class="fas fa-calendar-alt me-1"></i>Monthly
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Job Site Quick Links -->
+                    <div class="job-site-links mb-3">
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <a href="/job-sites/TEXDIST" class="btn btn-sm btn-outline-success w-100">
+                                    <i class="fas fa-map-marker-alt me-1"></i>TEXDIST (34 drivers)
+                                </a>
+                            </div>
+                            <div class="col-md-3">
+                                <a href="/job-sites/2024-004" class="btn btn-sm btn-outline-info w-100">
+                                    <i class="fas fa-map-marker-alt me-1"></i>2024-004 (28 drivers)
+                                </a>
+                            </div>
+                            <div class="col-md-3">
+                                <a href="/job-sites/2024-001" class="btn btn-sm btn-outline-warning w-100">
+                                    <i class="fas fa-map-marker-alt me-1"></i>2024-001 (25 drivers)
+                                </a>
+                            </div>
+                            <div class="col-md-3">
+                                <a href="/job-sites/all" class="btn btn-sm btn-outline-secondary w-100">
+                                    <i class="fas fa-list me-1"></i>All Job Sites
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Enhanced Metric Cards -->

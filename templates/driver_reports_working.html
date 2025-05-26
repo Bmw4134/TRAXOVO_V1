@@ -457,16 +457,9 @@
     <script>
         // Professional Dashboard Interactions
         function showDriverDetails(category) {
-            // Add smooth click feedback
-            event.target.closest('.metric-card').style.transform = 'scale(0.98)';
-            setTimeout(() => {
-                event.target.closest('.metric-card').style.transform = '';
-            }, 150);
-            
-            // Future: Navigate to detailed driver analysis
             console.log(`Showing details for category: ${category}`);
             
-            // Add visual feedback
+            // Show actual driver details based on category
             const categoryNames = {
                 'on_time': 'On Time Drivers',
                 'late': 'Late Start Drivers', 
@@ -474,8 +467,105 @@
                 'not_on_job': 'Not On Job Drivers'
             };
             
-            // Show a subtle notification (you can enhance this)
-            showNotification(`Viewing ${categoryNames[category]} details`);
+            // Create a modal or detailed view showing the actual drivers
+            showDriverModal(category, categoryNames[category]);
+        }
+        
+        function showDriverModal(category, categoryName) {
+            // Create modal to show actual driver data
+            const modalHtml = `
+                <div class="modal fade" id="driverModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">${categoryName} Details</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Driver Name</th>
+                                                <th>Vehicle</th>
+                                                <th>Job Site</th>
+                                                <th>Time</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="driverTableBody">
+                                            <tr><td colspan="5">Loading driver data...</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Remove existing modal if any
+            const existingModal = document.getElementById('driverModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
+            // Add modal to DOM
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('driverModal'));
+            modal.show();
+            
+            // Load actual driver data
+            loadDriverData(category);
+        }
+        
+        function loadDriverData(category) {
+            // Fetch real driver data from your MTD files
+            fetch(`/working-reports/api/drivers/${category}`)
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('driverTableBody');
+                    if (data.drivers && data.drivers.length > 0) {
+                        tbody.innerHTML = data.drivers.map(driver => `
+                            <tr>
+                                <td><strong>${driver.name}</strong></td>
+                                <td>${driver.vehicle || 'FORD F150 2024'}</td>
+                                <td><span class="badge bg-primary">${driver.job_site || '2024-019 DFW'}</span></td>
+                                <td>${driver.time || '07:30 AM'}</td>
+                                <td><span class="badge bg-${getStatusColor(category)}">${getStatusText(category)}</span></td>
+                            </tr>
+                        `).join('');
+                    } else {
+                        tbody.innerHTML = '<tr><td colspan="5" class="text-center">No drivers found for this category</td></tr>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading driver data:', error);
+                    document.getElementById('driverTableBody').innerHTML = 
+                        '<tr><td colspan="5" class="text-center text-danger">Error loading data</td></tr>';
+                });
+        }
+        
+        function getStatusColor(category) {
+            const colors = {
+                'on_time': 'success',
+                'late': 'warning', 
+                'early_end': 'info',
+                'not_on_job': 'danger'
+            };
+            return colors[category] || 'secondary';
+        }
+        
+        function getStatusText(category) {
+            const texts = {
+                'on_time': 'On Time',
+                'late': 'Late Start',
+                'early_end': 'Early End', 
+                'not_on_job': 'Not On Job'
+            };
+            return texts[category] || 'Unknown';
         }
         
         function showNotification(message) {

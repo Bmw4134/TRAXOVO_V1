@@ -56,9 +56,9 @@ def dashboard():
         today = datetime.now().date()
         today_str = today.strftime('%Y-%m-%d')
         
-        # Get real metrics from your uploaded MTD data
-        from utils.quick_metrics import get_quick_driver_metrics
-        metrics = get_quick_driver_metrics()
+        # Get real metrics from your MTD files uploaded TODAY (North Texas operations)
+        from utils.live_mtd_processor import process_todays_mtd_files
+        metrics = process_todays_mtd_files()
         
         # Get previous dates (last 7 days)
         date_range = []

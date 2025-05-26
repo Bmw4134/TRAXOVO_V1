@@ -25,11 +25,8 @@ def get_quick_driver_metrics():
     }
     
     try:
-        # Look for your uploaded MTD files
-        data_dir = "data"
-        if not os.path.exists(data_dir):
-            logger.info("Data directory not found, checking for real driver data...")
-            return metrics
+        # Process your REAL MTD files uploaded TODAY
+        upload_dir = "uploads/daily_reports/2025-05-26"
         
         driver_count = 0
         on_time_count = 0
@@ -37,17 +34,11 @@ def get_quick_driver_metrics():
         early_end_count = 0
         not_on_job_count = 0
         
-        # Process your actual MTD files uploaded today
-        mtd_files = [
-            'DrivingHistory - MTD 05.22.csv',
-            'ActivityDetail - MTD 05.22.csv',
-            'AssetsTimeOnSite - MTD 05.22.csv'
-        ]
+        # Your actual MTD files from today
+        driving_history_file = os.path.join(upload_dir, "Driving_History_DrivingHistory_050125-052625.csv")
         
-        for filename in mtd_files:
-            file_path = os.path.join(data_dir, filename)
-            if not os.path.exists(file_path):
-                continue
+        if os.path.exists(driving_history_file):
+            logger.info(f"Processing your REAL MTD file: {driving_history_file}")
             
             try:
                     # Read your MTD file with proper handling for the complex format

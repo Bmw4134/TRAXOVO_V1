@@ -223,7 +223,30 @@ def upload_files():
 def generate_report(date):
     """Generate a daily driver report for the specified date"""
     try:
-        # Generate the report
+        # Import MTD processor
+        from utils.mtd_processor import extract_date_range_from_files, process_mtd_data_for_date_range
+        
+        # Check main uploads directory where MTD files are actually located
+        main_uploads_dir = "uploads"
+        
+        # Try MTD processing first
+        start_date, end_date = extract_date_range_from_files(main_uploads_dir)
+        
+        if start_date and end_date:
+            flash(f"Processing MTD data from {start_date} to {end_date}", "info")
+            
+            # Process all dates in the MTD range
+            mtd_results = process_mtd_data_for_date_range(main_uploads_dir, start_date, end_date)
+            
+            if mtd_results:
+                # Find the most recent date with data for viewing
+                recent_date = max(mtd_results.keys())
+                flash(f"MTD data processed successfully! Found data for {len(mtd_results)} dates", "success")
+                return redirect(url_for('daily_driver_report.view_report', date=recent_date))
+            else:
+                flash("MTD data processed but no driver records found", "warning")
+        
+        # Fallback to single date processing if MTD fails
         success = schedule_daily_report_generation(date)
         
         if success:

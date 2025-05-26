@@ -16,9 +16,33 @@ from datetime import datetime
 # Configure logging
 logger = logging.getLogger(__name__)
 
+def detect_header_rows(df):
+    """
+    Detect and skip header/fluff rows in uploaded files.
+    
+    Args:
+        df: DataFrame to analyze
+        
+    Returns:
+        int: Number of rows to skip
+    """
+    # Look for common header patterns
+    for i, row in df.head(10).iterrows():
+        row_str = ' '.join(str(val).lower() for val in row if pd.notna(val))
+        
+        # Check for data-like content (dates, times, driver names)
+        if any(pattern in row_str for pattern in [
+            'driver', 'vehicle', 'asset', 'time', 'date', 'location', 'job'
+        ]) and not any(pattern in row_str for pattern in [
+            'report', 'generated', 'summary', 'company', 'period'
+        ]):
+            return i
+    
+    return 0
+
 def infer_file_type(file_obj):
     """
-    Infer file type based on file name and contents.
+    Infer file type based on file name and contents with smart header detection.
     
     Args:
         file_obj: The file object

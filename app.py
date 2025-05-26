@@ -198,3 +198,13 @@ except ImportError as e:
     logger.warning(f"Report Browser module not found: {e}")
 except Exception as e:
     logger.error(f"Error registering Report Browser blueprint: {e}")
+
+# Register Data Upload Manager Blueprint
+try:
+    from routes.data_upload_manager import data_upload_bp
+    app.register_blueprint(data_upload_bp)
+    logger.info("Data Upload Manager blueprint registered successfully")
+except ImportError as e:
+    logger.warning(f"Data Upload Manager module not found: {e}")
+except Exception as e:
+    logger.error(f"Error registering Data Upload Manager blueprint: {e}")

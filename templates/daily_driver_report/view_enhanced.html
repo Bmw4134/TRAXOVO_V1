@@ -245,18 +245,12 @@
                                     {% for source in report_data.data_sources %}
                                     <li class="list-group-item bg-dark px-0">
                                         <div class="d-flex align-items-center">
-                                            {% if source is string and 'driving' in source.lower() %}
-                                            <i class="fas fa-car text-success me-2"></i>
-                                            {% elif source is string and 'timeonsite' in source.lower() %}
-                                            <i class="fas fa-map-marker-alt text-primary me-2"></i>
-                                            {% elif source is string and 'activity' in source.lower() %}
-                                            <i class="fas fa-clipboard-list text-info me-2"></i>
-                                            {% elif source is string and 'timecard' in source.lower() %}
-                                            <i class="fas fa-clipboard-check text-warning me-2"></i>
+                                            <i class="fas fa-file text-success me-2"></i>
+                                            {% if source is mapping %}
+                                                {{ source.source or source.type or 'Data Source' }}
                                             {% else %}
-                                            <i class="fas fa-file text-secondary me-2"></i>
+                                                {{ source }}
                                             {% endif %}
-                                            {{ source }}
                                         </div>
                                     </li>
                                     {% endfor %}

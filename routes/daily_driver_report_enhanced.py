@@ -20,6 +20,29 @@ from utils.live_mtd_processor import process_todays_mtd_files
 from utils.monthly_report_generator import extract_all_drivers_from_mtd
 import pandas as pd
 
+def infer_file_type_from_path(file_path):
+    """Simple file type inference based on filename"""
+    filename_lower = file_path.lower()
+    
+    if 'driving_history' in filename_lower or 'drivinghistory' in filename_lower:
+        return 'Driving History'
+    elif 'assets_time_on_site' in filename_lower or 'timezonsite' in filename_lower:
+        return 'Assets Time On Site'
+    elif 'activity_detail' in filename_lower or 'activitydetail' in filename_lower:
+        return 'Activity Detail'
+    elif 'timecard' in filename_lower:
+        return 'Timecard'
+    else:
+        return 'Other'
+
+def schedule_daily_report_generation():
+    """Placeholder for report scheduling"""
+    return True
+
+def auto_generate_report_for_date(date):
+    """Placeholder for auto report generation"""
+    return {"status": "generated", "date": date}
+
 # Configure logging
 logger = logging.getLogger(__name__)
 

@@ -43,18 +43,30 @@
             background-color: var(--bs-dark);
         }
         
-        .sidebar-collapsed {
-            width: 70px;
+        .sidebar.collapsed {
+            width: 60px;
+            overflow: hidden;
+        }
+        
+        .sidebar.collapsed .sidebar-text {
+            display: none;
+        }
+        
+        .sidebar.collapsed .sidebar-icon {
+            margin: 0 auto;
+            text-align: center;
         }
         
         .main-content {
             margin-left: 250px;
             transition: all 0.3s;
             flex: 1;
+            width: calc(100% - 250px);
         }
         
-        .main-content-expanded {
-            margin-left: 70px;
+        .main-content.expanded {
+            margin-left: 60px;
+            width: calc(100% - 60px);
         }
         
         .navbar {

@@ -42,17 +42,29 @@
         }
         
         .sidebar.collapsed {
-            margin-left: -280px;
+            width: 60px;
+            overflow: hidden;
+        }
+        
+        .sidebar.collapsed .sidebar-text {
+            display: none;
+        }
+        
+        .sidebar.collapsed .sidebar-icon {
+            margin: 0 auto;
+            text-align: center;
         }
         
         .content {
             flex: 1;
             transition: all 0.3s;
             margin-left: 280px;
+            width: calc(100% - 280px);
         }
         
         .content.expanded {
-            margin-left: 0;
+            margin-left: 60px;
+            width: calc(100% - 60px);
         }
         
         .navbar {

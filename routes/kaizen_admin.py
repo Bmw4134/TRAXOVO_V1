@@ -24,7 +24,7 @@ from utils.kaizen_admin_actions import get_admin_actions, get_admin_action, clea
 logger = logging.getLogger(__name__)
 
 # Create blueprint
-kaizen_admin_bp = Blueprint('kaizen_admin', __name__, url_prefix='/admin/kaizen')
+kaizen_admin_bp = Blueprint('kaizen_admin', __name__, url_prefix='/kaizen-admin')
 
 # Global variables for watchdog status
 watchdog_thread = None

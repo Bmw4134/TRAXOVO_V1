@@ -117,6 +117,7 @@ def dashboard():
         # Use the enhanced dashboard template
         return render_template(
             'daily_driver_report/dashboard_enhanced.html',
+            metrics=metrics,
             today=today_str,
             today_formatted=today.strftime('%A, %B %d, %Y'),
             date_range=date_range,
@@ -129,7 +130,19 @@ def dashboard():
         logger.error(f"Error displaying daily driver report dashboard: {str(e)}")
         logger.error(traceback.format_exc())
         flash(f"Error displaying dashboard: {str(e)}", "danger")
-        return render_template('daily_driver_report/dashboard_enhanced.html')
+        
+        # Provide fallback metrics
+        fallback_metrics = {
+            'on_time': 0, 'late': 0, 'early_end': 0, 'not_on_job': 0,
+            'avg_late': 0, 'avg_early_end': 0, 'total_assets': 0, 'total_assigned_drivers': 0
+        }
+        
+        return render_template('daily_driver_report/dashboard_enhanced.html', 
+                             metrics=fallback_metrics,
+                             today=datetime.now().strftime('%Y-%m-%d'),
+                             today_formatted=datetime.now().strftime('%A, %B %d, %Y'),
+                             date_range=[], file_groups={}, 
+                             today_report_exists=False, can_generate=False)
 
 @daily_driver_report_bp.route('/upload', methods=['GET', 'POST'])
 def upload_files():

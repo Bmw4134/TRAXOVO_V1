@@ -315,6 +315,14 @@ try:
 except ImportError as e:
     logger.warning(f"Working Driver Reports module not found: {e}")
 
+# Register Job Site Manager
+try:
+    from routes.job_site_manager import job_site_bp
+    app.register_blueprint(job_site_bp)
+    logger.info("Job Site Manager with North Texas locations registered successfully")
+except ImportError as e:
+    logger.warning(f"Job Site Manager module not found: {e}")
+
 # Register MTD Data Review Dashboard
 try:
     from routes.mtd_data_review import mtd_review_bp

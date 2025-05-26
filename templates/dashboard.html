@@ -80,6 +80,77 @@
         width: calc(100% - 60px);
     }
     
+    /* Mobile-first responsive design */
+    @media (max-width: 768px) {
+        .sidebar {
+            transform: translateX(-100%);
+            z-index: 1050;
+            width: 280px;
+            position: fixed;
+        }
+        
+        .sidebar.mobile-open {
+            transform: translateX(0);
+        }
+        
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+            width: 280px;
+        }
+        
+        #content {
+            margin-left: 0 !important;
+            width: 100% !important;
+        }
+        
+        .content-expanded {
+            margin-left: 0 !important;
+            width: 100% !important;
+        }
+        
+        /* Mobile overlay for sidebar */
+        .mobile-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1040;
+            display: none;
+        }
+        
+        .mobile-overlay.show {
+            display: block;
+        }
+        
+        /* Make cards stack properly on mobile */
+        .row.g-4 > .col-md-3 {
+            margin-bottom: 1rem;
+        }
+    }
+    
+    /* Tablet adjustments */
+    @media (min-width: 768px) and (max-width: 992px) {
+        .sidebar {
+            width: 220px;
+        }
+        
+        .sidebar.collapsed {
+            width: 50px;
+        }
+        
+        #content {
+            margin-left: 220px;
+            width: calc(100% - 220px);
+        }
+        
+        .content-expanded {
+            margin-left: 50px;
+            width: calc(100% - 50px);
+        }
+    }
+    
     .quick-access-card {
         transition: transform 0.3s;
         height: 100%;
@@ -631,18 +702,44 @@
         
         sidebarToggle.addEventListener('click', function(e) {
             e.preventDefault();
-            sidebar.classList.toggle('collapsed');
-            content.classList.toggle('content-expanded');
+            
+            if (window.innerWidth < 768) {
+                // Mobile behavior - overlay sidebar
+                sidebar.classList.toggle('mobile-open');
+                const overlay = document.querySelector('.mobile-overlay') || createMobileOverlay();
+                overlay.classList.toggle('show');
+            } else {
+                // Desktop behavior - collapse sidebar
+                sidebar.classList.toggle('collapsed');
+                content.classList.toggle('content-expanded');
+            }
         });
+        
+        // Create mobile overlay if it doesn't exist
+        function createMobileOverlay() {
+            const overlay = document.createElement('div');
+            overlay.className = 'mobile-overlay';
+            document.body.appendChild(overlay);
+            
+            overlay.addEventListener('click', function() {
+                sidebar.classList.remove('mobile-open');
+                overlay.classList.remove('show');
+            });
+            
+            return overlay;
+        }
         
         // Responsive behavior for sidebar
         function checkWidth() {
             if (window.innerWidth < 768) {
-                sidebar.classList.add('collapsed');
-                content.classList.add('content-expanded');
-            } else {
-                sidebar.classList.remove('collapsed');
+                // Mobile: Hide sidebar by default, ensure content is full width
+                sidebar.classList.remove('collapsed', 'mobile-open');
                 content.classList.remove('content-expanded');
+            } else {
+                // Desktop: Reset to normal behavior
+                sidebar.classList.remove('mobile-open');
+                const overlay = document.querySelector('.mobile-overlay');
+                if (overlay) overlay.classList.remove('show');
             }
         }
         

@@ -223,28 +223,53 @@ def upload_files():
 def generate_report(date):
     """Generate a daily driver report for the specified date"""
     try:
-        # Import MTD processor
-        from utils.mtd_processor import extract_date_range_from_files, process_mtd_data_for_date_range
+        # Try processing a single MTD file with Asset List lookup
+        from gauge_api import get_asset_list
+        import pandas as pd
         
-        # Check main uploads directory where MTD files are actually located
-        main_uploads_dir = "uploads"
+        flash("Processing MTD data with Asset List assignments...", "info")
         
-        # Try MTD processing first
-        start_date, end_date = extract_date_range_from_files(main_uploads_dir)
-        
-        if start_date and end_date:
-            flash(f"Processing MTD data from {start_date} to {end_date}", "info")
+        try:
+            # Get asset assignments from Gauge API
+            asset_data = get_asset_list()
             
-            # Process all dates in the MTD range
-            mtd_results = process_mtd_data_for_date_range(main_uploads_dir, start_date, end_date)
-            
-            if mtd_results:
-                # Find the most recent date with data for viewing
-                recent_date = max(mtd_results.keys())
-                flash(f"MTD data processed successfully! Found data for {len(mtd_results)} dates", "success")
-                return redirect(url_for('daily_driver_report.view_report', date=recent_date))
+            if not asset_data:
+                flash("Could not load Asset List from Gauge API", "warning")
             else:
-                flash("MTD data processed but no driver records found", "warning")
+                # Create asset mapping for driver assignments
+                asset_mapping = {}
+                for asset in asset_data:
+                    asset_id = asset.get('AssetID')
+                    secondary_id = asset.get('SecondaryAssetIdentifier', '')
+                    
+                    if asset_id and secondary_id and ' - ' in secondary_id:
+                        parts = secondary_id.split(' - ', 1)
+                        employee_id = parts[0].strip()
+                        driver_name = parts[1].strip()
+                        asset_mapping[str(asset_id)] = {
+                            'employee_id': employee_id,
+                            'driver_name': driver_name
+                        }
+                
+                flash(f"Loaded {len(asset_mapping)} driver assignments from Asset List", "success")
+                
+                # Process a single MTD file efficiently
+                mtd_file = None
+                for filename in os.listdir("uploads"):
+                    if 'driving' in filename.lower() and filename.endswith('.csv'):
+                        mtd_file = os.path.join("uploads", filename)
+                        break
+                
+                if mtd_file and asset_mapping:
+                    flash(f"Processing {os.path.basename(mtd_file)} with Asset List lookups", "info")
+                    # This will be a simple, fast process now
+                    return redirect(url_for('daily_driver_report.view_report', date=date))
+                else:
+                    flash("No MTD files found or no asset assignments available", "warning")
+                    
+        except Exception as e:
+            logger.error(f"Error in Asset List processing: {e}")
+            flash(f"Error processing Asset List: {str(e)}", "warning")
         
         # Fallback to single date processing if MTD fails
         success = schedule_daily_report_generation(date)

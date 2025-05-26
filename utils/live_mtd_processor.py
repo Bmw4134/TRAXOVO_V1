@@ -43,13 +43,36 @@ def process_todays_mtd_files():
             # Read your actual driving history file with proper structure
             df = pd.read_csv(driving_history_file, skiprows=8, nrows=5000)  # Skip header rows to get real data
             
-            # Extract driver information from your real data
-            driver_columns = [col for col in df.columns if 'driver' in col.lower() or 'operator' in col.lower() or 'contact' in col.lower()]
+            # Extract driver information from the correct column (Textbox53 contains asset-driver assignments)
+            asset_driver_col = 'Textbox53'  # This column has format: "#210003 - AMMAR I. ELHAMAD FORD F150 2024"
             
-            if driver_columns:
-                driver_col = driver_columns[0]
-                unique_drivers = df[driver_col].dropna().unique()
-                driver_count = len([d for d in unique_drivers if str(d) != 'nan' and str(d).strip()])
+            if asset_driver_col in df.columns:
+                # Get all unique asset-driver assignments
+                asset_assignments = df[asset_driver_col].dropna().unique()
+                
+                # Extract driver names from format "#210003 - AMMAR I. ELHAMAD FORD F150 2024"
+                driver_names = set()
+                for assignment in asset_assignments:
+                    if assignment and str(assignment) != 'nan' and ' - ' in str(assignment):
+                        # Split on ' - ' and take the part with driver name
+                        parts = str(assignment).split(' - ', 1)
+                        if len(parts) > 1:
+                            # Extract driver name (everything before vehicle info)
+                            driver_part = parts[1]
+                            # Remove vehicle info (everything after last capital letter sequence)
+                            words = driver_part.split()
+                            driver_name_words = []
+                            for word in words:
+                                if word.isupper() or (word[0].isupper() and word[1:].islower()):
+                                    driver_name_words.append(word)
+                                else:
+                                    break
+                            if driver_name_words:
+                                driver_name = ' '.join(driver_name_words)
+                                driver_names.add(driver_name)
+                
+                driver_count = len(driver_names)
+                logger.info(f"Found {driver_count} unique drivers from asset assignments")
                 
                 # Calculate real attendance metrics from your data
                 # Look for time-based patterns in your actual data

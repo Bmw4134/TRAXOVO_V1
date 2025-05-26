@@ -278,9 +278,73 @@ def generate_report(date):
                         break
                 
                 if mtd_file and asset_mapping:
-                    flash(f"Processing {os.path.basename(mtd_file)} with Asset List lookups", "info")
-                    # This will be a simple, fast process now
-                    return redirect(url_for('daily_driver_report.view_report', date=date))
+                    flash(f"Processing {os.path.basename(mtd_file)} with {len(asset_mapping)} driver assignments", "info")
+                    
+                    # Process MTD file with Asset List mappings
+                    try:
+                        df = pd.read_csv(mtd_file, skiprows=7, low_memory=False)
+                        driver_records = []
+                        
+                        # Find Asset ID column
+                        asset_column = None
+                        for col in df.columns:
+                            if 'asset' in col.lower() or 'textbox53' in col.lower():
+                                asset_column = col
+                                break
+                        
+                        if asset_column:
+                            for _, row in df.iterrows():
+                                asset_value = str(row.get(asset_column, '')).strip()
+                                
+                                # Extract asset ID from various formats
+                                asset_id = None
+                                if asset_value.startswith('#'):
+                                    parts = asset_value[1:].split(' - ', 1)
+                                    if parts:
+                                        asset_id = parts[0].strip()
+                                elif asset_value.isdigit():
+                                    asset_id = asset_value
+                                
+                                # Check if this asset has a driver assignment
+                                if asset_id and asset_id in asset_mapping:
+                                    driver_info = asset_mapping[asset_id]
+                                    event_time = row.get('EventDateTime')
+                                    
+                                    if pd.notna(event_time):
+                                        try:
+                                            parsed_time = pd.to_datetime(event_time)
+                                            if parsed_time.strftime('%Y-%m-%d') == date:
+                                                driver_records.append({
+                                                    'driver_name': driver_info['driver_name'],
+                                                    'employee_id': driver_info['employee_id'],
+                                                    'event_time': parsed_time,
+                                                    'event_type': row.get('MsgType', ''),
+                                                    'location': row.get('Location', '')
+                                                })
+                                        except:
+                                            continue
+                        
+                        flash(f"Found {len(driver_records)} driver events for {date}", "success")
+                        
+                        # Store the results for viewing
+                        import json
+                        import os
+                        os.makedirs('temp_reports', exist_ok=True)
+                        
+                        with open(f'temp_reports/mtd_results_{date}.json', 'w') as f:
+                            json.dump({
+                                'date': date,
+                                'total_assets': len(asset_data),
+                                'driver_assignments': len(asset_mapping),
+                                'driver_events': len(driver_records),
+                                'records': [r for r in driver_records[:10]]  # Sample records
+                            }, f, default=str, indent=2)
+                        
+                        return redirect(url_for('daily_driver_report.view_report', date=date))
+                        
+                    except Exception as e:
+                        flash(f"Error processing MTD file: {str(e)}", "error")
+                        logger.error(f"MTD processing error: {e}")
                 else:
                     flash("No MTD files found or no asset assignments available", "warning")
                     

@@ -146,24 +146,31 @@ def analyze_daily_performance():
     Analyze actual daily performance patterns using real GPS coordinates and job sites
     """
     try:
-        # Get actual job sites from your working catalog
-        from utils.jobsite_catalog_loader import load_jobsite_catalog
-        catalog_job_sites = load_jobsite_catalog()
-        
-        # Convert catalog format to GPS coordinate format
+        # Load job sites directly from the catalog file
+        import json
         job_sites = []
-        for site in catalog_job_sites:
-            if site.get('latitude') and site.get('longitude'):
-                job_sites.append({
-                    'name': site.get('description', site.get('job_number', 'Unknown')),
-                    'job_number': site.get('job_number'),
-                    'latitude': float(site['latitude']),
-                    'longitude': float(site['longitude']),
-                    'radius': site.get('radius', 500),  # Default 500m radius
-                    'active': True
-                })
         
-        logger.info(f"Loaded {len(job_sites)} active job sites for analysis")
+        try:
+            catalog_path = "data/traxora_jobsite_catalog_v2.json"
+            with open(catalog_path, 'r') as f:
+                catalog_job_sites = json.load(f)
+            
+            # Convert catalog format to GPS coordinate format
+            for site in catalog_job_sites:
+                if site.get('latitude') and site.get('longitude') and site.get('active', True):
+                    job_sites.append({
+                        'name': site.get('description', site.get('job_number', 'Unknown')),
+                        'job_number': site.get('job_number'),
+                        'latitude': float(site['latitude']),
+                        'longitude': float(site['longitude']),
+                        'radius': site.get('radius', 500),
+                        'active': True
+                    })
+            
+            logger.info(f"Loaded {len(job_sites)} active job sites for analysis")
+        except Exception as e:
+            logger.error(f"Failed to load job sites: {e}")
+            job_sites = []
         
         mtd_file = "uploads/daily_reports/2025-05-26/Driving_History_DrivingHistory_050125-052625.csv"
         

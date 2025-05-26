@@ -235,11 +235,6 @@ def analyze_daily_performance():
                     'assignment': f"Vehicle assignment for {driver_name}",
                     'details': 'No activity detected at job sites'
                 })
-                            'total_days_worked': len(driver_data['Date'].dropna().unique()) if 'Date' in driver_data.columns else 0,
-                            'avg_daily_hours': calculate_avg_daily_hours(driver_data)
-                        }
-                        
-                        drivers_performance[performance_category].append(driver_record)
         
         logger.info(f"Performance analysis: {len(drivers_performance['on_time_drivers'])} on-time, "
                    f"{len(drivers_performance['late_drivers'])} late, "

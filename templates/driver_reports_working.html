@@ -7,38 +7,238 @@
     <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Responsive design fixes for all screen sizes */
+        /* Professional Fleet Management Dashboard Styling */
         body {
             min-height: 100vh;
             overflow-x: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
         }
         
         .container-fluid {
-            padding-left: 15px;
-            padding-right: 15px;
+            padding: 0 20px;
             max-width: 100%;
         }
         
-        /* Ensure cards fit properly on mobile */
+        /* Enhanced Navigation */
+        .navbar {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            border-bottom: 2px solid #0d6efd;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.4rem;
+            letter-spacing: 1px;
+        }
+        
+        /* Professional Dashboard Header */
+        .dashboard-header {
+            background: linear-gradient(90deg, #0d6efd 0%, #0056b3 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+        }
+        
+        .dashboard-title {
+            color: white;
+            margin: 0;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .dashboard-subtitle {
+            color: rgba(255,255,255,0.8);
+            margin: 5px 0 0 0;
+            font-size: 0.95rem;
+        }
+        
+        /* Enhanced Metric Cards */
+        .metric-card {
+            border: none;
+            border-radius: 15px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            height: 160px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+        }
+        
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.1) 100%);
+        }
+        
+        .metric-card-body {
+            padding: 25px 20px;
+            text-align: center;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .metric-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+        
+        .metric-number {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 10px 0;
+            line-height: 1;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .metric-label {
+            font-size: 1rem;
+            font-weight: 500;
+            opacity: 0.9;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Color Schemes for Cards */
+        .card-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+        
+        .card-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+            color: #212529;
+        }
+        
+        .card-info {
+            background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%);
+            color: white;
+        }
+        
+        .card-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+        }
+        
+        /* Enhanced Information Cards */
+        .info-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .info-card:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.2);
+        }
+        
+        .info-card .card-header {
+            background: rgba(13, 110, 253, 0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px 12px 0 0;
+            padding: 15px 20px;
+        }
+        
+        .info-card .card-body {
+            padding: 20px;
+        }
+        
+        /* Professional Typography */
+        .stat-label {
+            font-weight: 600;
+            color: #e9ecef;
+        }
+        
+        .stat-value {
+            color: #0d6efd;
+            font-weight: 500;
+        }
+        
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+        
+        /* Driver List Styling */
+        .driver-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .driver-item {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+        }
+        
+        .driver-item:hover {
+            background: rgba(255,255,255,0.05);
+            padding-left: 10px;
+            border-radius: 8px;
+        }
+        
+        .driver-item:last-child {
+            border-bottom: none;
+        }
+        
+        .driver-icon {
+            color: #0d6efd;
+            font-size: 1.1rem;
+        }
+        
+        /* Responsive Design */
         @media (max-width: 768px) {
-            .col-md-6 {
-                margin-bottom: 1rem;
+            .container-fluid {
+                padding: 0 15px;
             }
             
-            .card-body {
-                padding: 1rem 0.5rem;
+            .metric-card {
+                height: 140px;
+                margin-bottom: 15px;
             }
             
-            .card-title {
-                font-size: 1.5rem;
+            .metric-number {
+                font-size: 2.5rem;
             }
             
-            h2 {
-                font-size: 1.3rem;
+            .metric-icon {
+                font-size: 2rem;
+            }
+            
+            .dashboard-header {
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+            
+            .dashboard-title {
+                font-size: 1.4rem;
             }
         }
         
-        /* Tablet adjustments */
         @media (min-width: 768px) and (max-width: 1024px) {
             .col-lg-3 {
                 flex: 0 0 50%;
@@ -46,27 +246,43 @@
             }
         }
         
-        /* Ensure proper spacing and no overflow */
-        .row {
-            margin-left: -7.5px;
-            margin-right: -7.5px;
+        /* Smooth Scrollbar */
+        .driver-list::-webkit-scrollbar {
+            width: 6px;
         }
         
-        .col-md-6, .col-lg-3, .col-lg-4, .col-lg-8, .col-sm-6 {
-            padding-left: 7.5px;
-            padding-right: 7.5px;
+        .driver-list::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
         }
         
-        /* Fix vertical spacing */
-        .mb-4 {
-            margin-bottom: 2rem !important;
+        .driver-list::-webkit-scrollbar-thumb {
+            background: #0d6efd;
+            border-radius: 3px;
         }
         
-        /* Ensure cards don't overflow */
-        .card {
-            height: auto;
-            min-height: 120px;
+        /* Animation Classes */
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
         }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Performance Indicator */
+        .performance-ring {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .performance-excellent { background: #28a745; }
+        .performance-good { background: #ffc107; }
+        .performance-poor { background: #dc3545; }
     </style>
 </head>
 <body>
@@ -81,47 +297,56 @@
     <div class="container-fluid mt-4">
         <div class="row">
             <div class="col-12">
-                <h2 class="text-light mb-4">
-                    <i class="fas fa-users me-3"></i>Driver Performance Dashboard
-                </h2>
+                <!-- Professional Dashboard Header -->
+                <div class="dashboard-header fade-in">
+                    <h1 class="dashboard-title">
+                        <i class="fas fa-users"></i>
+                        Driver Performance Dashboard
+                    </h1>
+                    <p class="dashboard-subtitle">
+                        <span class="performance-ring performance-excellent"></span>
+                        Real-time fleet monitoring for {{ data.mtd_period }} • Last updated: {{ data.last_updated }}
+                    </p>
+                </div>
                 
+                <!-- Enhanced Metric Cards -->
                 <div class="row mb-4">
                     <div class="col-md-6 col-lg-3 mb-3">
-                        <div class="card bg-success">
-                            <div class="card-body text-center">
-                                <i class="fas fa-clock fa-2x mb-2"></i>
-                                <h3 class="card-title">{{ data.on_time }}</h3>
-                                <p class="card-text">On Time Drivers</p>
+                        <div class="metric-card card-success fade-in" onclick="showDriverDetails('on_time')">
+                            <div class="metric-card-body">
+                                <i class="fas fa-clock metric-icon"></i>
+                                <div class="metric-number">{{ data.on_time }}</div>
+                                <p class="metric-label">On Time Drivers</p>
                             </div>
                         </div>
                     </div>
                     
                     <div class="col-md-6 col-lg-3 mb-3">
-                        <div class="card bg-warning">
-                            <div class="card-body text-center">
-                                <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
-                                <h3 class="card-title">{{ data.late }}</h3>
-                                <p class="card-text">Late Starts</p>
+                        <div class="metric-card card-warning fade-in" onclick="showDriverDetails('late')" style="animation-delay: 0.1s">
+                            <div class="metric-card-body">
+                                <i class="fas fa-exclamation-triangle metric-icon"></i>
+                                <div class="metric-number">{{ data.late }}</div>
+                                <p class="metric-label">Late Starts</p>
                             </div>
                         </div>
                     </div>
                     
                     <div class="col-md-6 col-lg-3 mb-3">
-                        <div class="card bg-info">
-                            <div class="card-body text-center">
-                                <i class="fas fa-arrow-left fa-2x mb-2"></i>
-                                <h3 class="card-title">{{ data.early_end }}</h3>
-                                <p class="card-text">Early Departures</p>
+                        <div class="metric-card card-info fade-in" onclick="showDriverDetails('early_end')" style="animation-delay: 0.2s">
+                            <div class="metric-card-body">
+                                <i class="fas fa-arrow-left metric-icon"></i>
+                                <div class="metric-number">{{ data.early_end }}</div>
+                                <p class="metric-label">Early Departures</p>
                             </div>
                         </div>
                     </div>
                     
                     <div class="col-md-6 col-lg-3 mb-3">
-                        <div class="card bg-secondary">
-                            <div class="card-body text-center">
-                                <i class="fas fa-times fa-2x mb-2"></i>
-                                <h3 class="card-title">{{ data.not_on_job }}</h3>
-                                <p class="card-text">Not On Job</p>
+                        <div class="metric-card card-secondary fade-in" onclick="showDriverDetails('not_on_job')" style="animation-delay: 0.3s">
+                            <div class="metric-card-body">
+                                <i class="fas fa-times metric-icon"></i>
+                                <div class="metric-number">{{ data.not_on_job }}</div>
+                                <p class="metric-label">Not On Job</p>
                             </div>
                         </div>
                     </div>
@@ -129,23 +354,42 @@
 
                 <div class="row">
                     <div class="col-lg-8">
-                        <div class="card">
+                        <div class="info-card fade-in" style="animation-delay: 0.4s">
                             <div class="card-header">
-                                <h5><i class="fas fa-chart-line me-2"></i>Fleet Summary</h5>
+                                <h5><i class="fas fa-chart-line me-2"></i>Fleet Performance Summary</h5>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-sm-6">
-                                        <p><strong>Total Active Drivers:</strong> {{ data.total_drivers }}</p>
-                                        <p><strong>MTD Period:</strong> {{ data.mtd_period }}</p>
-                                        <p><strong>Last Updated:</strong> {{ data.last_updated }}</p>
+                                        <p class="mb-3">
+                                            <span class="stat-label">Total Active Drivers:</span><br>
+                                            <span class="stat-value fs-4">{{ data.total_drivers }}</span>
+                                        </p>
+                                        <p class="mb-3">
+                                            <span class="stat-label">MTD Period:</span><br>
+                                            <span class="stat-value">{{ data.mtd_period }}</span>
+                                        </p>
+                                        <p class="mb-0">
+                                            <span class="stat-label">Last Updated:</span><br>
+                                            <span class="stat-value">{{ data.last_updated }}</span>
+                                        </p>
                                     </div>
                                     <div class="col-sm-6">
-                                        <p><strong>Performance Rate:</strong> 
-                                            {{ "%.1f"|format((data.on_time / data.total_drivers * 100) if data.total_drivers > 0 else 0) }}%
+                                        <p class="mb-3">
+                                            <span class="stat-label">Performance Rate:</span><br>
+                                            <span class="stat-value fs-4">
+                                                {{ "%.1f"|format((data.on_time / data.total_drivers * 100) if data.total_drivers > 0 else 0) }}%
+                                            </span>
                                         </p>
-                                        <p><strong>Active Status:</strong> 
-                                            <span class="badge bg-success">Live Data</span>
+                                        <p class="mb-3">
+                                            <span class="stat-label">Data Status:</span><br>
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-satellite-dish me-1"></i>Live Processing
+                                            </span>
+                                        </p>
+                                        <p class="mb-0">
+                                            <span class="stat-label">Source:</span><br>
+                                            <span class="stat-value">North Texas Fleet MTD</span>
                                         </p>
                                     </div>
                                 </div>
@@ -154,21 +398,25 @@
                     </div>
                     
                     <div class="col-lg-4">
-                        <div class="card">
+                        <div class="info-card fade-in" style="animation-delay: 0.5s">
                             <div class="card-header">
-                                <h5><i class="fas fa-list me-2"></i>Sample Drivers</h5>
+                                <h5><i class="fas fa-users me-2"></i>Active Driver Sample</h5>
                             </div>
                             <div class="card-body">
                                 {% if data.drivers_sample %}
-                                    <ul class="list-unstyled">
+                                    <div class="driver-list">
                                         {% for driver in data.drivers_sample %}
-                                        <li class="mb-1">
-                                            <i class="fas fa-user me-2"></i>{{ driver }}
-                                        </li>
+                                        <div class="driver-item">
+                                            <i class="fas fa-user driver-icon"></i>
+                                            <span>{{ driver }}</span>
+                                        </div>
                                         {% endfor %}
-                                    </ul>
+                                    </div>
                                 {% else %}
-                                    <p class="text-muted">Driver data processing...</p>
+                                    <div class="text-center py-4">
+                                        <i class="fas fa-sync-alt fa-spin text-muted"></i>
+                                        <p class="text-muted mt-2">Processing driver data...</p>
+                                    </div>
                                 {% endif %}
                             </div>
                         </div>
@@ -206,5 +454,91 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Professional Dashboard Interactions
+        function showDriverDetails(category) {
+            // Add smooth click feedback
+            event.target.closest('.metric-card').style.transform = 'scale(0.98)';
+            setTimeout(() => {
+                event.target.closest('.metric-card').style.transform = '';
+            }, 150);
+            
+            // Future: Navigate to detailed driver analysis
+            console.log(`Showing details for category: ${category}`);
+            
+            // Add visual feedback
+            const categoryNames = {
+                'on_time': 'On Time Drivers',
+                'late': 'Late Start Drivers', 
+                'early_end': 'Early Departure Drivers',
+                'not_on_job': 'Not On Job Drivers'
+            };
+            
+            // Show a subtle notification (you can enhance this)
+            showNotification(`Viewing ${categoryNames[category]} details`);
+        }
+        
+        function showNotification(message) {
+            // Create and show a professional notification
+            const notification = document.createElement('div');
+            notification.className = 'alert alert-info alert-dismissible fade show position-fixed';
+            notification.style.cssText = `
+                top: 20px; 
+                right: 20px; 
+                z-index: 9999; 
+                min-width: 300px;
+                border-radius: 10px;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            `;
+            notification.innerHTML = `
+                <i class="fas fa-info-circle me-2"></i>${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto-remove after 3 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 3000);
+        }
+        
+        // Add smooth loading animation when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Stagger the fade-in animations
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach((element, index) => {
+                element.style.animationDelay = `${index * 0.1}s`;
+            });
+            
+            // Add hover effects to driver items
+            const driverItems = document.querySelectorAll('.driver-item');
+            driverItems.forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateX(5px)';
+                });
+                
+                item.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateX(0)';
+                });
+            });
+            
+            // Show welcome message
+            setTimeout(() => {
+                showNotification('Dashboard loaded with live fleet data');
+            }, 1000);
+        });
+        
+        // Add keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                // Close any open notifications
+                const notifications = document.querySelectorAll('.alert');
+                notifications.forEach(n => n.remove());
+            }
+        });
+    </script>
 </body>
 </html>

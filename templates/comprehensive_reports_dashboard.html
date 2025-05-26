@@ -7,12 +7,14 @@
     <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        /* Mobile-First Responsive Design */
         .metric-card {
             border: none;
             border-radius: 15px;
             color: white;
             transition: transform 0.3s ease;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            min-height: 140px;
         }
         
         .metric-card:hover {
@@ -33,10 +35,19 @@
             letter-spacing: 1px;
         }
         
+        /* Enhanced Color Scheme for Field Visibility */
         .card-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .card-success { background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%); }
-        .card-warning { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-        .card-info { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .card-success { background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); }
+        .card-warning { background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); }
+        .card-info { background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); }
+        
+        /* Touch-Friendly Mobile Elements */
+        @media (max-width: 768px) {
+            .metric-value { font-size: 2.8rem; }
+            .metric-label { font-size: 0.9rem; }
+            .metric-card { min-height: 120px; }
+            .date-card { margin-bottom: 15px !important; }
+        }
         
         .date-card {
             cursor: pointer;
@@ -86,6 +97,66 @@
             font-weight: 500;
         }
         
+        /* Auto-Refresh Status Indicator */
+        .refresh-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(40, 167, 69, 0.9);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .refresh-indicator.updating {
+            background: rgba(255, 193, 7, 0.9);
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Quick Action Buttons */
+        .quick-actions {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .quick-action-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+        }
+        
+        .quick-action-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        /* Emergency Status Alerts */
+        .status-alert {
+            border-left: 6px solid #dc3545;
+            background: rgba(220, 53, 69, 0.1);
+            animation: alertBlink 2s infinite;
+        }
+        
+        @keyframes alertBlink {
+            0%, 50% { background: rgba(220, 53, 69, 0.1); }
+            25%, 75% { background: rgba(220, 53, 69, 0.2); }
+        }
+        
         .drill-down-table {
             max-height: 400px;
             overflow-y: auto;
@@ -98,19 +169,48 @@
     </style>
 </head>
 <body>
+    <!-- Auto-Refresh Status Indicator -->
+    <div id="refreshIndicator" class="refresh-indicator">
+        <i class="fas fa-sync-alt"></i> Live Data
+    </div>
+
+    <!-- Quick Action Buttons -->
+    <div class="quick-actions d-none d-md-block">
+        <button class="btn btn-success quick-action-btn" onclick="refreshData()" title="Refresh Data">
+            <i class="fas fa-sync-alt"></i>
+        </button>
+        <button class="btn btn-primary quick-action-btn" onclick="exportReport()" title="Export Report">
+            <i class="fas fa-download"></i>
+        </button>
+        <button class="btn btn-warning quick-action-btn" onclick="showAlerts()" title="View Alerts">
+            <i class="fas fa-exclamation-triangle"></i>
+        </button>
+    </div>
+
     <div class="container-fluid mt-4">
         <!-- Header -->
         <div class="row mb-4">
             <div class="col-12">
                 <div class="d-flex justify-content-between align-items-center">
-                    <h2><i class="fas fa-chart-line"></i> Driver Attendance Reports</h2>
-                    <div class="btn-group">
-                        <a href="/working-reports" class="btn btn-outline-primary">
-                            <i class="fas fa-tachometer-alt"></i> Dashboard
-                        </a>
-                        <a href="{{ url_for('data_upload.upload_manager') }}" class="btn btn-outline-success">
-                            <i class="fas fa-upload"></i> Upload Data
-                        </a>
+                    <div>
+                        <h2><i class="fas fa-chart-line"></i> Driver Attendance Reports</h2>
+                        <p class="text-muted mb-0">Live attendance tracking across all job sites</p>
+                    </div>
+                    <div class="d-flex gap-2 align-items-center">
+                        <div class="badge bg-success">
+                            <i class="fas fa-satellite-dish"></i> Connected
+                        </div>
+                        <div class="badge bg-info" id="lastUpdate">
+                            <i class="fas fa-clock"></i> Live
+                        </div>
+                        <div class="btn-group">
+                            <a href="/working-reports" class="btn btn-outline-primary">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                            <a href="{{ url_for('data_upload.upload_manager') }}" class="btn btn-outline-success">
+                                <i class="fas fa-upload"></i> Upload Data
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -495,9 +595,73 @@
             }
         }
 
-        // Initialize with daily reports
+        // Auto-refresh functionality for real-time field operations
+        let refreshInterval;
+        
+        function startAutoRefresh() {
+            refreshInterval = setInterval(() => {
+                const indicator = document.getElementById('refreshIndicator');
+                indicator.classList.add('updating');
+                indicator.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+                
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            }, 60000); // Refresh every 60 seconds for field operations
+        }
+        
+        function refreshData() {
+            const indicator = document.getElementById('refreshIndicator');
+            indicator.classList.add('updating');
+            indicator.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+            window.location.reload();
+        }
+        
+        // Enhanced touch feedback for mobile field use
+        function addMobileEnhancements() {
+            document.querySelectorAll('.date-card').forEach(card => {
+                card.addEventListener('touchstart', function() {
+                    this.style.transform = 'scale(0.95)';
+                    this.style.transition = 'transform 0.1s';
+                });
+                
+                card.addEventListener('touchend', function() {
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 150);
+                });
+            });
+        }
+
+        // Initialize with daily reports and enhancements
         document.addEventListener('DOMContentLoaded', function() {
             showDailyReports();
+            addMobileEnhancements();
+            startAutoRefresh();
+            
+            // Update time indicator
+            const lastUpdate = document.getElementById('lastUpdate');
+            if (lastUpdate) {
+                const now = new Date();
+                lastUpdate.innerHTML = `<i class="fas fa-clock"></i> ${now.toLocaleTimeString()}`;
+            }
+            
+            // Keyboard shortcuts for power users
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'r' && e.ctrlKey) {
+                    e.preventDefault();
+                    refreshData();
+                }
+            });
+        });
+        
+        // Pause auto-refresh when tab hidden to save resources
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                clearInterval(refreshInterval);
+            } else {
+                startAutoRefresh();
+            }
         });
     </script>
 </body>

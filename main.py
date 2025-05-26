@@ -323,6 +323,14 @@ try:
 except ImportError as e:
     logger.warning(f"MTD Data Review module not found: {e}")
 
+# MTD Daily Processor temporarily disabled - focusing on fixing existing reports
+# try:
+#     from routes.mtd_daily_processor import mtd_daily_bp
+#     app.register_blueprint(mtd_daily_bp)
+#     logger.info("MTD Daily Processor registered successfully")
+# except ImportError as e:
+#     logger.warning(f"MTD Daily Processor module not found: {e}")
+
 @app.route('/')
 def dashboard():
     """Homepage shows dashboard"""

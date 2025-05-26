@@ -245,13 +245,13 @@
                                     {% for source in report_data.data_sources %}
                                     <li class="list-group-item bg-dark px-0">
                                         <div class="d-flex align-items-center">
-                                            {% if 'driving' in source.lower() %}
+                                            {% if source is string and 'driving' in source.lower() %}
                                             <i class="fas fa-car text-success me-2"></i>
-                                            {% elif 'timeonsite' in source.lower() %}
+                                            {% elif source is string and 'timeonsite' in source.lower() %}
                                             <i class="fas fa-map-marker-alt text-primary me-2"></i>
-                                            {% elif 'activity' in source.lower() %}
+                                            {% elif source is string and 'activity' in source.lower() %}
                                             <i class="fas fa-clipboard-list text-info me-2"></i>
-                                            {% elif 'timecard' in source.lower() %}
+                                            {% elif source is string and 'timecard' in source.lower() %}
                                             <i class="fas fa-clipboard-check text-warning me-2"></i>
                                             {% else %}
                                             <i class="fas fa-file text-secondary me-2"></i>

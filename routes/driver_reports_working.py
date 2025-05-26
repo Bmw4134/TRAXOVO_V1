@@ -33,12 +33,24 @@ def get_drivers_by_category(category):
         
         driver_data = []
         for driver in drivers:
+            # Extract the actual driver name from your MTD data structure
+            if isinstance(driver, dict) and 'driver_name' in driver:
+                driver_name = driver['driver_name']
+                vehicle_info = driver.get('vehicle_type', 'Fleet Vehicle')
+                asset_id = driver.get('asset_id', 'N/A')
+            else:
+                # Fallback for string format
+                driver_name = str(driver)
+                vehicle_info = 'Fleet Vehicle'
+                asset_id = 'N/A'
+            
             driver_data.append({
-                'name': driver,
-                'vehicle': 'Fleet Vehicle',
+                'name': driver_name,
+                'vehicle': vehicle_info,
                 'job_site': 'North Texas Site',
                 'time': '07:30 AM',
-                'status': category
+                'status': category,
+                'asset_id': asset_id
             })
         
         return jsonify({'drivers': driver_data})

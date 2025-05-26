@@ -314,7 +314,7 @@
             
             <div class="nav-category">Daily Operations</div>
             <li class="nav-item">
-                <a class="nav-link {% if '/daily-driver-report' in request.path %}active{% endif %}" href="/daily-driver-report/">
+                <a class="nav-link {% if '/daily-driver-report' in request.path %}active{% endif %}" href="{{ url_for('daily_driver_report.dashboard') }}">
                     <i class="fas fa-calendar-day"></i>
                     <span class="nav-link-text">Daily Driver Report</span>
                 </a>

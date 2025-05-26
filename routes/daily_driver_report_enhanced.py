@@ -244,9 +244,9 @@ def view_report(date):
         date_obj = datetime.strptime(date, '%Y-%m-%d').date()
         formatted_date = date_obj.strftime('%A, %B %d, %Y')
         
-        # Use enhanced template with better UI
+        # Use simple template that works reliably
         return render_template(
-            'daily_driver_report/view_enhanced.html',
+            'daily_driver_report/view_simple.html',
             date=date,
             formatted_date=formatted_date,
             report_path=report_path,

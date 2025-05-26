@@ -37,23 +37,33 @@ def get_quick_driver_metrics():
         early_end_count = 0
         not_on_job_count = 0
         
-        # Process driving history files to get real driver attendance
-        for filename in os.listdir(data_dir):
-            if filename.endswith('.csv') and 'driving' in filename.lower():
-                file_path = os.path.join(data_dir, filename)
-                try:
-                    # Read just the first 1000 rows for quick processing
-                    df = pd.read_csv(file_path, nrows=1000)
+        # Process your actual MTD files uploaded today
+        mtd_files = [
+            'DrivingHistory - MTD 05.22.csv',
+            'ActivityDetail - MTD 05.22.csv',
+            'AssetsTimeOnSite - MTD 05.22.csv'
+        ]
+        
+        for filename in mtd_files:
+            file_path = os.path.join(data_dir, filename)
+            if not os.path.exists(file_path):
+                continue
+            
+            try:
+                    # Read your MTD file with proper handling for the complex format
+                    df = pd.read_csv(file_path, skiprows=6, nrows=1000)  # Skip header rows to get to actual data
                     
-                    # Look for driver column
+                    logger.info(f"Processing real MTD file: {filename} with {len(df)} rows")
+                    
+                    # Look for Contact column (contains driver names like "Ammar Elhamad (210003)")
                     driver_col = None
                     time_col = None
                     
                     for col in df.columns:
                         col_lower = col.lower()
-                        if 'driver' in col_lower or 'operator' in col_lower:
+                        if 'contact' in col_lower:
                             driver_col = col
-                        elif 'time' in col_lower and 'start' in col_lower:
+                        elif 'eventdatetime' in col_lower or 'time' in col_lower:
                             time_col = col
                     
                     if driver_col:

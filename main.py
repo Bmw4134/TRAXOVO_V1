@@ -249,6 +249,20 @@ except ImportError:
 except Exception as e:
     logger.error(f"Error with Driver-Asset Manager blueprint: {e}")
 
+# Register Complete Daily Driver Blueprint
+try:
+    # Check if the blueprint is already registered to avoid duplicate registration
+    if not any(bp.name == 'daily_driver_complete' for bp in app.blueprints.values()):
+        from routes.daily_driver_complete import daily_driver_complete_bp
+        app.register_blueprint(daily_driver_complete_bp)
+        logger.info("Complete Daily Driver Reports registered successfully")
+    else:
+        logger.info("Complete Daily Driver Reports already registered")
+except ImportError:
+    logger.warning("Complete Daily Driver module not found")
+except Exception as e:
+    logger.error(f"Error with Complete Daily Driver blueprint: {e}")
+
 # Register Fixed Daily Driver Blueprint
 try:
     # Check if the blueprint is already registered to avoid duplicate registration

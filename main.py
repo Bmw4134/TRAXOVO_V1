@@ -249,6 +249,20 @@ except ImportError:
 except Exception as e:
     logger.error(f"Error with Driver-Asset Manager blueprint: {e}")
 
+# Register Fixed Daily Driver Blueprint
+try:
+    # Check if the blueprint is already registered to avoid duplicate registration
+    if not any(bp.name == 'daily_driver_fixed' for bp in app.blueprints.values()):
+        from routes.daily_driver_fixed import daily_driver_fixed_bp
+        app.register_blueprint(daily_driver_fixed_bp)
+        logger.info("Fixed Daily Driver Reports registered successfully")
+    else:
+        logger.info("Fixed Daily Driver Reports already registered")
+except ImportError:
+    logger.warning("Fixed Daily Driver module not found")
+except Exception as e:
+    logger.error(f"Error with Fixed Daily Driver blueprint: {e}")
+
 # Register Intelligent Command Center Blueprint
 try:
     # Check if the blueprint is already registered to avoid duplicate registration

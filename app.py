@@ -208,3 +208,13 @@ except ImportError as e:
     logger.warning(f"Data Upload Manager module not found: {e}")
 except Exception as e:
     logger.error(f"Error registering Data Upload Manager blueprint: {e}")
+
+# Register Comprehensive Reports Blueprint
+try:
+    from routes.comprehensive_reports import comprehensive_reports_bp
+    app.register_blueprint(comprehensive_reports_bp)
+    logger.info("Comprehensive Reports blueprint registered successfully")
+except ImportError as e:
+    logger.warning(f"Comprehensive Reports module not found: {e}")
+except Exception as e:
+    logger.error(f"Error registering Comprehensive Reports blueprint: {e}")

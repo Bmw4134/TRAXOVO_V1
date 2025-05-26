@@ -224,14 +224,15 @@ def generate_report(date):
     """Generate a daily driver report for the specified date"""
     try:
         # Try processing a single MTD file with Asset List lookup
-        from gauge_api import get_asset_list
+        from gauge_api import GaugeAPI
         import pandas as pd
         
         flash("Processing MTD data with Asset List assignments...", "info")
         
         try:
             # Get asset assignments from Gauge API
-            asset_data = get_asset_list()
+            api = GaugeAPI()
+            asset_data = api.get_assets()
             
             if not asset_data:
                 flash("Could not load Asset List from Gauge API", "warning")

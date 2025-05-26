@@ -28,13 +28,29 @@ def dashboard():
             # Process your real MTD data
             df = pd.read_csv(mtd_file, skiprows=8, low_memory=False)
             
-            # Basic statistics
+            # Basic statistics with proper error handling
             total_records = len(df)
-            unique_assets = df['Asset'].nunique() if 'Asset' in df.columns else 0
-            date_range = {
-                'start': df['EventDateTime'].min() if 'EventDateTime' in df.columns else 'Unknown',
-                'end': df['EventDateTime'].max() if 'EventDateTime' in df.columns else 'Unknown'
-            }
+            unique_assets = 0
+            date_range = {'start': 'Unknown', 'end': 'Unknown'}
+            
+            # Safe asset counting
+            if 'Asset' in df.columns:
+                try:
+                    unique_assets = df['Asset'].nunique()
+                except:
+                    unique_assets = 0
+            
+            # Safe date range calculation
+            if 'EventDateTime' in df.columns:
+                try:
+                    df_clean = df.dropna(subset=['EventDateTime'])
+                    if len(df_clean) > 0:
+                        date_range = {
+                            'start': str(df_clean['EventDateTime'].min()),
+                            'end': str(df_clean['EventDateTime'].max())
+                        }
+                except:
+                    date_range = {'start': 'Processing...', 'end': 'Processing...'}
             
             # Get all drivers
             all_drivers = extract_all_drivers_from_mtd()

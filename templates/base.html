@@ -20,6 +20,16 @@
             background-color: #f8fafc;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
+        
+        /* Mobile viewport fix */
+        @media (max-width: 768px) {
+            html, body {
+                margin: 0 !important;
+                padding: 0 !important;
+                height: 100% !important;
+                overflow-x: hidden !important;
+            }
+        }
         .navbar-brand { 
             font-weight: 700; 
             font-size: 1.25rem;

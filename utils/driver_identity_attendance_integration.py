@@ -71,6 +71,8 @@ def enhance_attendance_pipeline_results(attendance_results):
     
     # Update the data sources to indicate identity verification
     data_sources = enhanced_results.get('data_sources', [])
+    if isinstance(data_sources, dict):
+        data_sources = []
     data_sources.append({
         'source': 'Secondary Asset Identifier',
         'timestamp': datetime.now().isoformat(),

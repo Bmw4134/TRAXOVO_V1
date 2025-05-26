@@ -14,6 +14,69 @@ from gauge_api import GaugeAPI
 
 logger = logging.getLogger(__name__)
 
+def extract_driver_assignments_from_mtd(asset_identifiers, date_str):
+    """
+    Extract driver assignments from MTD files using your uploaded data
+    
+    Args:
+        asset_identifiers: List of asset IDs from Gauge API
+        date_str: Date to process
+        
+    Returns:
+        dict: Driver assignments mapped to assets
+    """
+    driver_assignments = {}
+    
+    # Look for MTD files in the data directory
+    data_dir = "data"
+    if not os.path.exists(data_dir):
+        logger.warning(f"Data directory {data_dir} not found")
+        return driver_assignments
+    
+    # Process all CSV files to find driver data
+    for filename in os.listdir(data_dir):
+        if filename.endswith('.csv'):
+            file_path = os.path.join(data_dir, filename)
+            try:
+                # Read the CSV file
+                df = pd.read_csv(file_path)
+                logger.info(f"Processing MTD file: {filename}")
+                
+                # Look for driver and asset columns
+                driver_col = None
+                asset_col = None
+                
+                for col in df.columns:
+                    col_lower = col.lower()
+                    if 'driver' in col_lower or 'operator' in col_lower:
+                        driver_col = col
+                    elif 'asset' in col_lower or 'vehicle' in col_lower or 'unit' in col_lower:
+                        asset_col = col
+                
+                if driver_col and asset_col:
+                    # Extract unique driver-asset pairs
+                    unique_pairs = df[[driver_col, asset_col]].drop_duplicates()
+                    
+                    for _, row in unique_pairs.iterrows():
+                        driver_name = str(row[driver_col]).strip()
+                        asset_id = str(row[asset_col]).strip()
+                        
+                        if driver_name and asset_id and driver_name != 'nan':
+                            driver_assignments[asset_id] = {
+                                'driver_name': driver_name,
+                                'asset_id': asset_id,
+                                'source_file': filename
+                            }
+                
+                if not asset_col:
+                    logger.warning(f"No asset column found in MTD file")
+                    
+            except Exception as e:
+                logger.error(f"Error processing MTD file {filename}: {e}")
+    
+    logger.info(f"Found {len(driver_assignments)} driver assignments from MTD files")
+    return driver_assignments
+
 def get_real_dashboard_metrics(date_str):
     """
     Calculate real dashboard metrics using Asset List + MTD data
@@ -37,34 +100,21 @@ def get_real_dashboard_metrics(date_str):
         raw_assets = response.json()
         logger.info(f"Retrieved {len(raw_assets)} assets from Gauge API")
         
-        # Extract driver assignments from ALL assets
-        driver_assignments = {}
-        total_assigned_drivers = 0
-        
+        # Get asset identifiers from API (equipment IDs like BM-01, EX-21)
+        asset_identifiers = []
         for asset in raw_assets:
-            asset_id = (asset.get('AssetID') or 
-                       asset.get('assetID') or 
-                       asset.get('id'))
-            
-            secondary_id = asset.get('SecondaryAssetIdentifier', '')
-            
-            if asset_id and secondary_id and ' - ' in str(secondary_id):
-                parts = str(secondary_id).split(' - ', 1)
-                employee_id = parts[0].strip()
-                driver_name = parts[1].strip()
-                
-                driver_assignments[str(asset_id)] = {
-                    'employee_id': employee_id,
-                    'driver_name': driver_name,
-                    'asset_id': asset_id
-                }
-                total_assigned_drivers += 1
+            asset_id = asset.get('AssetIdentifier', '')
+            if asset_id:
+                asset_identifiers.append(asset_id.strip())
         
-        logger.info(f"Found {total_assigned_drivers} driver assignments in Asset List")
+        logger.info(f"Found {len(asset_identifiers)} asset identifiers from Gauge API")
+        
+        # Get driver assignments from your MTD files (real data source)
+        driver_assignments = extract_driver_assignments_from_mtd(asset_identifiers, date_str)
         
         # Process MTD files to calculate attendance
         metrics = calculate_attendance_from_mtd(driver_assignments, date_str)
-        metrics['total_assigned_drivers'] = total_assigned_drivers
+        metrics['total_assigned_drivers'] = len(driver_assignments)
         metrics['total_assets'] = len(raw_assets)
         
         return metrics

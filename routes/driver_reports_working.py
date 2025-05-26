@@ -186,7 +186,6 @@ def get_driver_job_site(driver_name, driver_record):
             return _get_default_job_site()
         
         df = pd.read_csv(mtd_file, skiprows=8, low_memory=False)
-        extractor = JobSiteExtractor()
         
         # Find this driver's location data
         if isinstance(driver_record, dict) and 'asset_assignment' in driver_record:
@@ -196,37 +195,118 @@ def get_driver_job_site(driver_name, driver_record):
             driver_data = df[df['Textbox53'].str.contains(driver_name, na=False, case=False)]
         
         if not driver_data.empty and 'Location' in driver_data.columns:
-            # Get the most recent location
-            recent_location = driver_data['Location'].dropna().iloc[-1] if not driver_data['Location'].dropna().empty else None
+            # Get locations for this driver
+            locations = driver_data['Location'].dropna()
             
-            if recent_location:
-                location_str = str(recent_location)
+            if not locations.empty:
+                # Use the most recent location
+                recent_location = str(locations.iloc[-1])
                 
-                # Extract job number and zone
-                job_number = extractor.extract_job_number(location_str)
-                zone = extract_job_zone(location_str)
+                # Extract job site from location string
+                job_site = extract_job_site_from_location(recent_location)
                 
-                if job_number:
-                    # Determine working hours based on job type
-                    working_hours = get_job_site_hours(job_number)
-                    
-                    display_name = f"{job_number}"
-                    if zone:
-                        display_name += f" ({zone})"
-                    
-                    return {
-                        'job_number': job_number,
-                        'zone': zone,
-                        'display_name': display_name,
-                        'working_hours': working_hours,
-                        'full_location': location_str
-                    }
+                return {
+                    'job_number': job_site['job_number'],
+                    'zone': job_site['zone'],
+                    'display_name': job_site['display_name'],
+                    'working_hours': job_site['working_hours'],
+                    'full_location': recent_location
+                }
         
         return _get_default_job_site()
         
     except Exception as e:
         logger.error(f"Error getting job site for {driver_name}: {e}")
         return _get_default_job_site()
+
+def extract_job_site_from_location(location_str):
+    """Extract job site information from location string like 'TEXDIST, 1501 - 1547 Two Thousand Oak'"""
+    try:
+        location = str(location_str)
+        
+        # Check for TEXDIST (Texas District) locations
+        if 'TEXDIST' in location.upper():
+            # Extract area information
+            if 'North Richland Hills' in location:
+                return {
+                    'job_number': 'TEXDIST-NRH',
+                    'zone': 'North Richland Hills',
+                    'display_name': 'TEXDIST (North Richland Hills)',
+                    'working_hours': 8.0
+                }
+            elif 'Hurst' in location:
+                return {
+                    'job_number': 'TEXDIST-HUR',
+                    'zone': 'Hurst',
+                    'display_name': 'TEXDIST (Hurst)',
+                    'working_hours': 8.0
+                }
+            else:
+                return {
+                    'job_number': 'TEXDIST',
+                    'zone': None,
+                    'display_name': 'TEXDIST Operations',
+                    'working_hours': 8.0
+                }
+        
+        # Check for specific job numbers in the location
+        if '2024-' in location or '2023-' in location or '2022-' in location:
+            # Extract job number pattern
+            import re
+            job_match = re.search(r'(20\d{2}-\d{3})', location)
+            if job_match:
+                job_number = job_match.group(1)
+                zone = extract_job_zone(location)
+                
+                display_name = job_number
+                if zone:
+                    display_name += f" ({zone})"
+                
+                return {
+                    'job_number': job_number,
+                    'zone': zone,
+                    'display_name': display_name,
+                    'working_hours': get_job_site_hours(job_number)
+                }
+        
+        # Check for residential/personal locations
+        if any(word in location.lower() for word in ['sunflower dr', 'mansfield']):
+            return {
+                'job_number': 'PERSONAL',
+                'zone': 'Residential',
+                'display_name': 'Personal Vehicle Use',
+                'working_hours': 0.0
+            }
+        
+        # Default: extract city/area as job site
+        if ',' in location:
+            parts = location.split(',')
+            if len(parts) >= 2:
+                area = parts[-1].strip()  # Last part usually contains city/state
+                if 'TX' in area:
+                    city = area.replace('TX', '').strip()
+                    return {
+                        'job_number': f'TX-{city.upper()[:3]}',
+                        'zone': city,
+                        'display_name': f'Texas Operations ({city})',
+                        'working_hours': 8.0
+                    }
+        
+        return {
+            'job_number': 'UNKNOWN',
+            'zone': None,
+            'display_name': 'Unknown Location',
+            'working_hours': 8.0
+        }
+        
+    except Exception as e:
+        logger.error(f"Error extracting job site from location: {e}")
+        return {
+            'job_number': 'ERROR',
+            'zone': None,
+            'display_name': 'Location Parse Error',
+            'working_hours': 8.0
+        }
 
 def extract_job_zone(location_str):
     """Extract zone information from location string like '2024-004 City of Dallas Sidewalks (Zone A)'"""

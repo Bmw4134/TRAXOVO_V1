@@ -176,13 +176,34 @@ def upload_files():
             
             # Check if auto-generate is requested
             if request.form.get('auto_generate') == 'true':
-                success = schedule_daily_report_generation(date_str)
+                # Import MTD processor
+                from utils.mtd_processor import extract_date_range_from_files, process_mtd_data_for_date_range
                 
-                if success:
-                    flash(f"Daily report for {date_str} generated successfully", "success")
-                    return redirect(url_for('daily_driver_report.view_report', date=date_str))
+                # Extract actual date range from uploaded files
+                start_date, end_date = extract_date_range_from_files(upload_dir)
+                
+                if start_date and end_date:
+                    flash(f"Processing MTD data from {start_date} to {end_date}", "info")
+                    
+                    # Process all dates in the MTD range
+                    mtd_results = process_mtd_data_for_date_range(upload_dir, start_date, end_date)
+                    
+                    if mtd_results:
+                        # Find the most recent date with data for viewing
+                        recent_date = max(mtd_results.keys())
+                        flash(f"MTD data processed successfully! Found data for {len(mtd_results)} dates", "success")
+                        return redirect(url_for('daily_driver_report.view_report', date=recent_date))
+                    else:
+                        flash("MTD data processed but no driver records found", "warning")
                 else:
-                    flash(f"Failed to generate daily report for {date_str}", "warning")
+                    # Fallback to single date processing
+                    success = schedule_daily_report_generation(date_str)
+                    
+                    if success:
+                        flash(f"Daily report for {date_str} generated successfully", "success")
+                        return redirect(url_for('daily_driver_report.view_report', date=date_str))
+                    else:
+                        flash(f"Failed to generate daily report for {date_str}", "warning")
             
             return redirect(url_for('daily_driver_report.dashboard'))
             

@@ -145,13 +145,15 @@ def index():
         'last_sync': get_last_sync_time()
     }
     
-    return render_template('dashboard.html', 
+    return render_template('dashboard_mobile_optimized.html', 
                           database_status='connected' if api_status['database'] else 'disconnected',
                           api_status='connected' if api_status['gauge_api'] else 'disconnected',
                           storage_status='connected' if api_status['file_system'] else 'disconnected',
-                          assets_count=system_stats['asset_count'] or 716,
-                          drivers_count=system_stats['driver_count'] or 113,
+                          asset_count=system_stats['asset_count'] or 716,
+                          driver_count=system_stats['driver_count'] or 113,
                           last_sync_time=system_stats['last_sync'],
+                          last_sync_formatted='Just now' if not system_stats['last_sync'] else system_stats['last_sync'],
+                          job_sites_count=8,
                           current_date=datetime.now().strftime('%Y-%m-%d'))
 
 @app.route('/health')

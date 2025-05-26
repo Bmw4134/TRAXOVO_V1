@@ -41,14 +41,14 @@ def load_mtd_data():
             if os.path.exists(file_path):
                 try:
                     # Try different CSV parsing approaches for your MTD files
-                    df = pd.read_csv(file_path, encoding='utf-8', error_bad_lines=False, warn_bad_lines=False)
+                    df = pd.read_csv(file_path, encoding='utf-8', on_bad_lines='skip')
                     if len(df) > 0:
                         all_driving_data.append(df)
                         logger.info(f"Loaded {len(df)} records from {file_path}")
                 except:
                     try:
                         # Try with different encoding
-                        df = pd.read_csv(file_path, encoding='latin-1', error_bad_lines=False, warn_bad_lines=False)
+                        df = pd.read_csv(file_path, encoding='latin-1', on_bad_lines='skip')
                         if len(df) > 0:
                             all_driving_data.append(df)
                             logger.info(f"Loaded {len(df)} records from {file_path} with latin-1")

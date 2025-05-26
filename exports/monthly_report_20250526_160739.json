@@ -1,0 +1,692 @@
+{
+  "fleet_metrics": {
+    "total_assigned_drivers": 113,
+    "active_drivers": 0,
+    "total_work_days": 0,
+    "on_time_percentage": 0,
+    "late_percentage": 0,
+    "early_end_percentage": 0
+  },
+  "driver_details": [],
+  "all_drivers": [
+    {
+      "asset_assignment": "#210003 - AMMAR I. ELHAMAD FORD F150 2024 Personal Vehicle +",
+      "driver_name": "AMMAR I. ELHAMAD FORD",
+      "asset_id": "#210003",
+      "vehicle_type": "FORD F150 2024"
+    },
+    {
+      "asset_assignment": "#210013 - MATTHEW C. SHAYLOR JEEP WRANGLER 2024 Pickup Truck +",
+      "driver_name": "MATTHEW C. SHAYLOR JEEP",
+      "asset_id": "#210013",
+      "vehicle_type": "JEEP WRANGLER 2024"
+    },
+    {
+      "asset_assignment": "#210055 - ADAM H. GOODE JEEP GLADIATOR Personal Vehicle +",
+      "driver_name": "ADAM H. GOODE JEEP",
+      "asset_id": "#210055",
+      "vehicle_type": "JEEP GLADIATOR Personal"
+    },
+    {
+      "asset_assignment": "#210073 - BIKHYAT ADHIKARI TOYOTA 4 RUNNER 2022 Personal Vehicle +",
+      "driver_name": "BIKHYAT ADHIKARI TOYOTA",
+      "asset_id": "#210073",
+      "vehicle_type": "TOYOTA 4 RUNNER"
+    },
+    {
+      "asset_assignment": "DT-08 (WELDING TRUCK) FORD F550 2013 Medium Truck +",
+      "driver_name": "WELDING TRUCK",
+      "asset_id": "DT-08",
+      "vehicle_type": "FORD F550 2013 Medium Truck +"
+    },
+    {
+      "asset_assignment": "ET-01 (SAUL MARTINEZ ALVAREZ) RAM 1500 2022 Pickup Truck +",
+      "driver_name": "SAUL MARTINEZ ALVAREZ",
+      "asset_id": "ET-01",
+      "vehicle_type": "RAM 1500 2022 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-02 (Anthony Hardimon) RAM 1500 2022 Pickup Truck +",
+      "driver_name": "Anthony Hardimon",
+      "asset_id": "ET-02",
+      "vehicle_type": "RAM 1500 2022 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-03 (Manuel Andrade) RAM 1500 2022 Pickup Truck +",
+      "driver_name": "Manuel Andrade",
+      "asset_id": "ET-03",
+      "vehicle_type": "RAM 1500 2022 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-04 (GERALD EHIMHEN) RAM 1500 2022 Pickup Truck +",
+      "driver_name": "GERALD EHIMHEN",
+      "asset_id": "ET-04",
+      "vehicle_type": "RAM 1500 2022 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-05 (Anthony Hardimon Loaner) RAM 1500 2022 Pickup Truck +",
+      "driver_name": "Anthony Hardimon Loaner",
+      "asset_id": "ET-05",
+      "vehicle_type": "RAM 1500 2022 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-06 (ESTEBAN RODRIGUEZ PEREZ) RAM 1500 2022 Pickup Truck +",
+      "driver_name": "ESTEBAN RODRIGUEZ PEREZ",
+      "asset_id": "ET-06",
+      "vehicle_type": "RAM 1500 2022 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-07 (HAYS, PAXTON C) RAM 1500 2022 Pickup Truck +",
+      "driver_name": "HAYS, PAXTON C",
+      "asset_id": "ET-07",
+      "vehicle_type": "RAM 1500 2022 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-08 (JORGE L. MARTINEZ) RAM 1500 2022 Pickup Truck +",
+      "driver_name": "JORGE L. MARTINEZ",
+      "asset_id": "ET-08",
+      "vehicle_type": "RAM 1500 2022 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-09 (JOSE C. RAMIREZ) RAM 1500 2022 Pickup Truck +",
+      "driver_name": "JOSE C. RAMIREZ",
+      "asset_id": "ET-09",
+      "vehicle_type": "RAM 1500 2022 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-10 (JESUS MEDINA) RAM 1500 2022 Pickup Truck +",
+      "driver_name": "JESUS MEDINA",
+      "asset_id": "ET-10",
+      "vehicle_type": "RAM 1500 2022 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-11 (Roberto Guerrero Jr.) RAM 1500 2022 Pickup Truck +",
+      "driver_name": "Roberto Guerrero Jr.",
+      "asset_id": "ET-11",
+      "vehicle_type": "RAM 1500 2022 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-13 (GUSTAVO GUILLEN) RAM 1500 2022 Pickup Truck +",
+      "driver_name": "GUSTAVO GUILLEN",
+      "asset_id": "ET-13",
+      "vehicle_type": "RAM 1500 2022 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-14 (Caleb Kocmick) RAM 1500 2022 Pickup Truck +",
+      "driver_name": "Caleb Kocmick",
+      "asset_id": "ET-14",
+      "vehicle_type": "RAM 1500 2022 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-15 (Carlos Eclavea) RAM 1500 2022 Pickup Truck +",
+      "driver_name": "Carlos Eclavea",
+      "asset_id": "ET-15",
+      "vehicle_type": "RAM 1500 2022 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-16 (LUIS MURCIA ORELLANA) RAM 1500 2022 Pickup Truck +",
+      "driver_name": "LUIS MURCIA ORELLANA",
+      "asset_id": "ET-16",
+      "vehicle_type": "RAM 1500 2022 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-17 (COOPER LINK) RAM 1500 2022 Pickup Truck +",
+      "driver_name": "COOPER LINK",
+      "asset_id": "ET-17",
+      "vehicle_type": "RAM 1500 2022 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-18 (AARON MOORE) RAM 1500 2022 Pickup Truck +",
+      "driver_name": "AARON MOORE",
+      "asset_id": "ET-18",
+      "vehicle_type": "RAM 1500 2022 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-19 (Osiel Salaices) RAM 1500 2022 Pickup Truck +",
+      "driver_name": "Osiel Salaices",
+      "asset_id": "ET-19",
+      "vehicle_type": "RAM 1500 2022 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-22 (JUAN LOPEZ) FORD F250 2023 Pickup Truck +",
+      "driver_name": "JUAN LOPEZ",
+      "asset_id": "ET-22",
+      "vehicle_type": "FORD F250 2023 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-23 (JOSE J. RIVERA) FORD F250 2023 Pickup Truck +",
+      "driver_name": "JOSE J. RIVERA",
+      "asset_id": "ET-23",
+      "vehicle_type": "FORD F250 2023 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-24 (Troy Malette) FORD F250 2023 Pickup Truck +",
+      "driver_name": "Troy Malette",
+      "asset_id": "ET-24",
+      "vehicle_type": "FORD F250 2023 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-25 (JESUS O. RODARTE SERRANO) FORD F250 2023 Pickup Truck +",
+      "driver_name": "JESUS O. RODARTE SERRANO",
+      "asset_id": "ET-25",
+      "vehicle_type": "FORD F250 2023 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-26 (JUAN P. RODRIGUEZ) FORD F250 2024 Pickup Truck +",
+      "driver_name": "JUAN P. RODRIGUEZ",
+      "asset_id": "ET-26",
+      "vehicle_type": "FORD F250 2024 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-27 (ALONSO MIRAMONTES) FORD F250 2024 Pickup Truck +",
+      "driver_name": "ALONSO MIRAMONTES",
+      "asset_id": "ET-27",
+      "vehicle_type": "FORD F250 2024 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-28 (JORGE L. FLORES) FORD F250 2024 Pickup Truck +",
+      "driver_name": "JORGE L. FLORES",
+      "asset_id": "ET-28",
+      "vehicle_type": "FORD F250 2024 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-29 (JOSE RANGEL) FORD F250 2024 Pickup Truck +",
+      "driver_name": "JOSE RANGEL",
+      "asset_id": "ET-29",
+      "vehicle_type": "FORD F250 2024 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-30 (JUAN L. RUIZ) FORD F250 2024 Pickup Truck +",
+      "driver_name": "JUAN L. RUIZ",
+      "asset_id": "ET-30",
+      "vehicle_type": "FORD F250 2024 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-31 (RAMIRO VAZQUEZ DE LA CRUZ) FORD F250 2024 Pickup Truck +",
+      "driver_name": "RAMIRO VAZQUEZ DE LA CRUZ",
+      "asset_id": "ET-31",
+      "vehicle_type": "FORD F250 2024 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-32 (URIEL GARCIA-ANDRADE) FORD F250 2024 Pickup Truck +",
+      "driver_name": "URIEL GARCIA-ANDRADE",
+      "asset_id": "ET-32",
+      "vehicle_type": "FORD F250 2024 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-33 (VALENTIN LOPEZ) FORD F250 2024 Pickup Truck +",
+      "driver_name": "VALENTIN LOPEZ",
+      "asset_id": "ET-33",
+      "vehicle_type": "FORD F250 2024 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-34 (AURELIANO REYES) FORD F250 2024 Pickup Truck +",
+      "driver_name": "AURELIANO REYES",
+      "asset_id": "ET-34",
+      "vehicle_type": "FORD F250 2024 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-35 (JESUS LOPEZ SOTO) FORD F250 2024 Pickup Truck +",
+      "driver_name": "JESUS LOPEZ SOTO",
+      "asset_id": "ET-35",
+      "vehicle_type": "FORD F250 2024 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-36 (ALONZO GONZALEZ) FORD F250 2024 Pickup Truck +",
+      "driver_name": "ALONZO GONZALEZ",
+      "asset_id": "ET-36",
+      "vehicle_type": "FORD F250 2024 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-37 (SABINO IBARRA) FORD F250 2024 Pickup Truck +",
+      "driver_name": "SABINO IBARRA",
+      "asset_id": "ET-37",
+      "vehicle_type": "FORD F250 2024 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-38 (Caleb Padgett) FORD F150 2024 Pickup Truck +",
+      "driver_name": "Caleb Padgett",
+      "asset_id": "ET-38",
+      "vehicle_type": "FORD F150 2024 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-39 (JOSE TERRAZAS) FORD F150 2024 Pickup Truck +",
+      "driver_name": "JOSE TERRAZAS",
+      "asset_id": "ET-39",
+      "vehicle_type": "FORD F150 2024 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-41 (Hampton, Justin D) FORD F150 XL 2024 Pickup Truck +",
+      "driver_name": "Hampton, Justin D",
+      "asset_id": "ET-41",
+      "vehicle_type": "FORD F150 XL 2024 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-42 (JUAN C. BERJES RUIZ) FORD F150 XL 2024 Pickup Truck +",
+      "driver_name": "JUAN C. BERJES RUIZ",
+      "asset_id": "ET-42",
+      "vehicle_type": "FORD F150 XL 2024 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "ET-43 (Eric Giebelhaus) FORD F150 STX 2024 Pickup Truck +",
+      "driver_name": "Eric Giebelhaus",
+      "asset_id": "ET-43",
+      "vehicle_type": "FORD F150 STX 2024 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "MT-09 (LORENZO APARICIO) FORD F550 2019 Medium Truck +",
+      "driver_name": "LORENZO APARICIO",
+      "asset_id": "MT-09",
+      "vehicle_type": "FORD F550 2019 Medium Truck +"
+    },
+    {
+      "asset_assignment": "MT-14 (Ivan Torres) FORD F550 2023 Medium Truck +",
+      "driver_name": "Ivan Torres",
+      "asset_id": "MT-14",
+      "vehicle_type": "FORD F550 2023 Medium Truck +"
+    },
+    {
+      "asset_assignment": "MT-15 (Korbin Gee) FORD F550 2024 Pickup Truck +",
+      "driver_name": "Korbin Gee",
+      "asset_id": "MT-15",
+      "vehicle_type": "FORD F550 2024 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "OV-01 (OFFICE VEHICLE) FORD FUSION 2019 Pickup Truck +",
+      "driver_name": "OFFICE VEHICLE",
+      "asset_id": "OV-01",
+      "vehicle_type": "FORD FUSION 2019 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-06S (SELECT CREW TRUCK) FORD F350 2019 Pickup Truck +",
+      "driver_name": "SELECT CREW TRUCK",
+      "asset_id": "PT-06S",
+      "vehicle_type": "FORD F350 2019 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-07S (ROGER DODDY) FORD F150 2021 Pickup Truck +",
+      "driver_name": "ROGER DODDY",
+      "asset_id": "PT-07S",
+      "vehicle_type": "FORD F150 2021 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-09S (JOVAN ESPINOZA-CASILLAS) FORD F150 2022 Pickup Truck +",
+      "driver_name": "JOVAN ESPINOZA-CASILLAS",
+      "asset_id": "PT-09S",
+      "vehicle_type": "FORD F150 2022 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-104 (MARTIN ESCOBEDO JR) FORD F150 2017 Pickup Truck +",
+      "driver_name": "MARTIN ESCOBEDO JR",
+      "asset_id": "PT-104",
+      "vehicle_type": "FORD F150 2017 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-107 (DFW OFFICE TRUCK) FORD F150 2017 Pickup Truck +",
+      "driver_name": "DFW OFFICE TRUCK",
+      "asset_id": "PT-107",
+      "vehicle_type": "FORD F150 2017 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-10S (ROBERT BERRYHILL) CHEVROLET 2500HD 2022 Pickup Truck +",
+      "driver_name": "ROBERT BERRYHILL",
+      "asset_id": "PT-10S",
+      "vehicle_type": "CHEVROLET 2500HD 2022 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-11S (RAFAEL MURATALLA-CEJA) CHEVROLET 2500HD 2023 Pickup Truck +",
+      "driver_name": "RAFAEL MURATALLA-CEJA",
+      "asset_id": "PT-11S",
+      "vehicle_type": "CHEVROLET 2500HD 2023 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-125 (PLANO JOBSITE TRUCK) FORD F150 2018 Pickup Truck +",
+      "driver_name": "PLANO JOBSITE TRUCK",
+      "asset_id": "PT-125",
+      "vehicle_type": "FORD F150 2018 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-13S (JAVIER MAGALLANES) FORD F150 2023 Pickup Truck +",
+      "driver_name": "JAVIER MAGALLANES",
+      "asset_id": "PT-13S",
+      "vehicle_type": "FORD F150 2023 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-14S (Keith Smith) FORD F250 2023 Pickup Truck +",
+      "driver_name": "Keith Smith",
+      "asset_id": "PT-14S",
+      "vehicle_type": "FORD F250 2023 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-156 (Eduardo Alvarado) FORD F150 2019 Pickup Truck +",
+      "driver_name": "Eduardo Alvarado",
+      "asset_id": "PT-156",
+      "vehicle_type": "FORD F150 2019 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-160 (ARMANDO SALDIERNA JR) FORD F250 2019 Pickup Truck +",
+      "driver_name": "ARMANDO SALDIERNA JR",
+      "asset_id": "PT-160",
+      "vehicle_type": "FORD F250 2019 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-163 (WILLIAM PERSINGER) FORD F250 2020 Pickup Truck +",
+      "driver_name": "WILLIAM PERSINGER",
+      "asset_id": "PT-163",
+      "vehicle_type": "FORD F250 2020 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-165 (Alberto Zuniga) FORD F150 2020 Pickup Truck +",
+      "driver_name": "Alberto Zuniga",
+      "asset_id": "PT-165",
+      "vehicle_type": "FORD F150 2020 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-166 (JUAN LUEVANO) FORD F150 2020 Pickup Truck +",
+      "driver_name": "JUAN LUEVANO",
+      "asset_id": "PT-166",
+      "vehicle_type": "FORD F150 2020 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-167 (OMAR RAMIREZ) FORD F150 2020 Pickup Truck +",
+      "driver_name": "OMAR RAMIREZ",
+      "asset_id": "PT-167",
+      "vehicle_type": "FORD F150 2020 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-168 (RAMIREZ, LUIS F) FORD F150 2020 Pickup Truck +",
+      "driver_name": "RAMIREZ, LUIS F",
+      "asset_id": "PT-168",
+      "vehicle_type": "FORD F150 2020 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-16S (ISAAC ROMERO) FORD F150 2024 Pickup Truck +",
+      "driver_name": "ISAAC ROMERO",
+      "asset_id": "PT-16S",
+      "vehicle_type": "FORD F150 2024 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-173 (JUAN B. HERNANDEZ) FORD F150 2020 Pickup Truck +",
+      "driver_name": "JUAN B. HERNANDEZ",
+      "asset_id": "PT-173",
+      "vehicle_type": "FORD F150 2020 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-177 (SALVADOR RODRIGUEZ JR) FORD F250 2020 Pickup Truck +",
+      "driver_name": "SALVADOR RODRIGUEZ JR",
+      "asset_id": "PT-177",
+      "vehicle_type": "FORD F250 2020 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-182 (Leonel Munoz) FORD F250 2020 Pickup Truck +",
+      "driver_name": "Leonel Munoz",
+      "asset_id": "PT-182",
+      "vehicle_type": "FORD F250 2020 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-185 (JOSE BAUTISTA) FORD F150 2020 Pickup Truck +",
+      "driver_name": "JOSE BAUTISTA",
+      "asset_id": "PT-185",
+      "vehicle_type": "FORD F150 2020 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-187 (ROBERTO LUMBRERAS Loaner) FORD F250 2021 Pickup Truck +",
+      "driver_name": "ROBERTO LUMBRERAS Loaner",
+      "asset_id": "PT-187",
+      "vehicle_type": "FORD F250 2021 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-18S (JST SELECT 250) FORD F250 2024 Pickup Truck +",
+      "driver_name": "JST SELECT 250",
+      "asset_id": "PT-18S",
+      "vehicle_type": "FORD F250 2024 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-190 (JOSE TURRUBIARTES JR) FORD F250 2021 Pickup Truck +",
+      "driver_name": "JOSE TURRUBIARTES JR",
+      "asset_id": "PT-190",
+      "vehicle_type": "FORD F250 2021 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-194 (Albert Perry is using) FORD F250 2021 Pickup Truck +",
+      "driver_name": "Albert Perry is using",
+      "asset_id": "PT-194",
+      "vehicle_type": "FORD F250 2021 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-199 (WTX JST) FORD F250 2022 Pickup Truck +",
+      "driver_name": "WTX JST",
+      "asset_id": "PT-199",
+      "vehicle_type": "FORD F250 2022 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-19S (BRYAN FIGUEROA) FORD F150 2024 Pickup Truck +",
+      "driver_name": "BRYAN FIGUEROA",
+      "asset_id": "PT-19S",
+      "vehicle_type": "FORD F150 2024 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-202 (2024-004 SIDEWALKS JST) FORD F250 2022 Pickup Truck +",
+      "driver_name": "2024-004 SIDEWALKS JST",
+      "asset_id": "PT-202",
+      "vehicle_type": "FORD F250 2022 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-207 (JUAN CARLOS VAZQUEZ) FORD F250 2020 Pickup Truck +",
+      "driver_name": "JUAN CARLOS VAZQUEZ",
+      "asset_id": "PT-207",
+      "vehicle_type": "FORD F250 2020 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-208 (SALVADOR AGUILLON) FORD F250 2019 Pickup Truck +",
+      "driver_name": "SALVADOR AGUILLON",
+      "asset_id": "PT-208",
+      "vehicle_type": "FORD F250 2019 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-20S (OBALDO CHAVEZ) FORD F250 2024 Pickup Truck +",
+      "driver_name": "OBALDO CHAVEZ",
+      "asset_id": "PT-20S",
+      "vehicle_type": "FORD F250 2024 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-213 (CATALINO FLORES JR) FORD F250 2021 Pickup Truck +",
+      "driver_name": "CATALINO FLORES JR",
+      "asset_id": "PT-213",
+      "vehicle_type": "FORD F250 2021 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-215 (ERNEST LEMON JR) FORD F250 2022 Pickup Truck +",
+      "driver_name": "ERNEST LEMON JR",
+      "asset_id": "PT-215",
+      "vehicle_type": "FORD F250 2022 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-218 (Michael Hammons) FORD F250 2022 Pickup Truck +",
+      "driver_name": "Michael Hammons",
+      "asset_id": "PT-218",
+      "vehicle_type": "FORD F250 2022 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-224 (NAGESH KUMAR) FORD F150 2022 Pickup Truck +",
+      "driver_name": "NAGESH KUMAR",
+      "asset_id": "PT-224",
+      "vehicle_type": "FORD F150 2022 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-226 (CATALINO FLORES SR) FORD F250 2022 Pickup Truck +",
+      "driver_name": "CATALINO FLORES SR",
+      "asset_id": "PT-226",
+      "vehicle_type": "FORD F250 2022 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-227 (JOSE RANGEL loaner) FORD F250 2022 Pickup Truck +",
+      "driver_name": "JOSE RANGEL loaner",
+      "asset_id": "PT-227",
+      "vehicle_type": "FORD F250 2022 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-228 (DANIEL LOPEZ) FORD F250 2022 Pickup Truck +",
+      "driver_name": "DANIEL LOPEZ",
+      "asset_id": "PT-228",
+      "vehicle_type": "FORD F250 2022 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-229 (REYNERI CABALLERO) FORD F250 2022 Pickup Truck +",
+      "driver_name": "REYNERI CABALLERO",
+      "asset_id": "PT-229",
+      "vehicle_type": "FORD F250 2022 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-22S (ALBERT MENDIETA) FORD F250 2024 Pickup Truck +",
+      "driver_name": "ALBERT MENDIETA",
+      "asset_id": "PT-22S",
+      "vehicle_type": "FORD F250 2024 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-235 (LUIS MORALES) FORD F150 2023 Pickup Truck +",
+      "driver_name": "LUIS MORALES",
+      "asset_id": "PT-235",
+      "vehicle_type": "FORD F150 2023 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-236 (ROLANDO COLMENERO-GARCIA) FORD F250 2023 Pickup Truck +",
+      "driver_name": "ROLANDO COLMENERO-GARCIA",
+      "asset_id": "PT-236",
+      "vehicle_type": "FORD F250 2023 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-237 (JUAN C. MIRAMONTES JR) FORD F250 2023 Pickup Truck +",
+      "driver_name": "JUAN C. MIRAMONTES JR",
+      "asset_id": "PT-237",
+      "vehicle_type": "FORD F250 2023 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-239 (ALEJANDRO RODRIGUEZ) FORD F150 2023 Pickup Truck +",
+      "driver_name": "ALEJANDRO RODRIGUEZ",
+      "asset_id": "PT-239",
+      "vehicle_type": "FORD F150 2023 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-240 (CLINT MIZE) FORD F150 2023 Pickup Truck +",
+      "driver_name": "CLINT MIZE",
+      "asset_id": "PT-240",
+      "vehicle_type": "FORD F150 2023 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-241 (MARK GARCIA) FORD F150 2023 Pickup Truck +",
+      "driver_name": "MARK GARCIA",
+      "asset_id": "PT-241",
+      "vehicle_type": "FORD F150 2023 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-242 (HECTOR SANCHEZ) FORD F250 2023 Pickup Truck +",
+      "driver_name": "HECTOR SANCHEZ",
+      "asset_id": "PT-242",
+      "vehicle_type": "FORD F250 2023 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-243 (RAMESH BOBBA) FORD F150 2023 Pickup Truck +",
+      "driver_name": "RAMESH BOBBA",
+      "asset_id": "PT-243",
+      "vehicle_type": "FORD F150 2023 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-244 (SAM ABUNEMEH) FORD F150 2023 Pickup Truck +",
+      "driver_name": "SAM ABUNEMEH",
+      "asset_id": "PT-244",
+      "vehicle_type": "FORD F150 2023 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-245 (JARED RUHRUP) FORD F150 2023 Pickup Truck +",
+      "driver_name": "JARED RUHRUP",
+      "asset_id": "PT-245",
+      "vehicle_type": "FORD F150 2023 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-247 (MARTIN SANCHEZ) FORD F150 2023 Pickup Truck +",
+      "driver_name": "MARTIN SANCHEZ",
+      "asset_id": "PT-247",
+      "vehicle_type": "FORD F150 2023 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-252 (JUAN C. REYES DIAZ) FORD F250 2023 Pickup Truck +",
+      "driver_name": "JUAN C. REYES DIAZ",
+      "asset_id": "PT-252",
+      "vehicle_type": "FORD F250 2023 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-269 (Hector Claudio) FORD F350 2024 Pickup Truck +",
+      "driver_name": "Hector Claudio",
+      "asset_id": "PT-269",
+      "vehicle_type": "FORD F350 2024 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-274 (Grecia Mancho Camacho) FORD MAVERICK XL 2024 Pickup Truck +",
+      "driver_name": "Grecia Mancho Camacho",
+      "asset_id": "PT-274",
+      "vehicle_type": "FORD MAVERICK XL 2024 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-276 (Mario Moya) FORD MAVERICK XL 2024 Pickup Truck +",
+      "driver_name": "Mario Moya",
+      "asset_id": "PT-276",
+      "vehicle_type": "FORD MAVERICK XL 2024 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-277 (Said Garcia) FORD MAVERICK XL 2024 Pickup Truck +",
+      "driver_name": "Said Garcia",
+      "asset_id": "PT-277",
+      "vehicle_type": "FORD MAVERICK XL 2024 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-278 (Juan Castro) FORD MAVERICK XL 2024 Pickup Truck +",
+      "driver_name": "Juan Castro",
+      "asset_id": "PT-278",
+      "vehicle_type": "FORD MAVERICK XL 2024 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-279 (AARON CONCHA) FORD F250 XL 2024 Pickup Truck +",
+      "driver_name": "AARON CONCHA",
+      "asset_id": "PT-279",
+      "vehicle_type": "FORD F250 XL 2024 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-280 (ANDRES BLANCO) FORD F250 XL 2024 Pickup Truck +",
+      "driver_name": "ANDRES BLANCO",
+      "asset_id": "PT-280",
+      "vehicle_type": "FORD F250 XL 2024 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-281 (JOSUE MARTINEZ) FORD F250 XL 2024 Pickup Truck +",
+      "driver_name": "JOSUE MARTINEZ",
+      "asset_id": "PT-281",
+      "vehicle_type": "FORD F250 XL 2024 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-282 (JUSTIN WAYNE OWENS) FORD F250 XL 2024 Pickup Truck +",
+      "driver_name": "JUSTIN WAYNE OWENS",
+      "asset_id": "PT-282",
+      "vehicle_type": "FORD F250 XL 2024 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-89 (ROBERT NEFF) FORD F150 2017 Pickup Truck +",
+      "driver_name": "ROBERT NEFF",
+      "asset_id": "PT-89",
+      "vehicle_type": "FORD F150 2017 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "PT-92 (STONIE BROWN) FORD F150 2016 Pickup Truck +",
+      "driver_name": "STONIE BROWN",
+      "asset_id": "PT-92",
+      "vehicle_type": "FORD F150 2016 Pickup Truck +"
+    },
+    {
+      "asset_assignment": "SV-08 (MICHAEL RIEDER) FORD EXPLORER 2020 Pickup Truck +",
+      "driver_name": "MICHAEL RIEDER",
+      "asset_id": "SV-08",
+      "vehicle_type": "FORD EXPLORER 2020 Pickup Truck +"
+    }
+  ],
+  "report_generated": "2025-05-26T16:07:39.917499"
+}

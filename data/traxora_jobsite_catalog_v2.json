@@ -1,0 +1,72 @@
+[
+  {
+    "job_number": "2022-008",
+    "description": "DFW Highway Expansion Project",
+    "latitude": 32.8998,
+    "longitude": -97.0403,
+    "radius": 800,
+    "division": "Highway",
+    "category": "Infrastructure",
+    "active": true
+  },
+  {
+    "job_number": "2023-032", 
+    "description": "Houston Bridge Reconstruction",
+    "latitude": 29.7604,
+    "longitude": -95.3698,
+    "radius": 600,
+    "division": "Bridge",
+    "category": "Infrastructure", 
+    "active": true
+  },
+  {
+    "job_number": "2023-034",
+    "description": "West Texas Pipeline",
+    "latitude": 31.9686,
+    "longitude": -99.9018,
+    "radius": 1000,
+    "division": "Pipeline",
+    "category": "Energy",
+    "active": true
+  },
+  {
+    "job_number": "2024-016",
+    "description": "Dallas Equipment Yard",
+    "latitude": 32.7767,
+    "longitude": -96.7970,
+    "radius": 500,
+    "division": "Yard",
+    "category": "Operations",
+    "active": true
+  },
+  {
+    "job_number": "2024-019",
+    "description": "Fort Worth Maintenance Shop",
+    "latitude": 32.7555,
+    "longitude": -97.3308,
+    "radius": 400,
+    "division": "Maintenance",
+    "category": "Operations",
+    "active": true
+  },
+  {
+    "job_number": "2024-025",
+    "description": "Arlington Commercial Development",
+    "latitude": 32.7357,
+    "longitude": -97.1081,
+    "radius": 600,
+    "division": "Commercial",
+    "category": "Development",
+    "active": true
+  },
+  {
+    "job_number": "2024-030",
+    "description": "Plano Residential Phase 3",
+    "latitude": 33.0198,
+    "longitude": -96.6989,
+    "radius": 500,
+    "division": "Residential",
+    "category": "Development", 
+    "active": true
+  }
+]

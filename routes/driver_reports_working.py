@@ -11,20 +11,146 @@ import logging
 from datetime import datetime, timedelta
 from utils.monthly_report_generator import extract_all_drivers_from_mtd
 from utils.jobsite_extractor import JobSiteExtractor
+from utils.asset_data_provider import AssetDataProvider
+from models.job_site import JobSite
 import pandas as pd
 import os
 from datetime import datetime, time
+import math
 
 logger = logging.getLogger(__name__)
 
 driver_reports_working_bp = Blueprint('driver_reports_working', __name__, url_prefix='/working-reports')
 
+def calculate_distance(lat1, lon1, lat2, lon2):
+    """Calculate distance between two GPS coordinates in meters"""
+    if not all([lat1, lon1, lat2, lon2]):
+        return float('inf')
+    
+    # Haversine formula
+    R = 6371000  # Earth's radius in meters
+    phi1 = math.radians(lat1)
+    phi2 = math.radians(lat2)
+    delta_phi = math.radians(lat2 - lat1)
+    delta_lambda = math.radians(lon2 - lon1)
+    
+    a = math.sin(delta_phi/2)**2 + math.cos(phi1) * math.cos(phi2) * math.sin(delta_lambda/2)**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+    
+    return R * c
+
+def is_at_job_site(lat, lon, job_sites):
+    """Check if GPS coordinates are within any job site radius"""
+    for job_site in job_sites:
+        if job_site.get('latitude') and job_site.get('longitude'):
+            distance = calculate_distance(lat, lon, job_site['latitude'], job_site['longitude'])
+            radius = job_site.get('radius', 500)  # Default 500m radius
+            if distance <= radius:
+                return True, job_site['name']
+    return False, None
+
+def extract_driver_name(assignment_string):
+    """Extract driver name from assignment string"""
+    if pd.isna(assignment_string) or not assignment_string:
+        return None
+    
+    # Handle different formats:
+    # "#210003 - AMMAR I. ELHAMAD FORD F150 2024"
+    # "ET-01 (SAUL MARTINEZ ALVAREZ) RAM 1500 2022"
+    # "PT-07S (ROGER DODDY) FORD F150 2021"
+    
+    assignment_str = str(assignment_string).strip()
+    
+    # Format with parentheses
+    if '(' in assignment_str and ')' in assignment_str:
+        start = assignment_str.find('(') + 1
+        end = assignment_str.find(')')
+        return assignment_str[start:end].strip()
+    
+    # Format with dash
+    elif ' - ' in assignment_str:
+        parts = assignment_str.split(' - ')
+        if len(parts) > 1:
+            # Extract name part (remove vehicle info)
+            name_part = parts[1]
+            # Remove vehicle model/year info
+            words = name_part.split()
+            name_words = []
+            for word in words:
+                if word.isdigit() or word in ['FORD', 'RAM', 'CHEVROLET', 'F150', 'F250', 'F350', '1500', '2500', '3500']:
+                    break
+                name_words.append(word)
+            return ' '.join(name_words).strip()
+    
+    return None
+
+def classify_driver_performance(driver_records, job_sites, driver_name):
+    """Classify driver performance based on GPS data and job site locations"""
+    if driver_records.empty:
+        return 'not_on_job'
+    
+    # Get GPS coordinates and times
+    gps_records = driver_records.dropna(subset=['Latitude', 'Longitude'])
+    
+    if gps_records.empty:
+        return 'not_on_job'
+    
+    # Check if driver was at any job site
+    was_at_job_site = False
+    earliest_time = None
+    latest_time = None
+    
+    for _, record in gps_records.iterrows():
+        lat = record.get('Latitude')
+        lon = record.get('Longitude')
+        event_time = record.get('EventDateTime')
+        
+        if lat and lon:
+            at_site, site_name = is_at_job_site(lat, lon, job_sites)
+            if at_site:
+                was_at_job_site = True
+                if earliest_time is None or event_time < earliest_time:
+                    earliest_time = event_time
+                if latest_time is None or event_time > latest_time:
+                    latest_time = event_time
+    
+    if not was_at_job_site:
+        return 'not_on_job'
+    
+    # Classification based on timing
+    if earliest_time and latest_time:
+        start_time = earliest_time.time() if hasattr(earliest_time, 'time') else earliest_time
+        end_time = latest_time.time() if hasattr(latest_time, 'time') else latest_time
+        
+        # Standard work hours: 7:00 AM - 5:00 PM
+        standard_start = time(7, 0)  # 7:00 AM
+        standard_end = time(17, 0)   # 5:00 PM
+        late_threshold = time(7, 30) # 7:30 AM
+        early_end_threshold = time(16, 0) # 4:00 PM
+        
+        # Check if late start
+        if start_time > late_threshold:
+            return 'late'
+        
+        # Check if early end
+        if end_time < early_end_threshold:
+            return 'early_end'
+        
+        # Otherwise on time
+        return 'on_time'
+    
+    return 'on_time'  # Default if at job site but timing unclear
+
 def analyze_daily_performance():
     """
-    Analyze actual daily performance patterns from your MTD GPS tracking data
-    This examines 26 days of data to classify drivers based on real attendance patterns
+    Analyze actual daily performance patterns using real GPS coordinates and job sites
     """
     try:
+        # Get actual job sites from your database
+        asset_provider = AssetDataProvider()
+        job_sites = asset_provider.get_job_sites(active_only=True)
+        logger.info(f"Loaded {len(job_sites)} active job sites for analysis")
+        
         mtd_file = "uploads/daily_reports/2025-05-26/Driving_History_DrivingHistory_050125-052625.csv"
         
         if not os.path.exists(mtd_file):
@@ -38,8 +164,9 @@ def analyze_daily_performance():
         if 'EventDateTime' in df.columns:
             df['EventDateTime'] = pd.to_datetime(df['EventDateTime'], errors='coerce')
             df['Date'] = df['EventDateTime'].dt.date
+            df['Time'] = df['EventDateTime'].dt.time
         
-        # Extract driver assignments from Textbox53
+        # Extract driver assignments and GPS coordinates
         drivers_performance = {
             'on_time_drivers': [],
             'late_drivers': [],
@@ -47,11 +174,51 @@ def analyze_daily_performance():
             'not_on_job_drivers': []
         }
         
-        # Analyze each driver's daily patterns across the 26-day period
+        # Process each driver's GPS data and check against real job sites
         if 'Textbox53' in df.columns:
-            unique_assignments = df['Textbox53'].dropna().unique()
+            # Get unique driver assignments
+            driver_series = df['Textbox53'].dropna()
+            unique_assignments = driver_series.unique()
             
             for assignment in unique_assignments:
+                # Extract driver name from assignment string
+                driver_name = extract_driver_name(assignment)
+                if not driver_name:
+                    continue
+                
+                # Get all GPS records for this driver
+                driver_records = df[df['Textbox53'] == assignment].copy()
+                
+                # Analyze this driver's daily performance
+                driver_classification = classify_driver_performance(
+                    driver_records, job_sites, driver_name
+                )
+                
+                # Add to appropriate category
+                if driver_classification == 'on_time':
+                    drivers_performance['on_time_drivers'].append({
+                        'name': driver_name,
+                        'assignment': assignment,
+                        'details': 'Arrived on time and worked at job site'
+                    })
+                elif driver_classification == 'late':
+                    drivers_performance['late_drivers'].append({
+                        'name': driver_name,
+                        'assignment': assignment,
+                        'details': 'Late arrival but worked at job site'
+                    })
+                elif driver_classification == 'early_end':
+                    drivers_performance['early_end_drivers'].append({
+                        'name': driver_name,
+                        'assignment': assignment,
+                        'details': 'Left job site early'
+                    })
+                else:
+                    drivers_performance['not_on_job_drivers'].append({
+                        'name': driver_name,
+                        'assignment': assignment,
+                        'details': 'No GPS activity at assigned job sites'
+                    })
                 driver_name = extract_driver_name_from_assignment(assignment)
                 if driver_name:
                     # Get this driver's daily activity data

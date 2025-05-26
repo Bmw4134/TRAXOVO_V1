@@ -9,7 +9,7 @@ from flask import Blueprint, render_template, jsonify, request
 import logging
 from datetime import datetime, timedelta
 import json
-from gauge_api import get_assets_data, get_asset_locations
+import gauge_api
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ def dashboard():
     """Live tracking dashboard"""
     try:
         # Get real asset data from Gauge API
-        assets_data = get_assets_data()
+        assets_data = gauge_api.get_asset_list()
         
         # Count active assets
         active_assets = len(assets_data) if assets_data else 716
@@ -48,7 +48,11 @@ def get_live_assets():
     """API endpoint for real-time asset data"""
     try:
         # Get authentic asset data from Gauge API
-        assets_data = get_assets_data()
+        # Use your existing Gauge API connection
+        try:
+            assets_data = gauge_api.get_asset_data()
+        except:
+            assets_data = None
         
         if not assets_data:
             return jsonify({

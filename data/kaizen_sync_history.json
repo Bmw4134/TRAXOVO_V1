@@ -1,6 +1,362 @@
 {
   "entries": [
     {
+      "id": "b36c2da6-ebaf-4bd8-a13c-fcf9b3d4c173",
+      "timestamp": "2025-05-26T13:38:21.281742",
+      "type": "integrity_check",
+      "status": "warning",
+      "message": "Integrity check completed with status 'critical' and found 1 issues",
+      "details": {
+        "results": {
+          "timestamp": "2025-05-26T13:38:21.271567",
+          "checks": [
+            {
+              "name": "template_sync",
+              "description": "Check route-template synchronization",
+              "blueprints": [
+                {
+                  "name": "enhanced_weekly_report_bp",
+                  "url_prefix": "/enhanced-weekly-report",
+                  "routes_count": 12,
+                  "templates_count": 0
+                },
+                {
+                  "name": "report_browser",
+                  "url_prefix": "/reports",
+                  "routes_count": 4,
+                  "templates_count": 1
+                },
+                {
+                  "name": "driver_reports",
+                  "url_prefix": "/driver-reports",
+                  "routes_count": 6,
+                  "templates_count": 3
+                },
+                {
+                  "name": "asset_map",
+                  "url_prefix": "/asset-map",
+                  "routes_count": 5,
+                  "templates_count": 1
+                },
+                {
+                  "name": "billing",
+                  "url_prefix": "/billing",
+                  "routes_count": 4,
+                  "templates_count": 11
+                },
+                {
+                  "name": "system_health",
+                  "url_prefix": "/system-health",
+                  "routes_count": 2,
+                  "templates_count": 2
+                },
+                {
+                  "name": "map_standalone",
+                  "url_prefix": "/map",
+                  "routes_count": 3,
+                  "templates_count": 0
+                },
+                {
+                  "name": "direct_map",
+                  "url_prefix": null,
+                  "routes_count": 3,
+                  "templates_count": 0
+                },
+                {
+                  "name": "mtd_reports",
+                  "url_prefix": "/mtd-reports",
+                  "routes_count": 8,
+                  "templates_count": 13
+                },
+                {
+                  "name": "driver_reports_dashboard",
+                  "url_prefix": "/driver-dashboard",
+                  "routes_count": 1,
+                  "templates_count": 0
+                },
+                {
+                  "name": "auto_attendance",
+                  "url_prefix": "/auto-attendance",
+                  "routes_count": 3,
+                  "templates_count": 3
+                },
+                {
+                  "name": "dashboard",
+                  "url_prefix": "/",
+                  "routes_count": 2,
+                  "templates_count": 1
+                },
+                {
+                  "name": "file_upload",
+                  "url_prefix": "/file-upload",
+                  "routes_count": 4,
+                  "templates_count": 1
+                },
+                {
+                  "name": "react_upload",
+                  "url_prefix": "/react-upload",
+                  "routes_count": 1,
+                  "templates_count": 1
+                },
+                {
+                  "name": "attendance_report",
+                  "url_prefix": "/attendance",
+                  "routes_count": 3,
+                  "templates_count": 2
+                },
+                {
+                  "name": "weekly_driver_report",
+                  "url_prefix": "/weekly-driver-report",
+                  "routes_count": 7,
+                  "templates_count": 4
+                },
+                {
+                  "name": "daily_driver_report",
+                  "url_prefix": "/daily-driver-report",
+                  "routes_count": 8,
+                  "templates_count": 6
+                },
+                {
+                  "name": "weekly_report",
+                  "url_prefix": "/weekly",
+                  "routes_count": 5,
+                  "templates_count": 2
+                },
+                {
+                  "name": "attendance",
+                  "url_prefix": "/attendance",
+                  "routes_count": 5,
+                  "templates_count": 9
+                },
+                {
+                  "name": "system_admin",
+                  "url_prefix": "/admin",
+                  "routes_count": 4,
+                  "templates_count": 2
+                },
+                {
+                  "name": "kaizen_admin",
+                  "url_prefix": "/admin/kaizen",
+                  "routes_count": 16,
+                  "templates_count": 6
+                },
+                {
+                  "name": "daily_attendance",
+                  "url_prefix": "/daily-attendance",
+                  "routes_count": 7,
+                  "templates_count": 2
+                },
+                {
+                  "name": "file_organizer",
+                  "url_prefix": "/file-organizer",
+                  "routes_count": 5,
+                  "templates_count": 2
+                },
+                {
+                  "name": "driver_asset_manager",
+                  "url_prefix": "/driver-asset-manager",
+                  "routes_count": 5,
+                  "templates_count": 2
+                }
+              ],
+              "routes_count": 123,
+              "templates_count": 74,
+              "issues": [],
+              "issues_count": 0,
+              "status": "ok"
+            },
+            {
+              "name": "template_references",
+              "description": "Check template references",
+              "error": "cannot access local variable 're' where it is not associated with a value",
+              "issues_count": 1,
+              "status": "critical"
+            }
+          ],
+          "issues_count": 1,
+          "status": "critical"
+        }
+      }
+    },
+    {
+      "id": "cfccf25b-59a4-4bf7-b73e-52e8bd0b4f98",
+      "timestamp": "2025-05-26T13:38:16.764272",
+      "type": "integrity_check",
+      "status": "warning",
+      "message": "Integrity check completed with status 'critical' and found 1 issues",
+      "details": {
+        "results": {
+          "timestamp": "2025-05-26T13:38:16.755226",
+          "checks": [
+            {
+              "name": "template_sync",
+              "description": "Check route-template synchronization",
+              "blueprints": [
+                {
+                  "name": "enhanced_weekly_report_bp",
+                  "url_prefix": "/enhanced-weekly-report",
+                  "routes_count": 12,
+                  "templates_count": 0
+                },
+                {
+                  "name": "report_browser",
+                  "url_prefix": "/reports",
+                  "routes_count": 4,
+                  "templates_count": 1
+                },
+                {
+                  "name": "driver_reports",
+                  "url_prefix": "/driver-reports",
+                  "routes_count": 6,
+                  "templates_count": 3
+                },
+                {
+                  "name": "asset_map",
+                  "url_prefix": "/asset-map",
+                  "routes_count": 5,
+                  "templates_count": 1
+                },
+                {
+                  "name": "billing",
+                  "url_prefix": "/billing",
+                  "routes_count": 4,
+                  "templates_count": 11
+                },
+                {
+                  "name": "system_health",
+                  "url_prefix": "/system-health",
+                  "routes_count": 2,
+                  "templates_count": 2
+                },
+                {
+                  "name": "map_standalone",
+                  "url_prefix": "/map",
+                  "routes_count": 3,
+                  "templates_count": 0
+                },
+                {
+                  "name": "direct_map",
+                  "url_prefix": null,
+                  "routes_count": 3,
+                  "templates_count": 0
+                },
+                {
+                  "name": "mtd_reports",
+                  "url_prefix": "/mtd-reports",
+                  "routes_count": 8,
+                  "templates_count": 13
+                },
+                {
+                  "name": "driver_reports_dashboard",
+                  "url_prefix": "/driver-dashboard",
+                  "routes_count": 1,
+                  "templates_count": 0
+                },
+                {
+                  "name": "auto_attendance",
+                  "url_prefix": "/auto-attendance",
+                  "routes_count": 3,
+                  "templates_count": 3
+                },
+                {
+                  "name": "dashboard",
+                  "url_prefix": "/",
+                  "routes_count": 2,
+                  "templates_count": 1
+                },
+                {
+                  "name": "file_upload",
+                  "url_prefix": "/file-upload",
+                  "routes_count": 4,
+                  "templates_count": 1
+                },
+                {
+                  "name": "react_upload",
+                  "url_prefix": "/react-upload",
+                  "routes_count": 1,
+                  "templates_count": 1
+                },
+                {
+                  "name": "attendance_report",
+                  "url_prefix": "/attendance",
+                  "routes_count": 3,
+                  "templates_count": 2
+                },
+                {
+                  "name": "weekly_driver_report",
+                  "url_prefix": "/weekly-driver-report",
+                  "routes_count": 7,
+                  "templates_count": 4
+                },
+                {
+                  "name": "daily_driver_report",
+                  "url_prefix": "/daily-driver-report",
+                  "routes_count": 8,
+                  "templates_count": 6
+                },
+                {
+                  "name": "weekly_report",
+                  "url_prefix": "/weekly",
+                  "routes_count": 5,
+                  "templates_count": 2
+                },
+                {
+                  "name": "attendance",
+                  "url_prefix": "/attendance",
+                  "routes_count": 5,
+                  "templates_count": 9
+                },
+                {
+                  "name": "system_admin",
+                  "url_prefix": "/admin",
+                  "routes_count": 4,
+                  "templates_count": 2
+                },
+                {
+                  "name": "kaizen_admin",
+                  "url_prefix": "/admin/kaizen",
+                  "routes_count": 16,
+                  "templates_count": 6
+                },
+                {
+                  "name": "daily_attendance",
+                  "url_prefix": "/daily-attendance",
+                  "routes_count": 7,
+                  "templates_count": 2
+                },
+                {
+                  "name": "file_organizer",
+                  "url_prefix": "/file-organizer",
+                  "routes_count": 5,
+                  "templates_count": 2
+                },
+                {
+                  "name": "driver_asset_manager",
+                  "url_prefix": "/driver-asset-manager",
+                  "routes_count": 5,
+                  "templates_count": 2
+                }
+              ],
+              "routes_count": 123,
+              "templates_count": 74,
+              "issues": [],
+              "issues_count": 0,
+              "status": "ok"
+            },
+            {
+              "name": "template_references",
+              "description": "Check template references",
+              "error": "cannot access local variable 're' where it is not associated with a value",
+              "issues_count": 1,
+              "status": "critical"
+            }
+          ],
+          "issues_count": 1,
+          "status": "critical"
+        }
+      }
+    },
+    {
       "id": "dae2ab7f-953e-4c0c-bf93-a5c3659de044",
       "timestamp": "2025-05-25T04:37:32.198401",
       "type": "integrity_check",

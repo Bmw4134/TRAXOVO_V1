@@ -237,22 +237,38 @@ def generate_report(date):
             if not asset_data:
                 flash("Could not load Asset List from Gauge API", "warning")
             else:
-                # Create asset mapping for driver assignments
+                # Create asset mapping for driver assignments - use ALL assets, not filtered ones
                 asset_mapping = {}
+                driver_assignments = 0
+                
                 for asset in asset_data:
-                    asset_id = asset.get('AssetID')
-                    secondary_id = asset.get('SecondaryAssetIdentifier', '')
+                    # Try different field names for Asset ID
+                    asset_id = (asset.get('AssetID') or 
+                               asset.get('assetID') or 
+                               asset.get('id') or 
+                               asset.get('ID'))
                     
-                    if asset_id and secondary_id and ' - ' in secondary_id:
-                        parts = secondary_id.split(' - ', 1)
+                    # Try different field names for Secondary Asset Identifier  
+                    secondary_id = (asset.get('SecondaryAssetIdentifier') or 
+                                  asset.get('secondaryAssetIdentifier') or 
+                                  asset.get('SecondaryID') or 
+                                  asset.get('DriverAssignment') or '')
+                    
+                    if asset_id and secondary_id and ' - ' in str(secondary_id):
+                        parts = str(secondary_id).split(' - ', 1)
                         employee_id = parts[0].strip()
                         driver_name = parts[1].strip()
+                        
                         asset_mapping[str(asset_id)] = {
                             'employee_id': employee_id,
-                            'driver_name': driver_name
+                            'driver_name': driver_name,
+                            'asset_label': asset.get('AssetLabel', ''),
+                            'asset_name': asset.get('AssetName', ''),
+                            'secondary_id': secondary_id
                         }
+                        driver_assignments += 1
                 
-                flash(f"Loaded {len(asset_mapping)} driver assignments from Asset List", "success")
+                flash(f"Found {len(asset_data)} total assets, {driver_assignments} with driver assignments", "success")
                 
                 # Process a single MTD file efficiently
                 mtd_file = None

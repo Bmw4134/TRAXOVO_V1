@@ -6,6 +6,68 @@
     <title>TRAXORA - Driver Reports</title>
     <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Responsive design fixes for all screen sizes */
+        body {
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container-fluid {
+            padding-left: 15px;
+            padding-right: 15px;
+            max-width: 100%;
+        }
+        
+        /* Ensure cards fit properly on mobile */
+        @media (max-width: 768px) {
+            .col-md-6 {
+                margin-bottom: 1rem;
+            }
+            
+            .card-body {
+                padding: 1rem 0.5rem;
+            }
+            
+            .card-title {
+                font-size: 1.5rem;
+            }
+            
+            h2 {
+                font-size: 1.3rem;
+            }
+        }
+        
+        /* Tablet adjustments */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .col-lg-3 {
+                flex: 0 0 50%;
+                max-width: 50%;
+            }
+        }
+        
+        /* Ensure proper spacing and no overflow */
+        .row {
+            margin-left: -7.5px;
+            margin-right: -7.5px;
+        }
+        
+        .col-md-6, .col-lg-3, .col-lg-4, .col-lg-8, .col-sm-6 {
+            padding-left: 7.5px;
+            padding-right: 7.5px;
+        }
+        
+        /* Fix vertical spacing */
+        .mb-4 {
+            margin-bottom: 2rem !important;
+        }
+        
+        /* Ensure cards don't overflow */
+        .card {
+            height: auto;
+            min-height: 120px;
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">

@@ -147,11 +147,11 @@ def generate_daily_report(date_str, driving_history_data=None, time_on_site_data
             'on_time': 3
         }
         
-        driver_records.sort(key=lambda x: status_order.get(x.get('classification'), 4))
+        driver_records.sort(key=lambda x: status_order.get(x.get('status', x.get('classification', '')), 4))
         
         for driver in driver_records:
             # Get status display text
-            status = driver.get('classification', '')
+            status = driver.get('status', driver.get('classification', ''))
             status_display = {
                 'on_time': 'ON TIME',
                 'late': 'LATE',

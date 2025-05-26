@@ -34,9 +34,10 @@ def analyze_daily_performance():
         # Load your actual MTD data
         df = pd.read_csv(mtd_file, skiprows=8, low_memory=False)
         
-        # Convert date column to datetime for analysis
-        if 'Date' in df.columns:
-            df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
+        # Convert EventDateTime to datetime for analysis
+        if 'EventDateTime' in df.columns:
+            df['EventDateTime'] = pd.to_datetime(df['EventDateTime'], errors='coerce')
+            df['Date'] = df['EventDateTime'].dt.date
         
         # Extract driver assignments from Textbox53
         drivers_performance = {
@@ -63,7 +64,7 @@ def analyze_daily_performance():
                         driver_record = {
                             'driver_name': driver_name,
                             'asset_assignment': assignment,
-                            'total_days_worked': len(driver_data['Date'].dropna().unique()),
+                            'total_days_worked': len(driver_data['Date'].dropna().unique()) if 'Date' in driver_data.columns else 0,
                             'avg_daily_hours': calculate_avg_daily_hours(driver_data)
                         }
                         
@@ -120,11 +121,20 @@ def categorize_driver_performance(driver_data, driver_name):
         if 'Location' in driver_data.columns:
             locations = driver_data['Location'].dropna()
             
-            # Count days with activity
-            active_days = len(driver_data['Date'].dropna().unique())
+            # Count days with activity - use Date column if available
+            if 'Date' in driver_data.columns:
+                active_days = len(driver_data['Date'].dropna().unique())
+            else:
+                # Fallback: estimate from EventDateTime
+                if 'EventDateTime' in driver_data.columns:
+                    dates = pd.to_datetime(driver_data['EventDateTime'], errors='coerce').dt.date
+                    active_days = len(dates.dropna().unique())
+                else:
+                    active_days = 1  # Minimal fallback
+            
             total_records = len(driver_data)
             
-            # Simple performance categorization based on activity patterns
+            # Performance categorization based on activity patterns
             if active_days >= 20 and total_records >= 40:  # Consistent high activity
                 return 'on_time_drivers'
             elif active_days >= 15 and total_records >= 25:  # Moderate activity
@@ -143,7 +153,15 @@ def categorize_driver_performance(driver_data, driver_name):
 def calculate_avg_daily_hours(driver_data):
     """Calculate average daily working hours based on GPS activity"""
     try:
-        unique_days = driver_data['Date'].dropna().unique()
+        # Get unique days from available data
+        if 'Date' in driver_data.columns:
+            unique_days = driver_data['Date'].dropna().unique()
+        elif 'EventDateTime' in driver_data.columns:
+            dates = pd.to_datetime(driver_data['EventDateTime'], errors='coerce').dt.date
+            unique_days = dates.dropna().unique()
+        else:
+            return 8.0  # Standard fallback
+        
         if len(unique_days) == 0:
             return 0.0
         

@@ -55,17 +55,29 @@
         padding-top: 1.5rem;
     }
     
-    .sidebar-collapsed {
-        margin-left: -250px;
+    .sidebar.collapsed {
+        width: 60px;
+        overflow: hidden;
+    }
+    
+    .sidebar.collapsed .sidebar-text {
+        display: none;
+    }
+    
+    .sidebar.collapsed .sidebar-icon {
+        margin: 0 auto;
+        text-align: center;
     }
     
     #content {
-        width: 100%;
+        margin-left: 250px;
+        width: calc(100% - 250px);
         transition: all 0.3s;
     }
     
     .content-expanded {
-        margin-left: 0;
+        margin-left: 60px;
+        width: calc(100% - 60px);
     }
     
     .quick-access-card {
@@ -619,17 +631,17 @@
         
         sidebarToggle.addEventListener('click', function(e) {
             e.preventDefault();
-            sidebar.classList.toggle('sidebar-collapsed');
+            sidebar.classList.toggle('collapsed');
             content.classList.toggle('content-expanded');
         });
         
         // Responsive behavior for sidebar
         function checkWidth() {
             if (window.innerWidth < 768) {
-                sidebar.classList.add('sidebar-collapsed');
+                sidebar.classList.add('collapsed');
                 content.classList.add('content-expanded');
             } else {
-                sidebar.classList.remove('sidebar-collapsed');
+                sidebar.classList.remove('collapsed');
                 content.classList.remove('content-expanded');
             }
         }

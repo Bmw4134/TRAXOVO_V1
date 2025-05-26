@@ -56,9 +56,9 @@ def dashboard():
         today = datetime.now().date()
         today_str = today.strftime('%Y-%m-%d')
         
-        # Get real metrics from Asset List + MTD data
-        from utils.asset_metrics_calculator import get_real_dashboard_metrics
-        metrics = get_real_dashboard_metrics(today_str)
+        # Get real metrics from your uploaded MTD data
+        from utils.quick_metrics import get_quick_driver_metrics
+        metrics = get_quick_driver_metrics()
         
         # Get previous dates (last 7 days)
         date_range = []

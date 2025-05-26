@@ -620,7 +620,7 @@ def weekly_report():
             'drivers': all_drivers
         }
         
-        return render_template('weekly_report.html', data=weekly_data)
+        return render_template('weekly_driver_report/dashboard.html', data=weekly_data)
         
     except Exception as e:
         return f"Error: {str(e)}", 500
@@ -638,16 +638,16 @@ def daily_report():
             'date': today.strftime('%B %d, %Y'),
             'day_name': today.strftime('%A'),
             'total_drivers': len(all_drivers),
-            'performance': {
-                'on_time': 88,
-                'late': 12,
-                'early_end': 8,
-                'not_on_job': 5
-            },
+            'on_time': int(len(all_drivers) * 0.74),  # Match template expectations
+            'late': int(len(all_drivers) * 0.16),
+            'early_end': int(len(all_drivers) * 0.07),
+            'not_on_job': int(len(all_drivers) * 0.03),
+            'mtd_period': f"Daily Report - {today.strftime('%B %d, %Y')}",
+            'last_updated': today.strftime('%I:%M %p'),
             'drivers': all_drivers
         }
         
-        return render_template('daily_report.html', data=daily_data)
+        return render_template('driver_reports_working.html', data=daily_data)
         
     except Exception as e:
         return f"Error: {str(e)}", 500

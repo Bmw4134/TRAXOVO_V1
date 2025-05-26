@@ -5,7 +5,7 @@
     "latitude": 32.8395,
     "longitude": -97.1930,
     "radius": 800,
-    "division": "Highway",
+    "division": "DFW",
     "category": "Infrastructure",
     "active": true
   },
@@ -15,28 +15,8 @@
     "latitude": 32.5496,
     "longitude": -97.1036,
     "radius": 600,
-    "division": "Residential",
+    "division": "DFW",
     "category": "Development",
-    "active": true
-  },
-  {
-    "job_number": "2024-002", 
-    "description": "Hurst Airport Highway Project",
-    "latitude": 32.8393,
-    "longitude": -97.1929,
-    "radius": 500,
-    "division": "Highway",
-    "category": "Infrastructure", 
-    "active": true
-  },
-  {
-    "job_number": "2024-003",
-    "description": "DFW Highway Expansion",
-    "latitude": 32.8998,
-    "longitude": -97.0403,
-    "radius": 1000,
-    "division": "Highway",
-    "category": "Infrastructure",
     "active": true
   },
   {
@@ -45,28 +25,78 @@
     "latitude": 32.7555,
     "longitude": -97.3308,
     "radius": 400,
-    "division": "Operations",
-    "category": "Maintenance",
+    "division": "DFW",
+    "category": "Operations",
     "active": true
   },
   {
-    "job_number": "2024-005",
-    "description": "Arlington Commercial Zone",
-    "latitude": 32.7357,
-    "longitude": -97.1081,
+    "job_number": "2023-007",
+    "description": "Ector BI 20E Rehab Roadway",
+    "latitude": 31.8457,
+    "longitude": -102.3676,
+    "radius": 1000,
+    "division": "West Texas",
+    "category": "Highway",
+    "active": true
+  },
+  {
+    "job_number": "2023-019",
+    "description": "Martin SH 176 Roadway Improvements",
+    "latitude": 32.3073,
+    "longitude": -101.9077,
+    "radius": 800,
+    "division": "West Texas",
+    "category": "Highway",
+    "active": true
+  },
+  {
+    "job_number": "2025-005",
+    "description": "Howard IH 20 Bridge Replacement",
+    "latitude": 32.2618,
+    "longitude": -101.4477,
     "radius": 600,
-    "division": "Commercial",
-    "category": "Development",
+    "division": "West Texas",
+    "category": "Bridge",
     "active": true
   },
   {
-    "job_number": "2024-006",
-    "description": "Dallas Equipment Yard",
-    "latitude": 32.7767,
-    "longitude": -96.7970,
+    "job_number": "EQUIP-WT",
+    "description": "Equipment West Texas Division",
+    "latitude": 31.9973,
+    "longitude": -102.0779,
     "radius": 500,
-    "division": "Operations",
-    "category": "Yard", 
+    "division": "West Texas",
+    "category": "Equipment",
+    "active": true
+  },
+  {
+    "job_number": "HOU-001",
+    "description": "Houston Metro Infrastructure",
+    "latitude": 29.7604,
+    "longitude": -95.3698,
+    "radius": 1200,
+    "division": "Houston",
+    "category": "Infrastructure",
+    "active": true
+  },
+  {
+    "job_number": "HOU-002",
+    "description": "Harris County Highway Project",
+    "latitude": 29.8174,
+    "longitude": -95.4018,
+    "radius": 800,
+    "division": "Houston",
+    "category": "Highway",
+    "active": true
+  },
+  {
+    "job_number": "EQUIP-HOU",
+    "description": "Equipment Houston Division",
+    "latitude": 29.6436,
+    "longitude": -95.3474,
+    "radius": 500,
+    "division": "Houston",
+    "category": "Equipment",
     "active": true
   }
 ]

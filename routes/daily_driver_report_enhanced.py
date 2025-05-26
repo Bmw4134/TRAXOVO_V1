@@ -50,11 +50,15 @@ def get_upload_directory():
 
 @daily_driver_report_bp.route('/')
 def dashboard():
-    """Daily driver report dashboard"""
+    """Daily driver report dashboard with real Asset List metrics"""
     try:
         # Get today's date
         today = datetime.now().date()
         today_str = today.strftime('%Y-%m-%d')
+        
+        # Get real metrics from Asset List + MTD data
+        from utils.asset_metrics_calculator import get_real_dashboard_metrics
+        metrics = get_real_dashboard_metrics(today_str)
         
         # Get previous dates (last 7 days)
         date_range = []

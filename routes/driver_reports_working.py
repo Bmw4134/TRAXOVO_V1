@@ -178,8 +178,12 @@ def analyze_daily_performance():
             logger.warning(f"MTD file not found: {mtd_file}")
             return _get_fallback_performance()
         
-        # Load your actual MTD data
+        # Load your actual MTD data with proper parsing
         df = pd.read_csv(mtd_file, skiprows=8, low_memory=False)
+        
+        # Convert GPS coordinates to numeric (they're being read as strings)
+        df['Latitude'] = pd.to_numeric(df['Latitude'], errors='coerce')
+        df['Longitude'] = pd.to_numeric(df['Longitude'], errors='coerce')
         
         # Convert EventDateTime to datetime for analysis
         if 'EventDateTime' in df.columns:
@@ -752,6 +756,32 @@ def dashboard():
     except Exception as e:
         logger.error(f"Error in working driver reports: {e}")
         return f"Error loading driver reports: {e}"
+
+@driver_reports_working_bp.route('/api/performance-data')
+def api_performance_data():
+    """API endpoint that returns the actual driver performance data"""
+    try:
+        # Use the same analysis function that generates the reports
+        performance_data = analyze_daily_performance()
+        
+        # Return the data in the format the frontend expects
+        return jsonify({
+            'on_time_drivers': performance_data['on_time_drivers'],
+            'late_drivers': performance_data['late_drivers'], 
+            'early_end_drivers': performance_data['early_end_drivers'],
+            'not_on_job_drivers': performance_data['not_on_job_drivers'],
+            'summary': {
+                'on_time': len(performance_data['on_time_drivers']),
+                'late': len(performance_data['late_drivers']),
+                'early_end': len(performance_data['early_end_drivers']),
+                'not_on_job': len(performance_data['not_on_job_drivers'])
+            },
+            'status': 'success'
+        })
+        
+    except Exception as e:
+        logger.error(f"Error in performance data API: {e}")
+        return jsonify({'error': str(e)}), 500
 
 @driver_reports_working_bp.route('/api/metrics')
 def api_metrics():

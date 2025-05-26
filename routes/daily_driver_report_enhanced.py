@@ -180,13 +180,15 @@ def upload_files():
                 from utils.mtd_processor import extract_date_range_from_files, process_mtd_data_for_date_range
                 
                 # Extract actual date range from uploaded files
-                start_date, end_date = extract_date_range_from_files(upload_dir)
+                # Check main uploads directory where MTD files are actually located
+                main_uploads_dir = "uploads"
+                start_date, end_date = extract_date_range_from_files(main_uploads_dir)
                 
                 if start_date and end_date:
                     flash(f"Processing MTD data from {start_date} to {end_date}", "info")
                     
                     # Process all dates in the MTD range
-                    mtd_results = process_mtd_data_for_date_range(upload_dir, start_date, end_date)
+                    mtd_results = process_mtd_data_for_date_range(main_uploads_dir, start_date, end_date)
                     
                     if mtd_results:
                         # Find the most recent date with data for viewing

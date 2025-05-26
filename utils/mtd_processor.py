@@ -99,9 +99,10 @@ def process_mtd_data_for_date_range(upload_dir, start_date, end_date):
             continue
             
         try:
-            # Load file
+            # Load file with proper parsing for MTD format
             if filename.endswith('.csv'):
-                df = pd.read_csv(file_path)
+                # Skip header rows for MTD files and handle variable columns
+                df = pd.read_csv(file_path, skiprows=7, low_memory=False)
             elif filename.endswith(('.xlsx', '.xls')):
                 df = pd.read_excel(file_path)
             else:
@@ -183,14 +184,17 @@ def extract_date_from_record(record):
     Returns:
         str: Date in YYYY-MM-DD format or None
     """
-    # Try common date field names
-    date_fields = ['Date', 'date', 'EVENT_DATE', 'EventDate', 'ActivityDate', 'TimeOnSiteDate']
+    # Try common date field names (including the actual columns from your MTD files)
+    date_fields = ['Date', 'date', 'EVENT_DATE', 'EventDate', 'ActivityDate', 'TimeOnSiteDate', 'EventDateTime', 'EventDateTimex']
     
     for field in date_fields:
         if field in record and record[field]:
             try:
-                parsed_date = pd.to_datetime(record[field])
-                return parsed_date.strftime('%Y-%m-%d')
+                # Handle the specific format from your MTD files: "5/18/2025 10:35:47 AM"
+                date_str = str(record[field]).strip()
+                if date_str and date_str != 'nan':
+                    parsed_date = pd.to_datetime(date_str)
+                    return parsed_date.strftime('%Y-%m-%d')
             except:
                 continue
     

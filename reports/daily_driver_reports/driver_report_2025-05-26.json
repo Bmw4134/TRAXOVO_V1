@@ -14,11 +14,11 @@
     "average_late_minutes": 0,
     "average_early_end_minutes": 0
   },
-  "processed_at": "2025-05-26T14:51:11.421258",
+  "processed_at": "2025-05-26T14:53:54.280161",
   "data_sources": [
     {
       "source": "Secondary Asset Identifier",
-      "timestamp": "2025-05-26T14:51:11.421270",
+      "timestamp": "2025-05-26T14:53:54.280174",
       "type": "identity_verification",
       "verified_count": 0
     }

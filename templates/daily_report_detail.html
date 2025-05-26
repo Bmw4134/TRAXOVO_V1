@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Report - {{ date }}</title>
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container-fluid mt-4">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h3><i class="fas fa-calendar-day"></i> Daily Report - {{ date }}</h3>
+            </div>
+        </div>
+        
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body text-center">
+                        <h4>{{ daily_stats.total_drivers }}</h4>
+                        <small>Total Drivers</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <h4>{{ daily_stats.on_time }}</h4>
+                        <small>On Time</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body text-center">
+                        <h4>{{ daily_stats.late_start }}</h4>
+                        <small>Late Start</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-danger text-white">
+                    <div class="card-body text-center">
+                        <h4>{{ daily_stats.not_on_job }}</h4>
+                        <small>Not On Job</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Driver Details Table -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Driver Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Driver</th>
+                                        <th>Start Time</th>
+                                        <th>End Time</th>
+                                        <th>Job Site</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for record in daily_records %}
+                                    <tr>
+                                        <td>{{ record.name }}</td>
+                                        <td>{{ record.start_time }}</td>
+                                        <td>{{ record.end_time }}</td>
+                                        <td>{{ record.job_site }}</td>
+                                        <td>
+                                            <span class="badge 
+                                                {% if record.status == 'On Time' %}bg-success
+                                                {% elif record.status == 'Late Start' %}bg-warning
+                                                {% elif record.status == 'Early End' %}bg-info
+                                                {% else %}bg-danger{% endif %}">
+                                                {{ record.status }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

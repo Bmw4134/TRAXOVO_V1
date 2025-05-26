@@ -216,10 +216,10 @@
             </div>
         </div>
 
-        <!-- Summary Metrics -->
+        <!-- Summary Metrics with Smart Filtering -->
         <div class="row mb-4">
             <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card metric-card card-primary">
+                <div class="card metric-card card-primary" onclick="filterByStatus('all')">
                     <div class="card-body text-center py-4">
                         <i class="fas fa-users fa-3x mb-3"></i>
                         <div class="metric-value">{{ total_drivers }}</div>
@@ -228,7 +228,7 @@
                 </div>
             </div>
             <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card metric-card card-success">
+                <div class="card metric-card card-success" onclick="filterByStatus('on-time')">
                     <div class="card-body text-center py-4">
                         <i class="fas fa-check-circle fa-3x mb-3"></i>
                         <div class="metric-value">{{ attendance_summary.on_time }}</div>
@@ -237,20 +237,50 @@
                 </div>
             </div>
             <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card metric-card card-warning">
+                <div class="card metric-card card-warning" onclick="filterByStatus('issues')">
                     <div class="card-body text-center py-4">
                         <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
                         <div class="metric-value">{{ attendance_summary.late_start }}</div>
-                        <div class="metric-label">Late Starts</div>
+                        <div class="metric-label">Issues Found</div>
                     </div>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card metric-card card-info">
+                <div class="card metric-card card-info" onclick="showTrendAnalysis()">
                     <div class="card-body text-center py-4">
-                        <i class="fas fa-calendar-day fa-3x mb-3"></i>
+                        <i class="fas fa-chart-trend-up fa-3x mb-3"></i>
                         <div class="metric-value">{{ total_days }}</div>
-                        <div class="metric-label">Days of Data</div>
+                        <div class="metric-label">View Trends</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Filter Bar for Field Supervisors -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body py-2">
+                        <div class="d-flex flex-wrap gap-2 align-items-center">
+                            <span class="text-muted me-3"><i class="fas fa-filter"></i> Quick Filters:</span>
+                            <button class="btn btn-sm btn-outline-danger" onclick="highlightCriticalIssues()">
+                                <i class="fas fa-exclamation-circle"></i> Critical Issues
+                            </button>
+                            <button class="btn btn-sm btn-outline-warning" onclick="showLateStarts()">
+                                <i class="fas fa-clock"></i> Late Starts Only
+                            </button>
+                            <button class="btn btn-sm btn-outline-info" onclick="showTodayOnly()">
+                                <i class="fas fa-calendar-day"></i> Today Only
+                            </button>
+                            <button class="btn btn-sm btn-outline-success" onclick="showAllGood()">
+                                <i class="fas fa-check"></i> All Good
+                            </button>
+                            <div class="ms-auto">
+                                <button class="btn btn-sm btn-secondary" onclick="clearFilters()">
+                                    <i class="fas fa-times"></i> Clear
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -655,6 +685,76 @@
             });
         });
         
+        // Smart filtering system for field supervisors
+        function filterByStatus(status) {
+            const cards = document.querySelectorAll('.date-card');
+            cards.forEach(card => {
+                card.style.display = 'block';
+                card.classList.remove('filtered-out');
+                
+                if (status === 'issues') {
+                    const hasIssues = card.querySelector('.bg-warning') || card.querySelector('.bg-danger');
+                    if (!hasIssues) {
+                        card.style.display = 'none';
+                        card.classList.add('filtered-out');
+                    }
+                } else if (status === 'on-time') {
+                    const isAllGood = card.querySelector('.bg-success');
+                    if (!isAllGood) {
+                        card.style.display = 'none';
+                        card.classList.add('filtered-out');
+                    }
+                }
+            });
+        }
+        
+        function highlightCriticalIssues() {
+            const cards = document.querySelectorAll('.date-card');
+            cards.forEach(card => {
+                const criticalBadge = card.querySelector('.bg-danger');
+                if (criticalBadge) {
+                    card.classList.add('status-alert');
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            });
+        }
+        
+        function showLateStarts() {
+            filterByStatus('issues');
+            // Additional highlighting for late starts
+            document.querySelectorAll('.bg-warning').forEach(badge => {
+                badge.parentElement.parentElement.classList.add('border-warning');
+            });
+        }
+        
+        function showTodayOnly() {
+            const today = new Date().toISOString().split('T')[0];
+            const cards = document.querySelectorAll('.date-card');
+            cards.forEach(card => {
+                const dateText = card.querySelector('.date-title');
+                if (dateText && !dateText.textContent.includes(today)) {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        function showAllGood() {
+            filterByStatus('on-time');
+        }
+        
+        function clearFilters() {
+            const cards = document.querySelectorAll('.date-card');
+            cards.forEach(card => {
+                card.style.display = 'block';
+                card.classList.remove('filtered-out', 'status-alert', 'border-warning');
+            });
+        }
+        
+        function showTrendAnalysis() {
+            // Open trend analysis in new tab
+            window.open('/trend-analysis', '_blank');
+        }
+
         // Pause auto-refresh when tab hidden to save resources
         document.addEventListener('visibilitychange', function() {
             if (document.hidden) {

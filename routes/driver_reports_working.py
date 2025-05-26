@@ -146,9 +146,23 @@ def analyze_daily_performance():
     Analyze actual daily performance patterns using real GPS coordinates and job sites
     """
     try:
-        # Get actual job sites from your database
-        asset_provider = AssetDataProvider()
-        job_sites = asset_provider.get_job_sites(active_only=True)
+        # Get actual job sites from your working catalog
+        from utils.jobsite_catalog_loader import load_jobsite_catalog
+        catalog_job_sites = load_jobsite_catalog()
+        
+        # Convert catalog format to GPS coordinate format
+        job_sites = []
+        for site in catalog_job_sites:
+            if site.get('latitude') and site.get('longitude'):
+                job_sites.append({
+                    'name': site.get('description', site.get('job_number', 'Unknown')),
+                    'job_number': site.get('job_number'),
+                    'latitude': float(site['latitude']),
+                    'longitude': float(site['longitude']),
+                    'radius': site.get('radius', 500),  # Default 500m radius
+                    'active': True
+                })
+        
         logger.info(f"Loaded {len(job_sites)} active job sites for analysis")
         
         mtd_file = "uploads/daily_reports/2025-05-26/Driving_History_DrivingHistory_050125-052625.csv"

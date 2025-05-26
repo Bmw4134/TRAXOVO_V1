@@ -16,7 +16,7 @@
                         <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
                     </a>
                     {% if report_path %}
-                    <a href="{{ url_for('daily_driver_report.download', date=date) }}" class="btn btn-primary">
+                    <a href="{{ url_for('daily_driver_report.download_report', date=date) }}" class="btn btn-primary">
                         <i class="fas fa-download me-1"></i> Download Excel
                     </a>
                     {% endif %}

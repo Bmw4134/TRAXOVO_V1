@@ -315,6 +315,14 @@ try:
 except ImportError as e:
     logger.warning(f"Working Driver Reports module not found: {e}")
 
+# Register MTD Data Review Dashboard
+try:
+    from routes.mtd_data_review import mtd_review_bp
+    app.register_blueprint(mtd_review_bp)
+    logger.info("MTD Data Review Dashboard registered successfully")
+except ImportError as e:
+    logger.warning(f"MTD Data Review module not found: {e}")
+
 @app.route('/')
 def dashboard():
     """Homepage shows dashboard"""

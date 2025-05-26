@@ -50,26 +50,28 @@ def process_todays_mtd_files():
                 # Get all unique asset-driver assignments
                 asset_assignments = df[asset_driver_col].dropna().unique()
                 
-                # Extract driver names from format "#210003 - AMMAR I. ELHAMAD FORD F150 2024"
+                # Extract driver names from ALL formats in your MTD file
                 driver_names = set()
                 for assignment in asset_assignments:
-                    if assignment and str(assignment) != 'nan' and ' - ' in str(assignment):
-                        # Split on ' - ' and take the part with driver name
-                        parts = str(assignment).split(' - ', 1)
-                        if len(parts) > 1:
-                            # Extract driver name (everything before vehicle info)
-                            driver_part = parts[1]
-                            # Remove vehicle info (everything after last capital letter sequence)
-                            words = driver_part.split()
-                            driver_name_words = []
-                            for word in words:
-                                if word.isupper() or (word[0].isupper() and word[1:].islower()):
-                                    driver_name_words.append(word)
-                                else:
-                                    break
-                            if driver_name_words:
-                                driver_name = ' '.join(driver_name_words)
+                    if assignment and str(assignment) != 'nan':
+                        assignment_str = str(assignment)
+                        
+                        # Format 1: "#210003 - AMMAR I. ELHAMAD FORD F150 2024"
+                        if ' - ' in assignment_str and assignment_str.startswith('#'):
+                            parts = assignment_str.split(' - ', 1)
+                            if len(parts) > 1:
+                                name_part = parts[1].split()[0:3]  # First 3 words for name
+                                driver_name = ' '.join(name_part)
                                 driver_names.add(driver_name)
+                        
+                        # Format 2: "ET-01 (SAUL MARTINEZ ALVAREZ) RAM 1500 2022"
+                        elif '(' in assignment_str and ')' in assignment_str:
+                            start = assignment_str.find('(') + 1
+                            end = assignment_str.find(')')
+                            if start > 0 and end > start:
+                                driver_name = assignment_str[start:end].strip()
+                                if driver_name and driver_name != 'OPEN' and 'OPEN' not in driver_name:
+                                    driver_names.add(driver_name)
                 
                 driver_count = len(driver_names)
                 logger.info(f"Found {driver_count} unique drivers from asset assignments")

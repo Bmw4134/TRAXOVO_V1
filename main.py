@@ -249,6 +249,20 @@ except ImportError:
 except Exception as e:
     logger.error(f"Error with Driver-Asset Manager blueprint: {e}")
 
+# Register Intelligent Command Center Blueprint
+try:
+    # Check if the blueprint is already registered to avoid duplicate registration
+    if not any(bp.name == 'command_center' for bp in app.blueprints.values()):
+        from routes.intelligent_command_center import command_center_bp
+        app.register_blueprint(command_center_bp)
+        logger.info("Intelligent Command Center registered successfully")
+    else:
+        logger.info("Intelligent Command Center already registered")
+except ImportError:
+    logger.warning("Intelligent Command Center module not found")
+except Exception as e:
+    logger.error(f"Error with Intelligent Command Center blueprint: {e}")
+
 @app.route('/attendance/')
 @app.route('/attendance')
 def attendance_main():

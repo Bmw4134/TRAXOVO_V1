@@ -35,12 +35,18 @@ asset_map_bp = Blueprint('asset_map', __name__, url_prefix='/asset-map')
 @asset_map_bp.route('/')
 def asset_map():
     """Asset Map main page"""
-    # Get job sites for filtering
-    job_sites = JobSite.query.filter_by(active=True).all()
+    # Get job sites for filtering (with error handling)
+    try:
+        job_sites = JobSite.query.filter_by(active=True).all()
+    except Exception:
+        job_sites = []
     
-    # Get asset types for filtering
-    asset_types = db.session.query(Asset.type).distinct().all()
-    asset_types = [t[0] for t in asset_types if t[0] is not None]
+    # Get asset types for filtering (with error handling)
+    try:
+        asset_types = db.session.query(Asset.type).distinct().all()
+        asset_types = [t[0] for t in asset_types if t[0] is not None]
+    except Exception:
+        asset_types = []
     
     return render_template(
         'asset_map/index.html',

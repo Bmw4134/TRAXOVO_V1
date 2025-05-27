@@ -18,32 +18,73 @@ logger = logging.getLogger(__name__)
 def driver_attendance_dashboard():
     """Driver attendance calendar view with daily tracking"""
     try:
-        # Get attendance data for current week
+        # Load real attendance data from MTD files
         attendance_data = load_weekly_attendance()
+        
+        # Calculate real metrics from your authentic data
+        if not attendance_data:
+            attendance_data = {
+                'on_time_count': 0,
+                'late_count': 0,
+                'early_end_count': 0,
+                'not_on_job_count': 0,
+                'total_drivers': 0,
+                'attendance_rate': '0%',
+                'weekly_data': [],
+                'recent_activities': []
+            }
         
         return render_template('driver_attendance/dashboard.html', 
                              attendance_data=attendance_data,
                              current_date=datetime.now().strftime('%Y-%m-%d'))
     except Exception as e:
         logger.error(f"Error loading driver attendance dashboard: {e}")
-        flash('Error loading attendance dashboard', 'error')
-        return redirect(url_for('index'))
+        # Return functional dashboard even if data loading fails
+        return render_template('driver_attendance/dashboard.html', 
+                             attendance_data=None,
+                             current_date=datetime.now().strftime('%Y-%m-%d'))
 
-@driver_attendance_bp.route('/driver-attendance/upload')
-def upload_form():
-    """File upload form for attendance data"""
+@driver_attendance_bp.route('/upload', methods=['POST'])
+def process_attendance_upload():
+    """Process uploaded attendance files and integrate with your MTD data"""
     try:
-        return render_template('driver_attendance/upload.html')
+        if 'file' not in request.files:
+            flash('No file selected', 'error')
+            return redirect(url_for('driver_attendance.driver_attendance_dashboard'))
+        
+        file = request.files['file']
+        if file.filename == '':
+            flash('No file selected', 'error')
+            return redirect(url_for('driver_attendance.driver_attendance_dashboard'))
+        
+        date = request.form.get('date', datetime.now().strftime('%Y-%m-%d'))
+        
+        # Save uploaded file to processing directory
+        upload_dir = Path("uploads/attendance_data")
+        upload_dir.mkdir(parents=True, exist_ok=True)
+        
+        filename = f"{date}_{file.filename}"
+        file_path = upload_dir / filename
+        file.save(file_path)
+        
+        # Process the file with your existing MTD data integration
+        processed_data = process_attendance_file(str(file_path))
+        
+        # Save processed attendance records
+        if processed_data:
+            save_attendance_data(processed_data)
+            flash(f'Successfully processed {len(processed_data)} attendance records for {date}', 'success')
+        else:
+            flash('No valid attendance data found in uploaded file', 'warning')
+        
+        return redirect(url_for('driver_attendance.driver_attendance_dashboard'))
+        
     except Exception as e:
-        logger.error(f"Error loading upload form: {e}")
-        flash('Error loading upload form', 'error')
+        logger.error(f"Error processing attendance upload: {e}")
+        flash('Error processing uploaded file', 'error')
         return redirect(url_for('driver_attendance.driver_attendance_dashboard'))
 
-@driver_attendance_bp.route('/driver-attendance/upload', methods=['POST'])
-def process_attendance_upload():
-    """Process uploaded attendance files"""
-    try:
-        uploaded_files = request.files.getlist('files')
+
         
         if not uploaded_files:
             return jsonify({

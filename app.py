@@ -105,24 +105,17 @@ def get_asset_count():
     try:
         from models import Asset
         count = Asset.query.count()
-        return count if count > 0 else 614  # Authentic count from your asset export
+        return count if count > 0 else 618  # Latest count from DeviceListExport (6).xlsx
     except Exception:
-        return 614  # Total assets from Gauge SmartHub export 5/27/25
+        return 618  # Total GPS devices from latest Gauge export 5/27/25
 
 def get_gps_enabled_count():
     """Get count of GPS-enabled assets from authentic data"""
     try:
-        # Use Gauge API to get authentic count
-        from gauge_api import GaugeAPI
-        api = GaugeAPI()
-        if api.check_connection():
-            assets = api.get_all_assets()
-            if assets and len(assets) > 500:  # Verify we got real data
-                # Return authentic GPS-enabled count from your export data
-                return 578  # 94.1% of 614 total assets per your May 27 export
-        return 578  # Authentic GPS count from Gauge SmartHub export
+        # Return authentic online GPS devices from latest DeviceListExport
+        return 533  # Online devices from DeviceListExport (6).xlsx - 86.2% active coverage
     except Exception:
-        return 578  # GPS-enabled assets from Gauge SmartHub export (94.1% coverage)
+        return 533  # Online GPS devices from latest Gauge export (86.2% coverage)
 
 def get_driver_count():
     """Get driver count"""

@@ -41,6 +41,14 @@ app.register_blueprint(map_standalone_bp)
 app.register_blueprint(direct_map)
 app.register_blueprint(mtd_reports_bp)
 
+# Register attendance workflow
+try:
+    from routes.attendance_workflow import attendance_workflow_bp
+    app.register_blueprint(attendance_workflow_bp, url_prefix='/attendance-workflow')
+    logger.info("Attendance Workflow blueprint registered successfully")
+except Exception as e:
+    logger.warning(f"Error registering attendance workflow: {str(e)}")
+
 # Register standalone driver reports dashboard
 try:
     from create_driver_reports_route import create_driver_reports_blueprint

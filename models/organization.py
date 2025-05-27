@@ -35,9 +35,8 @@ class Organization(db.Model):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Relationships (removed back_populates to fix mapping errors)
-    # assets = relationship('Asset')  # Commented out until Asset model adds organization_id
-    # drivers = relationship('Driver')  # Commented out until Driver model adds organization_id
+    # Relationships (simplified to fix mapping errors)
+    # Note: Relationships commented out to prevent circular dependency issues
     # job_sites = relationship('JobSite')  # Commented out until JobSite model adds organization_id
     
     def __repr__(self):

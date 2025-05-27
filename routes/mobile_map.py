@@ -68,28 +68,96 @@ def api_gauge_assets():
             'assets': []
         }), 500
 
-@mobile_map_bp.route('/api/asset-status/<asset_id>')
+@mobile_map_bp.route('/mobile-attendance')
 @login_required
-def api_asset_status(asset_id):
-    """Get detailed status for specific asset on mobile"""
+def mobile_attendance():
+    """Clean mobile attendance view for field crews"""
+    return render_template('mobile_attendance.html')
+
+@mobile_map_bp.route('/api/mobile-attendance')
+@login_required
+def api_mobile_attendance():
+    """API endpoint to get clean attendance data for mobile view"""
     try:
-        gauge_api = GaugeAPI()
-        asset_detail = gauge_api.get_asset_details(asset_id)
+        # Import name formatter utilities
+        import sys
+        import os
+        sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+        from utils.name_formatter import clean_driver_name
         
-        if asset_detail:
-            return jsonify({
-                'success': True,
-                'asset': asset_detail
-            })
-        else:
+        # Connect to attendance database to get authentic MTD data
+        import sqlite3
+        db_path = 'attendance_data.db'
+        
+        if not os.path.exists(db_path):
+            logger.warning("Attendance database not found")
             return jsonify({
                 'success': False,
-                'error': 'Asset not found in authentic data'
-            }), 404
+                'error': 'Attendance database not available',
+                'attendance': {}
+            })
+        
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        
+        # Get attendance data from authentic MTD processing
+        cursor.execute("""
+            SELECT driver_name, asset_assignment, date, status, 
+                   start_time, end_time, job_site
+            FROM attendance_records 
+            WHERE date >= date('now', '-7 days')
+            ORDER BY date DESC, driver_name
+        """)
+        
+        rows = cursor.fetchall()
+        conn.close()
+        
+        # Organize by day of week for clean mobile display
+        attendance_by_day = {
+            'monday': [],
+            'tuesday': [],
+            'wednesday': [], 
+            'thursday': [],
+            'friday': []
+        }
+        
+        from datetime import datetime
+        
+        for row in rows:
+            driver_name, asset_assignment, date_str, status, start_time, end_time, job_site = row
             
+            # Parse date and get day of week
+            try:
+                date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+                day_name = date_obj.strftime('%A').lower()
+                
+                if day_name in attendance_by_day:
+                    # Clean up the data for mobile display
+                    clean_record = {
+                        'driver_name': clean_driver_name(driver_name),
+                        'asset_assignment': asset_assignment,
+                        'status': status,
+                        'start_time': start_time,
+                        'end_time': end_time,
+                        'job_site': job_site,
+                        'date': date_str
+                    }
+                    attendance_by_day[day_name].append(clean_record)
+            except:
+                continue
+        
+        logger.info(f"Mobile attendance: Serving authentic MTD data for {len(rows)} records")
+        
+        return jsonify({
+            'success': True,
+            'attendance': attendance_by_day,
+            'source': 'Authentic MTD Processing'
+        })
+        
     except Exception as e:
-        logger.error(f"Mobile asset status error: {e}")
+        logger.error(f"Mobile attendance error: {e}")
         return jsonify({
             'success': False,
-            'error': str(e)
+            'error': f'Error loading authentic attendance data: {str(e)}',
+            'attendance': {}
         }), 500

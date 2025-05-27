@@ -326,7 +326,7 @@ except Exception as e:
 try:
     if not any(bp.name == 'kaizen' for bp in app.blueprints.values()):
         from routes.kaizen import kaizen_bp
-        app.register_blueprint(kaizen_bp)
+        app.register_blueprint(kaizen_bp, url_prefix="/kaizen")
         logger.info("Kaizen blueprint registered successfully")
     else:
         logger.info("Kaizen blueprint already registered")

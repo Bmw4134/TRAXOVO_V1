@@ -12,11 +12,11 @@ from datetime import datetime, timedelta
 kaizen_bp = Blueprint('kaizen', __name__)
 logger = logging.getLogger(__name__)
 
-@kaizen_bp.route('/kaizen')
+@kaizen_bp.route('/')
 def kaizen_dashboard():
     """Main Kaizen dashboard for continuous improvement tracking"""
     try:
-        return render_template('kaizen_dashboard.html')
+        return render_template('kaizen/dashboard.html')
     except Exception as e:
         logger.error(f"Error loading Kaizen dashboard: {e}")
         flash('Error loading Kaizen dashboard', 'error')

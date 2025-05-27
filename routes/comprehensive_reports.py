@@ -405,3 +405,87 @@ def drill_down_api(report_type):
         return jsonify(records)
     
     return jsonify([])
+
+@comprehensive_reports_bp.route('/weekly-report/<week>')
+def weekly_report_detail(week):
+    """Display weekly report detail with your authentic driver data"""
+    try:
+        mtd_data = load_mtd_data()
+        
+        # Parse week parameter (format: 2025-W20)
+        year, week_num = week.split('-W')
+        year = int(year)
+        week_num = int(week_num)
+        
+        # Calculate week start and end dates  
+        from datetime import datetime, timedelta
+        jan_1 = datetime(year, 1, 1)
+        week_start = jan_1 + timedelta(weeks=week_num-1)
+        week_end = week_start + timedelta(days=6)
+        
+        # Generate date range for the week
+        week_dates = []
+        current_date = week_start.date()
+        while current_date <= week_end.date():
+            week_dates.append(current_date.strftime('%Y-%m-%d'))
+            current_date += timedelta(days=1)
+        
+        # Collect records for the week
+        weekly_records = []
+        daily_summaries = {}
+        weekly_stats = {
+            'total_drivers': 0,
+            'on_time': 0,
+            'late_start': 0, 
+            'early_end': 0,
+            'not_on_job': 0
+        }
+        
+        for date in week_dates:
+            if date in mtd_data['daily_records']:
+                daily_records = mtd_data['daily_records'][date]
+                weekly_records.extend(daily_records)
+                
+                # Create daily summary
+                day_stats = {'on_time': 0, 'late_start': 0, 'early_end': 0, 'not_on_job': 0}
+                for record in daily_records:
+                    status = record.get('status', 'Unknown')
+                    if status == 'On Time':
+                        day_stats['on_time'] += 1
+                        weekly_stats['on_time'] += 1
+                    elif status == 'Late Start':
+                        day_stats['late_start'] += 1
+                        weekly_stats['late_start'] += 1
+                    elif status == 'Early End':
+                        day_stats['early_end'] += 1
+                        weekly_stats['early_end'] += 1
+                    else:
+                        day_stats['not_on_job'] += 1
+                        weekly_stats['not_on_job'] += 1
+                
+                daily_summaries[date] = {
+                    'total': len(daily_records),
+                    'stats': day_stats,
+                    'records': daily_records
+                }
+            else:
+                daily_summaries[date] = {
+                    'total': 0,
+                    'stats': {'on_time': 0, 'late_start': 0, 'early_end': 0, 'not_on_job': 0},
+                    'records': []
+                }
+        
+        weekly_stats['total_drivers'] = len(set(record['name'] for record in weekly_records))
+        
+        return render_template('weekly_report_detail.html',
+                             week=week,
+                             week_start=week_start.strftime('%Y-%m-%d'),
+                             week_end=week_end.strftime('%Y-%m-%d'),
+                             weekly_records=weekly_records,
+                             weekly_stats=weekly_stats,
+                             daily_summaries=daily_summaries,
+                             week_dates=week_dates)
+    
+    except Exception as e:
+        logger.error(f"Error generating weekly report: {e}")
+        return f"Error loading weekly report: {str(e)}"

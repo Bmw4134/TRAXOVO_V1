@@ -229,6 +229,7 @@ def create_app():
         ('routes.system_admin', 'system_admin_bp', 'System Admin'),
         ('routes.job_module', 'job_module_bp', 'Job Module'),
         ('routes.may_data_processor', 'may_processor_bp', 'May Data Processor'),
+        ('routes.driver_attendance', 'driver_attendance_bp', 'Driver Attendance'),
     ]
     
     for module_path, blueprint_name, display_name in blueprints:

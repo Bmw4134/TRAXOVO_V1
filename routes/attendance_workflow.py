@@ -43,7 +43,7 @@ def sync_from_gauge():
     try:
         # Test Gauge API connection - your system shows successful authentication
         # Pull latest asset data from your authenticated Gauge API
-        assets_data = gauge_api.get_asset_data()
+        assets_data = gauge_api.get_assets()
         
         if not assets_data:
             return jsonify({

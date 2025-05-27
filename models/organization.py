@@ -35,10 +35,10 @@ class Organization(db.Model):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # GENIUS CORE CONTINUITY MODE relationships
-    assets = relationship('Asset', back_populates='organization')
-    drivers = relationship('Driver', back_populates='organization')
-    job_sites = relationship('JobSite', back_populates='organization')
+    # Relationships (removed back_populates to fix mapping errors)
+    # assets = relationship('Asset')  # Commented out until Asset model adds organization_id
+    # drivers = relationship('Driver')  # Commented out until Driver model adds organization_id
+    # job_sites = relationship('JobSite')  # Commented out until JobSite model adds organization_id
     
     def __repr__(self):
         return f'<Organization {self.name} ({self.code})>'

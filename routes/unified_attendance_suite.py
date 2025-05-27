@@ -279,6 +279,195 @@ def validation_summary_api():
     
     return jsonify({'error': 'No validation results available'})
 
+@unified_attendance_bp.route('/export/<format>')
+def export_results(format):
+    """Export validation results to Excel or PDF"""
+    logger.info(f"Exporting validation results to {format}")
+    
+    try:
+        results_file = os.path.join(get_upload_directory(), 'latest_validation.json')
+        if not os.path.exists(results_file):
+            flash('No validation results to export', 'error')
+            return redirect(url_for('unified_attendance.dashboard'))
+        
+        with open(results_file, 'r') as f:
+            validation_results = json.load(f)
+        
+        if format.lower() == 'excel':
+            return export_to_excel(validation_results)
+        elif format.lower() == 'pdf':
+            return export_to_pdf(validation_results)
+        else:
+            flash('Invalid export format', 'error')
+            return redirect(url_for('unified_attendance.dashboard'))
+            
+    except Exception as e:
+        logger.error(f"Error exporting results: {e}")
+        flash(f'Export error: {str(e)}', 'error')
+        return redirect(url_for('unified_attendance.dashboard'))
+
+def export_to_excel(validation_results):
+    """Export validation results to Excel format"""
+    import tempfile
+    from flask import send_file
+    
+    try:
+        # Create temporary file
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx')
+        
+        # Create Excel workbook with multiple sheets
+        with pd.ExcelWriter(temp_file.name, engine='openpyxl') as writer:
+            # Summary sheet
+            summary_data = {
+                'Metric': ['Total Drivers', 'Valid Matches', 'Discrepancies', 'Coverage %'],
+                'Value': [
+                    validation_results['summary']['total_drivers'],
+                    validation_results['valid_matches'],
+                    validation_results['summary']['discrepancies'],
+                    f"{validation_results['summary']['coverage_percentage']:.1f}%"
+                ]
+            }
+            pd.DataFrame(summary_data).to_excel(writer, sheet_name='Summary', index=False)
+            
+            # Timecard but no GPS sheet
+            if validation_results['timecard_no_gps']:
+                timecard_df = pd.DataFrame(validation_results['timecard_no_gps'])
+                timecard_df.to_excel(writer, sheet_name='Timecard_No_GPS', index=False)
+            
+            # GPS but no timecard sheet
+            if validation_results['gps_no_timecard']:
+                gps_df = pd.DataFrame(validation_results['gps_no_timecard'])
+                gps_df.to_excel(writer, sheet_name='GPS_No_Timecard', index=False)
+        
+        return send_file(temp_file.name, 
+                        as_attachment=True,
+                        download_name=f'attendance_validation_{datetime.now().strftime("%Y%m%d")}.xlsx',
+                        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        
+    except Exception as e:
+        logger.error(f"Error creating Excel export: {e}")
+        raise
+
+def export_to_pdf(validation_results):
+    """Export validation results to PDF format"""
+    import tempfile
+    from flask import send_file
+    from reportlab.lib.pagesizes import letter
+    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+    from reportlab.lib.styles import getSampleStyleSheet
+    from reportlab.lib import colors
+    
+    try:
+        # Create temporary file
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
+        
+        # Create PDF document
+        doc = SimpleDocTemplate(temp_file.name, pagesize=letter)
+        elements = []
+        styles = getSampleStyleSheet()
+        
+        # Title
+        title = Paragraph("TRAXORA Attendance Validation Report", styles['Title'])
+        elements.append(title)
+        elements.append(Spacer(1, 12))
+        
+        # Summary table
+        summary_data = [
+            ['Metric', 'Value'],
+            ['Total Drivers', str(validation_results['summary']['total_drivers'])],
+            ['Valid Matches', str(validation_results['valid_matches'])],
+            ['Discrepancies', str(validation_results['summary']['discrepancies'])],
+            ['Coverage %', f"{validation_results['summary']['coverage_percentage']:.1f}%"]
+        ]
+        
+        summary_table = Table(summary_data)
+        summary_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 14),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ]))
+        
+        elements.append(summary_table)
+        elements.append(Spacer(1, 12))
+        
+        # Build PDF
+        doc.build(elements)
+        
+        return send_file(temp_file.name,
+                        as_attachment=True,
+                        download_name=f'attendance_validation_{datetime.now().strftime("%Y%m%d")}.pdf',
+                        mimetype='application/pdf')
+        
+    except Exception as e:
+        logger.error(f"Error creating PDF export: {e}")
+        raise
+
+@unified_attendance_bp.route('/process-daily-reports')
+def process_daily_reports():
+    """Process PM assignments from DAILY LATE START-EARLY END files"""
+    logger.info("Processing daily reports for PM assignments")
+    
+    try:
+        # Look for DAILY LATE START-EARLY END files in attached_assets
+        daily_files = []
+        assets_dir = os.path.join(os.getcwd(), 'attached_assets')
+        
+        if os.path.exists(assets_dir):
+            for file in os.listdir(assets_dir):
+                if 'DAILY LATE START-EARLY END' in file and file.endswith('.xlsx'):
+                    daily_files.append(os.path.join(assets_dir, file))
+        
+        if not daily_files:
+            flash('No DAILY LATE START-EARLY END files found', 'warning')
+            return redirect(url_for('unified_attendance.dashboard'))
+        
+        # Process the most recent file
+        latest_file = max(daily_files, key=os.path.getctime)
+        pm_assignments = process_pm_assignments(latest_file)
+        
+        flash(f'Processed PM assignments from {os.path.basename(latest_file)}', 'success')
+        return jsonify(pm_assignments)
+        
+    except Exception as e:
+        logger.error(f"Error processing daily reports: {e}")
+        flash(f'Error processing daily reports: {str(e)}', 'error')
+        return redirect(url_for('unified_attendance.dashboard'))
+
+def process_pm_assignments(file_path):
+    """Extract PM assignments from daily report file"""
+    try:
+        df = pd.read_excel(file_path)
+        
+        pm_assignments = {}
+        for _, row in df.iterrows():
+            driver = str(row.get('Driver', '')).strip()
+            pm = str(row.get('PM', '') or row.get('Project Manager', '')).strip()
+            job = str(row.get('Job', '') or row.get('Job Number', '')).strip()
+            
+            if driver and driver != 'nan':
+                pm_assignments[driver] = {
+                    'pm': pm,
+                    'job': job,
+                    'status': row.get('Status', ''),
+                    'notes': row.get('Notes', '')
+                }
+        
+        # Save PM assignments
+        pm_file = os.path.join(get_upload_directory(), 'pm_assignments.json')
+        with open(pm_file, 'w') as f:
+            json.dump(pm_assignments, f, indent=2)
+        
+        return pm_assignments
+        
+    except Exception as e:
+        logger.error(f"Error processing PM assignments: {e}")
+        return {}
+
 # Register blueprint info
 BLUEPRINT_INFO = {
     'name': 'Unified Attendance Suite',

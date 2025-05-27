@@ -20,6 +20,21 @@
             <a href="{{ url_for('unified_attendance.job_zones') }}" class="btn btn-outline-primary me-2">
                 <i class="fas fa-map-marker-alt me-1"></i>Job Zones
             </a>
+            {% if validation_results %}
+            <div class="btn-group me-2">
+                <button type="button" class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="fas fa-download me-1"></i>Export
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="{{ url_for('unified_attendance.export_results', format='excel') }}">
+                        <i class="fas fa-file-excel me-1"></i>Excel Report
+                    </a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('unified_attendance.export_results', format='pdf') }}">
+                        <i class="fas fa-file-pdf me-1"></i>PDF Report
+                    </a></li>
+                </ul>
+            </div>
+            {% endif %}
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadModal">
                 <i class="fas fa-upload me-2"></i>Upload Data
             </button>

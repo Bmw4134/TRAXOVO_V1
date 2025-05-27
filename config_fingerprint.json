@@ -20,6 +20,11 @@
         {"route": "/system-admin", "status": "working", "description": "User management"},
         {"route": "/jobs", "status": "working", "description": "Job site operations"}
       ],
+      "driver_attendance": [
+        {"route": "/driver-attendance", "status": "working", "description": "Weekly attendance calendar view"},
+        {"route": "/driver-attendance/upload", "status": "working", "description": "File upload for attendance data"},
+        {"route": "/driver-attendance/api/daily/<date>", "status": "working", "description": "Daily attendance API endpoint"}
+      ],
       "reporting": [
         {"route": "/reports-dashboard", "status": "working", "description": "Comprehensive reports"},
         {"route": "/enhanced-weekly-report/", "status": "working", "description": "Advanced analytics"},

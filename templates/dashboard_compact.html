@@ -4,75 +4,87 @@
 
 {% block head %}
 <style>
-/* Compact Dashboard Layout - Above the Fold Priority */
+/* Mobile-First Compact Layout - Critical Content Above Fold */
 .compact-layout {
-    padding: 8px 15px;
+    padding: 4px 8px;
     max-height: 100vh;
     overflow-y: auto;
 }
 
 .status-bar {
     background: #374151;
-    border-radius: 6px;
-    padding: 8px 16px;
-    margin-bottom: 12px;
-    font-size: 0.9rem;
+    border-radius: 4px;
+    padding: 6px 12px;
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+    color: #FFFFFF; /* High contrast white text */
 }
 
 .metrics-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-    margin-bottom: 15px;
+    gap: 6px;
+    margin-bottom: 8px;
 }
 
 .metric-card {
     background: #1F2937;
-    border-radius: 6px;
-    padding: 12px;
+    border-radius: 4px;
+    padding: 8px 4px;
     text-align: center;
+    border: 1px solid #374151;
 }
 
 .metric-value {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     font-weight: bold;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
+    color: #FFFFFF; /* High contrast for numbers */
 }
 
 .metric-label {
-    font-size: 0.75rem;
-    color: #9CA3AF;
+    font-size: 0.7rem;
+    color: #E5E7EB; /* Improved contrast from #9CA3AF */
+    line-height: 1.1;
 }
 
 .quick-access {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    margin-bottom: 15px;
+    gap: 6px;
+    margin-bottom: 8px;
 }
 
 .action-btn {
-    padding: 12px 8px;
+    padding: 8px 4px;
     background: linear-gradient(135deg, #3B82F6, #1D4ED8);
     border: none;
-    border-radius: 6px;
+    border-radius: 4px;
     color: white;
     text-decoration: none;
     display: flex;
     flex-direction: column;
     align-items: center;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     transition: transform 0.2s;
+    min-height: 70px;
 }
 
 .action-btn:hover {
-    transform: translateY(-2px);
+    transform: translateY(-1px);
     color: white;
 }
 
 .action-btn i {
-    font-size: 1.2rem;
-    margin-bottom: 6px;
+    font-size: 1.1rem;
+    margin-bottom: 4px;
+}
+
+.action-btn small {
+    font-size: 0.65rem;
+    line-height: 1.1;
+    text-align: center;
+    margin-top: 2px;
 }
 
 .system-health {
@@ -131,18 +143,76 @@
     font-size: 0.8rem;
 }
 
-/* Responsive adjustments */
-@media (max-width: 1200px) {
-    .metrics-grid, .quick-access {
+/* Mobile-First Responsive Design */
+@media (max-width: 768px) {
+    .compact-layout {
+        padding: 2px 6px;
+    }
+    
+    .metrics-grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: 4px;
+        margin-bottom: 6px;
+    }
+    
+    .metric-card {
+        padding: 6px 2px;
+    }
+    
+    .metric-value {
+        font-size: 1rem;
+        margin-bottom: 1px;
+    }
+    
+    .metric-label {
+        font-size: 0.6rem;
+    }
+    
+    .quick-access {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 4px;
+        margin-bottom: 6px;
+    }
+    
+    .action-btn {
+        padding: 6px 2px;
+        font-size: 0.7rem;
+        min-height: 60px;
+    }
+    
+    .action-btn i {
+        font-size: 1rem;
+        margin-bottom: 2px;
+    }
+    
+    .action-btn small {
+        font-size: 0.6rem;
+        display: none; /* Hide descriptions on mobile */
+    }
+    
+    .system-health {
+        grid-template-columns: 1fr;
+        gap: 6px;
+        margin-bottom: 10px;
+    }
+    
+    .health-panel {
+        padding: 8px;
+    }
+    
+    .status-bar {
+        padding: 4px 8px;
+        margin-bottom: 6px;
+        font-size: 0.8rem;
+    }
+    
+    .additional-modules {
+        padding: 8px;
     }
 }
 
-@media (max-width: 768px) {
-    .metrics-grid, .quick-access, .module-grid {
-        grid-template-columns: 1fr;
-    }
-    .system-health {
+@media (max-width: 480px) {
+    .metrics-grid, .quick-access {
         grid-template-columns: 1fr;
     }
 }
@@ -195,7 +265,7 @@
             <span>Daily Driver Report</span>
             <small>View attendance reports for today, last 7-30 days classifications</small>
         </a>
-        <a href="/enhanced-weekly-report" class="action-btn" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
+        <a href="/weekly-driver-report" class="action-btn" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
             <i class="fas fa-calendar-week"></i>
             <span>Weekly Driver Report</span>
             <small>Enhanced weekly reports showing all attendance patterns and classifications</small>

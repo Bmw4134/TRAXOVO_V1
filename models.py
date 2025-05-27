@@ -147,7 +147,7 @@ class Asset(db.Model):
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     
-    organization = relationship('Organization', back_populates='assets')
+    # organization = relationship('Organization', back_populates='assets')  # Temporarily disabled to fix mapping conflict
     drivers = relationship('Driver', secondary=driver_asset_association, back_populates='assets')
     locations = relationship('AssetLocation', back_populates='asset')
     

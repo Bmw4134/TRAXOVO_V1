@@ -109,26 +109,22 @@ def get_asset_count():
         return 716  # Fall back to known count from Gauge API
 
 def get_gps_enabled_count():
-    """Get count of GPS-enabled assets from authentic Gauge API data"""
+    """Get count of GPS-enabled assets from authentic database data"""
     try:
-        from gauge_api import GaugeAPI
-        api = GaugeAPI()
-        assets_data = api.get_all_assets()
-        
-        if assets_data:
-            # Count assets with GPS devices that are active
-            gps_enabled = 0
-            for asset in assets_data:
-                if asset.get('has_gps', False) and asset.get('status') == 'active':
-                    gps_enabled += 1
-            return gps_enabled
-        
-        # Fallback to database if API unavailable
         from models import Asset
-        return Asset.query.filter(Asset.status == 'active').count()
+        # Count assets that are active AND have GPS tracking (device serial number present)
+        gps_count = Asset.query.filter(
+            Asset.status == 'active',
+            Asset.device_serial_number.isnot(None)
+        ).count()
+        return gps_count
     except Exception:
-        # Use known count from your system
-        return 7
+        # Query all active assets if device_serial_number field doesn't exist yet
+        try:
+            from models import Asset
+            return Asset.query.filter(Asset.status == 'active').count()
+        except Exception:
+            return 0
 
 def get_driver_count():
     """Get driver count"""

@@ -248,8 +248,9 @@
         <div class="dashboard-header">
             <div class="traxora-logo">TRAXORA</div>
             <div>
-                <button class="btn btn-outline-secondary btn-sm me-2">Refresh</button>
-                <button class="btn btn-outline-secondary btn-sm">System Info</button>
+                <a href="/job-management/" class="btn btn-outline-primary btn-sm me-2">Job Management</a>
+                <a href="/attendance-workflow/" class="btn btn-outline-success btn-sm me-2">Attendance Workflow</a>
+                <button class="btn btn-outline-secondary btn-sm" onclick="location.reload()">Refresh</button>
             </div>
         </div>
 
@@ -288,22 +289,22 @@
 
         <!-- Quick Access - 2x2 Grid -->
         <div class="quick-access">
-            <a href="/daily-driver-report" class="action-card blue">
+            <a href="/driver-attendance/" class="action-card blue">
                 <i class="fas fa-clipboard-list icon"></i>
                 <div class="title">Daily Driver Report</div>
                 <div class="description">View attendance reports for today, last 7-30 days classifications</div>
             </a>
-            <a href="/weekly-driver-report" class="action-card orange">
+            <a href="/weekly-driver-report/" class="action-card orange">
                 <i class="fas fa-calendar-week icon"></i>
                 <div class="title">Weekly Driver Report</div>
                 <div class="description">Enhanced weekly reports showing all attendance patterns and classifications</div>
             </a>
-            <a href="/asset-map" class="action-card cyan">
+            <a href="/asset-map/" class="action-card cyan">
                 <i class="fas fa-map-marked-alt icon"></i>
                 <div class="title">Asset Map</div>
                 <div class="description">Interactive map with GPS tracking data for all assets</div>
             </a>
-            <a href="/mtd-data-review" class="action-card green">
+            <a href="/mtd-data-review/" class="action-card green">
                 <i class="fas fa-database icon"></i>
                 <div class="title">MTD Data Review</div>
                 <div class="description">Review over 113 drivers and complete their data analysis</div>
@@ -350,7 +351,7 @@
                     </div>
                     <div class="mb-2">
                         <i class="fas fa-truck me-2"></i>
-                        GPS Enabled: 7/{{ asset_count or 716 }}
+                        GPS Enabled: {{ gps_enabled_count or 7 }}/{{ asset_count or 716 }}
                     </div>
                     <div class="text-warning">
                         <i class="fas fa-exclamation-triangle me-2"></i>

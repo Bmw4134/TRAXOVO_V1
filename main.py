@@ -1,7 +1,7 @@
 """
-TRAXORA Fleet Management System - Main Application
+TRAXOVO Fleet Management System - Main Application
 
-This module provides the main entry point for the TRAXORA fleet management system.
+This module provides the main entry point for the TRAXOVO fleet management system.
 """
 import os
 import logging
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 # Setup runtime mode indicator
 runtime_mode = os.environ.get('RUNTIME_MODE', 'DEVELOPMENT').upper()
-logger.info(f"TRAXORA running in {runtime_mode} mode")
+logger.info(f"TRAXOVO running in {runtime_mode} mode")
 
 # Load jobsite catalog
 try:

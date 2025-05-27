@@ -39,11 +39,10 @@ class Driver(db.Model):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Define relationships
-    organization = relationship('Organization', back_populates='drivers')
-    job_site = relationship('JobSite', back_populates='drivers')
-    reports = relationship('DriverReport', back_populates='driver')
-    assigned_assets = relationship('Asset', back_populates='current_driver')
+    # Define relationships (simplified to fix mapping errors)
+    job_site = relationship('JobSite')
+    reports = relationship('DriverReport')
+    assigned_assets = relationship('Asset')
     
     def __repr__(self):
         return f'<Driver {self.name}>'

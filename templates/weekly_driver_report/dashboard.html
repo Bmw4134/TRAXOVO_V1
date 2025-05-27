@@ -23,8 +23,8 @@
 <!-- Current Week Card -->
 <div class="row mb-4">
     <div class="col-12">
-        <div class="card bg-dark border-0 shadow-sm">
-            <div class="card-header bg-dark d-flex justify-content-between align-items-center">
+        <div class="card traxovo-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0">Current Week: {{ start_formatted }} - {{ end_formatted }}</h5>
                 {% if report_exists %}
                 <a href="{{ url_for('weekly_driver_report.view_report', start_date=start_date, end_date=end_date) }}" class="btn btn-sm btn-success">
@@ -73,14 +73,14 @@
 <!-- Available Reports Section -->
 <div class="row mb-4">
     <div class="col-12">
-        <div class="card bg-dark border-0 shadow-sm">
-            <div class="card-header bg-dark">
+        <div class="card traxovo-card">
+            <div class="card-header">
                 <h5 class="card-title mb-0">Available Weekly Reports</h5>
             </div>
             <div class="card-body p-0">
                 {% if available_weeks %}
                 <div class="table-responsive">
-                    <table class="table table-dark table-hover mb-0">
+                    <table class="table table-hover mb-0">
                         <thead>
                             <tr>
                                 <th>Week</th>

@@ -14,7 +14,7 @@ import pandas as pd
 driver_attendance_bp = Blueprint('driver_attendance', __name__)
 logger = logging.getLogger(__name__)
 
-@driver_attendance_bp.route('/driver-attendance')
+@driver_attendance_bp.route('/')
 def driver_attendance_dashboard():
     """Driver attendance calendar view with daily tracking"""
     try:

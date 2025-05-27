@@ -448,10 +448,18 @@ try:
 except ImportError as e:
     logger.warning(f"Job Site Manager module not found: {e}")
 
+# Register Driver Attendance Blueprint
+try:
+    from routes.driver_attendance import driver_attendance_bp
+    app.register_blueprint(driver_attendance_bp, url_prefix='/driver-attendance')
+    logger.info("Driver Attendance Dashboard registered successfully")
+except ImportError as e:
+    logger.warning(f"Driver Attendance module not found: {e}")
+
 # Register MTD Data Review Dashboard
 try:
-    from routes.mtd_data_review import mtd_review_bp
-    app.register_blueprint(mtd_review_bp)
+    from routes.mtd_data_review import mtd_data_review_bp
+    app.register_blueprint(mtd_data_review_bp, url_prefix='/mtd-data-review')
     logger.info("MTD Data Review Dashboard registered successfully")
 except ImportError as e:
     logger.warning(f"MTD Data Review module not found: {e}")

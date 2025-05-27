@@ -14,9 +14,9 @@ from utils.monthly_report_generator import extract_all_drivers_from_mtd
 
 logger = logging.getLogger(__name__)
 
-mtd_review_bp = Blueprint('mtd_review', __name__, url_prefix='/mtd-review')
+mtd_data_review_bp = Blueprint('mtd_data_review', __name__)
 
-@mtd_review_bp.route('/')
+@mtd_data_review_bp.route('/')
 def dashboard():
     """Complete MTD Data Review Dashboard"""
     
@@ -104,7 +104,7 @@ def dashboard():
         logger.error(f"Error in MTD review dashboard: {e}")
         return f"Error loading MTD review: {e}"
 
-@mtd_review_bp.route('/api/driver-details/<driver_name>')
+@mtd_data_review_bp.route('/api/driver-details/<driver_name>')
 def driver_details(driver_name):
     """Get detailed activity for a specific driver"""
     
@@ -134,7 +134,7 @@ def driver_details(driver_name):
     except Exception as e:
         return jsonify({'error': str(e)})
 
-@mtd_review_bp.route('/api/date-analysis/<date>')
+@mtd_data_review_bp.route('/api/date-analysis/<date>')
 def date_analysis(date):
     """Get detailed analysis for a specific date"""
     

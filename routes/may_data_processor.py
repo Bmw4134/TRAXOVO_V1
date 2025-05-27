@@ -103,11 +103,44 @@ def process_file_for_may(file_path, date_range):
         }
 
 def process_csv_for_may(file_path, date_range):
-    """Process CSV files for May data extraction"""
+    """Process CSV files for May data extraction with robust parsing"""
     try:
-        df = pd.read_csv(file_path)
+        # Try multiple parsing strategies for real fleet data
+        df = None
         
-        # Extract relevant columns based on your data structure
+        # Strategy 1: Read with flexible field detection
+        try:
+            df = pd.read_csv(file_path, sep=',', on_bad_lines='skip', encoding='utf-8')
+        except:
+            # Strategy 2: Try with different separator
+            try:
+                df = pd.read_csv(file_path, sep=';', on_bad_lines='skip', encoding='utf-8')
+            except:
+                # Strategy 3: Read as raw text and parse manually
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    lines = f.readlines()
+                
+                # Find the most common field count
+                field_counts = {}
+                for line in lines[1:10]:  # Check first 10 data lines
+                    count = len(line.split(','))
+                    field_counts[count] = field_counts.get(count, 0) + 1
+                
+                expected_fields = max(field_counts, key=field_counts.get)
+                
+                # Read with the expected field count
+                df = pd.read_csv(file_path, sep=',', on_bad_lines='skip', 
+                               names=range(expected_fields), header=0)
+        
+        if df is None or df.empty:
+            return {
+                'success': False,
+                'message': 'Could not parse CSV file - no valid data found'
+            }
+        
+        logger.info(f"Successfully parsed CSV with {len(df)} rows and {len(df.columns)} columns")
+        
+        # Extract relevant data for May 23-27
         may_data = extract_may_driver_data(df, date_range)
         
         # Save processed data
@@ -117,7 +150,12 @@ def process_csv_for_may(file_path, date_range):
             'success': True,
             'records_found': len(may_data),
             'output_path': str(output_path),
-            'data_preview': may_data[:5] if may_data else []
+            'data_preview': may_data[:5] if may_data else [],
+            'file_info': {
+                'rows': len(df),
+                'columns': len(df.columns),
+                'filename': file_path.name
+            }
         }
         
     except Exception as e:

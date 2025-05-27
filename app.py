@@ -238,9 +238,13 @@ def create_app():
             if not any(bp.name == blueprint_name.replace('_bp', '') for bp in app.blueprints.values()):
                 module = __import__(module_path, fromlist=[blueprint_name])
                 blueprint = getattr(module, blueprint_name)
-                # Add URL prefix for attendance workflow
+                # Add URL prefix for specific blueprints
                 if blueprint_name == 'attendance_workflow_bp':
                     app.register_blueprint(blueprint, url_prefix='/attendance-workflow')
+                elif blueprint_name == 'database_explorer_bp':
+                    app.register_blueprint(blueprint, url_prefix='/database-explorer')
+                elif blueprint_name == 'secrets_manager_bp':
+                    app.register_blueprint(blueprint, url_prefix='/secrets-manager')
                 else:
                     app.register_blueprint(blueprint)
                 logger.info(f"{display_name} blueprint registered successfully")

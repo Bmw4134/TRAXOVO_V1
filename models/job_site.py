@@ -51,11 +51,7 @@ class JobSite(db.Model):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Relationships
-    organization = relationship('Organization', back_populates='job_sites')
-    drivers = relationship('Driver', back_populates='job_site')
-    asset_locations = relationship('AssetLocation', back_populates='job_site')
-    assets = relationship('Asset', secondary=asset_jobsite_association)
+    # Relationships temporarily removed to fix login blocking issue
     # job_zones relationship is maintained in the JobZone model
     
     def __repr__(self):

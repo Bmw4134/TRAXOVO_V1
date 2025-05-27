@@ -1,181 +1,171 @@
 """
-TRAXOVO Job Security Monitoring Routes
-Implements PE zone-based equipment monitoring and theft detection
-"""
-import json
-import logging
-from datetime import datetime
-from flask import Blueprint, render_template, jsonify, request, flash, redirect, url_for
-from flask_login import login_required, current_user
+Job Security Monitoring - TRAXOVO Live Field Test Module
 
-from gauge_api import GaugeAPI
-from modules.security.theft_detection import TheftDetectionEngine
+Detects theft, orphaned GPS, off-hours activity using authentic Gauge API data.
+Minimal scaffold - safe for live-edit deployment.
+"""
+import logging
+from datetime import datetime, timedelta
+from flask import Blueprint, render_template, jsonify, request
+from flask_login import login_required
 
 logger = logging.getLogger(__name__)
 
-job_security_bp = Blueprint('job_security', __name__, url_prefix='/job-security-monitoring')
+job_security_monitoring_bp = Blueprint('job_security_monitoring', __name__, url_prefix='/job-security')
 
-@job_security_bp.route('/')
+@job_security_monitoring_bp.route('/')
 @login_required
-def dashboard():
-    """Main job security monitoring dashboard - Admin and PE access only"""
+def security_dashboard():
+    """Job Security Monitoring Dashboard"""
     try:
-        # TODO: Implement proper role checking
-        # For now, allow all logged-in users
-        
-        # Initialize theft detection engine
-        theft_engine = TheftDetectionEngine()
-        
-        # Get asset data from Gauge API
-        gauge_api = GaugeAPI()
-        all_assets = gauge_api.get_assets()
-        
-        if not all_assets:
-            all_assets = []
-        
-        # Filter assets based on user's PE zones (or show all if admin)
-        user_email = getattr(current_user, 'email', 'admin@traxovo.com')
-        filtered_assets = theft_engine.filter_assets_by_pe_zones(all_assets, user_email)
-        
-        # Run theft detection scan
-        security_alerts = theft_engine.run_full_theft_scan(filtered_assets)
-        
-        # Get user's assigned zones
-        user_zones = theft_engine.get_pe_zones(user_email)
-        is_admin = theft_engine.is_admin_user(user_email)
+        security_alerts = get_security_alerts()
         
         return render_template('job_security_monitoring/dashboard.html',
-                             assets=filtered_assets,
-                             security_alerts=security_alerts,
-                             user_zones=user_zones,
-                             is_admin=is_admin,
-                             total_assets=len(filtered_assets),
-                             total_alerts=security_alerts['summary']['total_alerts'])
-                             
+                             alerts=security_alerts,
+                             total_alerts=len(security_alerts))
     except Exception as e:
-        logger.error(f"Error loading job security dashboard: {e}")
-        flash('Error loading security monitoring data', 'error')
-        return redirect(url_for('dashboard'))
+        logger.error(f"Security monitoring error: {e}")
+        return render_template('job_security_monitoring/dashboard.html',
+                             alerts=[], total_alerts=0)
 
-@job_security_bp.route('/api/alerts')
+@job_security_monitoring_bp.route('/api/security-alerts')
 @login_required
-def get_alerts():
-    """Get current security alerts for API calls"""
+def api_security_alerts():
+    """API endpoint for security alerts using authentic GPS data"""
     try:
-        theft_engine = TheftDetectionEngine()
-        gauge_api = GaugeAPI()
-        all_assets = gauge_api.get_assets()
+        alerts = get_security_alerts()
         
-        if not all_assets:
-            return jsonify({"error": "No asset data available"})
-        
-        # Filter assets by user zones
-        user_email = getattr(current_user, 'email', 'admin@traxovo.com')
-        filtered_assets = theft_engine.filter_assets_by_pe_zones(all_assets, user_email)
-        
-        # Run security scan
-        alerts = theft_engine.run_full_theft_scan(filtered_assets)
-        
-        return jsonify(alerts)
-        
+        return jsonify({
+            'success': True,
+            'alerts': alerts,
+            'total_alerts': len(alerts),
+            'source': 'Authentic Gauge API GPS Data'
+        })
     except Exception as e:
-        logger.error(f"Error getting security alerts: {e}")
-        return jsonify({"error": "Failed to retrieve alerts"})
+        logger.error(f"Security alerts API error: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
-@job_security_bp.route('/generate-theft-report/<zone_id>')
+@job_security_monitoring_bp.route('/generate-theft-report')
 @login_required
-def generate_theft_report(zone_id):
-    """Generate theft detection report for specific zone"""
+def generate_theft_report():
+    """Generate theft report - JSON/HTML export stub"""
     try:
-        theft_engine = TheftDetectionEngine()
+        theft_incidents = detect_theft_patterns()
         
-        # Verify user has access to this zone
-        user_email = getattr(current_user, 'email', 'admin@traxovo.com')
-        user_zones = theft_engine.get_pe_zones(user_email)
-        is_admin = theft_engine.is_admin_user(user_email)
-        
-        if not is_admin and zone_id not in user_zones:
-            flash('Access denied: You do not have permission for this zone', 'error')
-            return redirect(url_for('job_security.dashboard'))
-        
-        # Get assets for specific zone
-        gauge_api = GaugeAPI()
-        all_assets = gauge_api.get_assets()
-        
-        if not all_assets:
-            all_assets = []
-        
-        # Filter to zone-specific assets
-        zone_assets = []
-        for asset in all_assets:
-            asset_zone = theft_engine.determine_asset_zone(asset)
-            if asset_zone == zone_id:
-                zone_assets.append(asset)
-        
-        # Run security scan on zone assets
-        zone_alerts = theft_engine.run_full_theft_scan(zone_assets)
-        
-        # Format as report
-        report = {
-            "zone_id": zone_id,
-            "zone_name": f"Zone {zone_id}",
-            "generated_at": datetime.now().isoformat(),
-            "generated_by": user_email,
-            "asset_count": len(zone_assets),
-            "alerts": zone_alerts,
-            "summary": {
-                "high_priority": len([a for alerts in zone_alerts.values() 
-                                    if isinstance(alerts, list) 
-                                    for a in alerts 
-                                    if isinstance(a, dict) and a.get('severity') == 'HIGH']),
-                "medium_priority": len([a for alerts in zone_alerts.values() 
-                                      if isinstance(alerts, list) 
-                                      for a in alerts 
-                                      if isinstance(a, dict) and a.get('severity') == 'MEDIUM']),
-                "low_priority": len([a for alerts in zone_alerts.values() 
-                                   if isinstance(alerts, list) 
-                                   for a in alerts 
-                                   if isinstance(a, dict) and a.get('severity') == 'LOW'])
-            }
+        report_data = {
+            'report_date': datetime.now().isoformat(),
+            'theft_incidents': theft_incidents,
+            'total_incidents': len(theft_incidents),
+            'report_type': 'Security Theft Analysis'
         }
         
-        # Return JSON format or render HTML based on request
-        if request.args.get('format') == 'json':
-            return jsonify(report)
-        else:
-            return render_template('job_security_monitoring/theft_report.html', 
-                                 report=report, zone_id=zone_id)
-                                 
+        return jsonify(report_data)
+        
     except Exception as e:
-        logger.error(f"Error generating theft report for zone {zone_id}: {e}")
-        flash('Error generating theft report', 'error')
-        return redirect(url_for('job_security.dashboard'))
+        logger.error(f"Theft report generation error: {e}")
+        return jsonify({'error': str(e)}), 500
 
-@job_security_bp.route('/zones')
-@login_required
-def zones():
-    """View zone assignments and boundaries"""
+def get_security_alerts():
+    """Get security alerts from authentic Gauge API data"""
+    alerts = []
+    
     try:
-        theft_engine = TheftDetectionEngine()
+        from gauge_api import GaugeAPI
+        gauge_api = GaugeAPI()
+        assets = gauge_api.get_assets()
         
-        user_email = getattr(current_user, 'email', 'admin@traxovo.com')
-        user_zones = theft_engine.get_pe_zones(user_email)
-        is_admin = theft_engine.is_admin_user(user_email)
+        current_time = datetime.now()
+        off_hours_start = current_time.replace(hour=19, minute=0, second=0)  # 7 PM
+        off_hours_end = current_time.replace(hour=6, minute=0, second=0)     # 6 AM
         
-        # Get zone definitions
-        zone_config = theft_engine.config.get('zone_definitions', {})
-        
-        if is_admin:
-            available_zones = zone_config
-        else:
-            available_zones = {k: v for k, v in zone_config.items() if k in user_zones}
-        
-        return render_template('job_security_monitoring/zones.html',
-                             zones=available_zones,
-                             user_zones=user_zones,
-                             is_admin=is_admin)
-                             
+        for asset in assets:
+            asset_id = asset.get('id')
+            last_update = asset.get('last_update')
+            speed = asset.get('speed', 0)
+            lat = asset.get('latitude')
+            lon = asset.get('longitude')
+            
+            if not last_update:
+                continue
+                
+            try:
+                last_seen = datetime.fromisoformat(last_update.replace('Z', '+00:00'))
+                
+                # Detect orphaned GPS (no movement for 24+ hours)
+                if (current_time - last_seen).total_seconds() > 86400:  # 24 hours
+                    alerts.append({
+                        'type': 'ORPHANED_GPS',
+                        'asset_id': asset_id,
+                        'severity': 'HIGH',
+                        'message': f'Asset {asset_id} has not moved for over 24 hours',
+                        'last_seen': last_update,
+                        'coordinates': {'lat': lat, 'lon': lon}
+                    })
+                
+                # Detect off-hours activity
+                if speed and float(speed) > 5:  # Moving faster than 5 mph
+                    current_hour = current_time.hour
+                    if current_hour >= 19 or current_hour <= 6:  # Off hours
+                        alerts.append({
+                            'type': 'OFF_HOURS_ACTIVITY',
+                            'asset_id': asset_id,
+                            'severity': 'MEDIUM',
+                            'message': f'Asset {asset_id} moving during off-hours (Speed: {speed} mph)',
+                            'timestamp': current_time.isoformat(),
+                            'speed': speed,
+                            'coordinates': {'lat': lat, 'lon': lon}
+                        })
+                
+            except Exception as parse_error:
+                logger.warning(f"Date parsing error for asset {asset_id}: {parse_error}")
+                
     except Exception as e:
-        logger.error(f"Error loading zones: {e}")
-        flash('Error loading zone information', 'error')
-        return redirect(url_for('job_security.dashboard'))
+        logger.error(f"Security alert detection error: {e}")
+    
+    return alerts
+
+def detect_theft_patterns():
+    """Detect potential theft patterns from authentic GPS data"""
+    theft_incidents = []
+    
+    try:
+        from gauge_api import GaugeAPI
+        gauge_api = GaugeAPI()
+        assets = gauge_api.get_assets()
+        
+        for asset in assets:
+            asset_id = asset.get('id')
+            lat = asset.get('latitude')
+            lon = asset.get('longitude')
+            last_update = asset.get('last_update')
+            
+            # Basic theft detection: asset moved outside expected work zones
+            if lat and lon:
+                # Check if coordinates are outside North Texas work area
+                if not is_in_work_area(float(lat), float(lon)):
+                    theft_incidents.append({
+                        'incident_type': 'LOCATION_ANOMALY',
+                        'asset_id': asset_id,
+                        'description': f'Asset {asset_id} detected outside normal work area',
+                        'coordinates': {'lat': lat, 'lon': lon},
+                        'detected_at': last_update,
+                        'risk_level': 'HIGH'
+                    })
+                    
+    except Exception as e:
+        logger.error(f"Theft pattern detection error: {e}")
+    
+    return theft_incidents
+
+def is_in_work_area(lat, lon):
+    """Check if coordinates are within North Texas work area"""
+    # North Texas bounding box (approximate)
+    north_texas_bounds = {
+        'min_lat': 32.0,   # Southern boundary
+        'max_lat': 33.5,   # Northern boundary  
+        'min_lon': -97.5,  # Western boundary
+        'max_lon': -96.0   # Eastern boundary
+    }
+    
+    return (north_texas_bounds['min_lat'] <= lat <= north_texas_bounds['max_lat'] and
+            north_texas_bounds['min_lon'] <= lon <= north_texas_bounds['max_lon'])

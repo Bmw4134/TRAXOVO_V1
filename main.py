@@ -47,6 +47,8 @@ try:
     from routes.construction_zone_manager import construction_zones_bp
     from routes.zone_schedule_manager import zone_schedule_bp
     from routes.mobile_map import mobile_map_bp
+    from routes.pe_zone_filter import pe_zone_filter_bp
+    from routes.job_security_monitoring import job_security_monitoring_bp
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(secure_attendance_bp)
@@ -54,6 +56,8 @@ try:
     app.register_blueprint(construction_zones_bp)
     app.register_blueprint(zone_schedule_bp)
     app.register_blueprint(mobile_map_bp)
+    app.register_blueprint(pe_zone_filter_bp)
+    app.register_blueprint(job_security_monitoring_bp)
     logger.info("✅ TRAXOVO Security Suite registered: Auth + Admin + Secure Attendance + Password Reset + Construction Zones")
 except Exception as e:
     logger.warning(f"Error registering security modules: {str(e)}")

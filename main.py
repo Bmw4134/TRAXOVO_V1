@@ -32,6 +32,18 @@ try:
 except Exception as e:
     logger.warning(f"Error loading jobsite catalog: {str(e)}")
 
+# Register secure authentication and admin modules
+try:
+    from routes.auth import auth_bp
+    from routes.admin import admin_bp
+    from routes.secure_attendance import secure_attendance_bp
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(admin_bp)
+    app.register_blueprint(secure_attendance_bp)
+    logger.info("✅ TRAXOVO Security Suite registered: Auth + Admin + Secure Attendance")
+except Exception as e:
+    logger.warning(f"Error registering security modules: {str(e)}")
+
 # Register core blueprints
 app.register_blueprint(driver_reports_bp)
 app.register_blueprint(asset_map_bp)

@@ -118,9 +118,8 @@ class Driver(db.Model):
     job_site_id = Column(Integer, ForeignKey('job_sites.id'))
     job_site = relationship('JobSite', foreign_keys=[job_site_id])
     job_sites = relationship('JobSite', secondary=driver_jobsite_association, back_populates='drivers')
+    assets = relationship('Asset', secondary=driver_asset_association, back_populates='drivers')
     driver_reports = relationship('DriverReport', back_populates='driver')
-    # Add the relationship to assets
-    assigned_assets = relationship('Asset', secondary=driver_asset_association, backref='assigned_drivers')
     
     def __repr__(self):
         return f"<Driver {self.full_name}>"
@@ -154,9 +153,8 @@ class Asset(db.Model):
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     
     organization = relationship('Organization', back_populates='assets')
-    # Remove the problematic relationship for now
+    drivers = relationship('Driver', secondary=driver_asset_association, back_populates='assets')
     locations = relationship('AssetLocation', back_populates='asset')
-    job_sites = relationship('JobSite', secondary=asset_jobsite_association, back_populates='assets')
     
     def __repr__(self):
         return f"<Asset {self.asset_id}>"

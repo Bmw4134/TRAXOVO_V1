@@ -301,6 +301,19 @@ except ImportError:
 except Exception as e:
     logger.error(f"Error with Live GPS Tracking blueprint: {e}")
 
+# Register May Data Processor Blueprint
+try:
+    if not any(bp.name == 'may_processor' for bp in app.blueprints.values()):
+        from routes.may_data_processor import may_processor_bp
+        app.register_blueprint(may_processor_bp)
+        logger.info("May Data Processor blueprint registered successfully")
+    else:
+        logger.info("May Data Processor blueprint already registered")
+except ImportError:
+    logger.warning("May Data Processor module not found")
+except Exception as e:
+    logger.error(f"Error with May Data Processor blueprint: {e}")
+
 # Register Complete Daily Driver Blueprint
 try:
     # Check if the blueprint is already registered to avoid duplicate registration

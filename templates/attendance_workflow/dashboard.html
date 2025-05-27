@@ -31,27 +31,34 @@
         }
         
         .metric-card {
-            background: white;
-            border-radius: 10px;
-            padding: 1.5rem;
+            background: #1F2937;
+            border-radius: 0.5rem;
+            padding: 1.5rem 1rem;
             text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: transform 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: 1px solid #374151;
         }
         
         .metric-card:hover {
             transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
         }
         
-        .metric-card.success { border-left: 4px solid #27ae60; }
-        .metric-card.warning { border-left: 4px solid #f39c12; }
-        .metric-card.danger { border-left: 4px solid #e74c3c; }
-        .metric-card.info { border-left: 4px solid #3498db; }
+        .metric-card.success { border-left: 4px solid #10B981; }
+        .metric-card.warning { border-left: 4px solid #F59E0B; }
+        .metric-card.danger { border-left: 4px solid #EF4444; }
+        .metric-card.info { border-left: 4px solid #3B82F6; }
         
         .metric-value {
             font-size: 2.5rem;
             font-weight: bold;
             margin-bottom: 0.5rem;
+            color: #FFFFFF;
+        }
+        
+        .metric-card div {
+            color: #D1D5DB;
         }
         
         .sync-section {
@@ -70,10 +77,18 @@
         
         .morning-summary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            color: #FFFFFF;
             border-radius: 12px;
-            padding: 2rem;
+            padding: 1.5rem 2rem;
             margin-bottom: 2rem;
+        }
+        
+        .morning-summary h4 {
+            color: #FFFFFF;
+        }
+        
+        .morning-summary p {
+            color: #D1D5DB;
         }
     </style>
 </head>
@@ -153,16 +168,16 @@
         </div>
         
         <!-- Report Generation -->
-        <div class="row">
+        <div class="flex flex-wrap gap-4 justify-center mt-6">
             <div class="col-md-4">
                 <div class="report-card">
                     <h5><i class="fas fa-calendar-day"></i> Daily Report</h5>
                     <p>Today's attendance summary for {{ current_date }}</p>
                     <div class="report-actions">
-                        <button class="btn btn-primary" onclick="generateDailyReport()">
+                        <button class="btn btn-primary hover:bg-blue-700 focus:ring-4 focus:ring-blue-300" onclick="generateDailyReport()">
                             <i class="fas fa-file-alt"></i> Generate
                         </button>
-                        <button class="btn btn-outline-secondary" onclick="viewDailyReport()">
+                        <button class="btn btn-outline-secondary hover:bg-gray-100 focus:ring-4 focus:ring-gray-300" onclick="viewDailyReport()">
                             <i class="fas fa-eye"></i> View
                         </button>
                     </div>
@@ -174,10 +189,10 @@
                     <h5><i class="fas fa-calendar-week"></i> Weekly Report</h5>
                     <p>This week's attendance trends and patterns</p>
                     <div class="report-actions">
-                        <button class="btn btn-primary" onclick="generateWeeklyReport()">
+                        <button class="btn btn-primary hover:bg-blue-700 focus:ring-4 focus:ring-blue-300" onclick="generateWeeklyReport()">
                             <i class="fas fa-file-alt"></i> Generate
                         </button>
-                        <button class="btn btn-outline-secondary" onclick="viewWeeklyReport()">
+                        <button class="btn btn-outline-secondary hover:bg-gray-100 focus:ring-4 focus:ring-gray-300" onclick="viewWeeklyReport()">
                             <i class="fas fa-eye"></i> View
                         </button>
                     </div>
@@ -189,10 +204,10 @@
                     <h5><i class="fas fa-calendar-alt"></i> Monthly Report</h5>
                     <p>Complete monthly attendance analysis</p>
                     <div class="report-actions">
-                        <button class="btn btn-primary" onclick="generateMonthlyReport()">
+                        <button class="btn btn-primary hover:bg-blue-700 focus:ring-4 focus:ring-blue-300" onclick="generateMonthlyReport()">
                             <i class="fas fa-file-alt"></i> Generate
                         </button>
-                        <button class="btn btn-outline-secondary" onclick="viewMonthlyReport()">
+                        <button class="btn btn-outline-secondary hover:bg-gray-100 focus:ring-4 focus:ring-gray-300" onclick="viewMonthlyReport()">
                             <i class="fas fa-eye"></i> View
                         </button>
                     </div>
@@ -237,10 +252,23 @@
                     btn.innerHTML = '<i class="fas fa-download"></i> Sync from Gauge API';
                     
                     if (data.success) {
-                        status.innerHTML = `<small class="text-success">✅ ${data.message}</small>`;
-                        setTimeout(() => window.location.reload(), 2000);
+                        status.innerHTML = `<small class="text-success" style="color: #10B981;">✅ ${data.message} - ${data.records_processed || 0} records processed</small>`;
+                        // Show success animation
+                        btn.classList.add('btn-success');
+                        btn.classList.remove('btn-primary');
+                        setTimeout(() => {
+                            btn.classList.add('btn-primary');
+                            btn.classList.remove('btn-success');
+                            window.location.reload();
+                        }, 2000);
                     } else {
-                        status.innerHTML = `<small class="text-danger">❌ ${data.message}</small>`;
+                        status.innerHTML = `<small class="text-danger" style="color: #EF4444;">❌ ${data.message}</small>`;
+                        btn.classList.add('btn-danger');
+                        btn.classList.remove('btn-primary');
+                        setTimeout(() => {
+                            btn.classList.add('btn-primary');
+                            btn.classList.remove('btn-danger');
+                        }, 3000);
                     }
                 })
                 .catch(error => {

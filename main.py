@@ -78,6 +78,14 @@ try:
 except Exception as e:
     logger.warning(f"Error registering automatic attendance module: {str(e)}")
 
+# Register GPS Map module
+try:
+    from routes.gps_map import gps_map_bp
+    app.register_blueprint(gps_map_bp)
+    logger.info("GPS Map blueprint registered successfully")
+except Exception as e:
+    logger.warning(f"GPS Map module not available: {e}")
+
 # Register new UI Dashboard
 try:
     from routes.dashboard import dashboard_bp

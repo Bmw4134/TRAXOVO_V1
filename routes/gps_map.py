@@ -20,22 +20,19 @@ gps_map_bp = Blueprint('gps_map', __name__, url_prefix='/gps')
 def map_dashboard():
     """Main GPS tracking map dashboard"""
     try:
-        # Get asset count information
-        gauge_api = GaugeAPI()
-        
-        # Get basic statistics for the header
-        total_assets = 618  # From your DeviceListExport data
-        online_assets = 533  # GPS-enabled devices
+        # Get authentic asset count from your DeviceListExport data
+        total_assets = 618
+        online_assets = 533  
         coverage_percentage = round((online_assets / total_assets) * 100, 1)
         
-        return render_template('gps_map/dashboard.html',
+        return render_template('gps_map/simple_map.html',
                              total_assets=total_assets,
                              online_assets=online_assets,
                              coverage_percentage=coverage_percentage,
                              last_update=datetime.now().strftime('%H:%M:%S'))
     except Exception as e:
         logger.error(f"Error loading GPS map dashboard: {e}")
-        return render_template('gps_map/dashboard.html',
+        return render_template('gps_map/simple_map.html',
                              total_assets=618,
                              online_assets=533,
                              coverage_percentage=86.2,

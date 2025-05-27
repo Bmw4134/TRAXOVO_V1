@@ -109,3 +109,24 @@ class AttendanceRecord(db.Model):
     
     def __repr__(self):
         return f"<AttendanceRecord {self.driver_id} on {self.date}>"
+
+class JobSite(db.Model):
+    """Job site model for location tracking"""
+    __tablename__ = 'job_sites'
+    
+    id = Column(Integer, primary_key=True)
+    job_number = Column(String(64), nullable=False)
+    name = Column(String(128), nullable=False)
+    latitude = Column(Float)
+    longitude = Column(Float)
+    radius = Column(Float, default=100.0)
+    address = Column(String(256))
+    city = Column(String(64))
+    state = Column(String(32))
+    zipcode = Column(String(16))
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.now)
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+    
+    def __repr__(self):
+        return f"<JobSite {self.job_number}: {self.name}>"

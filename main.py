@@ -650,3 +650,12 @@ def get_recent_notifications():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
+# Register Job Management Configuration
+try:
+    if not any(bp.name == "job_management" for bp in app.blueprints.values()):
+        from job_management import job_bp
+        app.register_blueprint(job_bp, url_prefix="/job-management")
+        logger.info("Job Zone Configuration registered successfully")
+except Exception as e:
+    logger.error(f"Error with Job Management blueprint: {e}")
+

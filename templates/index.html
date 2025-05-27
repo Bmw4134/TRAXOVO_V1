@@ -14,16 +14,19 @@
             <p class="dashboard-subtitle">Welcome to TRAXORA Fleet Management</p>
         </div>
         <div class="col-md-4 text-end">
-            <a href="{{ url_for('assets') }}" class="btn btn-outline-secondary">
+            <a href="/attendance-workflow" class="btn btn-primary">
+                <i class="bi bi-graph-up me-2"></i> Attendance Workflow
+            </a>
+            <a href="{{ url_for('assets') }}" class="btn btn-outline-secondary ms-2">
                 <i class="bi bi-truck me-2"></i> View All Assets
             </a>
-            <a href="{{ url_for('pm_allocation_processor') }}" class="btn btn-outline-info">
+            <a href="{{ url_for('pm_allocation_processor') }}" class="btn btn-outline-info ms-2">
                 <i class="bi bi-calculator me-2"></i> PM Allocation
             </a>
             <a href="{{ url_for('downloads.download_page') }}" class="btn btn-success ms-2">
                 <i class="bi bi-download me-2"></i> Downloads
             </a>
-            <a href="{{ url_for('ocr_tool') }}" class="btn btn-primary ms-2">
+            <a href="{{ url_for('ocr_tool') }}" class="btn btn-outline-secondary ms-2">
                 <i class="bi bi-file-earmark-text me-2"></i> OCR Tool
             </a>
         </div>

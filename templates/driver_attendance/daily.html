@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAXORA - Driver Attendance</title>
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .attendance-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .day-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            min-height: 120px;
+        }
+        
+        .day-card.weekend {
+            background: #f8f9fa;
+        }
+        
+        .day-card.today {
+            border: 2px solid #667eea;
+        }
+        
+        .attendance-count {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+        
+        .attendance-count.present { color: #28a745; }
+        .attendance-count.absent { color: #dc3545; }
+        
+        .driver-table {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+        
+        .status-present { background: #d4edda; color: #155724; }
+        .status-absent { background: #f8d7da; color: #721c24; }
+        .status-late { background: #fff3cd; color: #856404; }
+    </style>
+</head>
+<body>
+    <!-- Attendance Header -->
+    <div class="attendance-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h1><i class="fas fa-users-clock"></i> Driver Attendance</h1>
+                    <p class="mb-0">Weekly driver attendance tracking and compliance reporting</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Quick Actions -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3>This Week's Attendance</h3>
+                    <div>
+                        <a href="{{ url_for('driver_attendance.upload_form') }}" class="btn btn-primary">
+                            <i class="fas fa-upload"></i> Upload Attendance Data
+                        </a>
+                        <button class="btn btn-outline-secondary" onclick="refreshData()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Calendar View -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h5><i class="fas fa-calendar"></i> Weekly Calendar View</h5>
+                <div class="calendar-grid">
+                    {% set days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] %}
+                    {% for day in days %}
+                    <div class="day-card {% if day in ['Saturday', 'Sunday'] %}weekend{% endif %}">
+                        <h6>{{ day }}</h6>
+                        {% set day_data = attendance_data.get(current_date, []) %}
+                        {% set present_count = day_data|selectattr('status', 'equalto', 'present')|list|length %}
+                        {% set absent_count = day_data|selectattr('status', 'equalto', 'absent')|list|length %}
+                        
+                        <div class="attendance-count present">{{ present_count }}</div>
+                        <small>Present</small>
+                        
+                        {% if absent_count > 0 %}
+                        <div class="attendance-count absent">{{ absent_count }}</div>
+                        <small>Absent</small>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Detailed Attendance Table -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="driver-table">
+                    <div class="card-header">
+                        <h5><i class="fas fa-table"></i> Detailed Attendance Records</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if attendance_data %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Driver ID</th>
+                                        <th>Date</th>
+                                        <th>Check-in</th>
+                                        <th>Check-out</th>
+                                        <th>Location</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for date, records in attendance_data.items() %}
+                                    {% for record in records %}
+                                    <tr>
+                                        <td><strong>{{ record.driver_id }}</strong></td>
+                                        <td>{{ record.date }}</td>
+                                        <td>{{ record.check_in or '--' }}</td>
+                                        <td>{{ record.check_out or '--' }}</td>
+                                        <td>{{ record.location or '--' }}</td>
+                                        <td>
+                                            <span class="status-badge status-{{ record.status }}">
+                                                {{ record.status.title() }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                            <h5>No Attendance Data Available</h5>
+                            <p class="text-muted">Upload attendance files to see driver tracking information.</p>
+                            <a href="{{ url_for('driver_attendance.upload_form') }}" class="btn btn-primary">
+                                <i class="fas fa-upload"></i> Upload Attendance Data
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Summary Statistics -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="text-success">
+                            {% set total_present = attendance_data.values()|map('selectattr', 'status', 'equalto', 'present')|map('list')|map('length')|sum %}
+                            {{ total_present }}
+                        </h3>
+                        <p class="mb-0">Total Present</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="text-danger">
+                            {% set total_absent = attendance_data.values()|map('selectattr', 'status', 'equalto', 'absent')|map('list')|map('length')|sum %}
+                            {{ total_absent }}
+                        </h3>
+                        <p class="mb-0">Total Absent</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="text-info">
+                            {% set unique_drivers = attendance_data.values()|map('map', attribute='driver_id')|flatten|unique|list|length %}
+                            {{ unique_drivers }}
+                        </h3>
+                        <p class="mb-0">Active Drivers</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="text-primary">{{ attendance_data.keys()|length }}</h3>
+                        <p class="mb-0">Days Tracked</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function refreshData() {
+            window.location.reload();
+        }
+        
+        // Auto-refresh every 5 minutes
+        setInterval(refreshData, 300000);
+    </script>
+</body>
+</html>

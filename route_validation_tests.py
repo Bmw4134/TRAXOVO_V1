@@ -84,11 +84,29 @@ class TRAXORARouteValidator:
             "/kaizen",
             "/system-health",
             "/system-admin",
-            "/jobs",
+            "/job-module",
         ]
         
         results = []
         for route in admin_routes:
+            result = self.test_route(route)
+            results.append(result)
+            status = "✅" if result["success"] else "❌"
+            print(f"{status} {route} - {result.get('status_code', 'ERROR')}")
+        
+        return results
+    
+    def validate_driver_attendance_routes(self):
+        """Test driver attendance routes"""
+        print("\n👥 Testing Driver Attendance Routes...")
+        
+        attendance_routes = [
+            "/driver-attendance",
+            "/driver-attendance/upload",
+        ]
+        
+        results = []
+        for route in attendance_routes:
             result = self.test_route(route)
             results.append(result)
             status = "✅" if result["success"] else "❌"
@@ -160,6 +178,7 @@ class TRAXORARouteValidator:
             "core_routes": self.validate_core_routes(),
             "may_reporting": self.validate_may_reporting_routes(),
             "administrative": self.validate_administrative_routes(),
+            "driver_attendance": self.validate_driver_attendance_routes(),
             "reporting": self.validate_reporting_routes(),
             "may_upload_simulation": self.simulate_may_data_upload(),
             "system_health_api": self.test_system_health_api()

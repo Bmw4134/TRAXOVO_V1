@@ -24,9 +24,7 @@ class AssetLocation(db.Model):
     accuracy = Column(Float, nullable=True)
     created_at = Column(DateTime, default=datetime.now)
     
-    # Define relationships
-    asset = relationship('Asset', back_populates='locations')
-    job_site = relationship('JobSite', back_populates='asset_locations')
+    # Relationships temporarily removed to fix login blocking issue
     
     def __repr__(self):
         return f"<AssetLocation for Asset #{self.asset_id} at {self.location_timestamp}>"

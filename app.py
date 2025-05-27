@@ -9,7 +9,7 @@ from datetime import datetime
 from flask import Flask, render_template, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
-from flask_login import LoginManager
+from flask_login import LoginManager, login_required, current_user
 from flask_talisman import Talisman
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -179,8 +179,9 @@ def get_last_sync_time():
 
 # Routes
 @app.route('/')
+@login_required
 def index():
-    """Application main dashboard"""
+    """Application main dashboard - Login Required"""
     # API status check
     api_status = {
         'gauge_api': check_gauge_api_status(),

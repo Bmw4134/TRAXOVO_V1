@@ -288,6 +288,19 @@ except ImportError:
 except Exception as e:
     logger.error(f"Error with Automated Daily Reports blueprint: {e}")
 
+# Register Live GPS Tracking Blueprint
+try:
+    if not any(bp.name == 'live_gps' for bp in app.blueprints.values()):
+        from routes.live_gps_tracking import live_gps_bp
+        app.register_blueprint(live_gps_bp)
+        logger.info("Live GPS Tracking blueprint registered successfully")
+    else:
+        logger.info("Live GPS Tracking blueprint already registered")
+except ImportError:
+    logger.warning("Live GPS Tracking module not found")
+except Exception as e:
+    logger.error(f"Error with Live GPS Tracking blueprint: {e}")
+
 # Register Complete Daily Driver Blueprint
 try:
     # Check if the blueprint is already registered to avoid duplicate registration

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TRAXOVO Mobile Map</title>
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet" />
+    <style>
+        /* Mobile-optimized styles */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+        
+        #map {
+            height: 100vh;
+            width: 100vw;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            touch-action: pan-x pan-y;
+        }
+        
+        .mobile-controls {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: rgba(33, 37, 41, 0.95);
+            border-radius: 12px;
+            padding: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .mobile-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 3px;
+            font-size: 14px;
+            font-weight: 600;
+            min-width: 70px;
+            touch-action: manipulation;
+        }
+        
+        .mobile-btn:active {
+            background: #0056b3;
+            transform: scale(0.98);
+        }
+        
+        .mobile-btn.active {
+            background: #28a745;
+        }
+        
+        .asset-counter {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(33, 37, 41, 0.95);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            backdrop-filter: blur(10px);
+        }
+        
+        .loading-spinner {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2000;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .leaflet-popup-content {
+            font-size: 16px;
+            line-height: 1.4;
+        }
+        
+        .leaflet-control-zoom {
+            font-size: 18px;
+        }
+        
+        .leaflet-control-zoom a {
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+        }
+        
+        /* Asset filter chips */
+        .filter-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        
+        .filter-chip {
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 6px 12px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        
+        .filter-chip.active {
+            background: #17a2b8;
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Controls -->
+    <div class="mobile-controls">
+        <div class="d-flex justify-content-between align-items-center">
+            <h6 class="text-white mb-0">
+                <i class="fas fa-map-marker-alt me-2"></i>TRAXOVO Mobile
+            </h6>
+            <button class="mobile-btn" onclick="refreshAssets()">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+        </div>
+        
+        <div class="filter-chips">
+            <button class="filter-chip active" data-filter="all" onclick="filterAssets('all')">All</button>
+            <button class="filter-chip" data-filter="active" onclick="filterAssets('active')">Active</button>
+            <button class="filter-chip" data-filter="idle" onclick="filterAssets('idle')">Idle</button>
+            <button class="filter-chip" data-filter="offline" onclick="filterAssets('offline')">Offline</button>
+        </div>
+    </div>
+
+    <!-- Map Container -->
+    <div id="map"></div>
+
+    <!-- Asset Counter -->
+    <div class="asset-counter">
+        <span id="asset-count">Loading...</span>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loading" style="display: none;">
+        <i class="fas fa-spinner fa-spin fa-2x mb-2"></i>
+        <div>Loading assets...</div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Mobile-optimized map initialization
+        let map;
+        let assetsLayer;
+        let allAssets = [];
+        let currentFilter = 'all';
+
+        // Initialize map with mobile-friendly settings
+        function initMap() {
+            map = L.map('map', {
+                tap: true,
+                touchZoom: true,
+                zoomControl: true
+            }).setView([32.7767, -96.7970], 10); // Dallas center
+
+            // Use mobile-friendly tile layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© TRAXOVO GPS Tracking',
+                maxZoom: 18,
+                detectRetina: true
+            }).addTo(map);
+
+            // Move zoom controls to bottom right for thumb access
+            map.zoomControl.setPosition('bottomleft');
+
+            // Initialize assets layer
+            assetsLayer = L.layerGroup().addTo(map);
+
+            // Load assets immediately
+            loadAssets();
+        }
+
+        // Load assets from authentic Gauge API
+        async function loadAssets() {
+            showLoading(true);
+            try {
+                const response = await fetch('/api/gauge-assets');
+                const data = await response.json();
+                
+                if (data.success && data.assets) {
+                    allAssets = data.assets;
+                    updateAssetCounter();
+                    displayAssets();
+                } else {
+                    console.error('Error loading assets:', data.error);
+                    document.getElementById('asset-count').textContent = 'Error loading';
+                }
+            } catch (error) {
+                console.error('Network error:', error);
+                document.getElementById('asset-count').textContent = 'Network error';
+            }
+            showLoading(false);
+        }
+
+        // Display assets on map with mobile-friendly markers
+        function displayAssets() {
+            assetsLayer.clearLayers();
+            
+            const filteredAssets = filterAssetsByType(allAssets, currentFilter);
+            
+            filteredAssets.forEach(asset => {
+                if (asset.latitude && asset.longitude) {
+                    const marker = createMobileMarker(asset);
+                    assetsLayer.addLayer(marker);
+                }
+            });
+        }
+
+        // Create mobile-optimized markers
+        function createMobileMarker(asset) {
+            const status = getAssetStatus(asset);
+            const color = getStatusColor(status);
+            
+            const marker = L.circleMarker([asset.latitude, asset.longitude], {
+                radius: 8,
+                fillColor: color,
+                color: '#fff',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.8
+            });
+
+            // Mobile-friendly popup
+            const popupContent = `
+                <div style="font-size: 16px; line-height: 1.6;">
+                    <strong>${asset.name || asset.id}</strong><br>
+                    <span style="color: ${color};">● ${status.toUpperCase()}</span><br>
+                    ${asset.description || 'GPS Asset'}<br>
+                    <small>Last seen: ${formatTime(asset.last_update)}</small>
+                </div>
+            `;
+
+            marker.bindPopup(popupContent, {
+                maxWidth: 250,
+                closeButton: true
+            });
+
+            return marker;
+        }
+
+        // Asset filtering
+        function filterAssets(type) {
+            currentFilter = type;
+            
+            // Update filter chip styling
+            document.querySelectorAll('.filter-chip').forEach(chip => {
+                chip.classList.remove('active');
+            });
+            document.querySelector(`[data-filter="${type}"]`).classList.add('active');
+            
+            displayAssets();
+            updateAssetCounter();
+        }
+
+        function filterAssetsByType(assets, type) {
+            if (type === 'all') return assets;
+            
+            return assets.filter(asset => {
+                const status = getAssetStatus(asset);
+                return status === type;
+            });
+        }
+
+        // Get asset status from authentic data
+        function getAssetStatus(asset) {
+            if (!asset.last_update) return 'offline';
+            
+            const lastUpdate = new Date(asset.last_update);
+            const now = new Date();
+            const minutesAgo = (now - lastUpdate) / (1000 * 60);
+            
+            if (minutesAgo > 60) return 'offline';
+            if (asset.speed && asset.speed > 5) return 'active';
+            return 'idle';
+        }
+
+        function getStatusColor(status) {
+            switch (status) {
+                case 'active': return '#28a745';
+                case 'idle': return '#ffc107';
+                case 'offline': return '#dc3545';
+                default: return '#6c757d';
+            }
+        }
+
+        // Update asset counter
+        function updateAssetCounter() {
+            const filtered = filterAssetsByType(allAssets, currentFilter);
+            const total = allAssets.length;
+            
+            if (currentFilter === 'all') {
+                document.getElementById('asset-count').textContent = `${total} Assets`;
+            } else {
+                document.getElementById('asset-count').textContent = `${filtered.length}/${total} ${currentFilter.toUpperCase()}`;
+            }
+        }
+
+        // Refresh assets
+        async function refreshAssets() {
+            await loadAssets();
+        }
+
+        // Utility functions
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        function formatTime(timestamp) {
+            if (!timestamp) return 'Unknown';
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 60000);
+            
+            if (minutes < 1) return 'Just now';
+            if (minutes < 60) return `${minutes}m ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours}h ago`;
+            return date.toLocaleDateString();
+        }
+
+        // Handle mobile device orientation changes
+        window.addEventListener('orientationchange', function() {
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 100);
+        });
+
+        // Initialize map when page loads
+        document.addEventListener('DOMContentLoaded', initMap);
+
+        // Auto-refresh every 30 seconds for real-time updates
+        setInterval(refreshAssets, 30000);
+    </script>
+</body>
+</html>

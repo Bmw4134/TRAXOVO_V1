@@ -450,7 +450,7 @@ except ImportError as e:
 
 # Register Driver Attendance Blueprint
 try:
-    from routes.driver_attendance import driver_attendance_bp
+    from routes.driver_attendance_clean import driver_attendance_bp
     app.register_blueprint(driver_attendance_bp, url_prefix='/driver-attendance')
     logger.info("Driver Attendance Dashboard registered successfully")
 except ImportError as e:

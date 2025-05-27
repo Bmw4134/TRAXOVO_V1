@@ -31,9 +31,13 @@ def driver_attendance_dashboard():
                              attendance_data=None,
                              current_date=datetime.now().strftime('%Y-%m-%d'))
 
-@driver_attendance_bp.route('/upload', methods=['POST'])
+@driver_attendance_bp.route('/upload', methods=['GET', 'POST'])
 def process_attendance_upload():
     """Process uploaded attendance files with MTD integration"""
+    if request.method == 'GET':
+        # Show upload form
+        return render_template('driver_attendance/upload.html')
+    
     try:
         if 'file' not in request.files:
             flash('No file selected', 'error')
@@ -54,12 +58,15 @@ def process_attendance_upload():
         file_path = upload_dir / filename
         file.save(file_path)
         
-        # Process with authentic data integration
+        # Process with intelligent multi-day processing
         processed_data = process_attendance_file(str(file_path))
         
         if processed_data:
             save_attendance_data(processed_data)
-            flash(f'Successfully processed {len(processed_data)} attendance records for {date}', 'success')
+            
+            # Get processing summary
+            dates_processed = set(record['date'] for record in processed_data)
+            flash(f'Successfully processed {len(processed_data)} attendance records across {len(dates_processed)} dates: {", ".join(sorted(dates_processed))}', 'success')
         else:
             flash('No valid attendance data found in uploaded file', 'warning')
         
@@ -175,25 +182,135 @@ def create_attendance_from_drivers(drivers):
     }
 
 def process_attendance_file(file_path):
-    """Process uploaded attendance file"""
+    """Intelligently process uploaded attendance file with smart header detection and multi-day support"""
     try:
+        logger.info(f"Processing attendance file: {file_path}")
+        
+        # Smart file reading with multiple attempts for different formats
+        df = None
+        
         if file_path.endswith('.csv'):
-            df = pd.read_csv(file_path)
+            # Try reading CSV with different skip options to handle Gauge headers
+            for skip_rows in [0, 8, 10, 12]:  # Common Gauge header patterns
+                try:
+                    df_test = pd.read_csv(file_path, skiprows=skip_rows, low_memory=False)
+                    if len(df_test) > 0 and len(df_test.columns) > 3:
+                        # Check if this looks like real data (not header fluff)
+                        if any('asset' in str(col).lower() or 'driver' in str(col).lower() 
+                               or 'name' in str(col).lower() or 'date' in str(col).lower() 
+                               for col in df_test.columns):
+                            df = df_test
+                            logger.info(f"Successfully read CSV with {skip_rows} header rows skipped")
+                            break
+                except:
+                    continue
+                    
         elif file_path.endswith('.xlsx'):
-            df = pd.read_excel(file_path)
-        else:
+            # Try reading Excel with different skip options
+            for skip_rows in [0, 8, 10, 12]:
+                try:
+                    df_test = pd.read_excel(file_path, skiprows=skip_rows)
+                    if len(df_test) > 0 and len(df_test.columns) > 3:
+                        if any('asset' in str(col).lower() or 'driver' in str(col).lower() 
+                               or 'name' in str(col).lower() or 'date' in str(col).lower() 
+                               for col in df_test.columns):
+                            df = df_test
+                            logger.info(f"Successfully read Excel with {skip_rows} header rows skipped")
+                            break
+                except:
+                    continue
+        
+        if df is None or len(df) == 0:
+            logger.warning("Could not read file or file is empty")
             return None
             
-        # Extract attendance records from uploaded data
+        logger.info(f"Processing DataFrame with {len(df)} rows and {len(df.columns)} columns")
+        logger.info(f"Column names: {list(df.columns)}")
+        
+        # Smart column detection
+        date_cols = [col for col in df.columns if any(term in str(col).lower() 
+                    for term in ['date', 'time', 'datetime', 'eventdate'])]
+        asset_cols = [col for col in df.columns if any(term in str(col).lower() 
+                     for term in ['asset', 'vehicle', 'truck', 'equipment'])]
+        driver_cols = [col for col in df.columns if any(term in str(col).lower() 
+                      for term in ['driver', 'operator', 'name', 'user'])]
+        location_cols = [col for col in df.columns if any(term in str(col).lower() 
+                        for term in ['location', 'site', 'address', 'jobsite', 'job site'])]
+        
+        logger.info(f"Detected columns - Date: {date_cols}, Asset: {asset_cols}, Driver: {driver_cols}, Location: {location_cols}")
+        
+        # Extract attendance records with smart multi-day processing
         attendance_records = []
+        processed_dates = set()
+        
         for _, row in df.iterrows():
-            if 'driver' in str(row).lower() or 'name' in str(row).lower():
-                attendance_records.append({
-                    'driver_name': str(row.iloc[0]) if len(row) > 0 else 'Unknown',
-                    'date': datetime.now().strftime('%Y-%m-%d'),
-                    'status': 'on_time',  # Default status
-                    'hours': 8.0
-                })
+            try:
+                # Extract date information
+                record_date = None
+                if date_cols:
+                    date_value = row[date_cols[0]]
+                    if pd.notna(date_value):
+                        try:
+                            if isinstance(date_value, str):
+                                # Parse various date formats
+                                record_date = pd.to_datetime(date_value, errors='coerce')
+                            else:
+                                record_date = pd.to_datetime(date_value)
+                            
+                            if pd.notna(record_date):
+                                record_date = record_date.strftime('%Y-%m-%d')
+                        except:
+                            pass
+                
+                if not record_date:
+                    record_date = datetime.now().strftime('%Y-%m-%d')
+                
+                # Extract asset/driver information
+                asset_name = 'Unknown'
+                if asset_cols:
+                    asset_value = row[asset_cols[0]]
+                    if pd.notna(asset_value):
+                        asset_name = str(asset_value).strip()
+                
+                # Extract driver name (could be embedded in asset name or separate)
+                driver_name = 'Unknown'
+                if driver_cols:
+                    driver_value = row[driver_cols[0]]
+                    if pd.notna(driver_value):
+                        driver_name = str(driver_value).strip()
+                elif asset_name != 'Unknown':
+                    # Try to extract driver from asset name patterns
+                    driver_name = extract_driver_from_asset_name(asset_name)
+                
+                # Extract location if available
+                location = 'Unknown'
+                if location_cols:
+                    location_value = row[location_cols[0]]
+                    if pd.notna(location_value):
+                        location = str(location_value).strip()
+                
+                # Determine attendance status based on data patterns
+                status = determine_attendance_status(row, record_date)
+                
+                # Only add if we have meaningful data
+                if driver_name != 'Unknown' and driver_name.lower() not in ['nan', 'none', '']:
+                    attendance_records.append({
+                        'driver_name': driver_name,
+                        'asset_name': asset_name,
+                        'date': record_date,
+                        'location': location,
+                        'status': status,
+                        'hours': calculate_hours_from_data(row),
+                        'raw_data': dict(row.dropna())  # Store original data for reference
+                    })
+                    processed_dates.add(record_date)
+                    
+            except Exception as e:
+                logger.warning(f"Error processing row: {e}")
+                continue
+        
+        logger.info(f"Successfully processed {len(attendance_records)} attendance records across {len(processed_dates)} dates")
+        logger.info(f"Date range: {sorted(processed_dates)}")
         
         return attendance_records
         
@@ -201,22 +318,139 @@ def process_attendance_file(file_path):
         logger.error(f"Error processing attendance file: {e}")
         return None
 
+def extract_driver_from_asset_name(asset_name):
+    """Extract driver name from asset naming patterns common in your fleet"""
+    asset_str = str(asset_name).upper()
+    
+    # Common patterns in your system
+    if '#' in asset_str:
+        # Pattern like "JOHN DOE #210003" 
+        parts = asset_str.split('#')[0].strip()
+        if len(parts) > 2:
+            return parts.title()
+    
+    # Check for personal vehicle patterns
+    if any(term in asset_str for term in ['PERSONAL', 'PV', 'TRUCK']):
+        # Extract name before vehicle identifier
+        for term in ['PERSONAL', 'PV', 'TRUCK']:
+            if term in asset_str:
+                name_part = asset_str.split(term)[0].strip()
+                if len(name_part) > 2:
+                    return name_part.title()
+    
+    # Default extraction - assume first part is name
+    parts = asset_str.split()
+    if len(parts) >= 2:
+        return f"{parts[0]} {parts[1]}".title()
+    
+    return asset_name
+
+def determine_attendance_status(row, record_date):
+    """Determine attendance status based on data patterns"""
+    # Default to on_time, can be enhanced with more logic
+    row_str = str(row).lower()
+    
+    if any(term in row_str for term in ['late', 'delayed', 'tardy']):
+        return 'late'
+    elif any(term in row_str for term in ['early', 'left early', 'departed']):
+        return 'early_end'
+    elif any(term in row_str for term in ['absent', 'no show', 'missing']):
+        return 'not_on_job'
+    else:
+        return 'on_time'
+
+def calculate_hours_from_data(row):
+    """Calculate work hours from available data"""
+    # Look for time-related columns
+    time_cols = [col for col in row.index if any(term in str(col).lower() 
+                for term in ['hour', 'time', 'duration', 'elapsed'])]
+    
+    if time_cols:
+        try:
+            hours_value = row[time_cols[0]]
+            if pd.notna(hours_value):
+                return float(hours_value)
+        except:
+            pass
+    
+    # Default to 8 hours
+    return 8.0
+
 def save_attendance_data(attendance_records):
-    """Save processed attendance data"""
+    """Save processed attendance data with multi-day support"""
     try:
         output_dir = Path("uploads/attendance_data/processed")
         output_dir.mkdir(parents=True, exist_ok=True)
         
-        date_str = datetime.now().strftime('%Y-%m-%d')
-        output_file = output_dir / f"attendance_{date_str}.json"
+        # Group records by date for multi-day processing
+        records_by_date = {}
+        for record in attendance_records:
+            date = record['date']
+            if date not in records_by_date:
+                records_by_date[date] = []
+            records_by_date[date].append(record)
         
-        with open(output_file, 'w') as f:
-            json.dump({
-                'attendance_records': attendance_records,
-                'processed_at': datetime.now().isoformat()
-            }, f, indent=2)
+        saved_files = []
+        total_saved = 0
+        
+        # Save each date's data separately
+        for date, date_records in records_by_date.items():
+            output_file = output_dir / f"attendance_{date}.json"
             
-        logger.info(f"Saved {len(attendance_records)} attendance records to {output_file}")
+            # Load existing data if file exists
+            existing_data = []
+            if output_file.exists():
+                try:
+                    with open(output_file, 'r') as f:
+                        existing_file_data = json.load(f)
+                        existing_data = existing_file_data.get('attendance_records', [])
+                except:
+                    pass
+            
+            # Merge new records with existing (avoiding duplicates)
+            merged_records = existing_data.copy()
+            for new_record in date_records:
+                # Check for duplicates based on driver name and date
+                duplicate_found = False
+                for existing_record in existing_data:
+                    if (existing_record.get('driver_name') == new_record['driver_name'] and 
+                        existing_record.get('date') == new_record['date']):
+                        duplicate_found = True
+                        break
+                
+                if not duplicate_found:
+                    merged_records.append(new_record)
+            
+            # Save merged data
+            with open(output_file, 'w') as f:
+                json.dump({
+                    'attendance_records': merged_records,
+                    'processed_at': datetime.now().isoformat(),
+                    'date': date,
+                    'record_count': len(merged_records),
+                    'latest_upload': datetime.now().isoformat()
+                }, f, indent=2)
+            
+            saved_files.append(str(output_file))
+            total_saved += len(date_records)
+            logger.info(f"Saved {len(date_records)} records for {date} to {output_file}")
+        
+        # Create summary file
+        summary_file = output_dir / "upload_summary.json"
+        summary_data = {
+            'last_upload': datetime.now().isoformat(),
+            'files_created': saved_files,
+            'total_records_processed': total_saved,
+            'date_range': list(records_by_date.keys()),
+            'processing_summary': {
+                date: len(records) for date, records in records_by_date.items()
+            }
+        }
+        
+        with open(summary_file, 'w') as f:
+            json.dump(summary_data, f, indent=2)
+        
+        logger.info(f"Successfully saved {total_saved} attendance records across {len(records_by_date)} dates")
         return True
         
     except Exception as e:

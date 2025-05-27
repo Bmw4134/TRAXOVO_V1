@@ -4,15 +4,12 @@
 
 {% block head %}
 <style>
-    .sidebar {
-        position: fixed;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        z-index: 100;
-        padding: 48px 0 0;
-        box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-        transition: all 0.3s;
+    /* Remove problematic sidebar styles and use clean layout */
+    .main-content {
+        width: 100%;
+        padding: 20px;
+        background: #1F2937;
+        min-height: 100vh;
     }
     
     .sidebar-sticky {

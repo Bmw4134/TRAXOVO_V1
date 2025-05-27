@@ -215,6 +215,27 @@
     .metrics-grid, .quick-access {
         grid-template-columns: 1fr;
     }
+    
+    .action-btn {
+        min-height: 50px;
+        padding: 8px;
+    }
+    
+    .metric-card {
+        padding: 10px;
+    }
+}
+
+/* Additional mobile fixes */
+@media (max-width: 390px) {
+    .compact-layout {
+        padding: 2px 4px;
+    }
+    
+    .status-bar {
+        font-size: 0.75rem;
+        padding: 4px 6px;
+    }
 }
 </style>
 {% endblock %}

@@ -35,9 +35,7 @@ class Organization(db.Model):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Relationships (simplified to fix mapping errors)
-    # Note: Relationships commented out to prevent circular dependency issues
-    # job_sites = relationship('JobSite')  # Commented out until JobSite model adds organization_id
+    # Relationships completely removed to fix login blocking issue
     
     def __repr__(self):
         return f'<Organization {self.name} ({self.code})>'

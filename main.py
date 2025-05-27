@@ -8,19 +8,23 @@ import logging
 from datetime import datetime
 from flask import Flask, render_template, jsonify, redirect, url_for, request
 
-# Use simple app temporarily to get login working
-from simple_app import app
-db = app.extensions['sqlalchemy']
-from routes.driver_reports_new import driver_reports_bp
-from routes.asset_map import asset_map_bp  
-from routes.billing import billing_bp
-from routes.system_health import system_health_bp
-from routes.map_standalone import map_standalone_bp
-from routes.direct_map_route import direct_map
-from routes.mtd_reports_fixed import mtd_reports_bp
+# Emergency fix - use working app configuration
+from app import app
+
+# Register essential login routes only
+try:
+    from routes.auth import auth_bp
+    from routes.admin import admin_bp  
+    from routes.secure_attendance import secure_attendance_bp
+    app.register_blueprint(auth_bp, url_prefix='/auth', name='auth_main')
+    app.register_blueprint(admin_bp, url_prefix='/admin', name='admin_main')
+    app.register_blueprint(secure_attendance_bp, url_prefix='/secure-attendance', name='secure_main')
+    print("✅ Essential login routes registered successfully")
+except ImportError as e:
+    print(f"Skipping complex routes: {e}")
 
 # Configure logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Setup runtime mode indicator

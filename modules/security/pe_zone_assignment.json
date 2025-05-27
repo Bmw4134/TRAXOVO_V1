@@ -1,0 +1,106 @@
+{
+  "pe_assignments": {
+    "pe_001": {
+      "name": "John Anderson",
+      "email": "j.anderson@traxovo.com",
+      "zones": ["DFW_NORTH", "DFW_CENTRAL"],
+      "security_level": "PE",
+      "active": true
+    },
+    "pe_002": {
+      "name": "Maria Rodriguez",
+      "email": "m.rodriguez@traxovo.com", 
+      "zones": ["HOUSTON_EAST", "HOUSTON_WEST"],
+      "security_level": "PE",
+      "active": true
+    },
+    "pe_003": {
+      "name": "David Wilson",
+      "email": "d.wilson@traxovo.com",
+      "zones": ["WEST_TEXAS_MIDLAND", "WEST_TEXAS_ODESSA"],
+      "security_level": "PE",
+      "active": true
+    },
+    "admin_001": {
+      "name": "Admin User",
+      "email": "admin@traxovo.com",
+      "zones": ["ALL"],
+      "security_level": "ADMIN",
+      "active": true
+    }
+  },
+  "zone_definitions": {
+    "DFW_NORTH": {
+      "name": "DFW North Region",
+      "boundary": {
+        "center": [32.9103, -96.8271],
+        "radius_miles": 25
+      },
+      "working_hours": {
+        "start": "06:00",
+        "end": "19:00",
+        "days": ["monday", "tuesday", "wednesday", "thursday", "friday"]
+      }
+    },
+    "DFW_CENTRAL": {
+      "name": "DFW Central Region", 
+      "boundary": {
+        "center": [32.7767, -96.7970],
+        "radius_miles": 20
+      },
+      "working_hours": {
+        "start": "06:00", 
+        "end": "19:00",
+        "days": ["monday", "tuesday", "wednesday", "thursday", "friday"]
+      }
+    },
+    "HOUSTON_EAST": {
+      "name": "Houston East Region",
+      "boundary": {
+        "center": [29.7604, -95.3698],
+        "radius_miles": 30
+      },
+      "working_hours": {
+        "start": "06:00",
+        "end": "19:00", 
+        "days": ["monday", "tuesday", "wednesday", "thursday", "friday"]
+      }
+    },
+    "HOUSTON_WEST": {
+      "name": "Houston West Region",
+      "boundary": {
+        "center": [29.6516, -95.6890],
+        "radius_miles": 25
+      },
+      "working_hours": {
+        "start": "06:00",
+        "end": "19:00",
+        "days": ["monday", "tuesday", "wednesday", "thursday", "friday"]
+      }
+    },
+    "WEST_TEXAS_MIDLAND": {
+      "name": "West Texas Midland Region",
+      "boundary": {
+        "center": [31.9973, -102.0779],
+        "radius_miles": 40
+      },
+      "working_hours": {
+        "start": "06:00",
+        "end": "19:00",
+        "days": ["monday", "tuesday", "wednesday", "thursday", "friday"]
+      }
+    },
+    "WEST_TEXAS_ODESSA": {
+      "name": "West Texas Odessa Region", 
+      "boundary": {
+        "center": [31.8457, -102.3676],
+        "radius_miles": 35
+      },
+      "working_hours": {
+        "start": "06:00",
+        "end": "19:00",
+        "days": ["monday", "tuesday", "wednesday", "thursday", "friday"]
+      }
+    }
+  }
+}

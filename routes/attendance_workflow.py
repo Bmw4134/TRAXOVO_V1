@@ -37,12 +37,13 @@ def attendance_dashboard():
         logger.error(f"Error loading attendance workflow: {e}")
         return jsonify({'error': str(e)}), 500
 
-@attendance_workflow_bp.route('/attendance-workflow/sync-gauge')
+@attendance_workflow_bp.route('/sync-gauge')
 def sync_from_gauge():
     """Sync attendance data from Gauge API"""
     try:
-        # Pull latest asset data from Gauge
-        assets_data = gauge_api.get_assets()
+        # Test Gauge API connection - your system shows successful authentication
+        # Pull latest asset data from your authenticated Gauge API
+        assets_data = gauge_api.get_asset_data()
         
         if not assets_data:
             return jsonify({

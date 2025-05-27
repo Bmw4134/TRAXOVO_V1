@@ -20,12 +20,7 @@ driver_jobsite_association = Table(
     Column('job_site_id', Integer, ForeignKey('job_sites.id'))
 )
 
-asset_jobsite_association = Table(
-    'asset_jobsite_association',
-    db.Model.metadata,
-    Column('asset_id', Integer, ForeignKey('assets.id')),
-    Column('job_site_id', Integer, ForeignKey('job_sites.id'))
-)
+# Removed asset_jobsite_association - using direct foreign keys instead
 
 # Create a proper many-to-many association table for driver-asset relationship
 driver_asset_association = Table(
@@ -59,8 +54,8 @@ class User(UserMixin, db.Model):
     
     def check_password(self, password):
         """Check if the provided password matches the stored hash"""
-        if self.password_hash:
-            return check_password_hash(self.password_hash, password)
+        if self.password_hash is not None:
+            return check_password_hash(str(self.password_hash), password)
         return False
     
     @property
@@ -208,7 +203,6 @@ class JobSite(db.Model):
     
     organization = relationship('Organization', back_populates='job_sites')
     drivers = relationship('Driver', secondary=driver_jobsite_association, back_populates='job_sites')
-    assets = relationship('Asset', secondary=asset_jobsite_association, back_populates='job_sites')
     asset_locations = relationship('AssetLocation', back_populates='job_site')
     driver_reports = relationship('DriverReport', back_populates='job_site')
     

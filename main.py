@@ -314,6 +314,58 @@ except ImportError:
 except Exception as e:
     logger.error(f"Error with May Data Processor blueprint: {e}")
 
+# Register Kaizen Blueprint
+try:
+    if not any(bp.name == 'kaizen' for bp in app.blueprints.values()):
+        from routes.kaizen import kaizen_bp
+        app.register_blueprint(kaizen_bp)
+        logger.info("Kaizen blueprint registered successfully")
+    else:
+        logger.info("Kaizen blueprint already registered")
+except ImportError:
+    logger.warning("Kaizen module not found")
+except Exception as e:
+    logger.error(f"Error with Kaizen blueprint: {e}")
+
+# Register System Health Blueprint
+try:
+    if not any(bp.name == 'system_health' for bp in app.blueprints.values()):
+        from routes.system_health import system_health_bp
+        app.register_blueprint(system_health_bp)
+        logger.info("System Health blueprint registered successfully")
+    else:
+        logger.info("System Health blueprint already registered")
+except ImportError:
+    logger.warning("System Health module not found")
+except Exception as e:
+    logger.error(f"Error with System Health blueprint: {e}")
+
+# Register System Admin Blueprint
+try:
+    if not any(bp.name == 'system_admin' for bp in app.blueprints.values()):
+        from routes.system_admin import system_admin_bp
+        app.register_blueprint(system_admin_bp)
+        logger.info("System Admin blueprint registered successfully")
+    else:
+        logger.info("System Admin blueprint already registered")
+except ImportError:
+    logger.warning("System Admin module not found")
+except Exception as e:
+    logger.error(f"Error with System Admin blueprint: {e}")
+
+# Register Job Module Blueprint
+try:
+    if not any(bp.name == 'job_module' for bp in app.blueprints.values()):
+        from routes.job_module import job_module_bp
+        app.register_blueprint(job_module_bp)
+        logger.info("Job Module blueprint registered successfully")
+    else:
+        logger.info("Job Module blueprint already registered")
+except ImportError:
+    logger.warning("Job Module not found")
+except Exception as e:
+    logger.error(f"Error with Job Module blueprint: {e}")
+
 # Register Complete Daily Driver Blueprint
 try:
     # Check if the blueprint is already registered to avoid duplicate registration

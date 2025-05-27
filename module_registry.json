@@ -43,6 +43,37 @@
       "data_sources": ["Gauge API", "CSV", "Excel"],
       "status": "active"
     },
+    "database_explorer": {
+      "blueprint_name": "database_explorer_bp",
+      "file_path": "routes/database_explorer.py",
+      "primary_routes": [
+        "/database-explorer",
+        "/database-explorer/table/<table_name>",
+        "/database-explorer/query",
+        "/database-explorer/export/<table_name>"
+      ],
+      "templates": [
+        "templates/database_explorer/dashboard.html"
+      ],
+      "business_function": "Direct database access for viewing and querying fleet data tables",
+      "fingerprint_id": "database_explorer_tool",
+      "data_sources": ["PostgreSQL Database"],
+      "status": "active"
+    },
+    "secrets_manager": {
+      "blueprint_name": "secrets_manager_bp",
+      "file_path": "routes/secrets_manager.py",
+      "primary_routes": [
+        "/secrets-manager",
+        "/secrets-manager/test-connections",
+        "/secrets-manager/status"
+      ],
+      "templates": [],
+      "business_function": "Secure API credential management and connection monitoring",
+      "fingerprint_id": "secrets_manager_tool",
+      "data_sources": ["Environment Variables"],
+      "status": "active"
+    },
     "may_data_processor": {
       "blueprint_name": "may_processor_bp", 
       "file_path": "routes/may_data_processor.py",

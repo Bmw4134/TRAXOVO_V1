@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 # Initialize Gauge API
 gauge_api = GaugeAPI()
 
-@attendance_workflow_bp.route('/attendance-workflow')
+@attendance_workflow_bp.route('/')
 def attendance_dashboard():
     """Main attendance workflow dashboard"""
     try:
@@ -42,7 +42,7 @@ def sync_from_gauge():
     """Sync attendance data from Gauge API"""
     try:
         # Pull latest asset data from Gauge
-        assets_data = gauge_api.get_asset_list()
+        assets_data = gauge_api.get_assets()
         
         if not assets_data:
             return jsonify({

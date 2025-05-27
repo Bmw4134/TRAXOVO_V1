@@ -25,6 +25,24 @@
       "data_sources": ["CSV", "Excel"],
       "status": "active"
     },
+    "attendance_workflow": {
+      "blueprint_name": "attendance_workflow_bp",
+      "file_path": "routes/attendance_workflow.py",
+      "primary_routes": [
+        "/attendance-workflow",
+        "/attendance-workflow/sync-gauge",
+        "/attendance-workflow/daily-report/<date>",
+        "/attendance-workflow/weekly-report",
+        "/attendance-workflow/monthly-report"
+      ],
+      "templates": [
+        "templates/attendance_workflow/dashboard.html"
+      ],
+      "business_function": "Complete attendance workflow with Gauge API integration for daily → weekly → monthly reporting",
+      "fingerprint_id": "attendance_workflow_gauge",
+      "data_sources": ["Gauge API", "CSV", "Excel"],
+      "status": "active"
+    },
     "may_data_processor": {
       "blueprint_name": "may_processor_bp", 
       "file_path": "routes/may_data_processor.py",

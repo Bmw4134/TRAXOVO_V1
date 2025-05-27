@@ -238,7 +238,11 @@ def create_app():
             if not any(bp.name == blueprint_name.replace('_bp', '') for bp in app.blueprints.values()):
                 module = __import__(module_path, fromlist=[blueprint_name])
                 blueprint = getattr(module, blueprint_name)
-                app.register_blueprint(blueprint)
+                # Add URL prefix for attendance workflow
+                if blueprint_name == 'attendance_workflow_bp':
+                    app.register_blueprint(blueprint, url_prefix='/attendance-workflow')
+                else:
+                    app.register_blueprint(blueprint)
                 logger.info(f"{display_name} blueprint registered successfully")
         except (ImportError, AttributeError) as e:
             logger.warning(f"{display_name} module not found: {e}")

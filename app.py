@@ -10,6 +10,10 @@ from flask import Flask, render_template, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from flask_login import LoginManager
+from flask_talisman import Talisman
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_wtf.csrf import CSRFProtect
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 # Configure logging
@@ -28,7 +32,16 @@ login_manager = LoginManager()
 
 # Create Flask application
 app = Flask(__name__)
+
+# SECURITY CONFIGURATION
 app.config["SECRET_KEY"] = os.environ.get("SESSION_SECRET", "development_key")
+app.config["WTF_CSRF_ENABLED"] = True
+app.config["SESSION_COOKIE_SECURE"] = True
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["PERMANENT_SESSION_LIFETIME"] = 3600  # 1 hour
+
+# Database configuration
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
@@ -37,10 +50,35 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
-# Initialize extensions
+# Initialize security extensions
+csrf = CSRFProtect(app)
+limiter = Limiter(
+    key_func=get_remote_address,
+    app=app,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri="memory://",
+)
+
+# Initialize Talisman for HTTPS enforcement
+talisman = Talisman(
+    app,
+    force_https=False,  # Set to True in production
+    strict_transport_security=True,
+    content_security_policy={
+        'default-src': "'self'",
+        'script-src': ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "cdn.replit.com"],
+        'style-src': ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "cdn.replit.com"],
+        'font-src': ["'self'", "cdn.jsdelivr.net"],
+        'img-src': ["'self'", "data:", "*.replit.com"],
+    }
+)
+
+# Initialize database and authentication
 db.init_app(app)
 login_manager.init_app(app)
+login_manager.login_view = "auth.login"
 login_manager.login_message = "Please log in to access this page."
+login_manager.login_message_category = "info"
 
 # User loader
 @login_manager.user_loader

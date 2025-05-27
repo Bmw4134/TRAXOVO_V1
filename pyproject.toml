@@ -43,4 +43,8 @@ dependencies = [
     "pypdf2>=3.0.1",
     "tabula-py>=2.10.0",
     "psutil>=7.0.0",
+    "flask-limiter>=3.12",
+    "flask-wtf>=1.2.2",
+    "wtforms>=3.2.1",
+    "flask-talisman>=1.1.0",
 ]

@@ -262,6 +262,32 @@ except ImportError:
 except Exception as e:
     logger.error(f"Error with Work Zone Hours blueprint: {e}")
 
+# Register Job Site Hours Manager Blueprint
+try:
+    if not any(bp.name == 'job_site_hours' for bp in app.blueprints.values()):
+        from routes.job_site_hours_manager import job_site_hours_bp
+        app.register_blueprint(job_site_hours_bp)
+        logger.info("Job Site Hours Manager blueprint registered successfully")
+    else:
+        logger.info("Job Site Hours Manager blueprint already registered")
+except ImportError:
+    logger.warning("Job Site Hours Manager module not found")
+except Exception as e:
+    logger.error(f"Error with Job Site Hours Manager blueprint: {e}")
+
+# Register Automated Daily Reports Blueprint
+try:
+    if not any(bp.name == 'automated_reports' for bp in app.blueprints.values()):
+        from routes.automated_daily_reports import automated_reports_bp
+        app.register_blueprint(automated_reports_bp)
+        logger.info("Automated Daily Reports blueprint registered successfully")
+    else:
+        logger.info("Automated Daily Reports blueprint already registered")
+except ImportError:
+    logger.warning("Automated Daily Reports module not found")
+except Exception as e:
+    logger.error(f"Error with Automated Daily Reports blueprint: {e}")
+
 # Register Complete Daily Driver Blueprint
 try:
     # Check if the blueprint is already registered to avoid duplicate registration

@@ -361,6 +361,19 @@ except ImportError:
 except Exception as e:
     logger.error(f"Error with Demo Module blueprint: {e}")
 
+# Register Unified Attendance Validation Suite
+try:
+    if not any(bp.name == 'unified_attendance' for bp in app.blueprints.values()):
+        from routes.unified_attendance_suite import unified_attendance_bp
+        app.register_blueprint(unified_attendance_bp)
+        logger.info("🧠 Unified Attendance + Job Zone + GPS vs Timecard Validation Suite registered")
+    else:
+        logger.info("Unified Attendance Suite already registered")
+except ImportError:
+    logger.warning("Unified Attendance Suite not found")
+except Exception as e:
+    logger.error(f"Error with Unified Attendance Suite blueprint: {e}")
+
 # Register System Admin Blueprint
 try:
     if not any(bp.name == 'system_admin' for bp in app.blueprints.values()):

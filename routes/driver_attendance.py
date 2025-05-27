@@ -21,7 +21,7 @@ def driver_attendance_dashboard():
         # Get attendance data for current week
         attendance_data = load_weekly_attendance()
         
-        return render_template('driver_attendance/daily.html', 
+        return render_template('driver_attendance/dashboard.html', 
                              attendance_data=attendance_data,
                              current_date=datetime.now().strftime('%Y-%m-%d'))
     except Exception as e:

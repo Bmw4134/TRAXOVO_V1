@@ -104,8 +104,8 @@ class GaugeAPI:
                     is_vehicle = True
                     break
         
-        # If it's a vehicle with GPS, it's trackable
-        return has_gps and (is_vehicle or 'vehicle' in str(asset).lower())
+        # Return any asset that has GPS coordinates - don't filter by vehicle type
+        return has_gps
     
     def check_connection(self):
         """Check if connection to the Gauge API is available"""

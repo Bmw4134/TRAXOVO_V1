@@ -1,5 +1,5 @@
 """
-TRAXORA Fleet Management System - Application Factory
+TRAXOVO Fleet Management System - Application Factory
 
 This module provides the application factory for creating the Flask application.
 """

@@ -348,6 +348,19 @@ except ImportError:
 except Exception as e:
     logger.error(f"Error with System Health blueprint: {e}")
 
+# Register Demo Module for Phase 4 QA Extensibility Testing
+try:
+    if not any(bp.name == 'demo_module' for bp in app.blueprints.values()):
+        from routes.demo_module import demo_bp
+        app.register_blueprint(demo_bp)
+        logger.info("Demo Module registered for Phase 4 QA extensibility testing")
+    else:
+        logger.info("Demo Module already registered")
+except ImportError:
+    logger.warning("Demo Module not found")
+except Exception as e:
+    logger.error(f"Error with Demo Module blueprint: {e}")
+
 # Register System Admin Blueprint
 try:
     if not any(bp.name == 'system_admin' for bp in app.blueprints.values()):

@@ -249,6 +249,19 @@ except ImportError:
 except Exception as e:
     logger.error(f"Error with Driver-Asset Manager blueprint: {e}")
 
+# Register Work Zone Hours Validation Blueprint
+try:
+    if not any(bp.name == 'work_zone_hours' for bp in app.blueprints.values()):
+        from routes.work_zone_hours import work_zone_hours_bp
+        app.register_blueprint(work_zone_hours_bp)
+        logger.info("Work Zone Hours validation blueprint registered successfully")
+    else:
+        logger.info("Work Zone Hours blueprint already registered")
+except ImportError:
+    logger.warning("Work Zone Hours module not found")
+except Exception as e:
+    logger.error(f"Error with Work Zone Hours blueprint: {e}")
+
 # Register Complete Daily Driver Blueprint
 try:
     # Check if the blueprint is already registered to avoid duplicate registration

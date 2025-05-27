@@ -145,7 +145,7 @@ def index():
         'last_sync': get_last_sync_time()
     }
     
-    return render_template('dashboard_mobile_fixed.html', 
+    return render_template('dashboard_light_fixed.html', 
                           database_status='connected' if api_status['database'] else 'disconnected',
                           api_status='connected' if api_status['gauge_api'] else 'disconnected',
                           storage_status='connected' if api_status['file_system'] else 'disconnected',

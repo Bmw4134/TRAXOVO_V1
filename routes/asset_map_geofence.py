@@ -182,16 +182,38 @@ def asset_map_dashboard():
             .status-active { background: #28a745; }
             .status-idle { background: #ffc107; }
             .status-offline { background: #dc3545; }
-            .geofence-controls {
-                position: absolute;
-                top: 15px;
-                left: 15px;
+            .sidebar-panel {
                 background: white;
-                padding: 10px;
+                border-right: 1px solid #dee2e6;
+                height: 80vh;
+                overflow-y: auto;
+                padding: 1rem;
+            }
+            .filter-section {
+                border-bottom: 1px solid #f1f3f4;
+                padding-bottom: 0.75rem;
+            }
+            .map-container-wrapper {
+                position: relative;
+                height: 80vh;
+            }
+            .map-legend {
+                position: absolute;
+                bottom: 20px;
+                left: 20px;
+                background: white;
+                padding: 10px 15px;
                 border-radius: 8px;
                 border: 1px solid #dee2e6;
                 box-shadow: 0 2px 8px rgba(0,0,0,0.15);
                 z-index: 1000;
+                display: flex;
+                gap: 15px;
+            }
+            .legend-item {
+                font-size: 0.85rem;
+                display: flex;
+                align-items: center;
             }
         </style>
     </head>
@@ -414,6 +436,7 @@ def asset_map_dashboard():
                 `);
             });
 
+            // Filter and control functions
             function toggleGeofences() {
                 if (geofencesVisible) {
                     map.removeLayer(geofenceGroup);
@@ -424,12 +447,34 @@ def asset_map_dashboard():
                 }
             }
 
-            function refreshMap() {
+            function fitToAssets() {
+                if (assetGroup.getLayers().length > 0) {
+                    map.fitBounds(assetGroup.getBounds(), {padding: [20, 20]});
+                }
+            }
+
+            function refreshAssets() {
                 location.reload();
             }
 
+            function toggleJobZone(zoneId) {
+                // Filter assets by job zone
+                console.log('Toggling job zone:', zoneId);
+            }
+
+            function toggleAssetFilter(status) {
+                // Filter assets by status
+                console.log('Toggling asset filter:', status);
+            }
+
+            function searchAssets() {
+                const searchTerm = document.getElementById('assetSearch').value.toLowerCase();
+                // Implement asset search functionality
+                console.log('Searching for:', searchTerm);
+            }
+
             // Auto-refresh every 30 seconds
-            setInterval(refreshMap, 30000);
+            setInterval(refreshAssets, 30000);
         </script>
     </body>
     </html>

@@ -39,8 +39,8 @@ DIRECT_LOGIN_PAGE = '''<!DOCTYPE html>
                     <div class="card-body p-5">
                         <div class="text-center mb-4">
                             <h1 class="text-primary mb-2">TRAXOVO</h1>
-                            <p class="text-muted">Multi-Division Fleet Management</p>
-                            <small class="text-success">DFW • WTX • HOU</small>
+                            <p class="text-muted">Multi-Company Fleet Management</p>
+                            <small class="text-success">Ragle Inc • Select Maintenance • Unified Specialties</small>
                         </div>
                         
                         {% if error %}

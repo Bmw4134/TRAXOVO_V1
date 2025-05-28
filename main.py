@@ -540,13 +540,14 @@ def dashboard():
                               assets_count=657,  # Your authentic Gauge API count
                               drivers_count=52,   # Your authentic driver count from MTD data
                               job_sites_count=52, # Your authentic job sites from logs
-                              divisions=['DFW', 'WTX', 'HOU'],
+                              companies=['Ragle Inc', 'Select Maintenance', 'Unified Specialties'],
+                              divisions=['DIV 2 (DFW)', 'DIV 3 (WTX)', 'DIV 4 (HOU)'],
                               database_status='connected',
                               api_status='connected',
                               storage_status='connected')
     except Exception as e:
         logger.error(f"Dashboard error: {e}")
-        return f"<h1>TRAXOVO Dashboard</h1><p>Welcome {session.get('user', 'admin')}!</p><p>Multi-Division Fleet Management System is operational.</p><p>Assets: 657 | Divisions: DFW, WTX, HOU</p>"
+        return f"<h1>TRAXOVO Dashboard</h1><p>Welcome {session.get('user', 'admin')}!</p><p>Multi-Company Fleet Management: Ragle Inc • Select Maintenance • Unified Specialties</p><p>Assets: 657 | Divisions: DIV 2 (DFW), DIV 3 (WTX), DIV 4 (HOU)</p>"
 
 @app.route('/system-health')
 def system_health():

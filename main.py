@@ -21,6 +21,7 @@ from routes.team_view import team_bp
 from routes.kpi_export import kpi_bp
 from routes.role_dashboard import role_bp
 from routes.qa_dashboard import qa_bp
+from routes.elite_modules import elite_bp
 
 # Register all blueprints
 app.register_blueprint(daily_driver_bp, url_prefix='/driver')
@@ -33,6 +34,7 @@ app.register_blueprint(team_bp)
 app.register_blueprint(kpi_bp)
 app.register_blueprint(role_bp)
 app.register_blueprint(qa_bp)
+app.register_blueprint(elite_bp)
 
 @app.route('/')
 def dashboard():
@@ -162,7 +164,7 @@ def dashboard():
                         </div>
                         <div class="card-body">
                             <p>Real-time GPS tracking for 562 assets across Ragle, Select Maintenance, and Unified Specialties.</p>
-                            <a href="/fleet/gps-status" class="btn btn-secondary">GPS Status</a>
+                            <a href="/fleet/gps-assets" class="btn btn-secondary">GPS Status</a>
                         </div>
                     </div>
                 </div>
@@ -170,11 +172,11 @@ def dashboard():
                 <div class="col-md-4 mb-4">
                     <div class="card module-card h-100">
                         <div class="card-header bg-dark text-white">
-                            <h5 class="mb-0"><i class="fas fa-download me-2"></i>KPI Export</h5>
+                            <h5 class="mb-0"><i class="fas fa-fire me-2"></i>Elite Analytics</h5>
                         </div>
                         <div class="card-body">
-                            <p>Export comprehensive KPI reports for fleet utilization, driver performance, and cost analysis.</p>
-                            <a href="/kpi/export" class="btn btn-dark">Export KPIs</a>
+                            <p>Advanced predictive analytics, optimization engine, and driver performance heatmaps.</p>
+                            <a href="/elite/heatmap" class="btn btn-dark">Elite Dashboard</a>
                         </div>
                     </div>
                 </div>

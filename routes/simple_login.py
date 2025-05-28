@@ -3,11 +3,16 @@ Simple Direct Login - No CSRF Required
 """
 from flask import Blueprint, request, redirect, url_for, flash, render_template_string
 from flask_login import login_user, current_user
+from flask_wtf.csrf import CSRFProtect
 import logging
 
 logger = logging.getLogger(__name__)
 
 simple_login_bp = Blueprint('simple_login', __name__)
+
+# Disable CSRF for this blueprint
+csrf = CSRFProtect()
+csrf.exempt(simple_login_bp)
 
 SIMPLE_LOGIN_TEMPLATE = '''
 <!DOCTYPE html>

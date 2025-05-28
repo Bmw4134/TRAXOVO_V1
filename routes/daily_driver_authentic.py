@@ -149,11 +149,14 @@ def daily_driver_reports():
                 'company': 'Select/Unified' if emp_id >= 300000 else 'Ragle Inc',
             }
             
+            # Check actual data patterns for this employee
+            total_records = len(emp_records)
+            has_good_activity = total_records > 5
+            has_some_activity = total_records > 0
+            days_in_range = (end_dt - start_dt).days + 1
+            
             score_val = 5
             for day in weekdays:
-                # Check if employee has records for this day type
-                has_activity = len(emp_records) > (emp_id % 7)  # Dynamic based on actual data volume
-                
                 if day in ['sat', 'sun']:
                     performance[f'{day}_symbol'] = '-'
                     performance[f'{day}_status'] = 'secondary'

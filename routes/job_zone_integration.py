@@ -124,10 +124,25 @@ def job_zones_dashboard():
     <body>
         <div class="page-header">
             <div class="container">
-                <h1 class="fw-bold mb-2">
-                    <i class="fas fa-map-marked-alt me-2 text-primary"></i>Job Zone Integration
-                </h1>
-                <p class="text-muted">Driver assignments and PM/PE tracking by job site</p>
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h1 class="fw-bold mb-2">
+                            <i class="fas fa-map-marked-alt me-2 text-primary"></i>Job Zone Integration
+                        </h1>
+                        <p class="text-muted">Driver assignments and PM/PE tracking by job site</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="/dashboard" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                        </a>
+                        <a href="/driver/daily-driver-reports" class="btn btn-outline-primary">
+                            <i class="fas fa-users me-2"></i>Driver Reports
+                        </a>
+                        <a href="/zones/job-zones" class="btn btn-success">
+                            <i class="fas fa-refresh me-2"></i>Refresh Data
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -161,10 +176,10 @@ def job_zones_dashboard():
                         </div>
                         
                         <div class="mt-3">
-                            <button class="btn btn-outline-primary btn-sm me-2">
+                            <button class="btn btn-outline-primary btn-sm me-2" onclick="viewTeam('{{ zone.job_number }}')">
                                 <i class="fas fa-users me-1"></i>View Team
                             </button>
-                            <button class="btn btn-outline-success btn-sm me-2">
+                            <button class="btn btn-outline-success btn-sm me-2" onclick="gpsTrack('{{ zone.job_number }}')">
                                 <i class="fas fa-map me-1"></i>GPS Track
                             </button>
                             <button class="btn btn-outline-warning btn-sm" onclick="toggleHours('{{ zone.job_number }}')">

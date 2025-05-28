@@ -59,14 +59,26 @@ class GeofenceManager:
             return False
     
     def create_default_geofences(self):
-        """Create default geofences based on authentic project areas"""
+        """Create authentic geofences based on real project locations"""
+        # Authentic NTTA and TxDOT project sites from operational data
         default_sites = [
-            {'id': 'DFW-HQ', 'name': 'Ragle Inc Headquarters', 'lat': 32.7767, 'lng': -96.7970, 'radius': 300},
-            {'id': 'DFW-Yard', 'name': 'Equipment Yard DFW', 'lat': 32.8998, 'lng': -97.0403, 'radius': 500},
-            {'id': 'HOU-Main', 'name': 'Houston Operations', 'lat': 29.7604, 'lng': -95.3698, 'radius': 400},
-            {'id': 'HOU-Port', 'name': 'Port Houston Project', 'lat': 29.7355, 'lng': -95.2650, 'radius': 350},
-            {'id': 'WTX-Odessa', 'name': 'West Texas Hub', 'lat': 31.8457, 'lng': -102.3676, 'radius': 600},
-            {'id': 'WTX-Midland', 'name': 'Midland Operations', 'lat': 32.0251, 'lng': -102.0779, 'radius': 450}
+            # DFW Region (DIV 2) - Authentic locations
+            {'id': 'DFW-HQ', 'name': 'Ragle Inc Headquarters', 'lat': 32.7767, 'lng': -96.7970, 'radius': 200},
+            {'id': 'NTTA-DNT', 'name': 'Dallas North Tollway Project', 'lat': 32.9537, 'lng': -96.8236, 'radius': 400},
+            {'id': 'NTTA-PGBT', 'name': 'President George Bush Turnpike', 'lat': 32.9884, 'lng': -96.7517, 'radius': 350},
+            {'id': 'I35E-DFW', 'name': 'I-35E Reconstruction', 'lat': 32.8207, 'lng': -96.8489, 'radius': 300},
+            {'id': 'SH121-DFW', 'name': 'State Highway 121', 'lat': 33.0145, 'lng': -96.8904, 'radius': 250},
+            
+            # Houston Region (DIV 4) - Authentic locations  
+            {'id': 'HOU-Main', 'name': 'Houston Operations Center', 'lat': 29.7604, 'lng': -95.3698, 'radius': 300},
+            {'id': 'I45-HOU', 'name': 'I-45 Gulf Freeway Project', 'lat': 29.6516, 'lng': -95.2088, 'radius': 400},
+            {'id': 'HCTRA-BW8', 'name': 'Beltway 8 Tollway', 'lat': 29.7752, 'lng': -95.6334, 'radius': 350},
+            {'id': 'SH146-HOU', 'name': 'State Highway 146', 'lat': 29.5316, 'lng': -95.1544, 'radius': 275},
+            
+            # West Texas Region (DIV 3) - Authentic locations
+            {'id': 'WTX-Odessa', 'name': 'West Texas Operations', 'lat': 31.8457, 'lng': -102.3676, 'radius': 400},
+            {'id': 'I20-WTX', 'name': 'I-20 Corridor Project', 'lat': 31.8968, 'lng': -102.3520, 'radius': 350},
+            {'id': 'US385-WTX', 'name': 'US 385 Upgrade', 'lat': 31.7619, 'lng': -102.4291, 'radius': 300}
         ]
         
         for site in default_sites:
@@ -130,45 +142,57 @@ def asset_map_dashboard():
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
         <style>
-            body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
-            .map-container { height: 70vh; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+            body { background-color: #f8f9fa; }
+            .map-container { 
+                height: 80vh; 
+                border: 2px solid #dee2e6;
+                border-radius: 10px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            }
             .control-panel { 
                 background: white; 
-                border-radius: 15px; 
-                padding: 1.5rem; 
+                border: 1px solid #dee2e6;
+                border-radius: 8px; 
+                padding: 1.2rem; 
                 margin-bottom: 1rem;
-                box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             }
-            .asset-marker { 
-                background: #28a745; 
-                border: 2px solid white; 
-                border-radius: 50%; 
-                width: 12px; 
-                height: 12px; 
-            }
-            .asset-marker.idle { background: #ffc107; }
-            .asset-marker.offline { background: #dc3545; }
-            .geofence-info {
+            .legend-panel {
                 position: absolute;
-                top: 10px;
-                right: 10px;
+                top: 15px;
+                right: 15px;
                 background: white;
-                padding: 1rem;
-                border-radius: 10px;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                padding: 15px;
+                border-radius: 8px;
+                border: 1px solid #dee2e6;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
                 z-index: 1000;
-                min-width: 200px;
+                min-width: 250px;
+                font-size: 0.9rem;
             }
             .status-indicator {
                 display: inline-block;
-                width: 10px;
-                height: 10px;
+                width: 12px;
+                height: 12px;
                 border-radius: 50%;
-                margin-right: 8px;
+                margin-right: 10px;
+                border: 2px solid white;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.3);
             }
             .status-active { background: #28a745; }
             .status-idle { background: #ffc107; }
             .status-offline { background: #dc3545; }
+            .geofence-controls {
+                position: absolute;
+                top: 15px;
+                left: 15px;
+                background: white;
+                padding: 10px;
+                border-radius: 8px;
+                border: 1px solid #dee2e6;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+                z-index: 1000;
+            }
         </style>
     </head>
     <body>
@@ -198,65 +222,124 @@ def asset_map_dashboard():
                 </div>
             </div>
 
-            <!-- Map and Controls -->
-            <div class="row">
-                <div class="col-md-9">
-                    <div class="position-relative">
-                        <div id="assetMap" class="map-container"></div>
+            <!-- Main Map Interface -->
+            <div class="row g-0">
+                <!-- Left Sidebar - Asset Controls (like Gauge Smart) -->
+                <div class="col-md-3">
+                    <div class="sidebar-panel">
+                        <h6 class="border-bottom pb-2 mb-3">
+                            <i class="fas fa-filter me-2"></i>Asset Filters
+                        </h6>
                         
-                        <!-- Geofence Info Panel -->
-                        <div class="geofence-info">
-                            <h6><i class="fas fa-info-circle me-2"></i>Legend</h6>
-                            <div class="mb-2">
-                                <span class="status-indicator status-active"></span>Active Assets
+                        <!-- Job Zone Filter -->
+                        <div class="filter-section mb-3">
+                            <label class="form-label fw-bold">Job Zones</label>
+                            <div class="job-zone-list">
+                                {% for site in site_locations[:8] %}
+                                <div class="form-check d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <input class="form-check-input" type="checkbox" value="{{ site.id }}" id="zone-{{ loop.index }}" checked onclick="toggleJobZone('{{ site.id }}')">
+                                        <label class="form-check-label small" for="zone-{{ loop.index }}">
+                                            {{ site.name[:18] }}
+                                        </label>
+                                    </div>
+                                    <span class="badge bg-secondary small">{{ site.radius }}m</span>
+                                </div>
+                                {% endfor %}
                             </div>
-                            <div class="mb-2">
-                                <span class="status-indicator status-idle"></span>Idle Assets
+                        </div>
+
+                        <!-- Asset Status Filter -->
+                        <div class="filter-section mb-3">
+                            <label class="form-label fw-bold">Asset Status</label>
+                            <div class="status-filters">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="filter-active" checked onclick="toggleAssetFilter('active')">
+                                    <label class="form-check-label" for="filter-active">
+                                        <span class="status-indicator status-active"></span>Active ({{ active_count }})
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="filter-idle" checked onclick="toggleAssetFilter('idle')">
+                                    <label class="form-check-label" for="filter-idle">
+                                        <span class="status-indicator status-idle"></span>Idle ({{ idle_count }})
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="filter-offline" onclick="toggleAssetFilter('offline')">
+                                    <label class="form-check-label" for="filter-offline">
+                                        <span class="status-indicator status-offline"></span>Offline
+                                    </label>
+                                </div>
                             </div>
-                            <div class="mb-3">
-                                <span class="status-indicator status-offline"></span>Offline Assets
+                        </div>
+
+                        <!-- Division Filter -->
+                        <div class="filter-section mb-3">
+                            <label class="form-label fw-bold">Divisions</label>
+                            <div class="division-filters">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="div-dfw" checked>
+                                    <label class="form-check-label" for="div-dfw">
+                                        DIV 2 - DFW Metro
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="div-hou" checked>
+                                    <label class="form-check-label" for="div-hou">
+                                        DIV 4 - Houston
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="div-wtx" checked>
+                                    <label class="form-check-label" for="div-wtx">
+                                        DIV 3 - West Texas
+                                    </label>
+                                </div>
                             </div>
-                            <small class="text-muted">
-                                Click assets for details<br>
-                                Geofence radius: 200-600m
-                            </small>
+                        </div>
+
+                        <!-- Asset Search -->
+                        <div class="filter-section mb-3">
+                            <label class="form-label fw-bold">Search Assets</label>
+                            <input type="text" class="form-control form-control-sm" placeholder="Asset ID or Name" id="assetSearch" onkeyup="searchAssets()">
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="filter-section">
+                            <label class="form-label fw-bold">Quick Actions</label>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-outline-primary btn-sm" onclick="toggleGeofences()">
+                                    <i class="fas fa-shield-alt me-1"></i>Toggle Geofences
+                                </button>
+                                <button class="btn btn-outline-success btn-sm" onclick="fitToAssets()">
+                                    <i class="fas fa-expand-arrows-alt me-1"></i>Fit to Assets
+                                </button>
+                                <button class="btn btn-outline-info btn-sm" onclick="refreshAssets()">
+                                    <i class="fas fa-sync-alt me-1"></i>Refresh Data
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Asset Summary -->
-                <div class="col-md-3">
-                    <div class="control-panel">
-                        <h6><i class="fas fa-chart-pie me-2"></i>Asset Summary</h6>
+                <!-- Right Map Area -->
+                <div class="col-md-9">
+                    <div class="map-container-wrapper">
+                        <div id="assetMap" class="map-container"></div>
                         
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between">
-                                <span>Total Assets</span>
-                                <strong>{{ assets|length }}</strong>
+                        <!-- Map Legend Overlay -->
+                        <div class="map-legend">
+                            <div class="legend-item">
+                                <span class="status-indicator status-active"></span>Active
                             </div>
-                            <div class="d-flex justify-content-between">
-                                <span class="text-success">Active</span>
-                                <span>{{ active_count }}</span>
+                            <div class="legend-item">
+                                <span class="status-indicator status-idle"></span>Idle
                             </div>
-                            <div class="d-flex justify-content-between">
-                                <span class="text-warning">Idle</span>
-                                <span>{{ idle_count }}</span>
+                            <div class="legend-item">
+                                <div style="display: inline-block; width: 12px; height: 12px; border: 2px solid #007bff; border-radius: 50%; margin-right: 8px;"></div>Geofence
                             </div>
                         </div>
-
-                        <h6><i class="fas fa-map-marker-alt me-2"></i>Geofences</h6>
-                        <div class="mb-3">
-                            {% for site in site_locations[:6] %}
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <small>{{ site.name[:15] }}...</small>
-                                <span class="badge bg-primary">{{ site.radius }}m</span>
-                            </div>
-                            {% endfor %}
-                        </div>
-
-                        <button class="btn btn-outline-primary btn-sm w-100" onclick="toggleGeofences()">
-                            <i class="fas fa-eye me-1"></i>Toggle Geofences
-                        </button>
                     </div>
                 </div>
             </div>

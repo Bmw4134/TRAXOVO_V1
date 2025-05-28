@@ -516,6 +516,7 @@ def daily_driver_reports():
         </div>
         
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="/static/smart-ui-resizer.js"></script>
         <script>
             // Make date range and view toggles functional
             document.addEventListener('DOMContentLoaded', function() {
@@ -537,17 +538,12 @@ def daily_driver_reports():
                     navigateWeek(1);
                 });
                 
-                // Handle apply button
-                document.getElementById('applyRange').addEventListener('click', function() {
-                    const startDate = document.getElementById('startDate').value;
-                    const endDate = document.getElementById('endDate').value;
-                    console.log('Applying date range:', startDate, 'to', endDate);
-                    // Reload page with new date range parameters
-                    const currentUrl = new URL(window.location);
-                    currentUrl.searchParams.set('start_date', startDate);
-                    currentUrl.searchParams.set('end_date', endDate);
-                    window.location.href = currentUrl.toString();
-                });
+                // Quick action buttons
+                document.querySelector('.btn:contains("Export MTD Report")').onclick = () => exportToCSV();
+                document.querySelector('.btn:contains("Live GPS Dashboard")').onclick = () => window.location.href = '/';
+                document.querySelector('.btn:contains("Schedule Analysis")').onclick = () => switchView('monthly');
+                
+                // Form automatically submits on Apply button click - no additional handling needed
                 
                 // Handle apply button
                 const applyBtn = document.querySelector('.btn-primary.btn-sm');

@@ -27,15 +27,23 @@ def team_view(job_number):
                 job_data = df[df['Job'].astype(str).str.contains(str(job_number), na=False)]
                 
                 for _, row in job_data.iterrows():
-                    driver_name = row.get('Driver', f"Employee {row.get('Employee_ID', 'Unknown')}")
-                    pm_name = row.get('PM', 'Unknown PM')
+                    # Extract real driver names from the authentic daily reports
+                    driver_name = str(row.get('Driver', '')).strip()
+                    if not driver_name or driver_name == 'nan':
+                        driver_name = str(row.get('DRIVER', '')).strip()
+                    if not driver_name or driver_name == 'nan':
+                        driver_name = f"Employee {row.get('Employee_ID', 'Unknown')}"
+                    
+                    pm_name = str(row.get('PM', '')).strip()
+                    if not pm_name or pm_name == 'nan':
+                        pm_name = 'Unknown PM'
                     
                     team_members.append({
                         'name': driver_name,
-                        'emp_id': row.get('Employee_ID', 'Unknown'),
+                        'emp_id': row.get('Employee_ID', row.get('EMP_ID', 'Unknown')),
                         'role': 'Equipment Operator',
                         'pm_assigned': pm_name,
-                        'ytd_hours': f"{row.get('Hours', 0):.1f}",
+                        'ytd_hours': f"{float(row.get('Hours', 0)) if row.get('Hours') else 0:.1f}",
                         'status': row.get('Status', 'Active')
                     })
             except Exception as e:
@@ -56,6 +64,17 @@ def team_view(job_number):
                     
                     for _, row in job_data.iterrows():
                         employee_id = row.get('sort_key_no', 'Unknown')
+                        
+                        # Get REAL employee name from authentic timecard columns
+                        employee_name = str(row.get('emp_name', '')).strip()
+                        if not employee_name or employee_name == 'nan':
+                            employee_name = str(row.get('emp_lname', '') + ', ' + row.get('emp_fname', '')).strip()
+                        if not employee_name or employee_name == 'nan' or employee_name == ', ':
+                            employee_name = str(row.get('employee_name', '')).strip()
+                        if not employee_name or employee_name == 'nan':
+                            # Use the employee ID to find real names from other sources
+                            employee_name = f"Employee {employee_id}"
+                        
                         try:
                             hours = float(row.get('hours', 0)) if pd.notna(row.get('hours')) else 0
                         except (ValueError, TypeError):
@@ -73,7 +92,7 @@ def team_view(job_number):
                             pm_assigned = "David Wilson (West Texas)"
                         
                         team_members.append({
-                            'name': f"Employee {employee_id}",
+                            'name': employee_name,
                             'emp_id': employee_id,
                             'role': 'Field Worker',
                             'pm_assigned': pm_assigned,

@@ -21,6 +21,7 @@ from routes.fleet_analytics import fleet_bp
 from routes.team_view import team_bp
 from routes.kpi_export import kpi_bp
 from routes.role_dashboard import role_bp
+from routes.qa_dashboard import qa_bp
 
 # Register all blueprints
 app.register_blueprint(daily_driver_bp, url_prefix='/driver')
@@ -32,6 +33,7 @@ app.register_blueprint(fleet_bp)
 app.register_blueprint(team_bp)
 app.register_blueprint(kpi_bp)
 app.register_blueprint(role_bp)
+app.register_blueprint(qa_bp)
 # app.register_blueprint(equipment_billing_bp, url_prefix='/billing')
 
 @app.route('/')

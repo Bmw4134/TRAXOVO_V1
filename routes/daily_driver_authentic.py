@@ -473,13 +473,34 @@ def daily_driver_reports():
                                     <thead class="table-dark">
                                         <tr>
                                             <th style="color: white; min-width: 180px;">Driver</th>
-                                            <th class="text-center" style="color: white;">MON</th>
-                                            <th class="text-center" style="color: white;">TUE</th>
-                                            <th class="text-center" style="color: white;">WED</th>
-                                            <th class="text-center" style="color: white;">THU</th>
-                                            <th class="text-center" style="color: white;">FRI</th>
-                                            <th class="text-center weekend-col" style="color: white;">SAT</th>
-                                            <th class="text-center weekend-col" style="color: white;">SUN</th>
+                                            <th class="text-center" style="color: white;">
+                                                <div class="fw-bold">MON</div>
+                                                <small id="mon-date">05/19</small>
+                                            </th>
+                                            <th class="text-center" style="color: white;">
+                                                <div class="fw-bold">TUE</div>
+                                                <small id="tue-date">05/20</small>
+                                            </th>
+                                            <th class="text-center" style="color: white;">
+                                                <div class="fw-bold">WED</div>
+                                                <small id="wed-date">05/21</small>
+                                            </th>
+                                            <th class="text-center" style="color: white;">
+                                                <div class="fw-bold">THU</div>
+                                                <small id="thu-date">05/22</small>
+                                            </th>
+                                            <th class="text-center" style="color: white;">
+                                                <div class="fw-bold">FRI</div>
+                                                <small id="fri-date">05/23</small>
+                                            </th>
+                                            <th class="text-center weekend-col" style="color: white;">
+                                                <div class="fw-bold">SAT</div>
+                                                <small id="sat-date">05/24</small>
+                                            </th>
+                                            <th class="text-center weekend-col" style="color: white;">
+                                                <div class="fw-bold">SUN</div>
+                                                <small id="sun-date">05/25</small>
+                                            </th>
                                             <th class="text-center" style="color: white;">Score</th>
                                         </tr>
                                     </thead>

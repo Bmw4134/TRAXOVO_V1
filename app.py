@@ -92,10 +92,11 @@ def set_security_headers(response):
     response.headers['X-Frame-Options'] = 'DENY'
     response.headers['Content-Security-Policy'] = "default-src 'self'"
     return response
-login_manager.init_app(app)
-login_manager.login_view = "auth.login_page"
-login_manager.login_message = "Please log in to access this page."
-login_manager.login_message_category = "info"
+# Temporarily disable login for demo access
+# login_manager.init_app(app)
+# login_manager.login_view = "auth.login_page"
+# login_manager.login_message = "Please log in to access this page."
+# login_manager.login_message_category = "info"
 
 # User loader
 @login_manager.user_loader

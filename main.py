@@ -1,1 +1,1 @@
-from app import app  # noqa: F401
+from simple_app import app  # noqa: F401

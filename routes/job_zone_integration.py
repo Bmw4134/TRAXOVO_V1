@@ -135,13 +135,13 @@ def job_zones_dashboard():
                         <p class="text-muted">Driver assignments and PM/PE tracking by job site</p>
                     </div>
                     <div class="d-flex gap-2">
-                        <a href="/dashboard" class="btn btn-outline-secondary">
+                        <a href="/" class="btn btn-outline-secondary">
                             <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
                         </a>
                         <a href="/driver/daily-driver-reports" class="btn btn-outline-primary">
                             <i class="fas fa-users me-2"></i>Driver Reports
                         </a>
-                        <a href="/zones/job-zones" class="btn btn-success">
+                        <a href="/zones/integration" class="btn btn-success">
                             <i class="fas fa-refresh me-2"></i>Refresh Data
                         </a>
                     </div>

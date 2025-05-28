@@ -75,7 +75,7 @@ def fleet_utilization():
         <div class="container mt-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2><i class="fas fa-chart-line me-2"></i>Fleet Utilization Analytics</h2>
-                <a href="/zones/job-zones" class="btn btn-outline-secondary">
+                <a href="/zones/integration" class="btn btn-outline-secondary">
                     <i class="fas fa-arrow-left me-2"></i>Back to Job Zones
                 </a>
             </div>

@@ -75,10 +75,15 @@ def process_uploaded_file(filepath):
         if filepath.endswith('.csv'):
             df = pd.read_csv(filepath)
         else:
-            df = pd.read_excel(filepath)
+            # Try different Excel engines
+            try:
+                df = pd.read_excel(filepath, engine='openpyxl')
+            except:
+                df = pd.read_excel(filepath, engine='xlrd')
         
         logger.info(f"Processed {len(df)} rows from {filepath}")
-        # File processing logic here
+        logger.info(f"Columns: {list(df.columns)}")
+        logger.info(f"First few rows: {df.head().to_string()}")
         
     except Exception as e:
         logger.error(f"Error processing {filepath}: {e}")
@@ -109,26 +114,48 @@ def load_authentic_attendance_data():
         
         for file_path in attendance_files:
             if os.path.exists(file_path):
-                df = pd.read_excel(file_path)
-                date_str = file_path.split('_')[-1].replace('.xlsx', '')
-                
-                for _, row in df.iterrows():
-                    if len(row) >= 4:
-                        employee_name = str(row.iloc[1]) if pd.notna(row.iloc[1]) else ''
-                        employee_id = str(row.iloc[0]) if pd.notna(row.iloc[0]) else ''
-                        
-                        if employee_name and employee_id:
-                            authentic_drivers.add((employee_id, employee_name))
+                try:
+                    # Try different engines for Excel files
+                    if file_path.lower().endswith('.csv'):
+                        df = pd.read_csv(file_path)
+                    else:
+                        # Try openpyxl first, then xlrd for older files
+                        try:
+                            df = pd.read_excel(file_path, engine='openpyxl')
+                        except:
+                            df = pd.read_excel(file_path, engine='xlrd')
+                    
+                    date_str = os.path.basename(file_path).split('_')[-1].replace('.xlsx', '').replace('.xls', '').replace('.csv', '')
+                    
+                    # Process each row and extract driver info
+                    for idx, row in df.iterrows():
+                        if len(row) >= 2:  # At least employee ID and name
+                            employee_id = str(row.iloc[0]).strip() if pd.notna(row.iloc[0]) else ''
+                            employee_name = str(row.iloc[1]).strip() if pd.notna(row.iloc[1]) else ''
                             
-                        violation = {
-                            'date': date_str.replace('.', '/'),
-                            'employee_id': employee_id,
-                            'employee_name': employee_name,
-                            'violation_type': str(row.iloc[2]) if pd.notna(row.iloc[2]) else '',
-                            'notes': str(row.iloc[3]) if pd.notna(row.iloc[3]) else ''
-                        }
-                        if violation['employee_id']:
-                            all_violations.append(violation)
+                            # Skip header rows
+                            if employee_id.lower() in ['employee', 'id', 'driver'] or employee_name.lower() in ['name', 'driver', 'employee']:
+                                continue
+                                
+                            if employee_name and employee_id and employee_id != 'nan':
+                                authentic_drivers.add((employee_id, employee_name))
+                                
+                            violation_type = str(row.iloc[2]).strip() if len(row) > 2 and pd.notna(row.iloc[2]) else ''
+                            notes = str(row.iloc[3]).strip() if len(row) > 3 and pd.notna(row.iloc[3]) else ''
+                            
+                            violation = {
+                                'date': date_str.replace('.', '/'),
+                                'employee_id': employee_id,
+                                'employee_name': employee_name,
+                                'violation_type': violation_type,
+                                'notes': notes
+                            }
+                            if violation['employee_id'] and violation['employee_id'] != 'nan':
+                                all_violations.append(violation)
+                                
+                except Exception as file_error:
+                    logger.error(f"Error reading {file_path}: {file_error}")
+                    continue
         
         # Generate summary statistics
         late_starts = len([v for v in all_violations if 'late' in v['violation_type'].lower()])

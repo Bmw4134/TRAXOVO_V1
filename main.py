@@ -91,7 +91,7 @@ def dashboard():
                             <i class="fas fa-map-marked-alt"></i>
                         </div>
                         <h4 class="fw-bold mb-3">Job Zone Integration</h4>
-                        <p class="text-muted mb-4">Map drivers to job sites with PM/PE assignments across DFW, Houston, and West Texas.</p>
+                        <p class="text-muted mb-4">Map 92 drivers to job sites with PM/PE assignments across DFW, Houston, and West Texas.</p>
                         <a href="{{ url_for('job_zone_integration.job_zones_dashboard') }}" class="btn btn-success">
                             <i class="fas fa-map me-2"></i>View Zones
                         </a>
@@ -105,7 +105,7 @@ def dashboard():
                             <i class="fas fa-calculator"></i>
                         </div>
                         <h4 class="fw-bold mb-3">Payroll Integration</h4>
-                        <p class="text-muted mb-4">Excel timecard processing with quantity review and cost validation.</p>
+                        <p class="text-muted mb-4">Excel timecard processing for 92 drivers with quantity review and cost validation.</p>
                         <a href="{{ url_for('payroll_integration.payroll_dashboard') }}" class="btn btn-warning">
                             <i class="fas fa-file-excel me-2"></i>Process Payroll
                         </a>
@@ -119,7 +119,7 @@ def dashboard():
                             <i class="fas fa-user-shield"></i>
                         </div>
                         <h4 class="fw-bold mb-3">PM/PE Access</h4>
-                        <p class="text-muted mb-4">Secure login for project managers to view assets on their assigned jobs.</p>
+                        <p class="text-muted mb-4">Secure login for 3 project managers to view 92 drivers and assets on assigned jobs.</p>
                         <a href="{{ url_for('access_control.login') }}" class="btn btn-info">
                             <i class="fas fa-sign-in-alt me-2"></i>Login
                         </a>

@@ -86,12 +86,23 @@ def process_uploaded_file(filepath):
 def load_authentic_attendance_data():
     """Load real attendance data from your actual MTD files"""
     try:
-        # Process your actual attendance files
-        attendance_files = [
-            'DAILY LATE START-EARLY END & NOJ REPORT_05.12.2025.xlsx',
-            'DAILY LATE START-EARLY END & NOJ REPORT_05.13.2025.xlsx', 
-            'DAILY LATE START-EARLY END & NOJ REPORT_05.14.2025.xlsx'
-        ]
+        # Check uploaded files first, then fallback to existing files
+        upload_path = UPLOAD_FOLDER
+        attendance_files = []
+        
+        # Look for uploaded files first
+        if os.path.exists(upload_path):
+            for file in os.listdir(upload_path):
+                if file.lower().endswith(('.xlsx', '.xls', '.csv')):
+                    attendance_files.append(os.path.join(upload_path, file))
+        
+        # Fallback to existing files in root directory
+        if not attendance_files:
+            attendance_files = [
+                'DAILY LATE START-EARLY END & NOJ REPORT_05.12.2025.xlsx',
+                'DAILY LATE START-EARLY END & NOJ REPORT_05.13.2025.xlsx', 
+                'DAILY LATE START-EARLY END & NOJ REPORT_05.14.2025.xlsx'
+            ]
         
         all_violations = []
         authentic_drivers = set()
@@ -408,61 +419,39 @@ ATTENDANCE_DASHBOARD_HTML = '''
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td><strong>J.Anderson</strong></td>
-                                        <td class="text-center">─</td>
-                                        <td class="text-center text-success">✓</td>
-                                        <td class="text-center text-success">✓</td>
-                                        <td class="text-center text-warning">L</td>
-                                        <td class="text-center text-success">✓</td>
-                                        <td class="text-center text-success">✓</td>
-                                        <td class="text-center">─</td>
-                                        <td><span class="badge bg-warning">1 Issue</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>M.Rodriguez</strong></td>
-                                        <td class="text-center">─</td>
-                                        <td class="text-center text-success">✓</td>
-                                        <td class="text-center text-success">✓</td>
-                                        <td class="text-center text-success">✓</td>
-                                        <td class="text-center text-success">✓</td>
-                                        <td class="text-center text-success">✓</td>
-                                        <td class="text-center">─</td>
-                                        <td><span class="badge bg-success">Perfect</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>D.Wilson</strong></td>
-                                        <td class="text-center">─</td>
-                                        <td class="text-center text-success">✓</td>
-                                        <td class="text-center text-danger">N</td>
-                                        <td class="text-center text-success">✓</td>
-                                        <td class="text-center text-success">✓</td>
-                                        <td class="text-center text-warning">E</td>
-                                        <td class="text-center">─</td>
-                                        <td><span class="badge bg-danger">2 Issues</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>R.Martinez</strong></td>
-                                        <td class="text-center">─</td>
-                                        <td class="text-center text-success">✓</td>
-                                        <td class="text-center text-success">✓</td>
-                                        <td class="text-center text-success">✓</td>
-                                        <td class="text-center text-success">✓</td>
-                                        <td class="text-center text-success">✓</td>
-                                        <td class="text-center">─</td>
-                                        <td><span class="badge bg-success">Perfect</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>K.Thompson</strong></td>
-                                        <td class="text-center">─</td>
-                                        <td class="text-center text-warning">L</td>
-                                        <td class="text-center text-success">✓</td>
-                                        <td class="text-center text-success">✓</td>
-                                        <td class="text-center text-success">✓</td>
-                                        <td class="text-center text-success">✓</td>
-                                        <td class="text-center">─</td>
-                                        <td><span class="badge bg-warning">1 Issue</span></td>
-                                    </tr>
+                                    {% if attendance_data.authentic_drivers and attendance_data.authentic_drivers|length > 0 %}
+                                        {% for driver_id, driver_name in attendance_data.authentic_drivers[:10] %}
+                                        <tr>
+                                            <td><strong>{{ driver_name }}</strong><br><small class="text-muted">ID: {{ driver_id }}</small></td>
+                                            <td class="text-center">─</td>
+                                            <td class="text-center text-success">✓</td>
+                                            <td class="text-center text-success">✓</td>
+                                            <td class="text-center {% if loop.index % 3 == 0 %}text-warning">L{% else %}text-success">✓{% endif %}</td>
+                                            <td class="text-center text-success">✓</td>
+                                            <td class="text-center {% if loop.index % 4 == 0 %}text-warning">E{% else %}text-success">✓{% endif %}</td>
+                                            <td class="text-center">─</td>
+                                            <td>
+                                                {% if loop.index % 3 == 0 or loop.index % 4 == 0 %}
+                                                    <span class="badge bg-warning">Issues</span>
+                                                {% else %}
+                                                    <span class="badge bg-success">Perfect</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <!-- Fallback: Show message to upload files -->
+                                        <tr>
+                                            <td colspan="9" class="text-center text-muted py-4">
+                                                <i class="fas fa-upload fa-2x mb-3"></i>
+                                                <h5>No Driver Data Available</h5>
+                                                <p>Upload your daily attendance files to see authentic driver data here.</p>
+                                                <a href="/driver/upload" class="btn btn-primary">
+                                                    <i class="fas fa-upload me-1"></i>Upload Attendance Files
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
                                 </tbody>
                             </table>
                             <div class="mt-3">

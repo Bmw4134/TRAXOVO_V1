@@ -4,6 +4,7 @@ Maps drivers to specific job sites and tracks zone-based attendance
 """
 from flask import Blueprint, render_template_string, jsonify
 import pandas as pd
+import os
 from utils.active_driver_filter import validate_driver_status
 
 job_zone_bp = Blueprint('job_zone_integration', __name__)
@@ -35,7 +36,7 @@ def job_zones_dashboard():
                 if job_no not in job_sites:
                     job_sites[job_no] = {
                         'job_number': job_no,
-                        'description': row.get('detail_desc', '')[:50] if row.get('detail_desc') else f'Job {job_no}',
+                        'description': str(row.get('detail_desc', ''))[:50] if pd.notna(row.get('detail_desc')) else f'Job {job_no}',
                         'drivers': set(),  # Use set to avoid duplicates
                         'total_hours': 0,
                         'pm_assigned': get_pm_assignment(job_no)
@@ -45,7 +46,9 @@ def job_zones_dashboard():
                 employee_id = row.get('sort_key_no')
                 if employee_id and employee_id not in job_sites[job_no]['drivers']:
                     job_sites[job_no]['drivers'].add(employee_id)
-                    job_sites[job_no]['total_hours'] += float(row.get('hours', 0))
+                    hours_val = row.get('hours', 0)
+                    if pd.notna(hours_val):
+                        job_sites[job_no]['total_hours'] += float(hours_val)
                     driver_count += 1
         
         # Convert sets to counts for template
@@ -152,7 +155,7 @@ def job_zones_dashboard():
                             <div class="col-6">
                                 <div class="p-2 bg-light rounded">
                                     <small class="text-muted d-block">Active Drivers</small>
-                                    <div class="fw-bold text-success">{{ zone.drivers|length }}</div>
+                                    <div class="fw-bold text-success">{{ zone.get('driver_count', 0) }}</div>
                                 </div>
                             </div>
                         </div>

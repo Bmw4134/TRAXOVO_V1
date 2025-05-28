@@ -15,6 +15,20 @@ wheels = [
 ]
 
 [[package]]
+name = "agent-admin"
+version = "0.1.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "base58" },
+    { name = "libnacl" },
+    { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/52/0e/361d9a2ddff02c3e1ce52f12518cce9ac04607de5e0bdadaeb06edb285ca/agent-admin-0.1.1.tar.gz", hash = "sha256:a6f8eaa9fe7ee009238286b3b41c6c41d22e45e22c0cc2e15e9b1a0490a055ba", size = 5869 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/7c/1a/38a15196cd930b65aff5ca616636561de122d1bf4c45628f5dffd584d330/agent_admin-0.1.1-py3-none-any.whl", hash = "sha256:d62c5f99be8e5f9ad0cc9a0976973b3a17e9a233c92abae190968d03b3922ea0", size = 9724 },
+]
+
+[[package]]
 name = "agents"
 version = "1.4.0"
 source = { registry = "https://pypi.org/simple" }
@@ -82,6 +96,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/7d/6b/d52e42361e1aa00709585ecc30b3f9684b3ab62530771402248b1b1d6240/babel-2.17.0.tar.gz", hash = "sha256:0c54cffb19f690cdcc52a3b50bcbf71e07a808d1c80d549f2459b9d2cf0afb9d", size = 9951852 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b7/b8/3fe70c75fe32afc4bb507f75563d39bc5642255d1d94f1f23604725780bf/babel-2.17.0-py3-none-any.whl", hash = "sha256:4d0b53093fdfb4b21c92b5213dba5a1b23885afa8383709427046b21c366e5f2", size = 10182537 },
+]
+
+[[package]]
+name = "base58"
+version = "2.1.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/7f/45/8ae61209bb9015f516102fa559a2914178da1d5868428bd86a1b4421141d/base58-2.1.1.tar.gz", hash = "sha256:c5d0cb3f5b6e81e8e35da5754388ddcc6d0d14b6c6a132cb93d69ed580a7278c", size = 6528 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4a/45/ec96b29162a402fc4c1c5512d114d7b3787b9d1c2ec241d9568b4816ee23/base58-2.1.1-py3-none-any.whl", hash = "sha256:11a36f4d3ce51dfc1043f3218591ac4eb1ceb172919cebe05b52a5bcc8d245c2", size = 5621 },
 ]
 
 [[package]]
@@ -1045,6 +1068,15 @@ wheels = [
 ]
 
 [[package]]
+name = "libnacl"
+version = "2.1.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/df/fc/65daa1a3fd7dd939133c30c6d393ea47e32317d2195619923b67daa29d60/libnacl-2.1.0.tar.gz", hash = "sha256:f3418da7df29e6d9b11fd7d990289d16397dc1020e4e35192e11aee826922860", size = 42189 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ad/ce/85fa0276de7303b44fef63e07c14d618b8630bbe41c7dd7e34db246eab8d/libnacl-2.1.0-py3-none-any.whl", hash = "sha256:a8546b221afe8b72b6a9f298cd92a4c1f90570d7b5baa295acb1913644e230a5", size = 21870 },
+]
+
+[[package]]
 name = "limits"
 version = "5.2.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1912,6 +1944,7 @@ name = "repl-nix-workspace"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "agent-admin" },
     { name = "agents" },
     { name = "beautifulsoup4" },
     { name = "click" },
@@ -1959,6 +1992,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "agent-admin", specifier = ">=0.1.1" },
     { name = "agents", specifier = ">=1.4.0" },
     { name = "beautifulsoup4", specifier = ">=4.13.4" },
     { name = "click", specifier = ">=8.2.0" },

@@ -46,7 +46,7 @@ def filter_active_timecards(timecard_data):
     return active_records
 
 def validate_driver_status(consolidated_employees, active_timecard_ids=None):
-    """Validate and clean the consolidated employee list using timecard activity"""
+    """Validate and clean the consolidated employee list using ONLY recent timecard activity"""
     if not consolidated_employees:
         return []
     
@@ -56,19 +56,11 @@ def validate_driver_status(consolidated_employees, active_timecard_ids=None):
     for emp in consolidated_employees:
         emp_no = emp.get('Employee No', 0)
         
-        # If we have timecard data, use that as the primary filter
+        # STRICT FILTER: Only include if they have recent timecard activity
         if active_timecard_ids and emp_no in active_timecard_ids:
             active_employees.append(emp)
         else:
-            # Fallback: check if they have current contact info
-            email = emp.get('E-Mail', '')
-            phone = emp.get('Phone', '')
-            
-            # Consider active if they have valid contact information
-            if email and '@' in str(email) and phone and str(phone) != 'nan':
-                active_employees.append(emp)
-            else:
-                terminated_count += 1
+            terminated_count += 1
     
-    print(f"Driver Filter Results: {len(active_employees)} active, {terminated_count} filtered out")
+    print(f"Driver Filter Results: {len(active_employees)} active (timecard validated), {terminated_count} filtered out")
     return active_employees

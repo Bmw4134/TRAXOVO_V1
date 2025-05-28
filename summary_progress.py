@@ -15,7 +15,7 @@ def generate_progress_summary():
     
     df = pd.read_excel('Consolidated_Employee_And_Job_Lists_Corrected.xlsx')
     employee_dicts = df.to_dict('records')
-    active_employees = validate_driver_filter(employee_dicts, active_timecard_ids)
+    active_employees = validate_driver_status(employee_dicts, active_timecard_ids)
     
     print(f"✓ ACTIVE DRIVERS: {len(active_employees)} (filtered from {len(employee_dicts)} total)")
     print(f"✓ GPS ASSETS: 562 active devices with IMEI")

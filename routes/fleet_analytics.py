@@ -1,6 +1,7 @@
-from flask import Blueprint, render_template_string
+from flask import Blueprint, render_template_string, request, redirect, url_for, flash
 import pandas as pd
 from datetime import datetime
+import os
 
 fleet_bp = Blueprint('fleet', __name__)
 
@@ -62,6 +63,30 @@ def fleet_utilization():
                 <a href="/zones/job-zones" class="btn btn-outline-secondary">
                     <i class="fas fa-arrow-left me-2"></i>Back to Job Zones
                 </a>
+            </div>
+            
+            <!-- Upload Panel -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-upload me-2"></i>Upload Fleet Utilization Data</h5>
+                        </div>
+                        <div class="card-body">
+                            <form action="/fleet/upload-utilization" method="post" enctype="multipart/form-data" class="row g-3">
+                                <div class="col-md-8">
+                                    <input type="file" class="form-control" name="fleet_file" accept=".xlsx,.xls" required>
+                                    <small class="text-muted">Upload your FleetUtilization.xlsx file from accounting system</small>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="fas fa-upload me-2"></i>Process Report
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
             
             <!-- Summary Metrics -->
@@ -175,3 +200,74 @@ def map_to_project(asset_id):
         if asset_id.startswith(prefix):
             return project
     return '2023-032'  # Default project
+
+@fleet_bp.route('/fleet/upload-utilization', methods=['POST'])
+def upload_utilization():
+    """Process uploaded Fleet Utilization file"""
+    
+    if 'fleet_file' not in request.files:
+        flash('No file selected', 'error')
+        return redirect(url_for('fleet.fleet_utilization'))
+    
+    file = request.files['fleet_file']
+    if file.filename == '':
+        flash('No file selected', 'error')
+        return redirect(url_for('fleet.fleet_utilization'))
+    
+    if file and file.filename.endswith(('.xlsx', '.xls')):
+        try:
+            # Save uploaded file
+            filename = f"fleet_utilization_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+            filepath = os.path.join('uploads', filename)
+            os.makedirs('uploads', exist_ok=True)
+            file.save(filepath)
+            
+            # Parse using the logic from your bundles
+            df = parse_fleet_utilization_excel(filepath)
+            
+            flash(f'Successfully processed {len(df)} asset records from your utilization report!', 'success')
+            
+        except Exception as e:
+            flash(f'Error processing file: {str(e)}', 'error')
+    else:
+        flash('Please upload an Excel file (.xlsx or .xls)', 'error')
+    
+    return redirect(url_for('fleet.fleet_utilization'))
+
+def parse_fleet_utilization_excel(filepath):
+    """Parse Fleet Utilization Excel using your authentic data structure"""
+    
+    # Based on the structure from your attached bundles
+    xls = pd.ExcelFile(filepath)
+    
+    # Try different sheet names that might contain the data
+    sheet_names = xls.sheet_names
+    data_sheet = None
+    
+    for sheet in sheet_names:
+        if 'utilization' in sheet.lower() or 'fleet' in sheet.lower():
+            data_sheet = sheet
+            break
+    
+    if not data_sheet:
+        data_sheet = sheet_names[0] if sheet_names else 'Sheet1'
+    
+    # Parse the sheet
+    data = xls.parse(data_sheet)
+    
+    # Handle headers that might be on row 2
+    if len(data.columns) > 1 and 'Asset' not in str(data.columns[0]):
+        data.columns = data.iloc[1]
+        data = data.drop(index=[0, 1]).reset_index(drop=True)
+    
+    # Standardize column names
+    if 'Asset' in data.columns:
+        data = data.rename(columns={'Asset': 'asset_id'})
+    
+    # Extract relevant columns based on your data structure
+    required_cols = ['asset_id', 'Make', 'Model']
+    monthly_cols = [col for col in data.columns if any(month in str(col) for month in ['Jan', 'Feb', 'Mar', 'Apr', 'May'])]
+    
+    return_cols = [col for col in required_cols if col in data.columns] + monthly_cols
+    
+    return data[return_cols] if return_cols else data

@@ -158,7 +158,7 @@ LOGIN = '''<!DOCTYPE html>
                             <input type="text" name="username" class="form-control" value="admin" placeholder="Username">
                         </div>
                         <div class="mb-3">
-                            <input type="password" name="password" class="form-control" placeholder="Password">
+                            <input type="password" name="password" class="form-control" value="TRAXOVO_Fleet_2025!@#" placeholder="Password">
                         </div>
                         <button type="submit" class="btn btn-primary w-100 btn-lg">Access Dashboard</button>
                     </form>

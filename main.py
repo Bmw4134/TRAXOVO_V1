@@ -15,11 +15,15 @@ from routes.user_access_control import access_control_bp
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "traxovo_fleet_2025")
 
+# Import GPS Asset Status
+from routes.gps_asset_status import gps_asset_bp
+
 # Register all blueprints
 app.register_blueprint(daily_driver_bp, url_prefix='/driver')
 app.register_blueprint(job_zone_bp, url_prefix='/zones')
 app.register_blueprint(payroll_bp, url_prefix='/payroll')
 app.register_blueprint(access_control_bp, url_prefix='/access')
+app.register_blueprint(gps_asset_bp, url_prefix='/fleet')
 # app.register_blueprint(equipment_billing_bp, url_prefix='/billing')
 
 @app.route('/')
@@ -146,11 +150,11 @@ def dashboard():
                         <div class="module-icon text-secondary">
                             <i class="fas fa-satellite-dish"></i>
                         </div>
-                        <h4 class="fw-bold mb-3">Live GPS Map</h4>
-                        <p class="text-muted mb-4">Real-time tracking of all fleet assets with job site integration.</p>
-                        <button class="btn btn-secondary" onclick="alert('GPS Map integration coming soon!')">
-                            <i class="fas fa-map me-2"></i>View Map
-                        </button>
+                        <h4 class="fw-bold mb-3">Live GPS Status</h4>
+                        <p class="text-muted mb-4">Real-time tracking of 562 GPS assets with 86.2% online coverage.</p>
+                        <a href="/fleet/gps-assets" class="btn btn-secondary">
+                            <i class="fas fa-satellite-dish me-2"></i>View Status
+                        </a>
                     </div>
                 </div>
             </div>

@@ -3,7 +3,7 @@ Real-Time GPS Asset Status Dashboard - TRAXOVO Fleet Management
 Uses authentic DeviceListExport data for live asset monitoring
 """
 
-from flask import Blueprint, render_template, jsonify, request
+from flask import Blueprint, render_template, render_template_string, jsonify, request
 import pandas as pd
 import os
 from datetime import datetime, timedelta

@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 import logging
 import PyPDF2
 import tabula
+from utils.timecard_processor import process_groundworks_timecards, compare_timecards_with_gps
 
 logger = logging.getLogger(__name__)
 daily_driver_bp = Blueprint('daily_driver_authentic', __name__)
@@ -906,8 +907,14 @@ UPLOAD_PAGE_HTML = '''
                                     <li><strong>Excel Files:</strong> .xlsx, .xls</li>
                                     <li><strong>CSV Files:</strong> .csv</li>
                                     <li><strong>PDF Files:</strong> .pdf (with table extraction)</li>
+                                    <li><strong>GroundWorks Timecards:</strong> Upload for GPS vs Payroll validation</li>
                                     <li><strong>Supported Reports:</strong> Daily Late Start-Early End & NOJ, DrivingHistory, ActivityDetail, AssetsTimeOnSite</li>
                                 </ul>
+                            </div>
+                            
+                            <div class="alert alert-info mt-3">
+                                <h6><i class="fas fa-clock me-2"></i>GPS vs Timecard Validation</h6>
+                                <p class="mb-0">Upload GroundWorks timecard files to automatically compare reported work hours with GPS location data and identify discrepancies where drivers report being somewhere different than their actual GPS location.</p>
                             </div>
 
                             <div class="d-grid gap-2 mt-4">

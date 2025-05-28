@@ -300,11 +300,11 @@ def trends():
         return render_template('error.html', error=str(e)), 500
 
 @attendance_bp.route('/driver/<int:driver_id>')
-def driver_<int:driver_id>():
-    """Handler for /driver/<int:driver_id>"""
+def driver_details(driver_id):
+    """Handler for driver details page"""
     try:
         # Add your route handler logic here
-        return render_template('attendance/driver_<int:driver_id>.html')
+        return render_template('attendance/driver_details.html', driver_id=driver_id)
     except Exception as e:
-        logger.error(f"Error in driver_<int:driver_id>: {e}")
+        logger.error(f"Error in driver_details: {e}")
         return render_template('error.html', error=str(e)), 500

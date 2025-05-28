@@ -247,6 +247,32 @@ def get_service_summary():
     summary = field_service_analyzer.get_service_vehicle_summary()
     return jsonify({'summary': summary})
 
+@app.route('/equipment-lifecycle')
+def equipment_lifecycle_storyteller():
+    """Smart Equipment Lifecycle Storyteller"""
+    return render_template('equipment_lifecycle_dashboard.html')
+
+@app.route('/equipment-lifecycle/api/equipment-story/<asset_id>')
+def get_equipment_story(asset_id):
+    """API: Complete lifecycle story for specific equipment"""
+    from smart_equipment_lifecycle_storyteller import lifecycle_analyzer
+    
+    story = lifecycle_analyzer.generate_equipment_story(asset_id)
+    return jsonify({'story': story})
+
+@app.route('/equipment-lifecycle/api/fleet-overview')
+def get_fleet_lifecycle_overview():
+    """API: Fleet lifecycle distribution and insights"""
+    from smart_equipment_lifecycle_storyteller import lifecycle_analyzer
+    
+    fleet_overview = {
+        'total_assets': len(lifecycle_analyzer.gps_data),
+        'lifecycle_distribution': {},
+        'recommendations_summary': []
+    }
+    
+    return jsonify({'fleet_overview': fleet_overview})
+
 # Health check
 @app.route('/health')
 def health():

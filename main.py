@@ -26,6 +26,20 @@ from routes.qa_dashboard import qa_bp
 # Register all blueprints
 app.register_blueprint(daily_driver_bp, url_prefix='/driver')
 app.register_blueprint(job_zone_bp, url_prefix='/zones')
+
+# Add a basic root route
+@app.route('/')
+def index():
+    return '''
+    <div style="padding: 20px; font-family: Arial;">
+        <h1>TRAXOVO Fleet Management</h1>
+        <p>Welcome to your fleet analytics system!</p>
+        <div style="margin: 20px 0;">
+            <a href="/fleet/utilization" style="background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-right: 10px;">Fleet Analytics</a>
+            <a href="/zones/integration" style="background: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Job Zones</a>
+        </div>
+    </div>
+    '''
 app.register_blueprint(payroll_bp, url_prefix='/payroll')
 app.register_blueprint(access_control_bp, url_prefix='/access')
 app.register_blueprint(gps_asset_bp, url_prefix='/fleet')

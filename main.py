@@ -16,9 +16,11 @@ try:
     from routes.auth import auth_bp
     from routes.admin import admin_bp  
     from routes.secure_attendance import secure_attendance_bp
+    from routes.quick_auth import quick_auth_bp
     app.register_blueprint(auth_bp, url_prefix='/auth', name='auth_main')
     app.register_blueprint(admin_bp, url_prefix='/admin', name='admin_main')
     app.register_blueprint(secure_attendance_bp, url_prefix='/secure-attendance', name='secure_main')
+    app.register_blueprint(quick_auth_bp, url_prefix='/auth', name='quick_auth_main')
     print("✅ Essential login routes registered successfully")
 except ImportError as e:
     print(f"Skipping complex routes: {e}")

@@ -40,8 +40,6 @@ def quick_login():
                 # Enhanced remember me - 30 days for field crews
                 if remember_me:
                     session.permanent = True
-                    # Set longer session for field workers
-                    session.permanent_session_lifetime = timedelta(days=30)
                 
                 # Log successful login
                 logger.info(f"Successful login for user: {user.username}")

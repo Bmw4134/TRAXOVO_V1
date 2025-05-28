@@ -34,6 +34,12 @@ wheels/
 .installed.cfg
 *.egg
 
+# UV and pip cache directories (CRITICAL FOR SIZE)
+.cache/
+.uv-cache/
+pip-cache/
+.pip/
+
 # Uploaded files directories
 uploads/
 data/

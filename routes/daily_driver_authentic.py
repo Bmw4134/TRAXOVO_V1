@@ -101,13 +101,36 @@ def load_authentic_attendance_data():
                 if file.lower().endswith(('.xlsx', '.xls', '.csv')):
                     attendance_files.append(os.path.join(upload_path, file))
         
-        # Fallback to existing files in root directory
+        # Fallback to existing files in root directory - ALL report types
         if not attendance_files:
-            attendance_files = [
+            # Look for all your different report types
+            potential_files = [
+                # Daily Late Start/Early End reports
                 'DAILY LATE START-EARLY END & NOJ REPORT_05.12.2025.xlsx',
                 'DAILY LATE START-EARLY END & NOJ REPORT_05.13.2025.xlsx', 
-                'DAILY LATE START-EARLY END & NOJ REPORT_05.14.2025.xlsx'
+                'DAILY LATE START-EARLY END & NOJ REPORT_05.14.2025.xlsx',
+                # Driving History reports
+                'DrivingHistory.csv',
+                'DrivingHistory (19).csv',
+                'DrivingHistory (14).csv',
+                'DrivingHistory (13).csv',
+                # Assets Time On Site reports
+                'AssetsTimeOnSite (3).csv',
+                'AssetsTimeOnSite (4).csv',
+                'AssetsTimeOnSite (5).csv',
+                'AssetsTimeOnSite (6).csv',
+                'AssetsTimeOnSite (8).csv',
+                # Activity Detail reports
+                'ActivityDetail.csv',
+                'ActivityDetail (6).csv',
+                'ActivityDetail (7).csv',
+                'ActivityDetail (9).csv',
+                'ActivityDetail (10).csv',
+                'ActivityDetail (13).csv'
             ]
+            
+            # Only include files that actually exist
+            attendance_files = [f for f in potential_files if os.path.exists(f)]
         
         all_violations = []
         authentic_drivers = set()
@@ -127,31 +150,68 @@ def load_authentic_attendance_data():
                     
                     date_str = os.path.basename(file_path).split('_')[-1].replace('.xlsx', '').replace('.xls', '').replace('.csv', '')
                     
-                    # Process each row and extract driver info
-                    for idx, row in df.iterrows():
-                        if len(row) >= 2:  # At least employee ID and name
-                            employee_id = str(row.iloc[0]).strip() if pd.notna(row.iloc[0]) else ''
-                            employee_name = str(row.iloc[1]).strip() if pd.notna(row.iloc[1]) else ''
-                            
-                            # Skip header rows
-                            if employee_id.lower() in ['employee', 'id', 'driver'] or employee_name.lower() in ['name', 'driver', 'employee']:
+                    # Determine report type and process accordingly
+                    file_name = os.path.basename(file_path).lower()
+                    
+                    if 'driving' in file_name:
+                        # DrivingHistory format: Driver, Asset, Location, etc.
+                        for idx, row in df.iterrows():
+                            if idx == 0:  # Skip header
                                 continue
+                            if len(row) >= 2:
+                                driver_name = str(row.iloc[0]).strip() if pd.notna(row.iloc[0]) else ''
+                                asset_info = str(row.iloc[1]).strip() if pd.notna(row.iloc[1]) else ''
+                                if driver_name and driver_name != 'Driver':
+                                    authentic_drivers.add((f"DRV{idx:03d}", driver_name))
+                                    
+                    elif 'activity' in file_name:
+                        # ActivityDetail format: Asset, Driver, Activity, Duration
+                        for idx, row in df.iterrows():
+                            if idx == 0:  # Skip header
+                                continue
+                            if len(row) >= 2:
+                                asset_id = str(row.iloc[0]).strip() if pd.notna(row.iloc[0]) else ''
+                                driver_name = str(row.iloc[1]).strip() if pd.notna(row.iloc[1]) else ''
+                                if driver_name and driver_name != 'Driver':
+                                    authentic_drivers.add((asset_id, driver_name))
+                                    
+                    elif 'assets' in file_name and 'time' in file_name:
+                        # AssetsTimeOnSite format: Asset, Driver, Site, Hours
+                        for idx, row in df.iterrows():
+                            if idx == 0:  # Skip header
+                                continue
+                            if len(row) >= 2:
+                                asset_id = str(row.iloc[0]).strip() if pd.notna(row.iloc[0]) else ''
+                                driver_name = str(row.iloc[1]).strip() if pd.notna(row.iloc[1]) else ''
+                                if driver_name and driver_name != 'Driver':
+                                    authentic_drivers.add((asset_id, driver_name))
+                                    
+                    else:
+                        # Default format: Daily Late Start reports (Employee ID, Name, Violation, Notes)
+                        for idx, row in df.iterrows():
+                            if len(row) >= 2:
+                                employee_id = str(row.iloc[0]).strip() if pd.notna(row.iloc[0]) else ''
+                                employee_name = str(row.iloc[1]).strip() if pd.notna(row.iloc[1]) else ''
                                 
-                            if employee_name and employee_id and employee_id != 'nan':
-                                authentic_drivers.add((employee_id, employee_name))
+                                # Skip header rows
+                                if employee_id.lower() in ['employee', 'id', 'driver'] or employee_name.lower() in ['name', 'driver', 'employee']:
+                                    continue
+                                    
+                                if employee_name and employee_id and employee_id != 'nan':
+                                    authentic_drivers.add((employee_id, employee_name))
+                                    
+                                violation_type = str(row.iloc[2]).strip() if len(row) > 2 and pd.notna(row.iloc[2]) else ''
+                                notes = str(row.iloc[3]).strip() if len(row) > 3 and pd.notna(row.iloc[3]) else ''
                                 
-                            violation_type = str(row.iloc[2]).strip() if len(row) > 2 and pd.notna(row.iloc[2]) else ''
-                            notes = str(row.iloc[3]).strip() if len(row) > 3 and pd.notna(row.iloc[3]) else ''
-                            
-                            violation = {
-                                'date': date_str.replace('.', '/'),
-                                'employee_id': employee_id,
-                                'employee_name': employee_name,
-                                'violation_type': violation_type,
-                                'notes': notes
-                            }
-                            if violation['employee_id'] and violation['employee_id'] != 'nan':
-                                all_violations.append(violation)
+                                violation = {
+                                    'date': date_str.replace('.', '/'),
+                                    'employee_id': employee_id,
+                                    'employee_name': employee_name,
+                                    'violation_type': violation_type,
+                                    'notes': notes
+                                }
+                                if violation['employee_id'] and violation['employee_id'] != 'nan':
+                                    all_violations.append(violation)
                                 
                 except Exception as file_error:
                     logger.error(f"Error reading {file_path}: {file_error}")
@@ -776,7 +836,7 @@ UPLOAD_PAGE_HTML = '''
                                 <ul class="mb-0">
                                     <li><strong>Excel Files:</strong> .xlsx, .xls</li>
                                     <li><strong>CSV Files:</strong> .csv</li>
-                                    <li><strong>Expected Format:</strong> Daily Late Start-Early End & NOJ Reports</li>
+                                    <li><strong>Supported Reports:</strong> Daily Late Start-Early End & NOJ, DrivingHistory, ActivityDetail, AssetsTimeOnSite</li>
                                 </ul>
                             </div>
 

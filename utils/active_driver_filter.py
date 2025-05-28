@@ -46,21 +46,43 @@ def filter_active_timecards(timecard_data):
     return active_records
 
 def validate_driver_status(consolidated_employees, active_timecard_ids=None):
-    """Validate and clean the consolidated employee list using ONLY recent timecard activity"""
-    if not consolidated_employees:
-        return []
+    """Validate using AssetListExport contact assignments and timecard activity"""
+    import pandas as pd
     
-    active_employees = []
-    terminated_count = 0
-    
-    for emp in consolidated_employees:
-        emp_no = emp.get('Employee No', 0)
+    try:
+        # Load AssetListExport for real driver assignments
+        asset_df = pd.read_excel('AssetsListExport.xlsx')
         
-        # STRICT FILTER: Only include if they have recent timecard activity
-        if active_timecard_ids and emp_no in active_timecard_ids:
-            active_employees.append(emp)
-        else:
-            terminated_count += 1
-    
-    print(f"Driver Filter Results: {len(active_employees)} active (timecard validated), {terminated_count} filtered out")
-    return active_employees
+        # Extract employee IDs from Contact field
+        asset_driver_ids = set()
+        for contact in asset_df['Contact'].dropna():
+            contact_str = str(contact)
+            # Extract numbers in parentheses like "(210003)"
+            import re
+            matches = re.findall(r'\((\d+)\)', contact_str)
+            for match in matches:
+                asset_driver_ids.add(int(match))
+        
+        # Also check Secondary Asset Identifier
+        for secondary in asset_df['Secondary Asset Identifier'].dropna():
+            secondary_str = str(secondary)
+            matches = re.findall(r'^(\d+)', secondary_str)
+            for match in matches:
+                asset_driver_ids.add(int(match))
+        
+        active_employees = []
+        
+        for emp in consolidated_employees:
+            emp_no = emp.get('Employee No', 0)
+            
+            # Include if they have BOTH asset assignment AND timecard activity
+            if (emp_no in asset_driver_ids and 
+                active_timecard_ids and emp_no in active_timecard_ids):
+                active_employees.append(emp)
+        
+        print(f"Driver Filter Results: {len(active_employees)} active drivers (asset + timecard validated)")
+        return active_employees
+        
+    except Exception as e:
+        print(f"Error loading asset data: {e}")
+        return []

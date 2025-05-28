@@ -13,15 +13,9 @@ from app import app
 
 # Register essential login routes only
 try:
-    from routes.auth import auth_bp
-    from routes.admin import admin_bp  
-    from routes.secure_attendance import secure_attendance_bp
-    from routes.no_csrf_login import no_csrf_login_bp
-    app.register_blueprint(auth_bp, url_prefix='/auth', name='auth_main')
-    app.register_blueprint(admin_bp, url_prefix='/admin', name='admin_main')
-    app.register_blueprint(secure_attendance_bp, url_prefix='/secure-attendance', name='secure_main')
-    app.register_blueprint(no_csrf_login_bp, url_prefix='/auth', name='no_csrf_login_main')
-    print("✅ Essential login routes registered successfully")
+    from routes.direct_auth import auth_bp
+    app.register_blueprint(auth_bp, url_prefix='/auth')
+    print("✅ Direct CSRF-exempt login route registered successfully")
 except ImportError as e:
     print(f"Skipping complex routes: {e}")
 

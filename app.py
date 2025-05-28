@@ -77,9 +77,16 @@ talisman = Talisman(
 # Initialize database and authentication
 db.init_app(app)
 
-# Register login blueprint
+# Register login blueprint  
 from routes.simple_login import auth_bp
 app.register_blueprint(auth_bp)
+
+# Enhanced security headers for stakeholder confidence
+@app.after_request
+def set_security_headers(response):
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['Content-Security-Policy'] = "default-src 'self'"
+    return response
 login_manager.init_app(app)
 login_manager.login_view = "auth.login"
 login_manager.login_message = "Please log in to access this page."

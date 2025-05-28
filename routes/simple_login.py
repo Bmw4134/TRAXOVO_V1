@@ -1,6 +1,6 @@
 from flask import Blueprint, request, session, redirect
 
-auth_bp = Blueprint('simple_auth', __name__)
+auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/auth/direct-login', methods=['POST'])
 def direct_login():
@@ -10,7 +10,7 @@ def direct_login():
     if username == "admin" and password == "TRAXOVO_Fleet_2025!@#":
         session['authenticated'] = True
         session['user'] = username
-        return redirect('/')  # Direct redirect to dashboard
+        return redirect('/')
 
     return "Login failed", 403
 

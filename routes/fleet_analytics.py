@@ -235,48 +235,53 @@ def upload_utilization():
     return redirect(url_for('fleet.fleet_utilization'))
 
 def parse_fleet_utilization_excel(filepath):
-    """Parse Fleet Utilization Excel using Sheet2 per your specification"""
+    """Parse Fleet Utilization Excel from authentic Gauge data"""
     
-    # Use Sheet2 as specified - Sheet1 is cover sheet
-    data = pd.read_excel(filepath, sheet_name='Sheet2')
+    # Use "Fleet Utilization" sheet - "Report Parameters" is cover sheet
+    data = pd.read_excel(filepath, sheet_name='Fleet Utilization')
     
-    # Clean whitespace and handle merged header artifacts
-    data = data.dropna(how='all')  # Remove completely empty rows
-    data.columns = data.columns.astype(str).str.strip()  # Clean column names
+    # Based on your authentic data structure:
+    # Row 0: Start Date, 1/1/2025, ...
+    # Row 1: End Date, 5/31/2025, ...  
+    # Row 2: Asset, Sub-Company, ... (this is our header row)
+    # Row 3+: Actual asset data
     
-    # Find the actual data start (skip headers if needed)
-    asset_col_idx = None
-    for idx, row in data.iterrows():
-        if 'Asset' in str(row.iloc[0]):
-            asset_col_idx = idx
-            break
+    # Use row 1 (index 1) as headers and start data from row 2 (index 2)
+    headers = data.iloc[1].fillna('Unknown')  # Row with "Asset", "Sub-Company", etc.
+    asset_data = data.iloc[2:].reset_index(drop=True)  # Actual asset rows
+    asset_data.columns = headers
     
-    if asset_col_idx is not None and asset_col_idx > 0:
-        # Use this row as headers and start data from next row
-        data.columns = data.iloc[asset_col_idx]
-        data = data.iloc[asset_col_idx + 1:].reset_index(drop=True)
-    
-    # Standardize column names and clean whitespace
-    data.columns = data.columns.astype(str).str.strip()
+    # Clean column names
+    asset_data.columns = asset_data.columns.astype(str).str.strip()
     
     # Map "Asset" to asset_id as specified
-    if 'Asset' in data.columns:
-        data = data.rename(columns={'Asset': 'asset_id'})
+    if 'Asset' in asset_data.columns:
+        asset_data = asset_data.rename(columns={'Asset': 'asset_id'})
     
-    # Keep Division and Project for job zone mapping
-    essential_cols = ['asset_id', 'Division', 'Project']
+    # Map "Sub-Company" to division/company for your 3-company structure
+    if 'Sub-Company' in asset_data.columns:
+        asset_data = asset_data.rename(columns={'Sub-Company': 'Company'})
     
-    # Add any utilization/hours columns
-    util_cols = [col for col in data.columns if any(term in col.lower() for term in ['hour', 'util', 'time', 'usage'])]
+    # Extract monthly utilization columns (Jan-25, Feb-25, etc.)
+    monthly_cols = [col for col in asset_data.columns if any(month in str(col) for month in ['Jan', 'Feb', 'Mar', 'Apr', 'May']) and '-25' in str(col)]
     
-    # Combine all needed columns
+    # Essential columns for fleet analytics
+    essential_cols = ['asset_id', 'Company']
+    if 'Division' in asset_data.columns:
+        essential_cols.append('Division')
+    if 'Project' in asset_data.columns:
+        essential_cols.append('Project')
+    
+    # Combine essential + monthly utilization columns
     final_cols = []
-    for col in essential_cols + util_cols:
-        if col in data.columns:
+    for col in essential_cols + monthly_cols:
+        if col in asset_data.columns:
             final_cols.append(col)
     
     # Clean data - remove rows where asset_id is empty
-    if 'asset_id' in data.columns:
-        data = data[data['asset_id'].notna() & (data['asset_id'] != '')]
+    if 'asset_id' in asset_data.columns:
+        asset_data = asset_data[asset_data['asset_id'].notna() & (asset_data['asset_id'] != '')]
+        # Also remove header artifacts
+        asset_data = asset_data[~asset_data['asset_id'].str.contains('Asset', na=False)]
     
-    return data[final_cols] if final_cols else data
+    return asset_data[final_cols] if final_cols else asset_data

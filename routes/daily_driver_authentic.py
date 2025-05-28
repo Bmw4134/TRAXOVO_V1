@@ -608,13 +608,13 @@ ATTENDANCE_DASHBOARD_HTML = '''
                                 <thead class="table-dark">
                                     <tr>
                                         <th>Driver</th>
-                                        <th>Sun</th>
-                                        <th>Mon</th>
-                                        <th>Tue</th>
-                                        <th>Wed</th>
-                                        <th>Thu</th>
-                                        <th>Fri</th>
-                                        <th>Sat</th>
+                                        <th class="text-center">Sun<br><small>05/25</small></th>
+                                        <th class="text-center">Mon<br><small>05/26</small></th>
+                                        <th class="text-center">Tue<br><small>05/27</small></th>
+                                        <th class="text-center">Wed<br><small>05/28</small></th>
+                                        <th class="text-center">Thu<br><small>05/29</small></th>
+                                        <th class="text-center">Fri<br><small>05/30</small></th>
+                                        <th class="text-center">Sat<br><small>05/31</small></th>
                                         <th>Status</th>
                                     </tr>
                                 </thead>

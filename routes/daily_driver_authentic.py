@@ -354,28 +354,28 @@ def daily_driver_reports():
                                                 <small class="text-muted">#{{ employee.employee_id }} | {{ employee.company }}</small>
                                             </td>
                                             <td class="text-center">
-                                                <span class="badge bg-success">✓</span>
+                                                <span class="badge bg-{{ employee.mon_status }}">{{ employee.mon_symbol }}</span>
                                             </td>
                                             <td class="text-center">
-                                                <span class="badge bg-success">✓</span>
+                                                <span class="badge bg-{{ employee.tue_status }}">{{ employee.tue_symbol }}</span>
                                             </td>
                                             <td class="text-center">
-                                                <span class="badge bg-warning text-dark">⚠</span>
+                                                <span class="badge bg-{{ employee.wed_status }}">{{ employee.wed_symbol }}</span>
                                             </td>
                                             <td class="text-center">
-                                                <span class="badge bg-success">✓</span>
+                                                <span class="badge bg-{{ employee.thu_status }}">{{ employee.thu_symbol }}</span>
                                             </td>
                                             <td class="text-center">
-                                                <span class="badge bg-success">✓</span>
+                                                <span class="badge bg-{{ employee.fri_status }}">{{ employee.fri_symbol }}</span>
                                             </td>
                                             <td class="text-center weekend-col">
-                                                <span class="badge bg-secondary">-</span>
+                                                <span class="badge bg-{{ employee.sat_status }}">{{ employee.sat_symbol }}</span>
                                             </td>
                                             <td class="text-center weekend-col">
-                                                <span class="badge bg-secondary">-</span>
+                                                <span class="badge bg-{{ employee.sun_status }}">{{ employee.sun_symbol }}</span>
                                             </td>
                                             <td class="text-center">
-                                                <span class="fw-bold text-success">4/5</span>
+                                                <span class="fw-bold text-{{ employee.score_color }}">{{ employee.score }}</span>
                                             </td>
                                         </tr>
                                         {% endfor %}

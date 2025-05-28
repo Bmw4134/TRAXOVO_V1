@@ -214,7 +214,7 @@ def upload_utilization():
         flash('No file selected', 'error')
         return redirect(url_for('fleet.fleet_utilization'))
     
-    if file and file.filename.endswith(('.xlsx', '.xls')):
+    if file and file.filename and file.filename.endswith(('.xlsx', '.xls')):
         try:
             # Save uploaded file
             filename = f"fleet_utilization_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"

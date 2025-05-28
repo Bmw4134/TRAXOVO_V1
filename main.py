@@ -225,25 +225,25 @@ def elite_dashboard():
                     <div class="metric-card">
                         <div class="metric-number">{total_assets}</div>
                         <div class="fw-bold">
-                            <i class="fas fa-satellite-dish me-2"></i>GPS Assets Online
+                            <i class="fas fa-satellite-dish me-2"></i>GPS Assets (Authentic)
                         </div>
                         <div class="progress mt-3" style="height: 8px;">
                             <div class="progress-bar bg-light" style="width: 98.7%"></div>
                         </div>
-                        <small class="d-block mt-2 opacity-75">98.7% Active Rate</small>
+                        <small class="d-block mt-2 opacity-75">Real Device List Data</small>
                     </div>
                 </div>
                 
                 <div class="col-lg-3 col-md-6">
                     <div class="metric-card success">
-                        <div class="metric-number">{active_sites}</div>
+                        <div class="metric-number">{total_drivers}</div>
                         <div class="fw-bold">
-                            <i class="fas fa-map-marker-alt me-2"></i>Active Job Sites
+                            <i class="fas fa-users me-2"></i>Active Drivers (MTD)
                         </div>
                         <div class="progress mt-3" style="height: 8px;">
-                            <div class="progress-bar bg-light" style="width: 85%"></div>
+                            <div class="progress-bar bg-light" style="width: 100%"></div>
                         </div>
-                        <small class="d-block mt-2 opacity-75">Cross-Division Operations</small>
+                        <small class="d-block mt-2 opacity-75">5/18-5/23 Period Verified</small>
                     </div>
                 </div>
                 

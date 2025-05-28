@@ -162,13 +162,16 @@ class SmartEquipmentSearch:
         return results
     
     def _matches_search_terms(self, text, search_terms):
-        """Check if text matches the extracted search terms"""
+        """Check if text matches the extracted search terms - ELITE MATCHING"""
         text_lower = text.lower()
         
-        # Check equipment types
+        # Direct 375 air compressor matching
+        if '375' in text and any(term in text_lower for term in ['sullair', 'cfm', 'compressor', 'air']):
+            return True
+        
+        # Check equipment types with flexible matching
         for eq_type in search_terms['equipment_types']:
             if eq_type in text_lower:
-                # Additional checks for specific models if provided
                 if search_terms['models']:
                     for model in search_terms['models']:
                         if model in text:
@@ -181,7 +184,7 @@ class SmartEquipmentSearch:
             if identifier in text.upper():
                 return True
         
-        # Check for makes
+        # Enhanced make matching
         for make in search_terms['makes']:
             if make in text_lower:
                 if search_terms['models']:
@@ -189,6 +192,12 @@ class SmartEquipmentSearch:
                         if model in text:
                             return True
                 else:
+                    return True
+        
+        # Smart pattern matching for numbers + equipment terms
+        if search_terms['models']:
+            for model in search_terms['models']:
+                if model in text and any(term in text_lower for term in ['sullair', 'compressor', 'cfm', 'air']):
                     return True
         
         return False

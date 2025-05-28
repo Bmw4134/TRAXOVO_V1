@@ -9,7 +9,7 @@ from utils.active_driver_filter import validate_driver_status
 
 job_zone_bp = Blueprint('job_zone_integration', __name__)
 
-@job_zone_bp.route('/job-zones')
+@job_zone_bp.route('/integration')
 def job_zones_dashboard():
     """Job Zone tracking with PM/PE assignments"""
     
@@ -44,11 +44,14 @@ def job_zones_dashboard():
                 
                 # Add unique driver to job site
                 employee_id = row.get('sort_key_no')
-                if employee_id and employee_id not in job_sites[job_no]['drivers']:
-                    job_sites[job_no]['drivers'].add(employee_id)
+                if employee_id and str(employee_id) not in [str(d) for d in job_sites[job_no]['drivers']]:
+                    job_sites[job_no]['drivers'].add(str(employee_id))
                     hours_val = row.get('hours', 0)
-                    if pd.notna(hours_val):
-                        job_sites[job_no]['total_hours'] += float(hours_val)
+                    try:
+                        hours_val = float(hours_val) if hours_val else 0
+                    except (ValueError, TypeError):
+                        hours_val = 0
+                        job_sites[job_no]['total_hours'] += hours_val
                     driver_count += 1
         
         # Convert sets to counts for template

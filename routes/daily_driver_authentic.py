@@ -119,11 +119,19 @@ def load_authentic_attendance_data():
         upload_path = UPLOAD_FOLDER
         attendance_files = []
         
-        # Look for uploaded files first
+        # Look for uploaded files first - sort by newest first
         if os.path.exists(upload_path):
+            files_with_times = []
             for file in os.listdir(upload_path):
-                if file.lower().endswith(('.xlsx', '.xls', '.csv')):
-                    attendance_files.append(os.path.join(upload_path, file))
+                if file.lower().endswith(('.xlsx', '.xls', '.csv', '.pdf')):
+                    filepath = os.path.join(upload_path, file)
+                    files_with_times.append((os.path.getmtime(filepath), filepath))
+            
+            # Sort by modification time (newest first) and take most recent files
+            files_with_times.sort(reverse=True)
+            attendance_files = [filepath for _, filepath in files_with_times[:5]]  # Take 5 most recent files
+            
+            logger.info(f"Found {len(attendance_files)} recent uploaded files: {[os.path.basename(f) for f in attendance_files]}")
         
         # Fallback to existing files in root directory - ALL report types
         if not attendance_files:

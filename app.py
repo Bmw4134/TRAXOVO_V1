@@ -50,8 +50,8 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
-# Initialize security extensions - CSRF disabled for login routes
-csrf = CSRFProtect(app)
+# Initialize security extensions with exemptions
+csrf = CSRFProtect()
 csrf.init_app(app)
 limiter = Limiter(
     key_func=get_remote_address,

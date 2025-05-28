@@ -13,9 +13,9 @@ from app import app
 
 # Register essential login routes only
 try:
-    from routes.working_login import working_login
-    app.register_blueprint(working_login)
-    print("✅ Working login route registered successfully")
+    from routes.simple_login import auth_bp
+    app.register_blueprint(auth_bp)
+    print("✅ Simple login blueprint registered successfully")
 except ImportError as e:
     print(f"Skipping complex routes: {e}")
 

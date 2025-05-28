@@ -35,8 +35,8 @@ def index():
     recent_activity = get_recent_activity()
     
     return render_template('ai_ops_dashboard.html',
-                         total_assets=fleet_data['total_assets'],
-                         active_drivers=fleet_data['active_assets'], 
+                         total_assets=fleet_data['total_fleet_assets'],
+                         active_drivers=fleet_data['active_operational'], 
                          gps_coverage=fleet_data['gps_coverage'],
                          safety_score=98.4,
                          recent_activity=recent_activity)

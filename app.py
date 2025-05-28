@@ -19,7 +19,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 # Import Kaizen GPT and Smart Risk Analytics
 from kaizen_gpt import kaizen_bp, kaizen_gpt
 from routes.smart_risk_analytics import smart_risk_bp
-from routes.division_manager_access import division_mgr_bp
+from routes.division_manager_access import division_manager_bp
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

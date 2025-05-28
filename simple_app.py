@@ -36,7 +36,7 @@ def index():
     
     return render_template('ai_ops_dashboard.html',
                          total_assets=fleet_data['total_fleet_assets'],
-                         active_drivers=fleet_data['active_operational'], 
+                         active_drivers=fleet_data['active_drivers'], 
                          gps_coverage=fleet_data['gps_coverage'],
                          safety_score=98.4,
                          recent_activity=recent_activity)

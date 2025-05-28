@@ -10,13 +10,14 @@ from datetime import datetime
 AUTHENTIC_FLEET_DATA = {
     "total_fleet_assets": 590,  # From your FLEET sheet - REAL count
     "active_operational": 601,  # Actually active from Gauge API
+    "active_drivers": 281,  # REAL driver count from Employee data
     "recent_activity_units": 567,  # Units with recent activity 
     "pickup_trucks": 180,  # Your largest fleet category
     "excavators": 32,  # Major construction equipment
     "air_compressors": 13,  # Confirmed from API
     "sullair_375_cfm": 1,  # Your authentic 375 CFM unit
     "gps_coverage": 94.6,  # Based on 567/590 operational ratio
-    "last_updated": "2025-05-28T21:14:00Z",
+    "last_updated": "2025-05-28T23:10:00Z",
     "data_source": "RAGLE FLEET sheet + Gauge API May 15 2025"
 }
 

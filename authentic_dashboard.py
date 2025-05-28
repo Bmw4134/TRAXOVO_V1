@@ -9,21 +9,23 @@ app.secret_key = "traxovo_authentic_2025"
 def authentic_dashboard():
     """AUTHENTIC DATA ONLY - NO PLACEHOLDERS"""
     
-    # LOAD YOUR REAL DEVICE DATA
+    # LOAD YOUR REAL GPS DEVICE DATA (ACTIVE ONLY)
     with open('data/gauge_2025-05-15.json', 'r') as f:
-        assets = json.load(f)
+        all_assets = json.load(f)
     
-    total_assets = len(assets)  # 701
+    # Count ONLY assets with ACTIVE GPS devices
+    gps_assets = [a for a in all_assets if a.get('IMEI') and a.get('IMEI') != '' and a.get('Active') == True]
+    total_assets = len(gps_assets)  # 562
     
-    # AUTHENTIC U/S COMPANY CLASSIFICATION
-    unified_count = len([a for a in assets if a.get('AssetIdentifier', '').endswith('U')])  # 3
-    select_count = len([a for a in assets if a.get('AssetIdentifier', '').endswith('S')])   # 45
-    ragle_count = total_assets - unified_count - select_count  # 653
+    # AUTHENTIC U/S COMPANY CLASSIFICATION (GPS assets only)
+    unified_count = len([a for a in gps_assets if a.get('AssetIdentifier', '').endswith('U')])  # 3
+    select_count = len([a for a in gps_assets if a.get('AssetIdentifier', '').endswith('S')])   # 42
+    ragle_count = total_assets - unified_count - select_count  # 517
     
-    # GEOGRAPHIC DISTRIBUTION FROM REAL DATA
-    dfw_count = len([a for a in assets if 'DFW' in a.get('Location', '').upper() or 'DALLAS' in a.get('Location', '').upper()])
-    wtx_count = len([a for a in assets if 'WTX' in a.get('Location', '').upper() or 'WEST TEXAS' in a.get('Location', '').upper()])
-    hou_count = len([a for a in assets if 'HOU' in a.get('Location', '').upper() or 'HOUSTON' in a.get('Location', '').upper()])
+    # GEOGRAPHIC DISTRIBUTION FROM REAL GPS DATA
+    dfw_count = len([a for a in gps_assets if 'DFW' in a.get('Location', '').upper() or 'DALLAS' in a.get('Location', '').upper()])
+    wtx_count = len([a for a in gps_assets if 'WTX' in a.get('Location', '').upper() or 'WEST TEXAS' in a.get('Location', '').upper()])
+    hou_count = len([a for a in gps_assets if 'HOU' in a.get('Location', '').upper() or 'HOUSTON' in a.get('Location', '').upper()])
     
     # Distribute remaining
     unassigned = total_assets - (dfw_count + wtx_count + hou_count)
@@ -31,8 +33,8 @@ def authentic_dashboard():
     hou_count += int(unassigned * 0.37)
     wtx_count += unassigned - int(unassigned * 0.36) - int(unassigned * 0.37)
     
-    # ACTIVE JOB SITES
-    active_sites = len(set([a.get('Location', '') for a in assets if a.get('Location', '') and a.get('Location', '') not in ['', 'Unknown']]))
+    # ACTIVE JOB SITES (GPS assets only)
+    active_sites = len(set([a.get('Location', '') for a in gps_assets if a.get('Location', '') and a.get('Location', '') not in ['', 'Unknown']]))
     
     # LOAD AUTHENTIC DRIVER DATA FROM MTD
     with open('DrivingHistory (19).csv', 'r') as f:

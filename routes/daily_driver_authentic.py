@@ -372,9 +372,9 @@ def daily_driver_reports():
                     <form id="mtdUploadForm" enctype="multipart/form-data">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label">DrivingHistory.csv</label>
-                                <input type="file" class="form-control" name="driving_history" accept=".csv">
-                                <small class="text-muted">Driver activity and GPS tracking data</small>
+                                <label class="form-label">Driving History Report</label>
+                                <input type="file" class="form-control" name="driving_history" accept=".pdf,.csv">
+                                <small class="text-muted">PDF from Gauge Smart or CSV export</small>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">ActivityDetail.csv</label>

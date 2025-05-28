@@ -161,12 +161,93 @@ def job_zones_dashboard():
                         </div>
                         
                         <div class="mt-3">
-                            <button class="btn btn-outline-primary btn-sm">
+                            <button class="btn btn-outline-primary btn-sm me-2">
                                 <i class="fas fa-users me-1"></i>View Team
                             </button>
-                            <button class="btn btn-outline-success btn-sm">
+                            <button class="btn btn-outline-success btn-sm me-2">
                                 <i class="fas fa-map me-1"></i>GPS Track
                             </button>
+                            <button class="btn btn-outline-warning btn-sm" onclick="toggleHours('{{ zone.job_number }}')">
+                                <i class="fas fa-clock me-1"></i>Hours
+                            </button>
+                        </div>
+                        
+                        <!-- Working Hours Panel (Hidden by default) -->
+                        <div id="hours-{{ zone.job_number }}" class="zone-hours-panel" style="display: none;">
+                            <h6 class="fw-bold mb-3"><i class="fas fa-clock me-2"></i>Working Hours for {{ zone.job_number }}</h6>
+                            
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <div class="hours-toggle">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="fw-medium">Standard Hours</span>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="std-{{ zone.job_number }}" checked onchange="updateHours('{{ zone.job_number }}', 'standard')">
+                                            </div>
+                                        </div>
+                                        <div class="d-flex gap-2 mt-2">
+                                            <input type="time" class="form-control form-control-sm" value="07:00" id="std-start-{{ zone.job_number }}">
+                                            <span class="align-self-center">to</span>
+                                            <input type="time" class="form-control form-control-sm" value="17:00" id="std-end-{{ zone.job_number }}">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="hours-toggle">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="fw-medium">Weekend Hours</span>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="wknd-{{ zone.job_number }}" onchange="updateHours('{{ zone.job_number }}', 'weekend')">
+                                            </div>
+                                        </div>
+                                        <div class="d-flex gap-2 mt-2">
+                                            <input type="time" class="form-control form-control-sm" value="08:00" id="wknd-start-{{ zone.job_number }}">
+                                            <span class="align-self-center">to</span>
+                                            <input type="time" class="form-control form-control-sm" value="16:00" id="wknd-end-{{ zone.job_number }}">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="hours-toggle">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="fw-medium">Night Shift</span>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="night-{{ zone.job_number }}" onchange="updateHours('{{ zone.job_number }}', 'night')">
+                                            </div>
+                                        </div>
+                                        <div class="d-flex gap-2 mt-2">
+                                            <input type="time" class="form-control form-control-sm" value="22:00" id="night-start-{{ zone.job_number }}">
+                                            <span class="align-self-center">to</span>
+                                            <input type="time" class="form-control form-control-sm" value="06:00" id="night-end-{{ zone.job_number }}">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="hours-toggle">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="fw-medium">Emergency Hours</span>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="emrg-{{ zone.job_number }}" onchange="updateHours('{{ zone.job_number }}', 'emergency')">
+                                            </div>
+                                        </div>
+                                        <div class="d-flex gap-2 mt-2">
+                                            <span class="text-muted small">24/7 Coverage Active</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-3 text-center">
+                                <button class="btn btn-success btn-sm me-2" onclick="saveHours('{{ zone.job_number }}')">
+                                    <i class="fas fa-save me-1"></i>Save Changes
+                                </button>
+                                <button class="btn btn-secondary btn-sm" onclick="toggleHours('{{ zone.job_number }}')">
+                                    Close
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

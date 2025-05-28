@@ -1,0 +1,93 @@
+# TRAXORA – Granular Backend/Frontend Task List (No Module Disruption)
+
+## 1. AUTH/LOGIN & INIT ERROR RESOLUTION
+
+- [ ] Reproduce login and session-init errors using test accounts.
+- [ ] Review `/login`, `/logout`, `/users` routes for auth logic or race conditions.
+- [ ] Audit user session storage/expiration (DB, cookies, JWT).
+- [ ] Patch any traceback-causing bugs in auth or init; confirm fixes with multiple test users.
+- [ ] Add unit tests for login, logout, session persistence, and error paths.
+
+## 2. IMPORT BUG FIXES
+
+- [ ] Identify import bugs (file types, size limits, Excel diff issues).
+- [ ] Add logging for all file import attempts: filename, user, org, timestamp, error details.
+- [ ] Test imports with edge cases: empty files, malformed Excel, duplicate entries.
+- [ ] Patch parsing and error-handling logic for PM allocation and MTD activity processors.
+- [ ] Add automated import regression test.
+
+## 3. MULTI-ORG LOGIC FINALIZATION
+
+- [ ] Confirm `organization_id` column exists on all relevant models: User, Asset, Driver, Report, Zone, etc.
+- [ ] Enforce org-based filtering in all API endpoints (query only data for current user’s org).
+- [ ] Restrict admin/superuser org access by role; test org-switching if supported.
+- [ ] Add database-level unique constraints where needed (`(org_id, asset_id)`).
+- [ ] Write test cases for org data isolation (can user X see data from other orgs?).
+
+## 4. UI/UX POLISH & UNIFORMITY
+
+- [ ] Audit all dashboard tabs: ensure headers, navigation, color schemes are consistent.
+- [ ] Refactor repetitive layout/JS/CSS into shared components.
+- [ ] Update the Reports page: master per-day output, with clickable links for:
+      - [ ] Attendance trends
+      - [ ] Report history
+      - [ ] Asset map (ensure map loads correctly)
+- [ ] Check UI in Chrome, Firefox, Edge, and mobile.
+- [ ] Gather 1-2 screenshots of prior “polished” visuals for style reference.
+
+## 5. PM REPORT UPLOAD/DIFF/EXPORT FLOW
+
+- [ ] Manually run full PM report workflow: upload Excel → diff → export.
+- [ ] Log/report any failures with sample files.
+- [ ] Patch Excel diff logic to handle formula and data changes robustly.
+- [ ] Ensure user gets clear feedback on upload success, errors, or conflicts.
+- [ ] Add test files for PM allocation edge cases; document any known limitations.
+- [ ] Automate at least one end-to-end PM report flow test.
+
+## 6. TIMECARD INTEGRATION (SAFE, STAGED)
+
+- [ ] Build timecard file upload endpoint: accept but do not process file (log only).
+- [ ] Log each timecard upload (filename, user, timestamp, org).
+- [ ] Outline (comment/TODO) steps for processing timecard into billing/compliance pipeline.
+- [ ] Design and document a feature flag to enable/disable timecard import logic.
+- [ ] Add placeholder or “coming soon” banner in UI if user tries to import.
+
+## 7. MAP & DASHBOARD VISUAL RESTORATION
+
+- [ ] Restore job zone map view: confirm asset/driver pins display by org.
+- [ ] Check driver location history and trend charts render correctly.
+- [ ] Patch any map performance or JS library load issues.
+- [ ] Validate dashboard visuals on all supported browsers/devices.
+
+## 8. MAINTAIN MODULARITY / NO BREAKS
+
+- [ ] Review all new/modified code for blueprint compliance (SQLAlchemy, modular services).
+- [ ] Confirm no changes break:
+      - [ ] Driver Reports
+      - [ ] PM diff
+      - [ ] Map/zone tools
+- [ ] Add/maintain audit logging for all core actions (uploads, edits, exports).
+
+## 9. DOCUMENTATION & HANDOFF
+
+- [ ] Update code docstrings for each modified or new module.
+- [ ] Add/refresh README and inline TODOs for unfinished/blocked tasks.
+- [ ] Maintain this granular checklist; tick off or annotate as progress is made.
+
+## 10. OPTIONAL/CONTINUOUS IMPROVEMENT
+
+- [ ] Monitor background SendGrid jobs for email automation; log failures, alert if thresholds hit.
+- [ ] Validate GaugeSmart API sync for new/archived asset telemetry; patch any parsing or auth errors.
+- [ ] Solicit feedback from 1-2 real users on UI clarity, report output, and map functions; record and prioritize new issues.
+
+---
+
+**How to use:**  
+- Assign or pick up tasks one at a time.
+- Check off as completed, add details if blocked or a new bug is found.
+- Update the list each night with new findings or ongoing work.
+
+---
+
+**This format keeps the work moving, gives AI/devs no ambiguity, and fits modular sprints perfectly.  
+Let me know if you want this split by backend/frontend, with owner tags, or adapted for a ticketing system!**

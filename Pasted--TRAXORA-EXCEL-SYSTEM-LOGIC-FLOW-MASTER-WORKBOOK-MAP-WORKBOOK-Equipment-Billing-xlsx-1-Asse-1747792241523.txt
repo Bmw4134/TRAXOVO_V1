@@ -1,0 +1,57 @@
+# TRAXORA EXCEL SYSTEM LOGIC FLOW - MASTER WORKBOOK MAP
+
+WORKBOOK: Equipment Billing.xlsx
+
+# 1. Asset List Sheet
+# Purpose: Acts as the primary relational hub for asset-driver pairing.
+# Fields: Employee ID, Employee Name, Asset Number, Job Site Assignment
+# Logic:
+# - Pulls data via formulas from “Drivers” and “Start Time & Job”
+# - Used to validate all telematics and attendance events against ground truth
+
+# 2. Drivers Sheet
+# Purpose: Acts as a manually-updated employee registry (March–April)
+# Fields: Driver Names, IDs, Asset Assignment, Active Status
+# Usage:
+# - Used as source of verified drivers and assignments prior to final master list
+# - Referenced in formulas on “Asset List”
+
+# 3. Start Time & Job Sheet
+# Purpose: **Dynamically-generated baseline for each driver**
+# Fields: Scheduled Start, Scheduled End, Job Site, Asset, Driver Name
+# Logic:
+# - Pulls data from pivot table output
+# - Pivot table is refreshed from DrivingHistory input
+# - Final “Start Time & Job” sheet is NOT manually maintained—it’s derived
+# Dependency:
+#     → Depends on refreshed DrivingHistory data
+#     → Used as the core baseline for Daily Driver Reports
+
+# 4. DrivingHistory Raw File (CSV/Excel)
+# Purpose: Telematics-based GPS check-in log
+# Logic:
+# - Provides Key On/Off timestamps
+# - Maps to Start Time & Job by Asset ID
+# - Is pivoted → exported → becomes basis for Start Time data
+
+# 5. Activity Detail / Assets Time on Site
+# Purpose: Used to validate location data and idle/stationary time
+# - Helps determine if employee was *at* the job site vs. rogue location
+# - Used in conjunction with the GPS logs to determine “Not on Job”
+
+# 6. Final Output (PDF/Excel Reports)
+# - Should only reference values derived through the above hierarchy
+# - Any “Start Time & Job” values used must be parsed with context
+#   → They are NOT the primary source, they are the result of upstream logic
+
+# System Instruction for Replit or Agent:
+# DO NOT treat “Start Time & Job” as authoritative or standalone
+# It is the output of deeper workbook logic
+# All driver validation must be rooted in:
+#   → Drivers Sheet (or updated master list)
+#   → Asset List Sheet
+#   → DrivingHistory Refresh Logic
+
+# GOAL:
+# System must trace all data elements in Daily Driver Reports to their workbook logic lineage
+# Replit should reprocess the logic of Start Time & Job if DrivingHistory or Pivot Tables have changed

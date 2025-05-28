@@ -27,4 +27,5 @@ print("📊 Report:", report)
 
 # 4. Format output
 formatted = agent_controller.handle("output_formatter", report)
-print("📝 Output:", formatted)
+print("📝 Output:
+", formatted)

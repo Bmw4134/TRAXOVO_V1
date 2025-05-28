@@ -1,0 +1,38 @@
+
+TRAXORA System Health Check Report
+Generated: 2025-05-23 16:58:26
+
+DATABASE CONNECTIVITY:
+- Connection Status: OK
+- Connection Time: 2692.06ms
+
+SCHEMA INTEGRITY:
+- Overall Integrity: OK
+- Tables Checked: 4
+
+TABLE DETAILS:
+- assets: 45 columns
+  Columns: id, external_id, name, asset_number, status, category, class_type, model_year, make, model, type_tag, description, vin, serial_number, license_plate, job_number, job_name, division, address, latitude, longitude, last_known_location, ownership_type, billing_code, asset_tags, odometer, hour_meter, fuel_level, date_of_purchase, date_of_sale, last_service_date, next_service_due, registration_expiration_date, last_updated, created_at, payload_capacity, gvwr, primary_image_url, has_documents, api_source, telematics_id, telematics_data, service_status, maintenance_alerts, recall_alerts
+
+- drivers: 22 columns
+  Columns: id, name, employee_id, department, division, region, job_title, phone, email, license_number, license_class, license_expiration, status, is_active, notes, job_site_id, last_known_latitude, last_known_longitude, last_location_update, organization_id, created_at, updated_at
+
+- job_sites: 24 columns
+  Columns: id, name, job_number, address, city, state, zip_code, latitude, longitude, radius, geofence_enabled, geofence_config, client, contract_number, start_date, end_date, work_start_time, work_end_time, days_of_week, active, status, organization_id, created_at, updated_at
+
+- asset_locations: 12 columns
+  Columns: id, asset_id, latitude, longitude, elevation, location_timestamp, location_source, job_site_id, speed, heading, accuracy, created_at
+
+RECORD COUNTS:
+- Error counting records: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[Driver(drivers)]'. Original exception was: Could not determine join condition between parent/child tables on relationship Driver.assigned_assets - there are no foreign keys linking these tables.  Ensure that referencing columns are associated with a ForeignKey or ForeignKeyConstraint, or specify a 'primaryjoin' expression.
+
+GAUGE API CONNECTION:
+- Status: Connected
+- URL: https://api.gaugesmart.com
+- Asset List ID: 28dcba94c01e453fa8e9215a068f30e4
+- Authenticated: True
+- Last Auth Attempt: 2025-05-23 16:58:26.870048
+- Auth Endpoints Tried: https://api.gaugesmart.com/AssetList/28dcba94c01e453fa8e9215a068f30e4
+
+RECOMMENDATION:
+- All systems are operating normally

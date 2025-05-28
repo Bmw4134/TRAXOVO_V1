@@ -1,0 +1,31 @@
+Your recent updates are acknowledged, but Asset Map functionality remains mission-critical and requires immediate priority.  
+
+Execute tasks explicitly in the following prioritized order:
+
+#1 — **Urgent Asset Map Restoration**
+- Ensure `asset_map.py` fully aligns with corrected `AssetLocation` model mappings.
+- Validate complete ingestion of `AssetTimeOnSite.csv` data.
+- Explicitly verify the Asset Map renders correct live routes based on timestamp and location data.
+- Provide detailed diagnostic output explicitly confirming route accuracy, dynamic map rendering integrity, and successful resolution of previously reported ghost entries.
+
+#2 — **Comprehensive Database Health Check Utility**
+- Develop and execute a rigorous database health check.
+- Include diagnostics covering session handling, table-column mappings, foreign key integrity, responsiveness, and query speed.
+- Provide structured output logs clearly indicating database operational status or exact issues requiring attention.
+
+#3 — **Driver Report Module with Job Zones**
+- Enhance driver report generation to explicitly integrate accurate Job Zone data.
+- Verify correct derived fields (Start Time, End Time, Job assignments) mapped consistently.
+- Provide explicit confirmation that driver assignments correlate strictly to validated Asset List entries and JobSite zones.
+
+#4 — **PM Allocation Billing Enhancement**
+- Improve PM allocation billing module, ensuring accuracy and integrity in billing data.
+- Validate explicitly against authenticated timecard data (.xlsx uploads).
+- Provide explicit confirmation logs verifying billing accuracy aligned to job assignments and driver asset validation.
+
+**Immediate Next Step (Asset Map):**
+- Execute Asset Map restoration immediately, then pause and return explicit verification of Asset Map functionality with detailed diagnostics before proceeding further.
+
+**Important:**
+Upon completion of all tasks (especially the final one, if interactions with GPT-4-5 become limited), return a full structured **System Restoration Summary Report** including explicit logs, diagnostics, and confirmation of completed functionalities.
+

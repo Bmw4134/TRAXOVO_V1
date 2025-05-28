@@ -1,0 +1,96 @@
+Initiate full-stack TRAXORA Fleet System stabilization and readiness.
+
+The following must be implemented in complete, verifiable form:
+
+––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+PHASE 1: PIPELINE INTEGRITY
+
+✓ Validate that all raw data sources (ActivityDetail, DrivingHistory, AssetsTimeOnSite, Timecards, PM Billing) are being properly parsed
+✓ Confirm that date-stamped data is stored or cached for repeat access
+✓ Log successful pipeline runs per date in `logs/pipeline_status.log`
+
+PHASE 2: DAILY DRIVER REPORT SYSTEM
+
+✓ Fix `/drivers/daily-report` route to render only for valid, processed dates
+✓ Block rendering of pages for future or unprocessed dates — show a “No Data Available” banner
+✓ Fix export links (PDF/XLSX) to appear only if files are generated and present
+✓ Ensure file generation writes to `/exports/daily_reports/` and files are accessible via HTTP
+✓ Normalize date rendering and prevent mismatched day-labels
+
+PHASE 3: TREND ANALYSIS INTEGRATION
+
+✓ Ensure multi-day trend flags (CHRONIC_LATE, REPEATED_ABSENCE, UNSTABLE_SHIFT) are computed for every driver across valid attendance windows
+✓ Include trend flags in all dashboard views and export summaries
+✓ Add JSON export for trend data to `/exports/trends/`
+
+PHASE 4: BILLING AND PM ALLOCATION
+
+✓ Ensure April mock billing runs to completion
+✓ Generate `/exports/billing/April_MockBilling_Complete.xlsx` with full asset × rate × allocation logic
+✓ Respect job-level cost code fallbacks, asset division mappings, and revisions
+✓ Include job site metadata in all PM billing outputs
+
+PHASE 5: DATA UNIFORMITY & STANDARDS
+
+✓ Normalize all division codes using this map:
+   DFW → DIV 2 | HOU → DIV 4 | WT → DIV 3  
+   TEXDIST → DIV 8 | DALOH-HH → DIV 2  
+   HOUOH-HH → DIV 4 | WTOH-HH → DIV 3
+
+✓ Employee normalization:
+   - Employee ID padded, SSN-last-6 extractable, contact info unified
+   - Match across WEX, ELIST, JLIST
+
+✓ Time normalization:
+   - Strip "CT", convert internally to 24h, display consistently as HH:MM AM/PM
+
+✓ Asset normalization:
+   - Extract vehicle ID from assetlabel (e.g. “ET-01”), unify format in all reports
+
+✓ Cost code fallback:
+   - Ensure jobs without known cost codes default to `9000 100M` or `9000 100F`
+
+✓ Job site mapping:
+   - Normalize capitalization, spelling, and locations
+
+PHASE 6: FILE + ROUTING CORRECTIONS
+
+✓ Ensure `/exports/daily_reports/<DATE>_DailyDriverReport.xlsx` and `.pdf` return valid files via HTTP
+✓ If not found, suppress link and show tooltip
+✓ Add 404 fallback pages for all invalid routes
+✓ Implement `/health` endpoint with pass/fail status and timestamp
+
+PHASE 7: FAULT TOLERANCE & LOGGING
+
+✓ All 500s must be caught and logged — return user-friendly feedback in dashboard
+✓ Log file access attempts and failures
+✓ Log all export attempts to `logs/export_audit.log`
+✓ System should never crash when:
+   - A file is missing
+   - A user clicks a bad link
+   - A driver record is incomplete
+
+PHASE 8: EXPORT FORMAT UNIFICATION
+
+✓ All XLSX/PDF exports must:
+   - Match structure: headers, fields, fonts
+   - Include metadata rows (generated timestamp, origin, report type)
+   - Use same naming pattern: `YYYY-MM-DD_<ReportType>.<ext>`
+
+PHASE 9: DEMO PREP / STAGING STABILITY
+
+✓ Fix UI responsiveness across devices (mobile/tablet/desktop)
+✓ Ensure Attendance Dashboard loads without error
+✓ Enable “Download All Reports” function per week
+✓ Confirm accurate and aligned summary counts on all dashboards
+
+FINAL VALIDATION:
+
+Once complete, respond with:
+- List of processed dates
+- All working export links
+- System uptime confirmation
+- Exported trend flags for past 5 days
+- Validated division/driver/job mapping structure
+
+GENIUS CORE will independently verify all components and issue deployment certification upon completion.

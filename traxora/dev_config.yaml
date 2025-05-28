@@ -1,0 +1,15 @@
+mode: development
+logging_level: DEBUG
+bypass_ssl_verification: true
+database:
+  name: traxora_dev.db
+  seed_on_startup: true
+  reset_daily: false
+api_keys:
+  gauge_smart_test: "YOUR_DEV_TEST_KEY_HERE"
+  logging_service: "YOUR_DEV_LOG_KEY"
+feature_flags:
+  enable_driver_chunking: true
+  filter_pickup_trucks: true
+  skip_zero_values: true
+  enable_async_tasks: true

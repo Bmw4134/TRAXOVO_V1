@@ -1,68 +1,12 @@
-{% extends "base.html" %}
-{% set page_title = "PE Zone Filter" %}
-
-{% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="text-primary fw-bold">
-                    <i class="bi bi-geo-alt-fill me-2"></i>
-                    Project Engineer Zone Dashboard
-                </h2>
-                <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-outline-primary">
-                        <i class="bi bi-funnel me-1"></i>Filter Zones
-                    </button>
-                    <button type="button" class="btn btn-outline-secondary">
-                        <i class="bi bi-download me-1"></i>Export
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-tools me-2"></i>
-                        Equipment Status by Zone
-                    </h5>
-                </div>
-                <div class="card-body">
-                    {% if equipment_list %}
-                        <div class="row g-3">
-                            {% for equipment in equipment_list %}
-                            <div class="col-md-6 col-lg-4">
-                                <div class="card h-100 border-start border-primary border-3">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-start">
-                                            <div>
-                                                <h6 class="card-title text-truncate">{{ equipment.name }}</h6>
-                                                <span class="badge bg-{{ 'success' if equipment.status == 'active' else 'warning' }}">
-                                                    {{ equipment.status|title }}
-                                                </span>
-                                            </div>
-                                            <i class="bi bi-gear-fill text-muted"></i>
-                                        </div>
-                                        <small class="text-muted">Zone: {{ equipment.zone or 'Unassigned' }}</small>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        <div class="text-center py-5">
-                            <i class="bi bi-tools display-1 text-muted"></i>
-                            <h4 class="text-muted mt-3">No Equipment Data</h4>
-                            <p class="text-muted">Equipment assignments will appear here once data is loaded.</p>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
+<!DOCTYPE html>
+<html>
+<head><title>PE Zone Filter</title></head>
+<body>
+  <h2>Project Engineer Zone Dashboard</h2>
+  <div>
+    {% for equipment in equipment_list %}
+      <div>{{ equipment.name }} - {{ equipment.status }}</div>
+    {% endfor %}
+  </div>
+</body>
+</html>

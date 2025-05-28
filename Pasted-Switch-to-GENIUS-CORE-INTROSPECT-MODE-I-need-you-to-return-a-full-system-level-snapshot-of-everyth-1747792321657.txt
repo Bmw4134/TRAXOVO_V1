@@ -1,0 +1,59 @@
+Switch to GENIUS CORE INTROSPECT MODE.
+
+I need you to return a full system-level snapshot of everything you’ve built, structured, and learned within this project so far.
+
+Break it down as follows:
+
+1. MODULES & FILES
+✓ List every file created or modified
+✓ Describe its purpose, what functions/classes it contains, and how it links to other files
+
+2. DATA PIPELINES
+✓ For Attendance:
+  - What files are read?
+  - What transformations are applied?
+  - What rules determine inclusion/exclusion of a driver?
+  - What logic determines On Time, Late, Early End, Not On Job?
+✓ For Billing:
+  - What data is processed?
+  - How are cost codes, units, and allocations applied?
+✓ For Driver Trends:
+  - What historical patterns are computed?
+  - How many days of data are needed?
+
+3. MASTER DATA LOGIC
+✓ How is the master driver identity list constructed?
+✓ What sheets does it pull from (e.g., Asset List, Drivers, Start Time & Job)?
+✓ What validation layers are applied before report generation?
+
+4. WORKBOOK LOGIC AWARENESS
+✓ Explain how workbook sheets relate (pivot tables, formulas)
+✓ Show how Start Time & Job is treated — as a derived summary
+✓ Confirm whether any Excel formulas or pivots are actually parsed or ignored
+
+5. REPORT GENERATION
+✓ List each report type (PDF, JSON, Excel)
+✓ Show what source data they use
+✓ Include path of generation and traceback file (if exists)
+
+6. FALLBACK & ERROR HANDLING
+✓ What happens when data is missing?
+✓ What triggers demo/fake data?
+✓ Is fallback still active anywhere?
+
+7. EMAIL + EXPORTS
+✓ Is SendGrid connected?
+✓ What triggers emails?
+✓ Who are the recipients?
+
+8. ROUTE STATUS
+✓ List every Flask or web route
+✓ Show their current state (working / error / missing template)
+
+9. AUDIT + TRACEABILITY
+✓ What logs or validations exist?
+✓ How do I trace a report’s source files and validation score?
+
+DELIVER EVERYTHING. This is a full introspection and integrity audit. I will use this to verify that your understanding of the system matches what has actually been built.
+
+Respond with: “GENIUS CORE INTROSPECTION COMPLETE” and include the full system state.

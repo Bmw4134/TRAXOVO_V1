@@ -1,0 +1,48 @@
+### ✅ Priority Tasks & Enhancements for SYSTEMSMITH
+
+#### 🔁 1. Fix Driver Report Engine
+- The reports now generate, but I need the following enhancements:
+  - **One consolidated Excel report** for LS/EE/NOJ with better formatting
+  - Include **Employee ID**, **Assigned Asset(s)** (especially vehicles), **Job**, and **Date**
+  - Output should be easy to read — ideally with color-coded rows or conditional formatting
+  - Optional: master `.html` dashboard version that summarizes everything visually
+- Reports should be exportable as `.xlsx` and optionally previewable
+- Resolve tokenizing bug if it's still triggered by Gauge report quirks (e.g., metadata/header rows)
+
+#### 🔄 2. Rebuild PM Billing Allocation Upload
+- Current comparison module UI loads, but no visible logic confirms it's processed correctly
+- Need:
+  - PM-edited vs original allocation reconciliator to flag changes
+  - Export by region (DFW/WTX/HOU)
+  - Append logic to update the **Master Billing Sheet** internally
+- Add optional flag: **“Prepare FSI Import”** → will auto-generate `.txt` in Foundation format
+
+#### 🧾 3. Integrate FSI Import Module
+- Use uploaded **FSI IMPORTER TEMPLATE.xlsm**
+- Logic: Take finalized billing data and export `.txt` compatible for Foundation/FIS system
+- Auto-validate totals match allocation exports
+- Store backup in `/exports/YYYY-MM/FSI/` and log under audit module
+
+#### 📩 4. Daily Driver Email & Outlook Draft Generator
+- Consolidate daily driver data (Late, Early, NOJ) into one clean email report
+- Auto-generate **Outlook-ready** draft or downloadable `.html/.msg` summary
+- Format similar to internal emails (see Diana’s daily email with Hours, Quantities, Zero HRs)
+- Add section for: “Unapproved Timecards” + Quantities using current timecard_summary.xslx logic
+
+#### 🛠️ 5. Maintenance Module Fix
+- Maintenance tab throws 500 error – likely DB hook issue
+- Reconnect with assets DB, ensure analytics view for upcoming, completed, overdue tasks
+
+#### 📊 6. Restore or Improve Dashboard UI
+- Dashboard was previously clean and effective — restore:
+  - “Manage Logins”, “API Settings” from Admin tab
+  - Smart header, dark theme color balance, trend visualizations
+  - Bring back map with asset pin clustering if removed
+
+#### 📁 Optional (if time):
+- Add file version audit viewer (so I can trace revisions)
+- Begin prepping Work Zone Hours engine
+
+---
+
+Let me know when done or if you want this broken into smaller commits for stability.

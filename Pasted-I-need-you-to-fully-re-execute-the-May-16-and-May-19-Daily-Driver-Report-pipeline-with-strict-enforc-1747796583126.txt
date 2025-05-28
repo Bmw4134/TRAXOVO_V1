@@ -1,0 +1,27 @@
+I need you to fully re-execute the May 16 and May 19 Daily Driver Report pipeline with strict enforcement of the actual workbook logic hierarchy. Use the following trace contract to govern all stages:
+
+PRIMARY LOGIC FLOW (DO NOT DEVIATE):
+
+1. Source of Truth: Use the `Asset List` tab in the Equipment Billings workbook as the only verified primary source of driver/asset pairings.
+2. Start Time & Job: Treat this tab as *derived only*—pull its dependencies from other workbook tabs via formula tracing, and do not consider it standalone or authoritative.
+3. Driving History: Parse and match all available drivers (not just 14)—do not prematurely filter. Count every valid key on/off set and match back to the Asset List relationally.
+4. Activity Detail: Cross-validate locations and presence using location strings or coordinates against assigned job sites.
+5. Full Driver List: Must equal all verified drivers with telematics data *plus* any derived drivers from Start Time & Job (via dependencies), validated through the Asset List.
+6. Unmatched Drivers: If drivers appear in DrivingHistory or ActivityDetail but not Asset List, flag them separately as `Unmapped` but **include them** in the report for traceability.
+7. Matchback Enforcement: All report inclusions must have visible trace confirmation from workbook logic, and every classification (On Time, Late, Early End, Not On Job) must reference exact time deltas and job site checks.
+8. False Positives Check: If the system still reports only 14 drivers from DrivingHistory despite raw data showing more, perform a full driver frequency audit and print exclusions with causes.
+
+System Output Requirements:
+- Rebuild the PDF, Excel, and JSON reports for May 16 and May 19 with the corrected logic.
+- Add a “Driver Matchback Sheet” to Excel output listing all source → match → classification steps.
+- Include unmatched or flagged drivers in a separate section, with status: `Unverified`, `Missing Assignment`, `Inferred From Activity Only`, etc.
+- DO NOT collapse results for missing telematics unless reason is shown.
+
+GENIUS CORE TRACE LOCK ACTIVATION:
+Enforce hardline mode. Verify all claims match workbook reality. Output summary must show:
+- Total drivers parsed from source
+- Number matched to Asset List
+- Number excluded (with reasons)
+- Drivers by status classification
+
+GOAL: Ensure Replit is no longer ignoring any connected workbook logic or asset-driver pairing pathways and is not undercounting or hallucinating validations.

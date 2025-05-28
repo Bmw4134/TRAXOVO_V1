@@ -235,39 +235,48 @@ def upload_utilization():
     return redirect(url_for('fleet.fleet_utilization'))
 
 def parse_fleet_utilization_excel(filepath):
-    """Parse Fleet Utilization Excel using your authentic data structure"""
+    """Parse Fleet Utilization Excel using Sheet2 per your specification"""
     
-    # Based on the structure from your attached bundles
-    xls = pd.ExcelFile(filepath)
+    # Use Sheet2 as specified - Sheet1 is cover sheet
+    data = pd.read_excel(filepath, sheet_name='Sheet2')
     
-    # Try different sheet names that might contain the data
-    sheet_names = xls.sheet_names
-    data_sheet = None
+    # Clean whitespace and handle merged header artifacts
+    data = data.dropna(how='all')  # Remove completely empty rows
+    data.columns = data.columns.astype(str).str.strip()  # Clean column names
     
-    for sheet in sheet_names:
-        if 'utilization' in sheet.lower() or 'fleet' in sheet.lower():
-            data_sheet = sheet
+    # Find the actual data start (skip headers if needed)
+    asset_col_idx = None
+    for idx, row in data.iterrows():
+        if 'Asset' in str(row.iloc[0]):
+            asset_col_idx = idx
             break
     
-    if not data_sheet:
-        data_sheet = sheet_names[0] if sheet_names else 'Sheet1'
+    if asset_col_idx is not None and asset_col_idx > 0:
+        # Use this row as headers and start data from next row
+        data.columns = data.iloc[asset_col_idx]
+        data = data.iloc[asset_col_idx + 1:].reset_index(drop=True)
     
-    # Parse the sheet
-    data = xls.parse(data_sheet)
+    # Standardize column names and clean whitespace
+    data.columns = data.columns.astype(str).str.strip()
     
-    # Handle headers that might be on row 2
-    if len(data.columns) > 1 and 'Asset' not in str(data.columns[0]):
-        data.columns = data.iloc[1]
-        data = data.drop(index=[0, 1]).reset_index(drop=True)
-    
-    # Standardize column names
+    # Map "Asset" to asset_id as specified
     if 'Asset' in data.columns:
         data = data.rename(columns={'Asset': 'asset_id'})
     
-    # Extract relevant columns based on your data structure
-    required_cols = ['asset_id', 'Make', 'Model']
-    monthly_cols = [col for col in data.columns if any(month in str(col) for month in ['Jan', 'Feb', 'Mar', 'Apr', 'May'])]
+    # Keep Division and Project for job zone mapping
+    essential_cols = ['asset_id', 'Division', 'Project']
     
-    return_cols = [col for col in required_cols if col in data.columns] + monthly_cols
+    # Add any utilization/hours columns
+    util_cols = [col for col in data.columns if any(term in col.lower() for term in ['hour', 'util', 'time', 'usage'])]
     
-    return data[return_cols] if return_cols else data
+    # Combine all needed columns
+    final_cols = []
+    for col in essential_cols + util_cols:
+        if col in data.columns:
+            final_cols.append(col)
+    
+    # Clean data - remove rows where asset_id is empty
+    if 'asset_id' in data.columns:
+        data = data[data['asset_id'].notna() & (data['asset_id'] != '')]
+    
+    return data[final_cols] if final_cols else data

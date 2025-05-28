@@ -128,7 +128,7 @@ def daily_driver_reports():
         
         # Generate week grid based on actual dates in range
         weekly_performance_data = []
-        for i, employee in enumerate(active_employees_sample[:12]):
+        for i, employee in enumerate(active_employees_sample):
             emp_id = employee['Employee No']
             
             # Get employee's actual driving records in date range

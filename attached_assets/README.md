@@ -1,18 +1,12 @@
-# Frontend Sync Patch - TRAXOVO
 
-Use this when Replit confirms a UI fix but it doesn’t reflect live.
+# TRAXOVO Enhancement Patch: KPIs, Maps, Roles
 
-## Step 1: Run Sync Helper
-```bash
-python3 frontend_sync_helper.py
-```
+## Includes:
+- ✅ KPI Export (Excel .xlsx of driver metrics)
+- ✅ Role-based dashboards (Admin vs PM vs Driver)
+- ✅ GPS map zone refresh JavaScript stub (for future Mapbox/Leaflet integration)
 
-## Step 2: Flush Frontend
-```bash
-bash flush_frontend.sh
-```
-
-## Step 3: Restart App
-```bash
-python3 app.py
-```
+To install:
+1. Merge /routes and /static into your current workspace
+2. Hook `kpi_export.py` to your daily scheduler
+3. Attach `get_dashboard_view()` to your login role handler

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAXOVO Field Service & Heavy Haul Billing Intelligence</title>
+    <style>
+        body { 
+            margin: 0; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            overflow-x: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #8e44ad, #9b59b6);
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .header h1 {
+            margin: 0;
+            font-size: clamp(20px, 4vw, 28px);
+            font-weight: 600;
+        }
+        .subtitle {
+            margin: 5px 0 0 0;
+            opacity: 0.9;
+            font-size: 16px;
+        }
+        
+        /* Revenue Summary Cards */
+        .revenue-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .revenue-card {
+            background: #2c3e50;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border-left: 4px solid #8e44ad;
+        }
+        .revenue-amount {
+            font-size: 32px;
+            font-weight: bold;
+            color: #e74c3c;
+            margin: 10px 0;
+        }
+        .revenue-amount.positive {
+            color: #27ae60;
+        }
+        .revenue-label {
+            color: #bdc3c7;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .revenue-detail {
+            font-size: 12px;
+            color: #95a5a6;
+        }
+        
+        /* Main Dashboard */
+        .main-dashboard {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* Billing Opportunities */
+        .opportunities-section {
+            grid-column: 1 / -1;
+            background: #2c3e50;
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid #e74c3c;
+        }
+        .opportunity-item {
+            background: #34495e;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #f39c12;
+        }
+        .opportunity-item.critical { border-left-color: #e74c3c; }
+        .opportunity-item.high { border-left-color: #f39c12; }
+        .opportunity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .opportunity-title {
+            font-weight: bold;
+            font-size: 16px;
+            color: #e74c3c;
+        }
+        .priority-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .priority-critical { background: #e74c3c; }
+        .priority-high { background: #f39c12; }
+        
+        /* Service Assets Lists */
+        .service-section {
+            background: #2c3e50;
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid #8e44ad;
+        }
+        .asset-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .service-asset {
+            background: #34495e;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 6px;
+            border-left: 3px solid #8e44ad;
+        }
+        .service-asset.mechanic { border-left-color: #3498db; }
+        .service-asset.heavy-haul { border-left-color: #e67e22; }
+        .service-asset.unbilled { border-left-color: #e74c3c; }
+        
+        .asset-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .asset-name {
+            font-weight: bold;
+            color: #8e44ad;
+        }
+        .billing-status {
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .status-billable { background: #27ae60; color: white; }
+        .status-unbilled { background: #e74c3c; color: white; }
+        .status-unknown { background: #95a5a6; color: white; }
+        
+        .asset-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 12px;
+            color: #bdc3c7;
+        }
+        .revenue-potential {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            margin-top: 10px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .action-btn {
+            background: #8e44ad;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.3s;
+        }
+        .action-btn:hover {
+            background: #9b59b6;
+        }
+        .action-btn.urgent {
+            background: #e74c3c;
+        }
+        .action-btn.setup {
+            background: #3498db;
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .revenue-summary {
+                grid-template-columns: 1fr 1fr;
+                padding: 15px;
+            }
+            .main-dashboard {
+                grid-template-columns: 1fr;
+                padding: 15px;
+            }
+            .revenue-amount {
+                font-size: 24px;
+            }
+        }
+        
+        .section-title {
+            margin: 0 0 15px 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .filter-bar {
+            background: #34495e;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔧 Field Service & Heavy Haul Billing Intelligence</h1>
+        <p class="subtitle">Capture missed revenue from mechanics, semi trucks, and labor operations</p>
+    </div>
+
+    <!-- Revenue Summary -->
+    <div class="revenue-summary">
+        <div class="revenue-card">
+            <div class="revenue-label">Total Service Assets</div>
+            <div class="revenue-amount positive" id="totalServiceAssets">--</div>
+            <div class="revenue-detail">Mechanic trucks, semi trucks, service vehicles</div>
+        </div>
+        <div class="revenue-card">
+            <div class="revenue-label">Monthly Revenue Potential</div>
+            <div class="revenue-amount positive" id="totalRevenuePotential">$--</div>
+            <div class="revenue-detail">Based on your internal rates</div>
+        </div>
+        <div class="revenue-card">
+            <div class="revenue-label">Missed Revenue</div>
+            <div class="revenue-amount" id="missedRevenue">$--</div>
+            <div class="revenue-detail">Unbilled service operations</div>
+        </div>
+        <div class="revenue-card">
+            <div class="revenue-label">Billing Efficiency</div>
+            <div class="revenue-amount positive" id="billingEfficiency">--%</div>
+            <div class="revenue-detail">Assets properly configured for billing</div>
+        </div>
+    </div>
+
+    <div class="main-dashboard">
+        <!-- Critical Billing Opportunities -->
+        <div class="opportunities-section">
+            <h2 class="section-title">💰 Critical Billing Opportunities</h2>
+            <div id="billingOpportunities">
+                <!-- Opportunities will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Service Vehicle Analysis -->
+        <div class="service-section">
+            <h2 class="section-title">🔧 Field Service Vehicles</h2>
+            <div class="asset-list" id="serviceVehiclesList">
+                <!-- Service vehicles will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Heavy Haul Equipment -->
+        <div class="service-section">
+            <h2 class="section-title">🚛 Heavy Haul Equipment</h2>
+            <div class="asset-list" id="heavyHaulList">
+                <!-- Heavy haul equipment will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load service summary data
+        function loadServiceSummary() {
+            fetch('/field-service-billing/api/service-summary')
+                .then(response => response.json())
+                .then(data => {
+                    const summary = data.summary;
+                    
+                    document.getElementById('totalServiceAssets').textContent = summary.total_service_assets;
+                    document.getElementById('totalRevenuePotential').textContent = '$' + summary.total_revenue_potential.toLocaleString();
+                    document.getElementById('missedRevenue').textContent = '$' + summary.missed_revenue.toLocaleString();
+                    
+                    const efficiency = summary.total_service_assets > 0 ? 
+                        ((summary.billable_count / summary.total_service_assets) * 100).toFixed(1) : 0;
+                    document.getElementById('billingEfficiency').textContent = efficiency + '%';
+                })
+                .catch(error => {
+                    console.error('Error loading service summary:', error);
+                });
+        }
+        
+        // Load billing opportunities
+        function loadBillingOpportunities() {
+            fetch('/field-service-billing/api/billing-opportunities')
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('billingOpportunities');
+                    container.innerHTML = '';
+                    
+                    if (data.opportunities.length === 0) {
+                        container.innerHTML = '<p style="color: #27ae60;">✅ All service assets are properly configured for billing!</p>';
+                        return;
+                    }
+                    
+                    data.opportunities.forEach(opp => {
+                        const oppDiv = document.createElement('div');
+                        oppDiv.className = `opportunity-item ${opp.priority.toLowerCase()}`;
+                        
+                        oppDiv.innerHTML = `
+                            <div class="opportunity-header">
+                                <div class="opportunity-title">${opp.title}</div>
+                                <span class="priority-badge priority-${opp.priority.toLowerCase()}">${opp.priority}</span>
+                            </div>
+                            <div style="margin-bottom: 10px; color: #bdc3c7;">${opp.action}</div>
+                            <div style="font-size: 12px; color: #95a5a6;">
+                                ${opp.count ? `${opp.count} assets affected` : ''}
+                            </div>
+                        `;
+                        
+                        container.appendChild(oppDiv);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading billing opportunities:', error);
+                });
+        }
+        
+        // Load unbilled assets
+        function loadUnbilledAssets() {
+            fetch('/field-service-billing/api/unbilled-assets')
+                .then(response => response.json())
+                .then(data => {
+                    const serviceContainer = document.getElementById('serviceVehiclesList');
+                    const heavyHaulContainer = document.getElementById('heavyHaulList');
+                    
+                    serviceContainer.innerHTML = '';
+                    heavyHaulContainer.innerHTML = '';
+                    
+                    data.unbilled_assets.forEach(asset => {
+                        const assetDiv = document.createElement('div');
+                        const assetClass = asset.is_service_vehicle ? 'mechanic' : 
+                                         asset.is_heavy_haul ? 'heavy-haul' : 'service-asset';
+                        const statusClass = asset.billing_status.status === 'billable' ? 'billable' :
+                                          asset.billing_status.status === 'non-billable' ? 'unbilled' : 'unknown';
+                        
+                        assetDiv.className = `service-asset ${assetClass} ${statusClass}`;
+                        
+                        assetDiv.innerHTML = `
+                            <div class="asset-header">
+                                <div class="asset-name">${asset.name} (${asset.asset_id})</div>
+                                <span class="billing-status status-${statusClass}">
+                                    ${asset.billing_status.status.replace('_', ' ').toUpperCase()}
+                                </span>
+                            </div>
+                            <div class="asset-details">
+                                <div>Category: ${asset.category}</div>
+                                <div>Location: ${asset.location}</div>
+                                <div class="revenue-potential">Revenue: $${asset.potential_monthly_revenue.toLocaleString()}/month</div>
+                                <div>Priority: ${asset.priority_score.toFixed(1)}</div>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="action-btn ${asset.billing_status.status !== 'billable' ? 'urgent' : 'setup'}" 
+                                        onclick="setupBilling('${asset.asset_id}')">
+                                    ${asset.billing_status.status !== 'billable' ? '🚨 Setup Billing' : '⚙️ Configure'}
+                                </button>
+                                <button class="action-btn" onclick="viewOnMap('${asset.latitude}', '${asset.longitude}')">
+                                    📍 View Location
+                                </button>
+                            </div>
+                        `;
+                        
+                        if (asset.is_service_vehicle) {
+                            serviceContainer.appendChild(assetDiv);
+                        } else if (asset.is_heavy_haul) {
+                            heavyHaulContainer.appendChild(assetDiv);
+                        }
+                    });
+                    
+                    if (serviceContainer.children.length === 0) {
+                        serviceContainer.innerHTML = '<p style="color: #95a5a6;">No field service vehicles found</p>';
+                    }
+                    if (heavyHaulContainer.children.length === 0) {
+                        heavyHaulContainer.innerHTML = '<p style="color: #95a5a6;">No heavy haul equipment found</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading unbilled assets:', error);
+                });
+        }
+        
+        // Action functions
+        function setupBilling(assetId) {
+            alert(`Setting up billing for asset ${assetId} - Contact accounting to configure billing rates and job tracking`);
+        }
+        
+        function viewOnMap(lat, lng) {
+            if (lat && lng) {
+                window.open(`/gps-tracking#lat=${lat}&lng=${lng}`, '_blank');
+            }
+        }
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadServiceSummary();
+            loadBillingOpportunities();
+            loadUnbilledAssets();
+            
+            // Refresh every 15 minutes
+            setInterval(() => {
+                loadServiceSummary();
+                loadBillingOpportunities();
+                loadUnbilledAssets();
+            }, 15 * 60 * 1000);
+        });
+    </script>
+</body>
+</html>

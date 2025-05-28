@@ -218,6 +218,35 @@ def get_dispatch_alerts():
     alerts = asset_analyzer.generate_dispatch_alerts()
     return jsonify({'alerts': alerts})
 
+@app.route('/field-service-billing')
+def field_service_billing_intelligence():
+    """Field Service & Heavy Haul Billing Intelligence"""
+    return render_template('field_service_billing_dashboard.html')
+
+@app.route('/field-service-billing/api/unbilled-assets')
+def get_unbilled_service_assets():
+    """API: Identify mechanic trucks, semis, and service vehicles missing billing"""
+    from field_service_billing_intelligence import field_service_analyzer
+    
+    assets = field_service_analyzer.identify_unbilled_service_assets()
+    return jsonify({'unbilled_assets': assets})
+
+@app.route('/field-service-billing/api/billing-opportunities')
+def get_billing_opportunities():
+    """API: Revenue opportunities from field service and heavy haul"""
+    from field_service_billing_intelligence import field_service_analyzer
+    
+    opportunities = field_service_analyzer.generate_billing_opportunities()
+    return jsonify({'opportunities': opportunities})
+
+@app.route('/field-service-billing/api/service-summary')
+def get_service_summary():
+    """API: Summary of service vehicle billing status"""
+    from field_service_billing_intelligence import field_service_analyzer
+    
+    summary = field_service_analyzer.get_service_vehicle_summary()
+    return jsonify({'summary': summary})
+
 # Health check
 @app.route('/health')
 def health():

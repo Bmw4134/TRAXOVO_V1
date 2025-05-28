@@ -23,10 +23,15 @@ class AssetAvailabilityAnalyzer:
             # Load equipment billing data for utilization patterns
             self.billing_data = pd.read_excel('RAGLE EQ BILLINGS - APRIL 2025 (JG REVIEWED 5.12).xlsm', 
                                             sheet_name='FLEET')
+            
+            # Load your internal equipment rates
+            self.internal_rates = pd.read_excel('RAGLE EQ BILLINGS - APRIL 2025 (JG REVIEWED 5.12).xlsm', 
+                                              sheet_name='Equip Rates')
         except Exception as e:
             print(f"Data loading error: {e}")
             self.gps_data = []
             self.billing_data = pd.DataFrame()
+            self.internal_rates = pd.DataFrame()
     
     def identify_stagnant_assets(self, days_threshold=7):
         """Identify assets sitting in the same GPS location for extended periods"""
@@ -299,33 +304,42 @@ class AssetAvailabilityAnalyzer:
         return category_stats
     
     def _calculate_rental_savings(self, category, revenue_potential):
-        """Calculate potential rental cost savings by deploying internal assets"""
-        # Typical rental costs per day by equipment category
-        daily_rental_costs = {
-            'Air Compressor': 85,    # $85/day rental cost
-            'Pickup Truck': 45,      # $45/day rental cost
-            'Excavator': 350,        # $350/day rental cost
-            'Dump Truck': 200,       # $200/day rental cost
-            'Crane': 450,            # $450/day rental cost
-            'Bulldozer': 400,        # $400/day rental cost
-            'Skid Steer': 150,       # $150/day rental cost
-            'Trailer': 75            # $75/day rental cost
-        }
+        """Calculate potential rental cost savings using your authentic internal rates"""
+        if self.internal_rates.empty:
+            return 0
         
-        # Find matching category rental cost
-        daily_cost = 100  # Default rental cost
-        for cat, cost in daily_rental_costs.items():
-            if cat.lower() in category.lower():
-                daily_cost = cost
-                break
+        # Find matching equipment in your internal rates
+        internal_monthly_rate = 0
         
-        # Calculate monthly savings potential (assuming 22 working days/month)
-        monthly_savings = daily_cost * 22
+        # Try to match by category first
+        category_matches = self.internal_rates[
+            self.internal_rates['Category'].str.contains(category, case=False, na=False)
+        ]
         
-        # Factor in asset revenue potential vs rental cost
-        net_savings = monthly_savings - (revenue_potential * 0.1)  # 10% operational cost
+        if not category_matches.empty:
+            # Use the average rate for this category
+            rates = category_matches['Rate'].dropna()
+            if not rates.empty:
+                internal_monthly_rate = rates.mean()
+        else:
+            # Try partial matching for broader categories
+            for _, row in self.internal_rates.iterrows():
+                if pd.notna(row['Category']):
+                    if any(word in category.lower() for word in row['Category'].lower().split()):
+                        if pd.notna(row['Rate']):
+                            internal_monthly_rate = row['Rate']
+                            break
         
-        return max(0, net_savings)
+        if internal_monthly_rate == 0:
+            return 0  # No matching rate found
+        
+        # External rental rates are typically 150-200% of internal rates
+        external_rental_rate = internal_monthly_rate * 1.75  # 75% markup typical
+        
+        # Monthly savings = external rental cost - internal deployment cost
+        monthly_savings = external_rental_rate - internal_monthly_rate
+        
+        return max(0, monthly_savings)
 
 # Initialize analyzer
 asset_analyzer = AssetAvailabilityAnalyzer()

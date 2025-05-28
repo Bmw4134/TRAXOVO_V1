@@ -23,6 +23,9 @@ from routes.kpi_export import kpi_bp
 from routes.role_dashboard import role_bp
 from routes.qa_dashboard import qa_bp
 from routes.elite_modules import elite_bp
+from routes.foundation_timecards import foundation_timecards_bp
+from routes.ntta_equipment_integration import ntta_equipment_bp
+from routes.asset_map_geofence import asset_map_bp
 
 # Register all blueprints
 app.register_blueprint(daily_driver_bp, url_prefix='/driver')
@@ -37,6 +40,14 @@ app.register_blueprint(kpi_bp)
 app.register_blueprint(role_bp)
 app.register_blueprint(qa_bp)
 app.register_blueprint(elite_bp)
+app.register_blueprint(foundation_timecards_bp, url_prefix='/fleet')
+app.register_blueprint(ntta_equipment_bp, url_prefix='/fleet')
+app.register_blueprint(asset_map_bp, url_prefix='/fleet')
+
+@app.route('/fleet')
+def fleet_dashboard():
+    """TRAXOVO Fleet Operations Dashboard"""
+    return redirect('/')
 
 @app.route('/')
 def dashboard():
@@ -115,7 +126,8 @@ def dashboard():
                         </div>
                         <div class="card-body">
                             <p>Process Fleet Utilization reports from Gauge with QA validation and Foundation cost integration.</p>
-                            <a href="/fleet/utilization" class="btn btn-primary">Open Fleet Analytics</a>
+                            <a href="/fleet/utilization" class="btn btn-primary me-2">Fleet Analytics</a>
+                            <a href="/fleet/foundation-timecards" class="btn btn-outline-primary">Timecards</a>
                         </div>
                     </div>
                 </div>
@@ -166,7 +178,8 @@ def dashboard():
                         </div>
                         <div class="card-body">
                             <p>Real-time GPS tracking for 562 assets across Ragle, Select Maintenance, and Unified Specialties.</p>
-                            <a href="/fleet/gps-assets" class="btn btn-secondary">GPS Status</a>
+                            <a href="/fleet/gps-assets" class="btn btn-secondary me-2">GPS Status</a>
+                            <a href="/fleet/asset-map" class="btn btn-outline-secondary">Asset Map</a>
                         </div>
                     </div>
                 </div>
@@ -177,9 +190,9 @@ def dashboard():
                             <h5 class="mb-0"><i class="fas fa-fire me-2"></i>Elite Analytics</h5>
                         </div>
                         <div class="card-body">
-                            <p>Advanced predictive analytics, optimization engine, and driver performance heatmaps.</p>
+                            <p>Advanced predictive analytics, NTTA equipment integration, and driver performance heatmaps.</p>
                             <a href="/elite/heatmap" class="btn btn-dark me-2">Elite Dashboard</a>
-                            <a href="/admin/teams" class="btn btn-outline-dark">Team Admin</a>
+                            <a href="/fleet/ntta-equipment" class="btn btn-outline-dark">NTTA Equipment</a>
                         </div>
                     </div>
                 </div>

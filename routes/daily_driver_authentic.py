@@ -96,6 +96,9 @@ def daily_driver_reports():
             .metric-number.danger { color: #d32f2f; }
             .metric-number.secondary { color: #6c757d; }
             
+            .weekend-col { opacity: 0.6; }
+            .weekend-hidden { display: none; }
+            
             /* Mobile optimizations */
             @media (max-width: 768px) {
                 .metric-number { font-size: 1.5rem; }
@@ -106,6 +109,7 @@ def daily_driver_reports():
                 .d-flex.gap-2 { flex-direction: column; gap: 0.5rem !important; }
                 .d-flex.gap-2 input[type="date"] { width: 100% !important; }
                 .table-responsive { border-radius: 8px; }
+                .weekend-col { display: none; }
             }
             .driver-table {
                 background: white;
@@ -316,6 +320,26 @@ def daily_driver_reports():
                         console.log('Applying date range:', startDate, 'to', endDate);
                         // Here you would reload data with new date range
                         alert('Refreshing data for ' + startDate + ' to ' + endDate);
+                    });
+                }
+                
+                // Handle weekend toggle
+                const weekendToggle = document.getElementById('includeWeekends');
+                if (weekendToggle) {
+                    weekendToggle.addEventListener('change', function() {
+                        const weekendCols = document.querySelectorAll('.weekend-col');
+                        weekendCols.forEach(col => {
+                            if (this.checked) {
+                                col.style.display = '';
+                                col.style.opacity = '1';
+                            } else {
+                                col.style.opacity = '0.6';
+                                // On mobile, hide completely
+                                if (window.innerWidth < 768) {
+                                    col.style.display = 'none';
+                                }
+                            }
+                        });
                     });
                 }
             });

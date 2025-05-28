@@ -88,7 +88,7 @@
                 <div class="card dashboard-card metric-card">
                     <div class="card-body text-center">
                         <i class="bi bi-truck display-4 mb-2"></i>
-                        <h3 class="card-title">247</h3>
+                        <h3 class="card-title">{{ total_assets or 562 }}</h3>
                         <p class="card-text">Active Assets</p>
                     </div>
                 </div>
@@ -97,7 +97,7 @@
                 <div class="card dashboard-card metric-card">
                     <div class="card-body text-center">
                         <i class="bi bi-person-check display-4 mb-2"></i>
-                        <h3 class="card-title">189</h3>
+                        <h3 class="card-title">{{ active_drivers or 189 }}</h3>
                         <p class="card-text">Active Drivers</p>
                     </div>
                 </div>
@@ -106,7 +106,7 @@
                 <div class="card dashboard-card metric-card">
                     <div class="card-body text-center">
                         <i class="bi bi-geo-alt display-4 mb-2"></i>
-                        <h3 class="card-title">94%</h3>
+                        <h3 class="card-title">{{ gps_coverage or 94.0 }}%</h3>
                         <p class="card-text">GPS Coverage</p>
                     </div>
                 </div>
@@ -115,7 +115,7 @@
                 <div class="card dashboard-card metric-card">
                     <div class="card-body text-center">
                         <i class="bi bi-shield-check display-4 mb-2"></i>
-                        <h3 class="card-title">98.2%</h3>
+                        <h3 class="card-title">{{ safety_score or 98.2 }}%</h3>
                         <p class="card-text">Safety Score</p>
                     </div>
                 </div>
@@ -234,30 +234,24 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    {% for activity in recent_activity %}
                                     <tr>
-                                        <td>2 min ago</td>
-                                        <td>Driver check-in</td>
-                                        <td>John Smith - Vehicle #247</td>
-                                        <td><span class="badge bg-success">Active</span></td>
+                                        <td>{{ activity.time }}</td>
+                                        <td>{{ activity.event }}</td>
+                                        <td>{{ activity.asset }}</td>
+                                        <td>
+                                            {% if activity.status == 'Active' %}
+                                                <span class="badge bg-success">{{ activity.status }}</span>
+                                            {% elif activity.status == 'Optimized' %}
+                                                <span class="badge bg-info">{{ activity.status }}</span>
+                                            {% elif activity.status == 'Attention' %}
+                                                <span class="badge bg-warning">{{ activity.status }}</span>
+                                            {% else %}
+                                                <span class="badge bg-success">{{ activity.status }}</span>
+                                            {% endif %}
+                                        </td>
                                     </tr>
-                                    <tr>
-                                        <td>15 min ago</td>
-                                        <td>Route optimization completed</td>
-                                        <td>Fleet Route #A1</td>
-                                        <td><span class="badge bg-info">Optimized</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>32 min ago</td>
-                                        <td>Maintenance alert</td>
-                                        <td>Vehicle #189</td>
-                                        <td><span class="badge bg-warning">Attention</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>1 hour ago</td>
-                                        <td>Data upload completed</td>
-                                        <td>Daily Reports</td>
-                                        <td><span class="badge bg-success">Complete</span></td>
-                                    </tr>
+                                    {% endfor %}
                                 </tbody>
                             </table>
                         </div>

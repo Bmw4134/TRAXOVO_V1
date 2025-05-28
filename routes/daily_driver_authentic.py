@@ -113,7 +113,7 @@ def process_uploaded_file(filepath):
         logger.error(f"Error processing {filepath}: {e}")
 
 def load_authentic_attendance_data():
-    """Load real attendance data from your actual MTD files"""
+    """Load real attendance data from your actual MTD files - ALL 92 DRIVERS"""
     try:
         # Check uploaded files first, then fallback to existing files
         upload_path = UPLOAD_FOLDER
@@ -129,7 +129,7 @@ def load_authentic_attendance_data():
             
             # Sort by modification time (newest first) and take most recent files
             files_with_times.sort(reverse=True)
-            attendance_files = [filepath for _, filepath in files_with_times[:5]]  # Take 5 most recent files
+            attendance_files = [filepath for _, filepath in files_with_times[:10]]  # Take more files to get all drivers
             
             logger.info(f"Found {len(attendance_files)} recent uploaded files: {[os.path.basename(f) for f in attendance_files]}")
         
@@ -166,6 +166,8 @@ def load_authentic_attendance_data():
         
         all_violations = []
         authentic_drivers = set()
+        job_sites = set()
+        driver_jobs = {}  # Track which drivers work on which jobs
         
         for file_path in attendance_files:
             if os.path.exists(file_path):

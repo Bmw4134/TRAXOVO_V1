@@ -13,9 +13,9 @@ from app import app
 
 # Register essential login routes only
 try:
-    from routes.direct_auth import auth_bp
-    app.register_blueprint(auth_bp, url_prefix='/auth')
-    print("✅ Direct CSRF-exempt login route registered successfully")
+    from routes.working_login import working_login
+    app.register_blueprint(working_login)
+    print("✅ Working login route registered successfully")
 except ImportError as e:
     print(f"Skipping complex routes: {e}")
 
@@ -532,7 +532,7 @@ def dashboard():
     """Multi-Division TRAXOVO Fleet Management Dashboard"""
     from flask import session
     if 'authenticated' not in session:
-        return redirect('/auth/direct-login')
+        return redirect('/login')
     
     try:
         return render_template('dashboard.html',

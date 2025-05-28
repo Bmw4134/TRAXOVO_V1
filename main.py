@@ -8,7 +8,7 @@ app.secret_key = "traxovo_elite_2025"
 
 @app.route('/')
 def elite_dashboard():
-    """ELITE DASHBOARD WITH REAL GAUGE API DATA"""
+    """ELITE DASHBOARD WITH REAL GAUGE API DATA AND MTD DRIVER DATA"""
     
     # DIRECT CONNECTION TO YOUR GAUGE API
     try:
@@ -90,6 +90,29 @@ def elite_dashboard():
             wtx_count = 0
             hou_count = 0
             active_sites = 0
+    
+    # LOAD AUTHENTIC DRIVER DATA FROM MTD FILES (5/1-5/26 PERIOD)
+    try:
+        import re
+        
+        # Extract real driver data from DrivingHistory
+        with open('DrivingHistory (19).csv', 'r') as f:
+            content = f.read()
+        
+        driver_pattern = r'#(\d+) - ([A-Z\s\.]+)'
+        drivers = re.findall(driver_pattern, content)
+        total_drivers = len(drivers)
+        
+        # Extract active assets from AssetsTimeOnSite
+        with open('AssetsTimeOnSite (8).csv', 'r') as f:
+            lines = f.readlines()
+        
+        asset_lines = [line for line in lines if any(truck in line for truck in ['DT-', 'PT-', 'FORD', 'KENWORTH'])]
+        active_mtd_assets = len(asset_lines)
+        
+    except:
+        total_drivers = 0
+        active_mtd_assets = 0
     
     return render_template_string(f'''
     <!DOCTYPE html>

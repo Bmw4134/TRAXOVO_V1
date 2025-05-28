@@ -45,6 +45,8 @@ def payroll_dashboard():
                 border-radius: 8px;
                 box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             }
+            .payroll-card .fs-3 { color: #212529; }
+            .payroll-card h4 { color: #212529; }
         </style>
     </head>
     <body>

@@ -132,15 +132,28 @@ def daily_driver_reports():
                             <span class="badge bg-success me-2">Active Drivers: {{ attendance_summary.active_drivers }}</span>
                             <span class="badge bg-info">Timecard Validated</span>
                         </div>
-                        <div class="btn-group" role="group">
-                            <input type="radio" class="btn-check" name="timeview" id="daily" checked>
-                            <label class="btn btn-outline-primary" for="daily">Daily</label>
-                            
-                            <input type="radio" class="btn-check" name="timeview" id="weekly">
-                            <label class="btn btn-outline-primary" for="weekly">Weekly</label>
-                            
-                            <input type="radio" class="btn-check" name="timeview" id="monthly">
-                            <label class="btn btn-outline-primary" for="monthly">Monthly</label>
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <div class="btn-group" role="group">
+                                    <input type="radio" class="btn-check" name="timeview" id="daily" checked>
+                                    <label class="btn btn-outline-primary" for="daily">Daily</label>
+                                    
+                                    <input type="radio" class="btn-check" name="timeview" id="weekly">
+                                    <label class="btn btn-outline-primary" for="weekly">Weekly</label>
+                                    
+                                    <input type="radio" class="btn-check" name="timeview" id="monthly">
+                                    <label class="btn btn-outline-primary" for="monthly">Monthly</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex gap-2 align-items-center">
+                                    <label class="text-dark fw-medium">Date Range:</label>
+                                    <input type="date" class="form-control" value="2025-05-01" style="width: 140px;">
+                                    <span class="text-dark">to</span>
+                                    <input type="date" class="form-control" value="2025-05-26" style="width: 140px;">
+                                    <button class="btn btn-primary btn-sm">Apply</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

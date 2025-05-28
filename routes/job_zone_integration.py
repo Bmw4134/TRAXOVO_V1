@@ -65,6 +65,9 @@ def job_zones_dashboard():
                 margin-bottom: 2rem;
                 border-bottom: 1px solid #dee2e6;
             }
+            .job-card h5 { color: #212529; }
+            .job-card p { color: #495057; }
+            .job-card .fw-bold { color: #212529; }
         </style>
     </head>
     <body>

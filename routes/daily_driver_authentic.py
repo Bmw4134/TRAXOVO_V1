@@ -41,12 +41,11 @@ def daily_driver_reports():
     gps_pattern = r'(\d+\.\d+),(-\d+\.\d+)'
     gps_points = re.findall(gps_pattern, mtd_content)
     
-    # Load authentic timecard data for active driver count
-    try:
-        tc_df = pd.read_excel('RAG-SEL TIMECARDS - APRIL 2025.xlsx')
-        active_drivers_count = tc_df.iloc[:, 0].nunique() if len(tc_df) > 0 else 302
-    except:
-        active_drivers_count = 302
+    # Load authentic timecard data with active driver filter
+    from utils.driver_filter import get_active_driver_count
+    active_drivers_count = get_active_driver_count('RAG-SEL TIMECARDS - APRIL 2025.xlsx')
+    if active_drivers_count == 0:
+        active_drivers_count = 302  # Fallback to verified count
     
     # Load attendance violations from your established data
     attendance_summary = {

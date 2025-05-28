@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template_string
+from flask import Blueprint, render_template_string, request
 import re
 import json
 from datetime import datetime
@@ -63,6 +63,14 @@ def daily_driver_reports():
     
     # Sample active employees for display
     active_employees_sample = active_employees[:20]  # Show first 20 for clean display
+    
+    # Get date range from URL parameters
+    start_date = request.args.get('start_date', '2025-05-01')
+    end_date = request.args.get('end_date', '2025-05-26')
+    
+    # Update period with selected dates if different
+    if start_date != '2025-05-01' or end_date != '2025-05-26':
+        attendance_summary['period'] = f'{start_date} to {end_date}'
     
     return render_template_string('''
     <!DOCTYPE html>

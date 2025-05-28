@@ -275,6 +275,32 @@ def job_zones_dashboard():
                 {% endfor %}
             </div>
         </div>
+        <script>
+            function viewTeam(jobNumber) {
+                window.location.href = '/zones/team/' + jobNumber;
+            }
+            
+            function gpsTrack(jobNumber) {
+                window.location.href = '/fleet/gps-assets?job=' + jobNumber;
+            }
+            
+            function toggleHours(jobNumber) {
+                const panel = document.getElementById('hours-' + jobNumber);
+                if (panel.style.display === 'none') {
+                    panel.style.display = 'block';
+                } else {
+                    panel.style.display = 'none';
+                }
+            }
+            
+            function updateHours(jobNumber, type) {
+                console.log('Updating hours for job', jobNumber, 'type', type);
+            }
+            
+            function saveHours(jobNumber) {
+                alert('Hours saved for job ' + jobNumber);
+            }
+        </script>
     </body>
     </html>
     ''', job_zones=job_zones)

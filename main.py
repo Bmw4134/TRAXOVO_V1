@@ -26,6 +26,7 @@ from routes.elite_modules import elite_bp
 from routes.foundation_timecards import foundation_timecards_bp
 from routes.ntta_equipment_integration import ntta_equipment_bp
 from routes.asset_map_geofence import asset_map_bp
+from routes.vin_agent import vin_agent_bp
 
 # Register all blueprints
 app.register_blueprint(daily_driver_bp, url_prefix='/driver')
@@ -43,6 +44,7 @@ app.register_blueprint(elite_bp)
 app.register_blueprint(foundation_timecards_bp, url_prefix='/fleet')
 app.register_blueprint(ntta_equipment_bp, url_prefix='/fleet')
 app.register_blueprint(asset_map_bp, url_prefix='/fleet')
+app.register_blueprint(vin_agent_bp, url_prefix='/fleet')
 
 @app.route('/fleet')
 def fleet_dashboard():

@@ -283,6 +283,56 @@ def daily_driver_reports():
         </div>
         
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            // Make date range and view toggles functional
+            document.addEventListener('DOMContentLoaded', function() {
+                // Handle view toggle changes
+                const viewButtons = document.querySelectorAll('input[name="timeview"]');
+                viewButtons.forEach(button => {
+                    button.addEventListener('change', function() {
+                        console.log('View changed to:', this.id);
+                        updateDateRange(this.id);
+                    });
+                });
+                
+                // Handle apply button
+                const applyBtn = document.querySelector('.btn-primary.btn-sm');
+                if (applyBtn) {
+                    applyBtn.addEventListener('click', function() {
+                        const startDate = document.querySelectorAll('input[type="date"]')[0].value;
+                        const endDate = document.querySelectorAll('input[type="date"]')[1].value;
+                        console.log('Applying date range:', startDate, 'to', endDate);
+                        // Here you would reload data with new date range
+                        alert('Refreshing data for ' + startDate + ' to ' + endDate);
+                    });
+                }
+            });
+            
+            function updateDateRange(view) {
+                const startDateInput = document.querySelectorAll('input[type="date"]')[0];
+                const endDateInput = document.querySelectorAll('input[type="date"]')[1];
+                const today = new Date();
+                
+                if (view === 'daily') {
+                    // Set to current day
+                    const todayStr = today.toISOString().split('T')[0];
+                    startDateInput.value = todayStr;
+                    endDateInput.value = todayStr;
+                } else if (view === 'weekly') {
+                    // Set to current week
+                    const weekStart = new Date(today.setDate(today.getDate() - today.getDay()));
+                    const weekEnd = new Date(today.setDate(weekStart.getDate() + 6));
+                    startDateInput.value = weekStart.toISOString().split('T')[0];
+                    endDateInput.value = weekEnd.toISOString().split('T')[0];
+                } else if (view === 'monthly') {
+                    // Set to current month
+                    const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+                    const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                    startDateInput.value = monthStart.toISOString().split('T')[0];
+                    endDateInput.value = monthEnd.toISOString().split('T')[0];
+                }
+            }
+        </script>
     </body>
     </html>
     ''', driver_assignments=driver_assignments, attendance_summary=attendance_summary, active_employees_sample=active_employees_sample)

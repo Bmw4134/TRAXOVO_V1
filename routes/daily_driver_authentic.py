@@ -209,11 +209,19 @@ def daily_driver_reports():
                             </div>
                             <div class="col-lg-6 col-md-12">
                                 <div class="d-flex gap-2 align-items-center flex-wrap">
-                                    <label class="text-dark fw-medium d-none d-sm-block">Date Range:</label>
-                                    <input type="date" class="form-control flex-fill" value="{{ start_date or '2025-05-01' }}" style="min-width: 140px;">
-                                    <span class="text-dark d-none d-sm-block">to</span>
-                                    <input type="date" class="form-control flex-fill" value="{{ end_date or '2025-05-26' }}" style="min-width: 140px;">
-                                    <button class="btn btn-primary btn-sm">Apply</button>
+                                    <label class="text-dark fw-medium d-none d-sm-block">Work Week:</label>
+                                    <button class="btn btn-outline-secondary btn-sm" id="prevWeek">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+                                    <div class="d-flex gap-1">
+                                        <input type="date" class="form-control" id="startDate" value="{{ start_date or '2025-05-01' }}" style="width: 130px;">
+                                        <span class="text-dark align-self-center">to</span>
+                                        <input type="date" class="form-control" id="endDate" value="{{ end_date or '2025-05-26' }}" style="width: 130px;">
+                                    </div>
+                                    <button class="btn btn-outline-secondary btn-sm" id="nextWeek">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                    <button class="btn btn-primary btn-sm" id="applyRange">Apply</button>
                                 </div>
                             </div>
                         </div>
@@ -389,6 +397,27 @@ def daily_driver_reports():
                     });
                 });
                 
+                // Handle week navigation
+                document.getElementById('prevWeek').addEventListener('click', function() {
+                    navigateWeek(-1);
+                });
+                
+                document.getElementById('nextWeek').addEventListener('click', function() {
+                    navigateWeek(1);
+                });
+                
+                // Handle apply button
+                document.getElementById('applyRange').addEventListener('click', function() {
+                    const startDate = document.getElementById('startDate').value;
+                    const endDate = document.getElementById('endDate').value;
+                    console.log('Applying date range:', startDate, 'to', endDate);
+                    // Reload page with new date range parameters
+                    const currentUrl = new URL(window.location);
+                    currentUrl.searchParams.set('start_date', startDate);
+                    currentUrl.searchParams.set('end_date', endDate);
+                    window.location.href = currentUrl.toString();
+                });
+                
                 // Handle apply button
                 const applyBtn = document.querySelector('.btn-primary.btn-sm');
                 if (applyBtn) {
@@ -514,28 +543,55 @@ def daily_driver_reports():
                 modalElement.show();
             }
             
+            function navigateWeek(direction) {
+                const startInput = document.getElementById('startDate');
+                const endInput = document.getElementById('endDate');
+                
+                const currentStart = new Date(startInput.value);
+                const currentEnd = new Date(endInput.value);
+                
+                // Move by 7 days in the specified direction
+                currentStart.setDate(currentStart.getDate() + (direction * 7));
+                currentEnd.setDate(currentEnd.getDate() + (direction * 7));
+                
+                startInput.value = currentStart.toISOString().split('T')[0];
+                endInput.value = currentEnd.toISOString().split('T')[0];
+                
+                // Auto-apply the new week
+                setTimeout(() => {
+                    document.getElementById('applyRange').click();
+                }, 100);
+            }
+            
             function updateDateRange(view) {
-                const startDateInput = document.querySelectorAll('input[type="date"]')[0];
-                const endDateInput = document.querySelectorAll('input[type="date"]')[1];
+                const startInput = document.getElementById('startDate');
+                const endInput = document.getElementById('endDate');
                 const today = new Date();
                 
                 if (view === 'daily') {
                     // Set to current day
                     const todayStr = today.toISOString().split('T')[0];
-                    startDateInput.value = todayStr;
-                    endDateInput.value = todayStr;
+                    startInput.value = todayStr;
+                    endInput.value = todayStr;
                 } else if (view === 'weekly') {
-                    // Set to current week
-                    const weekStart = new Date(today.setDate(today.getDate() - today.getDay()));
-                    const weekEnd = new Date(today.setDate(weekStart.getDate() + 6));
-                    startDateInput.value = weekStart.toISOString().split('T')[0];
-                    endDateInput.value = weekEnd.toISOString().split('T')[0];
+                    // Set to current work week (Saturday to Sunday)
+                    const currentDay = today.getDay(); // 0 = Sunday, 6 = Saturday
+                    const daysToSaturday = currentDay === 0 ? -1 : 6 - currentDay; // If Sunday, go back to prev Saturday
+                    
+                    const weekStart = new Date(today);
+                    weekStart.setDate(today.getDate() - currentDay + (currentDay === 0 ? -6 : 1)); // Monday start
+                    
+                    const weekEnd = new Date(weekStart);
+                    weekEnd.setDate(weekStart.getDate() + 6); // Sunday end
+                    
+                    startInput.value = weekStart.toISOString().split('T')[0];
+                    endInput.value = weekEnd.toISOString().split('T')[0];
                 } else if (view === 'monthly') {
                     // Set to current month
                     const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
                     const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-                    startDateInput.value = monthStart.toISOString().split('T')[0];
-                    endDateInput.value = monthEnd.toISOString().split('T')[0];
+                    startInput.value = monthStart.toISOString().split('T')[0];
+                    endInput.value = monthEnd.toISOString().split('T')[0];
                 }
             }
         </script>

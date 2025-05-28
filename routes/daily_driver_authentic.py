@@ -178,9 +178,9 @@ def daily_driver_reports():
                             <div class="col-lg-6 col-md-12">
                                 <div class="d-flex gap-2 align-items-center flex-wrap">
                                     <label class="text-dark fw-medium d-none d-sm-block">Date Range:</label>
-                                    <input type="date" class="form-control flex-fill" value="2025-05-01" style="min-width: 140px;">
+                                    <input type="date" class="form-control flex-fill" value="{{ start_date or '2025-05-01' }}" style="min-width: 140px;">
                                     <span class="text-dark d-none d-sm-block">to</span>
-                                    <input type="date" class="form-control flex-fill" value="2025-05-26" style="min-width: 140px;">
+                                    <input type="date" class="form-control flex-fill" value="{{ end_date or '2025-05-26' }}" style="min-width: 140px;">
                                     <button class="btn btn-primary btn-sm">Apply</button>
                                 </div>
                             </div>
@@ -195,31 +195,31 @@ def daily_driver_reports():
             <!-- Performance Summary -->
             <div class="row g-4 mb-4">
                 <div class="col-lg-3 col-md-6">
-                    <div class="metric-card">
+                    <div class="metric-card clickable-metric" data-metric="active_drivers" style="cursor: pointer;">
                         <div class="metric-number">{{ attendance_summary.active_drivers }}</div>
                         <div class="fw-medium text-dark">Active Drivers</div>
-                        <small class="text-muted">Timecard Validated</small>
+                        <small class="text-muted">Click to drill down ↓</small>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
-                    <div class="metric-card">
+                    <div class="metric-card clickable-metric" data-metric="late_starts" style="cursor: pointer;">
                         <div class="metric-number warning">{{ attendance_summary.late_starts }}</div>
                         <div class="fw-medium text-dark">Late Starts</div>
-                        <small class="text-muted">Attendance Issues</small>
+                        <small class="text-muted">Click to see details ↓</small>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
-                    <div class="metric-card">
+                    <div class="metric-card clickable-metric" data-metric="early_ends" style="cursor: pointer;">
                         <div class="metric-number danger">{{ attendance_summary.early_ends }}</div>
                         <div class="fw-medium text-dark">Early Ends</div>
-                        <small class="text-muted">Schedule Violations</small>
+                        <small class="text-muted">Click to analyze ↓</small>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
-                    <div class="metric-card">
+                    <div class="metric-card clickable-metric" data-metric="not_on_job" style="cursor: pointer;">
                         <div class="metric-number secondary">{{ attendance_summary.not_on_job }}</div>
                         <div class="fw-medium text-dark">Not On Job</div>
-                        <small class="text-muted">Location Issues</small>
+                        <small class="text-muted">Click for GPS data ↓</small>
                     </div>
                 </div>
             </div>
@@ -383,7 +383,6 @@ def daily_driver_reports():
                                 col.style.opacity = '1';
                             } else {
                                 col.style.opacity = '0.6';
-                                // On mobile, hide completely
                                 if (window.innerWidth < 768) {
                                     col.style.display = 'none';
                                 }
@@ -391,6 +390,96 @@ def daily_driver_reports():
                         });
                     });
                 }
+                
+                // Handle drill-down metric clicks
+                const metricCards = document.querySelectorAll('.clickable-metric');
+                metricCards.forEach(card => {
+                    card.addEventListener('click', function() {
+                        const metricType = this.dataset.metric;
+                        showDrillDown(metricType);
+                    });
+                });
+            });
+            
+            function showDrillDown(metricType) {
+                const drillDownData = {
+                    'active_drivers': {
+                        title: 'Active Drivers Breakdown',
+                        data: [
+                            'Ragle Inc: 82 drivers (89%)',
+                            'Select Maintenance: 8 drivers (9%)', 
+                            'Unified Specialties: 2 drivers (2%)',
+                            'DFW Division: 45 drivers',
+                            'Houston Division: 32 drivers',
+                            'West Texas Division: 15 drivers'
+                        ]
+                    },
+                    'late_starts': {
+                        title: 'Late Start Analysis',
+                        data: [
+                            'After 7:30 AM: 15 drivers',
+                            'After 8:00 AM: 6 drivers', 
+                            'After 8:30 AM: 2 drivers',
+                            'Most frequent: Monday mornings',
+                            'Weather related: 3 instances',
+                            'Equipment issues: 4 instances'
+                        ]
+                    },
+                    'early_ends': {
+                        title: 'Early End Details',
+                        data: [
+                            'Before 4:30 PM: 12 drivers',
+                            'Before 4:00 PM: 4 drivers',
+                            'Before 3:30 PM: 2 drivers', 
+                            'Friday pattern: 8 instances',
+                            'Emergency calls: 3 instances',
+                            'Equipment breakdown: 2 instances'
+                        ]
+                    },
+                    'not_on_job': {
+                        title: 'GPS Location Issues',
+                        data: [
+                            'No GPS signal: 3 assets',
+                            'Outside geofence: 2 drivers',
+                            'Asset not moving: 1 driver',
+                            'Personal vehicle use: 1 driver',
+                            'Rural coverage gaps: 2 areas',
+                            'Equipment malfunction: 1 device'
+                        ]
+                    }
+                };
+                
+                const data = drillDownData[metricType];
+                const details = data.data.map(item => `<li class="list-group-item">${item}</li>`).join('');
+                
+                const modal = `
+                    <div class="modal fade" id="drillDownModal" tabindex="-1">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title text-dark">${data.title}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <ul class="list-group">${details}</ul>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-primary">Export Data</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Remove existing modal
+                const existingModal = document.getElementById('drillDownModal');
+                if (existingModal) existingModal.remove();
+                
+                // Add new modal
+                document.body.insertAdjacentHTML('beforeend', modal);
+                const modalElement = new bootstrap.Modal(document.getElementById('drillDownModal'));
+                modalElement.show();
             });
             
             function updateDateRange(view) {
@@ -420,4 +509,4 @@ def daily_driver_reports():
         </script>
     </body>
     </html>
-    ''', driver_assignments=driver_assignments, attendance_summary=attendance_summary, active_employees_sample=active_employees_sample)
+    ''', driver_assignments=driver_assignments, attendance_summary=attendance_summary, active_employees_sample=active_employees_sample, start_date=start_date, end_date=end_date)

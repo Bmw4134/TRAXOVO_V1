@@ -201,31 +201,67 @@ class ZeroStateHandler {
         // Generate guidance content based on state type
         const guidance = this.getGuidanceContent(stateType);
         
-        // Create guidance element
+        // Create guidance element safely
         const guidanceEl = document.createElement('div');
         guidanceEl.className = 'zero-state-guidance';
         guidanceEl.dataset.zeroStateType = stateType;
-        guidanceEl.innerHTML = `
-            <div class="card shadow-sm border-info">
-                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="${guidance.icon} me-2"></i>
-                        ${guidance.title}
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-zero-action="dismiss" aria-label="Close"></button>
-                </div>
-                <div class="card-body">
-                    <p>${guidance.message}</p>
-                    <div class="d-flex gap-2">
-                        ${guidance.actions.map(action => `
-                            <a href="${action.url}" class="btn btn-${action.type}" data-zero-action="${action.action}">
-                                <i class="${action.icon} me-1"></i> ${action.text}
-                            </a>
-                        `).join('')}
-                    </div>
-                </div>
-            </div>
-        `;
+        
+        // Create card structure safely
+        const card = document.createElement('div');
+        card.className = 'card shadow-sm border-info';
+        
+        // Create header
+        const header = document.createElement('div');
+        header.className = 'card-header bg-info text-white d-flex justify-content-between align-items-center';
+        
+        const headerTitle = document.createElement('h5');
+        headerTitle.className = 'mb-0';
+        
+        const icon = document.createElement('i');
+        icon.className = guidance.icon + ' me-2';
+        headerTitle.appendChild(icon);
+        headerTitle.appendChild(document.createTextNode(guidance.title));
+        
+        const closeBtn = document.createElement('button');
+        closeBtn.type = 'button';
+        closeBtn.className = 'btn-close btn-close-white';
+        closeBtn.setAttribute('data-zero-action', 'dismiss');
+        closeBtn.setAttribute('aria-label', 'Close');
+        
+        header.appendChild(headerTitle);
+        header.appendChild(closeBtn);
+        
+        // Create body
+        const body = document.createElement('div');
+        body.className = 'card-body';
+        
+        const message = document.createElement('p');
+        message.textContent = guidance.message;
+        
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'd-flex gap-2';
+        
+        // Create actions safely
+        guidance.actions.forEach(action => {
+            const link = document.createElement('a');
+            link.href = action.url;
+            link.className = `btn btn-${action.type}`;
+            link.setAttribute('data-zero-action', action.action);
+            
+            const actionIcon = document.createElement('i');
+            actionIcon.className = action.icon + ' me-1';
+            link.appendChild(actionIcon);
+            link.appendChild(document.createTextNode(' ' + action.text));
+            
+            actionsDiv.appendChild(link);
+        });
+        
+        body.appendChild(message);
+        body.appendChild(actionsDiv);
+        
+        card.appendChild(header);
+        card.appendChild(body);
+        guidanceEl.appendChild(card);
         
         // Insert guidance before or after the element based on position preference
         if (guidance.position === 'before') {
@@ -320,29 +356,67 @@ class ZeroStateHandler {
         const guidanceEl = document.createElement('div');
         guidanceEl.className = 'list-group-item zero-state-guidance';
         guidanceEl.dataset.zeroStateType = stateType;
-        guidanceEl.innerHTML = `
-            <div class="alert alert-info mb-0">
-                <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <i class="${guidance.icon} fs-3 me-3"></i>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h5>${guidance.title}</h5>
-                        <p class="mb-1">${guidance.message}</p>
-                        <div class="d-flex gap-2 mt-2">
-                            ${guidance.actions.map(action => `
-                                <a href="${action.url}" class="btn btn-sm btn-${action.type}" data-zero-action="${action.action}">
-                                    <i class="${action.icon} me-1"></i> ${action.text}
-                                </a>
-                            `).join('')}
-                            <button type="button" class="btn btn-sm btn-outline-secondary ms-auto" data-zero-action="dismiss">
-                                <i class="bi bi-x-lg me-1"></i> Dismiss
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
+        // Create list guidance safely
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-info mb-0';
+        
+        const flexContainer = document.createElement('div');
+        flexContainer.className = 'd-flex align-items-center';
+        
+        const iconContainer = document.createElement('div');
+        iconContainer.className = 'flex-shrink-0';
+        
+        const guidanceIcon = document.createElement('i');
+        guidanceIcon.className = guidance.icon + ' fs-3 me-3';
+        iconContainer.appendChild(guidanceIcon);
+        
+        const contentContainer = document.createElement('div');
+        contentContainer.className = 'flex-grow-1 ms-3';
+        
+        const title = document.createElement('h5');
+        title.textContent = guidance.title;
+        
+        const message = document.createElement('p');
+        message.className = 'mb-1';
+        message.textContent = guidance.message;
+        
+        const buttonContainer = document.createElement('div');
+        buttonContainer.className = 'd-flex gap-2 mt-2';
+        
+        guidance.actions.forEach(action => {
+            const actionBtn = document.createElement('a');
+            actionBtn.href = action.url;
+            actionBtn.className = `btn btn-sm btn-${action.type}`;
+            actionBtn.setAttribute('data-zero-action', action.action);
+            
+            const btnIcon = document.createElement('i');
+            btnIcon.className = action.icon + ' me-1';
+            actionBtn.appendChild(btnIcon);
+            actionBtn.appendChild(document.createTextNode(' ' + action.text));
+            
+            buttonContainer.appendChild(actionBtn);
+        });
+        
+        const dismissBtn = document.createElement('button');
+        dismissBtn.type = 'button';
+        dismissBtn.className = 'btn btn-sm btn-outline-secondary ms-auto';
+        dismissBtn.setAttribute('data-zero-action', 'dismiss');
+        
+        const dismissIcon = document.createElement('i');
+        dismissIcon.className = 'bi bi-x-lg me-1';
+        dismissBtn.appendChild(dismissIcon);
+        dismissBtn.appendChild(document.createTextNode(' Dismiss'));
+        
+        buttonContainer.appendChild(dismissBtn);
+        
+        contentContainer.appendChild(title);
+        contentContainer.appendChild(message);
+        contentContainer.appendChild(buttonContainer);
+        
+        flexContainer.appendChild(iconContainer);
+        flexContainer.appendChild(contentContainer);
+        alert.appendChild(flexContainer);
+        guidanceEl.appendChild(alert);
         
         // Check if there's already an empty state message
         const existingEmpty = list.querySelector('.empty-message, .no-items-message');
@@ -367,32 +441,74 @@ class ZeroStateHandler {
         const guidanceEl = document.createElement('div');
         guidanceEl.className = 'card shadow-sm mb-4 zero-state-guidance';
         guidanceEl.dataset.zeroStateType = stateType;
-        guidanceEl.innerHTML = `
-            <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">
-                    <i class="${guidance.icon} me-2"></i>
-                    ${guidance.title}
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-zero-action="dismiss" aria-label="Close"></button>
-            </div>
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <p class="lead">${guidance.message}</p>
-                        <div class="d-flex gap-2 mt-3">
-                            ${guidance.actions.map(action => `
-                                <a href="${action.url}" class="btn btn-${action.type}" data-zero-action="${action.action}">
-                                    <i class="${action.icon} me-1"></i> ${action.text}
-                                </a>
-                            `).join('')}
-                        </div>
-                    </div>
-                    <div class="col-md-4 text-center mt-3 mt-md-0">
-                        <i class="bi bi-bar-chart-fill text-info" style="font-size: 5rem;"></i>
-                    </div>
-                </div>
-            </div>
-        `;
+        // Create dashboard guidance safely
+        const cardHeader = document.createElement('div');
+        cardHeader.className = 'card-header bg-info text-white d-flex justify-content-between align-items-center';
+        
+        const headerTitle = document.createElement('h5');
+        headerTitle.className = 'mb-0';
+        
+        const headerIcon = document.createElement('i');
+        headerIcon.className = guidance.icon + ' me-2';
+        headerTitle.appendChild(headerIcon);
+        headerTitle.appendChild(document.createTextNode(guidance.title));
+        
+        const headerCloseBtn = document.createElement('button');
+        headerCloseBtn.type = 'button';
+        headerCloseBtn.className = 'btn-close btn-close-white';
+        headerCloseBtn.setAttribute('data-zero-action', 'dismiss');
+        headerCloseBtn.setAttribute('aria-label', 'Close');
+        
+        cardHeader.appendChild(headerTitle);
+        cardHeader.appendChild(headerCloseBtn);
+        
+        const cardBody = document.createElement('div');
+        cardBody.className = 'card-body';
+        
+        const row = document.createElement('div');
+        row.className = 'row align-items-center';
+        
+        const col1 = document.createElement('div');
+        col1.className = 'col-md-8';
+        
+        const leadMessage = document.createElement('p');
+        leadMessage.className = 'lead';
+        leadMessage.textContent = guidance.message;
+        
+        const actionsContainer = document.createElement('div');
+        actionsContainer.className = 'd-flex gap-2 mt-3';
+        
+        guidance.actions.forEach(action => {
+            const actionLink = document.createElement('a');
+            actionLink.href = action.url;
+            actionLink.className = `btn btn-${action.type}`;
+            actionLink.setAttribute('data-zero-action', action.action);
+            
+            const actionIcon = document.createElement('i');
+            actionIcon.className = action.icon + ' me-1';
+            actionLink.appendChild(actionIcon);
+            actionLink.appendChild(document.createTextNode(' ' + action.text));
+            
+            actionsContainer.appendChild(actionLink);
+        });
+        
+        col1.appendChild(leadMessage);
+        col1.appendChild(actionsContainer);
+        
+        const col2 = document.createElement('div');
+        col2.className = 'col-md-4 text-center mt-3 mt-md-0';
+        
+        const chartIcon = document.createElement('i');
+        chartIcon.className = 'bi bi-bar-chart-fill text-info';
+        chartIcon.style.fontSize = '5rem';
+        col2.appendChild(chartIcon);
+        
+        row.appendChild(col1);
+        row.appendChild(col2);
+        cardBody.appendChild(row);
+        
+        guidanceEl.appendChild(cardHeader);
+        guidanceEl.appendChild(cardBody);
         
         // Insert at the top of container
         if (container.firstChild) {

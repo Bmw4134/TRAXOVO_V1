@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template_string
-from utils.qa_validator import run_qa_checks, validate_driver_data
+# QA functions will be implemented inline for now
 
 qa_bp = Blueprint('qa', __name__)
 

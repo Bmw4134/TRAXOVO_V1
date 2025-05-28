@@ -2,7 +2,51 @@ from flask import Blueprint, render_template_string, request, redirect, url_for,
 import pandas as pd
 import os
 import json
-from utils.qa_validator import validate_fleet_data
+
+def validate_fleet_data(data, file_type="fleet_utilization"):
+    """TRAXOVO QA Validator - Ensures data integrity for fleet analytics"""
+    validation_results = {
+        'valid': True,
+        'errors': [],
+        'warnings': [],
+        'record_count': 0,
+        'asset_count': 0
+    }
+    
+    try:
+        if data is None or data.empty:
+            validation_results['valid'] = False
+            validation_results['errors'].append("No data found in uploaded file")
+            return validation_results
+        
+        validation_results['record_count'] = len(data)
+        
+        if file_type == "fleet_utilization":
+            required_columns = ['Asset']
+            missing_columns = [col for col in required_columns if col not in data.columns]
+            
+            if missing_columns:
+                validation_results['valid'] = False
+                validation_results['errors'].append(f"Missing required columns: {missing_columns}")
+            else:
+                asset_data = data[data['Asset'].notna() & (data['Asset'] != '')]
+                validation_results['asset_count'] = len(asset_data)
+                
+                if validation_results['asset_count'] == 0:
+                    validation_results['valid'] = False
+                    validation_results['errors'].append("No valid asset records found")
+        
+        elif file_type == "foundation_costs":
+            if 'equipment_no' in data.columns or 'asset_id' in data.columns:
+                validation_results['asset_count'] = len(data)
+            else:
+                validation_results['warnings'].append("No asset ID column found in Foundation data")
+                
+    except Exception as e:
+        validation_results['valid'] = False
+        validation_results['errors'].append(f"Validation error: {str(e)}")
+    
+    return validation_results
 
 fleet_bp = Blueprint('fleet', __name__)
 

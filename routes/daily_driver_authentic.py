@@ -838,6 +838,25 @@ def daily_driver_reports():
                     endInput.value = monthEnd.toISOString().split('T')[0];
                 }
             }
+            
+            // Driver details toggle function
+            function toggleDriverDetails(driverId) {
+                const detailsRow = document.getElementById('details-' + driverId);
+                const chevron = document.getElementById('chevron-' + driverId);
+                
+                if (detailsRow && chevron) {
+                    if (detailsRow.style.display === 'none' || detailsRow.style.display === '') {
+                        detailsRow.style.display = 'table-row';
+                        chevron.className = 'fas fa-chevron-down';
+                    } else {
+                        detailsRow.style.display = 'none';
+                        chevron.className = 'fas fa-chevron-right';
+                    }
+                }
+            }
+            
+            // Make function globally available
+            window.toggleDriverDetails = toggleDriverDetails;
         </script>
     </body>
     </html>

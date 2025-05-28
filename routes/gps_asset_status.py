@@ -121,57 +121,231 @@ def gps_asset_dashboard():
         <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
         <style>
-            .card { margin-bottom: 1rem; }
-            .metric-card { text-align: center; padding: 1.5rem; }
-            .metric-number { font-size: 2.5rem; font-weight: bold; margin-bottom: 0.5rem; }
-            .metric-label { font-size: 0.9rem; opacity: 0.8; }
-            .activity-item { padding: 0.75rem; border-bottom: 1px solid rgba(0,0,0,0.1); }
-            .activity-item:last-child { border-bottom: none; }
-            .status-badge { padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; }
-            .bg-light { background-color: #f8f9fa !important; }
+            body { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; }
+            .card { 
+                margin-bottom: 1.5rem; 
+                border: none; 
+                border-radius: 15px; 
+                box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+                transition: all 0.3s ease;
+            }
+            .card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.15); }
+            .metric-card { 
+                text-align: center; 
+                padding: 2rem 1.5rem; 
+                background: white;
+                border-radius: 15px;
+                position: relative;
+                overflow: hidden;
+            }
+            .metric-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: linear-gradient(90deg, var(--bs-primary), var(--bs-info));
+            }
+            .metric-number { 
+                font-size: 3rem; 
+                font-weight: 700; 
+                margin-bottom: 0.5rem;
+                background: linear-gradient(45deg, var(--bs-primary), var(--bs-info));
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+            .metric-label { 
+                font-size: 1rem; 
+                font-weight: 600;
+                color: #6c757d;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+            .status-online { color: #198754 !important; }
+            .status-offline { color: #dc3545 !important; }
+            .status-total { color: #0d6efd !important; }
+            .status-alerts { color: #fd7e14 !important; }
+            
+            .company-breakdown {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+            }
+            .geographic-breakdown {
+                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                color: white;
+            }
+            
+            .progress-ring {
+                width: 80px;
+                height: 80px;
+                margin: 0 auto 1rem;
+            }
+            .progress-ring circle {
+                stroke-width: 8;
+                fill: transparent;
+                stroke-linecap: round;
+            }
+            
+            .activity-table {
+                background: white;
+                border-radius: 15px;
+                overflow: hidden;
+            }
+            .table th {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                padding: 1rem;
+            }
+            .table td {
+                padding: 1rem;
+                border-color: #f8f9fa;
+                vertical-align: middle;
+            }
+            .table tbody tr:hover {
+                background: linear-gradient(90deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+                transform: scale(1.02);
+                transition: all 0.2s ease;
+            }
+            
+            .btn-refresh {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border: none;
+                border-radius: 25px;
+                padding: 0.75rem 2rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                transition: all 0.3s ease;
+            }
+            .btn-refresh:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+            }
+            
+            .dashboard-header {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border-radius: 20px;
+                padding: 2rem;
+                margin-bottom: 2rem;
+                box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            }
+            
+            .icon-badge {
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.5rem;
+                margin: 0 auto 1rem;
+                background: rgba(255,255,255,0.2);
+                backdrop-filter: blur(10px);
+            }
+            
+            .live-indicator {
+                display: inline-block;
+                width: 12px;
+                height: 12px;
+                background: #28a745;
+                border-radius: 50%;
+                animation: pulse 2s infinite;
+                margin-right: 0.5rem;
+            }
+            
+            @keyframes pulse {
+                0% { opacity: 1; transform: scale(1); }
+                50% { opacity: 0.5; transform: scale(1.1); }
+                100% { opacity: 1; transform: scale(1); }
+            }
+            
+            .distribution-item {
+                display: flex;
+                justify-content: between;
+                align-items: center;
+                padding: 1rem;
+                margin-bottom: 0.5rem;
+                background: rgba(255,255,255,0.1);
+                border-radius: 10px;
+                backdrop-filter: blur(10px);
+            }
+            
+            .asset-count {
+                font-size: 1.2rem;
+                font-weight: 700;
+            }
         </style>
     </head>
-    <body class="bg-light">
+    <body>
         <div class="container-fluid py-4">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h1 class="h3 mb-0"><i class="fas fa-satellite-dish me-2"></i>GPS Asset Status</h1>
-                    <p class="text-muted mb-0">Real-time monitoring of {{ total_devices }} GPS devices across all fleet operations</p>
-                </div>
-                <div>
-                    <a href="/fleet" class="btn btn-outline-primary me-2"><i class="fas fa-arrow-left me-1"></i>Dashboard</a>
-                    <button onclick="refreshData()" class="btn btn-success"><i class="fas fa-sync-alt me-1"></i>Refresh</button>
+            <div class="dashboard-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="h2 mb-2">
+                            <span class="live-indicator"></span>
+                            <i class="fas fa-satellite-dish me-2"></i>GPS Asset Status
+                        </h1>
+                        <p class="mb-0 opacity-75">Real-time monitoring of {{ total_devices }} GPS devices across all fleet operations</p>
+                        <small class="opacity-50">Last updated: {{ datetime.now().strftime("%H:%M:%S") }}</small>
+                    </div>
+                    <div>
+                        <a href="/fleet" class="btn btn-outline-light me-2">
+                            <i class="fas fa-arrow-left me-1"></i>Dashboard
+                        </a>
+                        <button onclick="refreshData()" class="btn btn-refresh">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh Data
+                        </button>
+                    </div>
                 </div>
             </div>
 
             <!-- Status Overview Cards -->
             <div class="row mb-4">
                 <div class="col-md-3">
-                    <div class="card metric-card border-success">
-                        <div class="metric-number text-success">{{ online_devices }}</div>
+                    <div class="card metric-card">
+                        <div class="icon-badge status-online">
+                            <i class="fas fa-satellite-dish"></i>
+                        </div>
+                        <div class="metric-number status-online">{{ online_devices }}</div>
                         <div class="metric-label">Online Devices</div>
-                        <small class="text-success">{{ fleet_coverage }} Active</small>
+                        <small class="text-success fw-bold">{{ fleet_coverage }} Active</small>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="card metric-card border-danger">
-                        <div class="metric-number text-danger">{{ offline_devices }}</div>
+                    <div class="card metric-card">
+                        <div class="icon-badge status-offline">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="metric-number status-offline">{{ offline_devices }}</div>
                         <div class="metric-label">Offline Devices</div>
-                        <small class="text-danger">{{ "%.1f"|format((offline_devices/total_devices*100) if total_devices > 0 else 0) }}% Inactive</small>
+                        <small class="text-danger fw-bold">{{ "%.1f"|format((offline_devices/total_devices*100) if total_devices > 0 else 0) }}% Inactive</small>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="card metric-card border-primary">
-                        <div class="metric-number text-primary">{{ total_devices }}</div>
+                    <div class="card metric-card">
+                        <div class="icon-badge status-total">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <div class="metric-number status-total">{{ total_devices }}</div>
                         <div class="metric-label">Total Assets</div>
-                        <small class="text-info">Fleet Coverage</small>
+                        <small class="text-primary fw-bold">Fleet Coverage</small>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="card metric-card border-warning">
-                        <div class="metric-number text-warning">5</div>
+                    <div class="card metric-card">
+                        <div class="icon-badge status-alerts">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <div class="metric-number status-alerts">5</div>
                         <div class="metric-label">Recent Alerts</div>
-                        <small class="text-warning">Last 24 Hours</small>
+                        <small class="text-warning fw-bold">Last 24 Hours</small>
                     </div>
                 </div>
             </div>
@@ -179,25 +353,38 @@ def gps_asset_dashboard():
             <div class="row">
                 <!-- Fleet by Company -->
                 <div class="col-md-6">
-                    <div class="card h-100">
-                        <div class="card-header bg-info text-white">
-                            <h6 class="mb-0"><i class="fas fa-building me-2"></i>Fleet by Company</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="text-center mb-3">
-                                <h2 class="text-primary">{{ ragle_assets }}</h2>
-                                <p class="text-muted mb-0">Ragle Inc</p>
-                                <small class="text-success">{{ "%.1f"|format((ragle_assets/total_devices*100) if total_devices > 0 else 0) }}%</small>
+                    <div class="card h-100 company-breakdown">
+                        <div class="card-body p-4">
+                            <h5 class="mb-4"><i class="fas fa-building me-2"></i>Fleet by Company</h5>
+                            
+                            <div class="distribution-item">
+                                <div>
+                                    <div class="asset-count">{{ ragle_assets }}</div>
+                                    <div>Ragle Inc</div>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-light text-dark">{{ "%.1f"|format((ragle_assets/total_devices*100) if total_devices > 0 else 0) }}%</span>
+                                </div>
                             </div>
-                            <div class="text-center mb-3">
-                                <h2 class="text-secondary">{{ select_assets }}</h2>
-                                <p class="text-muted mb-0">Select Maint.</p>
-                                <small class="text-muted">{{ "%.1f"|format((select_assets/total_devices*100) if total_devices > 0 else 0) }}%</small>
+                            
+                            <div class="distribution-item">
+                                <div>
+                                    <div class="asset-count">{{ select_assets }}</div>
+                                    <div>Select Maintenance</div>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-light text-dark">{{ "%.1f"|format((select_assets/total_devices*100) if total_devices > 0 else 0) }}%</span>
+                                </div>
                             </div>
-                            <div class="text-center">
-                                <h2 class="text-warning">{{ unified_assets }}</h2>
-                                <p class="text-muted mb-0">Unified Spec.</p>
-                                <small class="text-muted">{{ "%.1f"|format((unified_assets/total_devices*100) if total_devices > 0 else 0) }}%</small>
+                            
+                            <div class="distribution-item">
+                                <div>
+                                    <div class="asset-count">{{ unified_assets }}</div>
+                                    <div>Unified Specialties</div>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-light text-dark">{{ "%.1f"|format((unified_assets/total_devices*100) if total_devices > 0 else 0) }}%</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -205,22 +392,38 @@ def gps_asset_dashboard():
 
                 <!-- Geographic Distribution -->
                 <div class="col-md-6">
-                    <div class="card h-100">
-                        <div class="card-header bg-warning text-dark">
-                            <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Geographic Distribution</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>DFW Metro</span>
-                                <span class="badge bg-primary">45.0%</span>
+                    <div class="card h-100 geographic-breakdown">
+                        <div class="card-body p-4">
+                            <h5 class="mb-4"><i class="fas fa-map-marker-alt me-2"></i>Geographic Distribution</h5>
+                            
+                            <div class="distribution-item">
+                                <div>
+                                    <div class="asset-count">{{ (total_devices * 0.45)|int }}</div>
+                                    <div>DFW Metro (DIV 2)</div>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-light text-dark">45.0%</span>
+                                </div>
                             </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>Houston Area</span>
-                                <span class="badge bg-info">31.9%</span>
+                            
+                            <div class="distribution-item">
+                                <div>
+                                    <div class="asset-count">{{ (total_devices * 0.319)|int }}</div>
+                                    <div>Houston Area (DIV 4)</div>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-light text-dark">31.9%</span>
+                                </div>
                             </div>
-                            <div class="d-flex justify-content-between">
-                                <span>West Texas</span>
-                                <span class="badge bg-secondary">23.0%</span>
+                            
+                            <div class="distribution-item">
+                                <div>
+                                    <div class="asset-count">{{ (total_devices * 0.23)|int }}</div>
+                                    <div>West Texas (DIV 3)</div>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-light text-dark">23.0%</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -230,34 +433,59 @@ def gps_asset_dashboard():
             <!-- Recent Activity -->
             <div class="row mt-4">
                 <div class="col-12">
-                    <div class="card">
-                        <div class="card-header bg-secondary text-white">
-                            <h6 class="mb-0"><i class="fas fa-clock me-2"></i>Recent Activity</h6>
-                        </div>
+                    <div class="card activity-table">
                         <div class="card-body p-0">
                             <div class="table-responsive">
-                                <table class="table table-hover mb-0">
+                                <table class="table mb-0">
                                     <thead>
                                         <tr>
-                                            <th>Device</th>
-                                            <th>Status</th>
-                                            <th>Time</th>
-                                            <th>Type</th>
+                                            <th><i class="fas fa-truck me-2"></i>Device</th>
+                                            <th><i class="fas fa-info-circle me-2"></i>Status</th>
+                                            <th><i class="fas fa-clock me-2"></i>Time</th>
+                                            <th><i class="fas fa-tag me-2"></i>Type</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {% for activity in recent_activity %}
                                         <tr>
-                                            <td><strong>{{ activity.device }}</strong></td>
-                                            <td>{{ activity.status }}</td>
-                                            <td>{{ activity.time }}</td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="me-3">
+                                                        {% if 'U' in activity.device %}
+                                                            <i class="fas fa-truck text-warning"></i>
+                                                        {% elif 'S' in activity.device %}
+                                                            <i class="fas fa-truck text-info"></i>
+                                                        {% else %}
+                                                            <i class="fas fa-truck text-primary"></i>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div>
+                                                        <strong>{{ activity.device }}</strong>
+                                                        <br><small class="text-muted">
+                                                            {% if 'U' in activity.device %}
+                                                                Unified Specialties
+                                                            {% elif 'S' in activity.device %}
+                                                                Select Maintenance
+                                                            {% else %}
+                                                                Ragle Inc
+                                                            {% endif %}
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="fw-bold">{{ activity.status }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-light text-dark">{{ activity.time }}</span>
+                                            </td>
                                             <td>
                                                 {% if activity.type == 'success' %}
-                                                    <span class="badge bg-success">Success</span>
+                                                    <span class="badge bg-success"><i class="fas fa-check me-1"></i>Success</span>
                                                 {% elif activity.type == 'warning' %}
-                                                    <span class="badge bg-warning">Warning</span>
+                                                    <span class="badge bg-warning"><i class="fas fa-exclamation-triangle me-1"></i>Warning</span>
                                                 {% else %}
-                                                    <span class="badge bg-info">Info</span>
+                                                    <span class="badge bg-info"><i class="fas fa-info-circle me-1"></i>Info</span>
                                                 {% endif %}
                                             </td>
                                         </tr>
@@ -297,7 +525,8 @@ def gps_asset_dashboard():
                                   ragle_assets=ragle_assets,
                                   select_assets=select_assets,
                                   unified_assets=unified_assets,
-                                  recent_activity=recent_activity)
+                                  recent_activity=recent_activity,
+                                  datetime=datetime)
 
 @gps_asset_bp.route('/refresh-gps')
 def refresh_gps_data():

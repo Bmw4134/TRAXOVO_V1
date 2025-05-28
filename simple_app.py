@@ -83,8 +83,50 @@ def driver_management():
 
 @app.route('/gps-tracking')
 def gps_tracking():
-    """GPS tracking and geofence intelligence"""
-    return render_template('gps_map/dashboard.html')
+    """Enhanced GPS tracking with all TRAXOVO enhancements"""
+    from persistent_fleet_cache import get_fleet_metrics
+    
+    fleet_data = get_fleet_metrics()
+    gps_enabled = int(fleet_data['gps_coverage'] * fleet_data['total_fleet_assets'] / 100)
+    
+    return render_template('gps_tracking_enhanced.html',
+                         total_assets=fleet_data['total_fleet_assets'],
+                         gps_enabled=gps_enabled)
+
+@app.route('/api/gps-assets')
+def get_gps_assets():
+    """API endpoint for GPS asset data from your authentic Gauge API"""
+    import json
+    
+    try:
+        # Load your authentic GPS data from Gauge API
+        with open('GAUGE API PULL 1045AM_05.15.2025.json', 'r') as f:
+            api_data = json.load(f)
+        
+        gps_assets = []
+        for item in api_data:
+            if item.get('Latitude') and item.get('Longitude'):
+                gps_assets.append({
+                    'id': item.get('AssetIdentifier', 'Unknown'),
+                    'name': item.get('Label', 'Unknown Asset'),
+                    'latitude': float(item.get('Latitude', 0)),
+                    'longitude': float(item.get('Longitude', 0)),
+                    'status': 'Active' if item.get('Active') else 'Inactive',
+                    'category': item.get('AssetCategory', 'Unknown'),
+                    'location': item.get('Location', 'Unknown'),
+                    'lastUpdate': item.get('EventDateTimeString', 'Unknown'),
+                    'speed': item.get('Speed', 0),
+                    'heading': item.get('Heading', 'N')
+                })
+        
+        return jsonify({
+            'assets': gps_assets,
+            'total_count': len(gps_assets),
+            'last_updated': 'May 15, 2025 10:45 AM'
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e), 'assets': []})
 
 @app.route('/attendance')
 def attendance_tracking():
@@ -121,6 +163,26 @@ def enhanced_weekly_reports():
     """Enhanced weekly reporting"""
     return render_template('enhanced_weekly_reports/dashboard.html')
 
+@app.route('/efficiency-visualizer')
+def efficiency_visualizer():
+    """Dynamic Fleet Efficiency Trend Visualizer"""
+    from dynamic_efficiency_visualizer import fleet_analyzer
+    
+    efficiency_data = fleet_analyzer.calculate_fleet_efficiency_trends()
+    insights = fleet_analyzer.get_efficiency_insights()
+    
+    return render_template('efficiency_visualizer_dashboard.html',
+                         efficiency_data=efficiency_data,
+                         insights=insights)
+
+@app.route('/api/efficiency-trends')
+def get_efficiency_trends():
+    """API endpoint for efficiency trend data"""
+    from dynamic_efficiency_visualizer import fleet_analyzer
+    
+    efficiency_data = fleet_analyzer.calculate_fleet_efficiency_trends()
+    return jsonify(efficiency_data)
+
 # Health check
 @app.route('/health')
 def health():
@@ -132,7 +194,8 @@ def health():
             'fleet_tracking': 'active',
             'job_zones': 'active',
             'gps_intelligence': 'active',
-            'risk_analytics': 'active'
+            'risk_analytics': 'active',
+            'efficiency_visualizer': 'active'
         }
     })
 

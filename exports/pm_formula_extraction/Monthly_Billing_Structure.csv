@@ -1,6 +1,0 @@
-Sheet Name,Sample Row Count,Column Count,Potential Formula Columns,Sample Column Headers
-M-SELECT,10,47,,"SELECT MASTER EQ BILLINGS  TABLE, Unnamed: 1, Unnamed: 2, Unnamed: 3, Unnamed: 4"
-M-RAGLE,10,43," =IF(COUNTIF($C$3:C3, C3)=1, SUMIF($C:$C, C3, $G:$G) + SUMIF($C:$C, C3, $H:$H), """")","RAGLE MASTER TABLE WITH EQUIPMENT, PICKUPS, AND TMA DATA, Unnamed: 1, Unnamed: 2, Unnamed: 3, Unnamed: 4"
-ATOS,10,18,,"ASSETS TIME ON SITE REPORT, Unnamed: 1, Unnamed: 2, Unnamed: 3, Unnamed: 4"
-TRKG,10,18,,"Ragle - Texas, Unnamed: 1, Unnamed: 2, Unnamed: 3, Unnamed: 4"
-DUSG-PT,10,9,,"AssetCategory, (All), Unnamed: 2, Unnamed: 3, Unnamed: 4"

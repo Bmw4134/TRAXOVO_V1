@@ -53,7 +53,8 @@ class AssetAvailabilityAnalyzer:
                 continue
             
             # Check movement/speed indicators
-            speed = asset.get('Speed', 0)
+            speed = asset.get('Speed') or 0  # Handle null values
+            speed = float(speed) if speed is not None else 0
             last_update = asset.get('EventDateTimeString', '')
             
             # Calculate days since last GPS update
@@ -208,7 +209,8 @@ class AssetAvailabilityAnalyzer:
     def _check_asset_availability(self, asset):
         """Determine if asset appears to be available for deployment"""
         # Simple availability logic based on movement and timing
-        speed = asset.get('Speed', 0)
+        speed = asset.get('Speed') or 0  # Handle null values
+        speed = float(speed) if speed is not None else 0
         last_update = asset.get('EventDateTimeString', '')
         
         # Asset is likely available if:

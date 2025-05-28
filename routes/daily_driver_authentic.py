@@ -362,7 +362,51 @@ def daily_driver_reports():
             </div>
         </div>
         
-        <div class="container"
+        <!-- Upload Panel (Hidden by default) -->
+        <div id="uploadPanel" class="container mt-3" style="display: none;">
+            <div class="card border-success">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0"><i class="fas fa-upload me-2"></i>Upload Fresh MTD Data from Gauge</h6>
+                </div>
+                <div class="card-body">
+                    <form id="mtdUploadForm" enctype="multipart/form-data">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">DrivingHistory.csv</label>
+                                <input type="file" class="form-control" name="driving_history" accept=".csv">
+                                <small class="text-muted">Driver activity and GPS tracking data</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">ActivityDetail.csv</label>
+                                <input type="file" class="form-control" name="activity_detail" accept=".csv">
+                                <small class="text-muted">Detailed driver activity logs</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">AssetsTimeOnSite.csv</label>
+                                <input type="file" class="form-control" name="assets_onsite" accept=".csv">
+                                <small class="text-muted">Equipment time tracking per job site</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Timecards.xlsx</label>
+                                <input type="file" class="form-control" name="timecards" accept=".xlsx">
+                                <small class="text-muted">Weekly timecard data</small>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <button type="button" class="btn btn-success" onclick="uploadMTDData()">
+                                <i class="fas fa-upload me-1"></i>Process & Update Reports
+                            </button>
+                            <button type="button" class="btn btn-secondary ms-2" onclick="toggleUploadPanel()">
+                                Cancel
+                            </button>
+                            <div id="uploadStatus" class="mt-2"></div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
             
             <!-- Performance Summary -->
             <div class="row g-4 mb-4">

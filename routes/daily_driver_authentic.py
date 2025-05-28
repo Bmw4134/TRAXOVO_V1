@@ -538,10 +538,17 @@ def daily_driver_reports():
                     navigateWeek(1);
                 });
                 
-                // Quick action buttons
-                document.querySelector('.btn:contains("Export MTD Report")').onclick = () => exportToCSV();
-                document.querySelector('.btn:contains("Live GPS Dashboard")').onclick = () => window.location.href = '/';
-                document.querySelector('.btn:contains("Schedule Analysis")').onclick = () => switchView('monthly');
+                // Quick action buttons - use text content matching
+                const buttons = document.querySelectorAll('.btn');
+                buttons.forEach(btn => {
+                    if (btn.textContent.includes('Export MTD Report')) {
+                        btn.onclick = () => exportToCSV();
+                    } else if (btn.textContent.includes('Live GPS Dashboard')) {
+                        btn.onclick = () => window.location.href = '/';
+                    } else if (btn.textContent.includes('Schedule Analysis')) {
+                        btn.onclick = () => switchView('monthly');
+                    }
+                });
                 
                 // Form automatically submits on Apply button click - no additional handling needed
                 

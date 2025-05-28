@@ -77,7 +77,7 @@ def dashboard():
                             <i class="fas fa-users-clock"></i>
                         </div>
                         <h4 class="fw-bold mb-3">Driver Attendance</h4>
-                        <p class="text-muted mb-4">Track 285 active drivers with timecard validation and attendance monitoring.</p>
+                        <p class="text-muted mb-4">Track 92 active drivers with timecard validation and attendance monitoring.</p>
                         <a href="{{ url_for('daily_driver_authentic.daily_driver_reports') }}" class="btn btn-primary">
                             <i class="fas fa-chart-line me-2"></i>View Reports
                         </a>
@@ -161,7 +161,7 @@ def dashboard():
                     <div class="module-card p-4">
                         <div class="row text-center">
                             <div class="col-md-3">
-                                <div class="fs-4 fw-bold text-primary">285</div>
+                                <div class="fs-4 fw-bold text-primary">92</div>
                                 <div class="text-muted">Active Drivers</div>
                             </div>
                             <div class="col-md-3">

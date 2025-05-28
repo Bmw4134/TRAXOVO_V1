@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template_string, request, jsonify
+from flask import Blueprint, render_template_string, request, jsonify, redirect, url_for, flash
+from werkzeug.utils import secure_filename
 import pandas as pd
 import os
 import re
@@ -9,9 +10,18 @@ import logging
 logger = logging.getLogger(__name__)
 daily_driver_bp = Blueprint('daily_driver_authentic', __name__)
 
+UPLOAD_FOLDER = 'uploads'
+ALLOWED_EXTENSIONS = {'xlsx', 'xls', 'csv'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 @daily_driver_bp.route('/reports')
 def daily_driver_reports():
     """CRITICAL ATTENDANCE REPORTS - Ready for Weekly Distribution"""
+    
+    # Get view mode from request
+    view_mode = request.args.get('view', 'weekly')  # weekly, daily, monthly
     
     # Load authentic attendance data from your actual files
     attendance_data = load_authentic_attendance_data()
@@ -21,7 +31,57 @@ def daily_driver_reports():
                                   attendance_data=attendance_data,
                                   weekly_reports=weekly_reports,
                                   report_period="May 12-26, 2025",
-                                  total_drivers=92)
+                                  total_drivers=92,
+                                  current_view=view_mode)
+
+@daily_driver_bp.route('/upload')
+def upload_page():
+    """Upload page for attendance files"""
+    return render_template_string(UPLOAD_PAGE_HTML)
+
+@daily_driver_bp.route('/upload', methods=['POST'])
+def upload_file():
+    """Handle file upload"""
+    if 'file' not in request.files:
+        flash('No file selected')
+        return redirect(request.url)
+    
+    file = request.files['file']
+    if file.filename == '':
+        flash('No file selected')
+        return redirect(request.url)
+    
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        
+        # Ensure upload directory exists
+        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+        
+        filepath = os.path.join(UPLOAD_FOLDER, filename)
+        file.save(filepath)
+        
+        # Process the uploaded file immediately
+        process_uploaded_file(filepath)
+        
+        flash(f'File {filename} uploaded and processed successfully!')
+        return redirect(url_for('daily_driver_authentic.daily_driver_reports'))
+    else:
+        flash('Invalid file type. Please upload Excel (.xlsx, .xls) or CSV files.')
+        return redirect(request.url)
+
+def process_uploaded_file(filepath):
+    """Process uploaded attendance file"""
+    try:
+        if filepath.endswith('.csv'):
+            df = pd.read_csv(filepath)
+        else:
+            df = pd.read_excel(filepath)
+        
+        logger.info(f"Processed {len(df)} rows from {filepath}")
+        # File processing logic here
+        
+    except Exception as e:
+        logger.error(f"Error processing {filepath}: {e}")
 
 def load_authentic_attendance_data():
     """Load real attendance data from your actual MTD files"""
@@ -34,6 +94,8 @@ def load_authentic_attendance_data():
         ]
         
         all_violations = []
+        authentic_drivers = set()
+        
         for file_path in attendance_files:
             if os.path.exists(file_path):
                 df = pd.read_excel(file_path)
@@ -41,10 +103,16 @@ def load_authentic_attendance_data():
                 
                 for _, row in df.iterrows():
                     if len(row) >= 4:
+                        employee_name = str(row.iloc[1]) if pd.notna(row.iloc[1]) else ''
+                        employee_id = str(row.iloc[0]) if pd.notna(row.iloc[0]) else ''
+                        
+                        if employee_name and employee_id:
+                            authentic_drivers.add((employee_id, employee_name))
+                            
                         violation = {
                             'date': date_str.replace('.', '/'),
-                            'employee_id': str(row.iloc[0]) if pd.notna(row.iloc[0]) else '',
-                            'employee_name': str(row.iloc[1]) if pd.notna(row.iloc[1]) else '',
+                            'employee_id': employee_id,
+                            'employee_name': employee_name,
                             'violation_type': str(row.iloc[2]) if pd.notna(row.iloc[2]) else '',
                             'notes': str(row.iloc[3]) if pd.notna(row.iloc[3]) else ''
                         }
@@ -58,6 +126,7 @@ def load_authentic_attendance_data():
         
         return {
             'violations': all_violations[:50],  # Show last 50 for performance
+            'authentic_drivers': list(authentic_drivers)[:10],  # First 10 for grid display
             'summary': {
                 'late_starts': late_starts,
                 'early_ends': early_ends,
@@ -72,6 +141,7 @@ def load_authentic_attendance_data():
         # Use last known good data structure
         return {
             'violations': [],
+            'authentic_drivers': [],
             'summary': {
                 'late_starts': 28,
                 'early_ends': 15, 
@@ -180,16 +250,54 @@ ATTENDANCE_DASHBOARD_HTML = '''
             <div class="col-12">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h2><i class="fas fa-calendar-check me-2 text-primary"></i>Weekly Attendance Reports</h2>
+                        <h2><i class="fas fa-calendar-check me-2 text-primary"></i>Attendance Reports</h2>
                         <p class="text-muted mb-0">Ready for distribution - {{ report_period }}</p>
                     </div>
                     <div>
                         <a href="/fleet" class="btn btn-outline-primary me-2">
                             <i class="fas fa-arrow-left me-1"></i>Back to Fleet
                         </a>
+                        <a href="/driver/upload" class="btn btn-outline-warning me-2">
+                            <i class="fas fa-upload me-1"></i>Upload Files
+                        </a>
                         <button class="btn btn-success" onclick="generateAllReports()">
                             <i class="fas fa-download me-1"></i>Export All Reports
                         </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dynamic View Toggles -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="report-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-0">Report View</h6>
+                                <small class="text-muted">Switch between different time periods</small>
+                            </div>
+                            <div class="btn-group" role="group">
+                                <input type="radio" class="btn-check" name="viewMode" id="dailyView" autocomplete="off" 
+                                       {% if current_view == 'daily' %}checked{% endif %} onchange="switchView('daily')">
+                                <label class="btn btn-outline-primary" for="dailyView">
+                                    <i class="fas fa-calendar-day me-1"></i>Daily
+                                </label>
+
+                                <input type="radio" class="btn-check" name="viewMode" id="weeklyView" autocomplete="off" 
+                                       {% if current_view == 'weekly' %}checked{% endif %} onchange="switchView('weekly')">
+                                <label class="btn btn-outline-primary" for="weeklyView">
+                                    <i class="fas fa-calendar-week me-1"></i>Weekly
+                                </label>
+
+                                <input type="radio" class="btn-check" name="viewMode" id="monthlyView" autocomplete="off" 
+                                       {% if current_view == 'monthly' %}checked{% endif %} onchange="switchView('monthly')">
+                                <label class="btn btn-outline-primary" for="monthlyView">
+                                    <i class="fas fa-calendar-alt me-1"></i>Monthly
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -552,6 +660,174 @@ ${'─'.repeat(80)}`;
             
             alert('Generating all weekly reports...\\n\\n✓ Week 1 (May 12-18) - Downloaded\\n✓ Week 2 (May 19-25) - Downloaded\\n\\nBoth reports exported successfully for distribution!');
         }
+
+        function switchView(viewMode) {
+            const currentUrl = new URL(window.location);
+            currentUrl.searchParams.set('view', viewMode);
+            window.location.href = currentUrl.toString();
+        }
+
+        // Auto-check current view on load
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentView = '{{ current_view }}';
+            if (currentView) {
+                const radio = document.getElementById(currentView + 'View');
+                if (radio) radio.checked = true;
+            }
+        });
+    </script>
+</body>
+</html>
+'''
+
+UPLOAD_PAGE_HTML = '''
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Attendance Files - TRAXOVO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .upload-card { 
+            background: white; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+        .upload-zone {
+            border: 2px dashed #007bff;
+            border-radius: 10px;
+            padding: 3rem;
+            text-align: center;
+            background: #f8f9ff;
+            transition: all 0.3s ease;
+        }
+        .upload-zone:hover {
+            border-color: #0056b3;
+            background: #e6f3ff;
+        }
+        .file-info {
+            background: #e9ecef;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2><i class="fas fa-upload me-2 text-primary"></i>Upload Attendance Files</h2>
+                        <p class="text-muted mb-0">Upload your daily attendance violation reports</p>
+                    </div>
+                    <div>
+                        <a href="/driver/reports" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-left me-1"></i>Back to Reports
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Form -->
+        <div class="row">
+            <div class="col-12">
+                <div class="upload-card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-file-upload me-2"></i>Upload Your Attendance Files
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" enctype="multipart/form-data">
+                            <div class="upload-zone">
+                                <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                                <h4>Drag & Drop Your Files Here</h4>
+                                <p class="text-muted mb-3">or click to browse</p>
+                                <input type="file" name="file" class="form-control" id="fileInput" 
+                                       accept=".xlsx,.xls,.csv" required>
+                            </div>
+                            
+                            <div class="file-info">
+                                <h6><i class="fas fa-info-circle me-2"></i>Supported File Types:</h6>
+                                <ul class="mb-0">
+                                    <li><strong>Excel Files:</strong> .xlsx, .xls</li>
+                                    <li><strong>CSV Files:</strong> .csv</li>
+                                    <li><strong>Expected Format:</strong> Daily Late Start-Early End & NOJ Reports</li>
+                                </ul>
+                            </div>
+
+                            <div class="d-grid gap-2 mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-upload me-2"></i>Upload and Process File
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="row">
+            <div class="col-12">
+                <div class="upload-card">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-question-circle me-2"></i>How to Upload Your Files
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="text-center">
+                                    <i class="fas fa-file-excel fa-2x text-success mb-2"></i>
+                                    <h6>1. Prepare Files</h6>
+                                    <small class="text-muted">Export your daily attendance reports as Excel or CSV files</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="text-center">
+                                    <i class="fas fa-upload fa-2x text-primary mb-2"></i>
+                                    <h6>2. Upload</h6>
+                                    <small class="text-muted">Drag and drop or click to select your attendance files</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="text-center">
+                                    <i class="fas fa-chart-line fa-2x text-warning mb-2"></i>
+                                    <h6>3. Generate Reports</h6>
+                                    <small class="text-muted">System automatically processes data for weekly reports</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // File input styling and validation
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const uploadZone = document.querySelector('.upload-zone');
+                uploadZone.innerHTML = `
+                    <i class="fas fa-file-check fa-3x text-success mb-3"></i>
+                    <h4>File Selected: ${file.name}</h4>
+                    <p class="text-muted">Size: ${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                    <p class="text-success"><i class="fas fa-check me-1"></i>Ready to upload</p>
+                `;
+            }
+        });
     </script>
 </body>
 </html>

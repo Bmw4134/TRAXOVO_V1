@@ -75,10 +75,23 @@ def daily_driver_reports():
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
         <style>
+            * {
+                color: #000000 !important;
+            }
             body {
                 background-color: #ffffff !important;
                 color: #000000 !important;
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            }
+            h1, h2, h3, h4, h5, h6 {
+                color: #000000 !important;
+                font-weight: 800 !important;
+            }
+            p, span, div, td, th {
+                color: #000000 !important;
+            }
+            .text-muted {
+                color: #666666 !important;
             }
             .metric-card {
                 background: white;
@@ -351,8 +364,11 @@ def daily_driver_reports():
                         const startDate = document.querySelectorAll('input[type="date"]')[0].value;
                         const endDate = document.querySelectorAll('input[type="date"]')[1].value;
                         console.log('Applying date range:', startDate, 'to', endDate);
-                        // Here you would reload data with new date range
-                        alert('Refreshing data for ' + startDate + ' to ' + endDate);
+                        // Reload page with new date range parameters
+                        const currentUrl = new URL(window.location);
+                        currentUrl.searchParams.set('start_date', startDate);
+                        currentUrl.searchParams.set('end_date', endDate);
+                        window.location.href = currentUrl.toString();
                     });
                 }
                 

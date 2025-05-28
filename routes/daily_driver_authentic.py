@@ -6,12 +6,14 @@ import re
 import json
 from datetime import datetime, timedelta
 import logging
+import PyPDF2
+import tabula
 
 logger = logging.getLogger(__name__)
 daily_driver_bp = Blueprint('daily_driver_authentic', __name__)
 
 UPLOAD_FOLDER = 'uploads'
-ALLOWED_EXTENSIONS = {'xlsx', 'xls', 'csv'}
+ALLOWED_EXTENSIONS = {'xlsx', 'xls', 'csv', 'pdf'}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -72,7 +74,28 @@ def upload_file():
 def process_uploaded_file(filepath):
     """Process uploaded attendance file"""
     try:
-        if filepath.endswith('.csv'):
+        if filepath.endswith('.pdf'):
+            # Process PDF files using tabula-py
+            try:
+                # Extract tables from PDF
+                tables = tabula.read_pdf(filepath, pages='all', multiple_tables=True)
+                logger.info(f"Extracted {len(tables)} tables from PDF {filepath}")
+                
+                for i, df in enumerate(tables):
+                    logger.info(f"Table {i+1}: {len(df)} rows, columns: {list(df.columns)}")
+                    logger.info(f"Sample data: {df.head().to_string()}")
+                    
+            except Exception as pdf_error:
+                # Fallback to text extraction
+                logger.warning(f"Table extraction failed, trying text extraction: {pdf_error}")
+                with open(filepath, 'rb') as file:
+                    pdf_reader = PyPDF2.PdfReader(file)
+                    text = ""
+                    for page in pdf_reader.pages:
+                        text += page.extract_text()
+                    logger.info(f"Extracted {len(text)} characters of text from PDF")
+                    
+        elif filepath.endswith('.csv'):
             df = pd.read_csv(filepath)
         else:
             # Try different Excel engines
@@ -81,9 +104,10 @@ def process_uploaded_file(filepath):
             except:
                 df = pd.read_excel(filepath, engine='xlrd')
         
-        logger.info(f"Processed {len(df)} rows from {filepath}")
-        logger.info(f"Columns: {list(df.columns)}")
-        logger.info(f"First few rows: {df.head().to_string()}")
+        if not filepath.endswith('.pdf'):
+            logger.info(f"Processed {len(df)} rows from {filepath}")
+            logger.info(f"Columns: {list(df.columns)}")
+            logger.info(f"First few rows: {df.head().to_string()}")
         
     except Exception as e:
         logger.error(f"Error processing {filepath}: {e}")
@@ -138,8 +162,20 @@ def load_authentic_attendance_data():
         for file_path in attendance_files:
             if os.path.exists(file_path):
                 try:
-                    # Try different engines for Excel files
-                    if file_path.lower().endswith('.csv'):
+                    # Handle PDF files
+                    if file_path.lower().endswith('.pdf'):
+                        try:
+                            # Extract tables from PDF using tabula
+                            tables = tabula.read_pdf(file_path, pages='all', multiple_tables=True)
+                            if tables:
+                                df = tables[0]  # Use first table found
+                            else:
+                                logger.warning(f"No tables found in PDF {file_path}")
+                                continue
+                        except Exception as pdf_error:
+                            logger.error(f"PDF processing failed for {file_path}: {pdf_error}")
+                            continue
+                    elif file_path.lower().endswith('.csv'):
                         df = pd.read_csv(file_path)
                     else:
                         # Try openpyxl first, then xlrd for older files
@@ -828,7 +864,7 @@ UPLOAD_PAGE_HTML = '''
                                 <h4>Drag & Drop Your Files Here</h4>
                                 <p class="text-muted mb-3">or click to browse</p>
                                 <input type="file" name="file" class="form-control" id="fileInput" 
-                                       accept=".xlsx,.xls,.csv" required>
+                                       accept=".xlsx,.xls,.csv,.pdf" required>
                             </div>
                             
                             <div class="file-info">
@@ -836,6 +872,7 @@ UPLOAD_PAGE_HTML = '''
                                 <ul class="mb-0">
                                     <li><strong>Excel Files:</strong> .xlsx, .xls</li>
                                     <li><strong>CSV Files:</strong> .csv</li>
+                                    <li><strong>PDF Files:</strong> .pdf (with table extraction)</li>
                                     <li><strong>Supported Reports:</strong> Daily Late Start-Early End & NOJ, DrivingHistory, ActivityDetail, AssetsTimeOnSite</li>
                                 </ul>
                             </div>

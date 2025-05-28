@@ -42,7 +42,7 @@ def index():
             
             # Extract real metrics
             total_assets = df['Asset'].nunique() if 'Asset' in df.columns else 562
-            active_drivers = df['Driver'].nunique() if 'Driver' in df.columns else 189
+            active_drivers = df['Driver'].nunique() if 'Driver' in df.columns else 92
             
             # Calculate GPS coverage from real data
             gps_coverage = 94.0
@@ -57,14 +57,14 @@ def index():
         else:
             # Use your authentic fleet baseline numbers
             total_assets = 562
-            active_drivers = 189
+            active_drivers = 92
             gps_coverage = 94.0
             safety_score = 98.2
             
     except Exception as e:
         # Fallback to your known fleet size
         total_assets = 562
-        active_drivers = 189
+        active_drivers = 92
         gps_coverage = 94.0
         safety_score = 98.2
     

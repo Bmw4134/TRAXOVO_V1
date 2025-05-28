@@ -187,6 +187,37 @@ def get_efficiency_trends():
     efficiency_data = fleet_analyzer.calculate_fleet_efficiency_trends()
     return jsonify(efficiency_data)
 
+@app.route('/asset-intelligence')
+def asset_availability_intelligence():
+    """Asset Availability Intelligence - Reduce rental costs"""
+    return render_template('asset_availability_dashboard.html')
+
+@app.route('/asset-intelligence/api/stagnant-assets')
+def get_stagnant_assets():
+    """API: Assets sitting in same location for extended periods"""
+    from asset_availability_intelligence import asset_analyzer
+    
+    days = request.args.get('days', 7, type=int)
+    stagnant_assets = asset_analyzer.identify_stagnant_assets(days_threshold=days)
+    return jsonify({'stagnant_assets': stagnant_assets})
+
+@app.route('/asset-intelligence/api/available-assets')
+def get_available_assets():
+    """API: Available assets by category for dispatch"""
+    from asset_availability_intelligence import asset_analyzer
+    
+    category = request.args.get('category', None)
+    available_assets = asset_analyzer.get_available_by_category(category)
+    return jsonify({'available_assets': available_assets})
+
+@app.route('/asset-intelligence/api/dispatch-alerts')
+def get_dispatch_alerts():
+    """API: Smart alerts for PMS/PES/DISPATCH teams"""
+    from asset_availability_intelligence import asset_analyzer
+    
+    alerts = asset_analyzer.generate_dispatch_alerts()
+    return jsonify({'alerts': alerts})
+
 # Health check
 @app.route('/health')
 def health():

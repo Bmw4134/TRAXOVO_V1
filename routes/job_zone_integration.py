@@ -182,6 +182,9 @@ def job_zones_dashboard():
                             <button class="btn btn-outline-success btn-sm me-2" onclick="gpsTrack('{{ zone.job_number }}')">
                                 <i class="fas fa-map me-1"></i>GPS Track
                             </button>
+                            <a href="/fleet/utilization" class="btn btn-outline-info btn-sm me-2">
+                                <i class="fas fa-chart-line me-1"></i>Analytics
+                            </a>
                             <button class="btn btn-outline-warning btn-sm" onclick="toggleHours('{{ zone.job_number }}')">
                                 <i class="fas fa-clock me-1"></i>Hours
                             </button>

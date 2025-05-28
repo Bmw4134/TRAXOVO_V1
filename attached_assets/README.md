@@ -1,12 +1,13 @@
 
-# TRAXOVO Enhancement Patch: KPIs, Maps, Roles
+# TRAXOVO Fleet Analytics: YTD Utilization Module
 
-## Includes:
-- ✅ KPI Export (Excel .xlsx of driver metrics)
-- ✅ Role-based dashboards (Admin vs PM vs Driver)
-- ✅ GPS map zone refresh JavaScript stub (for future Mapbox/Leaflet integration)
+Includes:
+- Asset-level usage parsing from Excel
+- Monthly KPI extraction: Usage hrs, Distance, Idle %
+- UI stub for rendering asset rows + map pins
+- Ready to ingest data from accounting system for cost overlays
 
-To install:
-1. Merge /routes and /static into your current workspace
-2. Hook `kpi_export.py` to your daily scheduler
-3. Attach `get_dashboard_view()` to your login role handler
+Deploy:
+1. Add `fleet_analytics_utilization.py` to routes
+2. Point file upload handler to Excel source
+3. Render `fleet_utilization.html` at /fleet/utilization

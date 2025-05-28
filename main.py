@@ -9,7 +9,7 @@ from datetime import datetime
 from flask import Flask, render_template, jsonify, redirect, url_for, request
 
 # Emergency fix - use working app configuration
-from simple_app import app
+from working_traxovo import app
 
 # Register essential login routes only
 try:

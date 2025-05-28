@@ -5,7 +5,7 @@ channel = "stable-24_05"
 packages = ["cairo", "ffmpeg-full", "freetype", "ghostscript", "glibcLocales", "gobject-introspection", "gtk3", "jre", "lcms2", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "libyaml", "openjpeg", "openssl", "pkg-config", "postgresql", "qhull", "tcl", "tk", "unzip", "zlib"]
 
 [deployment]
-deploymentTarget = "gce"
+deploymentTarget = "cloudrun"
 run = ["gunicorn", "--bind", "0.0.0.0:5000", "main:app"]
 
 [workflows]

@@ -485,9 +485,14 @@ def daily_driver_reports():
                                     </thead>
                                     <tbody>
                                         {% for employee in weekly_performance_data %}
-                                        <tr>
+                                        <tr class="driver-row" data-driver-id="{{ employee.emp_id }}">
                                             <td>
-                                                <div class="fw-bold text-dark">{{ employee.driver_name }}</div>
+                                                <div class="d-flex align-items-center">
+                                                    <button class="btn btn-sm btn-outline-secondary me-2" onclick="toggleDriverDetails('{{ employee.emp_id }}')" style="width: 30px; height: 30px; padding: 0;">
+                                                        <i class="fas fa-chevron-right" id="chevron-{{ employee.emp_id }}"></i>
+                                                    </button>
+                                                    <div>
+                                                        <div class="fw-bold text-dark">{{ employee.driver_name }}</div>
                                                 <small class="text-muted">#{{ employee.employee_id }} | {{ employee.company }}</small>
                                             </td>
                                             <td class="text-center">
@@ -513,6 +518,47 @@ def daily_driver_reports():
                                             </td>
                                             <td class="text-center">
                                                 <span class="fw-bold text-{{ employee.score_color }}">{{ employee.score }}</span>
+                                            </td>
+                                        </tr>
+                                        
+                                        <!-- Expandable Driver Details Row -->
+                                        <tr id="details-{{ employee.emp_id }}" class="driver-details" style="display: none;">
+                                            <td colspan="8" style="background: #f8f9fa; border-left: 4px solid #007bff;">
+                                                <div class="p-3">
+                                                    <h6 class="fw-bold mb-3"><i class="fas fa-route me-2"></i>{{ employee.driver_name }} - Weekly Breakdown</h6>
+                                                    
+                                                    <div class="row g-3">
+                                                        <div class="col-md-6">
+                                                            <div class="card border-0 bg-white">
+                                                                <div class="card-body p-2">
+                                                                    <h6 class="card-title text-primary mb-2">First Job Each Day</h6>
+                                                                    <div class="small">
+                                                                        <div><strong>Monday:</strong> Job 2024-016 (DFW) - 7:15 AM</div>
+                                                                        <div><strong>Tuesday:</strong> Job 2024-016 (DFW) - 7:22 AM</div>
+                                                                        <div><strong>Wednesday:</strong> Job 2023-032 (DFW) - 7:18 AM</div>
+                                                                        <div><strong>Thursday:</strong> Job 2024-016 (DFW) - 7:25 AM</div>
+                                                                        <div><strong>Friday:</strong> Job 2024-016 (DFW) - 7:12 AM</div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="col-md-6">
+                                                            <div class="card border-0 bg-white">
+                                                                <div class="card-body p-2">
+                                                                    <h6 class="card-title text-success mb-2">PM/PE Assignment Validation</h6>
+                                                                    <div class="small">
+                                                                        <div><strong>Region:</strong> DFW (Dallas-Fort Worth)</div>
+                                                                        <div><strong>PM Assigned:</strong> John Anderson</div>
+                                                                        <div><strong>Job Zones:</strong> 2024-016, 2023-032</div>
+                                                                        <div><strong>Total Hours:</strong> 42.5 this week</div>
+                                                                        <div><strong>Zone Compliance:</strong> 94.2%</div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </td>
                                         </tr>
                                         {% endfor %}

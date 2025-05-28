@@ -73,10 +73,22 @@ def fleet_utilization():
                             <h5 class="mb-0"><i class="fas fa-upload me-2"></i>Upload Fleet Utilization Data</h5>
                         </div>
                         <div class="card-body">
+                            <!-- Flash Messages -->
+                            {% with messages = get_flashed_messages(with_categories=true) %}
+                                {% if messages %}
+                                    {% for category, message in messages %}
+                                        <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+                                            {{ message }}
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endwith %}
+                            
                             <form action="/fleet/upload-utilization" method="post" enctype="multipart/form-data" class="row g-3">
                                 <div class="col-md-8">
                                     <input type="file" class="form-control" name="fleet_file" accept=".xlsx,.xls" required>
-                                    <small class="text-muted">Upload your FleetUtilization.xlsx file from accounting system</small>
+                                    <small class="text-muted">Upload your FleetUtilization.xlsx file from Gauge system</small>
                                 </div>
                                 <div class="col-md-4">
                                     <button type="submit" class="btn btn-primary w-100">
@@ -94,8 +106,9 @@ def fleet_utilization():
                 <div class="col-md-3">
                     <div class="card metric-card bg-primary text-white">
                         <div class="card-body text-center">
-                            <h3>562</h3>
+                            <h3 id="total-assets">562</h3>
                             <p class="mb-0">Total Assets</p>
+                            <small class="text-muted">From uploaded reports</small>
                         </div>
                     </div>
                 </div>
@@ -225,7 +238,7 @@ def upload_utilization():
             # Parse using the logic from your bundles
             df = parse_fleet_utilization_excel(filepath)
             
-            flash(f'Successfully processed {len(df)} asset records from your utilization report!', 'success')
+            flash(f'✅ SUCCESS: Processed {len(df)} asset records from your Fleet Utilization report! Data is now available for analytics.', 'success')
             
         except Exception as e:
             flash(f'Error processing file: {str(e)}', 'error')

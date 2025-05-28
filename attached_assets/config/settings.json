@@ -1,0 +1,10 @@
+
+{
+  "weekend_toggle": true,
+  "driver_limit": 92,
+  "kpi_thresholds": {
+    "early_exit_minutes": 30,
+    "on_time_margin": 15
+  },
+  "modules_enabled": ["attendance", "job_zone", "payroll", "gps_map"]
+}

@@ -17,7 +17,7 @@ app.secret_key = os.environ.get("SESSION_SECRET", "traxovo_fleet_2025")
 
 # Import GPS Asset Status
 from routes.gps_asset_status import gps_asset_bp
-from routes.fleet_analytics import fleet_bp
+from routes.fleet_analytics_simple import fleet_bp
 from routes.team_view import team_bp
 from routes.kpi_export import kpi_bp
 from routes.role_dashboard import role_bp

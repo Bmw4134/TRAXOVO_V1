@@ -2,6 +2,7 @@ from flask import Blueprint, render_template_string, request, redirect, url_for,
 import pandas as pd
 from datetime import datetime
 import os
+import glob
 
 fleet_bp = Blueprint('fleet', __name__)
 
@@ -13,7 +14,6 @@ def fleet_utilization():
     fleet_data = []
     try:
         # Check for most recent uploaded file
-        import glob
         upload_files = glob.glob('uploads/fleet_utilization_*.xlsx')
         if upload_files:
             latest_file = max(upload_files, key=os.path.getctime)

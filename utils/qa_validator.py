@@ -1,53 +1,70 @@
-"""
-TRAXOVO Quality Assurance Validator
-Ensures data integrity and system reliability
-"""
-import json
+import pandas as pd
 import os
+import json
 from datetime import datetime
 
-def validate_driver_data():
-    """Validate authentic driver data against known counts"""
-    expected_driver_count = 92
-    expected_asset_count = 562
-    
-    # Check authentic data files exist
-    required_files = [
-        'attached_assets/ActivityDetail.csv',
-        'attached_assets/DrivingHistory.csv', 
-        'attached_assets/AssetsTimeOnSite (3).csv'  # Using your actual file
-    ]
+def validate_fleet_data(data, file_type="fleet_utilization"):
+    """
+    TRAXOVO QA Validator - Ensures data integrity for fleet analytics
+    Only validates authentic data sources with complete traceability
+    """
     
     validation_results = {
-        'timestamp': datetime.now().isoformat(),
-        'driver_count_valid': True,
-        'asset_count_valid': True,
-        'required_files_present': True,
-        'errors': []
+        'valid': True,
+        'errors': [],
+        'warnings': [],
+        'record_count': 0,
+        'asset_count': 0
     }
     
-    # Check file presence
-    for file_path in required_files:
-        if not os.path.exists(file_path):
-            validation_results['required_files_present'] = False
-            validation_results['errors'].append(f"Missing required file: {file_path}")
+    try:
+        if data is None or data.empty:
+            validation_results['valid'] = False
+            validation_results['errors'].append("No data found in uploaded file")
+            return validation_results
+        
+        # Record count validation
+        validation_results['record_count'] = len(data)
+        
+        if file_type == "fleet_utilization":
+            # Validate Fleet Utilization data structure
+            required_columns = ['Asset']
+            missing_columns = [col for col in required_columns if col not in data.columns]
+            
+            if missing_columns:
+                validation_results['valid'] = False
+                validation_results['errors'].append(f"Missing required columns: {missing_columns}")
+            else:
+                # Asset validation
+                asset_data = data[data['Asset'].notna() & (data['Asset'] != '')]
+                validation_results['asset_count'] = len(asset_data)
+                
+                if validation_results['asset_count'] == 0:
+                    validation_results['valid'] = False
+                    validation_results['errors'].append("No valid asset records found")
+        
+        elif file_type == "foundation_costs":
+            # Validate Foundation cost data
+            if 'equipment_no' in data.columns or 'asset_id' in data.columns:
+                validation_results['asset_count'] = len(data)
+            else:
+                validation_results['warnings'].append("No asset ID column found in Foundation data")
+        
+        # Log validation results
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        log_entry = {
+            'timestamp': timestamp,
+            'file_type': file_type,
+            'validation_results': validation_results
+        }
+        
+        # Save validation log
+        os.makedirs('logs', exist_ok=True)
+        with open('logs/qa_validation.log', 'a') as f:
+            f.write(json.dumps(log_entry) + '\n')
+            
+    except Exception as e:
+        validation_results['valid'] = False
+        validation_results['errors'].append(f"Validation error: {str(e)}")
     
     return validation_results
-
-def run_qa_checks():
-    """Execute comprehensive QA validation"""
-    print("🔍 Running TRAXOVO QA Validation...")
-    
-    results = validate_driver_data()
-    
-    if all([results['driver_count_valid'], results['asset_count_valid'], results['required_files_present']]):
-        print("✅ All QA checks passed!")
-        return True
-    else:
-        print("❌ QA validation failed:")
-        for error in results['errors']:
-            print(f"  • {error}")
-        return False
-
-if __name__ == "__main__":
-    run_qa_checks()

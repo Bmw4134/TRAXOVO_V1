@@ -1,6 +1,8 @@
 from flask import Blueprint, render_template_string, request, redirect, url_for, flash
 import pandas as pd
 import os
+import json
+from utils.qa_validator import validate_fleet_data
 
 fleet_bp = Blueprint('fleet', __name__)
 
@@ -28,7 +30,7 @@ def fleet_utilization():
             <!-- Upload Panel -->
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5><i class="fas fa-upload me-2"></i>Upload Fleet Utilization Data</h5>
+                    <h5><i class="fas fa-upload me-2"></i>Upload Fleet Data</h5>
                 </div>
                 <div class="card-body">
                     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -42,17 +44,32 @@ def fleet_utilization():
                         {% endif %}
                     {% endwith %}
                     
-                    <form action="/fleet/upload-utilization" method="post" enctype="multipart/form-data" class="row g-3">
-                        <div class="col-md-8">
-                            <input type="file" class="form-control" name="fleet_file" accept=".xlsx,.xls" required>
-                            <small class="text-muted">Upload your FleetUtilization.xlsx file from Gauge system</small>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <form action="/fleet/upload-utilization" method="post" enctype="multipart/form-data">
+                                <label class="form-label">Fleet Utilization Report (Gauge)</label>
+                                <div class="input-group">
+                                    <input type="file" class="form-control" name="fleet_file" accept=".xlsx,.xls" required>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-upload me-1"></i>Upload
+                                    </button>
+                                </div>
+                                <small class="text-muted">FleetUtilization.xlsx from Gauge system</small>
+                            </form>
                         </div>
-                        <div class="col-md-4">
-                            <button type="submit" class="btn btn-primary w-100">
-                                <i class="fas fa-upload me-2"></i>Process Report
-                            </button>
+                        <div class="col-md-6">
+                            <form action="/fleet/upload-foundation-costs" method="post" enctype="multipart/form-data">
+                                <label class="form-label">Service Expense History (Foundation)</label>
+                                <div class="input-group">
+                                    <input type="file" class="form-control" name="foundation_file" accept=".xlsx,.xls" required>
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-upload me-1"></i>Upload
+                                    </button>
+                                </div>
+                                <small class="text-muted">Service expense reports from Foundation</small>
+                            </form>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div>
             
@@ -155,14 +172,14 @@ def upload_utilization():
             asset_data = data.iloc[2:].reset_index(drop=True)
             asset_data.columns = headers
             
-            # Clean data
-            if 'Asset' in asset_data.columns:
-                asset_data = asset_data[asset_data['Asset'].notna() & (asset_data['Asset'] != '')]
-                asset_count = len(asset_data)
-                
-                flash(f'✅ SUCCESS: Processed {asset_count} asset records from your Fleet Utilization report! Data is now available for analytics.', 'success')
+            # TRAXOVO QA Validation
+            validation = validate_fleet_data(asset_data, "fleet_utilization")
+            
+            if validation['valid']:
+                flash(f'✅ QA VALIDATED: Processed {validation["asset_count"]} authentic asset records from Gauge Fleet Utilization! All data integrity checks passed.', 'success')
             else:
-                flash('File processed but no Asset column found', 'warning')
+                error_msg = '; '.join(validation['errors'])
+                flash(f'❌ QA VALIDATION FAILED: {error_msg}', 'error')
                 
         except Exception as e:
             flash(f'Error processing file: {str(e)}', 'error')

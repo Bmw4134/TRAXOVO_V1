@@ -90,8 +90,11 @@ def daily_driver_reports():
             .metric-number {
                 font-size: 2rem;
                 font-weight: 700;
-                color: #0d6efd;
+                color: #212529;
             }
+            .metric-number.warning { color: #f57c00; }
+            .metric-number.danger { color: #d32f2f; }
+            .metric-number.secondary { color: #6c757d; }
             .driver-table {
                 background: white;
                 border-radius: 8px;
@@ -124,10 +127,20 @@ def daily_driver_reports():
                             <i class="fas fa-users me-2 text-primary"></i>Daily Driver Reports
                         </h1>
                         <p class="text-muted mb-3">Driver attendance tracking with authentic timecard validation</p>
-                        <div>
+                        <div class="mb-3">
                             <span class="badge bg-primary me-2">Period: {{ attendance_summary.period }}</span>
                             <span class="badge bg-success me-2">Active Drivers: {{ attendance_summary.active_drivers }}</span>
                             <span class="badge bg-info">Timecard Validated</span>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <input type="radio" class="btn-check" name="timeview" id="daily" checked>
+                            <label class="btn btn-outline-primary" for="daily">Daily</label>
+                            
+                            <input type="radio" class="btn-check" name="timeview" id="weekly">
+                            <label class="btn btn-outline-primary" for="weekly">Weekly</label>
+                            
+                            <input type="radio" class="btn-check" name="timeview" id="monthly">
+                            <label class="btn btn-outline-primary" for="monthly">Monthly</label>
                         </div>
                     </div>
                 </div>
@@ -141,28 +154,28 @@ def daily_driver_reports():
                 <div class="col-lg-3 col-md-6">
                     <div class="metric-card">
                         <div class="metric-number">{{ attendance_summary.active_drivers }}</div>
-                        <div class="fw-medium">Active Drivers</div>
+                        <div class="fw-medium text-dark">Active Drivers</div>
                         <small class="text-muted">Timecard Validated</small>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <div class="metric-card">
-                        <div class="metric-number text-warning">{{ attendance_summary.late_starts }}</div>
-                        <div class="fw-medium">Late Starts</div>
+                        <div class="metric-number warning">{{ attendance_summary.late_starts }}</div>
+                        <div class="fw-medium text-dark">Late Starts</div>
                         <small class="text-muted">Attendance Issues</small>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <div class="metric-card">
-                        <div class="metric-number text-danger">{{ attendance_summary.early_ends }}</div>
-                        <div class="fw-medium">Early Ends</div>
+                        <div class="metric-number danger">{{ attendance_summary.early_ends }}</div>
+                        <div class="fw-medium text-dark">Early Ends</div>
                         <small class="text-muted">Schedule Violations</small>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <div class="metric-card">
-                        <div class="metric-number text-secondary">{{ attendance_summary.not_on_job }}</div>
-                        <div class="fw-medium">Not On Job</div>
+                        <div class="metric-number secondary">{{ attendance_summary.not_on_job }}</div>
+                        <div class="fw-medium text-dark">Not On Job</div>
                         <small class="text-muted">Location Issues</small>
                     </div>
                 </div>

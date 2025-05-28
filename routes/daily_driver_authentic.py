@@ -9,6 +9,7 @@ import logging
 import PyPDF2
 import tabula
 from utils.timecard_processor import process_groundworks_timecards, compare_timecards_with_gps
+from utils.email_formatter import format_attendance_email, generate_quick_summary_email
 
 logger = logging.getLogger(__name__)
 daily_driver_bp = Blueprint('daily_driver_authentic', __name__)
@@ -348,6 +349,48 @@ def generate_weekly_attendance_reports():
     })
     
     return reports
+
+@daily_driver_bp.route('/generate-email-report')
+def generate_email_report():
+    """Generate HTML email report for distribution"""
+    division_filter = request.args.get('division', 'All Divisions')
+    zone_filter = request.args.get('zone', 'All Zones')
+    week_range = request.args.get('week_range', 'Current Week')
+    
+    # Get attendance data
+    attendance_data = load_authentic_attendance_data()
+    
+    # Prepare filters
+    filters = {
+        'division': division_filter,
+        'zone': zone_filter
+    }
+    
+    # Generate HTML email
+    html_email = format_attendance_email(attendance_data, filters, week_range)
+    
+    return jsonify({
+        'status': 'success',
+        'html_content': html_email,
+        'message': 'Email report generated successfully'
+    })
+
+@daily_driver_bp.route('/generate-quick-summary')
+def generate_quick_summary():
+    """Generate quick summary email"""
+    attendance_data = load_authentic_attendance_data()
+    week_range = request.args.get('week_range', 'Current Week')
+    
+    drivers_count = len(attendance_data.get('drivers', []))
+    violations_count = len(attendance_data.get('violations', []))
+    
+    html_summary = generate_quick_summary_email(drivers_count, violations_count, week_range)
+    
+    return jsonify({
+        'status': 'success',
+        'html_content': html_summary,
+        'message': 'Quick summary generated successfully'
+    })
 
 @daily_driver_bp.route('/export-weekly-report')
 def export_weekly_report():

@@ -17,6 +17,10 @@ app.secret_key = os.environ.get("SESSION_SECRET", "traxovo_fleet_2025")
 
 # Import GPS Asset Status
 from routes.gps_asset_status import gps_asset_bp
+from routes.fleet_analytics import fleet_bp
+from routes.team_view import team_bp
+from routes.kpi_export import kpi_bp
+from routes.role_dashboard import role_bp
 
 # Register all blueprints
 app.register_blueprint(daily_driver_bp, url_prefix='/driver')
@@ -24,6 +28,10 @@ app.register_blueprint(job_zone_bp, url_prefix='/zones')
 app.register_blueprint(payroll_bp, url_prefix='/payroll')
 app.register_blueprint(access_control_bp, url_prefix='/access')
 app.register_blueprint(gps_asset_bp, url_prefix='/fleet')
+app.register_blueprint(fleet_bp)
+app.register_blueprint(team_bp)
+app.register_blueprint(kpi_bp)
+app.register_blueprint(role_bp)
 # app.register_blueprint(equipment_billing_bp, url_prefix='/billing')
 
 @app.route('/')
@@ -144,16 +152,16 @@ def dashboard():
                     </div>
                 </div>
                 
-                <!-- GPS Asset Map -->
+                <!-- Fleet Analytics -->
                 <div class="col-lg-4 col-md-6">
                     <div class="module-card p-4 text-center">
                         <div class="module-icon text-secondary">
-                            <i class="fas fa-satellite-dish"></i>
+                            <i class="fas fa-chart-line"></i>
                         </div>
-                        <h4 class="fw-bold mb-3">Live GPS Status</h4>
-                        <p class="text-muted mb-4">Real-time tracking of 562 GPS assets with 86.2% online coverage.</p>
-                        <a href="/fleet/gps-assets" class="btn btn-secondary">
-                            <i class="fas fa-satellite-dish me-2"></i>View Status
+                        <h4 class="fw-bold mb-3">Fleet Analytics</h4>
+                        <p class="text-muted mb-4">Utilization analytics for 562 assets with efficiency tracking and project mapping.</p>
+                        <a href="/fleet/utilization" class="btn btn-secondary">
+                            <i class="fas fa-chart-line me-2"></i>View Analytics
                         </a>
                     </div>
                 </div>

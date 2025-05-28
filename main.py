@@ -10,7 +10,7 @@ from routes.daily_driver_authentic import daily_driver_bp
 from routes.job_zone_integration import job_zone_bp  
 from routes.payroll_integration import payroll_bp
 from routes.user_access_control import access_control_bp
-from routes.equipment_billing import equipment_billing_bp
+# from routes.equipment_billing import equipment_billing_bp
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "traxovo_fleet_2025")
@@ -20,7 +20,7 @@ app.register_blueprint(daily_driver_bp, url_prefix='/driver')
 app.register_blueprint(job_zone_bp, url_prefix='/zones')
 app.register_blueprint(payroll_bp, url_prefix='/payroll')
 app.register_blueprint(access_control_bp, url_prefix='/access')
-app.register_blueprint(equipment_billing_bp, url_prefix='/billing')
+# app.register_blueprint(equipment_billing_bp, url_prefix='/billing')
 
 @app.route('/')
 def dashboard():
@@ -134,9 +134,9 @@ def dashboard():
                         </div>
                         <h4 class="fw-bold mb-3">Equipment Billing</h4>
                         <p class="text-muted mb-4">Verify billing allocations for 562 GPS assets across all divisions.</p>
-                        <a href="{{ url_for('equipment_billing.billing_dashboard') }}" class="btn btn-danger">
+                        <button class="btn btn-danger" onclick="alert('Equipment billing module coming soon!')">
                             <i class="fas fa-receipt me-2"></i>Review Billing
-                        </a>
+                        </button>
                     </div>
                 </div>
                 

@@ -182,7 +182,7 @@ def daily_driver_reports():
     except FileNotFoundError:
         # Fallback to employee-based patterns if file not found
         weekly_performance_data = []
-        for i, employee in enumerate(active_employees_sample[:12]):
+        for i, employee in enumerate(active_employees_sample):
             emp_id = employee['Employee No']
             
             # Calculate days in selected range for dynamic scoring

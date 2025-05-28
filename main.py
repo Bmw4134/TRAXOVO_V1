@@ -1,5 +1,6 @@
+
 """
-TRAXOVO Fleet Management - Minimal Deployment Core
+TRAXOVO Fleet Management - Production Deployment Core
 """
 from flask import Flask, render_template_string
 import os
@@ -136,5 +137,10 @@ def dashboard():
 </html>
     ''')
 
+@app.route('/health')
+def health_check():
+    """Health check endpoint for deployment monitoring"""
+    return {'status': 'healthy', 'service': 'TRAXOVO Fleet Management'}, 200
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=False)

@@ -95,7 +95,7 @@ def gps_tracking():
 
 @app.route('/api/gps-assets')
 def get_gps_assets():
-    """API endpoint for GPS asset data from your authentic Gauge API"""
+    """API endpoint for GPS asset data from your authentic Gauge API - ACTIVE ASSETS ONLY"""
     import json
     
     try:
@@ -105,13 +105,17 @@ def get_gps_assets():
         
         gps_assets = []
         for item in api_data:
-            if item.get('Latitude') and item.get('Longitude'):
+            # FILTER: Only include ACTIVE assets with GPS coordinates
+            if (item.get('Latitude') and item.get('Longitude') and 
+                item.get('Active') == True and 
+                item.get('Status', '').lower() != 'sold'):
+                
                 gps_assets.append({
                     'id': item.get('AssetIdentifier', 'Unknown'),
                     'name': item.get('Label', 'Unknown Asset'),
                     'latitude': float(item.get('Latitude', 0)),
                     'longitude': float(item.get('Longitude', 0)),
-                    'status': 'Active' if item.get('Active') else 'Inactive',
+                    'status': 'Active',
                     'category': item.get('AssetCategory', 'Unknown'),
                     'location': item.get('Location', 'Unknown'),
                     'lastUpdate': item.get('EventDateTimeString', 'Unknown'),

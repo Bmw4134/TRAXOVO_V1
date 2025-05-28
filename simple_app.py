@@ -3,7 +3,7 @@ TRAXOVO Fleet Management System - Simple Working Version
 All your advanced modules restored and accessible
 """
 import os
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 
@@ -33,6 +33,20 @@ def index():
                          active_drivers=92,
                          gps_coverage=94.0,
                          safety_score=98.2)
+
+# Smart equipment lookup
+@app.route('/smart-search')
+def smart_search():
+    """Smart equipment search with natural language"""
+    from smart_equipment_lookup import search_engine
+    
+    query = request.args.get('q', '')
+    if query:
+        results = search_engine.smart_search(query)
+        return jsonify(results)
+    
+    # Show search interface
+    return render_template('smart_search.html')
 
 # Your advanced module routes
 @app.route('/kaizen')

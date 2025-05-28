@@ -535,7 +535,10 @@ except ImportError as e:
 
 @app.route('/')
 def dashboard():
-    """Homepage shows dashboard"""
+    """Multi-Division TRAXOVO Fleet Management Dashboard"""
+    if not current_user.is_authenticated:
+        return redirect(url_for('quick_auth.quick_login'))
+    
     return render_template('dashboard.html',
                           assets_count=get_asset_count(),
                           drivers_count=get_driver_count(),

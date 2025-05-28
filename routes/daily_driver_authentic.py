@@ -184,7 +184,28 @@ def load_authentic_attendance_data():
                             logger.error(f"PDF processing failed for {file_path}: {pdf_error}")
                             continue
                     elif file_path.lower().endswith('.csv'):
-                        df = pd.read_csv(file_path)
+                        # Handle CSV files with flexible parsing for irregular formats
+                        try:
+                            # First try normal parsing
+                            df = pd.read_csv(file_path)
+                        except:
+                            try:
+                                # Try skipping header rows for complex format files
+                                df = pd.read_csv(file_path, skiprows=8, on_bad_lines='skip')
+                            except:
+                                # Last resort - read all lines and find the data section
+                                with open(file_path, 'r', encoding='utf-8') as f:
+                                    lines = f.readlines()
+                                
+                                # Find where actual data starts (look for Location,Asset,Date pattern)
+                                data_start = 0
+                                for i, line in enumerate(lines):
+                                    if 'Location,Asset,Date' in line or 'Asset,EventDateTime' in line:
+                                        data_start = i
+                                        break
+                                
+                                # Read from the data start point
+                                df = pd.read_csv(file_path, skiprows=data_start, on_bad_lines='skip')
                     else:
                         # Try openpyxl first, then xlrd for older files
                         try:

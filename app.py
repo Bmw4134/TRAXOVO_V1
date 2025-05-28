@@ -16,8 +16,9 @@ from flask_limiter.util import get_remote_address
 from flask_wtf.csrf import CSRFProtect
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-# Import Kaizen GPT
+# Import Kaizen GPT and Smart Risk Analytics
 from kaizen_gpt import kaizen_bp, kaizen_gpt
+from routes.smart_risk_analytics import smart_risk_bp
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

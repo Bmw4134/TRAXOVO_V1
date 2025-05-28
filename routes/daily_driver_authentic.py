@@ -95,6 +95,18 @@ def daily_driver_reports():
             .metric-number.warning { color: #f57c00; }
             .metric-number.danger { color: #d32f2f; }
             .metric-number.secondary { color: #6c757d; }
+            
+            /* Mobile optimizations */
+            @media (max-width: 768px) {
+                .metric-number { font-size: 1.5rem; }
+                .metric-card { padding: 1rem; margin-bottom: 0.75rem; }
+                .page-header { padding: 1rem 0; }
+                .btn-group { width: 100%; margin-bottom: 1rem; }
+                .btn-group .btn { flex: 1; }
+                .d-flex.gap-2 { flex-direction: column; gap: 0.5rem !important; }
+                .d-flex.gap-2 input[type="date"] { width: 100% !important; }
+                .table-responsive { border-radius: 8px; }
+            }
             .driver-table {
                 background: white;
                 border-radius: 8px;
@@ -133,8 +145,8 @@ def daily_driver_reports():
                             <span class="badge bg-info">Timecard Validated</span>
                         </div>
                         <div class="row align-items-center">
-                            <div class="col-md-6">
-                                <div class="btn-group" role="group">
+                            <div class="col-lg-6 col-md-12 mb-3 mb-lg-0">
+                                <div class="btn-group w-100 w-lg-auto" role="group">
                                     <input type="radio" class="btn-check" name="timeview" id="daily" checked>
                                     <label class="btn btn-outline-primary" for="daily">Daily</label>
                                     
@@ -145,12 +157,12 @@ def daily_driver_reports():
                                     <label class="btn btn-outline-primary" for="monthly">Monthly</label>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="d-flex gap-2 align-items-center">
-                                    <label class="text-dark fw-medium">Date Range:</label>
-                                    <input type="date" class="form-control" value="2025-05-01" style="width: 140px;">
-                                    <span class="text-dark">to</span>
-                                    <input type="date" class="form-control" value="2025-05-26" style="width: 140px;">
+                            <div class="col-lg-6 col-md-12">
+                                <div class="d-flex gap-2 align-items-center flex-wrap">
+                                    <label class="text-dark fw-medium d-none d-sm-block">Date Range:</label>
+                                    <input type="date" class="form-control flex-fill" value="2025-05-01" style="min-width: 140px;">
+                                    <span class="text-dark d-none d-sm-block">to</span>
+                                    <input type="date" class="form-control flex-fill" value="2025-05-26" style="min-width: 140px;">
                                     <button class="btn btn-primary btn-sm">Apply</button>
                                 </div>
                             </div>

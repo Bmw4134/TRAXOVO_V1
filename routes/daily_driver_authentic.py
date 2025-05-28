@@ -127,7 +127,7 @@ def load_authentic_attendance_data():
                     filepath = os.path.join(upload_path, file)
                     files_with_times.append((os.path.getmtime(filepath), filepath))
             
-            # Sort by modification time (newest first) and take most recent files
+            # Sort by modification time (newest first) and take more files to get all drivers
             files_with_times.sort(reverse=True)
             attendance_files = [filepath for _, filepath in files_with_times[:10]]  # Take more files to get all drivers
             
@@ -168,6 +168,8 @@ def load_authentic_attendance_data():
         authentic_drivers = set()
         job_sites = set()
         driver_jobs = {}  # Track which drivers work on which jobs
+        driver_assets = {}  # Track driver-asset assignments
+        employee_ids = {}  # Track employee IDs
         
         for file_path in attendance_files:
             if os.path.exists(file_path):

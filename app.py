@@ -76,6 +76,10 @@ talisman = Talisman(
 
 # Initialize database and authentication
 db.init_app(app)
+
+# Register login blueprint
+from routes.simple_login import auth_bp
+app.register_blueprint(auth_bp)
 login_manager.init_app(app)
 login_manager.login_view = "auth.login"
 login_manager.login_message = "Please log in to access this page."

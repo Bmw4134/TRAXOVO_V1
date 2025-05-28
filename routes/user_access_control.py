@@ -29,6 +29,13 @@ USER_ROLES = {
         'region': 'West Texas',
         'jobs': ['2022-008'],
         'password': 'wtx2025'
+    },
+    'admin': {
+        'name': 'TRAXOVO Administrator',
+        'role': 'System Administrator',
+        'region': 'All Regions',
+        'jobs': ['ALL'],
+        'password': 'admin123'
     }
 }
 
@@ -43,7 +50,12 @@ def login():
         if username in USER_ROLES and USER_ROLES[username]['password'] == password:
             session['user'] = USER_ROLES[username]
             session['username'] = username
-            return redirect(url_for('access_control.my_assets'))
+            
+            # Admin gets full dashboard access
+            if username == 'admin':
+                return redirect('/')
+            else:
+                return redirect(url_for('access_control.my_assets'))
         else:
             error = "Invalid credentials"
             return render_template_string(login_template, error=error)

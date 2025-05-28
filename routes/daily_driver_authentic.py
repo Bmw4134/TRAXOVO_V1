@@ -85,8 +85,8 @@ def daily_driver_reports():
             'period': '5/1/2025 - 5/26/2025'
         }
     
-    # Sample active employees for display
-    active_employees_sample = active_employees[:20]  # Show first 20 for clean display
+    # Show all 92 active employees in paginated view
+    active_employees_sample = active_employees  # Show all drivers, not just sample
     
     # Get date range and generate real weekly performance data
     start_date = request.args.get('start_date', '2025-05-01')

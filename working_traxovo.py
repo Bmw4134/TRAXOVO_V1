@@ -182,11 +182,17 @@ def login():
         if username == "admin" and password == "TRAXOVO_Fleet_2025!@#":
             session['authenticated'] = True
             session['user'] = username
-            return redirect('/')
+            return redirect('/dashboard')
     
     return render_template_string(LOGIN)
 
 @app.route('/')
+def index():
+    if 'authenticated' in session:
+        return redirect('/dashboard')
+    return redirect('/login')
+
+@app.route('/dashboard')
 def dashboard():
     if 'authenticated' not in session:
         return redirect('/login')

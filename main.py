@@ -24,6 +24,12 @@ from customizable_widget_dashboard import (
     widget_dashboard, save_widget_layout, get_widget_data, reset_widget_layout
 )
 
+# Import one-click feedback functions
+from one_click_feedback import (
+    feedback_collector, submit_feedback, feedback_analytics, 
+    quick_feedback, get_feedback_widget_data
+)
+
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET") or "traxovo-production-2025"
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
@@ -233,6 +239,30 @@ def widget_data():
 @login_required
 def reset_layout():
     return reset_widget_layout()
+
+# Feedback System Routes
+@app.route('/feedback')
+@login_required
+def feedback():
+    return feedback_collector()
+
+@app.route('/submit-feedback', methods=['POST'])
+def submit_user_feedback():
+    return submit_feedback()
+
+@app.route('/feedback-analytics')
+@login_required
+def feedback_admin():
+    return feedback_analytics()
+
+@app.route('/quick-feedback', methods=['POST'])
+def quick_user_feedback():
+    return quick_feedback()
+
+@app.route('/feedback-widget-data')
+@login_required
+def feedback_widget_data():
+    return get_feedback_widget_data()
 
 @app.errorhandler(404)
 def page_not_found(e):

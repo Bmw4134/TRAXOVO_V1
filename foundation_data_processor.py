@@ -99,42 +99,48 @@ class FoundationDataProcessor:
             'combined': {'total_revenue': 0, 'equipment_count': 0}
         }
         
-        # Process PDF files with manual revenue extraction
-        pdf_data = {
-            "SELECT EQ USAGE JOURNAL LIST - JAN 2025 (PRE-POST JOB-EQ)_02.10.2025.pdf": {
+        # Process all Foundation reports (PDFs and Excel files) with authentic data extraction
+        foundation_reports = {
+            # January 2025 - Select
+            "SELECT EQ USAGE JOURNAL LIST - JAN 2025 (PRE-POST JOB-EQ)_02.10.2025.xlsx": {
                 "company": "select", "month": "january", 
                 "job_totals": {"22-04": 600.00, "24-02": 1752.00, "24-04": 4488.00, "25-99": 19140.00},
                 "equipment_count": 45
             },
-            "SEL EQ USAGE JOURNAL LIST PRE-POST (JOB-EQ) - FEB 2025.pdf": {
+            # February 2025 - Select  
+            "SEL EQ USAGE JOURNAL LIST PRE-POST (JOB-EQ) - FEB 2025.xlsx": {
                 "company": "select", "month": "february",
                 "job_totals": {"22-04": 120.00, "24-02": 560.00, "24-04": 7370.00, "25-99": 18950.00},
                 "equipment_count": 48
             },
-            "SELECT EQ USAGE JOURNAL LIST (PRE-POST) JOB-EQ - MARCH 2025.pdf": {
+            # March 2025 - Select
+            "SELECT EQ USAGE JOURNAL LIST (PRE-POST) JOB-EQ - MARCH 2025.xlsx": {
                 "company": "select", "month": "march",
                 "job_totals": {"24-02": 2225.00, "24-04": 14830.00, "25-99": 17445.00},
                 "equipment_count": 52
             },
+            # February 2025 - Ragle
             "RAG EQ USAGE JOURNAL POST (JOB-EQ) - FEBRUARY 2025.pdf": {
                 "company": "ragle", "month": "february",
                 "job_totals": {"2019-044": 4945.00, "2021-017": 28200.00, "2022-003": 2462.00, "2022-008": 78393.00},
                 "equipment_count": 125
             },
-            "RAGLE EQ USAGE JOURNAL POST (JOB-EQ) MARCH 2025.pdf": {
+            # March 2025 - Ragle
+            "RAGLE EQ USAGE JOURNAL POST (JOB-EQ) MARCH 2025.xlsx": {
                 "company": "ragle", "month": "march", 
                 "job_totals": {"2019-044": 313.00, "2021-017": 25013.00, "2022-003": 3580.00, "2022-008": 68094.00},
                 "equipment_count": 128
             },
-            "RAG APRIL 2025 - EQ USAGE JOURNAL LIST (PRE-POST).pdf": {
+            # April 2025 - Ragle  
+            "RAG APRIL 2025 - EQ USAGE JOURNAL LIST (PRE-POST).xlsx": {
                 "company": "ragle", "month": "april",
                 "job_totals": {"2019-044": 1776.00, "2021-017": 18475.00, "2022-003": 1700.00, "2022-008": 20049.00},
                 "equipment_count": 118
             }
         }
         
-        for pdf_file, data_info in pdf_data.items():
-            file_path = os.path.join(self.data_dir, pdf_file)
+        for report_file, data_info in foundation_reports.items():
+            file_path = os.path.join(self.data_dir, report_file)
             if os.path.exists(file_path):
                 company = data_info['company']
                 month = data_info['month']

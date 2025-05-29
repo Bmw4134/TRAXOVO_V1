@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAXOVO Idea Box - Feature Requests</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .idea-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+        .idea-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+        .priority-high { border-left: 5px solid #dc3545; }
+        .priority-medium { border-left: 5px solid #ffc107; }
+        .priority-low { border-left: 5px solid #28a745; }
+        .category-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 10px;
+        }
+        .vote-btn {
+            border: none;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 50px;
+            padding: 0.5rem 1rem;
+            transition: all 0.3s ease;
+        }
+        .vote-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .submit-form {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Navigation -->
+            <div class="col-md-2 bg-dark text-white p-3">
+                <h5><i class="bi bi-lightbulb-fill text-warning"></i> TRAXOVO Ideas</h5>
+                <nav class="nav flex-column">
+                    <a class="nav-link text-white" href="{{ url_for('index') }}">
+                        <i class="bi bi-house"></i> Dashboard
+                    </a>
+                    <a class="nav-link text-white" href="{{ url_for('traxovo_map.fleet_map') }}">
+                        <i class="bi bi-map"></i> Fleet Map
+                    </a>
+                    <a class="nav-link text-white active" href="{{ url_for('idea_box.idea_box') }}">
+                        <i class="bi bi-lightbulb"></i> Idea Box
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-10 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1 class="text-white"><i class="bi bi-lightbulb-fill me-2"></i>TRAXOVO Idea Box</h1>
+                    <div class="text-white">
+                        <small>Share your ideas to improve our fleet management system</small>
+                    </div>
+                </div>
+
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <!-- Submit New Idea Form -->
+                <div class="submit-form">
+                    <h3><i class="bi bi-plus-circle text-primary"></i> Submit New Idea</h3>
+                    <form method="POST" action="{{ url_for('idea_box.submit_idea') }}">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="title" class="form-label">Idea Title *</label>
+                                <input type="text" class="form-control" id="title" name="title" required 
+                                       placeholder="Brief description of your idea">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="category" class="form-label">Category</label>
+                                <select class="form-select" id="category" name="category">
+                                    <option value="feature">New Feature</option>
+                                    <option value="improvement">Improvement</option>
+                                    <option value="bug">Bug Fix</option>
+                                    <option value="integration">Integration</option>
+                                    <option value="ui">User Interface</option>
+                                    <option value="reporting">Reporting</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="priority" class="form-label">Priority</label>
+                                <select class="form-select" id="priority" name="priority">
+                                    <option value="low">Low</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Detailed Description *</label>
+                            <textarea class="form-control" id="description" name="description" rows="4" required
+                                    placeholder="Explain your idea in detail. What problem does it solve? How would it help the team?"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-send"></i> Submit Idea
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Ideas List -->
+                <div class="row">
+                    <div class="col-12">
+                        <h3 class="text-white mb-3">
+                            <i class="bi bi-collection"></i> Submitted Ideas ({{ ideas|length }})
+                        </h3>
+                    </div>
+                </div>
+
+                <div class="row">
+                    {% for idea in ideas %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card idea-card priority-{{ idea.priority }}">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span class="badge category-badge bg-{{ 'primary' if idea.category == 'feature' else 'info' if idea.category == 'improvement' else 'warning' if idea.category == 'bug' else 'secondary' }}">
+                                    {{ idea.category.title() }}
+                                </span>
+                                <small class="text-muted">#{{ idea.id }}</small>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-title">{{ idea.title }}</h6>
+                                <p class="card-text text-muted">{{ idea.description[:150] }}{% if idea.description|length > 150 %}...{% endif %}</p>
+                                
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <small class="text-muted">
+                                        <i class="bi bi-person"></i> {{ idea.submitter_name }}<br>
+                                        <i class="bi bi-calendar"></i> {{ idea.submitted_at[:10] }}
+                                    </small>
+                                    <button class="vote-btn" onclick="voteIdea({{ idea.id }})">
+                                        <i class="bi bi-hand-thumbs-up"></i> {{ idea.votes }}
+                                    </button>
+                                </div>
+                                
+                                {% if idea.status == 'implemented' %}
+                                <div class="mt-2">
+                                    <span class="badge bg-success">
+                                        <i class="bi bi-check-circle"></i> Implemented
+                                    </span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    {% if not ideas %}
+                    <div class="col-12">
+                        <div class="card idea-card text-center">
+                            <div class="card-body py-5">
+                                <i class="bi bi-lightbulb display-1 text-muted"></i>
+                                <h4 class="mt-3">No ideas submitted yet</h4>
+                                <p class="text-muted">Be the first to share your idea for improving TRAXOVO!</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function voteIdea(ideaId) {
+            fetch(`/vote-idea/${ideaId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update vote count in UI
+                    location.reload();
+                } else {
+                    alert('Error voting: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error submitting vote');
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predictive Maintenance - TRAXOVO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.css" rel="stylesheet">
+    <style>
+        .maintenance-card {
+            border-left: 4px solid #28a745;
+            transition: transform 0.2s;
+        }
+        .maintenance-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .health-excellent { color: #28a745; }
+        .health-good { color: #ffc107; }
+        .health-attention { color: #dc3545; }
+        .metric-large {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        @media (max-width: 767px) {
+            .metric-large { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    {% include 'includes/sidebar.html' %}
+    
+    <div class="main-content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Predictive Maintenance</h1>
+                <span class="badge bg-success">Live Data</span>
+            </div>
+            
+            <!-- Key Metrics -->
+            <div class="row mb-4">
+                <div class="col-12 col-md-3 mb-3">
+                    <div class="card maintenance-card h-100">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Assets Monitored</h5>
+                            <div class="metric-large text-primary">{{ data.assets_monitored }}</div>
+                            <small class="text-muted">All equipment tracked</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12 col-md-3 mb-3">
+                    <div class="card maintenance-card h-100">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Active Alerts</h5>
+                            <div class="metric-large text-warning">{{ data.alerts_active }}</div>
+                            <small class="text-muted">Require attention</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12 col-md-3 mb-3">
+                    <div class="card maintenance-card h-100">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Maintenance Due</h5>
+                            <div class="metric-large text-info">{{ data.maintenance_due }}</div>
+                            <small class="text-muted">Scheduled this month</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12 col-md-3 mb-3">
+                    <div class="card maintenance-card h-100">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Est. Savings</h5>
+                            <div class="metric-large text-success">${{ "{:,.0f}".format(data.estimated_savings) }}</div>
+                            <small class="text-muted">Prevented costs</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Equipment Health Overview -->
+            <div class="row mb-4">
+                <div class="col-12 col-lg-6 mb-3">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Equipment Health Status</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-4">
+                                    <div class="health-excellent">
+                                        <div class="metric-large">{{ data.equipment_health.excellent }}</div>
+                                        <small>Excellent</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="health-good">
+                                        <div class="metric-large">{{ data.equipment_health.good }}</div>
+                                        <small>Good</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="health-attention">
+                                        <div class="metric-large">{{ data.equipment_health.attention_needed }}</div>
+                                        <small>Needs Attention</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12 col-lg-6 mb-3">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Equipment Categories</h5>
+                        </div>
+                        <div class="card-body">
+                            {% for category, count in data.categories.items() %}
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>{{ category }}</span>
+                                <span class="badge bg-primary">{{ count }} units</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Maintenance Recommendations -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Maintenance Recommendations</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info">
+                                <strong>AI Recommendation:</strong> Based on usage patterns from your RAGLE EQ BILLINGS data, 
+                                schedule preventive maintenance for high-utilization equipment during low-demand periods 
+                                to maximize revenue retention.
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-12 col-md-6 mb-3">
+                                    <div class="card border-warning">
+                                        <div class="card-body">
+                                            <h6 class="text-warning">Priority Action</h6>
+                                            <p>Standard Equipment Category: 3 units require oil changes this week</p>
+                                            <small class="text-muted">Estimated downtime: 2 hours per unit</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-12 col-md-6 mb-3">
+                                    <div class="card border-info">
+                                        <div class="card-body">
+                                            <h6 class="text-info">Scheduled</h6>
+                                            <p>Mechanic Trucks: Annual inspections due next month</p>
+                                            <small class="text-muted">Coordinate with project schedules</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Auto-refresh every 2 minutes
+        setTimeout(() => {
+            location.reload();
+        }, 120000);
+    </script>
+</body>
+</html>

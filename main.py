@@ -79,6 +79,11 @@ def index():
     
     return render_template('dashboard_clickable.html', metrics=metrics)
 
+@app.route('/dashboard')
+def dashboard():
+    """Dashboard route - redirect to main page"""
+    return redirect(url_for('index'))
+
 @app.route('/attendance-matrix')
 def attendance_matrix():
     """Attendance matrix with authentic data"""
@@ -138,6 +143,9 @@ def equipment_dispatch():
         'schedule_data': schedule_data,
         'project_data': project_data
     }
+    
+    # Get revenue data for calculations
+    revenue_data = authentic_data.get_revenue_data()
     
     # Fix template data structure for equipment dispatch
     dispatch_data = {

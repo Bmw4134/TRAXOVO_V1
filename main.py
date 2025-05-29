@@ -212,15 +212,17 @@ def dashboard():
                 margin-left: 280px;
                 flex: 1;
                 padding: 2rem;
-                background: #f8fafc;
+                background: white;
             }}
             
             .dashboard-header {{
                 margin-bottom: 2rem;
+                padding-bottom: 1rem;
+                border-bottom: 1px solid #e2e8f0;
             }}
             
             .dashboard-title {{
-                font-size: 2rem;
+                font-size: 2.5rem;
                 font-weight: 700;
                 color: #1a202c;
                 margin-bottom: 0.5rem;
@@ -228,54 +230,78 @@ def dashboard():
             
             .dashboard-subtitle {{
                 color: #64748b;
-                font-size: 0.95rem;
+                font-size: 1rem;
             }}
             
-            .metrics-grid {{
-                display: grid;
-                grid-template-columns: 1fr;
-                gap: 1rem;
+            .fleet-intelligence {{
+                background: #f8fafc;
+                border: 1px solid #e2e8f0;
+                border-radius: 12px;
+                padding: 2rem;
+                margin-bottom: 2rem;
+                border-left: 4px solid #3b82f6;
+            }}
+            
+            .fleet-title {{
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #1a202c;
+                margin-bottom: 0.5rem;
+            }}
+            
+            .fleet-subtitle {{
+                color: #64748b;
                 margin-bottom: 2rem;
             }}
             
-            .metric-card {{
+            .metrics-row {{
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 2rem;
+                margin-bottom: 2rem;
+            }}
+            
+            .metric-box {{
                 background: white;
-                border-radius: 16px;
-                padding: 2rem;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
                 border: 1px solid #e2e8f0;
-                transition: all 0.2s ease;
-                position: relative;
-                cursor: pointer;
-                border-left: 6px solid;
+                border-radius: 8px;
+                padding: 1.5rem;
+                text-align: center;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             }}
             
-            .metric-card:hover {{
-                transform: translateY(-2px);
-                box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-            }}
-            
-            .metric-value {{
-                font-size: 3rem;
+            .metric-number {{
+                font-size: 2.5rem;
                 font-weight: 900;
+                color: #1a202c;
                 margin-bottom: 0.5rem;
-                line-height: 1;
             }}
             
             .metric-label {{
-                font-size: 1rem;
+                font-size: 0.875rem;
                 color: #64748b;
                 font-weight: 500;
             }}
             
-            .metric-change {{
-                position: absolute;
-                top: 1.5rem;
-                right: 1.5rem;
-                width: 10px;
-                height: 10px;
-                border-radius: 50%;
-                background: #10b981;
+            .actions-row {{
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 1rem;
+            }}
+            
+            .action-button {{
+                background: #3b82f6;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                padding: 1rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }}
+            
+            .action-button:hover {{
+                background: #2563eb;
             }}
             
             .executive-overview {{
@@ -527,8 +553,39 @@ def dashboard():
                 <p class="dashboard-subtitle">Fleet Intelligence with authentic data sources - Last updated: May 29, 2025 at 2:29 PM</p>
             </div>
             
-            <div class="metrics-grid">
-                {metric_cards}
+            <div class="fleet-intelligence">
+                <h2 class="fleet-title">TRAXOVO Fleet Intelligence</h2>
+                <p class="fleet-subtitle">Real-time fleet operations and business intelligence</p>
+                
+                <div class="metrics-row">
+                    <div class="metric-box">
+                        <div class="metric-number">{total_revenue}</div>
+                        <div class="metric-label">Total Assets</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-number">{active_assets}</div>
+                        <div class="metric-label">Active Assets</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-number">{total_drivers}</div>
+                        <div class="metric-label">Total Drivers</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-number">{clocked_in}</div>
+                        <div class="metric-label">Clocked In</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-number">{operational_score}</div>
+                        <div class="metric-label">%</div>
+                    </div>
+                </div>
+                
+                <div class="actions-row">
+                    <button class="action-button">View Fleet Assets</button>
+                    <button class="action-button">View Attendance</button>
+                    <button class="action-button">View GPS Data</button>
+                    <button class="action-button">Financial Forecasting</button>
+                </div>
             </div>
             
             <div class="status-section">

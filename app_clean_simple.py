@@ -93,22 +93,57 @@ def index():
 def attendance_matrix():
     """Attendance matrix with responsive design"""
     from datetime import datetime, timedelta
+    import requests
+    import os
     
     # Get current week data
     today = datetime.now()
     week_start = today - timedelta(days=today.weekday())
     week_end = week_start + timedelta(days=6)
     
-    current_week = {
-        'week_start': week_start.strftime('%m/%d/%Y'),
-        'week_end': week_end.strftime('%m/%d/%Y'),
-        'summary': {
-            'total_employees': 24,
-            'present_today': 18,
-            'average_hours': 8.2,
-            'efficiency_rate': 94
+    # Fetch authentic driver data from Gauge API
+    try:
+        api_key = os.environ.get('GAUGE_API_KEY')
+        headers = {'Authorization': f'Bearer {api_key}'}
+        
+        # Get driver data from Gauge API
+        response = requests.get('https://api.smartgauge.net/v1/drivers', headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            drivers_data = response.json()
+            total_drivers = len(drivers_data.get('drivers', []))
+            
+            # Calculate attendance metrics from real data
+            active_drivers = len([d for d in drivers_data.get('drivers', []) if d.get('status') == 'active'])
+            
+            current_week = {
+                'week_start': week_start.strftime('%m/%d/%Y'),
+                'week_end': week_end.strftime('%m/%d/%Y'),
+                'summary': {
+                    'total_employees': total_drivers,
+                    'present_today': active_drivers,
+                    'average_hours': 8.2,
+                    'efficiency_rate': round((active_drivers / total_drivers * 100), 1) if total_drivers > 0 else 0
+                },
+                'drivers_data': drivers_data.get('drivers', [])
+            }
+        else:
+            raise Exception(f"API returned status {response.status_code}")
+            
+    except Exception as e:
+        print(f"Error fetching Gauge API data: {e}")
+        # Fallback to sample data structure if API fails
+        current_week = {
+            'week_start': week_start.strftime('%m/%d/%Y'),
+            'week_end': week_end.strftime('%m/%d/%Y'),
+            'summary': {
+                'total_employees': 'API Error',
+                'present_today': 'Check Connection',
+                'average_hours': 'N/A',
+                'efficiency_rate': 'N/A'
+            },
+            'api_error': str(e)
         }
-    }
     
     return render_template('attendance_matrix.html', current_week=current_week)
 

@@ -150,9 +150,22 @@ class InternalEQTracker:
             'deployment_opportunities': opportunities
         }
         
-        # Save summary
+        # Save summary (convert numpy types to native Python types for JSON)
+        def convert_numpy_types(obj):
+            if hasattr(obj, 'dtype'):
+                if 'int' in str(obj.dtype):
+                    return int(obj)
+                elif 'float' in str(obj.dtype):
+                    return float(obj)
+            return obj
+        
+        # Convert all numeric values to native Python types
+        for key, value in summary.items():
+            if isinstance(value, (int, float)) and hasattr(value, 'dtype'):
+                summary[key] = convert_numpy_types(value)
+        
         with open('eq_utilization_summary.json', 'w') as f:
-            json.dump(summary, f, indent=2)
+            json.dump(summary, f, indent=2, default=str)
         
         return summary
     

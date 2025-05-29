@@ -1,9 +1,9 @@
 {
-  "bootstrap_time": "2025-05-29T04:33:44.821136",
+  "bootstrap_time": "2025-05-29T04:34:29.737812",
   "system_status": "OPERATIONAL",
   "modules_loaded": {
-    "kaizen_live_parser": "CREATED",
-    "kaizen_ui_reactor": "CREATED",
+    "kaizen_live_parser": "READY",
+    "kaizen_ui_reactor": "READY",
     "internal_eq_tracker": "READY",
     "smart_po_system": "READY",
     "kaizen_daily_sync": "READY",

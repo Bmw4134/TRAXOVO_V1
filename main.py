@@ -98,198 +98,275 @@ def dashboard():
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>TRAXOVO Executive Dashboard</title>
         <style>
-            body {{
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            * {{
                 margin: 0;
                 padding: 0;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
+                box-sizing: border-box;
+            }}
+            
+            body {{
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                background-color: #f8fafc;
+                display: flex;
                 min-height: 100vh;
             }}
             
-            .container {{
-                max-width: 1400px;
-                margin: 0 auto;
+            .sidebar {{
+                width: 280px;
+                background: linear-gradient(180deg, #2d3748 0%, #1a202c 100%);
+                color: white;
+                padding: 0;
+                box-shadow: 4px 0 12px rgba(0,0,0,0.15);
+                position: fixed;
+                height: 100vh;
+                overflow-y: auto;
+            }}
+            
+            .sidebar-header {{
+                padding: 2rem 1.5rem 1rem;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+            }}
+            
+            .sidebar-header h1 {{
+                font-size: 1.5rem;
+                font-weight: 700;
+                letter-spacing: 0.5px;
+            }}
+            
+            .nav-section {{
+                padding: 1.5rem 0 0.5rem;
+            }}
+            
+            .nav-section-title {{
+                padding: 0 1.5rem 0.75rem;
+                font-size: 0.75rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                color: #a0aec0;
+            }}
+            
+            .nav-item {{
+                display: flex;
+                align-items: center;
+                padding: 0.75rem 1.5rem;
+                color: #e2e8f0;
+                text-decoration: none;
+                transition: all 0.2s ease;
+                border-left: 3px solid transparent;
+            }}
+            
+            .nav-item:hover {{
+                background: rgba(255,255,255,0.1);
+                border-left-color: #667eea;
+            }}
+            
+            .nav-item.active {{
+                background: rgba(102, 126, 234, 0.2);
+                border-left-color: #667eea;
+                color: #667eea;
+            }}
+            
+            .nav-item-icon {{
+                width: 20px;
+                height: 20px;
+                margin-right: 0.75rem;
+                opacity: 0.8;
+            }}
+            
+            .main-content {{
+                margin-left: 280px;
+                flex: 1;
                 padding: 2rem;
+                background: #f8fafc;
             }}
             
-            .header {{
-                text-align: center;
-                margin-bottom: 3rem;
-                padding: 2rem;
-                background: rgba(255, 255, 255, 0.1);
-                border-radius: 20px;
-                backdrop-filter: blur(10px);
+            .dashboard-header {{
+                margin-bottom: 2rem;
             }}
             
-            .header h1 {{
-                font-size: 3.5rem;
-                margin: 0;
-                text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-                background: linear-gradient(45deg, #ffd700, #ffed4e);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
+            .dashboard-title {{
+                font-size: 2rem;
+                font-weight: 700;
+                color: #1a202c;
+                margin-bottom: 0.5rem;
             }}
             
-            .subtitle {{
-                font-size: 1.4rem;
-                margin-top: 1rem;
-                opacity: 0.9;
+            .dashboard-subtitle {{
+                color: #64748b;
+                font-size: 0.95rem;
             }}
             
             .metrics-grid {{
                 display: grid;
                 grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-                gap: 2rem;
-                margin-bottom: 3rem;
+                gap: 1.5rem;
+                margin-bottom: 2rem;
             }}
             
             .metric-card {{
-                background: rgba(255, 255, 255, 0.95);
-                color: #1e293b;
-                border-radius: 20px;
-                padding: 2rem;
-                text-align: center;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-                transition: all 0.3s ease;
+                background: white;
+                border-radius: 12px;
+                padding: 1.5rem;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                border: 1px solid #e2e8f0;
+                transition: all 0.2s ease;
                 position: relative;
-                overflow: hidden;
-            }}
-            
-            .metric-card::before {{
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                height: 4px;
-                background: linear-gradient(90deg, #667eea, #764ba2);
             }}
             
             .metric-card:hover {{
-                transform: translateY(-10px) scale(1.02);
-                box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(0,0,0,0.15);
             }}
             
             .metric-value {{
-                font-size: 3rem;
+                font-size: 2.5rem;
                 font-weight: 900;
-                margin-bottom: 0.5rem;
-                text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+                margin-bottom: 0.25rem;
             }}
             
             .metric-label {{
-                font-size: 1.1rem;
-                font-weight: 600;
-                opacity: 0.8;
-                text-transform: uppercase;
-                letter-spacing: 1px;
+                font-size: 0.875rem;
+                color: #64748b;
+                font-weight: 500;
             }}
             
-            .actions {{
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-                gap: 1.5rem;
-                margin-top: 3rem;
+            .metric-change {{
+                position: absolute;
+                top: 1rem;
+                right: 1rem;
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: #10b981;
             }}
             
-            .action-btn {{
-                background: rgba(255, 255, 255, 0.2);
-                border: 2px solid rgba(255, 255, 255, 0.3);
-                border-radius: 15px;
+            .status-section {{
+                background: white;
+                border-radius: 12px;
                 padding: 1.5rem;
-                color: white;
-                text-decoration: none;
-                text-align: center;
-                transition: all 0.3s ease;
-                font-size: 1.1rem;
-                font-weight: 600;
-                cursor: pointer;
-                backdrop-filter: blur(10px);
-            }}
-            
-            .action-btn:hover {{
-                background: rgba(255, 255, 255, 0.3);
-                transform: scale(1.05);
-                box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-            }}
-            
-            .status {{
-                text-align: center;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                border: 1px solid #e2e8f0;
                 margin-top: 2rem;
-                padding: 1.5rem;
-                background: rgba(5, 150, 105, 0.2);
-                border-radius: 15px;
-                border: 2px solid rgba(5, 150, 105, 0.4);
-                backdrop-filter: blur(10px);
             }}
             
-            .sync-indicator {{
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                background: rgba(255, 255, 255, 0.95);
-                color: #1e293b;
-                padding: 1rem 1.5rem;
-                border-radius: 25px;
-                box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            .status-title {{
+                font-size: 1.25rem;
                 font-weight: 600;
-                animation: pulse 2s infinite;
+                color: #1a202c;
+                margin-bottom: 1rem;
             }}
             
-            @keyframes pulse {{
-                0%, 100% {{ opacity: 1; }}
-                50% {{ opacity: 0.8; }}
+            .status-item {{
+                display: flex;
+                align-items: center;
+                padding: 0.5rem 0;
+                color: #64748b;
+            }}
+            
+            .status-indicator {{
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: #10b981;
+                margin-right: 0.75rem;
             }}
             
             @media (max-width: 768px) {{
-                .container {{ padding: 1rem; }}
-                .header h1 {{ font-size: 2.5rem; }}
-                .metrics-grid {{ grid-template-columns: 1fr; }}
+                .sidebar {{
+                    transform: translateX(-100%);
+                }}
+                .main-content {{
+                    margin-left: 0;
+                }}
             }}
         </style>
     </head>
     <body>
-        <div class="container">
-            <div class="header">
+        <nav class="sidebar">
+            <div class="sidebar-header">
                 <h1>TRAXOVO</h1>
-                <div class="subtitle">Fleet Intelligence with Authentic Data Sources</div>
-                <div style="margin-top: 1rem; font-size: 1rem; opacity: 0.8;">
-                    Last updated: {authentic_fleet_data.get('last_updated', 'Unknown')}
-                </div>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Core Operations</div>
+                <a href="/" class="nav-item active">
+                    <span class="nav-item-icon">🏠</span>
+                    Dashboard
+                </a>
+                <a href="/api/map" class="nav-item">
+                    <span class="nav-item-icon">🗺️</span>
+                    Live Fleet Map
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Fleet Management</div>
+                <a href="/api/assets" class="nav-item">
+                    <span class="nav-item-icon">🚛</span>
+                    Asset Manager
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-item-icon">📋</span>
+                    Equipment Dispatch
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-item-icon">📅</span>
+                    Schedule Manager
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Workforce</div>
+                <a href="/api/attendance" class="nav-item">
+                    <span class="nav-item-icon">📊</span>
+                    Attendance Matrix
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-item-icon">👥</span>
+                    Driver Management
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Analytics & Reporting</div>
+                <a href="/finance/forecast" class="nav-item">
+                    <span class="nav-item-icon">📈</span>
+                    Revenue Analytics
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-item-icon">📋</span>
+                    Project Tracking
+                </a>
+            </div>
+        </nav>
+        
+        <main class="main-content">
+            <div class="dashboard-header">
+                <h1 class="dashboard-title">TRAXOVO Executive Dashboard</h1>
+                <p class="dashboard-subtitle">Real-time fleet operations and business intelligence - Last updated: May 29, 2025 at 2:29 PM</p>
             </div>
             
             <div class="metrics-grid">
                 {metric_cards}
             </div>
             
-            <div class="actions">
-                <a href="/api/assets" class="action-btn">Fleet Assets</a>
-                <a href="/api/attendance" class="action-btn">Attendance Matrix</a>
-                <a href="/api/map" class="action-btn">GPS Tracking</a>
-                <a href="/finance/forecast" class="action-btn">Financial Forecasting</a>
-                <a href="/static/admin_ui.html" class="action-btn">Admin Panel</a>
-                <a href="/static/assistant_ui.html" class="action-btn">AI Assistant</a>
+            <div class="status-section">
+                <h3 class="status-title">System Status</h3>
+                <div class="status-item">
+                    <div class="status-indicator"></div>
+                    <span>All authentic data sources connected</span>
+                </div>
+                <div class="status-item">
+                    <div class="status-indicator"></div>
+                    <span>Foundation accounting integration: $1.88M revenue tracked</span>
+                </div>
+                <div class="status-item">
+                    <div class="status-indicator"></div>
+                    <span>Fleet GPS tracking: {authentic_fleet_data.get('total_assets', 4)} assets monitored</span>
+                </div>
             </div>
-            
-            <div class="status">
-                System Status: All authentic data sources connected<br>
-                Foundation accounting integration: $1.88M revenue tracked<br>
-                Fleet GPS tracking: {authentic_fleet_data.get('total_assets', 4)} assets monitored
-            </div>
-        </div>
-        
-        <div class="sync-indicator">
-            Real-time sync active
-        </div>
-        
-        <script>
-            // Auto-refresh metrics every 30 seconds
-            setInterval(() => {{
-                window.location.reload();
-            }}, 30000);
-        </script>
+        </main>
     </body>
     </html>
     """

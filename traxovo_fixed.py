@@ -28,12 +28,22 @@ db.init_app(app)
 # Core dashboard route
 @app.route('/')
 def index():
-    """TRAXOVO Elite Dashboard - Your authentic fleet data"""
+    """TRAXOVO Elite Dashboard - Your authentic fleet data with executive intelligence"""
+    from executive_intelligence import get_executive_intelligence
+    
+    # Get real-time executive insights
+    intelligence = get_executive_intelligence()
+    cost_data = intelligence['cost_impact']
+    summary = intelligence['executive_summary']
+    
     return render_template('dashboard_executive.html',
                          total_assets=570,
                          active_assets=558,
                          gps_enabled=566,
                          coverage=97,
+                         monthly_savings=cost_data['monthly_savings'],
+                         performance_issues=summary['key_metrics']['performance_issues'],
+                         maintenance_due=summary['key_metrics']['maintenance_due'],
                          last_sync='Live')
 
 @app.route('/dashboard')

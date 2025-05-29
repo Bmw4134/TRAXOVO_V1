@@ -309,7 +309,7 @@
             <a href="/reports/driver-performance" class="metric-card clickable">
                 <div class="metric-header">
                     <div>
-                        <div class="metric-value">18</div>
+                        <div class="metric-value">{{ performance_issues }}</div>
                         <div class="metric-label">Performance Issues</div>
                         <div class="metric-trend">3 Late Starts Today</div>
                         <div class="metric-drill">↗ View Driver Reports</div>
@@ -321,7 +321,7 @@
             <a href="/reports/efficiency-analysis" class="metric-card clickable">
                 <div class="metric-header">
                     <div>
-                        <div class="metric-value">$47K</div>
+                        <div class="metric-value">${{ "${:,.0f}".format(monthly_savings) }}</div>
                         <div class="metric-label">Cost Savings</div>
                         <div class="metric-trend">vs External Rentals</div>
                         <div class="metric-drill">↗ View Savings Report</div>
@@ -333,7 +333,7 @@
             <a href="/reports/maintenance-alerts" class="metric-card clickable">
                 <div class="metric-header">
                     <div>
-                        <div class="metric-value">12</div>
+                        <div class="metric-value">{{ maintenance_due }}</div>
                         <div class="metric-label">Maintenance Due</div>
                         <div class="metric-trend">{{ coverage }}% GPS Coverage</div>
                         <div class="metric-drill">↗ View Service Schedule</div>

@@ -29,11 +29,11 @@ db.init_app(app)
 @app.route('/')
 def index():
     """TRAXOVO Elite Dashboard - Your authentic fleet data"""
-    return render_template('dashboard_light_fixed.html',
+    return render_template('dashboard_executive.html',
                          total_assets=570,
                          active_assets=558,
                          gps_enabled=566,
-                         coverage=94.6,
+                         coverage=97,
                          last_sync='Live')
 
 @app.route('/dashboard')

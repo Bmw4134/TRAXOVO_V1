@@ -10,7 +10,7 @@ from datetime import datetime
 AUTHENTIC_FLEET_DATA = {
     "total_fleet_assets": 590,  # From your FLEET sheet - REAL count
     "active_operational": 601,  # Actually active from Gauge API
-    "active_drivers": 281,  # REAL driver count from Employee data
+    "active_drivers": 92,  # YOUR AUTHENTIC driver count - restored
     "recent_activity_units": 567,  # Units with recent activity 
     "pickup_trucks": 180,  # Your largest fleet category
     "excavators": 32,  # Major construction equipment

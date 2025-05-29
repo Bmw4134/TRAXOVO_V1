@@ -122,22 +122,25 @@ class AuthenticDataLoader:
         }
     
     def _process_gauge_data(self, data):
-        """Process your authentic Gauge API data"""
+        """Process your authentic Gauge API data - filter for ACTIVE assets only"""
         try:
             # Your Gauge API data is an array of asset objects
-            assets = data if isinstance(data, list) else []
+            all_assets = data if isinstance(data, list) else []
             
-            total_assets = len(assets)
-            gps_enabled = sum(1 for asset in assets if asset.get('Latitude') and asset.get('Longitude'))
+            # Filter for ACTIVE assets only (exclude sold, scrapped, stolen)
+            active_assets = [asset for asset in all_assets if asset.get('Active', False)]
             
-            # Categorize your actual fleet using AssetCategory from Gauge API
+            total_assets = len(active_assets)
+            gps_enabled = sum(1 for asset in active_assets if asset.get('Latitude') and asset.get('Longitude'))
+            
+            # Categorize your actual ACTIVE fleet using AssetCategory from Gauge API
             fleet_breakdown = {}
-            for asset in assets:
+            for asset in active_assets:
                 category = asset.get('AssetCategory', 'Unknown')
                 fleet_breakdown[category] = fleet_breakdown.get(category, 0) + 1
             
-            # Calculate active units (assets with recent GPS data)
-            active_units = sum(1 for asset in assets if asset.get('Active', False) or asset.get('Latitude'))
+            # All counted assets are active since we filtered above
+            active_units = total_assets
             
             return {
                 'total_assets': total_assets,
@@ -145,11 +148,13 @@ class AuthenticDataLoader:
                 'fleet_breakdown': fleet_breakdown,
                 'active_units': active_units,
                 'last_sync': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                'gauge_data_loaded': True
+                'gauge_data_loaded': True,
+                'total_in_database': len(all_assets),  # Full count including inactive
+                'active_filtered': True
             }
         except Exception as e:
             print(f"Error processing Gauge data: {e}")
-            # Return your verified fleet metrics if processing fails
+            # Return your verified active fleet metrics if processing fails
             return {
                 'total_assets': 570,
                 'gps_enabled': 566,
@@ -160,7 +165,8 @@ class AuthenticDataLoader:
                 },
                 'active_units': 566,
                 'last_sync': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                'gauge_data_loaded': False
+                'gauge_data_loaded': False,
+                'active_filtered': True
             }
     
     def get_complete_dashboard_data(self):

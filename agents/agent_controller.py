@@ -44,6 +44,11 @@ class AgentController:
         self.mode = self.config.get('mode', 'development')
         self.feature_flags = self.config.get('feature_flags', {})
         
+        # Enable parallel multi-agent processing
+        self.parallel_mode = True
+        self.max_concurrent_agents = 4
+        self.desktop_sync_safe = True
+        
         # Configure logging based on config
         log_level = self.config.get('logging_level', 'INFO')
         logging.getLogger().setLevel(getattr(logging, log_level))

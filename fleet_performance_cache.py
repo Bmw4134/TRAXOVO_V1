@@ -51,23 +51,23 @@ class FleetPerformanceCache:
             with open('GAUGE API PULL 1045AM_05.15.2025.json', 'r') as f:
                 gauge_data = json.load(f)
             
-            # Process authentic metrics
+            # Process authentic metrics from your real data
             total_assets = len(gauge_data)
             active_assets = len([a for a in gauge_data if a.get('Active', False)])
             gps_enabled = len([a for a in gauge_data if a.get('IMEI')])
             
-            # Calculate real coverage
+            # Calculate real coverage from your authentic data
             coverage = (gps_enabled / total_assets * 100) if total_assets > 0 else 0
             
             metrics = {
                 "total_assets": total_assets,
-                "active_assets": active_assets,
+                "active_assets": active_assets, 
                 "gps_enabled": gps_enabled,
                 "coverage": round(coverage, 1),
                 "last_sync": datetime.now().isoformat()
             }
             
-            # Update cache
+            # Update cache with your real data
             self.data["metrics"] = metrics
             self.data["fleet_data"] = gauge_data
             self.data["last_update"] = datetime.now().isoformat()
@@ -76,14 +76,20 @@ class FleetPerformanceCache:
             return metrics
             
         except Exception as e:
-            # Return cached data if available
-            return self.data.get("metrics", {
-                "total_assets": 566,
-                "active_assets": 0,
-                "gps_enabled": 566,
-                "coverage": 94.6,
-                "last_sync": "Cache fallback"
-            })
+            print(f"Error loading authentic data: {e}")
+            # Force fresh data load - no fallback numbers
+            if os.path.exists('GAUGE API PULL 1045AM_05.15.2025.json'):
+                # Try again without exception handling
+                with open('GAUGE API PULL 1045AM_05.15.2025.json', 'r') as f:
+                    gauge_data = json.load(f)
+                    return {
+                        "total_assets": len(gauge_data),
+                        "active_assets": len([a for a in gauge_data if a.get('Active', False)]),
+                        "gps_enabled": len([a for a in gauge_data if a.get('IMEI')]),
+                        "coverage": round((len([a for a in gauge_data if a.get('IMEI')]) / len(gauge_data) * 100), 1),
+                        "last_sync": "Real data loaded"
+                    }
+            raise Exception("Cannot load authentic fleet data")
     
     def get_asset_list(self) -> List[Dict]:
         """Get processed asset list for instant display"""

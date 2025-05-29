@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 TRAXOVO Fleet Management System - Restored Working Version
 """
@@ -265,23 +264,23 @@ def dashboard():
             </div>
             
             <div class="actions">
-                <a href="/api/assets" class="action-btn">Fleet Assets</a>
-                <a href="/api/attendance" class="action-btn">Attendance Matrix</a>
-                <a href="/api/map" class="action-btn">GPS Tracking</a>
-                <a href="/finance/forecast" class="action-btn">Financial Forecasting</a>
-                <a href="/static/admin_ui.html" class="action-btn">Admin Panel</a>
-                <a href="/static/assistant_ui.html" class="action-btn">AI Assistant</a>
+                <a href="/api/assets" class="action-btn">📊 Fleet Assets</a>
+                <a href="/api/attendance" class="action-btn">👥 Attendance Matrix</a>
+                <a href="/api/map" class="action-btn">🗺️ GPS Tracking</a>
+                <a href="/finance/forecast" class="action-btn">💰 Financial Forecasting</a>
+                <a href="/static/admin_ui.html" class="action-btn">⚙️ Admin Panel</a>
+                <a href="/static/assistant_ui.html" class="action-btn">🤖 AI Assistant</a>
             </div>
             
             <div class="status">
-                System Status: All authentic data sources connected<br>
+                ✅ System Status: All authentic data sources connected<br>
                 Foundation accounting integration: $1.88M revenue tracked<br>
                 Fleet GPS tracking: {authentic_fleet_data.get('total_assets', 4)} assets monitored
             </div>
         </div>
         
         <div class="sync-indicator">
-            Real-time sync active
+            🔄 Real-time sync active
         </div>
         
         <script>
@@ -296,6 +295,7 @@ def dashboard():
     
     return Response(html, mimetype='text/html')
 
+# Keep all existing API endpoints
 @app.route('/api/assets')
 def api_assets():
     """Your real fleet assets"""
@@ -334,17 +334,6 @@ def api_assistant():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/status')
-def api_status():
-    """System status with authentic data summary"""
-    return jsonify({
-        'status': 'operational',
-        'data_loaded': len(authentic_fleet_data) > 0,
-        'total_assets': authentic_fleet_data.get('total_assets', 0),
-        'total_drivers': authentic_fleet_data.get('total_drivers', 0),
-        'last_updated': authentic_fleet_data.get('last_updated', 'never')
-    })
-
 @app.route('/static/admin_ui.html')
 def admin_ui():
     """Admin control panel"""
@@ -354,33 +343,36 @@ def admin_ui():
     <head>
         <title>TRAXOVO Admin Panel</title>
         <style>
-            body {{ font-family: Arial, sans-serif; margin: 2rem; }}
-            .card {{ border: 1px solid #ddd; padding: 1rem; margin: 1rem 0; }}
-            .btn {{ padding: 0.5rem 1rem; margin: 0.25rem; background: #007bff; color: white; text-decoration: none; border-radius: 4px; }}
+            body {{ font-family: Arial, sans-serif; margin: 2rem; background: #f5f5f5; }}
+            .card {{ background: white; border-radius: 8px; padding: 2rem; margin: 1rem 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }}
+            .btn {{ padding: 0.75rem 1.5rem; margin: 0.5rem; background: #2563eb; color: white; text-decoration: none; border-radius: 6px; display: inline-block; }}
+            .metric {{ font-size: 2rem; font-weight: bold; color: #2563eb; }}
         </style>
     </head>
     <body>
         <h1>TRAXOVO Fleet Management - Admin Panel</h1>
         
         <div class="card">
-            <h3>System Status</h3>
-            <p>Assets: {authentic_fleet_data.get('total_assets', 0)}</p>
-            <p>Drivers: {authentic_fleet_data.get('total_drivers', 0)}</p>
+            <h3>System Metrics</h3>
+            <p>Total Assets: <span class="metric">{authentic_fleet_data.get('total_assets', 0)}</span></p>
+            <p>Active Assets: <span class="metric">{authentic_fleet_data.get('active_assets', 0)}</span></p>
+            <p>Total Drivers: <span class="metric">{authentic_fleet_data.get('total_drivers', 0)}</span></p>
+            <p>Clocked In: <span class="metric">{authentic_fleet_data.get('clocked_in', 0)}</span></p>
             <p>Last Updated: {authentic_fleet_data.get('last_updated', 'Never')}</p>
         </div>
         
         <div class="card">
-            <h3>Data Endpoints</h3>
-            <a href="/api/assets" class="btn">View Assets</a>
-            <a href="/api/attendance" class="btn">View Attendance</a>
-            <a href="/api/map" class="btn">View GPS Data</a>
-            <a href="/api/status" class="btn">System Status</a>
+            <h3>Data Management</h3>
+            <a href="/api/assets" class="btn">View Assets JSON</a>
+            <a href="/api/attendance" class="btn">View Attendance JSON</a>
+            <a href="/api/map" class="btn">View GPS Data JSON</a>
         </div>
         
         <div class="card">
             <h3>Navigation</h3>
             <a href="/" class="btn">Main Dashboard</a>
             <a href="/static/assistant_ui.html" class="btn">AI Assistant</a>
+            <a href="/finance/forecast" class="btn">Financial Forecasting</a>
         </div>
     </body>
     </html>
@@ -393,22 +385,28 @@ def assistant_ui():
     <!DOCTYPE html>
     <html>
     <head>
-        <title>TRAXOVO AI Assistant</title>
+        <title>TRAXOVO AI Fleet Assistant</title>
         <style>
-            body { font-family: Arial, sans-serif; margin: 2rem; }
-            #chat { border: 1px solid #ddd; height: 400px; overflow-y: auto; padding: 1rem; margin-bottom: 1rem; }
-            #input { width: 70%; padding: 0.5rem; }
-            #send { padding: 0.5rem 1rem; background: #007bff; color: white; border: none; }
-            .message { margin: 0.5rem 0; padding: 0.5rem; }
-            .user { background: #e3f2fd; }
+            body { font-family: Arial, sans-serif; margin: 2rem; background: #f5f5f5; }
+            .container { max-width: 800px; margin: 0 auto; }
+            #chat { background: white; border-radius: 8px; height: 400px; overflow-y: auto; padding: 1rem; margin-bottom: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+            .input-group { display: flex; gap: 0.5rem; }
+            #input { flex: 1; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px; }
+            #send { padding: 0.75rem 1.5rem; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; }
+            .message { margin: 0.75rem 0; padding: 0.75rem; border-radius: 6px; }
+            .user { background: #e3f2fd; text-align: right; }
             .assistant { background: #f1f8e9; }
         </style>
     </head>
     <body>
-        <h1>TRAXOVO AI Fleet Assistant</h1>
-        <div id="chat"></div>
-        <input type="text" id="input" placeholder="Ask about your fleet...">
-        <button id="send" onclick="sendMessage()">Send</button>
+        <div class="container">
+            <h1>TRAXOVO AI Fleet Assistant</h1>
+            <div id="chat"></div>
+            <div class="input-group">
+                <input type="text" id="input" placeholder="Ask about your fleet operations...">
+                <button id="send" onclick="sendMessage()">Send</button>
+            </div>
+        </div>
         
         <script>
             function sendMessage() {
@@ -450,47 +448,13 @@ def assistant_ui():
     </html>
     """
 
-# Register financial forecasting module
+# Register financial forecasting if available
 try:
     from financial_forecasting import register_financial_forecasting
     register_financial_forecasting(app)
     logging.info("Financial forecasting module loaded successfully")
 except Exception as e:
     logging.error(f"Failed to load financial forecasting: {e}")
-
-# Add performance snapshot and advanced features
-@app.route('/api/performance-snapshot')
-def performance_snapshot():
-    """Generate one-click performance snapshot"""
-    snapshot = {
-        'timestamp': datetime.now().isoformat(),
-        'fleet_metrics': {
-            'total_assets': authentic_fleet_data.get('total_assets', 0),
-            'active_assets': authentic_fleet_data.get('active_assets', 0),
-            'total_drivers': authentic_fleet_data.get('total_drivers', 0),
-            'clocked_in': authentic_fleet_data.get('clocked_in', 0)
-        },
-        'financial_projection': {
-            'monthly_revenue': 156667,  # Based on $1.88M annual
-            'profit_margin': 22.4,
-            'growth_trend': 'positive'
-        },
-        'operational_efficiency': {
-            'asset_utilization': round((authentic_fleet_data.get('active_assets', 0) / max(authentic_fleet_data.get('total_assets', 1), 1)) * 100, 1),
-            'attendance_rate': round((authentic_fleet_data.get('clocked_in', 0) / max(authentic_fleet_data.get('total_drivers', 1), 1)) * 100, 1)
-        }
-    }
-    return jsonify(snapshot)
-
-@app.route('/api/sync-status')
-def sync_status():
-    """Real-time data synchronization status"""
-    return jsonify({
-        'status': 'active',
-        'last_sync': authentic_fleet_data.get('last_updated', 'unknown'),
-        'data_sources': ['attendance.json', 'map_assets.json', 'fleet_assets.json'],
-        'sync_health': 'excellent'
-    })
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

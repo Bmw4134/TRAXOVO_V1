@@ -121,6 +121,21 @@ def executive_reports():
     """Executive reporting dashboard"""
     return render_template('executive_reports.html')
 
+@app.route('/pdf-editor')
+def pdf_editor():
+    """Internal PDF Document Editor - Adobe/Bluebeam style"""
+    return render_template('pdf_editor.html')
+
+@app.route('/industry-news')
+def industry_news():
+    """AEMP Industry News Dashboard"""
+    return render_template('industry_news.html')
+
+@app.route('/ai-assistant')
+def ai_assistant():
+    """AI Fleet Assistant Interface"""
+    return render_template('ai_assistant.html')
+
 @app.route('/api/metrics-detail/<metric_name>')
 def metrics_detail(metric_name):
     """API endpoint for metric drill-down details"""

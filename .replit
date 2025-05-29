@@ -56,6 +56,115 @@ mode = "sequential"
 task = "shell.exec"
 args = "python app.py"
 
+[[workflows.workflow]]
+name = "Process Data Files"
+author = 42738758
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python -c \""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "import json"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "import os"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "from datetime import datetime"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = ""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "# Fast background data processing"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "def process_gauge_data():"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "    if os.path.exists('GAUGE API PULL 1045AM_05.15.2025.json'):"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "        try:"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "            with open('GAUGE API PULL 1045AM_05.15.2025.json', 'r') as f:"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "                data = json.load(f)"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "            count = len(data) if isinstance(data, list) else len(data.get('assets', []))"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "            "
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "            os.makedirs('data_cache', exist_ok=True)"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "            with open('data_cache/asset_count.json', 'w') as f:"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "                json.dump({"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "                    'count': count,"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "                    'timestamp': datetime.now().isoformat(),"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "                    'source': 'gauge_api'"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "                }, f)"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "            print(f'Cached {count} assets from Gauge API')"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "        except Exception as e:"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "            print(f'Error processing Gauge data: {e}')"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = ""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "process_gauge_data()"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "\""
+
 [[ports]]
 localPort = 5000
 externalPort = 80

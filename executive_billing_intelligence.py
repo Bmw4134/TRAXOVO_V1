@@ -30,21 +30,21 @@ class ExecutiveBillingIntelligence:
             ragle_df = pd.read_excel('RAGLE EQ BILLINGS - APRIL 2025 (JG REVIEWED 5.12).xlsm')
             self.billing_data['ragle'] = ragle_df
             
-            # Calculate authentic revenue metrics
-            if 'REVISION' in ragle_df.columns:
-                # Use PM-revised amounts where available, otherwise use unit allocation
-                revenue_column = ragle_df.apply(
-                    lambda row: row['REVISION'] if pd.notna(row['REVISION']) else row.get('UNIT ALLOCATION', 0), 
-                    axis=1
-                )
-                self.revenue_metrics['monthly_revenue'] = revenue_column.sum()
-            elif 'UNIT ALLOCATION' in ragle_df.columns:
-                self.revenue_metrics['monthly_revenue'] = ragle_df['UNIT ALLOCATION'].sum()
+            # Calculate authentic revenue using rate × allocation methodology
+            if 'Equipment Amount' in ragle_df.columns and 'UNITS' in ragle_df.columns:
+                # Calculate actual billable revenue: Equipment Amount × Units allocation
+                ragle_df['calculated_revenue'] = ragle_df['Equipment Amount'] * ragle_df['UNITS']
+                # Only sum positive values (billable amounts)
+                self.revenue_metrics['monthly_revenue'] = ragle_df[ragle_df['calculated_revenue'] > 0]['calculated_revenue'].sum()
+                self.revenue_metrics['calculation_method'] = 'Equipment Amount × Units allocation'
+            elif 'Equipment Amount' in ragle_df.columns:
+                # Fallback to equipment amounts only where positive
+                positive_amounts = ragle_df[ragle_df['Equipment Amount'] > 0]['Equipment Amount']
+                self.revenue_metrics['monthly_revenue'] = positive_amounts.sum()
+                self.revenue_metrics['calculation_method'] = 'Positive Equipment Amount totals'
             else:
-                # Find revenue column dynamically
-                revenue_cols = [col for col in ragle_df.columns if 'total' in col.lower() or 'amount' in col.lower()]
-                if revenue_cols:
-                    self.revenue_metrics['monthly_revenue'] = ragle_df[revenue_cols[0]].sum()
+                self.revenue_metrics['monthly_revenue'] = 0
+                self.revenue_metrics['calculation_method'] = 'No billing data available'
                     
             self.revenue_metrics['billable_assets'] = len(ragle_df)
             logging.info(f"Loaded {len(ragle_df)} billing records with revenue: ${self.revenue_metrics.get('monthly_revenue', 0):,.2f}")
@@ -161,38 +161,50 @@ class ExecutiveBillingIntelligence:
         }
         
     def _analyze_division_performance(self):
-        """Executive division performance analysis"""
+        """Executive division/job performance analysis using authentic data structure"""
         ragle_df = self.billing_data.get('ragle', pd.DataFrame())
         
         if ragle_df.empty:
             return {'status': 'no_data'}
             
-        # Analyze by division if column exists
+        # Analyze by Division/Job using calculated revenue
         division_metrics = {}
-        if 'DIVISION' in ragle_df.columns or 'Division' in ragle_df.columns:
-            div_col = 'DIVISION' if 'DIVISION' in ragle_df.columns else 'Division'
-            revenue_col = 'REVISION' if 'REVISION' in ragle_df.columns else 'UNIT ALLOCATION'
+        if 'Division/Job' in ragle_df.columns and 'calculated_revenue' in ragle_df.columns:
+            # Filter to only billable (positive revenue) records
+            billable_df = ragle_df[ragle_df['calculated_revenue'] > 0]
             
-            if revenue_col in ragle_df.columns:
-                division_revenue = ragle_df.groupby(div_col).agg({
-                    revenue_col: ['sum', 'count', 'mean']
+            if not billable_df.empty:
+                division_revenue = billable_df.groupby('Division/Job').agg({
+                    'calculated_revenue': ['sum', 'count', 'mean'],
+                    'Equipment Amount': 'mean',
+                    'UNITS': 'mean'
                 }).round(2)
                 
                 for division in division_revenue.index:
+                    rev_sum = division_revenue.loc[division, ('calculated_revenue', 'sum')]
+                    asset_count = int(division_revenue.loc[division, ('calculated_revenue', 'count')])
+                    avg_revenue = division_revenue.loc[division, ('calculated_revenue', 'mean')]
+                    
+                    # Categorize divisions by type
+                    division_type = self._categorize_division(division)
+                    
                     division_metrics[division] = {
-                        'revenue': division_revenue.loc[division, (revenue_col, 'sum')],
-                        'asset_count': division_revenue.loc[division, (revenue_col, 'count')],
-                        'avg_rate': division_revenue.loc[division, (revenue_col, 'mean')],
-                        'performance': self._calculate_division_performance_rating(
-                            division_revenue.loc[division, (revenue_col, 'sum')],
-                            division_revenue.loc[division, (revenue_col, 'count')]
-                        )
+                        'revenue': rev_sum,
+                        'asset_count': asset_count,
+                        'avg_revenue_per_asset': avg_revenue,
+                        'division_type': division_type,
+                        'performance': self._calculate_division_performance_rating(rev_sum, asset_count)
                     }
+        
+        # Sort by revenue for analysis
+        sorted_divisions = sorted(division_metrics.items(), key=lambda x: x[1]['revenue'], reverse=True)
         
         return {
             'divisions': division_metrics,
-            'top_performer': max(division_metrics.keys(), key=lambda x: division_metrics[x]['revenue']) if division_metrics else None,
-            'total_divisions': len(division_metrics)
+            'top_performer': sorted_divisions[0][0] if sorted_divisions else None,
+            'total_divisions': len(division_metrics),
+            'geographic_divisions': {k: v for k, v in division_metrics.items() if v['division_type'] == 'geographic'},
+            'project_divisions': {k: v for k, v in division_metrics.items() if v['division_type'] == 'project'}
         }
         
     def _calculate_division_performance_rating(self, revenue, asset_count):

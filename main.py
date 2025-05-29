@@ -278,10 +278,125 @@ def dashboard():
                 background: #10b981;
             }}
             
-            .status-section {{
+            .executive-overview {{
                 background: white;
                 border-radius: 12px;
+                padding: 2rem;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                border: 1px solid #e2e8f0;
+                margin-top: 2rem;
+            }}
+            
+            .overview-title {{
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #1a202c;
+                margin-bottom: 1.5rem;
+                text-align: center;
+            }}
+            
+            .overview-grid {{
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+                gap: 1.5rem;
+            }}
+            
+            .overview-card {{
+                background: #f8fafc;
+                border-radius: 8px;
                 padding: 1.5rem;
+                border-left: 4px solid #3b82f6;
+            }}
+            
+            .overview-card h4 {{
+                font-size: 1.125rem;
+                font-weight: 600;
+                color: #1a202c;
+                margin-bottom: 0.75rem;
+            }}
+            
+            .overview-card p {{
+                color: #4b5563;
+                margin-bottom: 1rem;
+                line-height: 1.6;
+            }}
+            
+            .overview-card ul {{
+                list-style: none;
+                padding: 0;
+            }}
+            
+            .overview-card li {{
+                color: #6b7280;
+                padding: 0.25rem 0;
+                position: relative;
+                padding-left: 1.5rem;
+            }}
+            
+            .overview-card li:before {{
+                content: "✓";
+                position: absolute;
+                left: 0;
+                color: #10b981;
+                font-weight: 600;
+            }}
+            
+            .technical-capabilities {{
+                background: white;
+                border-radius: 12px;
+                padding: 2rem;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                border: 1px solid #e2e8f0;
+                margin-top: 2rem;
+            }}
+            
+            .capabilities-title {{
+                font-size: 1.25rem;
+                font-weight: 600;
+                color: #1a202c;
+                margin-bottom: 1.5rem;
+                text-align: center;
+            }}
+            
+            .capabilities-grid {{
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 1rem;
+            }}
+            
+            .capability-item {{
+                display: flex;
+                align-items: center;
+                padding: 1rem;
+                background: #f8fafc;
+                border-radius: 8px;
+                border: 1px solid #e2e8f0;
+            }}
+            
+            .capability-item i {{
+                font-size: 1.5rem;
+                color: #3b82f6;
+                margin-right: 1rem;
+                width: 24px;
+            }}
+            
+            .capability-item h5 {{
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: #1a202c;
+                margin-bottom: 0.25rem;
+            }}
+            
+            .capability-item p {{
+                font-size: 0.75rem;
+                color: #6b7280;
+                margin: 0;
+            }}
+            
+            .system-status {{
+                background: white;
+                border-radius: 12px;
+                padding: 2rem;
                 box-shadow: 0 1px 3px rgba(0,0,0,0.1);
                 border: 1px solid #e2e8f0;
                 margin-top: 2rem;
@@ -292,21 +407,40 @@ def dashboard():
                 font-weight: 600;
                 color: #1a202c;
                 margin-bottom: 1rem;
+                text-align: center;
             }}
             
-            .status-item {{
+            .status-grid {{
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 0.75rem;
+            }}
+            
+            .status-metric {{
                 display: flex;
                 align-items: center;
-                padding: 0.5rem 0;
-                color: #64748b;
+                padding: 0.75rem;
+                background: #f8fafc;
+                border-radius: 6px;
+                border: 1px solid #e2e8f0;
             }}
             
             .status-indicator {{
                 width: 8px;
                 height: 8px;
                 border-radius: 50%;
-                background: #10b981;
                 margin-right: 0.75rem;
+            }}
+            
+            .status-indicator.active {{
+                background: #10b981;
+                box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+            }}
+            
+            .status-metric span {{
+                color: #374151;
+                font-size: 0.875rem;
+                font-weight: 500;
             }}
             
             @media (max-width: 1200px) {{

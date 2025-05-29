@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TRAXOVO Fleet Intelligence Platform</title>
+    
+    <!-- Accessibility Features -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/accessibility.css') }}">
+    <script src="{{ url_for('static', filename='js/accessibility.js') }}" defer></script>
     <style>
         * {
             margin: 0;
@@ -591,76 +595,79 @@
 </head>
 <body>
     <!-- Mobile Menu Toggle -->
-    <button class="mobile-toggle" onclick="toggleSidebar()">☰</button>
+    <button class="mobile-toggle" onclick="toggleSidebar()" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="sidebar">
+        <span aria-hidden="true">☰</span>
+        <span class="sr-only">Menu</span>
+    </button>
     
     <!-- Sidebar Navigation -->
-    <nav class="sidebar" id="sidebar">
+    <nav class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
         <div class="sidebar-header">
-            <div class="logo">TRAXOVO</div>
-            <div class="fleet-status">
-                <span class="status-dot"></span>
-                570 Assets • Live Data
+            <div class="logo" role="banner">TRAXOVO</div>
+            <div class="fleet-status" aria-live="polite" aria-label="Fleet status">
+                <span class="status-dot" aria-hidden="true"></span>
+                <span class="sr-only">Fleet status: </span>570 Assets • Live Data
             </div>
         </div>
         
-        <div class="nav-menu">
-            <div class="nav-section">
-                <div class="nav-section-title">Executive</div>
-                <a href="#" class="nav-item active">
-                    <span class="nav-icon">📊</span>
+        <div class="nav-menu" role="menubar">
+            <div class="nav-section" role="group" aria-labelledby="executive-heading">
+                <div class="nav-section-title" id="executive-heading" role="heading" aria-level="2">Executive</div>
+                <a href="#" class="nav-item active" role="menuitem" aria-current="page" aria-label="Executive Dashboard - Current page">
+                    <span class="nav-icon" aria-hidden="true">📊</span>
                     Executive Dashboard
                 </a>
-                <a href="#" class="nav-item">
-                    <span class="nav-icon">📈</span>
+                <a href="#" class="nav-item" role="menuitem" aria-label="Performance Analytics">
+                    <span class="nav-icon" aria-hidden="true">📈</span>
                     Performance Analytics
                 </a>
-                <a href="#" class="nav-item">
-                    <span class="nav-icon">💰</span>
+                <a href="#" class="nav-item" role="menuitem" aria-label="Cost Intelligence">
+                    <span class="nav-icon" aria-hidden="true">💰</span>
                     Cost Intelligence
                 </a>
             </div>
             
-            <div class="nav-section">
-                <div class="nav-section-title">Fleet Operations</div>
-                <a href="/assets" class="nav-item">
-                    <span class="nav-icon">🚛</span>
+            <div class="nav-section" role="group" aria-labelledby="fleet-heading">
+                <div class="nav-section-title" id="fleet-heading" role="heading" aria-level="2">Fleet Operations</div>
+                <a href="/assets" class="nav-item" role="menuitem" aria-label="Asset Management - Manage fleet assets">
+                    <span class="nav-icon" aria-hidden="true">🚛</span>
                     Asset Management
                 </a>
-                <a href="/gps-efficiency" class="nav-item">
-                    <span class="nav-icon">📍</span>
+                <a href="/gps-efficiency" class="nav-item" role="menuitem" aria-label="GPS Tracking - Track vehicle locations">
+                    <span class="nav-icon" aria-hidden="true">📍</span>
                     GPS Tracking
                 </a>
-                <a href="/automated-attendance" class="nav-item">
-                    <span class="nav-icon">👥</span>
+                <a href="/automated-attendance" class="nav-item" role="menuitem" aria-label="Attendance Control - Monitor driver attendance">
+                    <span class="nav-icon" aria-hidden="true">👥</span>
                     Attendance Control
                 </a>
             </div>
             
-            <div class="nav-section">
-                <div class="nav-section-title">Intelligence</div>
-                <a href="/billing" class="nav-item">
-                    <span class="nav-icon">🧾</span>
+            <div class="nav-section" role="group" aria-labelledby="intelligence-heading">
+                <div class="nav-section-title" id="intelligence-heading" role="heading" aria-level="2">Intelligence</div>
+                <a href="/billing" class="nav-item" role="menuitem" aria-label="Billing Engine - Revenue and billing analytics">
+                    <span class="nav-icon" aria-hidden="true">🧾</span>
                     Billing Engine
                 </a>
-                <a href="/smart-backend" class="nav-item">
-                    <span class="nav-icon">🧠</span>
+                <a href="/smart-backend" class="nav-item" role="menuitem" aria-label="Smart Analytics - AI-powered insights">
+                    <span class="nav-icon" aria-hidden="true">🧠</span>
                     Smart Analytics
                 </a>
-                <a href="/job-management" class="nav-item">
-                    <span class="nav-icon">📋</span>
+                <a href="/job-management" class="nav-item" role="menuitem" aria-label="Job Management - Project and asset assignments">
+                    <span class="nav-icon" aria-hidden="true">📋</span>
                     Job Management
                 </a>
             </div>
             
             <!-- User Profile & Logout -->
-            <div class="nav-section" style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
-                <div class="nav-section-title">Account</div>
-                <div class="nav-item" style="cursor: default;">
-                    <span class="nav-icon">👤</span>
+            <div class="nav-section" role="group" aria-labelledby="account-heading" style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                <div class="nav-section-title" id="account-heading" role="heading" aria-level="2">Account</div>
+                <div class="nav-item" style="cursor: default;" aria-label="Current user: Watson" role="text">
+                    <span class="nav-icon" aria-hidden="true">👤</span>
                     User: Watson
                 </div>
-                <a href="/auth/logout" class="nav-item" style="color: #ef4444;">
-                    <span class="nav-icon">🚪</span>
+                <a href="/auth/logout" class="nav-item" style="color: #ef4444;" role="menuitem" aria-label="Logout from TRAXOVO">
+                    <span class="nav-icon" aria-hidden="true">🚪</span>
                     Logout
                 </a>
             </div>
@@ -668,16 +675,16 @@
     </nav>
     
     <!-- Main Content -->
-    <main class="main-content">
+    <main class="main-content" id="main-content" role="main">
         <div class="top-bar">
             <div class="top-bar-content">
-                <h1 class="page-title">Executive Dashboard</h1>
+                <h1 class="page-title" id="page-heading">Executive Dashboard</h1>
                 <div style="display: flex; align-items: center; gap: 20px;">
-                    <div class="live-status">
-                        <span class="live-indicator"></span>
-                        Live Data • Last sync: {{ last_sync }}
+                    <div class="live-status" aria-live="polite" aria-label="Data status">
+                        <span class="live-indicator" aria-hidden="true"></span>
+                        <span class="sr-only">Data status: </span>Live Data • Last sync: {{ last_sync }}
                     </div>
-                    <a href="/auth/logout" class="logout-btn">
+                    <a href="/auth/logout" class="logout-btn" aria-label="Sign out from TRAXOVO">
                         Sign Out
                     </a>
                 </div>

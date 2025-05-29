@@ -243,6 +243,14 @@ def deployment_reports():
         return redirect(url_for('dashboard'))
     return render_template('deployment_reports.html')
 
+# Accessibility Routes
+@app.route('/accessibility-settings')
+@login_required
+@safe_route
+def accessibility_settings():
+    """Accessibility settings and status page"""
+    return render_template('accessibility_settings.html')
+
 # Widget Dashboard Routes
 @app.route('/widget-dashboard')
 @login_required

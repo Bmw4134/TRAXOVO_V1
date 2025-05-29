@@ -624,3 +624,77 @@
 
 
                             Current period
+Update dashboard to show real asset and driver counts
+Replacing
+<old_str>
+<div class="metric-card" onclick="window.location.href='/assets'">
+                            <div class="metric-icon">🚛</div>
+                            <div class="metric-info">
+                                <div class="metric-value">{{ metrics.get('asset_count', 182) }}</div>
+                                <div class="metric-label">Assets</div>
+                            </div>
+                        </div>
+
+                        <div class="metric-card" onclick="window.location.href='/drivers'">
+                            <div class="metric-icon">👷</div>
+                            <div class="metric-info">
+                                <div class="metric-value">{{ metrics.get('driver_count', 28) }}</div>
+                                <div class="metric-label">Drivers</div>
+                            </div>
+                        </div>
+</old_str>
+with
+<new_str>
+<div class="metric-card" onclick="window.location.href='/assets'">
+                            <div class="metric-icon">🚛</div>
+                            <div class="metric-info">
+                                <div class="metric-value" id="asset-count">{{ metrics.get('asset_count', 'Loading...') }}</div>
+                                <div class="metric-label">Assets ({{ metrics.get('active_asset_count', 0) }} Active)</div>
+                            </div>
+                        </div>
+
+                        <div class="metric-card" onclick="window.location.href='/drivers'">
+                            <div class="metric-icon">👷</div>
+                            <div class="metric-info">
+                                <div class="metric-value" id="driver-count">{{ metrics.get('driver_count', 'Loading...') }}</div>
+                                <div class="metric-label">Drivers</div>
+                            </div>
+                        </div>
+</new_str>
+Update dashboard to show real asset and driver counts
+Replacing
+<old_str>
+<div class="metric-card" onclick="window.location.href='/assets'">
+                            <div class="metric-icon">🚛</div>
+                            <div class="metric-info">
+                                <div class="metric-value">{{ metrics.get('asset_count', 182) }}</div>
+                                <div class="metric-label">Assets</div>
+                            </div>
+                        </div>
+
+                        <div class="metric-card" onclick="window.location.href='/drivers'">
+                            <div class="metric-icon">👷</div>
+                            <div class="metric-info">
+                                <div class="metric-value">{{ metrics.get('driver_count', 28) }}</div>
+                                <div class="metric-label">Drivers</div>
+                            </div>
+                        </div>
+</old_str>
+with
+<new_str>
+<div class="metric-card" onclick="window.location.href='/assets'">
+                            <div class="metric-icon">🚛</div>
+                            <div class="metric-info">
+                                <div class="metric-value" id="asset-count">{{ metrics.get('asset_count', 'Loading...') }}</div>
+                                <div class="metric-label">Assets ({{ metrics.get('active_asset_count', 0) }} Active)</div>
+                            </div>
+                        </div>
+
+                        <div class="metric-card" onclick="window.location.href='/drivers'">
+                            <div class="metric-icon">👷</div>
+                            <div class="metric-info">
+                                <div class="metric-value" id="driver-count">{{ metrics.get('driver_count', 'Loading...') }}</div>
+                                <div class="metric-label">Drivers</div>
+                            </div>
+                        </div>
+</new_str>

@@ -200,73 +200,42 @@ def get_authentic_asset_count():
 
 # Routes
 @app.route('/')
-def index():
-    """Main dashboard with intelligent data processing"""
+@login_required
+def dashboard():
+    """Main dashboard with executive overview"""
     try:
-        from utils.smart_data_processor import smart_processor
-        
-        # Get intelligent metrics with deduplication
-        metrics = smart_processor.get_dashboard_metrics()
-        
-        # Calculate derived metrics
-        monthly_revenue = int(metrics['total_revenue'] / 5)  # Convert to monthly
-        revenue_per_asset = int(metrics['total_revenue'] / metrics['billable_assets']) if metrics['billable_assets'] > 0 else 0
+        # Get real-time metrics from actual API data
+        from utils.dashboard_metrics import get_dashboard_metrics
 
-        return render_template('dashboard_clickable.html',
-                             total_revenue=int(metrics['total_revenue']),
-                             billable_assets=int(metrics['billable_assets']),
-                             gps_enabled_assets=int(metrics['gps_enabled_assets']),
-                             total_drivers=int(metrics['total_drivers']),
-                             monthly_revenue=monthly_revenue,
-                             revenue_per_asset=revenue_per_asset,
-                             utilization_rate=metrics['utilization_rate'])
-                             
+        real_metrics = get_dashboard_metrics()
+
+        # Extract counts for dashboard
+        metrics = {
+            'asset_count': real_metrics['assets']['total_assets'],
+            'active_asset_count': real_metrics['assets']['active_assets'],
+            'driver_count': real_metrics['drivers']['total_drivers'],
+            'revenue': real_metrics['revenue']['estimated_daily'],
+            'data_source': f"Assets: {real_metrics['assets']['source']}, Drivers: {real_metrics['drivers']['source']}",
+            'last_updated': real_metrics['last_updated']
+        }
+
+        return render_template('dashboard.html',
+                               asset_count=metrics['asset_count'],
+                               active_asset_count=metrics['active_asset_count'],
+                               driver_count=metrics['driver_count'],
+                               revenue=metrics['revenue'],
+                               data_source=metrics['data_source'],
+                               last_updated=metrics['last_updated'])
     except Exception as e:
-        logger.error(f"Dashboard error: {e}")
-        # Fallback to safe defaults
-        return render_template('dashboard_clickable.html',
-                             total_revenue=3282000,
-                             billable_assets=182,
-                             gps_enabled_assets=167,
-                             total_drivers=28,
-                             monthly_revenue=656400,
-                             revenue_per_asset=18000,
-                             utilization_rate=67.5)
-
-def get_active_driver_count():
-    """Get actual active driver count from attendance data"""
-    try:
-        # Check Foundation billing for driver assignments
-        if os.path.exists('RAGLE EQ BILLINGS - APRIL 2025 (JG REVIEWED 5.12).xlsm'):
-            import pandas as pd
-            try:
-                df = pd.read_excel('RAGLE EQ BILLINGS - APRIL 2025 (JG REVIEWED 5.12).xlsm', engine='openpyxl')
-                driver_cols = [col for col in df.columns if 'driver' in str(col).lower() or 'operator' in str(col).lower()]
-                if driver_cols:
-                    unique_drivers = df[driver_cols[0]].nunique()
-                    if 10 <= unique_drivers <= 100:  # Reasonable range
-                        return unique_drivers
-            except:
-                pass
-
-        # Default based on typical fleet operations
-        return 28
-    except:
-        return 28
-
-def calculate_fleet_utilization():
-    """Calculate fleet utilization rate from equipment analytics"""
-    try:
-        from utils.equipment_analytics_processor import get_equipment_analytics_processor
-        processor = get_equipment_analytics_processor()
-        utilization = processor.generate_utilization_analysis()
-
-        if 'summary' in utilization:
-            return round(utilization['summary'].get('utilization_rate', 67.5), 1)
-
-        return 67.5  # Based on Fleet Utilization reports
-    except:
-        return 67.5
+        print(f"Dashboard data error: {e}")
+        # Use fallback values
+        return render_template('dashboard.html',
+                               asset_count=0,
+                               active_asset_count=0,
+                               driver_count=0,
+                               revenue=0,
+                               data_source="Unavailable",
+                               last_updated="N/A")
 
 @app.route('/attendance-matrix')
 def attendance_matrix():
@@ -504,7 +473,7 @@ with app.app_context():
         logging.info("Smart data processing initiated successfully")
     except Exception as e:
         logging.warning(f"Smart processing initialization failed: {e}")
-        
+
     # Process initial data cache
     try:
         import threading
@@ -513,7 +482,7 @@ with app.app_context():
             smart_processor._process_gauge_data()
             smart_processor._process_billing_data()
             logging.info("Initial data processing completed")
-        
+
         threading.Thread(target=initial_data_process, daemon=True).start()
     except Exception as e:
         logging.warning(f"Initial data processing failed: {e}")

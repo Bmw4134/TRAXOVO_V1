@@ -1,67 +1,70 @@
-"""
-TRAXORA | Dashboard Routes
 
-This module provides routes for the main dashboard and system overview.
 """
+Dashboard Routes - Real Data Connection
+"""
+
 from flask import Blueprint, render_template, jsonify
-import logging
+from flask_login import login_required
+from utils.dashboard_metrics import get_dashboard_metrics
 
-# Configure logging
-logger = logging.getLogger(__name__)
+dashboard = Blueprint('dashboard', __name__)
 
-dashboard_bp = Blueprint('dashboard', __name__, url_prefix='/')
-
-@dashboard_bp.route('/')
-def index():
-    """Application main dashboard"""
+@dashboard.route('/api/metrics')
+@login_required
+def api_metrics():
+    """API endpoint for real dashboard metrics"""
     try:
-        # Get system health data - in production these would be actual DB queries
-        # Sample data for demonstration
-        system_data = {
-            'assets_count': 718,
-            'drivers_count': 143,
-            'job_sites_count': 42,
-            'pm_allocations_count': 86,
-            'api_status': 'connected',
-            'database_status': 'connected',
-            'storage_status': 'connected',
-            'last_sync_time': '2025-05-22 14:30:21'
-        }
+        metrics = get_dashboard_metrics()
         
-        # Sample notifications
-        notifications = [
-            {
-                'type': 'info',
-                'title': 'Daily Driver Report Updated',
-                'message': 'West Texas Division report completed with 143 entries.',
-                'time': '10 minutes ago'
-            },
-            {
-                'type': 'warning',
-                'title': 'Late Driver Alert',
-                'message': '3 drivers arrived late to job site #2024-016.',
-                'time': '1 hour ago'
-            },
-            {
-                'type': 'info',
-                'title': 'PM Allocation Processed',
-                'message': 'Successfully processed April 2025 allocations.',
-                'time': '3 hours ago'
+        return jsonify({
+            'success': True,
+            'data': {
+                'total_assets': metrics['assets']['total_assets'],
+                'active_assets': metrics['assets']['active_assets'],
+                'total_drivers': metrics['drivers']['total_drivers'],
+                'estimated_revenue': metrics['revenue']['estimated_daily'],
+                'asset_source': metrics['assets']['source'],
+                'driver_source': metrics['drivers']['source'],
+                'last_updated': metrics['last_updated']
             }
-        ]
-        
-        return render_template('dashboard_new.html', 
-                              **system_data, 
-                              notifications=notifications)
+        })
     except Exception as e:
-        logger.error(f"Error rendering dashboard: {str(e)}")
-        return render_template('dashboard_new.html', 
-                              api_status='error',
-                              database_status='error',
-                              storage_status='error',
-                              notifications=[])
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'data': {
+                'total_assets': 0,
+                'active_assets': 0,
+                'total_drivers': 0,
+                'estimated_revenue': 0
+            }
+        })
 
-@dashboard_bp.route('/health')
-def health():
-    """Health check endpoint"""
-    return jsonify({'status': 'ok'})
+@dashboard.route('/api/asset-count')
+@login_required
+def api_asset_count():
+    """Direct asset count from API"""
+    from utils.dashboard_metrics import get_real_asset_count
+    
+    data = get_real_asset_count()
+    return jsonify({
+        'total': data['total_assets'],
+        'active': data['active_assets'],
+        'source': data['source']
+    })
+
+@dashboard.route('/api/driver-count')
+@login_required
+def api_driver_count():
+    """Direct driver count from data analysis"""
+    from utils.dashboard_metrics import get_real_driver_count
+    
+    data = get_real_driver_count()
+    return jsonify({
+        'total': data['total_drivers'],
+        'source': data['source'],
+        'breakdown': {
+            'from_assets': data.get('assigned_from_assets', 0),
+            'from_csv': data.get('from_csv_files', 0)
+        }
+    })

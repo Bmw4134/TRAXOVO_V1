@@ -157,16 +157,23 @@ def check_filesystem_status():
         return False
 
 def get_asset_count():
-    """Get total asset count from authentic Gauge API data"""
+    """Get billable asset count from authentic billing data"""
     try:
-        from gauge_api import GaugeAPI
-        api = GaugeAPI()
-        assets = api.get_assets()
-        if assets:
-            return len(assets)  # Authentic count from live Gauge API
-        return 716  # Fallback to known authentic count
+        # Load April billing data to get actual billable assets only
+        billing_file = 'RAGLE EQ BILLINGS - APRIL 2025 (JG REVIEWED 5.12).xlsm'
+        if os.path.exists(billing_file):
+            df = pd.read_excel(billing_file)
+            # Count only assets with positive billing amounts
+            if 'Allocation x Usage Rate Total' in df.columns:
+                billable_assets = len(df[df['Allocation x Usage Rate Total'] > 0])
+                return billable_assets
+            elif any('Amount' in col for col in df.columns):
+                amount_col = next(col for col in df.columns if 'Amount' in col)
+                billable_assets = len(df[df[amount_col] > 0])
+                return billable_assets
+        return 0
     except Exception:
-        return 716  # Total GPS devices from authentic Gauge API (confirmed 5/27/25)
+        return 0
 
 def get_gps_enabled_count():
     """Get count of GPS-enabled assets from authentic data"""

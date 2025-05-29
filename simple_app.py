@@ -35,6 +35,21 @@ def index():
                          coverage=94.6,
                          last_sync='Live')
 
+@app.route('/dashboard')
+def dashboard():
+    """Dashboard route alias"""
+    return index()
+
+@app.route('/purchase-orders')
+def purchase_orders():
+    """Purchase orders system"""
+    return smart_po_system()
+
+@app.route('/equipment')
+def equipment():
+    """Equipment tracker"""
+    return internal_eq_tracker()
+
 # Smart equipment lookup
 @app.route('/smart-search')
 def smart_search():

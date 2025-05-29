@@ -14,6 +14,7 @@ from flask_dance.consumer.storage import BaseStorage
 import jwt
 import logging
 from performance_optimizer import get_performance_optimizer
+from gauge_api_sync import get_real_asset_data, get_gauge_sync
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -117,41 +118,51 @@ def index():
 
 @app.route('/attendance-matrix')
 def attendance_matrix():
-    """Attendance matrix with authentic Foundation data"""
-    data = get_authentic_foundation_data()
+    """Attendance matrix with real Gauge API driver data"""
+    asset_data = get_real_asset_data()
+    foundation_data = get_authentic_foundation_data()
     
-    # Authentic attendance data structure
+    real_drivers = asset_data.get('drivers', {})
+    total_drivers = len(real_drivers) if real_drivers else foundation_data['active_drivers']
+    
+    # Calculate real attendance metrics
+    present_drivers = sum(1 for d in real_drivers.values() if d.get('status') in ['active', 'working', 'on_site'])
+    
     attendance_data = {
-        'total_drivers': data['active_drivers'],
-        'present_today': int(data['active_drivers'] * 0.89),  # 89% attendance rate
-        'late_arrivals': 3,
-        'early_departures': 1,
-        'absence_rate': '11%',
+        'total_drivers': total_drivers,
+        'present_today': present_drivers,
+        'late_arrivals': sum(1 for d in real_drivers.values() if d.get('status') == 'late'),
+        'early_departures': sum(1 for d in real_drivers.values() if d.get('status') == 'early_departure'),
+        'absence_rate': f"{round((total_drivers - present_drivers) / total_drivers * 100, 1)}%" if total_drivers > 0 else "0%",
         'driver_status': [
-            # Real attendance tracking requires Gauge API integration
-            {'name': 'Driver A', 'status': 'present', 'check_in': '07:45', 'location': 'Job Site 2019-044'},
-            {'name': 'Driver B', 'status': 'present', 'check_in': '07:30', 'location': 'Job Site 2021-017'},
-            {'name': 'Driver C', 'status': 'late', 'check_in': '08:15', 'location': 'Job Site 24-02'},
-            {'name': 'Driver D', 'status': 'absent', 'check_in': '', 'location': ''},
-            {'name': 'Driver E', 'status': 'present', 'check_in': '07:50', 'location': 'Job Site 25-99'}
-        ]
+            {
+                'name': driver.get('name', f"Driver {driver_id}"),
+                'status': driver.get('status', 'unknown'),
+                'check_in': driver.get('check_in_time', ''),
+                'location': driver.get('location', driver.get('current_asset', ''))
+            }
+            for driver_id, driver in real_drivers.items()
+        ] if real_drivers else []
     }
     
     return render_template('attendance_matrix.html', 
                          attendance=attendance_data,
-                         total_drivers=data['active_drivers'])
+                         total_drivers=total_drivers)
 
 @app.route('/fleet-map')
 def fleet_map():
-    """Enhanced fleet map with authentic data"""
-    data = get_authentic_foundation_data()
+    """Enhanced fleet map with real Gauge API data"""
+    asset_data = get_real_asset_data()
+    foundation_data = get_authentic_foundation_data()
     
     return render_template('fleet_map_enhanced.html',
-                         total_assets=data['total_assets'],
-                         active_assets=int(data['total_assets'] * 0.85),
-                         gps_enabled=data['gps_enabled'],
-                         monthly_revenue=data['monthly_revenue'],
-                         avg_utilization=67)
+                         total_assets=asset_data.get('total_assets', foundation_data['total_assets']),
+                         active_assets=asset_data.get('active_assets', foundation_data['total_assets']),
+                         gps_enabled=asset_data.get('gps_enabled', foundation_data['gps_enabled']),
+                         monthly_revenue=foundation_data['monthly_revenue'],
+                         avg_utilization=67,
+                         real_assets=asset_data.get('assets', {}),
+                         real_locations=asset_data.get('locations', {}))
 
 @app.route('/billing')
 def billing():
@@ -355,22 +366,9 @@ def api_metrics_detail(metric_type):
 
 @app.route('/asset-details/<asset_id>')
 def asset_details(asset_id):
-    """Get detailed asset information"""
-    data = get_authentic_foundation_data()
-    
-    # Authentic asset details based on your Foundation data
-    asset_info = {
-        'asset_id': asset_id,
-        'status': 'active',
-        'utilization': 67.3,
-        'last_location': 'Job Site requires Gauge API connection',
-        'operator': 'Driver assignment requires live tracking',
-        'maintenance_due': 'Scheduled maintenance tracking available',
-        'revenue_generated': f"${data['total_revenue'] / data['total_assets']:,.0f}",
-        'gps_enabled': True if asset_id in [f'EQ-{i:03d}' for i in range(1, 263)] else False,
-        'note': 'Real-time tracking requires Gauge API integration'
-    }
-    
+    """Get detailed asset information from Gauge API"""
+    sync = get_gauge_sync()
+    asset_info = sync.get_asset_details(asset_id)
     return jsonify(asset_info)
 
 @app.route('/api/performance/cache-stats')

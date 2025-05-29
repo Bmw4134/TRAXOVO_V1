@@ -287,6 +287,54 @@
             </div>
         </div>
 
+        <!-- Real Driver Attendance Today -->
+        {% if driver_attendance %}
+        <div class="health-panel" style="margin-bottom: 25px;">
+            <h6><i class="fas fa-users me-2"></i>Driver Attendance Today</h6>
+            
+            <!-- Attendance Summary -->
+            <div style="display: flex; gap: 15px; margin-bottom: 15px; font-size: 0.9rem;">
+                <span style="color: #059669;"><strong>{{ attendance_summary.on_time or 0 }}</strong> On Time</span>
+                <span style="color: #d97706;"><strong>{{ attendance_summary.late_start or 0 }}</strong> Late Starts</span>
+                <span style="color: #0ea5e9;"><strong>{{ attendance_summary.early_end or 0 }}</strong> Early Ends</span>
+            </div>
+            
+            <!-- Driver List -->
+            <div style="max-height: 200px; overflow-y: auto;">
+                {% for driver in driver_attendance[:8] %}
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #f3f4f6;">
+                    <div style="font-weight: 500; color: #374151;">{{ driver.driver }}</div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        {% if driver.status == 'On Time' %}
+                            <span style="background: #d1fae5; color: #065f46; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem;">On Time</span>
+                        {% elif driver.status == 'Late Start' %}
+                            <span style="background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem;">Late Start</span>
+                        {% else %}
+                            <span style="background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem;">Early End</span>
+                        {% endif %}
+                        <span style="color: #6b7280; font-size: 0.8rem;">{{ driver.check_in }}</span>
+                        <span style="color: #9ca3af; font-size: 0.75rem;">{{ driver.location }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            {% if attendance_alerts %}
+            <div style="margin-top: 15px;">
+                {% for alert in attendance_alerts %}
+                <div style="background: {% if alert.type == 'warning' %}#fef3c7{% else %}#dbeafe{% endif %}; color: {% if alert.type == 'warning' %}#92400e{% else %}#1e40af{% endif %}; padding: 8px 12px; border-radius: 6px; font-size: 0.8rem; margin-bottom: 5px;">
+                    <i class="fas fa-{% if alert.type == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>{{ alert.message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <div style="text-align: center; margin-top: 15px;">
+                <a href="/attendance-engine/" style="color: #2563eb; text-decoration: none; font-size: 0.9rem;">View Full Attendance Report →</a>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Quick Access - 2x2 Grid -->
         <div class="quick-access">
             <a href="/driver-attendance/" class="action-card blue">

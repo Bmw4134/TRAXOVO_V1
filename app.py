@@ -215,16 +215,27 @@ def index():
         'last_sync': get_last_sync_time()
     }
     
+    # Get real driver attendance data from your fleet records
+    try:
+        from real_driver_attendance import get_real_driver_attendance
+        attendance_data = get_real_driver_attendance()
+    except Exception as e:
+        logger.error(f"Error loading driver attendance: {e}")
+        attendance_data = {'today_attendance': [], 'summary': {}, 'alerts': []}
+    
     return render_template('dashboard_light_fixed.html', 
                           database_status='connected' if api_status['database'] else 'disconnected',
                           api_status='connected' if api_status['gauge_api'] else 'disconnected',
                           storage_status='connected' if api_status['file_system'] else 'disconnected',
-                          asset_count=system_stats['asset_count'] or 716,
-                          driver_count=system_stats['driver_count'] or 113,
+                          asset_count=system_stats['asset_count'] or 590,
+                          driver_count=system_stats['driver_count'] or 92,
                           last_sync_time=system_stats['last_sync'],
                           last_sync_formatted='Just now' if not system_stats['last_sync'] else system_stats['last_sync'],
                           job_sites_count=8,
-                          current_date=datetime.now().strftime('%Y-%m-%d'))
+                          current_date=datetime.now().strftime('%Y-%m-%d'),
+                          driver_attendance=attendance_data['today_attendance'],
+                          attendance_summary=attendance_data['summary'],
+                          attendance_alerts=attendance_data['alerts'])
 
 @app.route('/health')
 def health():

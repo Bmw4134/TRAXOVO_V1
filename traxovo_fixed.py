@@ -7,6 +7,8 @@ import pandas as pd
 from flask import Flask, render_template, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
+from smart_asset_manager import asset_manager_bp
+from comprehensive_billing_engine import billing_engine_bp
 
 class Base(DeclarativeBase):
     pass

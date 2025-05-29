@@ -1,0 +1,19 @@
+{
+  "bootstrap_time": "2025-05-29T04:33:44.821136",
+  "system_status": "OPERATIONAL",
+  "modules_loaded": {
+    "kaizen_live_parser": "CREATED",
+    "kaizen_ui_reactor": "CREATED",
+    "internal_eq_tracker": "READY",
+    "smart_po_system": "READY",
+    "kaizen_daily_sync": "READY",
+    "live_parser_execution": "SUCCESS",
+    "ui_reactor_execution": "SUCCESS"
+  },
+  "data_sources_verified": {
+    "gauge_api_data": "AVAILABLE",
+    "uploads_directory": "AVAILABLE",
+    "po_settings": "MISSING"
+  },
+  "dashboard_ready": true
+}

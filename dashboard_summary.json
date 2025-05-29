@@ -1,0 +1,12 @@
+{
+  "last_updated": "2025-05-29T04:33:46.193734",
+  "system_status": "OPERATIONAL",
+  "fleet_metrics": {
+    "total_assets": 701,
+    "active_assets": 601,
+    "gps_enabled": 566,
+    "utilization_rate": 85.7
+  },
+  "data_processing": [],
+  "alerts": []
+}

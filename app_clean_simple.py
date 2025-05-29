@@ -265,6 +265,11 @@ def project_accountability():
     dashboard_data = accountability_system.get_project_dashboard_data()
     return render_template('project_accountability.html', data=dashboard_data)
 
+@app.route('/intake-form')
+def intake_form():
+    """Equipment Report with Photo Upload"""
+    return render_template('intake_form.html')
+
 @app.route('/api/log-incident', methods=['POST'])
 def api_log_incident():
     """API endpoint to log equipment incidents"""

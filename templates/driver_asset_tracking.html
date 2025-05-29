@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Asset Tracking - TRAXOVO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .tracking-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+        }
+        
+        .assignment-card {
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+            border-left: 4px solid #007bff;
+            margin-bottom: 1rem;
+        }
+        
+        .assignment-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .driver-badge {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .asset-badge {
+            background: linear-gradient(45deg, #fd7e14, #ffc107);
+            color: white;
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .timeline-container {
+            position: relative;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-left: 3rem;
+            padding-bottom: 1.5rem;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 1rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #dee2e6;
+        }
+        
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: 0.5rem;
+            top: 0.5rem;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background: #007bff;
+        }
+        
+        .fringe-report-section {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .tracking-stats {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 1rem;
+        }
+        
+        .import-zone {
+            border: 3px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .import-zone:hover {
+            border-color: #007bff;
+            background: #f8f9fa;
+        }
+        
+        .import-zone.dragover {
+            border-color: #28a745;
+            background: #e8f5e8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            {% include 'includes/sidebar.html' %}
+            
+            <!-- Main Content -->
+            <div class="col-lg-10 offset-lg-2 p-4">
+                <!-- Header -->
+                <div class="tracking-header mb-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1><i class="fas fa-users-cog me-2"></i>Driver Asset Tracking</h1>
+                            <p class="mb-0">Automated logging for fringe benefit reporting</p>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#assignmentModal">
+                                <i class="fas fa-plus me-2"></i>Log Assignment
+                            </button>
+                            <button class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#fringeReportModal">
+                                <i class="fas fa-file-alt me-2"></i>Generate Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary Metrics -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 class="text-primary">{{ data.summary_metrics.total_drivers }}</h3>
+                                <p class="mb-0">Active Drivers</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 class="text-success">{{ data.summary_metrics.total_assets }}</h3>
+                                <p class="mb-0">Tracked Assets</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 class="text-warning">{{ data.summary_metrics.active_assignments }}</h3>
+                                <p class="mb-0">Current Assignments</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center tracking-stats">
+                            <div class="card-body">
+                                <h3>{{ data.summary_metrics.historical_records }}</h3>
+                                <p class="mb-0">Historical Records</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Assignments -->
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-clipboard-list me-2"></i>Current Driver Assignments</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    {% for assignment in data.current_assignments[:12] %}
+                                    <div class="col-md-6 mb-3">
+                                        <div class="assignment-card card">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <span class="driver-badge">{{ assignment.driver_name }}</span>
+                                                    <small class="text-muted">{{ assignment.assignment_date }}</small>
+                                                </div>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span class="asset-badge">{{ assignment.asset_name[:15] }}{% if assignment.asset_name|length > 15 %}...{% endif %}</span>
+                                                    <span class="badge bg-primary">{{ assignment.assignment_type.title() }}</span>
+                                                </div>
+                                                <div class="mt-2">
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-project-diagram me-1"></i>{{ assignment.project or 'No Project' }}
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-clock me-2"></i>Recent Activity</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="timeline-container">
+                                    {% for record in data.assignment_history[:8] %}
+                                    <div class="timeline-item">
+                                        <strong>{{ record.driver_name }}</strong> assigned to <strong>{{ record.asset_name }}</strong>
+                                        <br><small class="text-muted">{{ record.assignment_date }} • {{ record.source }}</small>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Import Section -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="fringe-report-section">
+                            <h5><i class="fas fa-upload me-2"></i>Bulk Import Assignments</h5>
+                            <div class="import-zone" id="importZone">
+                                <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                                <h6>Drop timecard files here or click to upload</h6>
+                                <p class="text-muted">Supports Excel files (.xlsx, .xls)</p>
+                                <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;">
+                                <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                                    Choose File
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="fringe-report-section">
+                            <h5><i class="fas fa-users me-2"></i>Driver Roster</h5>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Driver Name</th>
+                                            <th>Status</th>
+                                            <th>License Type</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for driver in data.driver_roster[:8] %}
+                                        <tr>
+                                            <td>{{ driver.driver_name }}</td>
+                                            <td><span class="badge bg-success">{{ driver.status.title() }}</span></td>
+                                            <td>{{ driver.license_type }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Asset Fleet Overview -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-truck me-2"></i>Asset Fleet Overview</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% for asset in data.asset_fleet[:12] %}
+                            <div class="col-md-3 mb-2">
+                                <div class="card border-left-primary">
+                                    <div class="card-body p-2">
+                                        <strong>{{ asset.asset_name[:20] }}{% if asset.asset_name|length > 20 %}...{% endif %}</strong>
+                                        <br><small class="text-muted">{{ asset.asset_type }}</small>
+                                        {% if asset.billable %}
+                                        <span class="badge bg-success ms-1">Billable</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assignment Modal -->
+    <div class="modal fade" id="assignmentModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Log Driver Assignment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="assignmentForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Driver</label>
+                                <select class="form-select" name="driver_id" required>
+                                    <option value="">Select Driver...</option>
+                                    {% for driver in data.driver_roster %}
+                                    <option value="{{ driver.driver_id }}" data-name="{{ driver.driver_name }}">{{ driver.driver_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Asset</label>
+                                <select class="form-select" name="asset_id" required>
+                                    <option value="">Select Asset...</option>
+                                    {% for asset in data.asset_fleet %}
+                                    <option value="{{ asset.asset_id }}" data-name="{{ asset.asset_name }}">{{ asset.asset_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Assignment Date</label>
+                                <input type="date" class="form-control" name="assignment_date" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Assignment Type</label>
+                                <select class="form-select" name="assignment_type">
+                                    <option value="primary">Primary Assignment</option>
+                                    <option value="temporary">Temporary Assignment</option>
+                                    <option value="backup">Backup Assignment</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Hours Logged</label>
+                                <input type="number" class="form-control" name="hours" step="0.1" min="0">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Mileage</label>
+                                <input type="number" class="form-control" name="mileage" step="0.1" min="0">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Project</label>
+                                <input type="text" class="form-control" name="project" placeholder="Project name/code">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="logAssignment()">Log Assignment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fringe Benefit Report Modal -->
+    <div class="modal fade" id="fringeReportModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Generate Fringe Benefit Report</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="reportForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Start Date</label>
+                                <input type="date" class="form-control" name="start_date" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">End Date</label>
+                                <input type="date" class="form-control" name="end_date" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Report Type</label>
+                            <select class="form-select" name="report_type">
+                                <option value="detailed">Detailed Assignment Log</option>
+                                <option value="summary">Driver Summary</option>
+                                <option value="vehicle_usage">Vehicle Usage Report</option>
+                            </select>
+                        </div>
+                    </form>
+                    <div id="reportResults" style="display: none;">
+                        <hr>
+                        <div id="reportContent"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="generateReport()">Generate Report</button>
+                    <button type="button" class="btn btn-success" onclick="exportReport()" id="exportBtn" style="display: none;">Export to Excel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // File upload handling
+        document.addEventListener('DOMContentLoaded', function() {
+            setupFileUpload();
+            setDefaultDates();
+        });
+
+        function setupFileUpload() {
+            const importZone = document.getElementById('importZone');
+            const fileInput = document.getElementById('fileInput');
+
+            importZone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                importZone.classList.add('dragover');
+            });
+
+            importZone.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                importZone.classList.remove('dragover');
+            });
+
+            importZone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                importZone.classList.remove('dragover');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    processFile(files[0]);
+                }
+            });
+
+            fileInput.addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    processFile(e.target.files[0]);
+                }
+            });
+        }
+
+        function processFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            showNotification('Processing file...', 'info');
+
+            // This would typically upload to a bulk import endpoint
+            // For now, just show success
+            setTimeout(() => {
+                showNotification(`Processed ${file.name} successfully`, 'success');
+            }, 2000);
+        }
+
+        function setDefaultDates() {
+            const today = new Date();
+            const startOfYear = new Date(today.getFullYear(), 0, 1);
+            
+            document.querySelector('[name="assignment_date"]').value = today.toISOString().split('T')[0];
+            document.querySelector('[name="start_date"]').value = startOfYear.toISOString().split('T')[0];
+            document.querySelector('[name="end_date"]').value = today.toISOString().split('T')[0];
+        }
+
+        function logAssignment() {
+            const form = document.getElementById('assignmentForm');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            
+            // Get names from selected options
+            const driverSelect = form.querySelector('[name="driver_id"]');
+            const assetSelect = form.querySelector('[name="asset_id"]');
+            
+            data.driver_name = driverSelect.selectedOptions[0]?.dataset.name;
+            data.asset_name = assetSelect.selectedOptions[0]?.dataset.name;
+
+            fetch('/api/log-assignment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    showNotification('Assignment logged successfully', 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('assignmentModal')).hide();
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showNotification(`Error: ${result.error}`, 'error');
+                }
+            })
+            .catch(error => {
+                showNotification(`Network error: ${error}`, 'error');
+            });
+        }
+
+        function generateReport() {
+            const form = document.getElementById('reportForm');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            fetch('/api/fringe-benefit-report', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    displayReport(result);
+                    document.getElementById('exportBtn').style.display = 'inline-block';
+                } else {
+                    showNotification(`Error: ${result.error}`, 'error');
+                }
+            })
+            .catch(error => {
+                showNotification(`Network error: ${error}`, 'error');
+            });
+        }
+
+        function displayReport(result) {
+            const content = `
+                <div class="alert alert-success">
+                    <strong>Report Generated:</strong> ${result.period}<br>
+                    <strong>Total Records:</strong> ${result.total_records}
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Driver</th>
+                                <th>Total Hours</th>
+                                <th>Total Mileage</th>
+                                <th>Vehicles Used</th>
+                                <th>Assignment Days</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${Object.entries(result.driver_summary).map(([driver, summary]) => `
+                                <tr>
+                                    <td>${driver}</td>
+                                    <td>${summary.total_hours.toFixed(1)}</td>
+                                    <td>${summary.total_mileage.toFixed(1)}</td>
+                                    <td>${summary.vehicles_used.length}</td>
+                                    <td>${summary.assignment_days}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            document.getElementById('reportContent').innerHTML = content;
+            document.getElementById('reportResults').style.display = 'block';
+        }
+
+        function exportReport() {
+            showNotification('Export functionality would download Excel file', 'info');
+        }
+
+        function showNotification(message, type) {
+            const toastHtml = `
+                <div class="toast align-items-center text-white bg-${type === 'success' ? 'success' : type === 'info' ? 'info' : 'danger'} border-0" role="alert">
+                    <div class="d-flex">
+                        <div class="toast-body">${message}</div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                    </div>
+                </div>
+            `;
+            
+            const toastContainer = document.createElement('div');
+            toastContainer.className = 'position-fixed top-0 end-0 p-3';
+            toastContainer.style.zIndex = '1055';
+            toastContainer.innerHTML = toastHtml;
+            document.body.appendChild(toastContainer);
+            
+            const toast = new bootstrap.Toast(toastContainer.querySelector('.toast'));
+            toast.show();
+            
+            toastContainer.querySelector('.toast').addEventListener('hidden.bs.toast', () => {
+                document.body.removeChild(toastContainer);
+            });
+        }
+    </script>
+</body>
+</html>

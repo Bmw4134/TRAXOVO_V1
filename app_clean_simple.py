@@ -284,6 +284,13 @@ def interactive_schedule():
     dashboard_data = schedule_system.get_schedule_dashboard_data()
     return render_template('interactive_schedule.html', data=dashboard_data)
 
+@app.route('/driver-asset-tracking')
+def driver_asset_tracking():
+    """Driver Asset Tracking System"""
+    from driver_asset_tracking_system import tracking_system
+    dashboard_data = tracking_system.get_tracking_dashboard_data()
+    return render_template('driver_asset_tracking.html', data=dashboard_data)
+
 @app.route('/api/log-incident', methods=['POST'])
 def api_log_incident():
     """API endpoint to log equipment incidents"""
@@ -349,6 +356,45 @@ def api_schedule_events():
     from interactive_schedule_system import schedule_system
     events = schedule_system.generate_schedule_events()
     return jsonify(events)
+
+@app.route('/api/log-assignment', methods=['POST'])
+def api_log_assignment():
+    """API endpoint to log driver assignments"""
+    from driver_asset_tracking_system import tracking_system
+    from flask import request, jsonify
+    try:
+        request_data = request.get_json()
+        
+        result = tracking_system.log_driver_assignment(
+            driver_id=request_data.get('driver_id'),
+            driver_name=request_data.get('driver_name'),
+            asset_id=request_data.get('asset_id'),
+            asset_name=request_data.get('asset_name'),
+            assignment_date=request_data.get('assignment_date'),
+            assignment_type=request_data.get('assignment_type', 'primary'),
+            project=request_data.get('project'),
+            hours=float(request_data.get('hours', 0)),
+            mileage=float(request_data.get('mileage', 0))
+        )
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/fringe-benefit-report', methods=['POST'])
+def api_fringe_benefit_report():
+    """API endpoint to generate fringe benefit reports"""
+    from driver_asset_tracking_system import tracking_system
+    from flask import request, jsonify
+    try:
+        request_data = request.get_json()
+        start_date = request_data.get('start_date')
+        end_date = request_data.get('end_date')
+        
+        result = tracking_system.generate_fringe_benefit_report(start_date, end_date)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/api/metrics-detail/<metric_name>')
 def metrics_detail(metric_name):

@@ -496,9 +496,14 @@
         <div class="top-bar">
             <div class="top-bar-content">
                 <h1 class="page-title">Executive Dashboard</h1>
-                <div class="live-status">
-                    <span class="live-indicator"></span>
-                    Live Data • Last sync: {{ last_sync }}
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <div class="live-status">
+                        <span class="live-indicator"></span>
+                        Live Data • Last sync: {{ last_sync }}
+                    </div>
+                    <a href="/auth/logout" class="logout-btn">
+                        Sign Out
+                    </a>
                 </div>
             </div>
         </div>

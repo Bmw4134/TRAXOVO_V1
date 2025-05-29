@@ -156,6 +156,12 @@
         .quick-fill {
             cursor: pointer;
             transition: all 0.2s ease;
+            background: none;
+            border: none;
+            width: 100%;
+            padding: 8px;
+            border-radius: 8px;
+            margin-bottom: 5px;
         }
         
         .quick-fill:hover {
@@ -196,22 +202,22 @@
         </form>
         
         <div class="demo-credentials">
-            <div class="demo-title">Demo Accounts</div>
+            <div class="demo-title">Quick Login</div>
             
-            <div class="demo-user quick-fill" onclick="fillCredentials('Watson', 'Traxovo_Fleet_2025!@#')">
+            <button type="button" class="demo-user quick-fill" onclick="autoLogin('Watson', 'Traxovo_Fleet_2025!@#')">
                 <span><strong>Watson</strong> - Full System Access</span>
                 <span class="role-tag role-admin">Admin</span>
-            </div>
+            </button>
             
-            <div class="demo-user quick-fill" onclick="fillCredentials('Troy', 'VP_Access_2025')">
+            <button type="button" class="demo-user quick-fill" onclick="autoLogin('Troy', 'VP_Access_2025')">
                 <span><strong>Troy</strong> - Executive Dashboard</span>
                 <span class="role-tag role-vp">VP</span>
-            </div>
+            </button>
             
-            <div class="demo-user quick-fill" onclick="fillCredentials('Controller', 'Finance_2025')">
+            <button type="button" class="demo-user quick-fill" onclick="autoLogin('Controller', 'Finance_2025')">
                 <span><strong>Controller</strong> - Financial Reports</span>
                 <span class="role-tag role-controller">Finance</span>
-            </div>
+            </button>
         </div>
         
         <div class="fleet-info">
@@ -223,6 +229,12 @@
         function fillCredentials(username, password) {
             document.getElementById('username').value = username;
             document.getElementById('password').value = password;
+        }
+        
+        function autoLogin(username, password) {
+            document.getElementById('username').value = username;
+            document.getElementById('password').value = password;
+            document.querySelector('form').submit();
         }
         
         // Auto-focus username field

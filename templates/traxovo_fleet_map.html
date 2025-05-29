@@ -575,7 +575,7 @@
         
         // Load fleet data
         function loadFleetData() {
-            const initialData = {{ initial_data | tojsonfilter }};
+            const initialData = {{ initial_data | tojson }};
             currentAssets = initialData.assets;
             updateMap(currentAssets);
             updateAssetList(currentAssets);

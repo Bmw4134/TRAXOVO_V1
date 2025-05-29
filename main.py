@@ -30,6 +30,11 @@ from one_click_feedback import (
     quick_feedback, get_feedback_widget_data
 )
 
+# Import mood-based UI functions
+from mood_based_ui import (
+    mood_selector, set_mood, get_current_theme, reset_mood, auto_detect_mood
+)
+
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET") or "traxovo-production-2025"
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
@@ -263,6 +268,32 @@ def quick_user_feedback():
 @login_required
 def feedback_widget_data():
     return get_feedback_widget_data()
+
+# Mood-Based UI Routes
+@app.route('/mood-themes')
+@login_required
+def mood_themes():
+    return mood_selector()
+
+@app.route('/set-mood', methods=['POST'])
+@login_required
+def set_user_mood():
+    return set_mood()
+
+@app.route('/get-current-theme')
+@login_required
+def current_theme():
+    return get_current_theme()
+
+@app.route('/reset-mood', methods=['POST'])
+@login_required
+def reset_user_mood():
+    return reset_mood()
+
+@app.route('/auto-detect-mood')
+@login_required
+def detect_mood():
+    return auto_detect_mood()
 
 @app.errorhandler(404)
 def page_not_found(e):

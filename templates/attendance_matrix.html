@@ -362,29 +362,6 @@
                                 <td class="day-cell"><strong>32.0h</strong></td>
                             </tr>
                             <!-- More rows will be populated from authentic timecard data -->
-                            {% set day_data = employee.days[date] %}
-                            <td class="day-cell status-{{ day_data.status.lower().replace(' ', '-') }}">
-                                <div class="hours-display">
-                                    {% if day_data.hours %}
-                                        {{ day_data.hours }}h
-                                    {% else %}
-                                        {{ day_data.status }}
-                                    {% endif %}
-                                </div>
-                                {% if day_data.start_time %}
-                                <div style="font-size: 0.7rem;">
-                                    {{ day_data.start_time }}-{{ day_data.end_time }}
-                                </div>
-                                {% endif %}
-                                {% if day_data.gps_correlation is not none %}
-                                <div class="gps-indicator {{ 'gps-ok' if day_data.gps_correlation else 'gps-issue' }}">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                </div>
-                                {% endif %}
-                            </td>
-                            {% endfor %}
-                        </tr>
-                        {% endfor %}
                     </tbody>
                 </table>
             </div>

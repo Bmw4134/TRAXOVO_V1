@@ -92,7 +92,19 @@ def index():
 @app.route('/attendance-matrix')
 def attendance_matrix():
     """Attendance matrix with responsive design"""
-    return render_template('attendance_matrix.html')
+    from datetime import datetime, timedelta
+    
+    # Get current week data
+    today = datetime.now()
+    week_start = today - timedelta(days=today.weekday())
+    week_end = week_start + timedelta(days=6)
+    
+    current_week = {
+        'week_start': week_start.strftime('%m/%d/%Y'),
+        'week_end': week_end.strftime('%m/%d/%Y')
+    }
+    
+    return render_template('attendance_matrix.html', current_week=current_week)
 
 @app.route('/asset-manager')
 def asset_manager():

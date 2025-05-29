@@ -111,6 +111,10 @@ class AEMPNewsService:
             return 'General'
 
 @aemp_bp.route('/industry-news')
+# Create blueprint
+aemp_news_bp = Blueprint('aemp_news', __name__)
+
+@aemp_news_bp.route('/industry-news')
 def industry_news_dashboard():
     """AEMP Industry News Dashboard"""
     news_service = AEMPNewsService()

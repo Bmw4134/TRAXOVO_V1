@@ -25,29 +25,46 @@ class AttendanceMatrixSystem:
         self.gps_data = self._load_gps_correlation_data()
         
     def _load_employee_data(self):
-        """Load employee master data with IDs"""
+        """Load employee master data from Ground Works timecard files"""
         employees = []
         
-        # Try to load from attendance data files first
-        if os.path.exists('attendance_data'):
-            for file in os.listdir('attendance_data'):
-                if file.endswith(('.xlsx', '.csv')):
-                    try:
-                        file_path = f"attendance_data/{file}"
-                        if file.endswith('.xlsx'):
-                            df = pd.read_excel(file_path)
-                        else:
-                            df = pd.read_csv(file_path)
-                        
-                        # Extract employee information from attendance files
-                        if 'Employee' in df.columns or 'Driver' in df.columns:
-                            emp_col = 'Employee' if 'Employee' in df.columns else 'Driver'
-                            for _, row in df.iterrows():
-                                emp_data = {
-                                    'employee_id': row.get('EmployeeID', row.get('Employee_ID', f"EMP_{len(employees)+1:03d}")),
-                                    'name': row.get(emp_col, 'Unknown'),
-                                    'division': row.get('Division', 'General'),
-                                    'status': row.get('Status', 'Active'),
+        # Check uploads directory for Ground Works timecard Excel files
+        timecard_sources = ['uploads', 'attendance_data', '.']
+        
+        for source_dir in timecard_sources:
+            if os.path.exists(source_dir):
+                for file in os.listdir(source_dir):
+                    if file.endswith(('.xlsx', '.xls')) and any(keyword in file.lower() for keyword in ['timecard', 'ground', 'works', 'attendance', 'employee']):
+                        try:
+                            file_path = os.path.join(source_dir, file)
+                            
+                            # Read Excel file - try multiple sheets if needed
+                            excel_file = pd.ExcelFile(file_path)
+                            
+                            for sheet_name in excel_file.sheet_names:
+                                df = pd.read_excel(file_path, sheet_name=sheet_name)
+                                
+                                # Look for employee/timecard data columns
+                                potential_name_cols = ['Employee', 'Employee Name', 'Name', 'Driver', 'Worker', 'Full Name']
+                                potential_id_cols = ['Employee ID', 'EmployeeID', 'ID', 'Employee_ID', 'EmpID']
+                                
+                                name_col = None
+                                id_col = None
+                                
+                                for col in df.columns:
+                                    if any(name_variant.lower() in col.lower() for name_variant in potential_name_cols):
+                                        name_col = col
+                                    if any(id_variant.lower() in col.lower() for id_variant in potential_id_cols):
+                                        id_col = col
+                                
+                                if name_col and not df[name_col].empty:
+                                    for idx, row in df.iterrows():
+                                        if pd.notna(row[name_col]) and str(row[name_col]).strip():
+                                            emp_data = {
+                                                'employee_id': row.get(id_col, f"GW_{len(employees)+1:03d}") if id_col else f"GW_{len(employees)+1:03d}",
+                                                'name': str(row[name_col]).strip(),
+                                                'division': row.get('Division', row.get('Dept', row.get('Department', 'Ground Works'))),
+                                                'status': 'Active',
                                     'job_code': row.get('JobCode', row.get('Job_Code', 'GENERAL')),
                                     'supervisor': row.get('Supervisor', 'TBD')
                                 }

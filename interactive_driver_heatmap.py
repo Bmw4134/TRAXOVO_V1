@@ -40,15 +40,27 @@ class DriverPerformanceHeatMap:
                 except:
                     continue
             
-            # If no CSV data found, create from your existing attendance system
+            # Load from your authentic attendance data files
             if not real_drivers:
-                real_drivers = [
-                    "Carlos Martinez", "David Thompson", "Michael Rodriguez", 
-                    "James Wilson", "Robert Johnson", "William Brown",
-                    "Thomas Davis", "Christopher Miller", "Daniel Garcia",
-                    "Anthony Lopez", "Mark Anderson", "Steven Taylor",
-                    "Paul Thomas", "Joshua Jackson", "Kenneth White"
-                ]
+                try:
+                    # Use your real driver extraction utilities
+                    from utils.may_data_processor import extract_driver_names_from_files
+                    from reports_processor import load_real_employee_data
+                    
+                    # Try to get real driver names from your data files
+                    driver_names, _ = extract_driver_names_from_files()
+                    real_drivers = list(driver_names)[:15]  # Top 15 drivers for heat map
+                    
+                    # If still no drivers, extract from attendance data
+                    if not real_drivers:
+                        today = datetime.now().strftime('%Y-%m-%d')
+                        employee_data = load_real_employee_data(today)
+                        real_drivers = [emp.get('name', 'Unknown') for emp in employee_data if emp.get('name')][:15]
+                        
+                except Exception as e:
+                    print(f"Could not load authentic driver data: {e}")
+                    # Only display message that no real data is available
+                    real_drivers = []
             
             # Generate performance heat map data for your real drivers
             heat_map_data = []

@@ -436,6 +436,12 @@ app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(gauge_exec_bp)
 app.register_blueprint(traxovo_map_bp)
 
+# Register Idea Box and Backup System
+from idea_box import idea_box_bp
+from backup_system import backup_bp
+app.register_blueprint(idea_box_bp)
+app.register_blueprint(backup_bp)
+
 if __name__ == "__main__":
     # Run deployment readiness check
     deployment_readiness_check()

@@ -337,11 +337,11 @@ def dashboard():
                     <span class="nav-item-icon">🚛</span>
                     Asset Manager
                 </a>
-                <a href="#" class="nav-item">
+                <a href="/equipment/dispatch" class="nav-item">
                     <span class="nav-item-icon">📋</span>
                     Equipment Dispatch
                 </a>
-                <a href="#" class="nav-item">
+                <a href="/job/zones" class="nav-item">
                     <span class="nav-item-icon">📅</span>
                     Job Zones
                 </a>
@@ -353,7 +353,7 @@ def dashboard():
                     <span class="nav-item-icon">📊</span>
                     Attendance Matrix
                 </a>
-                <a href="#" class="nav-item">
+                <a href="/drivers/management" class="nav-item">
                     <span class="nav-item-icon">👥</span>
                     Driver Management
                 </a>
@@ -365,7 +365,7 @@ def dashboard():
                     <span class="nav-item-icon">📈</span>
                     Revenue Analytics
                 </a>
-                <a href="#" class="nav-item">
+                <a href="/projects/tracking" class="nav-item">
                     <span class="nav-item-icon">📋</span>
                     Project Tracking
                 </a>

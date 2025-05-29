@@ -34,3 +34,4 @@ notion-client
 sendgrid
 matplotlib
 seaborn
+openai

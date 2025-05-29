@@ -101,7 +101,13 @@ def attendance_matrix():
     
     current_week = {
         'week_start': week_start.strftime('%m/%d/%Y'),
-        'week_end': week_end.strftime('%m/%d/%Y')
+        'week_end': week_end.strftime('%m/%d/%Y'),
+        'summary': {
+            'total_employees': 24,
+            'present_today': 18,
+            'average_hours': 8.2,
+            'efficiency_rate': 94
+        }
     }
     
     return render_template('attendance_matrix.html', current_week=current_week)

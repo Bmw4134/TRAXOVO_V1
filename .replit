@@ -9,6 +9,7 @@ deploymentTarget = "cloudrun"
 run = ["sh", "-c", "gunicorn --bind 0.0.0.0:5000 main:app"]
 
 [workflows]
+runButton = "Start TRAXOVO"
 
 [[workflows.workflow]]
 name = "Project"
@@ -36,6 +37,15 @@ author = 42738758
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "./replit_deploy_sync.sh"
+
+[[workflows.workflow]]
+name = "Start TRAXOVO"
+author = 42738758
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python app.py"
 
 [[ports]]
 localPort = 5000

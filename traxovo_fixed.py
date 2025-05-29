@@ -485,6 +485,41 @@ except Exception as e:
     print(f"Error registering predictive maintenance timer: {e}")
 
 try:
+    from ai_fleet_assistant import ai_assistant_bp
+    app.register_blueprint(ai_assistant_bp)
+    print("AI Fleet Assistant blueprint registered")
+except Exception as e:
+    print(f"Error registering AI Fleet Assistant: {e}")
+
+try:
+    from smart_search_system import smart_search_bp
+    app.register_blueprint(smart_search_bp)
+    print("Smart Search System blueprint registered")
+except Exception as e:
+    print(f"Error registering Smart Search System: {e}")
+
+try:
+    from realtime_activity_feed import activity_feed_bp
+    app.register_blueprint(activity_feed_bp)
+    print("Real-Time Activity Feed blueprint registered")
+except Exception as e:
+    print(f"Error registering Real-Time Activity Feed: {e}")
+
+try:
+    from live_preview_panels import live_preview_bp
+    app.register_blueprint(live_preview_bp)
+    print("Live Preview Panels blueprint registered")
+except Exception as e:
+    print(f"Error registering Live Preview Panels: {e}")
+
+try:
+    from deployment_ready_reports import deployment_reports_bp
+    app.register_blueprint(deployment_reports_bp)
+    print("Deployment Ready Reports blueprint registered")
+except Exception as e:
+    print(f"Error registering Deployment Ready Reports: {e}")
+
+try:
     from user_auth_system import auth_bp
     app.register_blueprint(auth_bp, url_prefix='/auth')
     print("User authentication system registered")

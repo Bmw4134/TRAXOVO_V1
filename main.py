@@ -45,8 +45,9 @@ from interactive_onboarding import (
 # Import quick performance boost functions
 from quick_performance_boost import performance_boost_bp
 
-# Import error handling
-from error_handler import safe_route, get_fallback_data
+# Import error handling and authentic data
+from error_handler import safe_route
+from authentic_data_loader import get_authentic_dashboard_data, get_fleet_metrics
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET") or "traxovo-production-2025"
@@ -123,9 +124,10 @@ def logout():
 
 @app.route('/')
 @login_required
+@safe_route
 def dashboard():
-    """Main executive dashboard with authentic data"""
-    data = load_authentic_data()
+    """Main executive dashboard with authentic TRAXOVO data"""
+    data = get_authentic_dashboard_data()
     return render_template('dashboard_modern.html', **data)
 
 @app.route('/health')
@@ -240,40 +242,48 @@ def deployment_reports():
 # Widget Dashboard Routes
 @app.route('/widget-dashboard')
 @login_required
+@safe_route
 def widget_dash():
     return widget_dashboard()
 
 @app.route('/save-widget-layout', methods=['POST'])
 @login_required
+@safe_route
 def save_layout():
     return save_widget_layout()
 
 @app.route('/get-widget-data')
 @login_required
+@safe_route
 def widget_data():
     return get_widget_data()
 
 @app.route('/reset-widget-layout', methods=['POST'])
 @login_required
+@safe_route
 def reset_layout():
     return reset_widget_layout()
 
 # Feedback System Routes
 @app.route('/feedback')
 @login_required
+@safe_route
 def feedback():
     return feedback_collector()
 
 @app.route('/submit-feedback', methods=['POST'])
+@safe_route
 def submit_user_feedback():
     return submit_feedback()
 
 @app.route('/feedback-analytics')
 @login_required
+@safe_route
 def feedback_admin():
     return feedback_analytics()
 
 @app.route('/quick-feedback', methods=['POST'])
+@safe_route
 def quick_user_feedback():
     return quick_feedback()
 

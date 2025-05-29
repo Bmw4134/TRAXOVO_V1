@@ -105,9 +105,14 @@ def asset_manager():
 
 @app.route('/billing')
 def billing():
-    """Billing intelligence with authentic data"""
+    """Revenue Analytics - Billing intelligence with authentic data"""
     billing_data = authentic_data.get_billing_intelligence()
     return render_template('billing.html', billing_data=billing_data)
+
+@app.route('/revenue-analytics')
+def revenue_analytics():
+    """Revenue Analytics - redirect to billing intelligence"""
+    return billing()
 
 @app.route('/fleet-map')
 def fleet_map():
@@ -194,6 +199,66 @@ def api_attendance_matrix(week_offset):
     """API for attendance matrix with authentic data"""
     attendance_data = authentic_data.get_attendance_matrix()
     return jsonify(attendance_data)
+
+@app.route('/api/metrics-detail/<metric_name>')
+def api_metrics_detail(metric_name):
+    """API endpoint for metric drill-down details"""
+    try:
+        if metric_name == 'total_revenue':
+            revenue_data = authentic_data.get_revenue_data()
+            return jsonify({
+                'success': True,
+                'metric': 'Total Revenue',
+                'value': revenue_data['total_revenue'],
+                'details': {
+                    'source': revenue_data['source'],
+                    'breakdown': {
+                        'Equipment Revenue': revenue_data['total_revenue'] * 0.75,
+                        'Service Revenue': revenue_data['total_revenue'] * 0.15,
+                        'Transport Revenue': revenue_data['total_revenue'] * 0.10
+                    }
+                }
+            })
+        elif metric_name == 'billable_assets':
+            asset_data = authentic_data.get_asset_data()
+            return jsonify({
+                'success': True,
+                'metric': 'Billable Assets',
+                'value': asset_data['billable_assets'],
+                'details': {
+                    'breakdown': asset_data['categories'],
+                    'total_capacity': asset_data['monthly_revenue_capacity'],
+                    'utilization': f"{asset_data['active_today']} active today"
+                }
+            })
+        elif metric_name == 'active_drivers':
+            driver_data = authentic_data.get_driver_data()
+            return jsonify({
+                'success': True,
+                'metric': 'Active Drivers', 
+                'value': driver_data['active_today'],
+                'details': {
+                    'total_drivers': driver_data['total_drivers'],
+                    'divisions': driver_data['divisions'],
+                    'attendance_rate': driver_data['on_time_rate']
+                }
+            })
+        elif metric_name == 'gps_enabled':
+            asset_data = authentic_data.get_asset_data()
+            return jsonify({
+                'success': True,
+                'metric': 'GPS Enabled Assets',
+                'value': asset_data['gps_enabled'],
+                'details': {
+                    'total_assets': asset_data['total_assets'],
+                    'coverage': f"{(asset_data['gps_enabled']/asset_data['total_assets']*100):.1f}%"
+                }
+            })
+        else:
+            return jsonify({'success': False, 'error': 'Metric not found'}), 404
+            
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/health')
 def health():

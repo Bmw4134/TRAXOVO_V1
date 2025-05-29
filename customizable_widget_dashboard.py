@@ -14,15 +14,25 @@ def load_widget_data():
     """Load authentic data for dashboard widgets"""
     try:
         # Load Ragle billing data
-        ragle_df = pd.read_excel('RAGLE EQ BILLINGS - APRIL 2025 (JG REVIEWED 5.12).xlsm')
+        ragle_df = None
+        ragle_total = 0
+        ragle_count = 0
+        
+        if os.path.exists('RAGLE EQ BILLINGS - APRIL 2025 (JG REVIEWED 5.12).xlsm'):
+            ragle_df = pd.read_excel('RAGLE EQ BILLINGS - APRIL 2025 (JG REVIEWED 5.12).xlsm')
+            if 'Amount' in ragle_df.columns:
+                ragle_total = float(ragle_df['Amount'].sum())
+            ragle_count = len(ragle_df)
         
         # Load Gauge API data
-        with open('GAUGE API PULL 1045AM_05.15.2025.json', 'r') as f:
-            gauge_data = json.loads(f.read())
-            if isinstance(gauge_data, list):
-                assets = gauge_data
-            else:
-                assets = gauge_data.get('assets', gauge_data.get('data', []))
+        assets = []
+        if os.path.exists('GAUGE API PULL 1045AM_05.15.2025.json'):
+            with open('GAUGE API PULL 1045AM_05.15.2025.json', 'r') as f:
+                gauge_data = json.loads(f.read())
+                if isinstance(gauge_data, list):
+                    assets = gauge_data
+                else:
+                    assets = gauge_data.get('assets', gauge_data.get('data', []))
         
         # Calculate widget metrics from authentic data
         return {
@@ -54,9 +64,9 @@ def load_widget_data():
             
             # Billing Analytics Widget
             'billing_analytics': {
-                'total_records': len(ragle_df),
-                'april_revenue': ragle_df['Amount'].sum() if 'Amount' in ragle_df.columns else 0,
-                'avg_daily_billing': len(ragle_df) / 30 if len(ragle_df) > 0 else 0,
+                'total_records': ragle_count,
+                'april_revenue': ragle_total,
+                'avg_daily_billing': ragle_count / 30 if ragle_count > 0 else 0,
                 'top_division': 'DFW'
             },
             

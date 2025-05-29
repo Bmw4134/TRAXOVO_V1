@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Fleet Assistant - TRAXOVO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .chat-container {
+            height: 70vh;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            padding: 20px;
+        }
+        .chat-message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+        }
+        .chat-message.user {
+            flex-direction: row-reverse;
+        }
+        .message-bubble {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            margin: 0 10px;
+        }
+        .message-bubble.user {
+            background: #007bff;
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+        .message-bubble.ai {
+            background: white;
+            color: #333;
+            border: 1px solid #e0e0e0;
+            border-bottom-left-radius: 5px;
+        }
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .message-avatar.user {
+            background: #007bff;
+            color: white;
+        }
+        .message-avatar.ai {
+            background: #28a745;
+            color: white;
+        }
+        .chat-input-container {
+            border-top: 1px solid #ddd;
+            padding: 20px;
+            background: white;
+        }
+        .quick-actions {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .action-btn {
+            width: 100%;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+        .insights-panel {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .typing-dots {
+            display: flex;
+            margin-left: 10px;
+        }
+        .typing-dots span {
+            height: 8px;
+            width: 8px;
+            background: #999;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    {% include 'includes/sidebar.html' %}
+    
+    <div class="main-content">
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Chat Interface -->
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-robot me-2"></i>
+                                <h5 class="mb-0">AI Fleet Assistant</h5>
+                                <div class="ms-auto">
+                                    <span class="badge bg-success">Online</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-container" id="chatContainer">
+                            <!-- Welcome Message -->
+                            <div class="chat-message">
+                                <div class="message-avatar ai">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div class="message-bubble ai">
+                                    <strong>AI Assistant:</strong> Hello! I'm your TRAXOVO Fleet Intelligence Assistant. I can help you with fleet analytics, equipment status, driver performance, and operational insights. What would you like to know about your fleet today?
+                                </div>
+                            </div>
+                            
+                            <!-- Typing Indicator -->
+                            <div class="typing-indicator" id="typingIndicator">
+                                <div class="message-avatar ai">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div class="typing-dots">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-input-container">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="messageInput" 
+                                       placeholder="Ask about fleet status, driver performance, equipment analytics..." 
+                                       onkeypress="handleKeyPress(event)">
+                                <button class="btn btn-primary" onclick="sendMessage()">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sidebar -->
+                <div class="col-md-4">
+                    <!-- Quick Actions -->
+                    <div class="quick-actions">
+                        <h6><i class="fas fa-bolt"></i> Quick Actions</h6>
+                        <button class="btn btn-outline-primary action-btn" onclick="quickQuery('fleet status')">
+                            <i class="fas fa-truck"></i> Fleet Status Overview
+                        </button>
+                        <button class="btn btn-outline-primary action-btn" onclick="quickQuery('driver performance')">
+                            <i class="fas fa-user-check"></i> Driver Performance
+                        </button>
+                        <button class="btn btn-outline-primary action-btn" onclick="quickQuery('maintenance alerts')">
+                            <i class="fas fa-wrench"></i> Maintenance Alerts
+                        </button>
+                        <button class="btn btn-outline-primary action-btn" onclick="quickQuery('asset utilization')">
+                            <i class="fas fa-chart-bar"></i> Asset Utilization
+                        </button>
+                        <button class="btn btn-outline-primary action-btn" onclick="quickQuery('cost analysis')">
+                            <i class="fas fa-dollar-sign"></i> Cost Analysis
+                        </button>
+                    </div>
+                    
+                    <!-- Real-time Insights -->
+                    <div class="insights-panel">
+                        <h6><i class="fas fa-lightbulb"></i> Real-time Insights</h6>
+                        <div class="small mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Active Assets:</span>
+                                <span class="text-success">32/36</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Avg Utilization:</span>
+                                <span class="text-primary">87%</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Maintenance Due:</span>
+                                <span class="text-warning">4 assets</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Revenue Today:</span>
+                                <span class="text-success">$8,450</span>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <h6><i class="fas fa-exclamation-triangle text-warning"></i> Alerts</h6>
+                        <div class="small">
+                            <div class="alert alert-warning py-2 mb-2">
+                                <strong>CAT-320-001:</strong> Hydraulic pressure low
+                            </div>
+                            <div class="alert alert-info py-2 mb-2">
+                                <strong>EXC-105:</strong> Scheduled maintenance tomorrow
+                            </div>
+                            <div class="alert alert-success py-2">
+                                <strong>Fleet:</strong> 95% GPS connectivity
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Conversation History -->
+                    <div class="insights-panel mt-3">
+                        <h6><i class="fas fa-history"></i> Recent Conversations</h6>
+                        <div class="small">
+                            <div class="mb-2">
+                                <strong>Equipment utilization report</strong><br>
+                                <span class="text-muted">2 hours ago</span>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Driver performance analysis</strong><br>
+                                <span class="text-muted">Yesterday</span>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Maintenance cost breakdown</strong><br>
+                                <span class="text-muted">2 days ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+        
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message to chat
+            addMessage(message, 'user');
+            input.value = '';
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            // Simulate AI response
+            setTimeout(() => {
+                hideTypingIndicator();
+                generateAIResponse(message);
+            }, 1500);
+        }
+        
+        function quickQuery(query) {
+            document.getElementById('messageInput').value = query;
+            sendMessage();
+        }
+        
+        function addMessage(message, sender) {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${sender}`;
+            
+            const avatar = sender === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+            const senderName = sender === 'user' ? 'You' : 'AI Assistant';
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar ${sender}">
+                    ${avatar}
+                </div>
+                <div class="message-bubble ${sender}">
+                    <strong>${senderName}:</strong> ${message}
+                </div>
+            `;
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        function showTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'flex';
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        function hideTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'none';
+        }
+        
+        function generateAIResponse(userMessage) {
+            let response = '';
+            
+            if (userMessage.toLowerCase().includes('fleet status')) {
+                response = `Based on current data, your fleet is performing well:
+                
+                • 32 of 36 assets are currently active (89%)
+                • Average utilization rate is 87%
+                • 4 assets require scheduled maintenance
+                • Total revenue today: $8,450
+                • GPS connectivity: 95%
+                
+                Would you like detailed information about any specific aspect?`;
+                
+            } else if (userMessage.toLowerCase().includes('driver performance')) {
+                response = `Driver performance analysis for the current period:
+                
+                • Top performer: Mike Johnson (98% efficiency)
+                • Average hours per driver: 8.2 hours/day
+                • Late starts this week: 3 incidents
+                • Safety score average: 94/100
+                • Fuel efficiency improved by 12% this month
+                
+                I can provide individual driver reports if needed.`;
+                
+            } else if (userMessage.toLowerCase().includes('maintenance')) {
+                response = `Maintenance overview and alerts:
+                
+                • 4 assets due for scheduled maintenance
+                • CAT-320-001: Hydraulic pressure warning (immediate attention needed)
+                • EXC-105: 500-hour service due tomorrow
+                • Preventive maintenance compliance: 92%
+                • Average downtime: 2.3 hours per incident
+                
+                Should I schedule any maintenance appointments?`;
+                
+            } else if (userMessage.toLowerCase().includes('cost') || userMessage.toLowerCase().includes('revenue')) {
+                response = `Financial performance summary:
+                
+                • Daily revenue: $8,450 (target: $8,000)
+                • Monthly revenue to date: $187,340
+                • Operating cost per hour: $45.20
+                • Profit margin: 34%
+                • Fuel costs down 8% from last month
+                
+                Would you like a detailed cost breakdown by asset or division?`;
+                
+            } else {
+                response = `I understand you're asking about "${userMessage}". I can help you with:
+                
+                • Fleet status and performance metrics
+                • Driver attendance and performance analysis
+                • Equipment maintenance schedules and alerts
+                • Cost analysis and revenue reporting
+                • Asset utilization and efficiency tracking
+                
+                Could you be more specific about what information you need?`;
+            }
+            
+            addMessage(response, 'ai');
+        }
+        
+        // Auto-scroll to bottom on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        });
+    </script>
+</body>
+</html>

@@ -30,3 +30,4 @@ flask-dance
 flask-login
 oauthlib
 pyjwt
+notion-client

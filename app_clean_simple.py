@@ -277,6 +277,13 @@ def equipment_dispatch():
     dashboard_data = dispatch_system.get_dispatch_dashboard_data()
     return render_template('equipment_dispatch.html', data=dashboard_data)
 
+@app.route('/interactive-schedule')
+def interactive_schedule():
+    """Interactive Equipment Schedule Visualization"""
+    from interactive_schedule_system import schedule_system
+    dashboard_data = schedule_system.get_schedule_dashboard_data()
+    return render_template('interactive_schedule.html', data=dashboard_data)
+
 @app.route('/api/log-incident', methods=['POST'])
 def api_log_incident():
     """API endpoint to log equipment incidents"""
@@ -318,6 +325,30 @@ def api_send_daily_report():
         return jsonify(result)
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/update-assignment', methods=['POST'])
+def api_update_assignment():
+    """API endpoint to update equipment assignments"""
+    from interactive_schedule_system import schedule_system
+    from flask import request, jsonify
+    try:
+        request_data = request.get_json()
+        equipment_id = request_data.get('equipment_id')
+        project_id = request_data.get('project_id')
+        start_date = request_data.get('start_date')
+        end_date = request_data.get('end_date')
+        
+        result = schedule_system.update_equipment_assignment(equipment_id, project_id, start_date, end_date)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/schedule-events')
+def api_schedule_events():
+    """API endpoint for calendar events"""
+    from interactive_schedule_system import schedule_system
+    events = schedule_system.generate_schedule_events()
+    return jsonify(events)
 
 @app.route('/api/metrics-detail/<metric_name>')
 def metrics_detail(metric_name):

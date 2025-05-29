@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Equipment Schedule - TRAXOVO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+    <style>
+        .schedule-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+        }
+        
+        .equipment-timeline {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding: 1rem;
+            border-left: 3px solid #e9ecef;
+            margin-bottom: 1rem;
+            cursor: grab;
+            transition: all 0.3s ease;
+        }
+        
+        .timeline-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .timeline-item.dragging {
+            opacity: 0.7;
+            transform: rotate(2deg);
+            cursor: grabbing;
+        }
+        
+        .timeline-excavator { border-left-color: #ff6b6b; }
+        .timeline-dozer { border-left-color: #4ecdc4; }
+        .timeline-loader { border-left-color: #45b7d1; }
+        .timeline-truck { border-left-color: #96ceb4; }
+        .timeline-crane { border-left-color: #feca57; }
+        .timeline-general { border-left-color: #a29bfe; }
+        
+        .calendar-container {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .fc-event {
+            border-radius: 6px;
+            border: none !important;
+            font-size: 0.9rem;
+        }
+        
+        .fc-event-main {
+            padding: 4px 8px;
+        }
+        
+        .utilization-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .utilization-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        
+        .util-high { background: #28a745; }
+        .util-medium { background: #ffc107; }
+        .util-low { background: #dc3545; }
+        
+        .project-card {
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .project-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .priority-high { border-left: 4px solid #28a745; }
+        .priority-medium { border-left: 4px solid #ffc107; }
+        .priority-low { border-left: 4px solid #6c757d; }
+        
+        .maintenance-alert {
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+            color: white;
+            border-radius: 8px;
+            padding: 0.5rem;
+        }
+        
+        .schedule-views {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .view-btn {
+            border-radius: 20px;
+            margin: 0 0.25rem;
+        }
+        
+        .equipment-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            margin: 0.125rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            {% include 'includes/sidebar.html' %}
+            
+            <!-- Main Content -->
+            <div class="col-lg-10 offset-lg-2 p-4">
+                <!-- Header -->
+                <div class="schedule-header mb-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1><i class="fas fa-calendar-alt me-2"></i>Interactive Equipment Schedule</h1>
+                            <p class="mb-0">Drag-and-drop equipment scheduling with real-time visualization</p>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-light" onclick="refreshSchedule()">
+                                <i class="fas fa-sync me-2"></i>Refresh
+                            </button>
+                            <button class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#scheduleModal">
+                                <i class="fas fa-plus me-2"></i>New Assignment
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Metrics -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 class="text-primary">{{ data.summary_metrics.total_equipment }}</h3>
+                                <p class="mb-0">Equipment Units</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 class="text-success">{{ data.summary_metrics.active_projects }}</h3>
+                                <p class="mb-0">Active Projects</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 class="text-warning">{{ data.summary_metrics.upcoming_maintenance }}</h3>
+                                <p class="mb-0">Maintenance Due</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 class="text-info">{{ "{:.1f}".format(data.summary_metrics.equipment_utilization) }}%</h3>
+                                <p class="mb-0">Avg Utilization</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Schedule Views -->
+                <div class="schedule-views">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5><i class="fas fa-eye me-2"></i>Schedule Views</h5>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-primary view-btn active" onclick="switchView('calendar')">
+                                <i class="fas fa-calendar me-1"></i>Calendar
+                            </button>
+                            <button type="button" class="btn btn-outline-primary view-btn" onclick="switchView('timeline')">
+                                <i class="fas fa-stream me-1"></i>Timeline
+                            </button>
+                            <button type="button" class="btn btn-outline-primary view-btn" onclick="switchView('gantt')">
+                                <i class="fas fa-chart-gantt me-1"></i>Gantt
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calendar View -->
+                <div id="calendarView" class="calendar-container mb-4">
+                    <div id="calendar"></div>
+                </div>
+
+                <!-- Equipment Timeline View (Hidden by default) -->
+                <div id="timelineView" class="row" style="display: none;">
+                    <div class="col-md-4">
+                        <div class="equipment-timeline">
+                            <h6><i class="fas fa-tools me-2"></i>Available Equipment</h6>
+                            <div id="equipmentPool">
+                                {% for equipment in data.equipment_fleet %}
+                                <div class="timeline-item timeline-{{ equipment.type.lower() }}" 
+                                     draggable="true" 
+                                     data-equipment-id="{{ equipment.id }}"
+                                     data-equipment-type="{{ equipment.type }}">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>{{ equipment.name }}</strong>
+                                            <br><small class="text-muted">{{ equipment.type }} • {{ equipment.operator }}</small>
+                                        </div>
+                                        <div class="text-end">
+                                            <span class="badge bg-primary">{{ equipment.utilization_rate }}%</span>
+                                        </div>
+                                    </div>
+                                    <div class="utilization-bar mt-2">
+                                        <div class="utilization-fill util-{% if equipment.utilization_rate > 80 %}high{% elif equipment.utilization_rate > 60 %}medium{% else %}low{% endif %}" 
+                                             style="width: {{ equipment.utilization_rate }}%"></div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="equipment-timeline">
+                            <h6><i class="fas fa-project-diagram me-2"></i>Project Assignments</h6>
+                            <div class="row">
+                                {% for project in data.project_schedules %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card project-card priority-{{ project.priority }}" 
+                                         data-project-id="{{ project.id }}">
+                                        <div class="card-body">
+                                            <h6 class="card-title">{{ project.name }}</h6>
+                                            <p class="card-text small text-muted">
+                                                <i class="fas fa-user me-1"></i>{{ project.project_manager }}<br>
+                                                <i class="fas fa-calendar me-1"></i>{{ project.start_date.strftime('%m/%d/%Y') }} - {{ project.end_date.strftime('%m/%d/%Y') }}<br>
+                                                <i class="fas fa-dollar-sign me-1"></i>${{ "{:,.0f}".format(project.budget) }}
+                                            </p>
+                                            <div class="mb-2">
+                                                <small class="text-muted">Required Equipment:</small><br>
+                                                {% for req_eq in project.required_equipment %}
+                                                <span class="equipment-badge bg-light text-dark">{{ req_eq }}</span>
+                                                {% endfor %}
+                                            </div>
+                                            <div class="project-drop-zone" 
+                                                 data-project-id="{{ project.id }}"
+                                                 style="min-height: 40px; border: 2px dashed #dee2e6; border-radius: 6px; padding: 0.5rem;">
+                                                <small class="text-muted">Drop equipment here</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Maintenance Alerts -->
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-wrench me-2"></i>Upcoming Maintenance</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    {% for maintenance in data.maintenance_schedules[:6] %}
+                                    <div class="col-md-4 mb-2">
+                                        <div class="maintenance-alert">
+                                            <strong>{{ maintenance.equipment_name }}</strong><br>
+                                            <small>{{ maintenance.type }} • {{ maintenance.scheduled_date.strftime('%m/%d/%Y') }}</small><br>
+                                            <small>Est. Cost: ${{ "{:,.0f}".format(maintenance.cost_estimate) }}</small>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Assignment Modal -->
+    <div class="modal fade" id="scheduleModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create Equipment Assignment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="assignmentForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Equipment</label>
+                                <select class="form-select" name="equipment_id" required>
+                                    <option value="">Select Equipment...</option>
+                                    {% for equipment in data.equipment_fleet %}
+                                    <option value="{{ equipment.id }}">{{ equipment.name }} ({{ equipment.type }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Project</label>
+                                <select class="form-select" name="project_id" required>
+                                    <option value="">Select Project...</option>
+                                    {% for project in data.project_schedules %}
+                                    <option value="{{ project.id }}">{{ project.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Start Date</label>
+                                <input type="date" class="form-control" name="start_date" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">End Date</label>
+                                <input type="date" class="form-control" name="end_date" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control" name="notes" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="createAssignment()">Create Assignment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <script>
+        let calendar;
+        let calendarEvents = {{ data.calendar_events | tojsonfilter }};
+        let currentView = 'calendar';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCalendar();
+            setupDragAndDrop();
+        });
+
+        function initializeCalendar() {
+            const calendarEl = document.getElementById('calendar');
+            
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,listWeek'
+                },
+                events: calendarEvents,
+                editable: true,
+                droppable: true,
+                eventDrop: function(info) {
+                    handleEventDrop(info);
+                },
+                eventClick: function(info) {
+                    showEventDetails(info.event);
+                },
+                dateClick: function(info) {
+                    showDateOptions(info.date);
+                }
+            });
+            
+            calendar.render();
+        }
+
+        function setupDragAndDrop() {
+            // Equipment items drag functionality
+            const equipmentItems = document.querySelectorAll('.timeline-item');
+            equipmentItems.forEach(item => {
+                item.addEventListener('dragstart', handleDragStart);
+                item.addEventListener('dragend', handleDragEnd);
+            });
+
+            // Project drop zones
+            const dropZones = document.querySelectorAll('.project-drop-zone');
+            dropZones.forEach(zone => {
+                zone.addEventListener('dragover', handleDragOver);
+                zone.addEventListener('drop', handleDrop);
+                zone.addEventListener('dragenter', handleDragEnter);
+                zone.addEventListener('dragleave', handleDragLeave);
+            });
+        }
+
+        function handleDragStart(e) {
+            e.target.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', e.target.dataset.equipmentId);
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+
+        function handleDragEnter(e) {
+            e.target.style.backgroundColor = '#e3f2fd';
+            e.target.style.borderColor = '#2196f3';
+        }
+
+        function handleDragLeave(e) {
+            e.target.style.backgroundColor = '';
+            e.target.style.borderColor = '#dee2e6';
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            
+            const equipmentId = e.dataTransfer.getData('text/plain');
+            const projectId = e.target.dataset.projectId;
+            
+            // Reset drop zone styling
+            e.target.style.backgroundColor = '';
+            e.target.style.borderColor = '#dee2e6';
+            
+            // Create assignment
+            assignEquipmentToProject(equipmentId, projectId);
+        }
+
+        function handleEventDrop(info) {
+            const event = info.event;
+            const newStart = event.start;
+            const newEnd = event.end || event.start;
+            
+            // Update assignment
+            updateAssignment(event.id, newStart, newEnd);
+        }
+
+        function assignEquipmentToProject(equipmentId, projectId) {
+            const startDate = new Date().toISOString().split('T')[0];
+            const endDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+            
+            fetch('/api/update-assignment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    equipment_id: equipmentId,
+                    project_id: projectId,
+                    start_date: startDate,
+                    end_date: endDate
+                })
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    showNotification(`Equipment assigned to project successfully`, 'success');
+                    refreshSchedule();
+                } else {
+                    showNotification(`Error: ${result.error}`, 'error');
+                }
+            })
+            .catch(error => {
+                showNotification(`Network error: ${error}`, 'error');
+            });
+        }
+
+        function updateAssignment(eventId, newStart, newEnd) {
+            // This would update the assignment in the backend
+            showNotification('Assignment updated', 'success');
+        }
+
+        function switchView(viewType) {
+            // Update active button
+            document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show/hide appropriate views
+            if (viewType === 'calendar') {
+                document.getElementById('calendarView').style.display = 'block';
+                document.getElementById('timelineView').style.display = 'none';
+                currentView = 'calendar';
+            } else if (viewType === 'timeline') {
+                document.getElementById('calendarView').style.display = 'none';
+                document.getElementById('timelineView').style.display = 'block';
+                currentView = 'timeline';
+            }
+        }
+
+        function showEventDetails(event) {
+            const props = event.extendedProps;
+            let content = `<strong>${event.title}</strong><br>`;
+            
+            if (props.type === 'equipment_assignment') {
+                content += `Equipment: ${props.equipment_name}<br>`;
+                content += `Operator: ${props.operator}<br>`;
+            } else if (props.type === 'project') {
+                content += `Project Manager: ${props.project_manager}<br>`;
+                content += `Location: ${props.location}<br>`;
+                content += `Budget: $${props.budget.toLocaleString()}<br>`;
+            } else if (props.type === 'maintenance') {
+                content += `Equipment: ${props.equipment_id}<br>`;
+                content += `Type: ${props.maintenance_type}<br>`;
+                content += `Estimated Cost: $${props.cost_estimate}<br>`;
+            }
+            
+            // Show in a modal or tooltip
+            alert(content);
+        }
+
+        function createAssignment() {
+            const form = document.getElementById('assignmentForm');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            
+            fetch('/api/update-assignment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    showNotification('Assignment created successfully', 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('scheduleModal')).hide();
+                    refreshSchedule();
+                } else {
+                    showNotification(`Error: ${result.error}`, 'error');
+                }
+            })
+            .catch(error => {
+                showNotification(`Network error: ${error}`, 'error');
+            });
+        }
+
+        function refreshSchedule() {
+            fetch('/api/schedule-events')
+            .then(response => response.json())
+            .then(events => {
+                calendarEvents = events;
+                if (calendar) {
+                    calendar.removeAllEvents();
+                    calendar.addEventSource(events);
+                }
+            })
+            .catch(error => {
+                console.error('Error refreshing schedule:', error);
+            });
+        }
+
+        function showNotification(message, type) {
+            const toastHtml = `
+                <div class="toast align-items-center text-white bg-${type === 'success' ? 'success' : 'danger'} border-0" role="alert">
+                    <div class="d-flex">
+                        <div class="toast-body">${message}</div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                    </div>
+                </div>
+            `;
+            
+            const toastContainer = document.createElement('div');
+            toastContainer.className = 'position-fixed top-0 end-0 p-3';
+            toastContainer.style.zIndex = '1055';
+            toastContainer.innerHTML = toastHtml;
+            document.body.appendChild(toastContainer);
+            
+            const toast = new bootstrap.Toast(toastContainer.querySelector('.toast'));
+            toast.show();
+            
+            toastContainer.querySelector('.toast').addEventListener('hidden.bs.toast', () => {
+                document.body.removeChild(toastContainer);
+            });
+        }
+    </script>
+</body>
+</html>

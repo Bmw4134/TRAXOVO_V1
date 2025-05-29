@@ -57,6 +57,8 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+login_manager.remember_cookie_duration = 86400 * 30  # 30 days
+login_manager.session_protection = None  # Disable session protection for auto-login
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -101,15 +103,27 @@ def load_authentic_data():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    # Auto-login for development - Dan user
+    if 'auto_login' not in session:
+        # Automatically log in as Dan
+        username = 'dan'
+        if username in TEST_USERS:
+            user_data = TEST_USERS[username]
+            user = TestUser(username, user_data)
+            login_user(user, remember=True)  # Remember login
+            session['auto_login'] = True
+            return redirect(url_for('dashboard'))
+    
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        remember = 'remember' in request.form
         
         if username in TEST_USERS:
             user_data = TEST_USERS[username]
             if check_password_hash(user_data["password_hash"], password):
                 user = TestUser(username, user_data)
-                login_user(user)
+                login_user(user, remember=remember)
                 return redirect(url_for('dashboard'))
         
         return render_template('auth/login.html', error='Invalid credentials')
@@ -120,7 +134,15 @@ def login():
 @login_required
 def logout():
     logout_user()
+    session.clear()  # Clear all session data including auto_login
     return redirect(url_for('login'))
+
+@app.route('/disable-auto-login', methods=['POST'])
+@login_required
+def disable_auto_login():
+    """Disable auto-login for this session"""
+    session.pop('auto_login', None)
+    return jsonify({'status': 'Auto-login disabled'})
 
 @app.route('/')
 @login_required

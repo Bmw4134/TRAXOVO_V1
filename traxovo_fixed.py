@@ -88,7 +88,7 @@ def index():
                              active_assets=558,
                              gps_enabled=566,
                              coverage=97,
-                             monthly_savings=47000,
+                             monthly_savings=66400,
                              performance_issues=18,
                              maintenance_due=12,
                              last_sync='Live')

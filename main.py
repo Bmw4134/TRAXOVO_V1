@@ -35,6 +35,13 @@ from mood_based_ui import (
     mood_selector, set_mood, get_current_theme, reset_mood, auto_detect_mood
 )
 
+# Import interactive onboarding functions
+from interactive_onboarding import (
+    onboarding_wizard, update_onboarding_step, skip_onboarding,
+    restart_onboarding, onboarding_analytics, check_onboarding_status,
+    get_onboarding_tour_data
+)
+
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET") or "traxovo-production-2025"
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)

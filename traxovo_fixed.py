@@ -9,6 +9,9 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from smart_asset_manager import asset_manager_bp
 from comprehensive_billing_engine import billing_engine_bp
+from gps_efficiency_module import gps_efficiency_bp
+from automated_attendance_module import automated_attendance_bp
+from smart_learning_backend import smart_backend_bp
 
 class Base(DeclarativeBase):
     pass
@@ -318,6 +321,13 @@ def page_not_found(e):
 def server_error(e):
     """Handle 500 errors"""
     return render_template('500.html'), 500
+
+# Register all blueprints
+app.register_blueprint(asset_manager_bp)
+app.register_blueprint(billing_engine_bp)
+app.register_blueprint(gps_efficiency_bp)
+app.register_blueprint(automated_attendance_bp)
+app.register_blueprint(smart_backend_bp)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

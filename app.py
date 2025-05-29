@@ -137,6 +137,10 @@ def make_replit_blueprint():
 replit_bp = make_replit_blueprint()
 app.register_blueprint(replit_bp, url_prefix="/auth")
 
+# Register Equipment Analytics blueprint
+from routes.equipment_analytics import equipment_analytics_bp
+app.register_blueprint(equipment_analytics_bp)
+
 @oauth_authorized.connect
 def logged_in(blueprint, token):
     try:

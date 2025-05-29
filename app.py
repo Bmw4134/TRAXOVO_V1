@@ -237,6 +237,25 @@ def index():
                           attendance_summary=attendance_data['summary'],
                           attendance_alerts=attendance_data['alerts'])
 
+@app.route('/driver-performance-heatmap')
+@login_required
+def driver_performance_heatmap():
+    """Interactive Driver Performance Heat Map"""
+    try:
+        from interactive_driver_heatmap import get_driver_performance_heatmap
+        heatmap_data = get_driver_performance_heatmap()
+        
+        return render_template('driver_performance_heatmap.html',
+                             drivers=heatmap_data['drivers'],
+                             categories=heatmap_data['categories'], 
+                             time_periods=heatmap_data['time_periods'],
+                             performance_summary=heatmap_data['performance_summary'])
+    except Exception as e:
+        logger.error(f"Error loading driver performance heat map: {e}")
+        return render_template('driver_performance_heatmap.html',
+                             drivers=[], categories=[], time_periods=[], 
+                             performance_summary={'fleet_average': 0, 'top_performer': 0, 'improvement_needed': 0, 'total_drivers': 0})
+
 @app.route('/health')
 def health():
     """Health check endpoint"""

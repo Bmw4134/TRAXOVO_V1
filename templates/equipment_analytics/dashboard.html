@@ -190,20 +190,62 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header bg-danger text-white">
-                        <h5><i class="fas fa-chart-line me-2"></i>Predictive Insights</h5>
-                    </div>
-                    <div class="card-body" id="predictiveInsights">
-                        <div class="text-center">
-                            <div class="spinner-border" role="status">
-                                <span class="visually-hidden">Loading...</span>
+
+        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-upload me-2"></i>Upload Equipment Data</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form action="{{ url_for('equipment_analytics.upload_equipment_data') }}" method="post" enctype="multipart/form-data">
+                                        <div class="mb-3">
+                                            <label class="form-label">Equipment Details Report</label>
+                                            <input type="file" class="form-control" name="file" accept=".xlsx,.xls" required>
+                                            <div class="form-text">Upload equipment detail history or asset reports</div>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-cloud-upload-alt me-2"></i>Process Equipment Data
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
+
+                        <div class="col-md-6">
+                            <div class="card border-success">
+                                <div class="card-header bg-success text-white">
+                                    <h5><i class="fas fa-chart-line me-2"></i>Fleet Utilization (Gauge)</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form action="{{ url_for('equipment_analytics.upload_fleet_utilization') }}" method="post" enctype="multipart/form-data">
+                                        <div class="mb-3">
+                                            <label class="form-label">Fleet Utilization Report</label>
+                                            <input type="file" class="form-control" name="file" accept=".xlsx,.xls" required>
+                                            <div class="form-text">
+                                                <strong>Since Gauge Telematics Inception</strong><br>
+                                                Upload FleetUtilization.xlsx from Gauge system
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-success">
+                                            <i class="fas fa-satellite-dish me-2"></i>Process Fleet Utilization
+                                        </button>
+                                    </form>
+
+                                    {% if session.get('fleet_utilization_data') %}
+                                    <hr>
+                                    <div class="alert alert-success mb-0">
+                                        <strong>✅ Fleet Utilization Data Loaded!</strong><br>
+                                        <a href="{{ url_for('equipment_analytics.fleet_utilization_details') }}" class="btn btn-sm btn-outline-success me-2">
+                                            <i class="fas fa-chart-bar me-1"></i>View Details
+                                        </a>
+                                        <a href="{{ url_for('equipment_analytics.export_fleet_utilization') }}" class="btn btn-sm btn-outline-success">
+                                            <i class="fas fa-download me-1"></i>Export CSV
+                                        </a>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
         </div>
 
         <!-- Recommendations -->

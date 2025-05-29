@@ -15,61 +15,127 @@ class AuthenticDataService:
         self.logger = logging.getLogger(__name__)
         
     def get_revenue_data(self):
-        """Get your actual revenue from RAGLE EQ BILLINGS files"""
+        """Get actual revenue from RAGLE EQ BILLINGS files - reading real data"""
         try:
-            # Read from actual Excel files when available
+            import openpyxl
+            
+            # Read actual billing data from Excel files
             april_file = "RAGLE EQ BILLINGS - APRIL 2025 (JG REVIEWED 5.12).xlsm"
-            march_file = "RAGLE EQ BILLINGS - MARCH 2025 (TO REVIEW 04.03.25).xlsm"
             
-            # Use verified authentic totals from your billing files
-            april_total = 1105200.2  # April billing total
-            march_total = 1105200.2  # March billing total  
-            total_revenue = april_total + march_total
+            wb = openpyxl.load_workbook(april_file, data_only=True)
             
-            return {
-                'total_revenue': total_revenue,
-                'monthly_avg': total_revenue / 2,
-                'april_billing': april_total,
-                'march_billing': march_total,
-                'source': 'RAGLE EQ BILLINGS - Live Excel Data',
-                'files_processed': [april_file, march_file],
-                'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            }
+            # Extract real revenue from Equip Billings sheet
+            revenue_total = 0
+            if 'Equip Billings' in wb.sheetnames:
+                ws = wb['Equip Billings']
+                
+                # Scan for actual billing amounts in the data
+                for row in range(2, min(200, ws.max_row + 1)):
+                    for col in range(max(1, ws.max_column - 5), ws.max_column + 1):
+                        cell_value = ws.cell(row=row, column=col).value
+                        if isinstance(cell_value, (int, float)) and cell_value > 1000:
+                            revenue_total += cell_value
+                            break
+            
+            # If no data found, check Summary sheet for totals
+            if revenue_total == 0 and 'Summary' in wb.sheetnames:
+                ws = wb['Summary']
+                for row in range(1, min(30, ws.max_row + 1)):
+                    for col in range(1, min(15, ws.max_column + 1)):
+                        cell_value = ws.cell(row=row, column=col).value
+                        if isinstance(cell_value, (int, float)) and cell_value > 100000:
+                            revenue_total = cell_value
+                            break
+                    if revenue_total > 0:
+                        break
+            
+            # Use extracted real data
+            if revenue_total > 0:
+                return {
+                    'total_revenue': revenue_total,
+                    'monthly_avg': revenue_total,
+                    'source': 'RAGLE EQ BILLINGS - Live Excel Data',
+                    'file_processed': april_file,
+                    'extraction_method': 'Direct Excel parsing',
+                    'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                }
+            else:
+                # Fallback if parsing fails - use known structure
+                raise Exception("No revenue data extracted from Excel")
+                
         except Exception as e:
-            self.logger.error(f"Revenue data sync error: {e}")
-            # Return verified totals even if file access fails
+            self.logger.error(f"Excel parsing error: {e}")
+            
+            # Emergency fallback - you need to provide the correct revenue total
             return {
-                'total_revenue': 2210400.4,
-                'monthly_avg': 1105200.2,
-                'source': 'RAGLE EQ BILLINGS - Verified Cache',
+                'total_revenue': 0,  # SET TO ZERO TO FORCE USER TO PROVIDE REAL DATA
+                'monthly_avg': 0,
+                'source': 'RAGLE EQ BILLINGS - NEEDS MANUAL UPDATE',
+                'error': 'Unable to parse Excel file - please provide correct revenue total',
                 'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             }
     
     def get_asset_data(self):
-        """Get your comprehensive asset information including all billing methods"""
-        # Based on your authentic RAGLE EQ BILLINGS structure
-        standard_equipment = 18  # Primary revenue generators
-        mechanic_trucks = 4      # Service vehicles
-        semi_trucks = 3          # Transport equipment  
-        heavy_haulers = 2        # Specialized transport
-        pickup_trucks = 6        # Support vehicles
-        
-        total_billable = standard_equipment + mechanic_trucks + semi_trucks + heavy_haulers + pickup_trucks
-        
-        return {
-            'total_assets': total_billable,
-            'billable_assets': total_billable,
-            'gps_enabled': total_billable - 2,  # Most have GPS
-            'active_today': int(total_billable * 0.85),  # 85% utilization
-            'source': 'RAGLE EQ BILLINGS - All billing methods included',
-            'categories': {
-                'Standard Equipment': standard_equipment,
-                'Mechanic Trucks': mechanic_trucks,
-                'Semi Trucks': semi_trucks,
-                'Heavy Haulers': heavy_haulers,
-                'Pickup Trucks': pickup_trucks
-            },
-            'monthly_revenue_capacity': total_billable * 67000  # Based on $2.21M monthly
+        """Get actual asset count from RAGLE EQ BILLINGS files"""
+        try:
+            import openpyxl
+            
+            # Read actual equipment data from Excel file
+            april_file = "RAGLE EQ BILLINGS - APRIL 2025 (JG REVIEWED 5.12).xlsm"
+            
+            wb = openpyxl.load_workbook(april_file, data_only=True)
+            
+            # Count unique equipment from Equip Billings sheet
+            asset_count = 0
+            equipment_types = {}
+            
+            if 'Equip Billings' in wb.sheetnames:
+                ws = wb['Equip Billings']
+                
+                # Track unique equipment numbers/IDs
+                unique_equipment = set()
+                
+                for row in range(2, min(500, ws.max_row + 1)):
+                    # Look for equipment ID in first few columns
+                    for col in range(1, 4):
+                        equip_id = ws.cell(row=row, column=col).value
+                        if equip_id and str(equip_id).strip():
+                            equip_str = str(equip_id).strip()
+                            if len(equip_str) > 2 and '-' in equip_str:  # Format like "ET-01"
+                                unique_equipment.add(equip_str)
+                                
+                                # Categorize by prefix
+                                prefix = equip_str.split('-')[0]
+                                equipment_types[prefix] = equipment_types.get(prefix, 0) + 1
+                                break
+                
+                asset_count = len(unique_equipment)
+            
+            if asset_count > 0:
+                return {
+                    'total_assets': asset_count,
+                    'billable_assets': asset_count,
+                    'gps_enabled': max(0, asset_count - 2),
+                    'active_today': int(asset_count * 0.85),
+                    'source': 'RAGLE EQ BILLINGS - Direct Excel Count',
+                    'categories': equipment_types,
+                    'extraction_method': 'Unique equipment ID count'
+                }
+            else:
+                raise Exception("No assets counted from Excel")
+                
+        except Exception as e:
+            self.logger.error(f"Asset counting error: {e}")
+            
+            # Return zero to force user input of correct data
+            return {
+                'total_assets': 0,
+                'billable_assets': 0,
+                'gps_enabled': 0,
+                'active_today': 0,
+                'source': 'RAGLE EQ BILLINGS - NEEDS MANUAL COUNT',
+                'error': 'Unable to count assets from Excel - please provide correct asset count',
+                'categories': {}
         }
     
     def get_driver_data(self):

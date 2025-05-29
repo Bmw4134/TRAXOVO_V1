@@ -112,6 +112,28 @@ def driver_reports():
     """Weekly attendance grid with drill-down capability"""
     return render_template('weekly_attendance_grid.html')
 
+@app.route('/reports/asset-utilization')
+def asset_utilization_report():
+    """Detailed asset utilization analysis from Gauge API data"""
+    from internal_eq_tracker import get_eq_utilization_report
+    utilization_data = get_eq_utilization_report()
+    return render_template('reports/asset_utilization.html', data=utilization_data)
+
+@app.route('/reports/driver-performance') 
+def driver_performance_report():
+    """Driver performance analysis with attendance data"""
+    return render_template('reports/driver_performance.html')
+
+@app.route('/reports/efficiency-analysis')
+def efficiency_analysis_report():
+    """Cost savings analysis vs external rentals"""
+    return render_template('reports/efficiency_analysis.html')
+
+@app.route('/reports/maintenance-alerts')
+def maintenance_alerts_report():
+    """Maintenance scheduling and alerts"""
+    return render_template('reports/maintenance_alerts.html')
+
 # API endpoints
 @app.route('/api/authentic-driver-data')
 def api_authentic_driver_data():

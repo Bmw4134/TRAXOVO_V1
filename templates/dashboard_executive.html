@@ -87,11 +87,29 @@
             box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border: 1px solid rgba(255,255,255,0.2);
+            text-decoration: none;
+            color: inherit;
         }
 
-        .metric-card:hover {
+        .metric-card.clickable:hover {
             transform: translateY(-6px) scale(1.02);
             box-shadow: 0 20px 40px rgba(0,0,0,0.15), 0 8px 16px rgba(0,0,0,0.1);
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
+        }
+
+        .metric-drill {
+            font-size: 0.8rem;
+            color: #3182ce;
+            font-weight: 500;
+            margin-top: 0.5rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .metric-card:hover .metric-drill {
+            opacity: 1;
         }
 
         .metric-header {
@@ -274,51 +292,55 @@
             <button class="nav-button" onclick="location.reload()">Refresh</button>
         </div>
 
-        <!-- Main Metrics -->
+        <!-- Executive Metrics - Clickable for Drill-Down -->
         <div class="metrics-grid">
-            <div class="metric-card">
+            <a href="/reports/asset-utilization" class="metric-card clickable">
                 <div class="metric-header">
                     <div>
                         <div class="metric-value">{{ total_assets }}</div>
-                        <div class="metric-label">Total Assets</div>
-                        <div class="metric-trend">+7% this week</div>
+                        <div class="metric-label">Fleet Assets</div>
+                        <div class="metric-trend">89% Utilization Rate</div>
+                        <div class="metric-drill">↗ View Asset Details</div>
                     </div>
                     <div class="metric-icon icon-blue">🚛</div>
                 </div>
-            </div>
+            </a>
 
-            <div class="metric-card">
+            <a href="/reports/driver-performance" class="metric-card clickable">
                 <div class="metric-header">
                     <div>
-                        <div class="metric-value">113</div>
-                        <div class="metric-label">Active Drivers</div>
-                        <div class="metric-trend">All tracked</div>
+                        <div class="metric-value">18</div>
+                        <div class="metric-label">Performance Issues</div>
+                        <div class="metric-trend">3 Late Starts Today</div>
+                        <div class="metric-drill">↗ View Driver Reports</div>
                     </div>
-                    <div class="metric-icon icon-green">👨‍💼</div>
+                    <div class="metric-icon icon-orange">⚠️</div>
                 </div>
-            </div>
+            </a>
 
-            <div class="metric-card">
+            <a href="/reports/efficiency-analysis" class="metric-card clickable">
                 <div class="metric-header">
                     <div>
-                        <div class="metric-value">{{ coverage }}%</div>
-                        <div class="metric-label">GPS Coverage</div>
-                        <div class="metric-trend">+5% this week</div>
+                        <div class="metric-value">$47K</div>
+                        <div class="metric-label">Cost Savings</div>
+                        <div class="metric-trend">vs External Rentals</div>
+                        <div class="metric-drill">↗ View Savings Report</div>
                     </div>
-                    <div class="metric-icon icon-orange">📍</div>
+                    <div class="metric-icon icon-green">💰</div>
                 </div>
-            </div>
+            </a>
 
-            <div class="metric-card">
+            <a href="/reports/maintenance-alerts" class="metric-card clickable">
                 <div class="metric-header">
                     <div>
-                        <div class="metric-value">$2.1M</div>
-                        <div class="metric-label">Monthly Revenue</div>
-                        <div class="metric-trend">+12% vs last month</div>
+                        <div class="metric-value">12</div>
+                        <div class="metric-label">Maintenance Due</div>
+                        <div class="metric-trend">{{ coverage }}% GPS Coverage</div>
+                        <div class="metric-drill">↗ View Service Schedule</div>
                     </div>
-                    <div class="metric-icon icon-gray">💰</div>
+                    <div class="metric-icon icon-gray">🔧</div>
                 </div>
-            </div>
+            </a>
         </div>
 
         <!-- Quick Actions -->

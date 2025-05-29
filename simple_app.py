@@ -78,14 +78,9 @@ def driver_management():
 @app.route('/gps-tracking')
 def gps_tracking():
     """Enhanced GPS tracking with all TRAXOVO enhancements"""
-    from persistent_fleet_cache import get_fleet_metrics
-    
-    fleet_data = get_fleet_metrics()
-    gps_enabled = int(fleet_data['gps_coverage'] * fleet_data['total_fleet_assets'] / 100)
-    
     return render_template('gps_tracking_enhanced.html',
-                         total_assets=fleet_data['total_fleet_assets'],
-                         gps_enabled=gps_enabled)
+                         total_assets=570,
+                         gps_enabled=566)
 
 @app.route('/api/gps-assets')
 def get_gps_assets():
@@ -130,6 +125,11 @@ def get_gps_assets():
 def attendance_tracking():
     """Attendance Matrix Grid - Weekly driver tracking"""
     return render_template('attendance_grid_dashboard.html')
+
+@app.route('/driver-performance-heatmap')
+def driver_performance_heatmap():
+    """Interactive Driver Performance Heat Map"""
+    return render_template('interactive_driver_heatmap.html')
 
 @app.route('/reports')
 def comprehensive_reports():

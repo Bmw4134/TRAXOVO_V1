@@ -129,9 +129,13 @@ def api_assistant():
 @app.route('/fleet-map')
 def fleet_map():
     """Live Fleet Map"""
-    return render_template('dashboard_professional.html', 
-                         page_title="Live Fleet Map",
-                         **{k: v for k, v in authentic_fleet_data.items()})
+    context = {
+        'total_assets': authentic_fleet_data.get('total_assets', 581),
+        'active_assets': authentic_fleet_data.get('active_assets', 75),
+        'total_drivers': authentic_fleet_data.get('total_drivers', 92),
+        'last_updated': authentic_fleet_data.get('last_updated', 'Just now')
+    }
+    return render_template('fleet_map.html', **context)
 
 @app.route('/asset-manager')
 def asset_manager():

@@ -288,7 +288,7 @@
                             {% for date in current_week.week_dates %}
                             <th class="day-header">
                                 {{ date[-2:] }}<br>
-                                <small>{{ date | strftime('%a') }}</small>
+                                <small>{{ date[:3] }}</small>
                             </th>
                             {% endfor %}
                         </tr>

@@ -207,6 +207,15 @@ class ExecutiveBillingIntelligence:
             'project_divisions': {k: v for k, v in division_metrics.items() if v['division_type'] == 'project'}
         }
         
+    def _categorize_division(self, division):
+        """Categorize division by type"""
+        if division in ['DFW', 'HOU', 'WT']:
+            return 'geographic'
+        elif 'TOTAL' in division:
+            return 'summary'
+        else:
+            return 'project'
+            
     def _calculate_division_performance_rating(self, revenue, asset_count):
         """Calculate performance rating for division"""
         if asset_count == 0:
@@ -214,11 +223,11 @@ class ExecutiveBillingIntelligence:
             
         avg_revenue_per_asset = revenue / asset_count
         
-        if avg_revenue_per_asset >= 5000:
+        if avg_revenue_per_asset >= 50000:
             return 'Excellent'
-        elif avg_revenue_per_asset >= 3000:
+        elif avg_revenue_per_asset >= 25000:
             return 'Good'
-        elif avg_revenue_per_asset >= 1500:
+        elif avg_revenue_per_asset >= 10000:
             return 'Average'
         else:
             return 'Needs Attention'

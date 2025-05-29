@@ -65,6 +65,28 @@ def api_recommendations():
         logger.error(f"Error getting recommendations: {e}")
         return jsonify({'error': str(e)}), 500
 
+@equipment_analytics_bp.route('/api/maintenance-analytics')
+def api_maintenance_analytics():
+    """API endpoint for maintenance analytics"""
+    try:
+        processor = get_equipment_analytics_processor()
+        maintenance_data = processor.generate_maintenance_analytics()
+        return jsonify(maintenance_data)
+    except Exception as e:
+        logger.error(f"Error getting maintenance analytics: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@equipment_analytics_bp.route('/api/predictive-insights')
+def api_predictive_insights():
+    """API endpoint for predictive maintenance insights"""
+    try:
+        processor = get_equipment_analytics_processor()
+        insights = processor.generate_predictive_maintenance_insights()
+        return jsonify(insights)
+    except Exception as e:
+        logger.error(f"Error getting predictive insights: {e}")
+        return jsonify({'error': str(e)}), 500
+
 @equipment_analytics_bp.route('/export')
 def export_analytics():
     """Export analytics data"""

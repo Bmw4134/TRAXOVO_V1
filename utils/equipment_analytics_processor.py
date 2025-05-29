@@ -21,6 +21,8 @@ class EquipmentAnalyticsProcessor:
         self.usage_detail = None
         self.cost_analysis = None
         self.service_codes = None
+        self.work_orders = None
+        self.equipment_history = None
         
     def load_all_equipment_data(self):
         """Load all equipment-related files"""
@@ -29,7 +31,9 @@ class EquipmentAnalyticsProcessor:
             'equipment_categories': 'EQ CATEGORIES CONDENSED LIST 05.29.2025.xlsx',
             'usage_detail': 'EQUIPMENT USAGE DETAIL 010125-053125.xlsx',
             'cost_analysis': 'USAGE VS. COST ANALYSIS 010125-053125.xlsx',
-            'service_codes': 'CURRENT EQ SERVICE-EXPENSE CODE LIST 052925.xlsx'
+            'service_codes': 'CURRENT EQ SERVICE-EXPENSE CODE LIST 052925.xlsx',
+            'work_orders': 'WORK ORDER DETAIL REPORT 01.01.2020-05.31.2025.xlsx',
+            'equipment_history': 'Equipment Detail History Report_01.01.2020-05.31.2025.xlsx'
         }
         
         results = {}
@@ -267,19 +271,109 @@ class EquipmentAnalyticsProcessor:
         
         return recommendations
     
+    def generate_maintenance_analytics(self):
+        """Generate maintenance analytics from work orders and equipment history"""
+        if self.work_orders is None and self.equipment_history is None:
+            return {'error': 'No maintenance data loaded'}
+        
+        analytics = {
+            'maintenance_summary': {},
+            'work_order_trends': {},
+            'equipment_reliability': {},
+            'cost_trends': {}
+        }
+        
+        # Analyze work orders
+        if self.work_orders is not None:
+            wo_df = self.work_orders
+            
+            # Find relevant columns
+            date_cols = [col for col in wo_df.columns if any(term in col.lower() for term in ['date', 'created', 'completed'])]
+            cost_cols = [col for col in wo_df.columns if any(term in col.lower() for term in ['cost', 'amount', 'total', 'price'])]
+            equipment_cols = [col for col in wo_df.columns if any(term in col.lower() for term in ['equipment', 'asset', 'unit'])]
+            
+            analytics['maintenance_summary'] = {
+                'total_work_orders': len(wo_df),
+                'unique_equipment': len(wo_df[equipment_cols[0]].unique()) if equipment_cols else 0,
+                'total_maintenance_cost': wo_df[cost_cols[0]].sum() if cost_cols and pd.api.types.is_numeric_dtype(wo_df[cost_cols[0]]) else 0,
+                'average_cost_per_order': wo_df[cost_cols[0]].mean() if cost_cols and pd.api.types.is_numeric_dtype(wo_df[cost_cols[0]]) else 0
+            }
+        
+        # Analyze equipment history
+        if self.equipment_history is not None:
+            hist_df = self.equipment_history
+            
+            # Calculate reliability metrics
+            if len(hist_df) > 0:
+                analytics['equipment_reliability'] = {
+                    'total_records': len(hist_df),
+                    'equipment_tracked': len(hist_df.iloc[:, 0].unique()) if len(hist_df.columns) > 0 else 0,
+                    'data_coverage_years': 5.4  # Based on file date range
+                }
+        
+        return analytics
+    
+    def generate_predictive_maintenance_insights(self):
+        """Generate predictive maintenance recommendations"""
+        insights = []
+        
+        # Analyze work order patterns
+        if self.work_orders is not None:
+            wo_df = self.work_orders
+            
+            # Find high-maintenance equipment
+            equipment_cols = [col for col in wo_df.columns if any(term in col.lower() for term in ['equipment', 'asset', 'unit'])]
+            if equipment_cols:
+                equipment_col = equipment_cols[0]
+                maintenance_frequency = wo_df[equipment_col].value_counts()
+                
+                high_maintenance = maintenance_frequency.head(10)
+                
+                for equipment, count in high_maintenance.items():
+                    if count > 5:  # Equipment with more than 5 work orders
+                        insights.append({
+                            'type': 'high_maintenance',
+                            'equipment': equipment,
+                            'work_orders': count,
+                            'recommendation': f'Consider preventive maintenance schedule or replacement evaluation for {equipment}',
+                            'priority': 'high' if count > 10 else 'medium'
+                        })
+        
+        # Generate cost-based insights
+        if self.cost_analysis is not None:
+            cost_df = self.cost_analysis
+            cost_cols = [col for col in cost_df.columns if any(term in col.lower() for term in ['cost', 'expense'])]
+            
+            if cost_cols:
+                cost_col = cost_cols[0]
+                high_cost_threshold = cost_df[cost_col].quantile(0.9) if pd.api.types.is_numeric_dtype(cost_df[cost_col]) else 0
+                
+                insights.append({
+                    'type': 'cost_optimization',
+                    'recommendation': f'Monitor equipment with costs above ${high_cost_threshold:,.0f} for potential replacement',
+                    'affected_count': len(cost_df[cost_df[cost_col] > high_cost_threshold]) if pd.api.types.is_numeric_dtype(cost_df[cost_col]) else 0,
+                    'priority': 'medium'
+                })
+        
+        return insights
+    
     def export_analytics_dashboard_data(self):
         """Export data for dashboard integration"""
         dashboard_data = {
             'timestamp': datetime.now().isoformat(),
             'utilization_analysis': self.generate_utilization_analysis(),
             'cost_efficiency': self.generate_cost_efficiency_report(),
+            'maintenance_analytics': self.generate_maintenance_analytics(),
+            'predictive_insights': self.generate_predictive_maintenance_insights(),
             'recommendations': self.generate_billing_optimization_recommendations(),
             'data_sources': {
                 'equipment_master_loaded': self.equipment_master is not None,
                 'usage_detail_loaded': self.usage_detail is not None,
                 'cost_analysis_loaded': self.cost_analysis is not None,
                 'categories_loaded': self.equipment_categories is not None,
-                'service_codes_loaded': self.service_codes is not None
+                'service_codes_loaded': self.service_codes is not None,
+                'work_orders_loaded': self.work_orders is not None,
+                'equipment_history_loaded': self.equipment_history is not None
             }
         }
         

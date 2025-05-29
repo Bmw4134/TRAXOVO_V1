@@ -175,6 +175,38 @@
         </div>
         {% endif %}
 
+        <!-- Maintenance Analytics -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h5><i class="fas fa-wrench me-2"></i>Maintenance Analytics</h5>
+                    </div>
+                    <div class="card-body" id="maintenanceAnalytics">
+                        <div class="text-center">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-danger text-white">
+                        <h5><i class="fas fa-chart-line me-2"></i>Predictive Insights</h5>
+                    </div>
+                    <div class="card-body" id="predictiveInsights">
+                        <div class="text-center">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Recommendations -->
         {% if recommendations %}
         <div class="row mb-4">
@@ -330,9 +362,81 @@
                 });
         }
 
+        // Load maintenance analytics
+        function loadMaintenanceAnalytics() {
+            fetch('/equipment-analytics/api/maintenance-analytics')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        document.getElementById('maintenanceAnalytics').innerHTML = 
+                            '<div class="alert alert-warning">No maintenance data available</div>';
+                        return;
+                    }
+                    
+                    let html = '';
+                    if (data.maintenance_summary) {
+                        const summary = data.maintenance_summary;
+                        html = `
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <h4>${summary.total_work_orders || 0}</h4>
+                                    <small class="text-muted">Work Orders</small>
+                                </div>
+                                <div class="col-6">
+                                    <h4>${summary.unique_equipment || 0}</h4>
+                                    <small class="text-muted">Equipment Units</small>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row text-center">
+                                <div class="col-12">
+                                    <h5>$${(summary.total_maintenance_cost || 0).toLocaleString()}</h5>
+                                    <small class="text-muted">Total Maintenance Cost</small>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    document.getElementById('maintenanceAnalytics').innerHTML = html;
+                })
+                .catch(error => {
+                    document.getElementById('maintenanceAnalytics').innerHTML = 
+                        '<div class="alert alert-danger">Error loading maintenance data</div>';
+                });
+        }
+
+        // Load predictive insights
+        function loadPredictiveInsights() {
+            fetch('/equipment-analytics/api/predictive-insights')
+                .then(response => response.json())
+                .then(data => {
+                    let html = '';
+                    if (data && data.length > 0) {
+                        data.slice(0, 5).forEach(insight => {
+                            const badgeClass = insight.priority === 'high' ? 'danger' : 
+                                             insight.priority === 'medium' ? 'warning' : 'info';
+                            html += `
+                                <div class="alert alert-${badgeClass} py-2 mb-2">
+                                    <small><strong>${insight.type.replace('_', ' ').toUpperCase()}:</strong> 
+                                    ${insight.recommendation}</small>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        html = '<div class="alert alert-info">No predictive insights available</div>';
+                    }
+                    document.getElementById('predictiveInsights').innerHTML = html;
+                })
+                .catch(error => {
+                    document.getElementById('predictiveInsights').innerHTML = 
+                        '<div class="alert alert-danger">Error loading insights</div>';
+                });
+        }
+
         // Initialize when page loads
         document.addEventListener('DOMContentLoaded', function() {
             initializeCharts();
+            loadMaintenanceAnalytics();
+            loadPredictiveInsights();
         });
     </script>
 </body>

@@ -399,6 +399,15 @@ def server_error(e):
 # Register performance boost blueprint
 app.register_blueprint(performance_boost_bp)
 
+# Register new modules
+from comprehensive_asset_module import asset_module_bp
+from executive_reporting_system import executive_reports_bp
+from enhanced_metrics_dashboard import enhanced_metrics_bp
+
+app.register_blueprint(asset_module_bp)
+app.register_blueprint(executive_reports_bp)
+app.register_blueprint(enhanced_metrics_bp)
+
 if __name__ == "__main__":
     # Run deployment readiness check
     deployment_readiness_check()

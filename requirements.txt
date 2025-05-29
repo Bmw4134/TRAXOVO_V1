@@ -31,3 +31,4 @@ flask-login
 oauthlib
 pyjwt
 notion-client
+sendgrid

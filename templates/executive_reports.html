@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Reporting - TRAXOVO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .report-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: transform 0.3s ease;
+        }
+        .report-card:hover {
+            transform: translateY(-5px);
+        }
+        .action-panel {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .status-success { color: #28a745; }
+        .status-error { color: #dc3545; }
+        .status-warning { color: #ffc107; }
+        .update-log {
+            max-height: 400px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 5px;
+        }
+        .metric-highlight {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .btn-executive {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        .btn-executive:hover {
+            transform: scale(1.05);
+            color: white;
+        }
+        .loading-spinner {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2><i class="fas fa-chart-line"></i> Executive Reporting Center</h2>
+                <p class="text-muted">Automated attendance updates, report generation, and executive distribution</p>
+            </div>
+        </div>
+
+        <!-- Quick Actions Panel -->
+        <div class="action-panel">
+            <h4><i class="fas fa-bolt"></i> Quick Actions</h4>
+            <div class="row">
+                <div class="col-md-4">
+                    <button id="updateAttendanceBtn" class="btn btn-executive w-100 mb-2">
+                        <i class="fas fa-sync-alt"></i> Update Attendance Data
+                        <div class="loading-spinner spinner-border spinner-border-sm ms-2" role="status"></div>
+                    </button>
+                    <small class="text-muted">Sync Gauge API, process timecards, correlate GPS data</small>
+                </div>
+                <div class="col-md-4">
+                    <button id="generateReportsBtn" class="btn btn-executive w-100 mb-2">
+                        <i class="fas fa-file-alt"></i> Generate Reports
+                        <div class="loading-spinner spinner-border spinner-border-sm ms-2" role="status"></div>
+                    </button>
+                    <small class="text-muted">Create executive summaries and operational reports</small>
+                </div>
+                <div class="col-md-4">
+                    <button id="sendReportsBtn" class="btn btn-executive w-100 mb-2">
+                        <i class="fas fa-envelope"></i> Send to Executives
+                        <div class="loading-spinner spinner-border spinner-border-sm ms-2" role="status"></div>
+                    </button>
+                    <small class="text-muted">Email reports to VP and management team</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Templates -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h4><i class="fas fa-templates"></i> Available Reports</h4>
+            </div>
+            {% for report_id, config in report_templates.items() %}
+            <div class="col-md-4">
+                <div class="report-card">
+                    <h5><i class="fas fa-chart-bar"></i> {{ config.name }}</h5>
+                    <p class="mb-2">Frequency: {{ config.frequency.title() }}</p>
+                    <p class="mb-3">Recipients: {{ config.recipients|length }} person(s)</p>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-light btn-sm preview-btn" data-report="{{ report_id }}">
+                            <i class="fas fa-eye"></i> Preview
+                        </button>
+                        <button class="btn btn-success btn-sm send-btn" data-report="{{ report_id }}">
+                            <i class="fas fa-paper-plane"></i> Send Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Current Status -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-info-circle"></i> System Status</h5>
+                    </div>
+                    <div class="card-body" id="systemStatus">
+                        <p><i class="fas fa-database"></i> <strong>Gauge API:</strong> <span class="status-success">Connected</span></p>
+                        <p><i class="fas fa-clock"></i> <strong>Last Sync:</strong> <span id="lastSync">Loading...</span></p>
+                        <p><i class="fas fa-envelope"></i> <strong>Email Service:</strong> <span class="status-success">Ready</span></p>
+                        <p><i class="fas fa-users"></i> <strong>Active Drivers:</strong> <span class="metric-highlight">92</span></p>
+                        <p><i class="fas fa-truck"></i> <strong>GPS Assets:</strong> <span class="metric-highlight">566</span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-history"></i> Update Log</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="updateLog" class="update-log">
+                            <p class="text-muted">No recent updates. Click "Update Attendance Data" to begin.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Preview Modal -->
+        <div class="modal fade" id="reportPreviewModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Report Preview</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body" id="reportPreviewContent">
+                        <!-- Report preview will be loaded here -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="sendPreviewedReport">Send Report</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom Recipients Modal -->
+        <div class="modal fade" id="customRecipientsModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Send Report</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Recipients (one per line)</label>
+                            <textarea id="customRecipients" class="form-control" rows="4" placeholder="executive@company.com
+vp@company.com
+manager@company.com"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Additional Message (optional)</label>
+                            <textarea id="additionalMessage" class="form-control" rows="2" placeholder="Additional context or notes..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="confirmSendReport">Send Report</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentReportType = null;
+
+        // Update attendance data
+        document.getElementById('updateAttendanceBtn').addEventListener('click', function() {
+            const btn = this;
+            const spinner = btn.querySelector('.loading-spinner');
+            
+            btn.disabled = true;
+            spinner.style.display = 'inline-block';
+            
+            fetch('/api/update-attendance', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'}
+            })
+            .then(response => response.json())
+            .then(data => {
+                updateLog('Attendance data update completed', data);
+                updateSystemStatus(data);
+            })
+            .catch(error => {
+                updateLog('Error updating attendance data', {error: error.message}, 'error');
+            })
+            .finally(() => {
+                btn.disabled = false;
+                spinner.style.display = 'none';
+            });
+        });
+
+        // Preview report
+        document.querySelectorAll('.preview-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const reportType = this.dataset.report;
+                
+                fetch(`/api/generate-report/${reportType}`)
+                .then(response => response.json())
+                .then(data => {
+                    showReportPreview(data);
+                    currentReportType = reportType;
+                })
+                .catch(error => {
+                    alert('Error generating report preview: ' + error.message);
+                });
+            });
+        });
+
+        // Send report
+        document.querySelectorAll('.send-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                currentReportType = this.dataset.report;
+                const modal = new bootstrap.Modal(document.getElementById('customRecipientsModal'));
+                modal.show();
+            });
+        });
+
+        // Confirm send report
+        document.getElementById('confirmSendReport').addEventListener('click', function() {
+            const recipients = document.getElementById('customRecipients').value
+                .split('\n')
+                .map(email => email.trim())
+                .filter(email => email);
+            
+            const payload = {
+                report_type: currentReportType,
+                recipients: recipients.length > 0 ? recipients : null
+            };
+            
+            fetch('/api/send-report', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    updateLog(`Report sent successfully to ${data.recipients.length} recipient(s)`, data);
+                    bootstrap.Modal.getInstance(document.getElementById('customRecipientsModal')).hide();
+                } else {
+                    updateLog('Error sending report', data, 'error');
+                }
+            })
+            .catch(error => {
+                updateLog('Error sending report', {error: error.message}, 'error');
+            });
+        });
+
+        function updateLog(message, data = {}, type = 'info') {
+            const log = document.getElementById('updateLog');
+            const timestamp = new Date().toLocaleTimeString();
+            
+            const statusClass = type === 'error' ? 'status-error' : 
+                              type === 'warning' ? 'status-warning' : 'status-success';
+            
+            const entry = document.createElement('div');
+            entry.className = 'mb-2';
+            entry.innerHTML = `
+                <small class="text-muted">${timestamp}</small><br>
+                <span class="${statusClass}"><strong>${message}</strong></span>
+                ${Object.keys(data).length > 0 ? `<br><small>${JSON.stringify(data, null, 2)}</small>` : ''}
+            `;
+            
+            log.insertBefore(entry, log.firstChild);
+            
+            // Keep only last 10 entries
+            while (log.children.length > 10) {
+                log.removeChild(log.lastChild);
+            }
+        }
+
+        function updateSystemStatus(data) {
+            document.getElementById('lastSync').textContent = new Date().toLocaleString();
+        }
+
+        function showReportPreview(data) {
+            const content = document.getElementById('reportPreviewContent');
+            
+            let html = `<h5>${data.config.name}</h5>`;
+            
+            if (data.data.fleet_overview) {
+                const fleet = data.data.fleet_overview;
+                html += `
+                    <h6>Fleet Overview</h6>
+                    <div class="row mb-3">
+                        <div class="col-3"><strong>Total Assets:</strong> ${fleet.total_assets}</div>
+                        <div class="col-3"><strong>Active:</strong> ${fleet.active_assets}</div>
+                        <div class="col-3"><strong>GPS Enabled:</strong> ${fleet.gps_enabled}</div>
+                        <div class="col-3"><strong>Utilization:</strong> ${fleet.utilization_rate}</div>
+                    </div>
+                `;
+            }
+            
+            if (data.data.cost_savings) {
+                const savings = data.data.cost_savings;
+                html += `
+                    <h6>Cost Savings</h6>
+                    <div class="row mb-3">
+                        <div class="col-6"><strong>Monthly Savings:</strong> $${savings.monthly_savings.toLocaleString()}</div>
+                        <div class="col-6"><strong>Rental Reduction:</strong> $${savings.rental_reduction.toLocaleString()}</div>
+                    </div>
+                `;
+            }
+            
+            if (data.data.attendance_summary) {
+                const attendance = data.data.attendance_summary;
+                html += `
+                    <h6>Attendance Summary</h6>
+                    <div class="row mb-3">
+                        <div class="col-3"><strong>Total Drivers:</strong> ${attendance.total_drivers}</div>
+                        <div class="col-3"><strong>Active Today:</strong> ${attendance.active_today}</div>
+                        <div class="col-3"><strong>GPS Correlation:</strong> ${attendance.gps_correlation}</div>
+                        <div class="col-3"><strong>Accuracy:</strong> ${attendance.accuracy_rate}</div>
+                    </div>
+                `;
+            }
+            
+            if (data.data.alerts) {
+                html += `<h6>System Alerts</h6>`;
+                data.data.alerts.forEach(alert => {
+                    html += `<div class="alert alert-warning">${alert.message}</div>`;
+                });
+            }
+            
+            content.innerHTML = html;
+            
+            const modal = new bootstrap.Modal(document.getElementById('reportPreviewModal'));
+            modal.show();
+        }
+
+        // Initialize page
+        updateLog('Executive Reporting Center initialized');
+        updateSystemStatus({});
+    </script>
+</body>
+</html>

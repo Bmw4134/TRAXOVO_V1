@@ -19,6 +19,11 @@ logging.basicConfig(level=logging.DEBUG)
 # Import deployment test users
 from deployment_test_users import TEST_USERS, TestUser, deployment_readiness_check
 
+# Import customizable widget dashboard functions
+from customizable_widget_dashboard import (
+    widget_dashboard, save_widget_layout, get_widget_data, reset_widget_layout
+)
+
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET") or "traxovo-production-2025"
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
@@ -207,6 +212,27 @@ def deployment_reports():
     if not current_user.has_access('reports'):
         return redirect(url_for('dashboard'))
     return render_template('deployment_reports.html')
+
+# Widget Dashboard Routes
+@app.route('/widget-dashboard')
+@login_required
+def widget_dash():
+    return widget_dashboard()
+
+@app.route('/save-widget-layout', methods=['POST'])
+@login_required
+def save_layout():
+    return save_widget_layout()
+
+@app.route('/get-widget-data')
+@login_required
+def widget_data():
+    return get_widget_data()
+
+@app.route('/reset-widget-layout', methods=['POST'])
+@login_required
+def reset_layout():
+    return reset_widget_layout()
 
 @app.errorhandler(404)
 def page_not_found(e):

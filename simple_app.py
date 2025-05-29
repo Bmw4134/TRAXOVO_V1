@@ -66,6 +66,9 @@ def load_user(user_id):
 def load_authentic_json_data():
     """Load authentic data from provided JSON files"""
     try:
+        import json
+        import os
+        
         # Load authentic attendance data  
         with open('attached_assets/attendance.json', 'r') as f:
             attendance_data = json.load(f)
@@ -89,7 +92,8 @@ def load_authentic_json_data():
             'map_assets': map_data,
             'fleet_assets': fleet_data
         }
-    except:
+    except Exception as e:
+        logging.error(f"Error loading authentic data: {e}")
         return None
 
 # Authentic Foundation Data Functions with Performance Optimization

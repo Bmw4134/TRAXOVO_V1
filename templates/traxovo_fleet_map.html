@@ -694,10 +694,24 @@
         
         // Update statistics
         function updateStats(data) {
-            document.getElementById('total-assets').textContent = data.total_assets;
-            document.getElementById('online-devices').textContent = data.online_devices;
-            document.getElementById('offline-devices').textContent = data.offline_devices;
-            document.getElementById('alerts-count').textContent = data.alerts ? data.alerts.length : 0;
+            document.getElementById('total-assets').textContent = data.total_assets || data.active_assets || 0;
+            
+            // Count online/offline from assets array
+            if (data.assets) {
+                const onlineCount = data.assets.filter(asset => asset.status === 'online').length;
+                const offlineCount = data.assets.filter(asset => asset.status === 'offline').length;
+                
+                document.getElementById('online-devices').textContent = onlineCount;
+                document.getElementById('offline-devices').textContent = offlineCount;
+                
+                // Count total alerts
+                const totalAlerts = data.assets.reduce((sum, asset) => sum + (asset.alerts ? asset.alerts.length : 0), 0);
+                document.getElementById('alerts-count').textContent = totalAlerts;
+            } else {
+                document.getElementById('online-devices').textContent = data.in_job_zones || 0;
+                document.getElementById('offline-devices').textContent = 0;
+                document.getElementById('alerts-count').textContent = 0;
+            }
         }
         
         // Update last update time

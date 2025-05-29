@@ -6,6 +6,7 @@ Real-time GPS tracking with 10-15 second updates, advanced filtering, and intell
 
 import os
 import json
+import random
 import requests
 from datetime import datetime, timedelta
 from flask import Blueprint, render_template, jsonify, request

@@ -11,6 +11,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 import logging
 from authentic_data_service import authentic_data
 from foundation_export import foundation_exporter
+from micro_agent_sync import micro_agent
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -278,15 +279,47 @@ def api_foundation_export():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
-@app.route('/health')
-def health():
-    """Health check endpoint"""
-    return jsonify({
+@app.route('/api/system-health')
+def api_system_health():
+    """System health with micro-agent status"""
+    health_data = micro_agent.get_system_health()
+    health_data.update({
         'status': 'healthy',
         'authentic_data': 'connected',
         'revenue_total': authentic_data.get_revenue_data()['total_revenue'],
-        'asset_count': authentic_data.get_asset_data()['total_assets']
+        'asset_count': authentic_data.get_asset_data()['total_assets'],
+        'foundation_export': 'ready'
     })
+    return jsonify(health_data)
+
+@app.route('/health')
+def health():
+    """Simple health check endpoint"""
+    return jsonify({'status': 'healthy'})
+
+@app.route('/api/deploy-module', methods=['POST'])
+def api_deploy_module():
+    """Hot deploy new modules"""
+    module_name = request.json.get('module_name')
+    module_config = request.json.get('config', {})
+    
+    if module_name:
+        micro_agent.register_module(module_name, module_config)
+        success = micro_agent.deploy_module(module_name)
+        
+        if success:
+            return jsonify({
+                'success': True,
+                'message': f'Module {module_name} deployed successfully',
+                'timestamp': datetime.now().isoformat()
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': f'Failed to deploy module {module_name}'
+            }), 500
+    else:
+        return jsonify({'success': False, 'error': 'Module name required'}), 400
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -295,6 +328,9 @@ def page_not_found(e):
 @app.errorhandler(500)
 def server_error(e):
     return render_template('500.html'), 500
+
+# Start micro-agent background sync
+micro_agent.start_background_sync()
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

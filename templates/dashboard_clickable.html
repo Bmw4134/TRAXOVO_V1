@@ -70,6 +70,46 @@
             padding: 2rem;
             background: #f8f9fa;
         }
+        
+        /* Mobile Responsiveness */
+        @media (max-width: 767px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+            .dashboard-header h1 {
+                font-size: 1.5rem;
+            }
+            .metric-card {
+                margin-bottom: 1rem;
+            }
+        }
+        
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background: #667eea;
+            border: none;
+            color: white;
+            padding: 0.75rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        @media (max-width: 767px) {
+            .mobile-menu-toggle {
+                display: block;
+            }
+        }
         .page-header {
             background: white;
             padding: 1.5rem 2rem;
@@ -225,6 +265,11 @@
     </style>
 </head>
 <body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
     <!-- Dashboard Header -->
     <div class="dashboard-header">
         <div class="container">
@@ -486,6 +531,31 @@
                     console.error('Error fetching metric details:', error);
                 });
         }
+        
+        // Mobile sidebar toggle
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('show');
+        }
+        
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.querySelector('.sidebar');
+            const toggleBtn = document.querySelector('.mobile-menu-toggle');
+            
+            if (window.innerWidth <= 767 && sidebar.classList.contains('show')) {
+                if (!sidebar.contains(event.target) && !toggleBtn.contains(event.target)) {
+                    sidebar.classList.remove('show');
+                }
+            }
+        });
+        
+        // Auto-refresh dashboard every 30 seconds
+        setInterval(() => {
+            updateLastUpdated();
+            // Refresh metrics without full page reload
+            location.reload();
+        }, 30000);
     </script>
 </body>
 </html>

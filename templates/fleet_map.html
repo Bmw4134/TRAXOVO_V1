@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAXOVO Fleet Map - Real-time GPS Tracking</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        #map { 
+            height: calc(100vh - 120px);
+            width: 100%;
+        }
+        .sidebar {
+            height: calc(100vh - 120px);
+            overflow-y: auto;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+        }
+        .asset-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            padding: 12px;
+            border-left: 4px solid #00ff88;
+        }
+        .asset-card.offline { border-left-color: #ff4444; }
+        .asset-card.idle { border-left-color: #ffaa00; }
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-active { background-color: #00ff88; }
+        .status-idle { background-color: #ffaa00; }
+        .status-offline { background-color: #ff4444; }
+        .update-banner {
+            background: linear-gradient(90deg, #00ff88, #00cc66);
+            color: #000;
+            padding: 8px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-box {
+            background: rgba(255,255,255,0.15);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .asset-filter {
+            margin-bottom: 15px;
+        }
+        .filter-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            margin: 2px;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+        .filter-btn.active {
+            background: #00ff88;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-map-marked-alt me-2"></i>TRAXOVO Fleet Map
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text me-3">
+                    <i class="fas fa-clock me-1"></i>
+                    <span id="currentTime"></span>
+                </span>
+                <a class="nav-link" href="/">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="update-banner" id="updateBanner">
+        <i class="fas fa-satellite-dish me-2"></i>Real-time updates every 15 seconds
+        <span id="nextUpdate"></span>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Map Area -->
+            <div class="col-md-8">
+                <div id="map"></div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="col-md-4 sidebar p-3">
+                <h5><i class="fas fa-tachometer-alt me-2"></i>Fleet Statistics</h5>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-number" id="totalAssets">--</div>
+                        <div>Total Assets</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number text-success" id="activeAssets">--</div>
+                        <div>Active</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number text-warning" id="idleAssets">--</div>
+                        <div>Idle</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number text-danger" id="offlineAssets">--</div>
+                        <div>Offline</div>
+                    </div>
+                </div>
+
+                <h6><i class="fas fa-filter me-2"></i>Filter Assets</h6>
+                <div class="asset-filter">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="active">Active</button>
+                    <button class="filter-btn" data-filter="idle">Idle</button>
+                    <button class="filter-btn" data-filter="offline">Offline</button>
+                </div>
+
+                <h6><i class="fas fa-list me-2"></i>Asset List</h6>
+                <div id="assetList">
+                    <div class="text-center">
+                        <i class="fas fa-spinner fa-spin me-2"></i>Loading fleet data...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Initialize map centered on Dallas area
+        const map = L.map('map').setView([32.7767, -96.7970], 10);
+        
+        // Add tile layer with satellite view option
+        const streets = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        });
+        
+        const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: '© Esri'
+        });
+        
+        streets.addTo(map);
+        
+        // Layer control
+        L.control.layers({
+            'Streets': streets,
+            'Satellite': satellite
+        }).addTo(map);
+
+        // Asset markers storage
+        let assetMarkers = {};
+        let currentFilter = 'all';
+        let updateInterval;
+
+        // Custom marker icons
+        const createAssetIcon = (status) => {
+            const colors = {
+                active: '#00ff88',
+                idle: '#ffaa00',
+                offline: '#ff4444'
+            };
+            
+            return L.divIcon({
+                html: `<div style="background-color: ${colors[status]}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.5);"></div>`,
+                iconSize: [16, 16],
+                className: 'custom-marker'
+            });
+        };
+
+        // Load fleet data
+        async function loadFleetData() {
+            try {
+                const response = await fetch('/api/fleet-assets');
+                const data = await response.json();
+                
+                if (data.error) {
+                    document.getElementById('assetList').innerHTML = 
+                        `<div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            ${data.message}<br>
+                            <small>Real fleet data requires Gauge API connection</small>
+                        </div>`;
+                    return;
+                }
+                
+                updateFleetStats(data);
+                updateAssetMarkers(data.assets);
+                updateAssetList(data.assets);
+                
+            } catch (error) {
+                console.error('Error loading fleet data:', error);
+                document.getElementById('assetList').innerHTML = 
+                    '<div class="alert alert-danger">Connection error. Please check API settings.</div>';
+            }
+        }
+
+        // Update fleet statistics
+        function updateFleetStats(data) {
+            const stats = {
+                total: data.assets.length,
+                active: data.assets.filter(a => a.status === 'active').length,
+                idle: data.assets.filter(a => a.status === 'idle').length,
+                offline: data.assets.filter(a => a.status === 'offline').length
+            };
+            
+            document.getElementById('totalAssets').textContent = stats.total;
+            document.getElementById('activeAssets').textContent = stats.active;
+            document.getElementById('idleAssets').textContent = stats.idle;
+            document.getElementById('offlineAssets').textContent = stats.offline;
+        }
+
+        // Update asset markers on map
+        function updateAssetMarkers(assets) {
+            // Clear existing markers
+            Object.values(assetMarkers).forEach(marker => map.removeLayer(marker));
+            assetMarkers = {};
+            
+            assets.forEach(asset => {
+                if (asset.lat && asset.lng) {
+                    const marker = L.marker([asset.lat, asset.lng], {
+                        icon: createAssetIcon(asset.status)
+                    });
+                    
+                    marker.bindPopup(`
+                        <div>
+                            <h6>${asset.name}</h6>
+                            <p><strong>Status:</strong> ${asset.status.charAt(0).toUpperCase() + asset.status.slice(1)}</p>
+                            <p><strong>Asset ID:</strong> ${asset.asset_id}</p>
+                            <p><strong>Hours Today:</strong> ${asset.hours_today || 0}</p>
+                            <p><strong>Operator:</strong> ${asset.operator || 'N/A'}</p>
+                            <p><strong>Last Seen:</strong> ${asset.last_seen || 'Unknown'}</p>
+                        </div>
+                    `);
+                    
+                    assetMarkers[asset.asset_id] = marker;
+                    
+                    if (currentFilter === 'all' || currentFilter === asset.status) {
+                        marker.addTo(map);
+                    }
+                }
+            });
+        }
+
+        // Update asset list in sidebar
+        function updateAssetList(assets) {
+            const filteredAssets = currentFilter === 'all' ? 
+                assets : assets.filter(a => a.status === currentFilter);
+            
+            const listHtml = filteredAssets.map(asset => `
+                <div class="asset-card ${asset.status}" onclick="focusAsset('${asset.asset_id}')">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <span class="status-indicator status-${asset.status}"></span>
+                            <strong>${asset.name}</strong>
+                        </div>
+                        <small>${asset.hours_today || 0}h</small>
+                    </div>
+                    <div class="mt-1">
+                        <small class="text-white-50">
+                            ${asset.operator || 'No operator'} • ${asset.job_site || 'Unknown location'}
+                        </small>
+                    </div>
+                    ${asset.alerts && asset.alerts.length > 0 ? 
+                        `<div class="mt-1"><small class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i>${asset.alerts.length} alert(s)</small></div>` : 
+                        ''
+                    }
+                </div>
+            `).join('');
+            
+            document.getElementById('assetList').innerHTML = listHtml || 
+                '<div class="text-white-50">No assets match current filter</div>';
+        }
+
+        // Focus on specific asset
+        function focusAsset(assetId) {
+            const marker = assetMarkers[assetId];
+            if (marker) {
+                map.setView(marker.getLatLng(), 15);
+                marker.openPopup();
+            }
+        }
+
+        // Filter assets
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                
+                // Update map markers
+                Object.entries(assetMarkers).forEach(([assetId, marker]) => {
+                    map.removeLayer(marker);
+                });
+                
+                Object.entries(assetMarkers).forEach(([assetId, marker]) => {
+                    const asset = marker.options.asset;
+                    if (currentFilter === 'all' || currentFilter === asset?.status) {
+                        marker.addTo(map);
+                    }
+                });
+                
+                loadFleetData(); // Refresh list
+            });
+        });
+
+        // Update time display
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString();
+            
+            // Update countdown
+            const seconds = 15 - (now.getSeconds() % 15);
+            document.getElementById('nextUpdate').textContent = `(Next update in ${seconds}s)`;
+        }
+
+        // Initialize
+        loadFleetData();
+        updateTime();
+        
+        // Set up intervals
+        updateInterval = setInterval(loadFleetData, 15000); // 15-second updates
+        setInterval(updateTime, 1000);
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (updateInterval) clearInterval(updateInterval);
+        });
+    </script>
+</body>
+</html>

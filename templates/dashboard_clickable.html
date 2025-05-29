@@ -88,7 +88,24 @@
                 </div>
                 <div class="col-md-4 text-end">
                     <div class="text-white-50">
-                        <small>Last Updated: {{ moment().format('MMMM DD, YYYY h:mm A') }}</small>
+                        <small id="lastUpdated">Last Updated: Loading...</small>
+                        <script>
+                        // Update timestamp
+                        function updateLastUpdated() {
+                            const now = new Date();
+                            const options = { 
+                                year: 'numeric', 
+                                month: 'long', 
+                                day: 'numeric', 
+                                hour: 'numeric', 
+                                minute: '2-digit',
+                                hour12: true 
+                            };
+                            document.getElementById('lastUpdated').textContent = 
+                                'Last Updated: ' + now.toLocaleDateString('en-US', options);
+                        }
+                        updateLastUpdated();
+                        </script>
                     </div>
                 </div>
             </div>

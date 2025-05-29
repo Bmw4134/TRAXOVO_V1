@@ -8,6 +8,8 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
 import logging
+from timecard_excel_processor import timecard_bp
+from traxovo_fleet_map_plus import fleet_map_bp
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -134,6 +136,10 @@ def metrics_detail(metric_name):
     }
     
     return jsonify(details.get(metric_name, {'error': 'Metric not found'}))
+
+# Register blueprints
+app.register_blueprint(timecard_bp)
+app.register_blueprint(fleet_map_bp)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001, debug=True)

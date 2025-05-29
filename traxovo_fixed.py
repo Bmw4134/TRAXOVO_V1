@@ -72,7 +72,7 @@ def index():
         cost_data = intelligence['cost_impact']
         summary = intelligence['executive_summary']
         
-        return render_template('dashboard_executive.html',
+        return render_template('dashboard_modern.html',
                              total_assets=570,
                              active_assets=558,
                              gps_enabled=566,
@@ -83,7 +83,7 @@ def index():
                              last_sync='Live')
     except Exception as e:
         # Fallback with authentic fleet data
-        return render_template('dashboard_executive.html',
+        return render_template('dashboard_modern.html',
                              total_assets=570,
                              active_assets=558,
                              gps_enabled=566,

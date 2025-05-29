@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -210,7 +209,21 @@
         <!-- Recommendations -->
         {% if recommendations %}
         <div class="row mb-4">
-            <div class="col-12">
+            <div class="col-md-12 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Fleet Utilization Report</h5>
+                        <button class="btn btn-sm btn-outline-primary" onclick="loadFleetUtilization()">Load Data</button>
+                    </div>
+                    <div class="card-body">
+                        <div id="fleet-utilization-content">
+                            <p class="text-muted">Click "Load Data" to view Fleet Utilization report data.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-12 mb-4">
                 <div class="card">
                     <div class="card-header bg-primary text-white">
                         <h5><i class="fas fa-lightbulb me-2"></i>Optimization Recommendations</h5>
@@ -297,7 +310,7 @@
             const totalEquipment = {{ utilization.summary.get('total_equipment', 0) }};
             const activeEquipment = {{ utilization.summary.get('active_equipment_count', 0) }};
             const idleEquipment = totalEquipment - activeEquipment;
-            
+
             new Chart(utilizationCtx, {
                 type: 'doughnut',
                 data: {
@@ -372,7 +385,7 @@
                             '<div class="alert alert-warning">No maintenance data available</div>';
                         return;
                     }
-                    
+
                     let html = '';
                     if (data.maintenance_summary) {
                         const summary = data.maintenance_summary;
@@ -438,6 +451,82 @@
             loadMaintenanceAnalytics();
             loadPredictiveInsights();
         });
+
+        function loadFleetUtilization() {
+            const content = document.getElementById('fleet-utilization-content');
+            content.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+
+            fetch('/equipment-analytics/api/fleet-utilization')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        content.innerHTML = `<div class="alert alert-warning">${data.error}</div>`;
+                        return;
+                    }
+
+                    let html = `
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="card bg-primary text-white">
+                                    <div class="card-body">
+                                        <h4>${data.total_assets}</h4>
+                                        <p class="mb-0">Total Assets</p>
+                                    </div>
+                                </div>
+                            </div>`;
+
+                    if (data.utilization_summary) {
+                        for (const [month, stats] of Object.entries(data.utilization_summary)) {
+                            html += `
+                                <div class="col-md-3">
+                                    <div class="card bg-info text-white">
+                                        <div class="card-body">
+                                            <h6>${month}</h6>
+                                            <p class="mb-0">${stats.total_hours.toFixed(0)} hrs total</p>
+                                            <small>${stats.assets_used} assets used</small>
+                                        </div>
+                                    </div>
+                                </div>`;
+                        }
+                    }
+
+                    html += '</div>';
+
+                    if (data.sample_data && data.sample_data.length > 0) {
+                        html += `
+                            <div class="mt-4">
+                                <h6>Sample Data (First 10 Records)</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>`;
+
+                        // Add headers
+                        Object.keys(data.sample_data[0]).slice(0, 6).forEach(key => {
+                            html += `<th>${key}</th>`;
+                        });
+
+                        html += `</tr></thead><tbody>`;
+
+                        // Add sample rows
+                        data.sample_data.forEach(row => {
+                            html += '<tr>';
+                            Object.values(row).slice(0, 6).forEach(value => {
+                                html += `<td>${value || ''}</td>`;
+                            });
+                            html += '</tr>';
+                        });
+
+                        html += '</tbody></table></div>';
+                    }
+
+                    content.innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error loading fleet utilization:', error);
+                    content.innerHTML = '<div class="alert alert-danger">Error loading data</div>';
+                });
+        }
     </script>
 </body>
 </html>

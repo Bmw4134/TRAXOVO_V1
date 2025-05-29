@@ -33,7 +33,8 @@ class EquipmentAnalyticsProcessor:
             'cost_analysis': 'USAGE VS. COST ANALYSIS 010125-053125.xlsx',
             'service_codes': 'CURRENT EQ SERVICE-EXPENSE CODE LIST 052925.xlsx',
             'work_orders': 'WORK ORDER DETAIL REPORT 01.01.2020-05.31.2025.xlsx',
-            'equipment_history': 'Equipment Detail History Report_01.01.2020-05.31.2025.xlsx'
+            'equipment_history': 'Equipment Detail History Report_01.01.2020-05.31.2025.xlsx',
+            'fleet_utilization': 'FleetUtilization (2).xlsx'
         }
         
         results = {}
@@ -64,6 +65,10 @@ class EquipmentAnalyticsProcessor:
     
     def _load_excel_file(self, filepath):
         """Load Excel file with multiple fallback strategies"""
+        # Special handling for Fleet Utilization reports
+        if 'FleetUtilization' in filepath:
+            return self._load_fleet_utilization_file(filepath)
+        
         try:
             # Strategy 1: Try loading first sheet
             df = pd.read_excel(filepath, sheet_name=0)
@@ -100,6 +105,50 @@ class EquipmentAnalyticsProcessor:
             pass
         
         return None
+    
+    def _load_fleet_utilization_file(self, filepath):
+        """Special handler for Fleet Utilization reports with Report Parameters sheet"""
+        try:
+            logger.info(f"Loading Fleet Utilization report: {filepath}")
+            
+            # Load the Fleet Utilization sheet (skip Report Parameters)
+            df = pd.read_excel(filepath, sheet_name='Fleet Utilization', engine='openpyxl')
+            
+            if df.empty:
+                logger.warning("Fleet Utilization sheet is empty")
+                return None
+            
+            # Handle the specific structure:
+            # Row 0: Start Date, 1/1/2025, ...
+            # Row 1: End Date, 5/31/2025, ...  
+            # Row 2: Asset, Sub-Company, ... (headers)
+            # Row 3+: Actual data
+            
+            if len(df) < 3:
+                logger.warning("Fleet Utilization sheet has insufficient rows")
+                return None
+            
+            # Extract headers from row 2 (index 1)
+            headers = df.iloc[1].fillna('Unknown')
+            
+            # Extract data starting from row 3 (index 2)
+            data_df = df.iloc[2:].reset_index(drop=True)
+            data_df.columns = headers
+            
+            # Clean up the dataframe
+            cleaned_df = self._clean_dataframe(data_df)
+            
+            logger.info(f"Successfully loaded Fleet Utilization: {len(cleaned_df)} rows")
+            return cleaned_df
+            
+        except Exception as e:
+            logger.error(f"Error loading Fleet Utilization file {filepath}: {str(e)}")
+            # Fallback to generic loading
+            try:
+                df = pd.read_excel(filepath, sheet_name=1, engine='openpyxl')  # Try second sheet
+                return self._clean_dataframe(df) if not df.empty else None
+            except:
+                return None
     
     def _clean_dataframe(self, df):
         """Clean and standardize dataframe"""

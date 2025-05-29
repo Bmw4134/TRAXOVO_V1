@@ -87,6 +87,47 @@ def api_predictive_insights():
         logger.error(f"Error getting predictive insights: {e}")
         return jsonify({'error': str(e)}), 500
 
+@equipment_analytics_bp.route('/api/fleet-utilization')
+def api_fleet_utilization():
+    """API endpoint for Fleet Utilization data"""
+    try:
+        processor = get_equipment_analytics_processor()
+        
+        # Check if fleet utilization data is loaded
+        if processor.fleet_utilization is not None:
+            utilization_data = processor.fleet_utilization
+            
+            # Process the data for API response
+            summary = {
+                'total_assets': len(utilization_data),
+                'columns': list(utilization_data.columns),
+                'sample_data': utilization_data.head(10).to_dict('records') if len(utilization_data) > 0 else []
+            }
+            
+            # Extract monthly utilization columns
+            monthly_cols = [col for col in utilization_data.columns if any(month in str(col) for month in ['Jan', 'Feb', 'Mar', 'Apr', 'May']) and '-25' in str(col)]
+            
+            if monthly_cols:
+                summary['monthly_columns'] = monthly_cols
+                summary['utilization_summary'] = {}
+                
+                for col in monthly_cols:
+                    if col in utilization_data.columns:
+                        numeric_data = pd.to_numeric(utilization_data[col], errors='coerce')
+                        summary['utilization_summary'][col] = {
+                            'total_hours': numeric_data.sum(),
+                            'avg_hours': numeric_data.mean(),
+                            'assets_used': (numeric_data > 0).sum()
+                        }
+            
+            return jsonify(summary)
+        else:
+            return jsonify({'error': 'Fleet Utilization data not loaded'}), 404
+            
+    except Exception as e:
+        logger.error(f"Error getting fleet utilization data: {e}")
+        return jsonify({'error': str(e)}), 500
+
 @equipment_analytics_bp.route('/export')
 def export_analytics():
     """Export analytics data"""

@@ -103,11 +103,18 @@ def attendance_matrix():
     
     # Fetch authentic driver data from Gauge API
     try:
+        api_url = os.environ.get('GAUGE_API_URL')
         api_key = os.environ.get('GAUGE_API_KEY')
-        headers = {'Authorization': f'Bearer {api_key}'}
         
-        # Get driver data from Gauge API
-        response = requests.get('https://api.smartgauge.net/v1/drivers', headers=headers, timeout=10)
+        # Configure headers for authentication
+        headers = {
+            'Authorization': f'Bearer {api_key}',
+            'Content-Type': 'application/json'
+        }
+        
+        # Get driver data from your Gauge API
+        driver_endpoint = f"{api_url}/drivers" if api_url else "https://api.gaugeplatform.com/v1/drivers"
+        response = requests.get(driver_endpoint, headers=headers, timeout=10)
         
         if response.status_code == 200:
             drivers_data = response.json()

@@ -25,10 +25,40 @@ class AttendanceMatrixSystem:
         self.gps_data = self._load_gps_correlation_data()
         
     def _load_employee_data(self):
-        """Load employee master data from Ground Works timecard files"""
+        """Load employee master data from Gauge API and Ground Works timecard files"""
+        import requests
         employees = []
         
-        # Check uploads directory for Ground Works timecard Excel files
+        # First try to get driver data from Gauge API
+        try:
+            api_url = os.environ.get('GAUGE_API_URL')
+            api_key = os.environ.get('GAUGE_API_KEY')
+            
+            if api_url and api_key:
+                headers = {
+                    'Authorization': f'Bearer {api_key}',
+                    'Content-Type': 'application/json'
+                }
+                
+                driver_endpoint = f"{api_url}/drivers"
+                response = requests.get(driver_endpoint, headers=headers, timeout=10)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    drivers = data.get('drivers', []) if isinstance(data, dict) else data
+                    
+                    for driver in drivers:
+                        employees.append({
+                            'id': driver.get('id', driver.get('driver_id')),
+                            'name': driver.get('name', driver.get('driver_name')),
+                            'employee_id': driver.get('employee_id', driver.get('id')),
+                            'status': driver.get('status', 'active'),
+                            'source': 'gauge_api'
+                        })
+        except Exception as e:
+            print(f"Could not fetch from Gauge API: {e}")
+        
+        # Also check uploads directory for Ground Works timecard Excel files
         timecard_sources = ['uploads', 'attendance_data', '.']
         
         for source_dir in timecard_sources:

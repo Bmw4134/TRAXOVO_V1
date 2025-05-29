@@ -65,13 +65,13 @@ class AttendanceMatrixSystem:
                                                 'name': str(row[name_col]).strip(),
                                                 'division': row.get('Division', row.get('Dept', row.get('Department', 'Ground Works'))),
                                                 'status': 'Active',
-                                    'job_code': row.get('JobCode', row.get('Job_Code', 'GENERAL')),
-                                    'supervisor': row.get('Supervisor', 'TBD')
-                                }
-                                if emp_data not in employees:
-                                    employees.append(emp_data)
-                    except Exception as e:
-                        print(f"Error processing employee file {file}: {e}")
+                                                'job_code': row.get('JobCode', row.get('Job_Code', 'GENERAL')),
+                                                'supervisor': row.get('Supervisor', 'TBD')
+                                            }
+                                            if emp_data not in employees:
+                                                employees.append(emp_data)
+                        except Exception as e:
+                            print(f"Error processing employee file {file}: {e}")
         
         # If no attendance files, create sample structure using actual patterns
         if not employees:

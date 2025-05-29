@@ -8,15 +8,57 @@
 
 {% block content %}
 <div class="container-fluid py-4">
+    <!-- Quick Actions Navigation -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-lightning me-2"></i>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-2">
+                            <a href="/attendance-matrix" class="btn btn-primary w-100">
+                                <i class="bi bi-calendar-check me-2"></i> Attendance Matrix
+                            </a>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="/fleet-management" class="btn btn-success w-100">
+                                <i class="bi bi-geo-alt me-2"></i> Fleet Management
+                            </a>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="/executive-reports" class="btn btn-info w-100">
+                                <i class="bi bi-graph-up me-2"></i> Executive Reports
+                            </a>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="/billing-intelligence" class="btn btn-warning w-100">
+                                <i class="bi bi-currency-dollar me-2"></i> Billing Intelligence
+                            </a>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="/idea-box" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-lightbulb me-2"></i> Idea Box
+                            </a>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="/backup-system" class="btn btn-outline-secondary w-100">
+                                <i class="bi bi-archive me-2"></i> Backup System
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row mb-4">
         <div class="col-md-8">
             <h1 class="dashboard-title">Fleet Dashboard</h1>
             <p class="dashboard-subtitle">Welcome to TRAXOVO Fleet Management</p>
         </div>
         <div class="col-md-4 text-end">
-            <a href="/attendance-workflow" class="btn btn-primary">
-                <i class="bi bi-graph-up me-2"></i> Attendance Workflow
-            </a>
             <button class="btn btn-info ms-2" onclick="window.open('/database-explorer', '_blank')">
                 <i class="bi bi-database me-2"></i> Database Explorer
             </button>
@@ -25,9 +67,6 @@
             </button>
             <a href="{{ url_for('assets') }}" class="btn btn-outline-secondary ms-2">
                 <i class="bi bi-truck me-2"></i> View All Assets
-            </a>
-            <a href="{{ url_for('pm_allocation_processor') }}" class="btn btn-outline-info ms-2">
-                <i class="bi bi-calculator me-2"></i> PM Allocation
             </a>
         </div>
     </div>

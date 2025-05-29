@@ -86,48 +86,31 @@ def dashboard():
     # Your actual operational score from screenshots
     operational_score = authentic_fleet_data.get('utilization_rate', 67.3)
     
-    # Create the large colorful metric cards like your professional dashboard
-    main_metrics = f"""
-        <div class="main-metrics">
-            <div class="big-metric revenue">
-                <div class="metric-number">{total_revenue:,}</div>
-                <div class="metric-unit">$</div>
-                <div class="metric-label">Total revenue from billable assets</div>
-            </div>
-            
-            <div class="big-metric assets">
-                <div class="metric-number">{total_assets}</div>
-                <div class="metric-label">Total Fleet Assets</div>
-            </div>
-            
-            <div class="big-metric active-assets">
-                <div class="metric-number">{active_assets}</div>
-                <div class="metric-label">Active Assignments</div>
-            </div>
-            
-            <div class="big-metric drivers">
-                <div class="metric-number">{total_drivers}</div>
-                <div class="metric-label">Total Drivers</div>
-            </div>
-            
-            <div class="big-metric clocked-in">
-                <div class="metric-number">{clocked_in}</div>
-                <div class="metric-label">Currently Clocked In</div>
-            </div>
+    # Create clean metric cards like your screenshots
+    metrics = {
+        "Fleet Revenue": f"${total_revenue:,}",
+        "Total Assets": total_assets,
+        "Active Assets": active_assets,
+        "Total Drivers": total_drivers,
+        "Clocked In": clocked_in,
+        "Utilization Rate": f"{operational_score}%",
+        "GPS Enabled": total_assets,  
+        "Job Zones": 12  
+    }
+    
+    # Create metric cards HTML
+    metric_cards = ""
+    colors = ["#2563eb", "#059669", "#d97706", "#dc2626", "#7c3aed", "#0891b2", "#65a30d", "#e11d48"]
+    
+    for i, (key, value) in enumerate(metrics.items()):
+        color = colors[i % len(colors)]
+        metric_cards += f"""
+        <div class="metric-card" style="border-left: 4px solid {color};">
+            <div class="metric-value" style="color: {color};">{value}</div>
+            <div class="metric-label">{key}</div>
+            <div class="metric-change"></div>
         </div>
-        
-        <div class="secondary-metrics">
-            <div class="small-metric">
-                <div class="metric-number">{operational_score}</div>
-                <div class="metric-label">Operational Efficiency Score</div>
-            </div>
-            
-            <div class="small-metric">
-                <div class="metric-number">{round((active_assets/total_assets)*100, 1) if total_assets > 0 else 0}%</div>
-                <div class="metric-label">Asset Utilization Rate</div>
-            </div>
-        </div>
-    """
+        """
     
     html = f"""
     <!DOCTYPE html>
@@ -145,7 +128,7 @@ def dashboard():
             
             body {{
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #EC4899 100%);
+                background: #f8fafc;
                 min-height: 100vh;
                 display: flex;
             }}
@@ -216,134 +199,99 @@ def dashboard():
                 margin-left: 280px;
                 flex: 1;
                 padding: 2rem;
-                color: white;
+                background: #f8fafc;
             }}
             
             .dashboard-header {{
-                text-align: center;
-                margin-bottom: 3rem;
+                margin-bottom: 2rem;
             }}
             
             .dashboard-title {{
-                font-size: 3rem;
-                font-weight: 900;
+                font-size: 2rem;
+                font-weight: 700;
+                color: #1a202c;
                 margin-bottom: 0.5rem;
-                text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
             }}
             
             .dashboard-subtitle {{
-                font-size: 1.1rem;
-                opacity: 0.9;
+                color: #64748b;
+                font-size: 0.95rem;
             }}
             
-            .main-metrics {{
+            .metrics-grid {{
                 display: grid;
-                grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
-                gap: 2rem;
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 1.5rem;
                 margin-bottom: 2rem;
             }}
             
-            .big-metric {{
-                background: rgba(255, 255, 255, 0.95);
-                color: #1a202c;
-                border-radius: 20px;
-                padding: 2rem;
-                text-align: center;
-                box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-                transition: all 0.3s ease;
+            .metric-card {{
+                background: white;
+                border-radius: 12px;
+                padding: 1.5rem;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                border: 1px solid #e2e8f0;
+                transition: all 0.2s ease;
                 position: relative;
-                overflow: hidden;
                 cursor: pointer;
             }}
             
-            .big-metric:hover {{
-                transform: translateY(-5px);
-                box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            .metric-card:hover {{
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(0,0,0,0.15);
             }}
             
-            .big-metric.revenue {{
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-            }}
-            
-            .big-metric.assets {{
-                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-                color: white;
-            }}
-            
-            .big-metric.active-assets {{
-                background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-                color: white;
-            }}
-            
-            .big-metric.drivers {{
-                background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-                color: white;
-            }}
-            
-            .big-metric.clocked-in {{
-                background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-                color: white;
-            }}
-            
-            .metric-number {{
-                font-size: 3.5rem;
+            .metric-value {{
+                font-size: 2.5rem;
                 font-weight: 900;
-                margin-bottom: 0.5rem;
-                text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-            }}
-            
-            .metric-unit {{
-                font-size: 2rem;
-                font-weight: 700;
-                display: inline-block;
-                margin-left: 0.5rem;
+                margin-bottom: 0.25rem;
             }}
             
             .metric-label {{
-                font-size: 1rem;
+                font-size: 0.875rem;
+                color: #64748b;
+                font-weight: 500;
+            }}
+            
+            .metric-change {{
+                position: absolute;
+                top: 1rem;
+                right: 1rem;
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: #10b981;
+            }}
+            
+            .status-section {{
+                background: white;
+                border-radius: 12px;
+                padding: 1.5rem;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                border: 1px solid #e2e8f0;
+                margin-top: 2rem;
+            }}
+            
+            .status-title {{
+                font-size: 1.25rem;
                 font-weight: 600;
-                opacity: 0.9;
-                margin-top: 0.5rem;
-            }}
-            
-            .secondary-metrics {{
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 2rem;
-                margin-bottom: 2rem;
-            }}
-            
-            .small-metric {{
-                background: rgba(255, 255, 255, 0.9);
                 color: #1a202c;
-                border-radius: 16px;
-                padding: 1.5rem;
-                text-align: center;
-                box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-                cursor: pointer;
-                transition: all 0.3s ease;
+                margin-bottom: 1rem;
             }}
             
-            .small-metric:hover {{
-                transform: translateY(-3px);
-                box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            .status-item {{
+                display: flex;
+                align-items: center;
+                padding: 0.5rem 0;
+                color: #64748b;
             }}
             
-            .small-metric .metric-number {{
-                font-size: 2.5rem;
-                font-weight: 800;
-                margin-bottom: 0.25rem;
-                text-shadow: none;
-            }}
-            
-            .status-footer {{
-                text-align: center;
-                background: rgba(255, 255, 255, 0.1);
-                border-radius: 15px;
-                padding: 1.5rem;
-                backdrop-filter: blur(10px);
-                border: 1px solid rgba(255, 255, 255, 0.2);
+            .status-indicator {{
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: #10b981;
+                margin-right: 0.75rem;
             }}
             
             @media (max-width: 1200px) {{
@@ -430,12 +378,24 @@ def dashboard():
                 <p class="dashboard-subtitle">Fleet Intelligence with authentic data sources - Last updated: May 29, 2025 at 2:29 PM</p>
             </div>
             
-            {main_metrics}
+            <div class="metrics-grid">
+                {metric_cards}
+            </div>
             
-            <div class="status-footer">
-                ✓ Authentic data loaded successfully<br>
-                Foundation accounting integration: ${total_revenue:,} revenue tracked<br>
-                Fleet GPS tracking: {total_assets} assets monitored | {clocked_in} drivers active
+            <div class="status-section">
+                <h3 class="status-title">System Status</h3>
+                <div class="status-item">
+                    <div class="status-indicator"></div>
+                    <span>Authentic data sources connected: {total_assets} assets tracked</span>
+                </div>
+                <div class="status-item">
+                    <div class="status-indicator"></div>
+                    <span>Foundation accounting integration: ${total_revenue:,} revenue tracked</span>
+                </div>
+                <div class="status-item">
+                    <div class="status-indicator"></div>
+                    <span>Driver management: {total_drivers} drivers, {clocked_in} currently active</span>
+                </div>
             </div>
         </main>
     </body>

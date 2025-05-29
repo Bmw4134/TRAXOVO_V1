@@ -28,6 +28,15 @@ task = "shell.exec"
 args = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"
 waitForPort = 5000
 
+[[workflows.workflow]]
+name = "Full Audit Deploy"
+mode = "sequential"
+author = 42738758
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "./replit_deploy_sync.sh"
+
 [[ports]]
 localPort = 5000
 externalPort = 80

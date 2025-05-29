@@ -3,7 +3,8 @@ User model definition for TRAXORA.
 
 This model represents system users with their authentication and authorization details.
 """
-from datetime import datetime
+from datetime import datetime, timedelta
+import secrets
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.orm import relationship
@@ -24,6 +25,10 @@ class User(UserMixin, db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
+    # Password reset functionality
+    reset_token = db.Column(db.String(100), unique=True)
+    reset_token_expires = db.Column(db.DateTime)
+    
     # Relationships for GENIUS CORE CONTINUITY MODE
     notifications = relationship('Notification', back_populates='user')
     activity_logs = relationship('ActivityLog', back_populates='user')
@@ -35,6 +40,23 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         """Check if the provided password matches the stored hash"""
         return check_password_hash(self.password_hash, password)
+    
+    def generate_reset_token(self):
+        """Generate a secure password reset token"""
+        self.reset_token = secrets.token_urlsafe(32)
+        self.reset_token_expires = datetime.utcnow() + timedelta(hours=1)
+        return self.reset_token
+    
+    def verify_reset_token(self, token):
+        """Verify if the reset token is valid and not expired"""
+        return (self.reset_token == token and 
+                self.reset_token_expires and 
+                self.reset_token_expires > datetime.utcnow())
+    
+    def clear_reset_token(self):
+        """Clear the reset token after use"""
+        self.reset_token = None
+        self.reset_token_expires = None
     
     @property
     def full_name(self):

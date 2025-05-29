@@ -157,10 +157,10 @@ def upload_file():
         return jsonify({'error': 'No file selected'})
     
     file = request.files['file']
-    if file.filename == '':
+    if file.filename == '' or file.filename is None:
         return jsonify({'error': 'No file selected'})
     
-    if file and file.filename.lower().endswith(('.csv', '.xlsx', '.xls')):
+    if file and file.filename and file.filename.lower().endswith(('.csv', '.xlsx', '.xls')):
         os.makedirs('uploads', exist_ok=True)
         filename = file.filename
         file_path = os.path.join('uploads', filename)

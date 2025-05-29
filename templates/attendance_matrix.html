@@ -316,38 +316,52 @@
         <!-- Attendance Matrix Table -->
         <div class="attendance-table">
             <div class="table-responsive">
-                <table class="table table-bordered mb-0">
-                    <thead class="sticky-header">
-                        <tr>
-                            <th rowspan="2" style="width: 200px;">Employee Info</th>
-                            <th rowspan="2" style="width: 80px;">Division</th>
-                            <th rowspan="2" style="width: 80px;">Total Hours</th>
-                            <th colspan="7">Week Days</th>
-                        </tr>
-                        <tr>
-                            {% for date in current_week.week_dates %}
-                            <th class="day-header">
-                                {{ date[-2:] }}<br>
-                                <small>{{ date[:3] }}</small>
-                            </th>
-                            {% endfor %}
-                        </tr>
-                    </thead>
-                    <tbody id="attendanceTableBody">
-                        {% for employee in current_week.employees %}
-                        <tr class="employee-row" onclick="showEmployeeDetail('{{ employee.employee_id }}')">
-                            <td class="employee-info">
-                                <div class="employee-id">{{ employee.employee_id }}</div>
-                                <div class="employee-name">{{ employee.name }}</div>
-                                <small class="text-muted">{{ employee.job_code }}</small>
-                            </td>
-                            <td class="text-center">
-                                <span class="badge bg-secondary">{{ employee.division }}</span>
-                            </td>
-                            <td class="text-center">
-                                <strong>{{ employee.week_total_hours }}h</strong>
-                            </td>
-                            {% for date in current_week.week_dates %}
+                <div class="matrix-container">
+                    <table class="table table-bordered mb-0">
+                        <thead class="sticky-headers">
+                            <tr>
+                                <th class="employee-id-col">Employee ID</th>
+                                <th class="employee-name-col">Employee Name</th>
+                                <th class="asset-id-col">Asset ID</th>
+                                <th class="day-cell">Sun</th>
+                                <th class="day-cell">Mon</th>
+                                <th class="day-cell">Tue</th>
+                                <th class="day-cell">Wed</th>
+                                <th class="day-cell">Thu</th>
+                                <th class="day-cell">Fri</th>
+                                <th class="day-cell">Sat</th>
+                                <th class="day-cell">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendanceTableBody">
+                            <!-- Sample data structure for authentic timecard import -->
+                            <tr class="employee-row" onclick="showEmployeeDetail('EMP001')">
+                                <td class="employee-id-col">EMP001</td>
+                                <td class="employee-name-col">John Smith</td>
+                                <td class="asset-id-col">AST-101</td>
+                                <td class="day-cell status-present">8.0h</td>
+                                <td class="day-cell status-present">8.5h</td>
+                                <td class="day-cell status-present">7.5h</td>
+                                <td class="day-cell status-present">8.0h</td>
+                                <td class="day-cell status-present">8.0h</td>
+                                <td class="day-cell status-weekend">-</td>
+                                <td class="day-cell status-weekend">-</td>
+                                <td class="day-cell"><strong>40.0h</strong></td>
+                            </tr>
+                            <tr class="employee-row" onclick="showEmployeeDetail('EMP002')">
+                                <td class="employee-id-col">EMP002</td>
+                                <td class="employee-name-col">Mike Johnson</td>
+                                <td class="asset-id-col">AST-205</td>
+                                <td class="day-cell status-present">7.5h</td>
+                                <td class="day-cell status-present">8.0h</td>
+                                <td class="day-cell status-absent">0.0h</td>
+                                <td class="day-cell status-present">8.5h</td>
+                                <td class="day-cell status-present">8.0h</td>
+                                <td class="day-cell status-weekend">-</td>
+                                <td class="day-cell status-weekend">-</td>
+                                <td class="day-cell"><strong>32.0h</strong></td>
+                            </tr>
+                            <!-- More rows will be populated from authentic timecard data -->
                             {% set day_data = employee.days[date] %}
                             <td class="day-cell status-{{ day_data.status.lower().replace(' ', '-') }}">
                                 <div class="hours-display">

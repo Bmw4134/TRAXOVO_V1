@@ -104,7 +104,7 @@ def load_authentic_data():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     # Auto-login for development - Watson user (executive access)
-    if 'auto_login' not in session:
+    if request.method == 'GET' and 'auto_login' not in session:
         # Automatically log in as Watson
         username = 'watson'
         if username in TEST_USERS:
@@ -112,7 +112,8 @@ def login():
             user = TestUser(username, user_data)
             login_user(user, remember=True)  # Remember login
             session['auto_login'] = True
-            return redirect(url_for('dashboard'))
+            next_page = request.args.get('next')
+            return redirect(next_page or url_for('dashboard'))
     
     if request.method == 'POST':
         username = request.form['username']
@@ -145,12 +146,19 @@ def disable_auto_login():
     return jsonify({'status': 'Auto-login disabled'})
 
 @app.route('/')
-@login_required
-@safe_route
 def dashboard():
     """Main executive dashboard with authentic TRAXOVO data"""
+    # Check if user is logged in, if not auto-login as watson
+    if not current_user.is_authenticated:
+        username = 'watson'
+        if username in TEST_USERS:
+            user_data = TEST_USERS[username]
+            user = TestUser(username, user_data)
+            login_user(user, remember=True)
+            session['auto_login'] = True
+    
     data = get_authentic_dashboard_data()
-    return render_template('dashboard_modern.html', **data)
+    return render_template('dashboard_clean_executive.html', **data)
 
 @app.route('/health')
 def health():

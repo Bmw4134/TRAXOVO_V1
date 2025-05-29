@@ -80,7 +80,22 @@ def index():
 def attendance_matrix():
     """Attendance matrix with authentic data"""
     attendance_data = authentic_data.get_attendance_matrix()
-    return render_template('attendance_matrix.html', attendance_data=attendance_data)
+    driver_data = authentic_data.get_driver_data()
+    
+    # Structure data for template compatibility
+    current_week = {
+        'summary': {
+            'total_employees': driver_data['total_drivers'],
+            'present_today': driver_data['active_today'],
+            'on_time_rate': driver_data['on_time_rate'],
+            'attendance_score': driver_data['attendance_score']
+        }
+    }
+    
+    return render_template('attendance_matrix.html', 
+                         attendance_data=attendance_data,
+                         current_week=current_week,
+                         drivers=driver_data)
 
 @app.route('/asset-manager')
 def asset_manager():
@@ -139,7 +154,8 @@ def internal_ai():
 @app.route('/api/ai-query', methods=['POST'])
 def api_ai_query():
     """Process AI assistant queries with authentic context"""
-    query = request.json.get('query', '')
+    data = request.get_json() or {}
+    query = data.get('query', '')
     
     # Get authentic data for context
     revenue_data = authentic_data.get_revenue_data()

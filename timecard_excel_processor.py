@@ -195,7 +195,7 @@ def upload_timecard():
         return jsonify({'error': 'Invalid file type. Please upload Excel or CSV files.'}), 400
     
     # Save uploaded file
-    filename = secure_filename(file.filename)
+    filename = secure_filename(file.filename or 'timecard.xlsx')
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     filename = f"{timestamp}_{filename}"
     file_path = os.path.join(processor.upload_folder, filename)

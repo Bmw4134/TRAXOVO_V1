@@ -562,9 +562,65 @@
     </script>
 </body>
 </html>
-```},
+``````html
                 'equipment_analytics': {
                     'value': 'Analytics',
                     'label': 'Equipment Analytics',
                     'icon': 'bi-graph-up',
                     'route': '/equipment-analytics'
+                }
+            },
+            'total_revenue': {
+                'value': 1234567,
+                'description': 'Total Revenue',
+                'source': 'Billing System',
+                'change': '+12%',
+                'period': 'vs. last month'
+            },
+            'revenue_per_asset': {
+                'value': 5000,
+                'label': 'Revenue per Asset',
+                'icon': 'bi-cash-coin',
+                'change': '+5%',
+                'period': 'vs. last month',
+                'route': '/asset-analytics'
+            },
+            'utilization_rate': {
+                'value': 85.5,
+                'label': 'Fleet Utilization Rate',
+                'icon': 'bi-speedometer2',
+                'period': 'Current period',
+                'route': '/fleet-utilization'
+            }
+        }
+    </script>
+    
+    
+    
+        
+            
+                
+                    
+                        
+                            
+                                <i class="bi bi-cash-coin fa-3x mb-3"></i>
+                                
+                                    ${{ "{:,.0f}".format(metrics.total_revenue.value) }}
+                        
+                        
+                            vs. last month
+                        
+                    
+                
+            
+
+            
+                
+                    
+                        
+                            
+                                <i class="bi bi-speedometer2 fa-3x mb-3"></i>
+                                {{ "{:.1f}".format(metrics.utilization_rate.value) }}%
+                        
+                        
+                            Current period

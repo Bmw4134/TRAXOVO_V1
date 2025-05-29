@@ -68,3 +68,36 @@ def api_driver_count():
             'from_csv': data.get('from_csv_files', 0)
         }
     })
+
+@dashboard.route('/api/cache-growth')
+@login_required
+def api_cache_growth():
+    """Cache growth visualization data"""
+    from utils.dashboard_metrics import get_cache_growth_data
+    import logging
+    
+    logger = logging.getLogger(__name__)
+    
+    try:
+        cache_data = get_cache_growth_data()
+        
+        # Log performance note
+        logger.info(f"Cache visualization rendered: {cache_data['total_files']} files, {cache_data['total_size_mb']}MB total")
+        
+        return jsonify({
+            'success': True,
+            'data': cache_data,
+            'chart_data': {
+                'labels': [item['filename'] for item in cache_data['files']],
+                'sizes': [item['size_kb'] for item in cache_data['files']],
+                'ages': [item['age_hours'] for item in cache_data['files']]
+            },
+            'performance_note': f"Processed {cache_data['total_files']} cache files in real-time"
+        })
+    except Exception as e:
+        logger.error(f"Cache visualization error: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'data': {'total_files': 0, 'total_size_mb': 0}
+        })

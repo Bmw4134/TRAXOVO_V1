@@ -95,10 +95,42 @@ def get_real_driver_count():
         logger.error(f"Failed to get driver data: {e}")
         return {'total_drivers': 0, 'source': 'error'}
 
+def get_cache_growth_data():
+    """Get cache growth metrics for visualization"""
+    import os
+    from datetime import datetime, timedelta
+    
+    cache_data = []
+    cache_dir = 'data_cache'
+    
+    if os.path.exists(cache_dir):
+        # Get file sizes and timestamps
+        for filename in os.listdir(cache_dir):
+            filepath = os.path.join(cache_dir, filename)
+            if os.path.isfile(filepath):
+                stat = os.stat(filepath)
+                cache_data.append({
+                    'filename': filename,
+                    'size_kb': round(stat.st_size / 1024, 2),
+                    'modified': datetime.fromtimestamp(stat.st_mtime).isoformat(),
+                    'age_hours': round((datetime.now().timestamp() - stat.st_mtime) / 3600, 2)
+                })
+    
+    # Sort by modification time
+    cache_data.sort(key=lambda x: x['modified'])
+    
+    return {
+        'total_files': len(cache_data),
+        'total_size_mb': round(sum(item['size_kb'] for item in cache_data) / 1024, 2),
+        'files': cache_data,
+        'growth_trend': 'increasing' if len(cache_data) > 3 else 'stable'
+    }
+
 def get_dashboard_metrics():
     """Get complete dashboard metrics"""
     asset_data = get_real_asset_count()
     driver_data = get_real_driver_count()
+    cache_data = get_cache_growth_data()
     
     # Calculate revenue from asset data
     try:
@@ -119,5 +151,6 @@ def get_dashboard_metrics():
             'estimated_daily': estimated_daily_revenue,
             'source': 'calculated_from_active_assets'
         },
+        'cache_growth': cache_data,
         'last_updated': datetime.now().isoformat()
     }

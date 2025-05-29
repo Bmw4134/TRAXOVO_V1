@@ -1,0 +1,17 @@
+{
+  "metadata": {
+    "timestamp": "2025-05-29T07:33:52.865003",
+    "build_version": "ac19093"
+  },
+  "dependencies": {
+    "pyproject.toml": "b9be3297d12883890460c32f36739745",
+    "requirements.txt": "b5718af420a118a6eb6c2f7b4e75d790"
+  },
+  "core_app": {
+    "main.py": "2d17c34d9eed091f70b753e5a93914d3",
+    "app.py": "d78ed8c91b9b0040f7c225d88f547e9e"
+  },
+  "templates": {},
+  "static_files": {},
+  "data_files": {}
+}

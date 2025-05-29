@@ -258,6 +258,25 @@ def ai_assistant():
     """AI Fleet Assistant Interface"""
     return render_template('ai_assistant.html')
 
+@app.route('/project-accountability')
+def project_accountability():
+    """Project Accountability System"""
+    from project_accountability_system import accountability_system
+    dashboard_data = accountability_system.get_project_dashboard_data()
+    return render_template('project_accountability.html', data=dashboard_data)
+
+@app.route('/api/log-incident', methods=['POST'])
+def api_log_incident():
+    """API endpoint to log equipment incidents"""
+    from project_accountability_system import accountability_system
+    from flask import request, jsonify
+    try:
+        incident_data = request.get_json()
+        incident = accountability_system.log_equipment_incident(incident_data)
+        return jsonify({'success': True, 'incident': incident})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
 @app.route('/api/metrics-detail/<metric_name>')
 def metrics_detail(metric_name):
     """API endpoint for metric drill-down details"""

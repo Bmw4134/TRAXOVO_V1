@@ -32,3 +32,5 @@ oauthlib
 pyjwt
 notion-client
 sendgrid
+matplotlib
+seaborn

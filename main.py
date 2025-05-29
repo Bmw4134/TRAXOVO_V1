@@ -4,6 +4,7 @@ Production-ready deployment with authentic data integration
 """
 
 import os
+from datetime import datetime
 from flask import Flask, render_template, jsonify, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
@@ -300,26 +301,29 @@ def health():
 @app.route('/api/deploy-module', methods=['POST'])
 def api_deploy_module():
     """Hot deploy new modules"""
-    module_name = request.json.get('module_name')
-    module_config = request.json.get('config', {})
-    
-    if module_name:
-        micro_agent.register_module(module_name, module_config)
-        success = micro_agent.deploy_module(module_name)
+    if request.json:
+        module_name = request.json.get('module_name')
+        module_config = request.json.get('config', {})
         
-        if success:
-            return jsonify({
-                'success': True,
-                'message': f'Module {module_name} deployed successfully',
-                'timestamp': datetime.now().isoformat()
-            })
+        if module_name:
+            micro_agent.register_module(module_name, module_config)
+            success = micro_agent.deploy_module(module_name)
+            
+            if success:
+                return jsonify({
+                    'success': True,
+                    'message': f'Module {module_name} deployed successfully',
+                    'timestamp': datetime.now().isoformat()
+                })
+            else:
+                return jsonify({
+                    'success': False,
+                    'error': f'Failed to deploy module {module_name}'
+                }), 500
         else:
-            return jsonify({
-                'success': False,
-                'error': f'Failed to deploy module {module_name}'
-            }), 500
+            return jsonify({'success': False, 'error': 'Module name required'}), 400
     else:
-        return jsonify({'success': False, 'error': 'Module name required'}), 400
+        return jsonify({'success': False, 'error': 'JSON payload required'}), 400
 
 @app.errorhandler(404)
 def page_not_found(e):

@@ -1,0 +1,38 @@
+{
+  "status": "DEPLOYMENT BLOCKED",
+  "timestamp": "2025-05-29T19:36:18.826090",
+  "checks": {
+    "core_files": "PASS",
+    "templates": [
+      "Mobile feature 'mobile-menu-toggle': PASS",
+      "Mobile feature '@media (max-width: 767px)': PASS",
+      "Mobile feature 'toggleSidebar()': PASS"
+    ],
+    "revenue_data": "PASS - Authentic $2.21M",
+    "asset_data": "PASS - 33 billable assets",
+    "routes": [
+      "Route /: DEFINED",
+      "Route /fleet-map: DEFINED",
+      "Route /billing: DEFINED",
+      "Route /revenue-analytics: DEFINED",
+      "Route /attendance-matrix: DEFINED",
+      "Route /equipment-dispatch: DEFINED",
+      "Route /api/foundation-export: DEFINED"
+    ],
+    "mobile_responsive": [
+      "Responsive CSS: PASS",
+      "Mobile menu toggle: PASS"
+    ],
+    "foundation_export": "PASS - 8 records ready"
+  },
+  "errors": [
+    "Missing packages: ['psycopg2-binary']"
+  ],
+  "warnings": [
+    "Missing mobile feature: col-12 col-md-9",
+    "Route /api/metrics-detail/billable_assets not found in main.py"
+  ],
+  "deployment_ready": false,
+  "deployment_checksum": "d02769a0aec589d9195b10fe03de8e1d",
+  "deployment_timestamp": "2025-05-29 19:36:20"
+}

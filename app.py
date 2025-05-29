@@ -319,6 +319,16 @@ except ImportError as e:
 except Exception as e:
     logger.error(f"Error registering Comprehensive Reports blueprint: {e}")
 
+# Register Unified Attendance Suite (Jobsite/Zone Integration) Blueprint
+try:
+    from routes.unified_attendance_suite import unified_attendance_bp
+    app.register_blueprint(unified_attendance_bp)
+    logger.info("Unified Attendance Suite (Jobsite/Zone) blueprint registered successfully")
+except ImportError as e:
+    logger.warning(f"Unified Attendance Suite module not found: {e}")
+except Exception as e:
+    logger.error(f"Error registering Unified Attendance Suite blueprint: {e}")
+
 def create_app():
     """Create and configure the Flask application with all blueprints"""
     

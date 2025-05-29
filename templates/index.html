@@ -236,8 +236,17 @@
                     <!-- Quick Actions -->
                     <label class="form-label fw-bold"><i class="bi bi-list-task me-1"></i> Actions:</label>
                     <div class="d-grid gap-2">
-                        <a href="{{ url_for('geo_tracking_basic.map_view') }}" class="btn btn-primary">
-                            <i class="bi bi-geo-alt-fill me-2"></i> Real-Time Tracking
+                        <a href="/fleet-manager-dashboard" class="btn btn-primary">
+                            <i class="bi bi-truck me-2"></i> Fleet Manager Portal
+                        </a>
+                        <a href="/financial-forecasting" class="btn btn-outline-info">
+                            <i class="bi bi-graph-up me-2"></i> Financial Forecasting
+                        </a>
+                        <a href="/intake-form" class="btn btn-outline-warning">
+                            <i class="bi bi-clipboard-plus me-2"></i> Equipment Report
+                        </a>
+                        <a href="/time-logger" class="btn btn-outline-success">
+                            <i class="bi bi-clock me-2"></i> Time Logger
                         </a>
                         <a href="{{ url_for('driver_module.daily_report') }}" class="btn btn-outline-primary">
                             <i class="bi bi-calendar-date me-2"></i> Daily Driver Report

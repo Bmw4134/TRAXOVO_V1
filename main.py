@@ -416,6 +416,8 @@ from executive_billing_intelligence import executive_billing_bp
 from gps_tracking_api import gps_api_bp
 from executive_report_generator import report_generator_bp
 from predictive_financial_forecasting import predictive_forecasting_bp
+from fleet_manager_module import fleet_manager_bp
+from intelligent_intake_form import intake_form_bp
 
 app.register_blueprint(asset_module_bp)
 app.register_blueprint(executive_reports_bp)
@@ -425,6 +427,8 @@ app.register_blueprint(executive_billing_bp)
 app.register_blueprint(gps_api_bp)
 app.register_blueprint(report_generator_bp)
 app.register_blueprint(predictive_forecasting_bp)
+app.register_blueprint(fleet_manager_bp)
+app.register_blueprint(intake_form_bp)
 
 if __name__ == "__main__":
     # Run deployment readiness check

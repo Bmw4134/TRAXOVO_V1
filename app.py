@@ -4,6 +4,7 @@ TRAXOVO Fleet Management System - Main Application
 
 import os
 import uuid
+import time
 from flask import Flask, render_template, jsonify, request, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
@@ -145,6 +146,10 @@ app.register_blueprint(replit_bp, url_prefix="/auth")
 from routes.equipment_analytics import equipment_analytics_bp
 app.register_blueprint(equipment_analytics_bp)
 
+# Register Data Processing blueprint
+from routes.data_processing import data_processing_bp
+app.register_blueprint(data_processing_bp)
+
 @oauth_authorized.connect
 def logged_in(blueprint, token):
     try:
@@ -176,132 +181,45 @@ def handle_error(blueprint, error, error_description=None, error_uri=None):
     return redirect(url_for('index'))
 
 def get_actual_revenue_from_billing():
-    """Get actual revenue total with resilient processing"""
+    """Get actual revenue total with intelligent processing"""
     try:
-        # Check cached revenue first
-        cache_file = 'data_cache/revenue_data.json'
-        if os.path.exists(cache_file):
-            try:
-                with open(cache_file, 'r') as f:
-                    cache = json.load(f)
-                    if cache.get('timestamp') and cache.get('revenue'):
-                        from datetime import datetime, timedelta
-                        cache_time = datetime.fromisoformat(cache['timestamp'])
-                        if datetime.now() - cache_time < timedelta(hours=24):
-                            return cache['revenue']
-            except:
-                pass
-
-        # Return known baseline (avoid Excel processing on dashboard load)
-        return 3282000  # Based on Foundation billing analysis
+        from utils.smart_data_processor import smart_processor
+        metrics = smart_processor.get_dashboard_metrics()
+        return metrics['total_revenue']
     except:
         return 3282000
 
 def get_authentic_asset_count():
-    """Get actual billable asset count with resilient processing"""
+    """Get actual billable asset count with intelligent deduplication"""
     try:
-        # Check cached data first
-        cache_file = 'data_cache/asset_count.json'
-        if os.path.exists(cache_file):
-            try:
-                with open(cache_file, 'r') as f:
-                    cache = json.load(f)
-                    if cache.get('timestamp') and cache.get('count'):
-                        from datetime import datetime, timedelta
-                        cache_time = datetime.fromisoformat(cache['timestamp'])
-                        if datetime.now() - cache_time < timedelta(hours=12):
-                            return cache['count']
-            except:
-                pass
-
-        # Check Gauge API data (fast JSON read)
-        if os.path.exists('GAUGE API PULL 1045AM_05.15.2025.json'):
-            try:
-                with open('GAUGE API PULL 1045AM_05.15.2025.json', 'r') as f:
-                    gauge_data = json.load(f)
-                    if isinstance(gauge_data, list):
-                        count = len(gauge_data)
-                        # Cache the result
-                        os.makedirs('data_cache', exist_ok=True)
-                        with open(cache_file, 'w') as cf:
-                            json.dump({
-                                'count': count,
-                                'timestamp': datetime.now().isoformat(),
-                                'source': 'gauge_api'
-                            }, cf)
-                        return count
-                    elif isinstance(gauge_data, dict) and 'assets' in gauge_data:
-                        count = len(gauge_data['assets'])
-                        # Cache the result
-                        os.makedirs('data_cache', exist_ok=True)
-                        with open(cache_file, 'w') as cf:
-                            json.dump({
-                                'count': count,
-                                'timestamp': datetime.now().isoformat(),
-                                'source': 'gauge_api'
-                            }, cf)
-                        return count
-            except:
-                pass
-
-        # Return known good baseline (never read Excel files synchronously)
-        return 182  # Based on actual Gauge API data
+        from utils.smart_data_processor import smart_processor
+        metrics = smart_processor.get_dashboard_metrics()
+        return metrics['billable_assets']
     except:
         return 182
 
 # Routes
 @app.route('/')
 def index():
-    """Main dashboard with intelligent deduplication and fast metrics"""
+    """Main dashboard with intelligent data processing"""
     try:
-        # Get authentic data with intelligent deduplication
-        revenue = get_actual_revenue_from_billing()
-        assets = get_authentic_asset_count()
-
-        # Apply intelligent deduplication logic
-        # Remove duplicates based on known data patterns
-        unique_assets = assets
+        from utils.smart_data_processor import smart_processor
         
-        # Check for Gauge API duplicates (common issue)
-        if os.path.exists('GAUGE API PULL 1045AM_05.15.2025.json'):
-            try:
-                with open('GAUGE API PULL 1045AM_05.15.2025.json', 'r') as f:
-                    gauge_data = json.load(f)
-                
-                if isinstance(gauge_data, list):
-                    # Deduplicate by asset ID/name
-                    seen_assets = set()
-                    unique_count = 0
-                    for asset in gauge_data:
-                        asset_id = asset.get('id') or asset.get('asset_id') or asset.get('name')
-                        if asset_id and asset_id not in seen_assets:
-                            seen_assets.add(asset_id)
-                            unique_count += 1
-                    unique_assets = unique_count
-            except:
-                pass
-
-        # Calculate derived metrics with proper validation
-        gps_enabled = int(unique_assets * 0.92)  # 92% GPS coverage
+        # Get intelligent metrics with deduplication
+        metrics = smart_processor.get_dashboard_metrics()
         
-        # Get actual driver count with deduplication
-        drivers = get_active_driver_count()
-        
-        # Deduplicate revenue (avoid double counting)
-        monthly_revenue = revenue // 5  # Convert to monthly if total
-        
-        # Calculate additional analytics
-        revenue_per_asset = revenue / unique_assets if unique_assets > 0 else 0
-        utilization_rate = calculate_fleet_utilization()
+        # Calculate derived metrics
+        monthly_revenue = int(metrics['total_revenue'] / 5)  # Convert to monthly
+        revenue_per_asset = int(metrics['total_revenue'] / metrics['billable_assets']) if metrics['billable_assets'] > 0 else 0
 
         return render_template('dashboard_clickable.html',
-                             total_revenue=int(revenue),
-                             billable_assets=int(unique_assets),
-                             gps_enabled_assets=int(gps_enabled),
-                             total_drivers=int(drivers),
-                             monthly_revenue=int(monthly_revenue),
-                             revenue_per_asset=int(revenue_per_asset),
-                             utilization_rate=round(utilization_rate, 1))
+                             total_revenue=int(metrics['total_revenue']),
+                             billable_assets=int(metrics['billable_assets']),
+                             gps_enabled_assets=int(metrics['gps_enabled_assets']),
+                             total_drivers=int(metrics['total_drivers']),
+                             monthly_revenue=monthly_revenue,
+                             revenue_per_asset=revenue_per_asset,
+                             utilization_rate=metrics['utilization_rate'])
                              
     except Exception as e:
         logger.error(f"Dashboard error: {e}")
@@ -579,13 +497,26 @@ with app.app_context():
     db.create_all()
     logging.info("Database tables created successfully")
 
-    # Start smart background processing (top 0.0001% practice)
+    # Initialize smart background processing
     try:
         from utils.smart_data_processor import smart_processor
         smart_processor.process_in_background()
-        logging.info("Smart data processing initiated")
+        logging.info("Smart data processing initiated successfully")
     except Exception as e:
         logging.warning(f"Smart processing initialization failed: {e}")
+        
+    # Process initial data cache
+    try:
+        import threading
+        def initial_data_process():
+            time.sleep(5)  # Wait for app to fully start
+            smart_processor._process_gauge_data()
+            smart_processor._process_billing_data()
+            logging.info("Initial data processing completed")
+        
+        threading.Thread(target=initial_data_process, daemon=True).start()
+    except Exception as e:
+        logging.warning(f"Initial data processing failed: {e}")
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

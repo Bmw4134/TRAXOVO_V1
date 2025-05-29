@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessibility Settings - TRAXOVO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/accessibility.css') }}">
+    <style>
+        .accessibility-demo {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+        .setting-card {
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #fff;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ url_for('dashboard') }}">
+                <i class="fas fa-truck me-2"></i>TRAXOVO
+            </a>
+            <span class="navbar-text text-white">Accessibility Settings</span>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-8">
+                <h1 class="mb-4">
+                    <i class="fas fa-universal-access text-primary me-2"></i>
+                    Accessibility Settings
+                </h1>
+                <p class="lead">Customize your TRAXOVO experience with comprehensive accessibility features designed for all users.</p>
+
+                <!-- High Contrast Mode -->
+                <div class="setting-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4><i class="fas fa-adjust me-2"></i>High Contrast Mode</h4>
+                            <p class="text-muted mb-0">Enhances visibility with high contrast colors and improved focus indicators.</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="highContrastToggle" aria-label="Toggle high contrast mode">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="accessibility-demo mt-3" id="contrastDemo">
+                        <h5>Sample Content</h5>
+                        <p>This is how text and buttons will appear with high contrast enabled.</p>
+                        <button class="btn btn-primary">Sample Button</button>
+                        <span class="badge bg-success ms-2">Success Badge</span>
+                    </div>
+                </div>
+
+                <!-- Font Size Controls -->
+                <div class="setting-card">
+                    <h4><i class="fas fa-text-height me-2"></i>Font Size</h4>
+                    <p class="text-muted">Adjust text size for better readability.</p>
+                    <div class="btn-group" role="group" aria-label="Font size options">
+                        <button type="button" class="btn btn-outline-primary" data-font-size="small">Small</button>
+                        <button type="button" class="btn btn-primary" data-font-size="normal">Normal</button>
+                        <button type="button" class="btn btn-outline-primary" data-font-size="large">Large</button>
+                        <button type="button" class="btn btn-outline-primary" data-font-size="extra-large">Extra Large</button>
+                    </div>
+                    <div class="accessibility-demo mt-3" id="fontDemo">
+                        <p>This text will change size when you select different font options above.</p>
+                    </div>
+                </div>
+
+                <!-- Reduced Motion -->
+                <div class="setting-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4><i class="fas fa-stop me-2"></i>Reduced Motion</h4>
+                            <p class="text-muted mb-0">Minimizes animations and transitions for users sensitive to motion.</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="reducedMotionToggle" aria-label="Toggle reduced motion">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Dyslexia-Friendly Font -->
+                <div class="setting-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4><i class="fas fa-font me-2"></i>Dyslexia-Friendly Font</h4>
+                            <p class="text-muted mb-0">Uses specially designed fonts that are easier to read for users with dyslexia.</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="dyslexiaFontToggle" aria-label="Toggle dyslexia-friendly font">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="accessibility-demo mt-3" id="dyslexiaDemo">
+                        <p>This text shows how the dyslexia-friendly font appears. The letters are designed to be more distinguishable.</p>
+                    </div>
+                </div>
+
+                <!-- Keyboard Navigation -->
+                <div class="setting-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4><i class="fas fa-keyboard me-2"></i>Enhanced Keyboard Navigation</h4>
+                            <p class="text-muted mb-0">Shows clear focus indicators when navigating with keyboard.</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="keyboardNavToggle" aria-label="Toggle enhanced keyboard navigation">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="accessibility-demo mt-3">
+                        <p>Try pressing Tab to see focus indicators on these elements:</p>
+                        <button class="btn btn-outline-primary me-2">Focus Test 1</button>
+                        <button class="btn btn-outline-secondary me-2">Focus Test 2</button>
+                        <input type="text" class="form-control" placeholder="Focus test input" style="width: 200px; display: inline-block;">
+                    </div>
+                </div>
+
+                <!-- Large Cursor -->
+                <div class="setting-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4><i class="fas fa-mouse-pointer me-2"></i>Large Cursor</h4>
+                            <p class="text-muted mb-0">Increases cursor size for better visibility.</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="largeCursorToggle" aria-label="Toggle large cursor">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Control Buttons -->
+                <div class="setting-card">
+                    <h4><i class="fas fa-cog me-2"></i>Settings Management</h4>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button class="btn btn-success" id="saveSettings">
+                            <i class="fas fa-save me-1"></i>Save Settings
+                        </button>
+                        <button class="btn btn-warning" id="resetSettings">
+                            <i class="fas fa-undo me-1"></i>Reset to Defaults
+                        </button>
+                        <button class="btn btn-info" id="detectSystem">
+                            <i class="fas fa-desktop me-1"></i>Detect System Preferences
+                        </button>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                            <i class="fas fa-home me-1"></i>Return to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accessibility Information Sidebar -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Accessibility Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6>Keyboard Shortcuts</h6>
+                        <ul class="list-unstyled small">
+                            <li><kbd>Tab</kbd> - Navigate forward</li>
+                            <li><kbd>Shift+Tab</kbd> - Navigate backward</li>
+                            <li><kbd>Enter</kbd> - Activate buttons/links</li>
+                            <li><kbd>Space</kbd> - Activate buttons</li>
+                            <li><kbd>Esc</kbd> - Close modals/dropdowns</li>
+                            <li><kbd>Alt+↑/↓</kbd> - Quick navigation</li>
+                        </ul>
+
+                        <h6 class="mt-3">Screen Reader Support</h6>
+                        <p class="small">TRAXOVO is compatible with:</p>
+                        <ul class="list-unstyled small">
+                            <li>• JAWS</li>
+                            <li>• NVDA</li>
+                            <li>• VoiceOver</li>
+                            <li>• TalkBack</li>
+                        </ul>
+
+                        <h6 class="mt-3">System Integration</h6>
+                        <p class="small">TRAXOVO automatically detects and respects your system's accessibility preferences including high contrast mode and reduced motion settings.</p>
+
+                        <h6 class="mt-3">Compliance</h6>
+                        <p class="small">This application follows WCAG 2.1 AA guidelines and Section 508 standards for accessibility.</p>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>Current Status</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="accessibilityStatus">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>High Contrast:</span>
+                                <span class="badge bg-secondary" id="contrastStatus">Disabled</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>Font Size:</span>
+                                <span class="badge bg-info" id="fontStatus">Normal</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>Reduced Motion:</span>
+                                <span class="badge bg-secondary" id="motionStatus">Disabled</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>Dyslexia Font:</span>
+                                <span class="badge bg-secondary" id="dyslexiaStatus">Disabled</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>Keyboard Nav:</span>
+                                <span class="badge bg-secondary" id="keyboardStatus">Disabled</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/accessibility.js') }}"></script>
+    <script>
+        // Accessibility Settings Page Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize settings page
+            initializeAccessibilitySettings();
+        });
+
+        function initializeAccessibilitySettings() {
+            // Load current settings and update UI
+            const settings = JSON.parse(localStorage.getItem('traxovo-accessibility-settings') || '{}');
+            
+            // Update toggle switches
+            document.getElementById('highContrastToggle').checked = settings.highContrast || false;
+            document.getElementById('reducedMotionToggle').checked = settings.reducedMotion || false;
+            document.getElementById('dyslexiaFontToggle').checked = settings.dyslexiaFont || false;
+            document.getElementById('keyboardNavToggle').checked = settings.keyboardNav || false;
+            document.getElementById('largeCursorToggle').checked = settings.largeCursor || false;
+
+            // Update font size buttons
+            const fontSize = settings.fontSize || 'normal';
+            document.querySelectorAll('[data-font-size]').forEach(btn => {
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-outline-primary');
+                if (btn.dataset.fontSize === fontSize) {
+                    btn.classList.remove('btn-outline-primary');
+                    btn.classList.add('btn-primary');
+                }
+            });
+
+            // Update status display
+            updateStatusDisplay(settings);
+
+            // Set up event listeners
+            setupEventListeners();
+        }
+
+        function setupEventListeners() {
+            // Toggle switches
+            document.getElementById('highContrastToggle').addEventListener('change', function(e) {
+                toggleAccessibilityFeature('highContrast', e.target.checked);
+                updateDemo();
+            });
+
+            document.getElementById('reducedMotionToggle').addEventListener('change', function(e) {
+                toggleAccessibilityFeature('reducedMotion', e.target.checked);
+            });
+
+            document.getElementById('dyslexiaFontToggle').addEventListener('change', function(e) {
+                toggleAccessibilityFeature('dyslexiaFont', e.target.checked);
+                updateDemo();
+            });
+
+            document.getElementById('keyboardNavToggle').addEventListener('change', function(e) {
+                toggleAccessibilityFeature('keyboardNav', e.target.checked);
+            });
+
+            document.getElementById('largeCursorToggle').addEventListener('change', function(e) {
+                toggleAccessibilityFeature('largeCursor', e.target.checked);
+            });
+
+            // Font size buttons
+            document.querySelectorAll('[data-font-size]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const fontSize = this.dataset.fontSize;
+                    changeFontSize(fontSize);
+                    
+                    // Update button states
+                    document.querySelectorAll('[data-font-size]').forEach(b => {
+                        b.classList.remove('btn-primary');
+                        b.classList.add('btn-outline-primary');
+                    });
+                    this.classList.remove('btn-outline-primary');
+                    this.classList.add('btn-primary');
+                });
+            });
+
+            // Control buttons
+            document.getElementById('saveSettings').addEventListener('click', function() {
+                alert('Settings saved successfully!');
+            });
+
+            document.getElementById('resetSettings').addEventListener('click', function() {
+                if (confirm('Reset all accessibility settings to defaults?')) {
+                    if (window.traxovoAccessibility) {
+                        window.traxovoAccessibility.resetAllSettings();
+                        location.reload();
+                    }
+                }
+            });
+
+            document.getElementById('detectSystem').addEventListener('click', function() {
+                detectSystemPreferences();
+            });
+        }
+
+        function updateDemo() {
+            const contrastDemo = document.getElementById('contrastDemo');
+            const dyslexiaDemo = document.getElementById('dyslexiaDemo');
+            
+            // Update contrast demo
+            if (document.getElementById('highContrastToggle').checked) {
+                contrastDemo.classList.add('high-contrast');
+            } else {
+                contrastDemo.classList.remove('high-contrast');
+            }
+
+            // Update dyslexia demo
+            if (document.getElementById('dyslexiaFontToggle').checked) {
+                dyslexiaDemo.classList.add('dyslexia-font');
+            } else {
+                dyslexiaDemo.classList.remove('dyslexia-font');
+            }
+        }
+
+        function changeFontSize(size) {
+            if (window.traxovoAccessibility) {
+                // Remove current font size
+                document.body.classList.remove(
+                    'font-size-small', 'font-size-normal', 
+                    'font-size-large', 'font-size-extra-large'
+                );
+                
+                // Add new font size
+                document.body.classList.add(`font-size-${size}`);
+                
+                // Update settings
+                window.traxovoAccessibility.settings.fontSize = size;
+                window.traxovoAccessibility.saveSettings();
+                
+                // Update status
+                updateStatusDisplay();
+            }
+        }
+
+        function detectSystemPreferences() {
+            let detected = [];
+            
+            // Check for high contrast
+            if (window.matchMedia('(prefers-contrast: high)').matches) {
+                document.getElementById('highContrastToggle').checked = true;
+                toggleAccessibilityFeature('highContrast', true);
+                detected.push('High Contrast');
+            }
+            
+            // Check for reduced motion
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.getElementById('reducedMotionToggle').checked = true;
+                toggleAccessibilityFeature('reducedMotion', true);
+                detected.push('Reduced Motion');
+            }
+            
+            if (detected.length > 0) {
+                alert(`Detected system preferences: ${detected.join(', ')}`);
+            } else {
+                alert('No specific accessibility preferences detected from your system.');
+            }
+            
+            updateDemo();
+            updateStatusDisplay();
+        }
+
+        function updateStatusDisplay(settings = null) {
+            if (!settings) {
+                settings = JSON.parse(localStorage.getItem('traxovo-accessibility-settings') || '{}');
+            }
+            
+            // Update status badges
+            document.getElementById('contrastStatus').textContent = settings.highContrast ? 'Enabled' : 'Disabled';
+            document.getElementById('contrastStatus').className = settings.highContrast ? 'badge bg-success' : 'badge bg-secondary';
+            
+            document.getElementById('fontStatus').textContent = (settings.fontSize || 'normal').charAt(0).toUpperCase() + (settings.fontSize || 'normal').slice(1);
+            
+            document.getElementById('motionStatus').textContent = settings.reducedMotion ? 'Enabled' : 'Disabled';
+            document.getElementById('motionStatus').className = settings.reducedMotion ? 'badge bg-success' : 'badge bg-secondary';
+            
+            document.getElementById('dyslexiaStatus').textContent = settings.dyslexiaFont ? 'Enabled' : 'Disabled';
+            document.getElementById('dyslexiaStatus').className = settings.dyslexiaFont ? 'badge bg-success' : 'badge bg-secondary';
+            
+            document.getElementById('keyboardStatus').textContent = settings.keyboardNav ? 'Enabled' : 'Disabled';
+            document.getElementById('keyboardStatus').className = settings.keyboardNav ? 'badge bg-success' : 'badge bg-secondary';
+        }
+    </script>
+</body>
+</html>

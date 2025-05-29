@@ -243,6 +243,53 @@ def equipment_billing():
     """Equipment billing and allocation"""
     return render_template('equipment_billing/dashboard.html')
 
+@app.route('/internal-eq-tracker')
+def internal_eq_tracker():
+    """Internal Equipment Utilization Tracker"""
+    from internal_eq_tracker import get_eq_utilization_report
+    
+    # Generate fresh utilization analysis
+    utilization_report = get_eq_utilization_report()
+    
+    return render_template('internal_eq_tracker.html', 
+                         utilization_data=utilization_report)
+
+@app.route('/smart-po-system')
+def smart_po_system():
+    """Smart Purchase Order System"""
+    from smart_po_system import get_po_summary
+    
+    po_summary = get_po_summary()
+    
+    return render_template('smart_po_system.html',
+                         po_data=po_summary)
+
+@app.route('/api/create-po', methods=['POST'])
+def api_create_po():
+    """API endpoint to create new PO with internal asset validation"""
+    from smart_po_system import create_po
+    
+    data = request.get_json()
+    result = create_po(
+        division=data.get('division'),
+        job_id=data.get('job_id'),
+        vendor=data.get('vendor'),
+        category=data.get('category'),
+        total_cost=float(data.get('total_cost', 0)),
+        description=data.get('description'),
+        requested_by=data.get('requested_by')
+    )
+    
+    return jsonify(result)
+
+@app.route('/api/check-internal-assets/<category>')
+def api_check_internal_assets(category):
+    """API to check internal asset availability"""
+    from internal_eq_tracker import check_internal_equipment
+    
+    availability = check_internal_equipment(category)
+    return jsonify(availability)
+
 @app.route('/enhanced-weekly-reports')
 def enhanced_weekly_reports():
     """Enhanced weekly reporting"""

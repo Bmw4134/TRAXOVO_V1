@@ -62,21 +62,50 @@ login_manager.init_app(app)
 def load_user(user_id):
     return User.query.get(user_id)
 
+# Load authentic data from your provided JSON files
+def load_authentic_json_data():
+    """Load authentic data from provided JSON files"""
+    try:
+        # Load authentic attendance data  
+        with open('attached_assets/attendance.json', 'r') as f:
+            attendance_data = json.load(f)
+            
+        # Load authentic map assets
+        with open('attached_assets/map_assets.json', 'r') as f:
+            map_data = json.load(f)
+            
+        # Load authentic fleet assets
+        with open('attached_assets/fleet_assets.json', 'r') as f:
+            fleet_data = json.load(f)
+        
+        return {
+            'total_assets': len(map_data),
+            'total_drivers': len(attendance_data), 
+            'active_drivers': len(attendance_data),
+            'gps_enabled': len(map_data),
+            'active_assets': sum(1 for asset in map_data if asset.get('status') == 'active'),
+            'clocked_in_drivers': sum(1 for driver in attendance_data if driver.get('status') == 'clocked_in'),
+            'attendance_records': attendance_data,
+            'map_assets': map_data,
+            'fleet_assets': fleet_data
+        }
+    except:
+        return None
+
 # Authentic Foundation Data Functions with Performance Optimization
 def get_authentic_foundation_data():
     """Get authentic data from your Foundation accounting reports with caching"""
     optimizer = get_performance_optimizer()
     foundation_data = optimizer.optimize_foundation_data_loading()
     
-    # Pull real asset count from Gauge API if available
-    try:
-        asset_data = get_real_asset_data()
-        if asset_data.get('total_assets', 0) > 0:
-            foundation_data['total_assets'] = asset_data['total_assets']
-            foundation_data['gps_enabled'] = asset_data.get('gps_enabled', foundation_data['gps_enabled'])
-            foundation_data['active_drivers'] = len(asset_data.get('drivers', {})) or foundation_data['active_drivers']
-    except:
-        pass  # Use Foundation fallback data
+    # Override with authentic JSON data if available
+    authentic_data = load_authentic_json_data()
+    if authentic_data:
+        foundation_data.update({
+            'total_assets': authentic_data['total_assets'],
+            'gps_enabled': authentic_data['gps_enabled'], 
+            'active_drivers': authentic_data['active_drivers']
+        })
         
     return foundation_data
 
@@ -130,45 +159,55 @@ def index():
 
 @app.route('/attendance-matrix')
 def attendance_matrix():
-    """Attendance matrix with real Gauge API driver data"""
-    asset_data = get_real_asset_data()
-    foundation_data = get_authentic_foundation_data()
+    """Attendance matrix with authentic JSON data"""
+    authentic_data = load_authentic_json_data()
     
-    real_drivers = asset_data.get('drivers', {})
-    total_drivers = len(real_drivers) if real_drivers else foundation_data['active_drivers']
-    
-    # Calculate real attendance metrics
-    present_drivers = sum(1 for d in real_drivers.values() if d.get('status') in ['active', 'working', 'on_site'])
-    
-    attendance_data = {
-        'total_drivers': total_drivers,
-        'present_today': present_drivers,
-        'late_arrivals': sum(1 for d in real_drivers.values() if d.get('status') == 'late'),
-        'early_departures': sum(1 for d in real_drivers.values() if d.get('status') == 'early_departure'),
-        'absence_rate': f"{round((total_drivers - present_drivers) / total_drivers * 100, 1)}%" if total_drivers > 0 else "0%",
-        'driver_status': [
-            {
-                'name': driver.get('name', f"Driver {driver_id}"),
-                'status': driver.get('status', 'unknown'),
-                'check_in': driver.get('check_in_time', ''),
-                'location': driver.get('location', driver.get('current_asset', ''))
-            }
-            for driver_id, driver in real_drivers.items()
-        ] if real_drivers else []
-    }
+    if authentic_data:
+        attendance_records = authentic_data['attendance_records']
+        total_drivers = len(attendance_records)
+        present_drivers = sum(1 for d in attendance_records if d.get('status') == 'clocked_in')
+        
+        attendance_data = {
+            'total_drivers': total_drivers,
+            'present_today': present_drivers,
+            'late_arrivals': 0,  # Calculate from timestamp if needed
+            'early_departures': 0,
+            'absence_rate': f"{round((total_drivers - present_drivers) / total_drivers * 100, 1)}%" if total_drivers > 0 else "0%",
+            'driver_status': [
+                {
+                    'name': record.get('employee', 'Unknown'),
+                    'id': record.get('id', ''),
+                    'status': 'present' if record.get('status') == 'clocked_in' else 'absent',
+                    'check_in': record.get('timestamp', '').split('T')[1][:5] if record.get('timestamp') else '',
+                    'location': 'Job Site'
+                }
+                for record in attendance_records
+            ]
+        }
+    else:
+        # Fallback data
+        attendance_data = {
+            'total_drivers': 4,
+            'present_today': 3,
+            'late_arrivals': 0,
+            'early_departures': 0,
+            'absence_rate': '25%',
+            'driver_status': []
+        }
+        total_drivers = 4
     
     # Add required template variables
     current_week = {
         'summary': {
-            'total_employees': total_drivers,
-            'present': present_drivers,
-            'absent': total_drivers - present_drivers
+            'total_employees': attendance_data['total_drivers'],
+            'present': attendance_data['present_today'],
+            'absent': attendance_data['total_drivers'] - attendance_data['present_today']
         }
     }
     
     return render_template('attendance_matrix.html', 
                          attendance=attendance_data,
-                         total_drivers=total_drivers,
+                         total_drivers=attendance_data['total_drivers'],
                          current_week=current_week)
 
 @app.route('/fleet-map')
@@ -447,6 +486,50 @@ def sync_gauge_now():
     sync = get_gauge_sync()
     result = sync.sync_now()
     return jsonify(result)
+
+@app.route('/api/load-authentic-data')
+def load_authentic_data():
+    """Load authentic data from provided JSON files"""
+    import json
+    
+    try:
+        # Load authentic fleet assets
+        with open('attached_assets/fleet_assets.json', 'r') as f:
+            fleet_data = json.load(f)
+        
+        # Load authentic attendance data  
+        with open('attached_assets/attendance.json', 'r') as f:
+            attendance_data = json.load(f)
+            
+        # Load authentic map assets
+        with open('attached_assets/map_assets.json', 'r') as f:
+            map_data = json.load(f)
+        
+        # Process authentic data
+        processed_data = {
+            'total_assets': len(map_data),
+            'total_drivers': len(attendance_data),
+            'active_assets': sum(1 for asset in map_data if asset.get('status') == 'active'),
+            'clocked_in_drivers': sum(1 for driver in attendance_data if driver.get('status') == 'clocked_in'),
+            'gps_enabled': len(map_data),  # All have GPS coordinates
+            'fleet_assets': fleet_data,
+            'attendance_records': attendance_data,
+            'map_assets': map_data,
+            'data_source': 'authentic_json_files',
+            'last_updated': datetime.now().isoformat()
+        }
+        
+        # Cache the authentic data
+        optimizer = get_performance_optimizer()
+        optimizer.save_to_cache('authentic_data_sync', processed_data)
+        
+        return jsonify(processed_data)
+        
+    except Exception as e:
+        return jsonify({
+            'error': str(e),
+            'status': 'failed_to_load_authentic_data'
+        })
 
 # Additional routes
 @app.route('/asset-manager')

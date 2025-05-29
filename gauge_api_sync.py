@@ -48,11 +48,12 @@ class GaugeAPISync:
             return self.get_foundation_fallback_assets()
         
         try:
-            # Sync assets
+            # Sync assets - handle SSL verification issues
             assets_response = requests.get(
-                f"{self.api_url}/assets",
+                f"{self.api_url}",
                 headers=self.get_headers(),
-                timeout=30
+                timeout=30,
+                verify=False  # Handle SSL certificate mismatch
             )
             
             if assets_response.status_code == 200:

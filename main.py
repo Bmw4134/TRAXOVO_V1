@@ -125,6 +125,140 @@ def api_assistant():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+# Navigation routes
+@app.route('/fleet-map')
+def fleet_map():
+    """Live Fleet Map"""
+    return render_template('dashboard_professional.html', 
+                         page_title="Live Fleet Map",
+                         **{k: v for k, v in authentic_fleet_data.items()})
+
+@app.route('/asset-manager')
+def asset_manager():
+    """Asset Manager"""
+    return render_template('dashboard_professional.html', 
+                         page_title="Asset Manager",
+                         **{k: v for k, v in authentic_fleet_data.items()})
+
+@app.route('/equipment-dispatch')
+def equipment_dispatch():
+    """Equipment Dispatch"""
+    return render_template('dashboard_professional.html', 
+                         page_title="Equipment Dispatch",
+                         **{k: v for k, v in authentic_fleet_data.items()})
+
+@app.route('/schedule-manager')
+def schedule_manager():
+    """Schedule Manager"""
+    return render_template('dashboard_professional.html', 
+                         page_title="Schedule Manager",
+                         **{k: v for k, v in authentic_fleet_data.items()})
+
+@app.route('/job-sites')
+def job_sites():
+    """Job Sites"""
+    return render_template('dashboard_professional.html', 
+                         page_title="Job Sites",
+                         **{k: v for k, v in authentic_fleet_data.items()})
+
+@app.route('/attendance-matrix')
+def attendance_matrix():
+    """Attendance Matrix"""
+    return render_template('dashboard_professional.html', 
+                         page_title="Attendance Matrix",
+                         **{k: v for k, v in authentic_fleet_data.items()})
+
+@app.route('/driver-management')
+def driver_management():
+    """Driver Management"""
+    return render_template('dashboard_professional.html', 
+                         page_title="Driver Management",
+                         **{k: v for k, v in authentic_fleet_data.items()})
+
+@app.route('/daily-driver-report')
+def daily_driver_report():
+    """Daily Driver Reports"""
+    return render_template('dashboard_professional.html', 
+                         page_title="Daily Driver Reports",
+                         **{k: v for k, v in authentic_fleet_data.items()})
+
+@app.route('/weekly-driver-report')
+def weekly_driver_report():
+    """Weekly Reports"""
+    return render_template('dashboard_professional.html', 
+                         page_title="Weekly Reports",
+                         **{k: v for k, v in authentic_fleet_data.items()})
+
+@app.route('/billing')
+def billing():
+    """Revenue Analytics"""
+    return render_template('dashboard_professional.html', 
+                         page_title="Revenue Analytics",
+                         **{k: v for k, v in authentic_fleet_data.items()})
+
+@app.route('/project-accountability')
+def project_accountability():
+    """Project Tracking"""
+    return render_template('dashboard_professional.html', 
+                         page_title="Project Tracking",
+                         **{k: v for k, v in authentic_fleet_data.items()})
+
+@app.route('/executive-reports')
+def executive_reports():
+    """Executive Reports"""
+    return render_template('dashboard_professional.html', 
+                         page_title="Executive Reports",
+                         **{k: v for k, v in authentic_fleet_data.items()})
+
+@app.route('/mtd-reports')
+def mtd_reports():
+    """MTD Reports"""
+    return render_template('dashboard_professional.html', 
+                         page_title="MTD Reports",
+                         **{k: v for k, v in authentic_fleet_data.items()})
+
+@app.route('/ai-assistant')
+def ai_assistant():
+    """AI Assistant"""
+    return render_template('dashboard_professional.html', 
+                         page_title="AI Assistant",
+                         **{k: v for k, v in authentic_fleet_data.items()})
+
+@app.route('/workflow-optimization')
+def workflow_optimization():
+    """Workflow Optimization"""
+    return render_template('dashboard_professional.html', 
+                         page_title="Workflow Optimization",
+                         **{k: v for k, v in authentic_fleet_data.items()})
+
+@app.route('/industry-news')
+def industry_news():
+    """Industry News"""
+    return render_template('dashboard_professional.html', 
+                         page_title="Industry News",
+                         **{k: v for k, v in authentic_fleet_data.items()})
+
+@app.route('/system-health')
+def system_health():
+    """System Health"""
+    return render_template('dashboard_professional.html', 
+                         page_title="System Health",
+                         **{k: v for k, v in authentic_fleet_data.items()})
+
+@app.route('/file-upload')
+def file_upload():
+    """Data Upload"""
+    return render_template('dashboard_professional.html', 
+                         page_title="Data Upload",
+                         **{k: v for k, v in authentic_fleet_data.items()})
+
+@app.route('/system-admin')
+def system_admin():
+    """User Management"""
+    return render_template('dashboard_professional.html', 
+                         page_title="User Management",
+                         **{k: v for k, v in authentic_fleet_data.items()})
+
 # Error handlers
 @app.errorhandler(404)
 def not_found(error):

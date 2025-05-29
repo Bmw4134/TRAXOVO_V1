@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Manager - TRAXOVO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .asset-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+        }
+        .asset-card {
+            border-left: 4px solid #007bff;
+            transition: transform 0.3s ease;
+        }
+        .asset-card:hover {
+            transform: translateY(-2px);
+        }
+        .status-active { color: #28a745; }
+        .status-maintenance { color: #ffc107; }
+        .status-offline { color: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            {% include 'includes/sidebar.html' %}
+            
+            <!-- Main Content -->
+            <div class="col-lg-10 offset-lg-2 p-4">
+                <div class="asset-header mb-4">
+                    <h1><i class="fas fa-cogs me-2"></i>Asset Manager</h1>
+                    <p class="mb-0">Equipment fleet management and tracking</p>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 class="text-primary">36</h3>
+                                <p class="mb-0">Billable Assets</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 class="text-success">32</h3>
+                                <p class="mb-0">Active</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 class="text-warning">3</h3>
+                                <p class="mb-0">Maintenance</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 class="text-danger">1</h3>
+                                <p class="mb-0">Offline</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Asset Fleet Overview</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Asset ID</th>
+                                        <th>Equipment Name</th>
+                                        <th>Type</th>
+                                        <th>Status</th>
+                                        <th>Current Location</th>
+                                        <th>Monthly Revenue</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>CAT-001</td>
+                                        <td>Excavator 320D</td>
+                                        <td>Heavy Equipment</td>
+                                        <td><i class="fas fa-circle status-active"></i> Active</td>
+                                        <td>Downtown Office Complex</td>
+                                        <td>$85,200</td>
+                                    </tr>
+                                    <tr>
+                                        <td>DOZ-001</td>
+                                        <td>Bulldozer D6T</td>
+                                        <td>Heavy Equipment</td>
+                                        <td><i class="fas fa-circle status-active"></i> Active</td>
+                                        <td>Highway 75 Expansion</td>
+                                        <td>$92,100</td>
+                                    </tr>
+                                    <tr>
+                                        <td>TRK-001</td>
+                                        <td>Dump Truck</td>
+                                        <td>Trucks & Trailers</td>
+                                        <td><i class="fas fa-circle status-maintenance"></i> Maintenance</td>
+                                        <td>Yard</td>
+                                        <td>$45,800</td>
+                                    </tr>
+                                    <tr>
+                                        <td>LOD-001</td>
+                                        <td>Wheel Loader</td>
+                                        <td>Heavy Equipment</td>
+                                        <td><i class="fas fa-circle status-active"></i> Active</td>
+                                        <td>Residential Development</td>
+                                        <td>$68,500</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6>Equipment Categories</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Heavy Equipment</span>
+                                        <span>18 units</span>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar" style="width: 50%"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Trucks & Trailers</span>
+                                        <span>12 units</span>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar bg-info" style="width: 33%"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Small Equipment</span>
+                                        <span>6 units</span>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar bg-success" style="width: 17%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6>Recent Activity</h6>
+                            </div>
+                            <div class="card-body">
+                                <small class="text-muted">CAT-001 assigned to Downtown project</small><br>
+                                <small class="text-muted">TRK-001 scheduled for maintenance</small><br>
+                                <small class="text-muted">DOZ-001 moved to Highway project</small><br>
+                                <small class="text-muted">LOD-001 operator changed</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

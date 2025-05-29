@@ -107,7 +107,7 @@ class AttendanceMatrixSystem:
                         'hours_worked': round((end_time - start_time).total_seconds() / 3600, 2),
                         'status': 'Present',
                         'gps_correlation': (hash("gps" + employee['employee_id'] + str(date)) % 100) > 5,  # 95% GPS correlation
-                        'job_site': f"Site_{(hash('site' + employee['employee_id'] + date) % 15) + 1:02d}"
+                        'job_site': f"Site_{(hash('site' + employee['employee_id'] + str(date)) % 15) + 1:02d}"
                     })
                 elif not is_weekend:
                     records.append({

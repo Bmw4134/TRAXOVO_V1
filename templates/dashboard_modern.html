@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAXOVO Fleet Intelligence Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            color: #1a1d29;
+            line-height: 1.5;
+        }
+        
+        /* Sidebar Navigation */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: linear-gradient(180deg, #1a1d29 0%, #2c3e50 100%);
+            box-shadow: 2px 0 15px rgba(0,0,0,0.1);
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-header {
+            padding: 25px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .logo {
+            color: #fff;
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .fleet-status {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .nav-menu {
+            padding: 20px 0;
+        }
+        
+        .nav-section {
+            margin-bottom: 30px;
+        }
+        
+        .nav-section-title {
+            color: #64748b;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0 20px 10px;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #94a3b8;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+            border-left-color: #667eea;
+        }
+        
+        .nav-icon {
+            width: 20px;
+            margin-right: 12px;
+            font-size: 1.1rem;
+        }
+        
+        /* Main Content Area */
+        .main-content {
+            margin-left: 280px;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        .top-bar {
+            background: #fff;
+            padding: 20px 30px;
+            border-bottom: 1px solid #e2e8f0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .top-bar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1a1d29;
+        }
+        
+        .live-status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #f0fdf4;
+            padding: 8px 16px;
+            border-radius: 8px;
+            color: #166534;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .live-indicator {
+            width: 8px;
+            height: 8px;
+            background: #16a34a;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        /* Content Sections */
+        .content-area {
+            padding: 30px;
+        }
+        
+        /* Executive Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .metric-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.06);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 35px rgba(0,0,0,0.12);
+        }
+        
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+        
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        
+        .metric-info h3 {
+            font-size: 0.9rem;
+            color: #64748b;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1a1d29;
+            line-height: 1;
+        }
+        
+        .metric-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .icon-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; }
+        .icon-success { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
+        .icon-warning { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; }
+        .icon-info { background: linear-gradient(135deg, #06b6d4, #0891b2); color: #fff; }
+        
+        .metric-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #f1f5f9;
+        }
+        
+        .metric-change {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .change-positive { color: #10b981; }
+        .change-negative { color: #ef4444; }
+        
+        .metric-source {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            font-style: italic;
+        }
+        
+        /* Asset Map Section */
+        .asset-map-section {
+            background: #fff;
+            border-radius: 16px;
+            padding: 0;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.06);
+            border: 1px solid #e2e8f0;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .section-header {
+            padding: 25px 30px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1a1d29;
+        }
+        
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .toggle-btn {
+            padding: 8px 16px;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-btn.active {
+            background: #667eea;
+            border-color: #667eea;
+            color: #fff;
+        }
+        
+        .asset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            padding: 30px;
+        }
+        
+        .asset-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .asset-card:hover {
+            background: #fff;
+            border-color: #667eea;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.15);
+        }
+        
+        .asset-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .asset-name {
+            font-weight: 700;
+            color: #1a1d29;
+            font-size: 1.1rem;
+        }
+        
+        .asset-id {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 2px;
+        }
+        
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-active { background: #dcfce7; color: #166534; }
+        .status-idle { background: #fef3c7; color: #92400e; }
+        .status-maintenance { background: #fee2e2; color: #991b1b; }
+        
+        .asset-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .asset-metric {
+            text-align: center;
+            padding: 12px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #f1f5f9;
+        }
+        
+        .asset-metric-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1a1d29;
+        }
+        
+        .asset-metric-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 2px;
+        }
+        
+        /* Mobile Responsive */
+        .mobile-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: #1a1d29;
+            color: #fff;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-toggle {
+                display: block;
+            }
+            
+            .content-area {
+                padding: 20px 15px;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .asset-grid {
+                grid-template-columns: 1fr;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-toggle" onclick="toggleSidebar()">☰</button>
+    
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">TRAXOVO</div>
+            <div class="fleet-status">
+                <span class="status-dot"></span>
+                570 Assets • Live Data
+            </div>
+        </div>
+        
+        <div class="nav-menu">
+            <div class="nav-section">
+                <div class="nav-section-title">Executive</div>
+                <a href="#" class="nav-item active">
+                    <span class="nav-icon">📊</span>
+                    Executive Dashboard
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">📈</span>
+                    Performance Analytics
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    Cost Intelligence
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Fleet Operations</div>
+                <a href="/assets" class="nav-item">
+                    <span class="nav-icon">🚛</span>
+                    Asset Management
+                </a>
+                <a href="/gps-efficiency" class="nav-item">
+                    <span class="nav-icon">📍</span>
+                    GPS Tracking
+                </a>
+                <a href="/automated-attendance" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    Attendance Control
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Intelligence</div>
+                <a href="/billing" class="nav-item">
+                    <span class="nav-icon">🧾</span>
+                    Billing Engine
+                </a>
+                <a href="/smart-backend" class="nav-item">
+                    <span class="nav-icon">🧠</span>
+                    Smart Analytics
+                </a>
+                <a href="/job-management" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    Job Management
+                </a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="top-bar">
+            <div class="top-bar-content">
+                <h1 class="page-title">Executive Dashboard</h1>
+                <div class="live-status">
+                    <span class="live-indicator"></span>
+                    Live Data • Last sync: {{ last_sync }}
+                </div>
+            </div>
+        </div>
+        
+        <div class="content-area">
+            <!-- Executive Metrics -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-info">
+                            <h3>Total Fleet Assets</h3>
+                            <div class="metric-value">{{ total_assets }}</div>
+                        </div>
+                        <div class="metric-icon icon-primary">🚛</div>
+                    </div>
+                    <div class="metric-details">
+                        <span class="metric-change change-positive">+2 this month</span>
+                        <span class="metric-source">Gauge API</span>
+                    </div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-info">
+                            <h3>Monthly Cost Savings</h3>
+                            <div class="metric-value">${{ "{:,.0f}".format(monthly_savings) }}</div>
+                        </div>
+                        <div class="metric-icon icon-success">💰</div>
+                    </div>
+                    <div class="metric-details">
+                        <span class="metric-change change-positive">vs. external rentals</span>
+                        <span class="metric-source">Ragle Analysis</span>
+                    </div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-info">
+                            <h3>Performance Issues</h3>
+                            <div class="metric-value">{{ performance_issues }}</div>
+                        </div>
+                        <div class="metric-icon icon-warning">⚠️</div>
+                    </div>
+                    <div class="metric-details">
+                        <span class="metric-change change-negative">Requires attention</span>
+                        <span class="metric-source">GPS + Timecards</span>
+                    </div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-info">
+                            <h3>GPS Coverage</h3>
+                            <div class="metric-value">{{ coverage }}%</div>
+                        </div>
+                        <div class="metric-icon icon-info">📡</div>
+                    </div>
+                    <div class="metric-details">
+                        <span class="metric-change change-positive">{{ gps_enabled }}/{{ total_assets }} enabled</span>
+                        <span class="metric-source">Real-time</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Asset Map/Grid -->
+            <div class="asset-map-section">
+                <div class="section-header">
+                    <h2 class="section-title">Fleet Asset Overview</h2>
+                    <div class="view-toggle">
+                        <button class="toggle-btn active" onclick="showGrid()">Grid View</button>
+                        <button class="toggle-btn" onclick="showMap()">Map View</button>
+                    </div>
+                </div>
+                
+                <div class="asset-grid" id="assetGrid">
+                    <!-- Sample asset cards with authentic data structure -->
+                    <div class="asset-card" onclick="drillDownAsset('F150-001')">
+                        <div class="asset-header">
+                            <div>
+                                <div class="asset-name">2019 Ford F-150</div>
+                                <div class="asset-id">Asset ID: F150-001</div>
+                            </div>
+                            <span class="status-badge status-active">Active</span>
+                        </div>
+                        <div class="asset-metrics">
+                            <div class="asset-metric">
+                                <div class="asset-metric-value">87%</div>
+                                <div class="asset-metric-label">Utilization</div>
+                            </div>
+                            <div class="asset-metric">
+                                <div class="asset-metric-value">$2,890</div>
+                                <div class="asset-metric-label">Monthly Value</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="asset-card" onclick="drillDownAsset('EX-320')">
+                        <div class="asset-header">
+                            <div>
+                                <div class="asset-name">CAT 320 Excavator</div>
+                                <div class="asset-id">Asset ID: EX-320</div>
+                            </div>
+                            <span class="status-badge status-active">Active</span>
+                        </div>
+                        <div class="asset-metrics">
+                            <div class="asset-metric">
+                                <div class="asset-metric-value">92%</div>
+                                <div class="asset-metric-label">Utilization</div>
+                            </div>
+                            <div class="asset-metric">
+                                <div class="asset-metric-value">$8,750</div>
+                                <div class="asset-metric-label">Monthly Value</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="asset-card" onclick="drillDownAsset('AC-185')">
+                        <div class="asset-header">
+                            <div>
+                                <div class="asset-name">185 CFM Air Compressor</div>
+                                <div class="asset-id">Asset ID: AC-185</div>
+                            </div>
+                            <span class="status-badge status-idle">Idle</span>
+                        </div>
+                        <div class="asset-metrics">
+                            <div class="asset-metric">
+                                <div class="asset-metric-value">34%</div>
+                                <div class="asset-metric-label">Utilization</div>
+                            </div>
+                            <div class="asset-metric">
+                                <div class="asset-metric-value">$1,250</div>
+                                <div class="asset-metric-label">Monthly Value</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+        
+        function showGrid() {
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            // Grid view is already shown
+        }
+        
+        function showMap() {
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            // Implement map view here
+            alert('Map view - integrate with your GPS tracking system');
+        }
+        
+        function drillDownAsset(assetId) {
+            // Navigate to detailed asset view
+            window.location.href = `/assets/detail/${assetId}`;
+        }
+        
+        // Close sidebar on mobile when clicking outside
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.querySelector('.mobile-toggle');
+            
+            if (window.innerWidth <= 1024) {
+                if (!sidebar.contains(event.target) && !toggle.contains(event.target)) {
+                    sidebar.classList.remove('open');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

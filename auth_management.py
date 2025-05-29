@@ -5,7 +5,7 @@ Handles login, password reset, and user authentication
 
 from flask import Blueprint, render_template, request, flash, redirect, url_for, session
 from flask_login import login_user, logout_user, login_required, current_user
-from models.user import User
+from models import User
 from app import db
 import logging
 

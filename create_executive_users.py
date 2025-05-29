@@ -5,7 +5,7 @@ Creates admin accounts for William Rather and Troy Ragle
 """
 
 from app import app, db
-from models.user import User
+from models import User
 from datetime import datetime
 
 def create_executive_users():

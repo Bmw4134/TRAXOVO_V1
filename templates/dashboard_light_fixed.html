@@ -266,7 +266,7 @@
         <!-- Metrics Grid - 4 columns -->
         <div class="metrics-grid">
             <div class="metric-card">
-                <div class="metric-value primary">{{ asset_count or 716 }}</div>
+                <div class="metric-value primary">{{ total_assets }}</div>
                 <div class="metric-label">Total Assets</div>
                 <div class="metric-trend text-success">+7% this week</div>
             </div>
@@ -399,7 +399,7 @@
                     </div>
                     <div class="mb-2">
                         <i class="fas fa-truck me-2"></i>
-                        GPS Enabled: {{ gps_enabled_count or 7 }}/{{ asset_count or 716 }}
+                        GPS Enabled: {{ gps_enabled }}/{{ total_assets }}
                     </div>
                     <div class="text-warning">
                         <i class="fas fa-exclamation-triangle me-2"></i>

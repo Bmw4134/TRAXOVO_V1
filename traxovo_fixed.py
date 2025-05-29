@@ -395,5 +395,19 @@ try:
 except Exception as e:
     print(f"Error registering smart backend: {e}")
 
+try:
+    from traxovo_reports_engine import reports_bp
+    app.register_blueprint(reports_bp)
+    print("Reports engine blueprint registered")
+except Exception as e:
+    print(f"Error registering reports engine: {e}")
+
+try:
+    from executive_walkthrough_module import walkthrough_bp
+    app.register_blueprint(walkthrough_bp)
+    print("Executive walkthrough blueprint registered")
+except Exception as e:
+    print(f"Error registering executive walkthrough: {e}")
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

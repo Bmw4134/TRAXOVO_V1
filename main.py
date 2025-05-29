@@ -420,6 +420,7 @@ from fleet_manager_module import fleet_manager_bp
 from intelligent_intake_form import intake_form_bp
 from auth_management import auth_bp
 from gauge_executive_dashboard import gauge_exec_bp
+from traxovo_fleet_map import traxovo_map_bp
 
 app.register_blueprint(asset_module_bp)
 app.register_blueprint(executive_reports_bp)
@@ -433,6 +434,7 @@ app.register_blueprint(fleet_manager_bp)
 app.register_blueprint(intake_form_bp)
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(gauge_exec_bp)
+app.register_blueprint(traxovo_map_bp)
 
 if __name__ == "__main__":
     # Run deployment readiness check

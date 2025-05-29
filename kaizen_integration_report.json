@@ -1,0 +1,53 @@
+{
+  "timestamp": "2025-05-29T04:19:45.651421",
+  "integration_status": "ISSUES_DETECTED",
+  "active_modules": {
+    "main_app": {
+      "path": "simple_app.py",
+      "status": "ACTIVE",
+      "verified": true
+    },
+    "kaizen_ai": {
+      "path": "kaizen_daily_sync.py",
+      "status": "ACTIVE",
+      "verified": true
+    },
+    "dashboard": {
+      "path": "templates/dashboard_light_fixed.html",
+      "status": "ACTIVE",
+      "verified": true
+    },
+    "attendance": {
+      "path": "templates/attendance_grid_dashboard.html",
+      "status": "ACTIVE",
+      "verified": true
+    },
+    "gps_tracking": {
+      "path": "templates/gps_tracking_enhanced.html",
+      "status": "ACTIVE",
+      "verified": true
+    },
+    "uploads": {
+      "path": "templates/uploads/index.html",
+      "status": "ACTIVE",
+      "verified": true
+    },
+    "preflight": {
+      "path": "preflight_validator.py",
+      "status": "ACTIVE",
+      "verified": true
+    },
+    "data_integration": {
+      "gauge_api_file": "ACTIVE",
+      "fleet_metrics": "VALIDATED",
+      "authentic_data": true
+    },
+    "ai_integration": {
+      "openai_configured": true,
+      "kaizen_ai_ready": true,
+      "status": "ACTIVE"
+    }
+  },
+  "missing_components": [],
+  "deployment_ready": false
+}

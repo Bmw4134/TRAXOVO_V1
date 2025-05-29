@@ -1,0 +1,18 @@
+{
+  "timestamp": "2025-05-29T04:19:45.653465",
+  "deployment_modules": {
+    "core_app": "simple_app.py",
+    "ai_engine": "kaizen_daily_sync.py",
+    "validator": "preflight_validator.py",
+    "dashboard": "templates/dashboard_light_fixed.html",
+    "attendance_matrix": "templates/attendance_grid_dashboard.html",
+    "gps_tracking": "templates/gps_tracking_enhanced.html",
+    "upload_center": "templates/uploads/index.html"
+  },
+  "data_sources": {
+    "gauge_api": "GAUGE API PULL 1045AM_05.15.2025.json",
+    "fleet_size": 570,
+    "gps_units": 566
+  },
+  "integration_status": "RUNNING"
+}

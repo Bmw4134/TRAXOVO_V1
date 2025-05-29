@@ -270,6 +270,13 @@ def intake_form():
     """Equipment Report with Photo Upload"""
     return render_template('intake_form.html')
 
+@app.route('/equipment-dispatch')
+def equipment_dispatch():
+    """Equipment Dispatch Center - HCSS Dispatcher replacement"""
+    from equipment_dispatch_system import dispatch_system
+    dashboard_data = dispatch_system.get_dispatch_dashboard_data()
+    return render_template('equipment_dispatch.html', data=dashboard_data)
+
 @app.route('/api/log-incident', methods=['POST'])
 def api_log_incident():
     """API endpoint to log equipment incidents"""
@@ -279,6 +286,36 @@ def api_log_incident():
         incident_data = request.get_json()
         incident = accountability_system.log_equipment_incident(incident_data)
         return jsonify({'success': True, 'incident': incident})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/send-weekly-report', methods=['POST'])
+def api_send_weekly_report():
+    """API endpoint to send weekly reports"""
+    from equipment_dispatch_system import dispatch_system
+    from flask import request, jsonify
+    try:
+        request_data = request.get_json()
+        site_name = request_data.get('site_name')
+        recipient_emails = request_data.get('emails', [])
+        
+        result = dispatch_system.send_weekly_report(site_name, recipient_emails)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/send-daily-report', methods=['POST'])
+def api_send_daily_report():
+    """API endpoint to send daily reports"""
+    from equipment_dispatch_system import dispatch_system
+    from flask import request, jsonify
+    try:
+        request_data = request.get_json()
+        site_name = request_data.get('site_name')
+        recipient_emails = request_data.get('emails', [])
+        
+        result = dispatch_system.send_daily_report(site_name, recipient_emails)
+        return jsonify(result)
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 

@@ -35,3 +35,4 @@ sendgrid
 matplotlib
 seaborn
 openai
+sendgrid

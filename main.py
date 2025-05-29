@@ -103,10 +103,10 @@ def load_authentic_data():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    # Auto-login for development - Dan user
+    # Auto-login for development - Watson user (executive access)
     if 'auto_login' not in session:
-        # Automatically log in as Dan
-        username = 'dan'
+        # Automatically log in as Watson
+        username = 'watson'
         if username in TEST_USERS:
             user_data = TEST_USERS[username]
             user = TestUser(username, user_data)

@@ -134,8 +134,8 @@ def get_gps_assets():
 
 @app.route('/attendance')
 def attendance_tracking():
-    """Attendance tracking with authentic data"""
-    return render_template('attendance/dashboard.html')
+    """Attendance Matrix Grid - Weekly driver tracking"""
+    return render_template('attendance_grid_dashboard.html')
 
 @app.route('/reports')
 def comprehensive_reports():

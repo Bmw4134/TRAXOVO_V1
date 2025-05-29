@@ -420,6 +420,28 @@ try:
 except Exception as e:
     print(f"Error registering smart backend: {e}")
 
+# Register new enhanced modules
+try:
+    from aemp_news_integration import aemp_bp
+    app.register_blueprint(aemp_bp)
+    print("AEMP news integration registered")
+except Exception as e:
+    print(f"Error registering AEMP news: {e}")
+
+try:
+    from equipment_lifecycle_analytics import lifecycle_bp
+    app.register_blueprint(lifecycle_bp)
+    print("Equipment lifecycle analytics registered")
+except Exception as e:
+    print(f"Error registering lifecycle analytics: {e}")
+
+try:
+    from dynamic_metrics_dashboard import metrics_bp
+    app.register_blueprint(metrics_bp)
+    print("Dynamic metrics dashboard registered")
+except Exception as e:
+    print(f"Error registering metrics dashboard: {e}")
+
 try:
     from traxovo_reports_engine import reports_bp
     app.register_blueprint(reports_bp)

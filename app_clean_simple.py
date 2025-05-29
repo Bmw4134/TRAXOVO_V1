@@ -152,6 +152,11 @@ def asset_manager():
     """Asset management dashboard"""
     return render_template('asset_manager.html')
 
+@app.route('/assets')
+def assets():
+    """Assets overview page"""
+    return render_template('asset_manager.html')
+
 @app.route('/billing')
 def billing():
     """Billing intelligence dashboard"""

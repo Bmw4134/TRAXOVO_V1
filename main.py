@@ -42,6 +42,9 @@ from interactive_onboarding import (
     get_onboarding_tour_data
 )
 
+# Import quick performance boost functions
+from quick_performance_boost import performance_boost_bp
+
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET") or "traxovo-production-2025"
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
@@ -345,6 +348,9 @@ def page_not_found(e):
 @app.errorhandler(500)
 def server_error(e):
     return render_template('500.html'), 500
+
+# Register performance boost blueprint
+app.register_blueprint(performance_boost_bp)
 
 if __name__ == "__main__":
     # Run deployment readiness check

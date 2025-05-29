@@ -130,7 +130,7 @@ class AutomatedAttendanceSystem:
         """Verify Ground Works attendance against GPS tracking"""
         verification_results = []
         
-        if not self.groundworks_data is not None or not self.gps_data:
+        if self.groundworks_data is None or not self.gps_data:
             return verification_results
         
         # Process each employee with vehicle assignment

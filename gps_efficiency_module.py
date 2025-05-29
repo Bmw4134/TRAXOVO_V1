@@ -76,7 +76,7 @@ class GPSEfficiencyAnalyzer:
             compliance_results.append({
                 'asset_id': asset_id,
                 'asset_name': asset_name,
-                'driver_id': self.extract_driver_id(asset),
+                'driver_id': asset.get('AssignedDriver', 'Unassigned'),
                 'gps_location': gps_location,
                 'timecard_hours': compliance['timecard_hours'],
                 'gps_verified_hours': compliance['verified_hours'],

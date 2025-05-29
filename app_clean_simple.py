@@ -3,10 +3,15 @@ TRAXOVO Fleet Management System - Clean Application
 """
 
 import os
-from flask import Flask, render_template, jsonify, request
+import uuid
+from flask import Flask, render_template, jsonify, request, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
+from flask_dance.consumer import OAuth2ConsumerBlueprint, oauth_authorized, oauth_error
+from flask_dance.consumer.storage import BaseStorage
+import jwt
 import logging
 from timecard_excel_processor import timecard_bp
 from traxovo_fleet_map_plus import fleet_map_bp
@@ -33,13 +38,131 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 
 db = SQLAlchemy(app, model_class=Base)
 
+# Initialize Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'replit_auth.login'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(user_id)
+
+# Storage for OAuth tokens
+class UserSessionStorage(BaseStorage):
+    def get(self, blueprint):
+        try:
+            from sqlalchemy.exc import NoResultFound
+            token = db.session.query(OAuth).filter_by(
+                user_id=current_user.get_id(),
+                browser_session_key=session.get('_browser_session_key'),
+                provider=blueprint.name,
+            ).one().token
+        except:
+            token = None
+        return token
+
+    def set(self, blueprint, token):
+        db.session.query(OAuth).filter_by(
+            user_id=current_user.get_id(),
+            browser_session_key=session.get('_browser_session_key'),
+            provider=blueprint.name,
+        ).delete()
+        new_oauth = OAuth()
+        new_oauth.user_id = current_user.get_id()
+        new_oauth.browser_session_key = session.get('_browser_session_key')
+        new_oauth.provider = blueprint.name
+        new_oauth.token = token
+        db.session.add(new_oauth)
+        db.session.commit()
+
+    def delete(self, blueprint):
+        db.session.query(OAuth).filter_by(
+            user_id=current_user.get_id(),
+            browser_session_key=session.get('_browser_session_key'),
+            provider=blueprint.name).delete()
+        db.session.commit()
+
+# Create Replit OAuth blueprint
+def make_replit_blueprint():
+    repl_id = os.environ.get('REPL_ID', 'dev-repl-id')
+    issuer_url = os.environ.get('ISSUER_URL', "https://replit.com/oidc")
+
+    replit_bp = OAuth2ConsumerBlueprint(
+        "replit_auth",
+        __name__,
+        client_id=repl_id,
+        client_secret=None,
+        base_url=issuer_url,
+        token_url=issuer_url + "/token",
+        authorization_url=issuer_url + "/auth",
+        scope=["openid", "profile", "email", "offline_access"],
+        storage=UserSessionStorage(),
+    )
+
+    @replit_bp.before_app_request
+    def set_session():
+        if '_browser_session_key' not in session:
+            session['_browser_session_key'] = uuid.uuid4().hex
+        session.permanent = True
+
+    @replit_bp.route("/logout")
+    def logout():
+        logout_user()
+        return redirect(url_for('index'))
+
+    return replit_bp
+
+# Register Replit auth
+replit_bp = make_replit_blueprint()
+app.register_blueprint(replit_bp, url_prefix="/auth")
+
+@oauth_authorized.connect
+def logged_in(blueprint, token):
+    try:
+        user_claims = jwt.decode(token['id_token'], options={"verify_signature": False})
+        
+        # Create or update user
+        user = User.query.get(user_claims['sub'])
+        if not user:
+            user = User()
+            user.id = user_claims['sub']
+        
+        user.email = user_claims.get('email')
+        user.first_name = user_claims.get('first_name')
+        user.last_name = user_claims.get('last_name')
+        user.profile_image_url = user_claims.get('profile_image_url')
+        
+        db.session.merge(user)
+        db.session.commit()
+        
+        login_user(user)
+        blueprint.token = token
+        
+    except Exception as e:
+        print(f"Login error: {e}")
+
+@oauth_error.connect
+def handle_error(blueprint, error, error_description=None, error_uri=None):
+    print(f"OAuth error: {error}")
+    return redirect(url_for('index'))
+
 # Simple models for core functionality
-class User(db.Model):
+class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.String, primary_key=True)
     email = db.Column(db.String, unique=True, nullable=True)
     first_name = db.Column(db.String, nullable=True)
     last_name = db.Column(db.String, nullable=True)
+    profile_image_url = db.Column(db.String, nullable=True)
+
+class OAuth(db.Model):
+    __tablename__ = 'oauth'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String, db.ForeignKey(User.id))
+    provider = db.Column(db.String(50), nullable=False)
+    token = db.Column(db.Text)
+    browser_session_key = db.Column(db.String, nullable=False)
+    user = db.relationship(User)
 
 class Asset(db.Model):
     __tablename__ = 'assets'

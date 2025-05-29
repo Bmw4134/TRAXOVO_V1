@@ -10,6 +10,7 @@ from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
 import logging
 from authentic_data_service import authentic_data
+from foundation_export import foundation_exporter
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -257,6 +258,23 @@ def api_metrics_detail(metric_name):
         else:
             return jsonify({'success': False, 'error': 'Metric not found'}), 404
             
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/foundation-export')
+def api_foundation_export():
+    """API endpoint to export data for Foundation accounting"""
+    try:
+        records = foundation_exporter.prepare_eq_billing_export()
+        filename = foundation_exporter.export_to_excel(records)
+        
+        return jsonify({
+            'success': True,
+            'filename': filename,
+            'records_count': len(records),
+            'total_amount': sum(r['Amount'] for r in records),
+            'message': 'Foundation export ready for download'
+        })
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 

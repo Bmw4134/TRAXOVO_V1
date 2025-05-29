@@ -1,75 +1,88 @@
-<!-- TRAXOVO Universal Sidebar Navigation -->
+<!-- TRAXOVO Professional Sidebar Navigation -->
 <div class="col-md-3">
     <div class="card">
-        <div class="card-header bg-dark text-white">
-            <h6 class="mb-0"><i class="bi bi-list me-2"></i>Navigation</h6>
+        <div class="card-header bg-primary text-white">
+            <h6 class="mb-0"><i class="fas fa-bars me-2"></i>TRAXOVO Navigation</h6>
         </div>
         <div class="card-body p-0">
-            <div class="list-group list-group-flush">
+            <!-- Core Operations -->
+            <div class="nav-section">
+                <div class="nav-section-header">Core Operations</div>
                 <a href="/" class="list-group-item list-group-item-action">
-                    <i class="bi bi-house me-2"></i>Dashboard
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                 </a>
-                <a href="/attendance-matrix" class="list-group-item list-group-item-action">
-                    <i class="bi bi-calendar-check me-2"></i>Attendance Matrix
+                <a href="/fleet-map" class="list-group-item list-group-item-action">
+                    <i class="fas fa-map-marked-alt me-2"></i>Live Fleet Map
                 </a>
-                <a href="/fleet-management" class="list-group-item list-group-item-action">
-                    <i class="bi bi-geo-alt me-2"></i>Fleet Management
-                </a>
-                <a href="/executive-reports" class="list-group-item list-group-item-action">
-                    <i class="bi bi-graph-up me-2"></i>Executive Reports
-                </a>
-                <a href="/billing" class="list-group-item list-group-item-action">
-                    <i class="bi bi-currency-dollar me-2"></i>Billing Intelligence
-                </a>
-                <a href="/equipment-lifecycle" class="list-group-item list-group-item-action">
-                    <i class="bi bi-gear me-2"></i>Equipment Lifecycle
-                </a>
-                <a href="/predictive-maintenance" class="list-group-item list-group-item-action">
-                    <i class="bi bi-wrench me-2"></i>Predictive Maintenance
-                </a>
-                <a href="/timecard-import" class="list-group-item list-group-item-action">
-                    <i class="bi bi-upload me-2"></i>Timecard Import
-                </a>
-                <a href="/fleet/map" class="list-group-item list-group-item-action">
-                    <i class="bi bi-map me-2"></i>Fleet Map
-                </a>
-                <a href="/pdf-editor" class="list-group-item list-group-item-action">
-                    <i class="bi bi-file-pdf me-2"></i>PDF Editor
-                </a>
-                <a href="/industry-news" class="list-group-item list-group-item-action">
-                    <i class="bi bi-newspaper me-2"></i>Industry News
-                </a>
-                <a href="/ai-assistant" class="list-group-item list-group-item-action">
-                    <i class="bi bi-robot me-2"></i>AI Assistant
-                </a>
-                <a href="/idea-box" class="list-group-item list-group-item-action">
-                    <i class="bi bi-lightbulb me-2"></i>Idea Box
-                </a>
-                <a href="/backup-system" class="list-group-item list-group-item-action">
-                    <i class="bi bi-archive me-2"></i>Backup System
-                </a>
-                <a href="/project-accountability" class="list-group-item list-group-item-action">
-                    <i class="fas fa-shield-alt me-2"></i>Project Accountability
+            </div>
+
+            <!-- Fleet Management -->
+            <div class="nav-section">
+                <div class="nav-section-header">Fleet Management</div>
+                <a href="/asset-manager" class="list-group-item list-group-item-action">
+                    <i class="fas fa-truck me-2"></i>Asset Manager
                 </a>
                 <a href="/equipment-dispatch" class="list-group-item list-group-item-action">
-                    <i class="fas fa-truck-moving me-2"></i>Equipment Dispatch
+                    <i class="fas fa-clipboard-list me-2"></i>Equipment Dispatch
                 </a>
                 <a href="/interactive-schedule" class="list-group-item list-group-item-action">
-                    <i class="fas fa-calendar-alt me-2"></i>Interactive Schedule
+                    <i class="fas fa-calendar-alt me-2"></i>Schedule Manager
+                </a>
+            </div>
+
+            <!-- Workforce -->
+            <div class="nav-section">
+                <div class="nav-section-header">Workforce</div>
+                <a href="/attendance-matrix" class="list-group-item list-group-item-action">
+                    <i class="fas fa-calendar-check me-2"></i>Attendance Matrix
                 </a>
                 <a href="/driver-asset-tracking" class="list-group-item list-group-item-action">
-                    <i class="fas fa-users-cog me-2"></i>Driver Asset Tracking
+                    <i class="fas fa-user-cog me-2"></i>Driver Management
+                </a>
+            </div>
+
+            <!-- Analytics & Reporting -->
+            <div class="nav-section">
+                <div class="nav-section-header">Analytics & Reporting</div>
+                <a href="/billing" class="list-group-item list-group-item-action">
+                    <i class="fas fa-dollar-sign me-2"></i>Revenue Analytics
+                </a>
+                <a href="/project-accountability" class="list-group-item list-group-item-action">
+                    <i class="fas fa-shield-alt me-2"></i>Project Tracking
                 </a>
                 <a href="/internal-ai" class="list-group-item list-group-item-action">
-                    <i class="fas fa-brain me-2"></i>TRAXOVO AI Assistant
-                </a>
-                <a href="/health" class="list-group-item list-group-item-action">
-                    <i class="bi bi-heart-pulse me-2"></i>System Health
-                </a>
-                <a href="/database-explorer" class="list-group-item list-group-item-action">
-                    <i class="bi bi-database me-2"></i>Database Explorer
+                    <i class="fas fa-robot me-2"></i>AI Assistant
                 </a>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+.nav-section {
+    border-bottom: 1px solid #dee2e6;
+}
+.nav-section-header {
+    background: #f8f9fa;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #495057;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.list-group-item {
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+    padding: 0.75rem 1.25rem;
+}
+.list-group-item:hover {
+    background: #f8f9fa;
+    border-left: 3px solid #007bff;
+}
+.list-group-item.active {
+    background: #007bff;
+    border-color: #007bff;
+}
+</style>

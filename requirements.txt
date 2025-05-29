@@ -26,3 +26,7 @@ openai
 trafilatura
 xlsxwriter
 twilio
+flask-dance
+flask-login
+oauthlib
+pyjwt

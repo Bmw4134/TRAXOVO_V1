@@ -299,6 +299,76 @@ except ImportError as e:
 except Exception as e:
     logger.error(f"Error registering Report Browser blueprint: {e}")
 
+# Register Equipment Lifecycle Engine
+try:
+    from equipment_lifecycle_engine import lifecycle_bp
+    app.register_blueprint(lifecycle_bp)
+    logger.info("Equipment Lifecycle Engine blueprint registered successfully")
+except ImportError as e:
+    logger.warning(f"Equipment Lifecycle Engine module not found: {e}")
+except Exception as e:
+    logger.error(f"Error registering Equipment Lifecycle Engine blueprint: {e}")
+
+# Register Predictive Maintenance Engine
+try:
+    from predictive_maintenance_engine import predictive_maintenance_bp
+    app.register_blueprint(predictive_maintenance_bp)
+    logger.info("Predictive Maintenance Engine blueprint registered successfully")
+except ImportError as e:
+    logger.warning(f"Predictive Maintenance Engine module not found: {e}")
+except Exception as e:
+    logger.error(f"Error registering Predictive Maintenance Engine blueprint: {e}")
+
+# Register Timecard Import Handler
+try:
+    from timecard_import_handler import timecard_import_bp
+    app.register_blueprint(timecard_import_bp)
+    logger.info("Timecard Import Handler blueprint registered successfully")
+except ImportError as e:
+    logger.warning(f"Timecard Import Handler module not found: {e}")
+except Exception as e:
+    logger.error(f"Error registering Timecard Import Handler blueprint: {e}")
+
+# Register Executive Billing Intelligence
+try:
+    from executive_billing_intelligence import executive_billing_bp
+    app.register_blueprint(executive_billing_bp)
+    logger.info("Executive Billing Intelligence blueprint registered successfully")
+except ImportError as e:
+    logger.warning(f"Executive Billing Intelligence module not found: {e}")
+except Exception as e:
+    logger.error(f"Error registering Executive Billing Intelligence blueprint: {e}")
+
+# Register Attendance Matrix System
+try:
+    from attendance_matrix_system import attendance_matrix_bp
+    app.register_blueprint(attendance_matrix_bp)
+    logger.info("Attendance Matrix System blueprint registered successfully")
+except ImportError as e:
+    logger.warning(f"Attendance Matrix System module not found: {e}")
+except Exception as e:
+    logger.error(f"Error registering Attendance Matrix System blueprint: {e}")
+
+# Register Idea Box
+try:
+    from idea_box import idea_box_bp
+    app.register_blueprint(idea_box_bp)
+    logger.info("Idea Box blueprint registered successfully")
+except ImportError as e:
+    logger.warning(f"Idea Box module not found: {e}")
+except Exception as e:
+    logger.error(f"Error registering Idea Box blueprint: {e}")
+
+# Register Backup System
+try:
+    from backup_system import backup_system_bp
+    app.register_blueprint(backup_system_bp)
+    logger.info("Backup System blueprint registered successfully")
+except ImportError as e:
+    logger.warning(f"Backup System module not found: {e}")
+except Exception as e:
+    logger.error(f"Error registering Backup System blueprint: {e}")
+
 # Register Data Upload Manager Blueprint
 try:
     from routes.data_upload_manager import data_upload_bp

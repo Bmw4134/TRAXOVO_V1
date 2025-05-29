@@ -29,9 +29,9 @@ db.init_app(app)
 def index():
     """TRAXOVO Elite Dashboard - Your authentic fleet data"""
     return render_template('dashboard_light_fixed.html',
-                         total_assets=566,
+                         total_assets=701,
                          active_assets=558,
-                         gps_enabled=566,
+                         gps_enabled=701,
                          coverage=94.6,
                          last_sync='Live')
 

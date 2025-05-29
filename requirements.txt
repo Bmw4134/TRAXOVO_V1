@@ -22,3 +22,4 @@ schedule
 scikit-learn
 sqlalchemy
 werkzeug
+openai

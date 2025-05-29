@@ -170,7 +170,9 @@
         
         /* Content Sections */
         .content-area {
+            margin-left: 280px;
             padding: 30px;
+            min-height: 100vh;
         }
         
         /* Executive Metrics Grid */
@@ -502,6 +504,19 @@
                 <a href="/job-management" class="nav-item">
                     <span class="nav-icon">📋</span>
                     Job Management
+                </a>
+            </div>
+            
+            <!-- User Profile & Logout -->
+            <div class="nav-section" style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                <div class="nav-section-title">Account</div>
+                <div class="nav-item" style="cursor: default;">
+                    <span class="nav-icon">👤</span>
+                    User: Watson
+                </div>
+                <a href="/auth/logout" class="nav-item" style="color: #ef4444;">
+                    <span class="nav-icon">🚪</span>
+                    Logout
                 </a>
             </div>
         </div>

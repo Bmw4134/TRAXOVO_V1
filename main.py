@@ -45,6 +45,9 @@ from interactive_onboarding import (
 # Import quick performance boost functions
 from quick_performance_boost import performance_boost_bp
 
+# Import error handling
+from error_handler import safe_route, get_fallback_data
+
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET") or "traxovo-production-2025"
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)

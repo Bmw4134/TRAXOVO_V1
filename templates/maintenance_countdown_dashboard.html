@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predictive Maintenance Countdown - TRAXOVO</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-card h3 {
+            color: #4a5568;
+            font-size: 14px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .summary-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .critical { color: #e53e3e; }
+        .high { color: #dd6b20; }
+        .medium { color: #38a169; }
+        .low { color: #4a5568; }
+
+        .countdown-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .countdown-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid;
+        }
+
+        .countdown-card.critical { border-left-color: #e53e3e; }
+        .countdown-card.high { border-left-color: #dd6b20; }
+        .countdown-card.medium { border-left-color: #38a169; }
+        .countdown-card.low { border-left-color: #4a5568; }
+
+        .asset-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .asset-id {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .urgency-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: white;
+        }
+
+        .urgency-badge.critical { background: #e53e3e; }
+        .urgency-badge.high { background: #dd6b20; }
+        .urgency-badge.medium { background: #38a169; }
+        .urgency-badge.low { background: #4a5568; }
+
+        .countdown-display {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .days-remaining {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .countdown-label {
+            color: #718096;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .maintenance-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .detail-item {
+            padding: 8px;
+            background: #f7fafc;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+
+        .detail-label {
+            color: #718096;
+            font-weight: 500;
+        }
+
+        .detail-value {
+            color: #2d3748;
+            font-weight: bold;
+        }
+
+        .back-button {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .back-button:hover {
+            background: #5a67d8;
+        }
+
+        @media (max-width: 768px) {
+            .countdown-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .maintenance-details {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-button">← Back to Dashboard</a>
+        
+        <div class="header">
+            <h1>🔧 Predictive Maintenance Countdown</h1>
+            <p>Real-time equipment maintenance scheduling and alerts</p>
+        </div>
+
+        <div class="summary-grid">
+            <div class="summary-card">
+                <h3>Total Equipment</h3>
+                <div class="summary-value">{{ summary.total_equipment }}</div>
+            </div>
+            <div class="summary-card">
+                <h3>Critical Alerts</h3>
+                <div class="summary-value critical">{{ summary.critical_alerts }}</div>
+            </div>
+            <div class="summary-card">
+                <h3>High Priority</h3>
+                <div class="summary-value high">{{ summary.high_priority }}</div>
+            </div>
+            <div class="summary-card">
+                <h3>Estimated Cost</h3>
+                <div class="summary-value">${{ "{:,}".format(summary.total_estimated_cost) }}</div>
+            </div>
+            <div class="summary-card">
+                <h3>Avg Days Until Service</h3>
+                <div class="summary-value">{{ summary.average_days_until_service }}</div>
+            </div>
+        </div>
+
+        <div class="countdown-grid">
+            {% for countdown in countdowns %}
+            <div class="countdown-card {{ countdown.urgency.lower() }}">
+                <div class="asset-header">
+                    <div class="asset-id">{{ countdown.asset_id }}</div>
+                    <div class="urgency-badge {{ countdown.urgency.lower() }}">{{ countdown.urgency }}</div>
+                </div>
+
+                <div class="asset-type">{{ countdown.asset_type }}</div>
+
+                <div class="countdown-display">
+                    <div class="days-remaining">{{ countdown.days_remaining }}</div>
+                    <div class="countdown-label">Days Until Service</div>
+                </div>
+
+                <div class="maintenance-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Service Type</div>
+                        <div class="detail-value">{{ countdown.maintenance_type }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Estimated Cost</div>
+                        <div class="detail-value">${{ "{:,}".format(countdown.estimated_cost) }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Current Hours</div>
+                        <div class="detail-value">{{ "{:,}".format(countdown.current_hours) }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Next Service Hours</div>
+                        <div class="detail-value">{{ "{:,}".format(countdown.next_service_hours) }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Last Service</div>
+                        <div class="detail-value">{{ countdown.last_service }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Hours Remaining</div>
+                        <div class="detail-value">{{ countdown.hours_remaining }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if not countdowns %}
+        <div class="summary-card" style="text-align: center; margin-top: 40px;">
+            <h3>🔧 Maintenance System Ready</h3>
+            <p>All equipment maintenance schedules are being monitored. New alerts will appear here when service is due.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Auto-refresh every 5 minutes
+        setInterval(() => {
+            window.location.reload();
+        }, 300000);
+    </script>
+</body>
+</html>

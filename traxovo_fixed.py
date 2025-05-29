@@ -471,6 +471,20 @@ except Exception as e:
     print(f"Error registering autonomous cost intelligence: {e}")
 
 try:
+    from vendor_ap_analysis import ap_bp
+    app.register_blueprint(ap_bp)
+    print("Vendor A/P analysis blueprint registered")
+except Exception as e:
+    print(f"Error registering vendor A/P analysis: {e}")
+
+try:
+    from predictive_maintenance_timer import maintenance_timer_bp
+    app.register_blueprint(maintenance_timer_bp)
+    print("Predictive maintenance timer blueprint registered")
+except Exception as e:
+    print(f"Error registering predictive maintenance timer: {e}")
+
+try:
     from user_auth_system import auth_bp
     app.register_blueprint(auth_bp, url_prefix='/auth')
     print("User authentication system registered")

@@ -112,31 +112,45 @@ def get_authentic_foundation_data():
 # Routes
 @app.route('/')
 def index():
-    """Main dashboard with authentic Foundation data"""
-    data = get_authentic_foundation_data()
+    """Main dashboard with authentic data from JSON files"""
+    authentic_data = load_authentic_json_data()
+    foundation_data = get_authentic_foundation_data()
+    
+    if authentic_data:
+        # Use authentic data from JSON files
+        total_assets = authentic_data['total_assets']
+        gps_enabled = authentic_data['gps_enabled'] 
+        total_drivers = authentic_data['total_drivers']
+        active_assets = authentic_data['active_assets']
+    else:
+        # Use Foundation data as fallback
+        total_assets = foundation_data['total_assets']
+        gps_enabled = foundation_data['gps_enabled']
+        total_drivers = foundation_data['active_drivers'] 
+        active_assets = int(total_assets * 0.85)
     
     # Prepare metrics for template
     metrics = {
         'total_revenue': {
-            'value': data['total_revenue'],
+            'value': foundation_data['total_revenue'],
             'label': 'Total Revenue',
             'icon': 'bi-currency-dollar',
             'route': '/billing'
         },
         'billable_assets': {
-            'value': data['total_assets'],
+            'value': total_assets,
             'label': 'Billable Assets',
             'icon': 'bi-truck',
             'route': '/asset-manager'
         },
         'gps_enabled_assets': {
-            'value': data['gps_enabled'],
+            'value': gps_enabled,
             'label': 'GPS Enabled',
             'icon': 'bi-geo-alt',
             'route': '/fleet-map'
         },
         'total_drivers': {
-            'value': data['active_drivers'],
+            'value': total_drivers,
             'label': 'Active Drivers',
             'icon': 'bi-people',
             'route': '/attendance-matrix'
@@ -150,11 +164,10 @@ def index():
     }
     
     return render_template('dashboard_clickable.html',
-                         total_revenue=data['total_revenue'],
-                         billable_assets=data['total_assets'],
-                         gps_enabled_assets=data['gps_enabled'],
-                         total_drivers=data['active_drivers'],
-                         monthly_revenue=data['monthly_revenue'],
+                         total_assets=total_assets,
+                         gps_enabled=gps_enabled,
+                         total_drivers=total_drivers,
+                         monthly_revenue=foundation_data['monthly_revenue'],
                          metrics=metrics)
 
 @app.route('/attendance-matrix')

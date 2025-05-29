@@ -30,6 +30,7 @@ class FoundationDataProcessor:
         
         lines = pdf_content.split('\n')
         current_job = None
+        equipment_ids = set()  # Track unique equipment
         
         for line in lines:
             line = line.strip()
@@ -40,33 +41,53 @@ class FoundationDataProcessor:
                 current_job = job_match.group(1)
                 continue
                 
-            # Extract job totals
-            total_match = re.search(r'Total for Job [^:]+:\s*([0-9,]+\.\d+)', line)
-            if total_match and current_job:
-                amount = float(total_match.group(1).replace(',', ''))
-                billing_data['job_totals'][current_job] = amount
-                billing_data['total_revenue'] += amount
-                continue
+            # Extract job totals - look for various total patterns
+            total_patterns = [
+                r'Total for Job [^:]+:\s*([0-9,]+\.\d+)',
+                r'Total for Job [^:]+:\s*([0-9,]+\.\d+)',
+                r'Job [^:]*Total[^:]*:\s*([0-9,]+\.\d+)'
+            ]
             
-            # Extract equipment details
-            equipment_match = re.search(r'([A-Z0-9-]+)\s+-\s+([^0-9]+?)\s+(\d{2}/\d{2}/\d{2})', line)
-            if equipment_match:
-                equipment_id = equipment_match.group(1).strip()
-                equipment_name = equipment_match.group(2).strip()
-                
-                # Extract amount from the line
-                amount_match = re.search(r'([0-9,]+\.\d+)\s+0\.00$', line)
-                if amount_match:
-                    amount = float(amount_match.group(1).replace(',', ''))
-                    
-                    billing_data['equipment_details'].append({
-                        'equipment_id': equipment_id,
-                        'equipment_name': equipment_name,
-                        'amount': amount,
-                        'job': current_job
-                    })
-                    billing_data['equipment_count'] += 1
+            for pattern in total_patterns:
+                total_match = re.search(pattern, line)
+                if total_match and current_job:
+                    amount = float(total_match.group(1).replace(',', ''))
+                    if current_job not in billing_data['job_totals']:
+                        billing_data['job_totals'][current_job] = 0
+                    billing_data['job_totals'][current_job] += amount
+                    billing_data['total_revenue'] += amount
+                    break
+            
+            # Extract equipment details and amounts directly from line items
+            # Look for equipment patterns with amounts
+            equipment_patterns = [
+                r'([A-Z0-9-]+)\s+-\s+([^0-9]+?)\s+\d{2}/\d{2}/\d{2}.*?([0-9,]+\.\d+)\s+([0-9,]+\.\d+)',
+                r'([A-Z0-9-]+)\s+-\s+([^0-9]+?).*?Monthly\s+([0-9,]+\.\d+)\s+([0-9,]+\.\d+)',
+                r'([A-Z0-9-]+)\s+-\s+.*?([0-9,]+\.\d+)\s+([0-9,]+\.\d+)\s+0\.00$'
+            ]
+            
+            for pattern in equipment_patterns:
+                equipment_match = re.search(pattern, line)
+                if equipment_match:
+                    groups = equipment_match.groups()
+                    if len(groups) >= 4:
+                        equipment_id = groups[0].strip()
+                        # Get the amount (usually the second-to-last number)
+                        amount = float(groups[-2].replace(',', ''))
+                        
+                        if equipment_id not in equipment_ids and amount > 0:
+                            equipment_ids.add(equipment_id)
+                            equipment_name = groups[1].strip() if len(groups) > 1 else "Equipment"
+                            
+                            billing_data['equipment_details'].append({
+                                'equipment_id': equipment_id,
+                                'equipment_name': equipment_name,
+                                'amount': amount,
+                                'job': current_job
+                            })
+                    break
         
+        billing_data['equipment_count'] = len(equipment_ids)
         return billing_data
     
     def process_all_foundation_reports(self) -> Dict:

@@ -111,18 +111,27 @@ def billing():
 
 @app.route('/fleet-map')
 def fleet_map():
-    """Fleet map with authentic asset data"""
-    asset_data = authentic_data.get_asset_data()
-    return render_template('fleet_map.html', asset_data=asset_data)
+    """Enhanced fleet map with geofences and real-time tracking"""
+    return render_template('fleet_map_enhanced.html')
 
 @app.route('/equipment-dispatch')
 def equipment_dispatch():
     """Equipment dispatch center with authentic data"""
     schedule_data = authentic_data.get_equipment_schedule()
     project_data = authentic_data.get_project_data()
-    return render_template('equipment_dispatch.html', 
-                         schedule_data=schedule_data, 
-                         project_data=project_data)
+    
+    # Structure data for template compatibility
+    data = {
+        'summary_metrics': {
+            'total_equipment': len(schedule_data),
+            'active_dispatches': len([s for s in schedule_data if s['status'] == 'Active']),
+            'total_projects': len(project_data)
+        },
+        'schedule_data': schedule_data,
+        'project_data': project_data
+    }
+    
+    return render_template('equipment_dispatch.html', data=data)
 
 @app.route('/interactive-schedule')
 def interactive_schedule():

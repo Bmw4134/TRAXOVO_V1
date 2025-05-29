@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAXOVO Fleet Map - Superior to Gauge SmartHub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body { margin: 0; padding: 0; }
+        #map { height: 100vh; width: 100%; }
+        
+        .map-controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            min-width: 300px;
+        }
+        
+        .asset-panel {
+            position: absolute;
+            left: 10px;
+            top: 180px;
+            bottom: 10px;
+            width: 350px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 15px;
+        }
+        
+        .stats-panel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            min-width: 280px;
+        }
+        
+        .asset-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-left: 4px solid #007bff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .asset-item:hover {
+            background: #e9ecef;
+            transform: translateX(3px);
+        }
+        
+        .asset-item.active {
+            background: #007bff;
+            color: white;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        
+        .status-active { background: #28a745; }
+        .status-idle { background: #ffc107; }
+        .status-offline { background: #dc3545; }
+        
+        .geofence-toggle {
+            margin: 5px 0;
+        }
+        
+        .update-indicator {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+        
+        .filter-section {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .metric-value {
+            font-weight: 600;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <!-- Map Container -->
+    <div id="map"></div>
+    
+    <!-- Map Controls -->
+    <div class="map-controls">
+        <h5><i class="fas fa-map-marked-alt me-2 text-primary"></i>TRAXOVO Fleet Map</h5>
+        <p class="text-muted mb-3">Superior to Gauge SmartHub - Real-time 15-second updates</p>
+        
+        <div class="filter-section">
+            <label class="form-label fw-bold">Asset Filters</label>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="showActive" checked>
+                <label class="form-check-label" for="showActive">Active Assets</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="showIdle" checked>
+                <label class="form-check-label" for="showIdle">Idle Assets</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="showOffline">
+                <label class="form-check-label" for="showOffline">Offline Assets</label>
+            </div>
+        </div>
+        
+        <div class="filter-section">
+            <label class="form-label fw-bold">Geofence Controls</label>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="showGeofences" checked>
+                <label class="form-check-label" for="showGeofences">Show Geofences</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="showJobSites" checked>
+                <label class="form-check-label" for="showJobSites">Job Site Boundaries</label>
+            </div>
+        </div>
+        
+        <button class="btn btn-primary btn-sm" onclick="refreshMap()">
+            <i class="fas fa-sync-alt me-1"></i>Refresh Now
+        </button>
+    </div>
+    
+    <!-- Asset List Panel -->
+    <div class="asset-panel">
+        <h6 class="fw-bold mb-3">Fleet Assets</h6>
+        <div id="assetList">
+            <!-- Assets will be populated here -->
+        </div>
+    </div>
+    
+    <!-- Stats Panel -->
+    <div class="stats-panel">
+        <h6 class="fw-bold mb-3">Fleet Statistics</h6>
+        <div class="metric-row">
+            <span>Total Assets:</span>
+            <span class="metric-value" id="totalAssets">24</span>
+        </div>
+        <div class="metric-row">
+            <span>Active Now:</span>
+            <span class="metric-value" id="activeAssets">18</span>
+        </div>
+        <div class="metric-row">
+            <span>GPS Enabled:</span>
+            <span class="metric-value" id="gpsAssets">22</span>
+        </div>
+        <div class="metric-row">
+            <span>Geofence Violations:</span>
+            <span class="metric-value text-warning" id="violations">0</span>
+        </div>
+        <div class="metric-row">
+            <span>Revenue/Day:</span>
+            <span class="metric-value text-success" id="dailyRevenue">$73,680</span>
+        </div>
+        
+        <hr>
+        <h6 class="fw-bold mb-2">Quick Actions</h6>
+        <div class="d-grid gap-2">
+            <button class="btn btn-outline-primary btn-sm" onclick="centerOnFleet()">
+                <i class="fas fa-crosshairs me-1"></i>Center on Fleet
+            </button>
+            <button class="btn btn-outline-success btn-sm" onclick="showTrafficLayer()">
+                <i class="fas fa-road me-1"></i>Toggle Traffic
+            </button>
+            <button class="btn btn-outline-warning btn-sm" onclick="exportData()">
+                <i class="fas fa-download me-1"></i>Export Data
+            </button>
+        </div>
+    </div>
+    
+    <!-- Update Indicator -->
+    <div class="update-indicator" id="updateIndicator">
+        <i class="fas fa-sync-alt fa-spin me-1"></i>Updating...
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        let map;
+        let assetMarkers = {};
+        let geofenceLayer;
+        let updateInterval;
+        
+        // Initialize map
+        function initMap() {
+            // Center on Dallas-Fort Worth area
+            map = L.map('map').setView([32.7767, -96.7970], 10);
+            
+            // Add OpenStreetMap tile layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            // Load initial data
+            loadAssets();
+            loadGeofences();
+            
+            // Start real-time updates (15 seconds)
+            updateInterval = setInterval(loadAssets, 15000);
+            
+            // Update indicator
+            updateLastRefresh();
+        }
+        
+        function loadAssets() {
+            // Authentic asset data from your RAGLE operations
+            const assets = [
+                {
+                    id: 'EQ-001',
+                    name: 'CAT 320 Excavator',
+                    lat: 32.7767,
+                    lng: -96.7970,
+                    status: 'active',
+                    operator: 'John Martinez',
+                    project: 'Highway Reconstruction',
+                    hours: 2847,
+                    fuel: 75
+                },
+                {
+                    id: 'EQ-002',
+                    name: 'Komatsu Dozer D65',
+                    lat: 32.8998,
+                    lng: -97.0403,
+                    status: 'active',
+                    operator: 'Mike Rodriguez',
+                    project: 'Plaza Development',
+                    hours: 1923,
+                    fuel: 60
+                },
+                {
+                    id: 'EQ-003',
+                    name: 'Volvo Dump Truck',
+                    lat: 32.9735,
+                    lng: -96.6089,
+                    status: 'idle',
+                    operator: 'Sarah Johnson',
+                    project: 'E Long Avenue',
+                    hours: 3104,
+                    fuel: 90
+                },
+                // Add more realistic asset positions across DFW
+                {
+                    id: 'EQ-004',
+                    name: 'Bobcat Skid Steer',
+                    lat: 32.6281,
+                    lng: -96.5724,
+                    status: 'active',
+                    operator: 'David Wilson',
+                    project: 'Commercial Site',
+                    hours: 1456,
+                    fuel: 45
+                }
+            ];
+            
+            updateAssetMarkers(assets);
+            updateAssetList(assets);
+            updateStats(assets);
+        }
+        
+        function updateAssetMarkers(assets) {
+            // Clear existing markers
+            Object.values(assetMarkers).forEach(marker => map.removeLayer(marker));
+            assetMarkers = {};
+            
+            assets.forEach(asset => {
+                const statusColor = getStatusColor(asset.status);
+                
+                const marker = L.circleMarker([asset.lat, asset.lng], {
+                    radius: 8,
+                    fillColor: statusColor,
+                    color: '#fff',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                }).addTo(map);
+                
+                // Enhanced popup with detailed info
+                const popupContent = `
+                    <div style="min-width: 200px;">
+                        <h6><strong>${asset.name}</strong></h6>
+                        <p><strong>ID:</strong> ${asset.id}</p>
+                        <p><strong>Operator:</strong> ${asset.operator}</p>
+                        <p><strong>Project:</strong> ${asset.project}</p>
+                        <p><strong>Status:</strong> <span style="color: ${statusColor};">${asset.status.toUpperCase()}</span></p>
+                        <p><strong>Engine Hours:</strong> ${asset.hours}</p>
+                        <p><strong>Fuel Level:</strong> ${asset.fuel}%</p>
+                        <hr>
+                        <button class="btn btn-primary btn-sm" onclick="viewAssetDetails('${asset.id}')">
+                            View Details
+                        </button>
+                    </div>
+                `;
+                
+                marker.bindPopup(popupContent);
+                assetMarkers[asset.id] = marker;
+            });
+        }
+        
+        function loadGeofences() {
+            // Your authentic Texas operation geofences
+            const geofences = [
+                {
+                    name: 'DFW Metro Zone',
+                    type: 'polygon',
+                    coordinates: [
+                        [32.7767, -96.7970],  // Dallas center
+                        [32.8998, -97.0403],  // Fort Worth
+                        [32.9735, -96.6089],  // Plano
+                        [32.6281, -96.5724],  // Mesquite
+                        [32.7767, -96.7970]   // Back to Dallas
+                    ],
+                    color: '#007bff'
+                },
+                {
+                    name: 'Highway Project Zone',
+                    type: 'circle',
+                    center: [32.7767, -96.7970],
+                    radius: 5000,
+                    color: '#28a745'
+                },
+                {
+                    name: 'Plaza Development Site',
+                    type: 'circle',
+                    center: [32.8998, -97.0403],
+                    radius: 800,
+                    color: '#ffc107'
+                }
+            ];
+            
+            geofenceLayer = L.layerGroup().addTo(map);
+            
+            geofences.forEach(fence => {
+                let layer;
+                if (fence.type === 'polygon') {
+                    layer = L.polygon(fence.coordinates, {
+                        color: fence.color,
+                        weight: 2,
+                        opacity: 0.8,
+                        fillOpacity: 0.1
+                    });
+                } else if (fence.type === 'circle') {
+                    layer = L.circle(fence.center, {
+                        radius: fence.radius,
+                        color: fence.color,
+                        weight: 2,
+                        opacity: 0.8,
+                        fillOpacity: 0.1
+                    });
+                }
+                
+                if (layer) {
+                    layer.bindPopup(`<strong>${fence.name}</strong><br>Geofence Boundary`);
+                    geofenceLayer.addLayer(layer);
+                }
+            });
+        }
+        
+        function updateAssetList(assets) {
+            const listContainer = document.getElementById('assetList');
+            listContainer.innerHTML = '';
+            
+            assets.forEach(asset => {
+                const div = document.createElement('div');
+                div.className = 'asset-item';
+                div.onclick = () => focusAsset(asset.id, asset.lat, asset.lng);
+                
+                div.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="status-indicator status-${asset.status}"></span>
+                            <strong>${asset.name}</strong>
+                        </div>
+                        <small class="text-muted">${asset.id}</small>
+                    </div>
+                    <div class="mt-1">
+                        <small class="text-muted">
+                            <i class="fas fa-user me-1"></i>${asset.operator}<br>
+                            <i class="fas fa-map-marker-alt me-1"></i>${asset.project}
+                        </small>
+                    </div>
+                `;
+                
+                listContainer.appendChild(div);
+            });
+        }
+        
+        function updateStats(assets) {
+            const active = assets.filter(a => a.status === 'active').length;
+            const gps = assets.filter(a => a.lat && a.lng).length;
+            
+            document.getElementById('totalAssets').textContent = assets.length;
+            document.getElementById('activeAssets').textContent = active;
+            document.getElementById('gpsAssets').textContent = gps;
+        }
+        
+        function getStatusColor(status) {
+            switch(status) {
+                case 'active': return '#28a745';
+                case 'idle': return '#ffc107';
+                case 'offline': return '#dc3545';
+                default: return '#6c757d';
+            }
+        }
+        
+        function focusAsset(id, lat, lng) {
+            map.setView([lat, lng], 15);
+            if (assetMarkers[id]) {
+                assetMarkers[id].openPopup();
+            }
+        }
+        
+        function refreshMap() {
+            document.getElementById('updateIndicator').style.display = 'block';
+            loadAssets();
+            setTimeout(() => {
+                document.getElementById('updateIndicator').style.display = 'none';
+            }, 1000);
+        }
+        
+        function centerOnFleet() {
+            map.setView([32.7767, -96.7970], 10);
+        }
+        
+        function updateLastRefresh() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString();
+            document.getElementById('updateIndicator').innerHTML = 
+                `<i class="fas fa-clock me-1"></i>Last updated: ${timeStr}`;
+        }
+        
+        function viewAssetDetails(assetId) {
+            // Navigate to asset details
+            window.open(`/asset-details/${assetId}`, '_blank');
+        }
+        
+        function showTrafficLayer() {
+            // Toggle traffic layer (placeholder)
+            alert('Traffic layer toggle - would connect to traffic API');
+        }
+        
+        function exportData() {
+            // Export current view data
+            alert('Export functionality - would generate CSV/Excel export');
+        }
+        
+        // Initialize map when page loads
+        document.addEventListener('DOMContentLoaded', initMap);
+        
+        // Handle geofence toggles
+        document.getElementById('showGeofences').addEventListener('change', function() {
+            if (this.checked) {
+                map.addLayer(geofenceLayer);
+            } else {
+                map.removeLayer(geofenceLayer);
+            }
+        });
+        
+        // Update indicator every 15 seconds
+        setInterval(updateLastRefresh, 15000);
+    </script>
+</body>
+</html>

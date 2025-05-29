@@ -7,6 +7,7 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for,
 from flask_login import login_user, logout_user, login_required, current_user
 from models import User
 from app import db
+from datetime import datetime
 import logging
 
 auth_bp = Blueprint('auth', __name__)
@@ -26,7 +27,7 @@ def login():
         
         if user and user.check_password(password):
             login_user(user, remember=True)
-            user.last_login = db.datetime.utcnow()
+            user.last_login = datetime.utcnow()
             db.session.commit()
             
             flash(f'Welcome back, {user.full_name}!', 'success')

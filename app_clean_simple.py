@@ -3,13 +3,14 @@ TRAXOVO Fleet Management System - Clean Application
 """
 
 import os
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
 import logging
 from timecard_excel_processor import timecard_bp
 from traxovo_fleet_map_plus import fleet_map_bp
+from authentic_data_service import authentic_data
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -58,15 +59,11 @@ with app.app_context():
 
 def get_actual_revenue_from_billing():
     """Get actual revenue total from your Excel billing files"""
-    import pandas as pd
-    import os
-    
-    try:
-        # Your authentic revenue data from RAGLE EQ BILLINGS
-        # This is the verified total from "Allocation x Usage Rate Total" column
-        return 2210400.4
-        
-        # Backup calculation from actual files if needed
+    return authentic_data.get_revenue_data()['total_revenue']
+
+def get_authentic_asset_count():
+    """Get actual billable asset count from your Excel billing files"""
+    return authentic_data.get_asset_data()['total_assets']
         billing_files = [
             "RAGLE EQ BILLINGS - APRIL 2025 (JG REVIEWED 5.12).xlsm",
             "RAGLE EQ BILLINGS - MARCH 2025 (TO REVIEW 04.03.25).xlsm"

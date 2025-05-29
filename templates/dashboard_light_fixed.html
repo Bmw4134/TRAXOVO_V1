@@ -387,29 +387,70 @@
             </div>
 
             <div class="health-panel">
-                <h6>Recent Activity</h6>
-                <div style="font-size: 0.9rem; color: #6b7280;">
-                    <div class="mb-2">
-                        <i class="fas fa-clock me-2"></i>
-                        Last Sync: {{ last_sync or '2025-05-27 09:15:46' }}
+                <h6><i class="fas fa-brain me-2 text-primary"></i>Kaizen AI Daily Brief</h6>
+                <div id="kaizen-briefing" style="font-size: 0.9rem; color: #6b7280;">
+                    <div class="text-center mb-2">
+                        <div class="spinner-border spinner-border-sm text-primary" role="status">
+                            <span class="visually-hidden">Loading AI insights...</span>
+                        </div>
                     </div>
-                    <div class="mb-2">
-                        <i class="fas fa-users me-2"></i>
-                        Active: {{ driver_count or 113 }}
-                    </div>
-                    <div class="mb-2">
-                        <i class="fas fa-truck me-2"></i>
-                        GPS Enabled: {{ gps_enabled }}/{{ total_assets }}
-                    </div>
-                    <div class="text-warning">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        No recent activity
-                    </div>
+                </div>
+                <div class="mt-2">
+                    <a href="/kaizen" class="btn btn-primary btn-sm w-100">
+                        <i class="fas fa-chart-line me-2"></i>Full Kaizen Dashboard
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Load Kaizen AI Daily Briefing
+        document.addEventListener('DOMContentLoaded', function() {
+            loadKaizenBriefing();
+        });
+        
+        function loadKaizenBriefing() {
+            fetch('/api/kaizen/daily-briefing')
+                .then(response => response.json())
+                .then(data => {
+                    const briefingDiv = document.getElementById('kaizen-briefing');
+                    if (data.daily_summary) {
+                        briefingDiv.innerHTML = `
+                            <div class="mb-2">
+                                <strong>Today's Focus:</strong><br>
+                                <small>${data.daily_summary}</small>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Efficiency Score:</strong> 
+                                <span class="badge bg-${data.efficiency_score >= 85 ? 'success' : data.efficiency_score >= 70 ? 'warning' : 'danger'}">${data.efficiency_score}%</span>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Top Priority:</strong><br>
+                                <small>${data.action_items && data.action_items[0] ? data.action_items[0] : 'Fleet running smoothly'}</small>
+                            </div>
+                        `;
+                    } else {
+                        briefingDiv.innerHTML = `
+                            <div class="mb-2 text-muted">
+                                <i class="fas fa-info-circle me-2"></i>
+                                AI briefing ready - click Full Dashboard for details
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    const briefingDiv = document.getElementById('kaizen-briefing');
+                    briefingDiv.innerHTML = `
+                        <div class="mb-2 text-muted">
+                            <i class="fas fa-cog me-2"></i>
+                            AI insights loading - check Kaizen Dashboard
+                        </div>
+                    `;
+                });
+        }
+    </script>
 </body>
 </html>

@@ -52,13 +52,40 @@ def smart_search():
 # Your advanced module routes
 @app.route('/kaizen')
 def kaizen_dashboard():
-    """Kaizen continuous improvement module"""
-    return render_template('kaizen/dashboard.html')
+    """Kaizen continuous improvement module with daily AI sync"""
+    from kaizen_daily_sync import get_daily_briefing, get_fleet_recommendations, get_daily_alerts
+    
+    briefing = get_daily_briefing()
+    recommendations = get_fleet_recommendations()
+    alerts = get_daily_alerts()
+    
+    return render_template('kaizen/dashboard.html',
+                         briefing=briefing,
+                         recommendations=recommendations,
+                         alerts=alerts)
 
 @app.route('/kaizen/health')
 def kaizen_health():
     """Kaizen system health monitoring"""
     return render_template('kaizen/health.html')
+
+@app.route('/api/kaizen/daily-briefing')
+def api_daily_briefing():
+    """API endpoint for daily AI briefing"""
+    from kaizen_daily_sync import get_daily_briefing
+    return jsonify(get_daily_briefing())
+
+@app.route('/api/kaizen/recommendations')
+def api_recommendations():
+    """API endpoint for AI recommendations"""
+    from kaizen_daily_sync import get_fleet_recommendations
+    return jsonify(get_fleet_recommendations())
+
+@app.route('/api/kaizen/alerts')
+def api_alerts():
+    """API endpoint for daily alerts"""
+    from kaizen_daily_sync import get_daily_alerts
+    return jsonify(get_daily_alerts())
 
 @app.route('/job-zones')
 def job_zones():

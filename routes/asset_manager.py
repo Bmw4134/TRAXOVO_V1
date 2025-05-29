@@ -39,15 +39,35 @@ def get_upload_directory():
 
 @asset_manager_bp.route('/')
 def dashboard():
-    """Asset manager dashboard"""
+    """Asset manager dashboard - Authentic billable assets only"""
     try:
-        # Fetch some stats about assets
-        total_assets = Asset.query.count()
-        active_assets = Asset.query.filter_by(status='active').count()
-        maintenance_assets = Asset.query.filter_by(status='maintenance').count()
+        import pandas as pd
+        # Load authentic April billing data
+        billing_file = 'RAGLE EQ BILLINGS - APRIL 2025 (JG REVIEWED 5.12).xlsm'
+        billable_assets = []
+        total_revenue = 0
         
-        # Get assets with recall alerts
-        assets_with_recalls = Asset.query.filter(Asset.recall_alerts.isnot(None)).count()
+        if os.path.exists(billing_file):
+            df = pd.read_excel(billing_file)
+            billable_df = df[df['Equipment Amount'] > 0]
+            total_revenue = billable_df['Equipment Amount'].sum()
+            
+            # Convert authentic billing data to asset records
+            for idx, row in billable_df.iterrows():
+                asset_data = {
+                    'id': row.get('Equip #', f'EQ-{idx}'),
+                    'division': row.get('Division/Job', 'Unknown'),
+                    'equipment_amount': row.get('Equipment Amount', 0),
+                    'start_date': row.get('Start Date'),
+                    'end_date': row.get('End Date'),
+                    'units': row.get('UNITS', 0),
+                    'status': 'active' if row.get('Equipment Amount', 0) > 0 else 'inactive'
+                }
+                billable_assets.append(asset_data)
+        
+        total_assets = len(billable_assets)
+        active_assets = len([a for a in billable_assets if a['status'] == 'active'])
+        maintenance_assets = 0  # Will be determined from actual service records
         
         # Stats for asset categories
         cat_stats = db.session.query(

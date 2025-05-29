@@ -500,49 +500,81 @@ def sync_gauge_now():
     result = sync.sync_now()
     return jsonify(result)
 
-@app.route('/api/load-authentic-data')
-def load_authentic_data():
-    """Load authentic data from provided JSON files"""
-    import json
-    
+@app.route('/api/assets')
+def api_assets():
+    """Real asset data from authentic sources"""
+    authentic_data = load_authentic_json_data()
+    if authentic_data and 'fleet_assets' in authentic_data:
+        return jsonify(authentic_data['fleet_assets'])
+    else:
+        return jsonify({'error': 'Asset data not available'}), 404
+
+@app.route('/api/attendance')
+def api_attendance():
+    """Real attendance data from authentic sources"""
+    authentic_data = load_authentic_json_data()
+    if authentic_data and 'attendance_records' in authentic_data:
+        return jsonify(authentic_data['attendance_records'])
+    else:
+        return jsonify({'error': 'Attendance data not available'}), 404
+
+@app.route('/api/map')
+def api_map():
+    """Real map data from authentic sources"""
+    authentic_data = load_authentic_json_data()
+    if authentic_data and 'map_assets' in authentic_data:
+        return jsonify(authentic_data['map_assets'])
+    else:
+        return jsonify({'error': 'Map data not available'}), 404
+
+@app.route('/api/assistant', methods=['POST'])
+def api_assistant():
+    """AI assistant endpoint with fleet context"""
     try:
-        # Load authentic fleet assets
-        with open('attached_assets/fleet_assets.json', 'r') as f:
-            fleet_data = json.load(f)
+        data = request.get_json()
+        prompt = data.get('prompt', '')
+        user_id = data.get('user_id', 'anon')
         
-        # Load authentic attendance data  
-        with open('attached_assets/attendance.json', 'r') as f:
-            attendance_data = json.load(f)
-            
-        # Load authentic map assets
-        with open('attached_assets/map_assets.json', 'r') as f:
-            map_data = json.load(f)
+        if not prompt:
+            return jsonify({'error': 'No prompt provided'}), 400
         
-        # Process authentic data
-        processed_data = {
-            'total_assets': len(map_data),
-            'total_drivers': len(attendance_data),
-            'active_assets': sum(1 for asset in map_data if asset.get('status') == 'active'),
-            'clocked_in_drivers': sum(1 for driver in attendance_data if driver.get('status') == 'clocked_in'),
-            'gps_enabled': len(map_data),  # All have GPS coordinates
-            'fleet_assets': fleet_data,
-            'attendance_records': attendance_data,
-            'map_assets': map_data,
-            'data_source': 'authentic_json_files',
-            'last_updated': datetime.now().isoformat()
-        }
+        # Load fleet context
+        authentic_data = load_authentic_json_data()
         
-        # Cache the authentic data
-        optimizer = get_performance_optimizer()
-        optimizer.save_to_cache('authentic_data_sync', processed_data)
+        # Simple AI response with real fleet data
+        if 'assets' in prompt.lower():
+            if authentic_data:
+                response = f"Current fleet: {authentic_data['total_assets']} assets, {authentic_data['active_assets']} active"
+            else:
+                response = "Asset data not available"
+        elif 'drivers' in prompt.lower() or 'attendance' in prompt.lower():
+            if authentic_data:
+                response = f"Driver status: {authentic_data['clocked_in_drivers']} of {authentic_data['total_drivers']} drivers clocked in"
+            else:
+                response = "Driver data not available"
+        else:
+            response = f"Fleet query processed: {prompt}"
         
-        return jsonify(processed_data)
+        return jsonify({
+            'response': response,
+            'fleet_context': authentic_data is not None,
+            'timestamp': datetime.now().isoformat()
+        })
         
     except Exception as e:
-        return jsonify({
-            'error': str(e),
-            'status': 'failed_to_load_authentic_data'
-        })
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/load-authentic-data')
+def load_authentic_data_api():
+    """Load authentic data from provided JSON files"""
+    try:
+        authentic_data = load_authentic_json_data()
+        if authentic_data:
+            return jsonify(authentic_data)
+        else:
+            return jsonify({'error': 'Failed to load authentic data'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 # Additional routes
 @app.route('/asset-manager')

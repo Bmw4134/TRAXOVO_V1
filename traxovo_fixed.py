@@ -409,5 +409,19 @@ try:
 except Exception as e:
     print(f"Error registering executive walkthrough: {e}")
 
+try:
+    from theft_alert_system import theft_alert_bp
+    app.register_blueprint(theft_alert_bp)
+    print("Theft alert system blueprint registered")
+except Exception as e:
+    print(f"Error registering theft alert system: {e}")
+
+try:
+    from autonomous_cost_intelligence import autonomous_cost_bp
+    app.register_blueprint(autonomous_cost_bp)
+    print("Autonomous cost intelligence blueprint registered")
+except Exception as e:
+    print(f"Error registering autonomous cost intelligence: {e}")
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

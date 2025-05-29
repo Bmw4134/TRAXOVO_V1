@@ -38,16 +38,20 @@ class ExecutiveReportingSystem:
                 'name': 'VP Weekly Summary',
                 'recipients': ['vp@company.com'],
                 'frequency': 'weekly',
-                'sections': ['fleet_overview', 'cost_savings', 'key_metrics', 'alerts']
+                'sections': ['fleet_overview', 'cost_savings', 'key_metrics', 'alerts'],
+                'authentic_data': True
             },
             'daily_operations': {
                 'name': 'Daily Operations Report',
                 'recipients': ['operations@company.com', 'manager@company.com'],
                 'frequency': 'daily',
-                'sections': ['attendance_summary', 'asset_utilization', 'alerts']
+                'sections': ['attendance_summary', 'asset_utilization', 'alerts'],
+                'authentic_data': True
             },
             'executive_dashboard': {
                 'name': 'Executive Dashboard Data',
+                'authentic_assets': 36,
+                'revenue_april': 2210400.4,
                 'recipients': ['ceo@company.com', 'vp@company.com'],
                 'frequency': 'on_demand',
                 'sections': ['all']

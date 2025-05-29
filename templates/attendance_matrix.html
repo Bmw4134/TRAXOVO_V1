@@ -39,6 +39,9 @@
             text-align: center;
             vertical-align: middle;
             padding: 0.75rem 0.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
         
         .employee-row {
@@ -50,26 +53,63 @@
             background-color: #f8f9fa;
         }
         
-        .employee-info {
+        .employee-id-col {
             text-align: left;
             padding: 0.75rem;
-        }
-        
-        .employee-id {
             font-weight: 600;
             color: #2c3e50;
+            min-width: 100px;
+            position: sticky;
+            left: 0;
+            background: white;
+            border-right: 2px solid #dee2e6;
         }
         
-        .employee-name {
-            font-size: 0.9rem;
+        .employee-name-col {
+            text-align: left;
+            padding: 0.75rem;
+            font-weight: 500;
+            color: #495057;
+            min-width: 180px;
+            position: sticky;
+            left: 100px;
+            background: white;
+            border-right: 2px solid #dee2e6;
+        }
+        
+        .asset-id-col {
+            text-align: center;
+            padding: 0.75rem;
+            font-weight: 500;
             color: #6c757d;
+            min-width: 120px;
+            position: sticky;
+            left: 280px;
+            background: white;
+            border-right: 2px solid #dee2e6;
         }
         
         .day-cell {
             text-align: center;
             padding: 0.5rem;
             border-right: 1px solid #dee2e6;
-            min-width: 80px;
+            min-width: 90px;
+            white-space: nowrap;
+        }
+        
+        .matrix-container {
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 70vh;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+        }
+        
+        .sticky-headers {
+            position: sticky;
+            top: 0;
+            background: #f8f9fa;
+            z-index: 15;
         }
         
         .status-present {

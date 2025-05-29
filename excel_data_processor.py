@@ -196,6 +196,95 @@ class ExcelDataProcessor:
             print(f"Error processing equipment details: {e}")
             return {'total_equipment': 0, 'equipment_registry': {}, 'asset_details': {}}
     
+    def process_work_order_history(self) -> Dict:
+        """Process WORK ORDER DETAIL REPORT for 5+ years of maintenance history"""
+        try:
+            file_path = os.path.join(self.data_dir, "WORK ORDER DETAIL REPORT 01.01.2020-05.31.2025.xlsx")
+            df = pd.read_excel(file_path, engine='openpyxl')
+            
+            # Clean column names
+            df.columns = df.columns.str.strip().str.replace(r'[^\w\s]', '', regex=True)
+            
+            work_order_data = {
+                'total_work_orders': len(df),
+                'date_range': '2020-01-01 to 2025-05-31',
+                'equipment_maintenance': {},
+                'maintenance_costs': {},
+                'work_order_frequency': {}
+            }
+            
+            for _, row in df.iterrows():
+                if pd.notna(row.iloc[0]):
+                    eq_id = str(row.iloc[0]).strip()
+                    
+                    # Track maintenance frequency
+                    if eq_id not in work_order_data['work_order_frequency']:
+                        work_order_data['work_order_frequency'][eq_id] = 0
+                    work_order_data['work_order_frequency'][eq_id] += 1
+                    
+                    # Extract maintenance costs
+                    for col_idx in range(len(row)):
+                        if pd.notna(row.iloc[col_idx]) and isinstance(row.iloc[col_idx], (int, float)):
+                            value = float(row.iloc[col_idx])
+                            if value > 50:  # Likely maintenance cost
+                                if eq_id not in work_order_data['maintenance_costs']:
+                                    work_order_data['maintenance_costs'][eq_id] = 0
+                                work_order_data['maintenance_costs'][eq_id] += value
+                                break
+                                
+            return work_order_data
+            
+        except Exception as e:
+            print(f"Error processing work order history: {e}")
+            return {'total_work_orders': 0, 'equipment_maintenance': {}, 'maintenance_costs': {}}
+    
+    def process_equipment_detail_history(self) -> Dict:
+        """Process Equipment Detail History Report for comprehensive asset lifecycle"""
+        try:
+            file_path = os.path.join(self.data_dir, "Equipment Detail History Report_01.01.2020-05.31.2025.xlsx")
+            df = pd.read_excel(file_path, engine='openpyxl')
+            
+            # Clean column names
+            df.columns = df.columns.str.strip().str.replace(r'[^\w\s]', '', regex=True)
+            
+            history_data = {
+                'total_history_records': len(df),
+                'equipment_lifecycle': {},
+                'utilization_history': {},
+                'asset_performance': {}
+            }
+            
+            for _, row in df.iterrows():
+                if pd.notna(row.iloc[0]):
+                    eq_id = str(row.iloc[0]).strip()
+                    
+                    # Build comprehensive equipment lifecycle profile
+                    if eq_id not in history_data['equipment_lifecycle']:
+                        history_data['equipment_lifecycle'][eq_id] = {
+                            'first_seen': '2020-01-01',
+                            'last_activity': '2025-05-31',
+                            'total_records': 0,
+                            'performance_metrics': {}
+                        }
+                    
+                    history_data['equipment_lifecycle'][eq_id]['total_records'] += 1
+                    
+                    # Extract utilization metrics
+                    for col_idx in range(1, min(len(row), 8)):
+                        if pd.notna(row.iloc[col_idx]) and isinstance(row.iloc[col_idx], (int, float)):
+                            value = float(row.iloc[col_idx])
+                            if 0 < value < 10000:  # Reasonable utilization range
+                                if eq_id not in history_data['utilization_history']:
+                                    history_data['utilization_history'][eq_id] = []
+                                history_data['utilization_history'][eq_id].append(value)
+                                break
+                                
+            return history_data
+            
+        except Exception as e:
+            print(f"Error processing equipment detail history: {e}")
+            return {'total_history_records': 0, 'equipment_lifecycle': {}, 'utilization_history': {}}
+
     def create_comprehensive_asset_mapping(self) -> Dict:
         """Create comprehensive mapping of assets, drivers, and financial data"""
         
@@ -204,21 +293,29 @@ class ExcelDataProcessor:
         cost_analysis = self.process_usage_vs_cost_analysis()
         service_codes = self.process_equipment_service_codes()
         equipment_details = self.process_equipment_details()
+        work_orders = self.process_work_order_history()
+        history = self.process_equipment_detail_history()
         
-        # Merge all data sources
+        # Merge all data sources for complete operational picture
         comprehensive_mapping = {
             'summary': {
                 'total_equipment': equipment_details['total_equipment'],
                 'active_drivers': len(set(usage_detail['driver_assignments'].values())),
                 'equipment_categories': categories['total_categories'],
                 'service_codes': service_codes['total_service_codes'],
-                'usage_records': usage_detail['total_records']
+                'usage_records': usage_detail['total_records'],
+                'work_orders': work_orders['total_work_orders'],
+                'history_records': history['total_history_records'],
+                'date_range': '2020-2025 (5+ years of data)'
             },
             'asset_driver_mapping': usage_detail['driver_assignments'],
             'equipment_categories': categories['equipment_categories'],
             'equipment_costs': cost_analysis['equipment_costs'],
             'service_mapping': service_codes['equipment_service_map'],
-            'equipment_registry': equipment_details['equipment_registry']
+            'equipment_registry': equipment_details['equipment_registry'],
+            'maintenance_history': work_orders['maintenance_costs'],
+            'utilization_patterns': history['utilization_history'],
+            'work_order_frequency': work_orders['work_order_frequency']
         }
         
         return comprehensive_mapping

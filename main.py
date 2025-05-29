@@ -86,31 +86,44 @@ def dashboard():
     # Your actual operational score from screenshots
     operational_score = authentic_fleet_data.get('utilization_rate', 67.3)
     
-    # Create clean metric cards like your screenshots
-    metrics = {
-        "Fleet Revenue": f"${total_revenue:,}",
-        "Total Assets": total_assets,
-        "Active Assets": active_assets,
-        "Total Drivers": total_drivers,
-        "Clocked In": clocked_in,
-        "Utilization Rate": f"{operational_score}%",
-        "GPS Enabled": total_assets,  
-        "Job Zones": 12  
-    }
-    
-    # Create metric cards HTML
-    metric_cards = ""
-    colors = ["#2563eb", "#059669", "#d97706", "#dc2626", "#7c3aed", "#0891b2", "#65a30d", "#e11d48"]
-    
-    for i, (key, value) in enumerate(metrics.items()):
-        color = colors[i % len(colors)]
-        metric_cards += f"""
-        <div class="metric-card" style="border-left: 4px solid {color};">
-            <div class="metric-value" style="color: {color};">{value}</div>
-            <div class="metric-label">{key}</div>
+    # Create the exact cards from your screenshot
+    metric_cards = f"""
+        <div class="metric-card" style="border-left-color: #2563eb;">
+            <div class="metric-value" style="color: #2563eb;">${total_revenue:,}</div>
+            <div class="metric-label">Fleet Revenue</div>
             <div class="metric-change"></div>
         </div>
-        """
+        
+        <div class="metric-card" style="border-left-color: #059669;">
+            <div class="metric-value" style="color: #059669;">{total_assets}</div>
+            <div class="metric-label">Total Assets</div>
+            <div class="metric-change"></div>
+        </div>
+        
+        <div class="metric-card" style="border-left-color: #d97706;">
+            <div class="metric-value" style="color: #d97706;">{active_assets}</div>
+            <div class="metric-label">Active Assets</div>
+            <div class="metric-change"></div>
+        </div>
+        
+        <div class="metric-card" style="border-left-color: #dc2626;">
+            <div class="metric-value" style="color: #dc2626;">{total_drivers}</div>
+            <div class="metric-label">Total Drivers</div>
+            <div class="metric-change"></div>
+        </div>
+        
+        <div class="metric-card" style="border-left-color: #7c3aed;">
+            <div class="metric-value" style="color: #7c3aed;">{clocked_in}</div>
+            <div class="metric-label">Clocked In</div>
+            <div class="metric-change"></div>
+        </div>
+        
+        <div class="metric-card" style="border-left-color: #0891b2;">
+            <div class="metric-value" style="color: #0891b2;">{operational_score}%</div>
+            <div class="metric-label">Utilization Rate</div>
+            <div class="metric-change"></div>
+        </div>
+    """
     
     html = f"""
     <!DOCTYPE html>
@@ -220,20 +233,21 @@ def dashboard():
             
             .metrics-grid {{
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-                gap: 1.5rem;
+                grid-template-columns: 1fr;
+                gap: 1rem;
                 margin-bottom: 2rem;
             }}
             
             .metric-card {{
                 background: white;
-                border-radius: 12px;
-                padding: 1.5rem;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                border-radius: 16px;
+                padding: 2rem;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
                 border: 1px solid #e2e8f0;
                 transition: all 0.2s ease;
                 position: relative;
                 cursor: pointer;
+                border-left: 6px solid;
             }}
             
             .metric-card:hover {{
@@ -242,23 +256,24 @@ def dashboard():
             }}
             
             .metric-value {{
-                font-size: 2.5rem;
+                font-size: 3rem;
                 font-weight: 900;
-                margin-bottom: 0.25rem;
+                margin-bottom: 0.5rem;
+                line-height: 1;
             }}
             
             .metric-label {{
-                font-size: 0.875rem;
+                font-size: 1rem;
                 color: #64748b;
                 font-weight: 500;
             }}
             
             .metric-change {{
                 position: absolute;
-                top: 1rem;
-                right: 1rem;
-                width: 8px;
-                height: 8px;
+                top: 1.5rem;
+                right: 1.5rem;
+                width: 10px;
+                height: 10px;
                 border-radius: 50%;
                 background: #10b981;
             }}

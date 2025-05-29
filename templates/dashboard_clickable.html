@@ -27,33 +27,90 @@
         .sidebar-nav {
             padding: 1rem 0;
         }
+        .nav-section {
+            margin-bottom: 1.5rem;
+        }
+        .nav-section-header {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #34495e;
+            margin-bottom: 0.5rem;
+        }
         .sidebar .nav-link {
             display: block;
-            padding: 0.75rem 1rem;
+            padding: 0.75rem 1rem 0.75rem 2rem;
             color: #bdc3c7;
             text-decoration: none;
             transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            position: relative;
         }
-        .sidebar .nav-link:hover,
+        .sidebar .nav-link:hover {
+            background: #34495e;
+            color: white;
+            border-left-color: #3498db;
+            transform: translateX(2px);
+        }
         .sidebar .nav-link.active {
             background: #34495e;
             color: white;
+            border-left-color: #e74c3c;
+        }
+        .sidebar .nav-link i {
+            width: 20px;
+            margin-right: 10px;
         }
         .main-content {
             margin-left: 250px;
             min-height: 100vh;
             padding: 2rem;
+            background: #f8f9fa;
+        }
+        .page-header {
+            background: white;
+            padding: 1.5rem 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            border-left: 4px solid #3498db;
+        }
+        .page-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0;
+        }
+        .page-subtitle {
+            color: #7f8c8d;
+            margin: 0.5rem 0 0 0;
         }
         .metric-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 15px;
+            background: white;
+            border-radius: 12px;
             padding: 2rem;
             margin-bottom: 1.5rem;
             transition: all 0.3s ease;
             cursor: pointer;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid transparent;
+        }
+        .metric-card.revenue {
+            border-left-color: #27ae60;
+        }
+        .metric-card.assets {
+            border-left-color: #3498db;
+        }
+        .metric-card.drivers {
+            border-left-color: #e74c3c;
+        }
+        .metric-card.gps {
+            border-left-color: #f39c12;
         }
         .metric-card:hover {
             transform: translateY(-5px);
@@ -77,17 +134,70 @@
             font-size: 2.5rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
+            color: #2c3e50;
         }
         .metric-label {
             font-size: 1.1rem;
-            opacity: 0.9;
+            color: #34495e;
             margin-bottom: 1rem;
+            font-weight: 500;
         }
         .metric-source {
             font-size: 0.85rem;
+            color: #7f8c8d;
             opacity: 0.7;
-            border-top: 1px solid rgba(255,255,255,0.2);
+            border-top: 1px solid #ecf0f1;
             padding-top: 0.75rem;
+        }
+        .quick-action-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .quick-action-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .quick-action-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        .quick-action-header i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        .quick-action-header h5 {
+            margin: 0;
+            font-weight: 600;
+        }
+        .quick-action-body {
+            padding: 1.5rem;
+        }
+        .quick-btn {
+            display: block;
+            padding: 0.75rem 1rem;
+            background: #f8f9fa;
+            color: #495057;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        .quick-btn:hover {
+            background: #e9ecef;
+            color: #495057;
+            border-left-color: #007bff;
+            transform: translateX(3px);
+        }
+        .quick-btn:last-child {
+            margin-bottom: 0;
         }
         .drill-down-icon {
             position: absolute;
@@ -155,86 +265,138 @@
             <h4>TRAXOVO</h4>
         </div>
         <nav class="sidebar-nav">
-            <a href="/" class="nav-link active">
-                <i class="fas fa-tachometer-alt"></i> Dashboard
-            </a>
-            <a href="/attendance-matrix" class="nav-link">
-                <i class="fas fa-calendar-check"></i> Attendance Matrix
-            </a>
-            <a href="/asset-manager" class="nav-link">
-                <i class="fas fa-truck"></i> Asset Manager
-            </a>
-            <a href="/equipment-dispatch" class="nav-link">
-                <i class="fas fa-clipboard-list"></i> Equipment Dispatch
-            </a>
-            <a href="/interactive-schedule" class="nav-link">
-                <i class="fas fa-calendar-alt"></i> Interactive Schedule
-            </a>
-            <a href="/project-accountability" class="nav-link">
-                <i class="fas fa-tasks"></i> Project Accountability
-            </a>
-            <a href="/driver-asset-tracking" class="nav-link">
-                <i class="fas fa-user-cog"></i> Driver Asset Tracking
-            </a>
-            <a href="/internal-ai" class="nav-link">
-                <i class="fas fa-robot"></i> TRAXOVO AI Assistant
-            </a>
-            <a href="/billing" class="nav-link">
-                <i class="fas fa-chart-line"></i> Billing Intelligence
-            </a>
-            <a href="/fleet-map" class="nav-link">
-                <i class="fas fa-map-marked-alt"></i> Fleet Map
-            </a>
+            <!-- Core Dashboard -->
+            <div class="nav-section">
+                <div class="nav-section-header">Core Operations</div>
+                <a href="/" class="nav-link active">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="/fleet-map" class="nav-link">
+                    <i class="fas fa-map-marked-alt"></i> Live Fleet Map
+                </a>
+            </div>
+
+            <!-- Fleet Management -->
+            <div class="nav-section">
+                <div class="nav-section-header">Fleet Management</div>
+                <a href="/asset-manager" class="nav-link">
+                    <i class="fas fa-truck"></i> Asset Manager
+                </a>
+                <a href="/equipment-dispatch" class="nav-link">
+                    <i class="fas fa-clipboard-list"></i> Equipment Dispatch
+                </a>
+                <a href="/interactive-schedule" class="nav-link">
+                    <i class="fas fa-calendar-alt"></i> Schedule Manager
+                </a>
+            </div>
+
+            <!-- Workforce Operations -->
+            <div class="nav-section">
+                <div class="nav-section-header">Workforce</div>
+                <a href="/attendance-matrix" class="nav-link">
+                    <i class="fas fa-calendar-check"></i> Attendance Matrix
+                </a>
+                <a href="/driver-asset-tracking" class="nav-link">
+                    <i class="fas fa-user-cog"></i> Driver Management
+                </a>
+            </div>
+
+            <!-- Business Intelligence -->
+            <div class="nav-section">
+                <div class="nav-section-header">Analytics & Reporting</div>
+                <a href="/billing" class="nav-link">
+                    <i class="fas fa-chart-line"></i> Revenue Analytics
+                </a>
+                <a href="/project-accountability" class="nav-link">
+                    <i class="fas fa-tasks"></i> Project Tracking
+                </a>
+                <a href="/internal-ai" class="nav-link">
+                    <i class="fas fa-robot"></i> AI Assistant
+                </a>
+            </div>
         </nav>
     </div>
 
     <div class="main-content">
-    <div class="container">
-        <!-- Key Metrics Grid -->
-        <div class="row">
-            {% for key, metric in metrics.items() %}
-            <div class="col-md-6 col-lg-3">
-                <div class="metric-card" onclick="showMetricDetail('{{ key }}', '{{ metric.drill_down_url }}')">
-                    <i class="fas fa-external-link-alt drill-down-icon"></i>
-                    <div class="metric-value">{{ metric.value }}</div>
-                    <div class="metric-label">{{ metric.description }}</div>
-                    <div class="metric-source">
-                        <i class="fas fa-database me-1"></i>{{ metric.source }}
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="fas fa-tachometer-alt me-3"></i>TRAXOVO Fleet Intelligence
+            </h1>
+            <p class="page-subtitle">Real-time fleet operations and business intelligence</p>
         </div>
 
-        <!-- Quick Access Navigation -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h5><i class="fas fa-rocket me-2"></i>Quick Access</h5>
+        <div class="container-fluid">
+            <!-- Key Metrics Grid -->
+            <div class="row">
+                {% set card_classes = ['revenue', 'assets', 'drivers', 'gps'] %}
+                {% for key, metric in metrics.items() %}
+                <div class="col-md-6 col-xl-3">
+                    <div class="metric-card {{ card_classes[loop.index0] }}" onclick="showMetricDetail('{{ key }}', '{{ metric.drill_down_url }}')">
+                        <i class="fas fa-external-link-alt drill-down-icon"></i>
+                        <div class="metric-value">
+                            {% if key == 'april_revenue' %}
+                                ${{ "{:,.0f}".format(metric.value) }}
+                            {% else %}
+                                {{ metric.value }}
+                            {% endif %}
+                        </div>
+                        <div class="metric-label">{{ metric.description }}</div>
+                        <div class="metric-source">
+                            <i class="fas fa-database me-1"></i>{{ metric.source }}
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-3">
-                                <a href="/attendance-matrix" class="btn btn-outline-primary w-100 mb-2">
-                                    <i class="fas fa-calendar-check me-2"></i>Attendance Matrix
-                                </a>
-                            </div>
-                            <div class="col-md-3">
-                                <a href="/asset-manager" class="btn btn-outline-success w-100 mb-2">
-                                    <i class="fas fa-truck me-2"></i>Asset Manager
-                                </a>
-                            </div>
-                            <div class="col-md-3">
-                                <a href="/billing" class="btn btn-outline-warning w-100 mb-2">
-                                    <i class="fas fa-dollar-sign me-2"></i>Billing Intelligence
-                                </a>
-                            </div>
-                            <div class="col-md-3">
-                                <a href="/executive-reports" class="btn btn-outline-info w-100 mb-2">
-                                    <i class="fas fa-chart-line me-2"></i>Executive Reports
-                                </a>
-                            </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Quick Actions Grid -->
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="quick-action-card">
+                        <div class="quick-action-header">
+                            <i class="fas fa-users"></i>
+                            <h5>Workforce Management</h5>
+                        </div>
+                        <div class="quick-action-body">
+                            <a href="/attendance-matrix" class="quick-btn">
+                                <i class="fas fa-calendar-check"></i> View Attendance
+                            </a>
+                            <a href="/driver-asset-tracking" class="quick-btn">
+                                <i class="fas fa-user-cog"></i> Driver Management
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="quick-action-card">
+                        <div class="quick-action-header">
+                            <i class="fas fa-truck"></i>
+                            <h5>Fleet Operations</h5>
+                        </div>
+                        <div class="quick-action-body">
+                            <a href="/equipment-dispatch" class="quick-btn">
+                                <i class="fas fa-clipboard-list"></i> Dispatch Center
+                            </a>
+                            <a href="/interactive-schedule" class="quick-btn">
+                                <i class="fas fa-calendar-alt"></i> Schedule Manager
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="quick-action-card">
+                        <div class="quick-action-header">
+                            <i class="fas fa-chart-line"></i>
+                            <h5>Business Intelligence</h5>
+                        </div>
+                        <div class="quick-action-body">
+                            <a href="/billing" class="quick-btn">
+                                <i class="fas fa-dollar-sign"></i> Revenue Analytics
+                            </a>
+                            <a href="/internal-ai" class="quick-btn">
+                                <i class="fas fa-robot"></i> AI Assistant
+                            </a>
                         </div>
                     </div>
                 </div>

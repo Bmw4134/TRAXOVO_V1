@@ -66,7 +66,19 @@ def load_user(user_id):
 def get_authentic_foundation_data():
     """Get authentic data from your Foundation accounting reports with caching"""
     optimizer = get_performance_optimizer()
-    return optimizer.optimize_foundation_data_loading()
+    foundation_data = optimizer.optimize_foundation_data_loading()
+    
+    # Pull real asset count from Gauge API if available
+    try:
+        asset_data = get_real_asset_data()
+        if asset_data.get('total_assets', 0) > 0:
+            foundation_data['total_assets'] = asset_data['total_assets']
+            foundation_data['gps_enabled'] = asset_data.get('gps_enabled', foundation_data['gps_enabled'])
+            foundation_data['active_drivers'] = len(asset_data.get('drivers', {})) or foundation_data['active_drivers']
+    except:
+        pass  # Use Foundation fallback data
+        
+    return foundation_data
 
 # Routes
 @app.route('/')
@@ -145,9 +157,19 @@ def attendance_matrix():
         ] if real_drivers else []
     }
     
+    # Add required template variables
+    current_week = {
+        'summary': {
+            'total_employees': total_drivers,
+            'present': present_drivers,
+            'absent': total_drivers - present_drivers
+        }
+    }
+    
     return render_template('attendance_matrix.html', 
                          attendance=attendance_data,
-                         total_drivers=total_drivers)
+                         total_drivers=total_drivers,
+                         current_week=current_week)
 
 @app.route('/fleet-map')
 def fleet_map():
@@ -383,6 +405,48 @@ def api_clear_cache():
     optimizer = get_performance_optimizer()
     cleared = optimizer.clear_cache()
     return jsonify({'cleared_files': cleared, 'status': 'success'})
+
+@app.route('/api/gauge/test-connection')
+def test_gauge_connection():
+    """Test Gauge API connection"""
+    import requests
+    
+    api_key = os.environ.get('GAUGE_API_KEY')
+    api_url = os.environ.get('GAUGE_API_URL')
+    
+    if not api_key or not api_url:
+        return jsonify({
+            'status': 'error',
+            'message': 'Gauge API credentials not configured',
+            'api_key_present': bool(api_key),
+            'api_url_present': bool(api_url)
+        })
+    
+    try:
+        # Test basic connection
+        headers = {'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'}
+        response = requests.get(f"{api_url}/status", headers=headers, timeout=10, verify=False)
+        
+        return jsonify({
+            'status': 'success' if response.status_code == 200 else 'error',
+            'status_code': response.status_code,
+            'api_url': api_url,
+            'response': response.text[:200] if response.text else 'No response body'
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e),
+            'api_url': api_url,
+            'suggestion': 'Check API URL format and network connectivity'
+        })
+
+@app.route('/api/gauge/sync-now')
+def sync_gauge_now():
+    """Force immediate sync with Gauge API"""
+    sync = get_gauge_sync()
+    result = sync.sync_now()
+    return jsonify(result)
 
 # Additional routes
 @app.route('/asset-manager')

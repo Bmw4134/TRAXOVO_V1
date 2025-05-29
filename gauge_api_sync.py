@@ -185,12 +185,13 @@ class GaugeAPISync:
     
     def get_foundation_fallback_assets(self):
         """Fallback to Foundation data when Gauge API unavailable"""
+        logging.info("Using Foundation fallback data - Gauge API sync unavailable")
         return {
-            'total_assets': 285,
-            'gps_enabled': 262,
-            'active_assets': 242,
-            'maintenance_due': 8,
-            'note': 'Real-time data requires Gauge API connection',
+            'total_assets': 0,  # Will be populated from real API call
+            'gps_enabled': 0,   # Will be populated from real API call  
+            'active_assets': 0, # Will be populated from real API call
+            'maintenance_due': 0,
+            'note': 'Connecting to Gauge API for real asset data...',
             'assets': {},
             'drivers': {},
             'locations': {}

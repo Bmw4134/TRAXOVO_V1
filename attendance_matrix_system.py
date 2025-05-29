@@ -275,11 +275,15 @@ def attendance_matrix_dashboard():
                          divisions=list(set(emp['division'] for emp in matrix_system.employees)))
 
 @attendance_matrix_bp.route('/api/attendance-matrix/<int:week_offset>')
-def get_weekly_matrix_api(week_offset):
+@attendance_matrix_bp.route('/api/attendance-matrix')
+def get_weekly_matrix_api(week_offset=0):
     """API endpoint for weekly attendance matrix"""
-    matrix_system = AttendanceMatrixSystem()
-    week_data = matrix_system.get_weekly_matrix(week_offset)
-    return jsonify(week_data)
+    try:
+        matrix_system = AttendanceMatrixSystem()
+        week_data = matrix_system.get_weekly_matrix(week_offset)
+        return jsonify(week_data)
+    except Exception as e:
+        return jsonify({'error': f'Failed to load attendance data: {str(e)}'}), 500
 
 @attendance_matrix_bp.route('/api/employee-detail/<employee_id>')
 def get_employee_detail_api(employee_id):

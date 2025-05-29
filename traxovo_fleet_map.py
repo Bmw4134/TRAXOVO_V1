@@ -29,32 +29,161 @@ class TRAXOVOFleetMap:
         self.update_interval = 15  # 15-second updates vs Gauge's slower refresh
         
     def get_live_fleet_data(self):
-        """Get real-time fleet data filtered to active job sites and office zones"""
+        """Get real-time fleet data from authentic Gauge API"""
         try:
-            # Filter to assets actually working in geofenced areas
-            all_assets = self._generate_enhanced_asset_data()
-            active_assets = self._filter_to_active_zones(all_assets)
+            # First try to get data from Gauge API
+            authentic_data = self._fetch_gauge_api_data()
             
-            fleet_data = {
-                'timestamp': datetime.now().isoformat(),
-                'total_assets': 701,
-                'active_assets': 601,
-                'in_job_zones': len(active_assets),
-                'categories': {
-                    'on_road': len([a for a in active_assets if 'truck' in a['category'].lower() or 'service' in a['category'].lower()]),
-                    'off_road': len([a for a in active_assets if any(x in a['category'].lower() for x in ['excavator', 'bulldozer', 'loader', 'grader'])]),
-                    'trailers': len([a for a in active_assets if 'trailer' in a['category'].lower()]),
-                    'cranes': len([a for a in active_assets if 'crane' in a['category'].lower()])
-                },
-                'assets': active_assets,
-                'performance_metrics': self._calculate_fleet_performance(),
-                'alerts': self._get_active_alerts(),
-                'job_sites': self._get_active_job_sites()
-            }
-            return fleet_data
+            if authentic_data:
+                return authentic_data
+            else:
+                # If API fails, ask user for valid API key
+                logger.warning("Gauge API connection failed - need valid API key")
+                return self._get_fallback_display()
+                
         except Exception as e:
             logger.error(f"Error fetching fleet data: {e}")
-            return self._get_fallback_data()
+            return self._get_fallback_display()
+    
+    def _fetch_gauge_api_data(self):
+        """Fetch authentic data from Gauge API"""
+        if not self.api_key:
+            return None
+            
+        try:
+            headers = {
+                'Authorization': f'Bearer {self.api_key}',
+                'Content-Type': 'application/json'
+            }
+            
+            # Fetch fleet assets from Gauge API
+            response = requests.get(f"{self.base_url}/assets", headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                api_data = response.json()
+                
+                # Process authentic Gauge data
+                assets = self._process_gauge_assets(api_data)
+                
+                fleet_data = {
+                    'timestamp': datetime.now().isoformat(),
+                    'total_assets': len(api_data.get('assets', [])),
+                    'active_assets': len([a for a in assets if a['status'] == 'online']),
+                    'in_job_zones': len(assets),
+                    'categories': self._categorize_authentic_assets(assets),
+                    'assets': assets,
+                    'performance_metrics': self._calculate_authentic_performance(assets),
+                    'alerts': self._get_active_alerts(assets),
+                    'job_sites': self._get_active_job_sites(assets)
+                }
+                return fleet_data
+            else:
+                logger.error(f"Gauge API error: {response.status_code}")
+                return None
+                
+        except requests.RequestException as e:
+            logger.error(f"Gauge API request failed: {e}")
+            return None
+    
+    def _process_gauge_assets(self, api_data):
+        """Process authentic Gauge API asset data"""
+        assets = []
+        for asset_data in api_data.get('assets', []):
+            asset = {
+                'id': asset_data.get('id', 'Unknown'),
+                'name': asset_data.get('name', 'Unknown Asset'),
+                'category': asset_data.get('type', 'Equipment'),
+                'latitude': float(asset_data.get('latitude', 0)),
+                'longitude': float(asset_data.get('longitude', 0)),
+                'status': 'online' if asset_data.get('online', False) else 'offline',
+                'speed': asset_data.get('speed', 0),
+                'heading': asset_data.get('heading', 0),
+                'last_update': asset_data.get('last_update', datetime.now().isoformat()),
+                'fuel_level': asset_data.get('fuel_level', 0),
+                'engine_hours': asset_data.get('engine_hours', 0),
+                'driver': asset_data.get('driver_name'),
+                'job_site': asset_data.get('job_site'),
+                'alerts': asset_data.get('alerts', [])
+            }
+            assets.append(asset)
+        return assets
+    
+    def _categorize_authentic_assets(self, assets):
+        """Categorize authentic assets by type"""
+        categories = {
+            'on_road': 0,
+            'off_road': 0, 
+            'trailers': 0,
+            'cranes': 0
+        }
+        
+        for asset in assets:
+            category = asset['category'].lower()
+            if any(x in category for x in ['truck', 'service', 'pickup']):
+                categories['on_road'] += 1
+            elif any(x in category for x in ['excavator', 'bulldozer', 'loader', 'grader']):
+                categories['off_road'] += 1
+            elif 'trailer' in category:
+                categories['trailers'] += 1
+            elif 'crane' in category:
+                categories['cranes'] += 1
+                
+        return categories
+    
+    def _calculate_authentic_performance(self, assets):
+        """Calculate performance metrics from authentic data"""
+        online_assets = [a for a in assets if a['status'] == 'online']
+        total_assets = len(assets)
+        
+        return {
+            'utilization_rate': (len(online_assets) / total_assets * 100) if total_assets > 0 else 0,
+            'avg_fuel_level': sum(a['fuel_level'] for a in online_assets) / len(online_assets) if online_assets else 0,
+            'assets_with_alerts': len([a for a in assets if a['alerts']]),
+            'avg_speed': sum(a['speed'] for a in online_assets) / len(online_assets) if online_assets else 0
+        }
+    
+    def _get_active_alerts(self, assets):
+        """Get active alerts from assets"""
+        alerts = []
+        for asset in assets:
+            for alert in asset.get('alerts', []):
+                alerts.append({
+                    'asset_id': asset['id'],
+                    'asset_name': asset['name'],
+                    'alert_type': alert.get('type', 'warning'),
+                    'message': alert.get('message', 'Alert'),
+                    'timestamp': alert.get('timestamp', datetime.now().isoformat())
+                })
+        return alerts[:10]  # Return top 10 alerts
+    
+    def _get_active_job_sites(self, assets):
+        """Get active job sites from assets"""
+        job_sites = {}
+        for asset in assets:
+            if asset.get('job_site') and asset['status'] == 'online':
+                site = asset['job_site']
+                if site not in job_sites:
+                    job_sites[site] = {'name': site, 'asset_count': 0, 'assets': []}
+                job_sites[site]['asset_count'] += 1
+                job_sites[site]['assets'].append(asset['name'])
+        
+        return list(job_sites.values())
+    
+    def _get_fallback_display(self):
+        """Display message when API connection fails"""
+        return {
+            'timestamp': datetime.now().isoformat(),
+            'error': 'API_CONNECTION_REQUIRED',
+            'message': 'Gauge API connection required for authentic fleet data',
+            'total_assets': 0,
+            'active_assets': 0,
+            'in_job_zones': 0,
+            'assets': [],
+            'categories': {'on_road': 0, 'off_road': 0, 'trailers': 0, 'cranes': 0},
+            'performance_metrics': {'utilization_rate': 0, 'avg_fuel_level': 0, 'assets_with_alerts': 0, 'avg_speed': 0},
+            'alerts': [],
+            'job_sites': []
+        }
     
     def _generate_enhanced_asset_data(self):
         """Generate enhanced asset data with predictive positioning"""

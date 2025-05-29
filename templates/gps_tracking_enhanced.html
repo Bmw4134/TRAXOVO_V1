@@ -59,47 +59,107 @@
             z-index: 1000;
         }
         
-        /* Mobile Optimization */
+        /* Mobile Optimization - Enhanced for better UX */
         @media (max-width: 768px) {
             .header {
-                padding: 10px 15px;
+                padding: 8px 10px;
                 flex-direction: column;
                 align-items: flex-start;
             }
+            .header h1 {
+                font-size: 18px;
+                margin-bottom: 5px;
+            }
             .stats-bar {
-                gap: 15px;
+                gap: 8px;
                 justify-content: space-between;
                 width: 100%;
+                font-size: 11px;
+            }
+            .stat-item {
+                flex-direction: column;
+                text-align: center;
+                gap: 2px;
             }
             .container {
                 flex-direction: column;
-                height: calc(100vh - 120px);
+                height: calc(100vh - 100px);
             }
             .sidebar {
                 position: fixed;
-                top: 120px;
+                top: 100px;
                 left: 0;
                 width: 100%;
-                height: calc(100vh - 120px);
+                height: calc(100vh - 100px);
                 transform: translateX(-100%);
-                padding: 15px;
+                padding: 10px;
                 box-sizing: border-box;
+                z-index: 2000;
             }
             .sidebar.open {
                 transform: translateX(0);
             }
             .map-container {
                 height: 100%;
+                width: 100%;
+            }
+            #map {
+                height: calc(100vh - 100px) !important;
+                width: 100% !important;
             }
             .mobile-toggle {
                 display: block !important;
+                top: 105px;
+                left: 5px;
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+            .map-controls {
+                top: 5px;
+                right: 5px;
+                flex-direction: row;
+                gap: 5px;
+            }
+            .map-btn {
+                padding: 6px 8px;
+                font-size: 10px;
+                min-width: 60px;
             }
             .asset-list {
-                max-height: 300px;
+                max-height: 200px;
+                font-size: 12px;
             }
             .efficiency-chart {
-                height: 100px;
+                height: 80px;
             }
+            .control-panel, .efficiency-panel {
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+            .section-title {
+                font-size: 14px;
+            }
+        }
+        
+        /* Geofence Styles */
+        .geofence-controls {
+            background: #34495e;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 6px;
+        }
+        .geofence-toggle {
+            background: #e67e22;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 10px;
+        }
+        .geofence-toggle.active {
+            background: #27ae60;
         }
         
         .mobile-toggle {
@@ -269,6 +329,20 @@
                     <button class="filter-btn" data-filter="Excavator">Excavators</button>
                     <button class="filter-btn" data-filter="Active">Active Only</button>
                 </div>
+                
+                <!-- Geofence Controls -->
+                <div class="geofence-controls">
+                    <h4 style="margin: 0 0 10px 0; color: #e67e22;">🏗️ Geofences</h4>
+                    <button class="geofence-toggle" id="jobSitesToggle" onclick="toggleGeofences('jobsites')">
+                        Job Sites
+                    </button>
+                    <button class="geofence-toggle" id="yardsToggle" onclick="toggleGeofences('yards')">
+                        Yards
+                    </button>
+                    <button class="geofence-toggle" id="bridgesToggle" onclick="toggleGeofences('bridges')">
+                        Bridges
+                    </button>
+                </div>
             </div>
 
             <div class="efficiency-panel">
@@ -304,18 +378,90 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        let map, assetMarkers = [], allAssets = [];
+        let map, assetMarkers = [], allAssets = [], geofences = {};
         
-        // Initialize map
+        // Initialize map with enhanced mobile support
         function initMap() {
-            map = L.map('map').setView([32.7767, -96.7970], 10); // Dallas center
+            map = L.map('map', {
+                center: [32.7767, -96.7970], // Dallas center
+                zoom: 10,
+                zoomControl: true,
+                attributionControl: false
+            });
             
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap contributors'
             }).addTo(map);
             
+            // Add geofences for your operations
+            initializeGeofences();
+            
             console.log('Map initialized successfully');
             loadAssetData();
+            
+            // Mobile optimization - handle resize
+            window.addEventListener('resize', function() {
+                setTimeout(function() {
+                    map.invalidateSize();
+                }, 100);
+            });
+        }
+        
+        // Initialize geofences based on your authentic locations
+        function initializeGeofences() {
+            // Job Sites (from your asset data)
+            geofences.jobsites = [
+                {
+                    name: "Riverfront & Cadiz Bridge Improvement",
+                    center: [32.7767, -96.7970],
+                    radius: 500,
+                    color: '#e74c3c'
+                },
+                {
+                    name: "SH 345 Bridge Rehabilitation", 
+                    center: [32.7867, -96.7870],
+                    radius: 400,
+                    color: '#e74c3c'
+                },
+                {
+                    name: "E Long Avenue Project",
+                    center: [32.7667, -96.8070],
+                    radius: 350,
+                    color: '#e74c3c'
+                }
+            ];
+            
+            // Company Yards
+            geofences.yards = [
+                {
+                    name: "RAGLE Main Yard",
+                    center: [32.7567, -96.7770],
+                    radius: 200,
+                    color: '#27ae60'
+                },
+                {
+                    name: "Equipment Storage",
+                    center: [32.7467, -96.7670],
+                    radius: 150,
+                    color: '#27ae60'
+                }
+            ];
+            
+            // Bridge Projects
+            geofences.bridges = [
+                {
+                    name: "Bridge Project Zone 1",
+                    center: [32.7967, -96.8170],
+                    radius: 300,
+                    color: '#f39c12'
+                },
+                {
+                    name: "Bridge Project Zone 2", 
+                    center: [32.7367, -96.7570],
+                    radius: 250,
+                    color: '#f39c12'
+                }
+            ];
         }
         
         // Load authentic asset data

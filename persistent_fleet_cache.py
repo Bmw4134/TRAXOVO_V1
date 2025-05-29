@@ -22,7 +22,17 @@ AUTHENTIC_FLEET_DATA = {
 }
 
 def get_fleet_metrics():
-    """Return your authentic fleet data instantly"""
+    """Return your authentic fleet data instantly - with live sync support"""
+    # Check for live cache first
+    try:
+        if os.path.exists('live_fleet_cache.json'):
+            with open('live_fleet_cache.json', 'r') as f:
+                live_data = json.load(f)
+            return live_data
+    except:
+        pass
+    
+    # Fallback to authentic cached data
     return AUTHENTIC_FLEET_DATA
 
 def get_recent_activity():

@@ -149,7 +149,67 @@ def risk_analytics():
 @app.route('/data-upload')
 def data_upload():
     """Data upload and processing"""
-    return render_template('data_upload/index.html')
+    return render_template('uploads/index.html')
+
+@app.route('/upload-file', methods=['POST'])
+def upload_file():
+    """Handle file uploads for all modules"""
+    from werkzeug.utils import secure_filename
+    import pandas as pd
+    
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file selected'})
+    
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No file selected'})
+    
+    if file and file.filename and file.filename.lower().endswith(('.csv', '.xlsx', '.xls')):
+        filename = secure_filename(file.filename)
+        file_path = os.path.join('uploads', filename)
+        
+        # Ensure uploads directory exists
+        os.makedirs('uploads', exist_ok=True)
+        file.save(file_path)
+        
+        try:
+            # Process the uploaded file
+            if filename.lower().endswith('.csv'):
+                df = pd.read_csv(file_path)
+            else:
+                df = pd.read_excel(file_path)
+            
+            return jsonify({
+                'success': True,
+                'filename': filename,
+                'rows': len(df),
+                'columns': list(df.columns),
+                'message': f'Successfully uploaded {filename} with {len(df)} rows'
+            })
+        except Exception as e:
+            return jsonify({'error': f'Error processing file: {str(e)}'})
+    
+    return jsonify({'error': 'Invalid file type. Please upload CSV or Excel files.'})
+
+@app.route('/upload-attendance', methods=['POST'])
+def upload_attendance():
+    """Upload attendance data"""
+    return upload_file()
+
+@app.route('/upload-gps', methods=['POST'])
+def upload_gps():
+    """Upload GPS data"""
+    return upload_file()
+
+@app.route('/upload-timecards', methods=['POST'])
+def upload_timecards():
+    """Upload timecard data"""
+    return upload_file()
+
+@app.route('/upload-billing', methods=['POST'])
+def upload_billing():
+    """Upload billing data"""
+    return upload_file()
 
 @app.route('/equipment-billing')
 def equipment_billing():

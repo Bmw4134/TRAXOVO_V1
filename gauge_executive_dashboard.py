@@ -15,7 +15,8 @@ class GaugeDataProcessor:
     """Process authentic Gauge API data for executive presentation"""
     
     def __init__(self):
-        self.base_url = "https://api.gaugesmarthub.com"
+        # Using the correct Gauge Smart Hub API endpoints
+        self.base_url = "https://gaugesmarthub.com/api/v1"
         self.api_key = os.environ.get('GAUGE_API_KEY')
         
     def get_fleet_overview(self):

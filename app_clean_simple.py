@@ -56,6 +56,83 @@ with app.app_context():
     except Exception as e:
         logging.error(f"Error creating database tables: {e}")
 
+def get_actual_revenue_from_billing():
+    """Get actual revenue total from your Excel billing files"""
+    import pandas as pd
+    import os
+    
+    try:
+        # Check for your actual billing files
+        billing_files = [
+            "RAGLE EQ BILLINGS - APRIL 2025 (JG REVIEWED 5.12).xlsm",
+            "RAGLE EQ BILLINGS - MARCH 2025 (TO REVIEW 04.03.25).xlsm"
+        ]
+        
+        total_revenue = 0
+        
+        for file_name in billing_files:
+            if os.path.exists(file_name):
+                try:
+                    # Read the Excel file
+                    excel_file = pd.ExcelFile(file_name)
+                    
+                    # Try different sheet names that might contain revenue data
+                    for sheet_name in excel_file.sheet_names:
+                        df = pd.read_excel(file_name, sheet_name=sheet_name)
+                        
+                        # Look for the "Allocation x Usage Rate Total" column or similar
+                        revenue_indicators = [
+                            'Allocation x Usage Rate Total',
+                            'Total Revenue',
+                            'Revenue Total',
+                            'Billing Total',
+                            'Amount Total',
+                            'Total Amount'
+                        ]
+                        
+                        revenue_col = None
+                        for col in df.columns:
+                            if any(indicator.lower() in str(col).lower() for indicator in revenue_indicators):
+                                revenue_col = col
+                                break
+                        
+                        if revenue_col is not None:
+                            # Sum the revenue column, handling non-numeric values
+                            revenue_sum = 0
+                            for value in df[revenue_col]:
+                                if pd.notna(value):
+                                    try:
+                                        # Clean the value (remove commas, dollar signs, etc.)
+                                        clean_value = str(value).replace('$', '').replace(',', '').strip()
+                                        if clean_value and clean_value.replace('.', '').replace('-', '').isdigit():
+                                            revenue_sum += float(clean_value)
+                                    except (ValueError, TypeError):
+                                        continue
+                            
+                            if revenue_sum > total_revenue:
+                                total_revenue = revenue_sum
+                        
+                        # If we found substantial revenue, use it
+                        if total_revenue > 100000:
+                            break
+                    
+                    if total_revenue > 100000:
+                        break
+                        
+                except Exception as e:
+                    print(f"Error reading {file_name}: {e}")
+                    continue
+        
+        # If no data found in files, return 0 to indicate authentic data needed
+        if total_revenue == 0:
+            total_revenue = 0  # Will show as $0 until real data uploaded
+            
+        return total_revenue
+        
+    except Exception as e:
+        print(f"Error getting revenue: {e}")
+        return 0  # Return 0 instead of placeholder
+
 def get_authentic_asset_count():
     """Get actual billable asset count from your Excel billing files"""
     import pandas as pd
@@ -137,7 +214,7 @@ def index():
             'description': 'Active billable assets generating revenue'
         },
         'april_revenue': {
-            'value': 2210400.4,
+            'value': get_actual_revenue_from_billing(),
             'source': 'Allocation x Usage Rate Total column',
             'drill_down_url': '/billing',
             'description': 'Total revenue from billable assets'

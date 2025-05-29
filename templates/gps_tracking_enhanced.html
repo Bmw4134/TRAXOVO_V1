@@ -626,6 +626,35 @@
             a.click();
         }
         
+        // Toggle geofence visibility - MISSING FUNCTION FIX
+        let geofencesVisible = false;
+        let geofenceCircles = [];
+        
+        function toggleGeofences() {
+            if (!geofencesVisible) {
+                // Show geofences
+                Object.values(geofences).forEach(geofenceGroup => {
+                    geofenceGroup.forEach(geofence => {
+                        const circle = L.circle(geofence.center, {
+                            color: geofence.color,
+                            fillColor: geofence.color,
+                            fillOpacity: 0.1,
+                            radius: geofence.radius
+                        }).addTo(map);
+                        
+                        circle.bindPopup(`<strong>${geofence.name}</strong><br>Radius: ${geofence.radius}m`);
+                        geofenceCircles.push(circle);
+                    });
+                });
+                geofencesVisible = true;
+            } else {
+                // Hide geofences
+                geofenceCircles.forEach(circle => map.removeLayer(circle));
+                geofenceCircles = [];
+                geofencesVisible = false;
+            }
+        }
+        
         function updateStats(data) {
             document.getElementById('totalAssets').textContent = data.total_count || '{{ total_assets }}';
             document.getElementById('gpsOnline').textContent = data.total_count || '{{ gps_enabled }}';

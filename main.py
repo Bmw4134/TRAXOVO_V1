@@ -302,6 +302,42 @@ def reset_user_mood():
 def detect_mood():
     return auto_detect_mood()
 
+# Interactive Onboarding Routes
+@app.route('/onboarding')
+@login_required
+def onboarding():
+    return onboarding_wizard()
+
+@app.route('/update-onboarding-step', methods=['POST'])
+@login_required
+def update_onboarding():
+    return update_onboarding_step()
+
+@app.route('/skip-onboarding', methods=['POST'])
+@login_required
+def skip_onboarding_tour():
+    return skip_onboarding()
+
+@app.route('/restart-onboarding', methods=['POST'])
+@login_required
+def restart_onboarding_tour():
+    return restart_onboarding()
+
+@app.route('/onboarding-analytics')
+@login_required
+def onboarding_admin():
+    return onboarding_analytics()
+
+@app.route('/check-onboarding-status')
+@login_required
+def check_onboarding():
+    return check_onboarding_status()
+
+@app.route('/onboarding-tour-data')
+@login_required
+def onboarding_tour_data():
+    return get_onboarding_tour_data()
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404

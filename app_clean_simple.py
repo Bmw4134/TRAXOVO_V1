@@ -368,6 +368,13 @@ def driver_asset_tracking():
     dashboard_data = tracking_system.get_tracking_dashboard_data()
     return render_template('driver_asset_tracking.html', data=dashboard_data)
 
+@app.route('/internal-ai')
+def internal_ai():
+    """TRAXOVO Internal AI Assistant"""
+    from internal_llm_system import internal_llm
+    dashboard_data = internal_llm.get_ai_dashboard_data()
+    return render_template('internal_ai.html', data=dashboard_data)
+
 @app.route('/api/log-incident', methods=['POST'])
 def api_log_incident():
     """API endpoint to log equipment incidents"""
@@ -470,6 +477,24 @@ def api_fringe_benefit_report():
         
         result = tracking_system.generate_fringe_benefit_report(start_date, end_date)
         return jsonify(result)
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/ai-query', methods=['POST'])
+def api_ai_query():
+    """API endpoint for AI queries"""
+    from internal_llm_system import internal_llm
+    from flask import request, jsonify
+    try:
+        request_data = request.get_json()
+        query = request_data.get('query', '')
+        
+        if not query:
+            return jsonify({'success': False, 'error': 'Query is required'})
+            
+        result = internal_llm.process_natural_language_query(query)
+        return jsonify(result)
+        
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 

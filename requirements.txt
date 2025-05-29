@@ -36,3 +36,4 @@ matplotlib
 seaborn
 openai
 sendgrid
+anthropic

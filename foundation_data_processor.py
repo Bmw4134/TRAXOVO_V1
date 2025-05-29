@@ -161,14 +161,11 @@ class FoundationDataProcessor:
             total_data['select']['total_revenue']
         )
         
-        # Get unique equipment count across both companies
-        all_equipment_ids = set()
-        for company in ['ragle', 'select']:
-            for month_data in total_data[company]['monthly_data'].values():
-                for detail in month_data['equipment_details']:
-                    all_equipment_ids.add(detail['equipment_id'])
-        
-        total_data['combined']['equipment_count'] = len(all_equipment_ids)
+        # Calculate combined equipment count as sum of unique equipment per company
+        total_data['combined']['equipment_count'] = (
+            total_data['ragle']['equipment_count'] + 
+            total_data['select']['equipment_count']
+        )
         
         return total_data
     

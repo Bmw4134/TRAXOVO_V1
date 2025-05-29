@@ -209,12 +209,41 @@ def index():
     revenue_per_month = revenue / 4  # 4 months of data
     drivers = 28  # User confirmed driver count
     
+    # Prepare metrics data for template
+    metrics = {
+        'total_revenue': {
+            'value': revenue,
+            'label': 'Total Revenue',
+            'icon': 'bi-currency-dollar',
+            'route': '/billing'
+        },
+        'billable_assets': {
+            'value': assets,
+            'label': 'Billable Assets',
+            'icon': 'bi-truck',
+            'route': '/asset-manager'
+        },
+        'gps_enabled_assets': {
+            'value': gps_enabled,
+            'label': 'GPS Enabled',
+            'icon': 'bi-geo-alt',
+            'route': '/fleet-map'
+        },
+        'total_drivers': {
+            'value': drivers,
+            'label': 'Active Drivers',
+            'icon': 'bi-people',
+            'route': '/attendance-matrix'
+        }
+    }
+    
     return render_template('dashboard_clickable.html',
                          total_revenue=revenue,
                          billable_assets=assets,
                          gps_enabled_assets=gps_enabled,
                          total_drivers=drivers,
-                         monthly_revenue=revenue_per_month)
+                         monthly_revenue=revenue_per_month,
+                         metrics=metrics)
 
 @app.route('/attendance-matrix')
 def attendance_matrix():

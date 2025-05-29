@@ -169,37 +169,41 @@ def asset_detail(asset_id):
 # GPS Efficiency Routes
 @app.route('/gps-efficiency')
 @login_required
+@safe_route
 def gps_efficiency():
     if not current_user.has_access('gps'):
         return redirect(url_for('dashboard'))
-    data = load_authentic_data()
+    data = get_authentic_dashboard_data()
     return render_template('gps_efficiency.html', **data)
 
 # Attendance Routes
 @app.route('/automated-attendance')
 @login_required
+@safe_route
 def automated_attendance():
     if not current_user.has_access('attendance'):
         return redirect(url_for('dashboard'))
-    data = load_authentic_data()
-    return render_template('attendance_dashboard.html', **data)
+    data = get_authentic_dashboard_data()
+    return render_template('automated_attendance.html', **data)
 
 # Billing Routes
 @app.route('/billing')
 @login_required
+@safe_route
 def billing():
     if not current_user.has_access('billing'):
         return redirect(url_for('dashboard'))
-    data = load_authentic_data()
-    return render_template('billing_dashboard.html', **data)
+    data = get_authentic_dashboard_data()
+    return render_template('billing_intelligence.html', **data)
 
 # Analytics Routes
 @app.route('/smart-backend')
 @login_required
+@safe_route
 def smart_backend():
     if not current_user.has_access('analytics'):
         return redirect(url_for('dashboard'))
-    data = load_authentic_data()
+    data = get_authentic_dashboard_data()
     return render_template('smart_analytics.html', **data)
 
 # Job Management Routes

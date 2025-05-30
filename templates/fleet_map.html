@@ -5,23 +5,17 @@
 {% block head %}
 <style>
 .fleet-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
     color: white;
-    padding: 1.5rem 0;
-    margin-bottom: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
-.stat-card {
-    background: white;
-    border: none;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-    transition: transform 0.2s;
+.text-white-25 {
+    opacity: 0.25;
 }
 
-.stat-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+.text-white-50 {
+    opacity: 0.7;
 }
 
 .map-container {
@@ -79,8 +73,7 @@
 }
 
 #map {
-    height: 600px;
-    border-radius: 0 0 16px 16px;
+    border-radius: 0;
 }
 
 .asset-info-panel {
@@ -119,66 +112,43 @@
 
 {% block content %}
 <div class="container-fluid p-0">
-    <!-- Modern Header -->
+    <!-- Clean Professional Header -->
     <div class="fleet-header">
-        <div class="container-fluid px-4">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <h2 class="mb-1 fw-bold">Live Fleet Map</h2>
-                    <p class="mb-0 opacity-75">Real-time equipment tracking and location monitoring</p>
+        <div class="container-fluid px-4 py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0 fw-bold text-white">Fleet Operations</h1>
+                    <small class="text-white-50">Live asset tracking & monitoring</small>
                 </div>
-                <div class="col-md-4 text-end">
-                    <button class="btn btn-light btn-sm me-2" onclick="refreshMap()">
-                        <i class="fas fa-sync-alt me-2"></i>Refresh
-                    </button>
-                    <button class="btn btn-outline-light btn-sm">
-                        <i class="fas fa-download me-2"></i>Export
-                    </button>
+                <div class="d-flex align-items-center gap-3">
+                    <!-- Compact Stats -->
+                    <div class="d-flex gap-4 text-white">
+                        <div class="text-center">
+                            <div class="h5 mb-0 fw-bold">{{ total_assets }}</div>
+                            <small class="text-white-50">Total</small>
+                        </div>
+                        <div class="text-center">
+                            <div class="h5 mb-0 fw-bold text-success">{{ active_assets }}</div>
+                            <small class="text-white-50">Active</small>
+                        </div>
+                        <div class="text-center">
+                            <div class="h5 mb-0 fw-bold text-info">{{ gps_enabled_count }}</div>
+                            <small class="text-white-50">GPS</small>
+                        </div>
+                    </div>
+                    <div class="vr text-white-25"></div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-light btn-sm" onclick="refreshMap()">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <button class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <div class="container-fluid px-4 py-4">
-        <!-- Stats Row -->
-        <div class="row mb-4">
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="stat-card card text-center p-3">
-                    <div class="mb-2">
-                        <i class="fas fa-truck text-primary" style="font-size: 2rem;"></i>
-                    </div>
-                    <h3 class="mb-1 text-primary fw-bold">{{ total_assets }}</h3>
-                    <small class="text-muted">Total Assets</small>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="stat-card card text-center p-3">
-                    <div class="mb-2">
-                        <i class="fas fa-play-circle text-success" style="font-size: 2rem;"></i>
-                    </div>
-                    <h3 class="mb-1 text-success fw-bold">{{ active_assets }}</h3>
-                    <small class="text-muted">Active Equipment</small>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="stat-card card text-center p-3">
-                    <div class="mb-2">
-                        <i class="fas fa-satellite-dish text-info" style="font-size: 2rem;"></i>
-                    </div>
-                    <h3 class="mb-1 text-info fw-bold">{{ gps_enabled_count }}</h3>
-                    <small class="text-muted">GPS Enabled</small>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="stat-card card text-center p-3">
-                    <div class="mb-2">
-                        <i class="fas fa-exclamation-triangle text-warning" style="font-size: 2rem;"></i>
-                    </div>
-                    <h3 class="mb-1 text-warning fw-bold">0</h3>
-                    <small class="text-muted">Alerts</small>
-                </div>
-            </div>
-        </div>
 
         <!-- Map Container -->
         <div class="map-container">

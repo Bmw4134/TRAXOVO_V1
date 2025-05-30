@@ -1,0 +1,334 @@
+{% extends "master_unified.html" %}
+
+{% block content %}
+<!-- Attendance Matrix System -->
+<div class="row g-4 mb-4">
+    <div class="col-12">
+        <div class="alert alert-success">
+            <i class="fas fa-calendar-check me-2"></i>
+            <strong>Smart Attendance Matrix:</strong> GPS-verified attendance tracking with geofence validation
+        </div>
+    </div>
+</div>
+
+<!-- Matrix Controls -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title">View Options</h6>
+                <div class="btn-group w-100" role="group">
+                    <input type="radio" class="btn-check" name="viewType" id="daily" checked>
+                    <label class="btn btn-outline-primary" for="daily">Daily</label>
+                    
+                    <input type="radio" class="btn-check" name="viewType" id="weekly">
+                    <label class="btn btn-outline-primary" for="weekly">Weekly</label>
+                    
+                    <input type="radio" class="btn-check" name="viewType" id="monthly">
+                    <label class="btn btn-outline-primary" for="monthly">Monthly</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title">Weekend Display</h6>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="weekendToggle" checked>
+                    <label class="form-check-label" for="weekendToggle">
+                        Include Weekends
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title">Export Options</h6>
+                <div class="btn-group w-100" role="group">
+                    <button class="btn btn-success btn-sm" onclick="exportMatrix('csv')">
+                        <i class="fas fa-file-csv me-1"></i>CSV
+                    </button>
+                    <button class="btn btn-warning btn-sm" onclick="exportMatrix('excel')">
+                        <i class="fas fa-file-excel me-1"></i>Excel
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="previewPDF()">
+                        <i class="fas fa-file-pdf me-1"></i>PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Attendance Matrix Table -->
+<div class="row g-4 mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Weekly Attendance Matrix</h5>
+                <div class="d-flex gap-2">
+                    <span class="badge bg-success">🟢 On Time</span>
+                    <span class="badge bg-warning">🟡 Late Start</span>
+                    <span class="badge bg-info">🔵 Early End</span>
+                    <span class="badge bg-danger">🔴 Not On Site</span>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" id="attendanceMatrix">
+                        <thead class="table-dark sticky-top">
+                            <tr>
+                                <th style="min-width: 150px;">Employee</th>
+                                <th class="text-center">Monday</th>
+                                <th class="text-center">Tuesday</th>
+                                <th class="text-center">Wednesday</th>
+                                <th class="text-center">Thursday</th>
+                                <th class="text-center">Friday</th>
+                                <th class="text-center weekend-col">Saturday</th>
+                                <th class="text-center weekend-col">Sunday</th>
+                                <th class="text-center">Total Hours</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>John Smith</strong><br><small class="text-muted">Operator</small></td>
+                                <td class="text-center">
+                                    <span class="badge bg-success">🟢</span><br>
+                                    <small>7:00-17:30</small>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-warning">🟡</span><br>
+                                    <small>7:15-17:30</small>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-success">🟢</span><br>
+                                    <small>7:00-17:30</small>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-info">🔵</span><br>
+                                    <small>7:00-17:00</small>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-success">🟢</span><br>
+                                    <small>7:00-17:30</small>
+                                </td>
+                                <td class="text-center weekend-col">
+                                    <span class="badge bg-secondary">-</span><br>
+                                    <small>Off</small>
+                                </td>
+                                <td class="text-center weekend-col">
+                                    <span class="badge bg-secondary">-</span><br>
+                                    <small>Off</small>
+                                </td>
+                                <td class="text-center"><strong>42.25</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Mike Johnson</strong><br><small class="text-muted">Equipment Op</small></td>
+                                <td class="text-center">
+                                    <span class="badge bg-success">🟢</span><br>
+                                    <small>6:30-17:00</small>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-success">🟢</span><br>
+                                    <small>6:30-17:00</small>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-danger">🔴</span><br>
+                                    <small>No GPS</small>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-success">🟢</span><br>
+                                    <small>6:30-17:00</small>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-warning">🟡</span><br>
+                                    <small>7:00-17:00</small>
+                                </td>
+                                <td class="text-center weekend-col">
+                                    <span class="badge bg-secondary">-</span><br>
+                                    <small>Off</small>
+                                </td>
+                                <td class="text-center weekend-col">
+                                    <span class="badge bg-secondary">-</span><br>
+                                    <small>Off</small>
+                                </td>
+                                <td class="text-center"><strong>40.0</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>David Wilson</strong><br><small class="text-muted">Foreman</small></td>
+                                <td class="text-center">
+                                    <span class="badge bg-success">🟢</span><br>
+                                    <small>6:00-18:00</small>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-success">🟢</span><br>
+                                    <small>6:00-18:00</small>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-success">🟢</span><br>
+                                    <small>6:00-18:00</small>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-success">🟢</span><br>
+                                    <small>6:00-18:00</small>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-success">🟢</span><br>
+                                    <small>6:00-18:00</small>
+                                </td>
+                                <td class="text-center weekend-col">
+                                    <span class="badge bg-success">🟢</span><br>
+                                    <small>8:00-16:00</small>
+                                </td>
+                                <td class="text-center weekend-col">
+                                    <span class="badge bg-secondary">-</span><br>
+                                    <small>Off</small>
+                                </td>
+                                <td class="text-center"><strong>68.0</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- GroundWorks Upload -->
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">GroundWorks XLSX Upload</h6>
+            </div>
+            <div class="card-body">
+                <form id="groundworksUpload" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <input type="file" class="form-control" id="groundworksFile" accept=".xlsx,.xls">
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-primary" onclick="uploadGroundWorks()">
+                            <i class="fas fa-upload me-2"></i>Upload & Parse
+                        </button>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="syncNow" checked>
+                            <label class="form-check-label" for="syncNow">
+                                Sync matrix immediately
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">GPS Geofence Status</h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <h5 class="text-success">87</h5>
+                        <small>On Site</small>
+                    </div>
+                    <div class="col-4">
+                        <h5 class="text-warning">3</h5>
+                        <small>Late/Early</small>
+                    </div>
+                    <div class="col-4">
+                        <h5 class="text-danger">2</h5>
+                        <small>Off Site</small>
+                    </div>
+                </div>
+                <hr>
+                <div class="d-grid">
+                    <button class="btn btn-outline-info btn-sm" onclick="refreshGPSStatus()">
+                        <i class="fas fa-sync-alt me-1"></i>Refresh GPS Status
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Matrix view toggle functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const weekendToggle = document.getElementById('weekendToggle');
+    const weekendCols = document.querySelectorAll('.weekend-col');
+    
+    weekendToggle.addEventListener('change', function() {
+        weekendCols.forEach(col => {
+            col.style.display = this.checked ? 'table-cell' : 'none';
+        });
+    });
+});
+
+function exportMatrix(format) {
+    const viewType = document.querySelector('input[name="viewType"]:checked').id;
+    const includeWeekends = document.getElementById('weekendToggle').checked;
+    
+    window.open(`/attendance/matrix/export/${format}?view=${viewType}&weekends=${includeWeekends}`, '_blank');
+}
+
+function previewPDF() {
+    const viewType = document.querySelector('input[name="viewType"]:checked').id;
+    const includeWeekends = document.getElementById('weekendToggle').checked;
+    
+    window.open(`/attendance/matrix/preview/pdf?view=${viewType}&weekends=${includeWeekends}`, '_blank');
+}
+
+async function uploadGroundWorks() {
+    const fileInput = document.getElementById('groundworksFile');
+    const syncNow = document.getElementById('syncNow').checked;
+    
+    if (!fileInput.files[0]) {
+        alert('Please select a GroundWorks XLSX file');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('file', fileInput.files[0]);
+    formData.append('sync_now', syncNow);
+    
+    try {
+        const response = await fetch('/upload/groundworks', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert(`GroundWorks file processed: ${result.records_processed} records`);
+            if (syncNow) {
+                location.reload();
+            }
+        } else {
+            alert(`Error: ${result.error}`);
+        }
+    } catch (error) {
+        alert('Upload failed: ' + error.message);
+    }
+}
+
+function refreshGPSStatus() {
+    fetch('/api/gps-status')
+        .then(response => response.json())
+        .then(data => {
+            // Update GPS status display
+            console.log('GPS status updated:', data);
+        })
+        .catch(error => console.error('GPS refresh failed:', error));
+}
+</script>
+{% endblock %}

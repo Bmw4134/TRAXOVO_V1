@@ -1,0 +1,250 @@
+{
+  "audit_timestamp": "2025-05-30T05:40:48.123661",
+  "total_routes_found": 39,
+  "template_issues": 0,
+  "repairs_needed": 0,
+  "routes": [
+    {
+      "path": "/api/toggle-realtime",
+      "function": "toggle_realtime",
+      "template": "no_template",
+      "exists": true
+    },
+    {
+      "path": "/api/refresh-data",
+      "function": "refresh_data",
+      "template": "no_template",
+      "exists": true
+    },
+    {
+      "path": "/",
+      "function": "dashboard",
+      "template": "master_unified.html",
+      "exists": true
+    },
+    {
+      "path": "/api/assets",
+      "function": "api_assets",
+      "template": "no_template",
+      "exists": true
+    },
+    {
+      "path": "/api/attendance",
+      "function": "api_attendance",
+      "template": "no_template",
+      "exists": true
+    },
+    {
+      "path": "/api/map",
+      "function": "api_map",
+      "template": "no_template",
+      "exists": true
+    },
+    {
+      "path": "/api/assistant",
+      "function": "api_assistant",
+      "template": "no_template",
+      "exists": true
+    },
+    {
+      "path": "/fleet-map",
+      "function": "fleet_map",
+      "template": "fleet_map_elite.html",
+      "exists": true
+    },
+    {
+      "path": "/asset-manager",
+      "function": "asset_manager",
+      "template": "asset_manager.html",
+      "exists": true
+    },
+    {
+      "path": "/equipment-dispatch",
+      "function": "equipment_dispatch",
+      "template": "dashboard_clean_executive.html",
+      "exists": true
+    },
+    {
+      "path": "/schedule-manager",
+      "function": "schedule_manager",
+      "template": "dashboard_clean_executive.html",
+      "exists": true
+    },
+    {
+      "path": "/job-sites",
+      "function": "job_sites",
+      "template": "dashboard_clean_executive.html",
+      "exists": true
+    },
+    {
+      "path": "/attendance-complete",
+      "function": "attendance_complete",
+      "template": "attendance_complete_unified.html",
+      "exists": true
+    },
+    {
+      "path": "/attendance-matrix",
+      "function": "attendance_matrix",
+      "template": "attendance_matrix_unified.html",
+      "exists": true
+    },
+    {
+      "path": "/driver-management",
+      "function": "driver_management",
+      "template": "dashboard_clean_executive.html",
+      "exists": true
+    },
+    {
+      "path": "/daily-driver-report",
+      "function": "daily_driver_report",
+      "template": "dashboard_clean_executive.html",
+      "exists": true
+    },
+    {
+      "path": "/weekly-driver-report",
+      "function": "weekly_driver_report",
+      "template": "dashboard_clean_executive.html",
+      "exists": true
+    },
+    {
+      "path": "/billing",
+      "function": "billing",
+      "template": "billing_analytics.html",
+      "exists": true
+    },
+    {
+      "path": "/project-accountability",
+      "function": "project_accountability",
+      "template": "dashboard_clean_executive.html",
+      "exists": true
+    },
+    {
+      "path": "/executive-reports",
+      "function": "executive_reports",
+      "template": "dashboard_clean_executive.html",
+      "exists": true
+    },
+    {
+      "path": "/mtd-reports",
+      "function": "mtd_reports",
+      "template": "dashboard_clean_executive.html",
+      "exists": true
+    },
+    {
+      "path": "/fleet-analytics",
+      "function": "fleet_analytics",
+      "template": "fleet_analytics.html",
+      "exists": true
+    },
+    {
+      "path": "/asset-profit",
+      "function": "asset_profit",
+      "template": "asset_profitability.html",
+      "exists": true
+    },
+    {
+      "path": "/enhanced-dashboard",
+      "function": "enhanced_dashboard",
+      "template": "enhanced_dashboard_unified.html",
+      "exists": true
+    },
+    {
+      "path": "/ai-assistant",
+      "function": "ai_assistant",
+      "template": "dashboard_clean_executive.html",
+      "exists": true
+    },
+    {
+      "path": "/workflow-optimization",
+      "function": "workflow_optimization",
+      "template": "dashboard_clean_executive.html",
+      "exists": true
+    },
+    {
+      "path": "/industry-news",
+      "function": "industry_news",
+      "template": "dashboard_clean_executive.html",
+      "exists": true
+    },
+    {
+      "path": "/system-health",
+      "function": "system_health",
+      "template": "dashboard_clean_executive.html",
+      "exists": true
+    },
+    {
+      "path": "/file-upload",
+      "function": "file_upload",
+      "template": "dashboard_clean_executive.html",
+      "exists": true
+    },
+    {
+      "path": "/system-admin",
+      "function": "system_admin",
+      "template": "dashboard_clean_executive.html",
+      "exists": true
+    },
+    {
+      "path": "/attendance/matrix/export/<format>",
+      "function": "export_attendance_matrix",
+      "template": "no_template",
+      "exists": true
+    },
+    {
+      "path": "/attendance/matrix/preview/pdf",
+      "function": "preview_attendance_pdf",
+      "template": "attendance_matrix_unified.html",
+      "exists": true
+    },
+    {
+      "path": "/upload/groundworks",
+      "function": "upload_groundworks",
+      "template": "no_template",
+      "exists": true
+    },
+    {
+      "path": "/api/gps-status",
+      "function": "api_gps_status",
+      "template": "no_template",
+      "exists": true
+    },
+    {
+      "path": "/jobs/<job_id>",
+      "function": "job_detail",
+      "template": "job_detail_unified.html",
+      "exists": true
+    },
+    {
+      "path": "/jobs/<job_id>/working-hours",
+      "function": "update_working_hours",
+      "template": "no_template",
+      "exists": true
+    },
+    {
+      "path": "/alerts",
+      "function": "alerts",
+      "template": "alerts_unified.html",
+      "exists": true
+    },
+    {
+      "path": "/api/alerts/live",
+      "function": "api_alerts_live",
+      "template": "no_template",
+      "exists": true
+    },
+    {
+      "path": "/asset/<asset_id>",
+      "function": "asset_detail",
+      "template": "asset_detail.html",
+      "exists": true
+    }
+  ],
+  "issues": [],
+  "repairs": [],
+  "recommendations": [
+    "Update all routes to use unified templates",
+    "Ensure master_unified.html is base template",
+    "Verify attendance system routing",
+    "Check fleet map integration"
+  ]
+}

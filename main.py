@@ -68,6 +68,10 @@ try:
     from routes.supabase_integration import supabase_bp
     app.register_blueprint(supabase_bp)
     
+    # Register executive KPI suite
+    from routes.executive_kpi_suite import executive_kpi_bp
+    app.register_blueprint(executive_kpi_bp)
+    
     print("Successfully registered all feature blueprints including equipment lifecycle management")
 except ImportError as e:
     print(f"Error importing feature blueprints: {e}")
@@ -510,6 +514,7 @@ def attendance_complete():
         'page_title': 'Complete Attendance System',
         'page_subtitle': 'Comprehensive workforce attendance tracking and management'
     })
+    context['datetime'] = datetime
     return render_template('attendance_complete_unified.html', **context)
 
 @app.route('/attendance-matrix')

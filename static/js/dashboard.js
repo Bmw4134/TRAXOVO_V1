@@ -2,9 +2,9 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize tooltips
-    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.map(function(tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
+    const tooltipTriggerList = Array.from(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.forEach(tooltipTriggerEl => {
+        new bootstrap.Tooltip(tooltipTriggerEl);
     });
 
     // Initialize filter form submission
@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function initRealtimeCharts() {
     // Example: Initialize real-time charts using Chart.js or a similar library
     const ctx = document.getElementById('realtimeChart').getContext('2d');
-    
+
     const realtimeChart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
             const assetCards = document.querySelectorAll('.asset-card');
-            
+
             assetCards.forEach(function(card) {
                 const assetText = card.textContent.toLowerCase();
                 if (assetText.includes(searchValue)) {
@@ -87,7 +87,7 @@ function applyFilters() {
     const statusFilter = document.getElementById('status-filter').value;
     const categoryFilter = document.getElementById('category-filter').value;
     const locationFilter = document.getElementById('location-filter').value;
-    
+
     // Redirect to the same page with filter parameters
     window.location.href = `/?status=${statusFilter}&category=${categoryFilter}&location=${locationFilter}`;
 }

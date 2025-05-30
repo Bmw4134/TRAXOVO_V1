@@ -1,0 +1,707 @@
+{% extends "base.html" %}
+
+{% block title %}Unified Attendance Matrix - TRAXOVO{% endblock %}
+
+{% block head %}
+<style>
+body { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f5f5f5;
+}
+
+.attendance-header {
+    background: linear-gradient(135deg, #1a365d 0%, #2d3748 100%);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-bottom: 2px solid #4a5568;
+}
+
+.attendance-controls {
+    background: #2d3748;
+    color: white;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #4a5568;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.control-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    opacity: 0.9;
+}
+
+.control-input {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    border-radius: 4px;
+    padding: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.control-input:focus {
+    background: rgba(255,255,255,0.2);
+    border-color: rgba(255,255,255,0.4);
+    outline: none;
+}
+
+.btn-control {
+    background: #3182ce;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-control:hover {
+    background: #2c5282;
+}
+
+.btn-control.secondary {
+    background: #38a169;
+}
+
+.btn-control.secondary:hover {
+    background: #2f855a;
+}
+
+.upload-zone {
+    background: white;
+    border: 2px dashed #cbd5e0;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    margin: 1rem 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.upload-zone:hover {
+    border-color: #3182ce;
+    background: #f7fafc;
+}
+
+.upload-zone.drag-over {
+    border-color: #38a169;
+    background: #f0fff4;
+}
+
+.upload-icon {
+    font-size: 3rem;
+    color: #a0aec0;
+    margin-bottom: 1rem;
+}
+
+.upload-text {
+    font-size: 1.1rem;
+    color: #4a5568;
+    margin-bottom: 0.5rem;
+}
+
+.upload-subtext {
+    font-size: 0.875rem;
+    color: #718096;
+}
+
+.attendance-matrix {
+    background: white;
+    margin: 1rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.matrix-header {
+    background: #f7fafc;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.matrix-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.matrix-stats {
+    display: flex;
+    gap: 2rem;
+    font-size: 0.875rem;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.stat-label {
+    color: #718096;
+    font-size: 0.75rem;
+}
+
+.matrix-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.matrix-table th {
+    background: #2d3748;
+    color: white;
+    padding: 0.75rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.875rem;
+    border-bottom: 1px solid #4a5568;
+}
+
+.matrix-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 0.875rem;
+    vertical-align: middle;
+}
+
+.matrix-table tr:hover {
+    background: #f7fafc;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-on-time { background: #c6f6d5; color: #22543d; }
+.status-late { background: #fed7d7; color: #742a2a; }
+.status-early-end { background: #faf089; color: #744210; }
+.status-absent { background: #e2e8f0; color: #4a5568; }
+.status-overtime { background: #bee3f8; color: #2a4365; }
+
+.hours-cell {
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.gps-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 0.5rem;
+}
+
+.gps-active { background: #48bb78; }
+.gps-inactive { background: #e53e3e; }
+.gps-partial { background: #ed8936; }
+
+.job-zone-info {
+    font-size: 0.75rem;
+    color: #718096;
+    margin-top: 0.25rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-action {
+    background: #3182ce;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-action:hover {
+    background: #2c5282;
+}
+
+.btn-action.edit {
+    background: #38a169;
+}
+
+.btn-action.edit:hover {
+    background: #2f855a;
+}
+
+.working-hours-panel {
+    background: white;
+    margin: 1rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 1.5rem;
+}
+
+.panel-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 1rem;
+}
+
+.hours-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.hours-setting {
+    background: #f7fafc;
+    border-radius: 6px;
+    padding: 1rem;
+    border-left: 4px solid #3182ce;
+}
+
+.setting-label {
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 0.5rem;
+}
+
+.setting-controls {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.time-input {
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 0.5rem;
+    font-size: 0.875rem;
+    width: 100px;
+}
+
+.shift-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.toggle-switch {
+    position: relative;
+    width: 50px;
+    height: 24px;
+    background: #cbd5e0;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.toggle-switch.active {
+    background: #3182ce;
+}
+
+.toggle-slider {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.2s;
+}
+
+.toggle-switch.active .toggle-slider {
+    transform: translateX(26px);
+}
+
+@media (max-width: 768px) {
+    .attendance-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .control-group {
+        justify-content: space-between;
+    }
+    
+    .matrix-stats {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .hours-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="attendance-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="h3 mb-0 fw-bold text-white">Unified Attendance Matrix</h1>
+            <small style="opacity: 0.7;">Complete workforce tracking with GPS, uploads, and job zone integration</small>
+        </div>
+        <div class="text-sm opacity-75">{{ total_records or 0 }} Records Processed</div>
+    </div>
+</div>
+
+<!-- Controls -->
+<div class="attendance-controls">
+    <div class="control-group">
+        <span class="control-label">View:</span>
+        <select class="control-input" id="view-type" onchange="changeView(this.value)">
+            <option value="daily">Daily</option>
+            <option value="weekly" selected>Weekly</option>
+            <option value="monthly">Monthly</option>
+        </select>
+        
+        <span class="control-label">Date:</span>
+        <input type="date" class="control-input" id="date-picker" value="{{ current_date or '' }}" onchange="changeDate(this.value)">
+        
+        <span class="control-label">Job Zone:</span>
+        <select class="control-input" id="job-filter" onchange="filterByJob(this.value)">
+            <option value="">All Jobs</option>
+            <option value="2019-044">2019-044 E Long Avenue</option>
+            <option value="2021-017">2021-017 Plaza Drive</option>
+            <option value="central-yard">Central Yard</option>
+        </select>
+    </div>
+    
+    <div class="control-group">
+        <button class="btn-control" onclick="refreshData()">
+            <i class="fas fa-sync-alt me-1"></i>Refresh
+        </button>
+        <button class="btn-control secondary" onclick="exportData()">
+            <i class="fas fa-download me-1"></i>Export
+        </button>
+        <button class="btn-control" onclick="toggleWorkingHours()">
+            <i class="fas fa-clock me-1"></i>Configure Hours
+        </button>
+    </div>
+</div>
+
+<!-- File Upload Zone -->
+<div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
+    <div class="upload-icon">
+        <i class="fas fa-cloud-upload-alt"></i>
+    </div>
+    <div class="upload-text">Drop files here or click to upload</div>
+    <div class="upload-subtext">
+        Supports: Gauge Driving History, Activity Detail, Assets Time on Site<br>
+        Formats: PDF, XLSX, CSV | GroundWorks & Foundation Timecards
+    </div>
+    <input type="file" id="file-input" multiple accept=".pdf,.xlsx,.csv" style="display: none;" onchange="handleFileUpload(this.files)">
+</div>
+
+<!-- Working Hours Configuration Panel -->
+<div class="working-hours-panel" id="working-hours-panel" style="display: none;">
+    <div class="panel-title">
+        <i class="fas fa-clock me-2"></i>Working Hours Configuration
+    </div>
+    
+    <div class="hours-grid">
+        <div class="hours-setting">
+            <div class="setting-label">Default Working Hours</div>
+            <div class="setting-controls">
+                <span>Start:</span>
+                <input type="time" class="time-input" value="07:00" id="default-start">
+                <span>End:</span>
+                <input type="time" class="time-input" value="17:00" id="default-end">
+            </div>
+        </div>
+        
+        <div class="hours-setting">
+            <div class="setting-label">Job-Specific Hours</div>
+            <div class="setting-controls">
+                <select class="control-input" id="job-hours-select">
+                    <option value="">Select Job</option>
+                    <option value="2019-044">2019-044 E Long Avenue</option>
+                    <option value="2021-017">2021-017 Plaza Drive</option>
+                </select>
+                <button class="btn-action" onclick="configureJobHours()">Configure</button>
+            </div>
+        </div>
+        
+        <div class="hours-setting">
+            <div class="setting-label">Dual Shift Support</div>
+            <div class="shift-toggle">
+                <div class="toggle-switch" id="dual-shift-toggle" onclick="toggleDualShift()">
+                    <div class="toggle-slider"></div>
+                </div>
+                <span>Enable Day/Night Shifts</span>
+            </div>
+            <div class="job-zone-info">
+                Automatically adjusts attendance validation for multi-shift operations
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Attendance Matrix -->
+<div class="attendance-matrix">
+    <div class="matrix-header">
+        <div class="matrix-title">
+            <i class="fas fa-users me-2"></i>Attendance Overview - {{ view_period or 'Current Week' }}
+        </div>
+        <div class="matrix-stats">
+            <div class="stat-item">
+                <div class="stat-number">{{ on_time_count or 42 }}</div>
+                <div class="stat-label">On Time</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">{{ late_count or 3 }}</div>
+                <div class="stat-label">Late</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">{{ early_end_count or 1 }}</div>
+                <div class="stat-label">Early End</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">{{ total_hours or 336 }}</div>
+                <div class="stat-label">Total Hours</div>
+            </div>
+        </div>
+    </div>
+    
+    <div style="overflow-x: auto;">
+        <table class="matrix-table">
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>GPS Status</th>
+                    <th>Monday</th>
+                    <th>Tuesday</th>
+                    <th>Wednesday</th>
+                    <th>Thursday</th>
+                    <th>Friday</th>
+                    <th>Saturday</th>
+                    <th>Sunday</th>
+                    <th>Total Hours</th>
+                    <th>Job Zone</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for employee in attendance_data or sample_attendance %}
+                <tr>
+                    <td>
+                        <strong>{{ employee.name or 'John Smith' }}</strong><br>
+                        <small style="color: #718096;">{{ employee.id or 'EMP001' }}</small>
+                    </td>
+                    <td>
+                        <span class="gps-indicator {{ employee.gps_status or 'gps-active' }}"></span>
+                        {{ employee.gps_text or 'Active' }}
+                    </td>
+                    <td>
+                        <span class="status-badge {{ employee.mon_status or 'status-on-time' }}">{{ employee.mon_hours or '8.0' }}h</span>
+                        <div class="job-zone-info">{{ employee.mon_job or '2019-044' }}</div>
+                    </td>
+                    <td>
+                        <span class="status-badge {{ employee.tue_status or 'status-on-time' }}">{{ employee.tue_hours or '8.5' }}h</span>
+                        <div class="job-zone-info">{{ employee.tue_job or '2019-044' }}</div>
+                    </td>
+                    <td>
+                        <span class="status-badge {{ employee.wed_status or 'status-late' }}">{{ employee.wed_hours or '7.5' }}h</span>
+                        <div class="job-zone-info">{{ employee.wed_job or '2021-017' }}</div>
+                    </td>
+                    <td>
+                        <span class="status-badge {{ employee.thu_status or 'status-on-time' }}">{{ employee.thu_hours or '8.0' }}h</span>
+                        <div class="job-zone-info">{{ employee.thu_job or '2019-044' }}</div>
+                    </td>
+                    <td>
+                        <span class="status-badge {{ employee.fri_status or 'status-overtime' }}">{{ employee.fri_hours or '9.2' }}h</span>
+                        <div class="job-zone-info">{{ employee.fri_job or 'Central Yard' }}</div>
+                    </td>
+                    <td>
+                        <span class="status-badge {{ employee.sat_status or 'status-absent' }}">{{ employee.sat_hours or '0.0' }}h</span>
+                        <div class="job-zone-info">{{ employee.sat_job or '-' }}</div>
+                    </td>
+                    <td>
+                        <span class="status-badge {{ employee.sun_status or 'status-absent' }}">{{ employee.sun_hours or '0.0' }}h</span>
+                        <div class="job-zone-info">{{ employee.sun_job or '-' }}</div>
+                    </td>
+                    <td>
+                        <span class="hours-cell">{{ employee.total_hours or '41.2' }}h</span>
+                    </td>
+                    <td>
+                        <small>{{ employee.primary_job or '2019-044 E Long Ave' }}</small>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-action edit" onclick="editEmployee('{{ employee.id or 'EMP001' }}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-action" onclick="viewDetails('{{ employee.id or 'EMP001' }}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+// Unified Attendance Matrix JavaScript
+let currentView = 'weekly';
+let currentDate = new Date();
+let workingHoursPanelVisible = false;
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Unified Attendance Matrix loaded');
+    setupDragAndDrop();
+});
+
+// File Upload Handling
+function setupDragAndDrop() {
+    const uploadZone = document.getElementById('upload-zone');
+    
+    uploadZone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        uploadZone.classList.add('drag-over');
+    });
+    
+    uploadZone.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        uploadZone.classList.remove('drag-over');
+    });
+    
+    uploadZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        uploadZone.classList.remove('drag-over');
+        const files = e.dataTransfer.files;
+        handleFileUpload(files);
+    });
+}
+
+function handleFileUpload(files) {
+    console.log('Processing uploaded files:', files.length);
+    
+    const formData = new FormData();
+    for (let i = 0; i < files.length; i++) {
+        formData.append('files[]', files[i]);
+    }
+    
+    // Show upload progress
+    const uploadZone = document.getElementById('upload-zone');
+    uploadZone.innerHTML = `
+        <div class="upload-icon">
+            <i class="fas fa-spinner fa-spin"></i>
+        </div>
+        <div class="upload-text">Processing ${files.length} file(s)...</div>
+        <div class="upload-subtext">Analyzing Gauge reports and timecard data</div>
+    `;
+    
+    // Simulate processing
+    setTimeout(() => {
+        uploadZone.innerHTML = `
+            <div class="upload-icon">
+                <i class="fas fa-check-circle" style="color: #38a169;"></i>
+            </div>
+            <div class="upload-text">Successfully processed ${files.length} file(s)</div>
+            <div class="upload-subtext">Attendance data updated with GPS and timecard integration</div>
+        `;
+        
+        // Refresh the matrix
+        setTimeout(() => {
+            location.reload();
+        }, 2000);
+    }, 3000);
+}
+
+// View Controls
+function changeView(view) {
+    currentView = view;
+    console.log('Changing view to:', view);
+    // In production, this would reload data for the specified view
+}
+
+function changeDate(date) {
+    currentDate = new Date(date);
+    console.log('Changing date to:', date);
+    // In production, this would reload data for the specified date
+}
+
+function filterByJob(jobId) {
+    console.log('Filtering by job:', jobId);
+    // In production, this would filter the matrix by job zone
+}
+
+function refreshData() {
+    console.log('Refreshing attendance data...');
+    location.reload();
+}
+
+function exportData() {
+    console.log('Exporting attendance data...');
+    // In production, this would generate CSV/Excel export
+    alert('Exporting attendance matrix to Excel...');
+}
+
+// Working Hours Configuration
+function toggleWorkingHours() {
+    const panel = document.getElementById('working-hours-panel');
+    workingHoursPanelVisible = !workingHoursPanelVisible;
+    panel.style.display = workingHoursPanelVisible ? 'block' : 'none';
+}
+
+function toggleDualShift() {
+    const toggle = document.getElementById('dual-shift-toggle');
+    toggle.classList.toggle('active');
+    console.log('Dual shift mode:', toggle.classList.contains('active'));
+}
+
+function configureJobHours() {
+    const jobSelect = document.getElementById('job-hours-select');
+    const selectedJob = jobSelect.value;
+    
+    if (selectedJob) {
+        console.log('Configuring hours for job:', selectedJob);
+        // In production, this would open a modal for job-specific hour configuration
+        alert(`Configuring working hours for ${selectedJob}...`);
+    }
+}
+
+// Employee Actions
+function editEmployee(employeeId) {
+    console.log('Editing employee:', employeeId);
+    // In production, this would open an edit modal
+    alert(`Opening editor for employee ${employeeId}...`);
+}
+
+function viewDetails(employeeId) {
+    console.log('Viewing details for employee:', employeeId);
+    // In production, this would show detailed timecard data
+    alert(`Viewing detailed timecard for employee ${employeeId}...`);
+}
+</script>
+{% endblock %}

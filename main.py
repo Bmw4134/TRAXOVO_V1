@@ -465,10 +465,21 @@ def project_accountability():
 
 @app.route('/executive-reports')
 def executive_reports():
-    """Executive Reports"""
-    return render_template('dashboard_clean_executive.html', 
-                         page_title="Executive Reports",
-                         **{k: v for k, v in authentic_fleet_data.items()})
+    """Enhanced Executive Reports with Real KPI Dashboard"""
+    from utils.performance_calculator import calculate_fleet_performance, get_productivity_trends
+    
+    # Calculate real performance metrics
+    performance_data = calculate_fleet_performance()
+    productivity_data = get_productivity_trends()
+    
+    context = {
+        'page_title': "Executive Performance Dashboard",
+        'performance_metrics': performance_data,
+        'productivity_trends': productivity_data,
+        **{k: v for k, v in authentic_fleet_data.items()}
+    }
+    
+    return render_template('enhanced_executive_summary.html', **context)
 
 @app.route('/mtd-reports')
 def mtd_reports():

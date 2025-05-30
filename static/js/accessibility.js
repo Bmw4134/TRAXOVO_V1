@@ -480,3 +480,20 @@ window.toggleAccessibilityFeature = (feature, state) => {
         window.traxovoAccessibility.saveSettings();
     }
 };
+
+if ('Notification' in window) {
+  if (Notification.permission !== 'granted') {
+    Notification.requestPermission();
+  }
+}
+
+function notifyUser(message) {
+  if ('Notification' in window) {
+    new Notification('TRAXOVO Update', { body: message });
+  } else {
+    alert(message);
+  }
+}
+
+// Announce dynamic content after loading
+notifyUser('Dynamic content updated');

@@ -13,7 +13,7 @@ from flask import Flask, render_template, jsonify, request, Response, g
 from sqlalchemy.orm import DeclarativeBase
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.WARNING)
 
 class Base(DeclarativeBase):
     pass

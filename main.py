@@ -26,6 +26,19 @@ app.secret_key = os.environ.get("SESSION_SECRET") or "traxovo-fleet-secret"
 from routes.attendance import attendance_bp
 app.register_blueprint(attendance_bp)
 
+# Import and register new feature blueprints
+try:
+    from routes.cost_savings_simulator import cost_simulator_bp
+    from routes.foundation_integration import foundation_bp
+    from routes.predictive_analytics import predictive_bp
+    
+    app.register_blueprint(cost_simulator_bp)
+    app.register_blueprint(foundation_bp)
+    app.register_blueprint(predictive_bp)
+    print("Successfully registered new feature blueprints")
+except ImportError as e:
+    print(f"Error importing feature blueprints: {e}")
+
 # Start scheduled attendance snapshots
 try:
     from jobs.scheduled_snapshots import start_scheduler

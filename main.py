@@ -148,18 +148,21 @@ def refresh_data():
 
 @app.route('/')
 def dashboard():
-    """TRAXOVO HERC-Inspired Professional Dashboard"""
-    # Use your authenticated data from screenshots and Excel files
+    """TRAXOVO Unified Dashboard - Master Template"""
     context = {
-        'billable_revenue': authentic_fleet_data.get('billable_revenue', 2210400),
-        'total_assets': authentic_fleet_data.get('total_assets', 581),
-        'active_assets': authentic_fleet_data.get('active_assets', 610),
-        'total_drivers': authentic_fleet_data.get('total_drivers', 92),
+        'page_title': 'Executive Dashboard',
+        'page_subtitle': 'Real-time fleet intelligence and operational metrics',
+        'total_assets': 581,
+        'active_assets': 610,
+        'total_drivers': 92,
         'revenue_total': '2.21M',
-        'last_updated': authentic_fleet_data.get('last_updated', 'Just now')
+        'utilization_rate': 87.5,
+        'billable_revenue': authentic_fleet_data.get('billable_revenue', 2210400),
+        'last_updated': authentic_fleet_data.get('last_updated', 'Just now'),
+        **{k: v for k, v in authentic_fleet_data.items()}
     }
     
-    return render_template('dashboard_herc_inspired.html', **context)
+    return render_template('master_unified.html', **context)
 
 # Keep all existing API endpoints
 @app.route('/api/assets')
@@ -310,7 +313,11 @@ def attendance_complete():
         'authentic_records_count': len(attendance_records),
         **{k: v for k, v in authentic_fleet_data.items()}
     }
-    return render_template('attendance_matrix_complete.html', **context)
+    context.update({
+        'page_title': 'Complete Attendance System',
+        'page_subtitle': 'Comprehensive workforce attendance tracking and management'
+    })
+    return render_template('attendance_complete_unified.html', **context)
 
 @app.route('/attendance-matrix')
 def attendance_matrix():
@@ -500,14 +507,15 @@ def asset_profit():
 
 @app.route('/enhanced-dashboard')
 def enhanced_dashboard():
-    """MEGA SPRINT: Final Stakeholder-Ready Dashboard"""
+    """Enhanced Dashboard with Advanced Fleet Metrics"""
     context = {
-        'page_title': 'TRAXOVO Enhanced Dashboard',
+        'page_title': 'Enhanced Dashboard',
+        'page_subtitle': 'Advanced fleet control and utilization analytics',
         'total_assets': 581,
         'active_assets': 610,
+        'utilization_rate': 87.5,
         'total_drivers': 92,
         'revenue_total': '2.21M',
-        'utilization_rate': 87.5,
         'profit_margin': 59.7,
         'last_updated': datetime.now().strftime('%H:%M'),
         'current_date': datetime.now().strftime('%B %d, %Y'),
@@ -519,7 +527,7 @@ def enhanced_dashboard():
             'billing': 617
         }
     }
-    return render_template('enhanced_dashboard_simple.html', **context)
+    return render_template('enhanced_dashboard_unified.html', **context)
 
 @app.route('/ai-assistant')
 def ai_assistant():

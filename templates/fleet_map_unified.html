@@ -1,0 +1,222 @@
+{% extends "master_unified.html" %}
+
+{% block extra_css %}
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+<style>
+    #map { 
+        height: 600px; 
+        width: 100%; 
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .map-controls {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .fleet-status-bar {
+        background: linear-gradient(135deg, #1a365d 0%, #2d3748 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    
+    .status-item {
+        text-align: center;
+    }
+    
+    .status-number {
+        font-size: 2rem;
+        font-weight: bold;
+        display: block;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Fleet Status Bar -->
+<div class="fleet-status-bar">
+    <div class="row text-center">
+        <div class="col-md-3">
+            <div class="status-item">
+                <span class="status-number text-success">{{ active_assets or 610 }}</span>
+                <span class="small">ONLINE</span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="status-item">
+                <span class="status-number text-warning">47</span>
+                <span class="small">IDLE</span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="status-item">
+                <span class="status-number text-danger">0</span>
+                <span class="small">OFFLINE</span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="status-item">
+                <span class="status-number text-info">{{ total_assets or 581 }}</span>
+                <span class="small">TOTAL FLEET</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Map Container -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body p-0">
+                <div style="position: relative;">
+                    <div id="map"></div>
+                    
+                    <!-- Map Controls -->
+                    <div class="map-controls">
+                        <div class="btn-group-vertical" role="group">
+                            <button type="button" class="btn btn-outline-primary btn-sm mb-2" onclick="toggleView('satellite')">
+                                <i class="fas fa-satellite"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-success btn-sm mb-2" onclick="toggleView('terrain')">
+                                <i class="fas fa-mountain"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-info btn-sm mb-2" onclick="refreshLocations()">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-warning btn-sm" onclick="toggleTracking()">
+                                <i class="fas fa-crosshairs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Asset Details Panel -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Fleet Asset Locations</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Asset ID</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Location</th>
+                                <th>Last Update</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="assetTable">
+                            <tr>
+                                <td>EXC-001</td>
+                                <td>Excavator</td>
+                                <td><span class="badge bg-success">Online</span></td>
+                                <td>Job Site Alpha</td>
+                                <td>2 min ago</td>
+                                <td><button class="btn btn-sm btn-outline-primary" onclick="centerOnAsset('EXC-001')">View</button></td>
+                            </tr>
+                            <tr>
+                                <td>TRK-045</td>
+                                <td>Truck</td>
+                                <td><span class="badge bg-warning">Idle</span></td>
+                                <td>Yard</td>
+                                <td>5 min ago</td>
+                                <td><button class="btn btn-sm btn-outline-primary" onclick="centerOnAsset('TRK-045')">View</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+<script>
+// Initialize map
+mapboxgl.accessToken = 'pk.eyJ1IjoidHJheG92byIsImEiOiJjbG5uYjJ0YWUwMWE4MmxwZjIzaGZ5eGp2In0.mock_token';
+
+const map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/streets-v11',
+    center: [-97.7431, 30.2672], // Austin, TX
+    zoom: 10
+});
+
+// Add sample markers for fleet assets
+const assets = [
+    { id: 'EXC-001', coords: [-97.7431, 30.2672], status: 'online' },
+    { id: 'TRK-045', coords: [-97.7631, 30.2872], status: 'idle' },
+    { id: 'DOZ-012', coords: [-97.7231, 30.2472], status: 'online' }
+];
+
+// Add markers
+assets.forEach(asset => {
+    const color = asset.status === 'online' ? '#28a745' : '#ffc107';
+    
+    new mapboxgl.Marker({ color })
+        .setLngLat(asset.coords)
+        .setPopup(new mapboxgl.Popup().setHTML(`
+            <strong>${asset.id}</strong><br>
+            Status: ${asset.status}<br>
+            <button class="btn btn-sm btn-primary mt-1" onclick="viewAssetDetails('${asset.id}')">Details</button>
+        `))
+        .addTo(map);
+});
+
+function toggleView(type) {
+    const styles = {
+        satellite: 'mapbox://styles/mapbox/satellite-v9',
+        terrain: 'mapbox://styles/mapbox/outdoors-v11'
+    };
+    
+    if (styles[type]) {
+        map.setStyle(styles[type]);
+    }
+}
+
+function refreshLocations() {
+    // Simulate refreshing asset locations
+    console.log('Refreshing asset locations...');
+    // In real implementation, this would fetch from your API
+}
+
+function toggleTracking() {
+    console.log('Toggle real-time tracking');
+    // Implement real-time tracking toggle
+}
+
+function centerOnAsset(assetId) {
+    const asset = assets.find(a => a.id === assetId);
+    if (asset) {
+        map.flyTo({
+            center: asset.coords,
+            zoom: 15
+        });
+    }
+}
+
+function viewAssetDetails(assetId) {
+    window.location.href = `/asset-detail/${assetId}`;
+}
+</script>
+{% endblock %}

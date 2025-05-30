@@ -1,0 +1,469 @@
+{% extends "base.html" %}
+
+{% block title %}Fleet Map - TRAXOVO{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+body { 
+    margin: 0; 
+    padding: 0; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f5f5f5;
+}
+
+.gauge-header {
+    background: linear-gradient(135deg, #1a365d 0%, #2d3748 100%);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-bottom: 2px solid #4a5568;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.gauge-brand {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #90cdf4;
+}
+
+.gauge-nav {
+    background: #2d3748;
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border-bottom: 1px solid #4a5568;
+    font-size: 0.9rem;
+}
+
+.gauge-nav a {
+    color: #cbd5e0;
+    text-decoration: none;
+    margin-right: 2rem;
+    padding: 0.25rem 0;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.gauge-nav a:hover, .gauge-nav a.active {
+    color: white;
+    border-bottom-color: #90cdf4;
+}
+
+.map-container {
+    display: flex;
+    height: calc(100vh - 120px);
+    background: white;
+}
+
+.filter-sidebar {
+    width: 280px;
+    background: #f7fafc;
+    border-right: 1px solid #e2e8f0;
+    overflow-y: auto;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+}
+
+.filter-section {
+    padding: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.filter-section h6 {
+    margin: 0 0 0.75rem 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #2d3748;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.filter-dropdown {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    background: white;
+    font-size: 0.875rem;
+    color: #2d3748;
+    margin-bottom: 0.75rem;
+    transition: border-color 0.2s;
+}
+
+.filter-dropdown:focus {
+    outline: none;
+    border-color: #4299e1;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+.filter-checkbox {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    color: #4a5568;
+}
+
+.filter-checkbox input {
+    margin-right: 0.5rem;
+}
+
+.map-area {
+    flex: 1;
+    position: relative;
+    background: #e2e8f0;
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+}
+
+.map-controls {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.map-control-btn {
+    background: white;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    padding: 0.5rem;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.2s;
+}
+
+.map-control-btn:hover {
+    background: #f7fafc;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.status-indicator {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+    background: rgba(255,255,255,0.95);
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    font-size: 0.875rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.asset-count {
+    color: #2d3748;
+    font-weight: 600;
+}
+
+.data-source {
+    color: #718096;
+    margin-top: 0.25rem;
+}
+
+/* Asset marker styles */
+.asset-marker {
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.marker-active { background-color: #48bb78; }
+.marker-idle { background-color: #ed8936; }
+.marker-offline { background-color: #e53e3e; }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .filter-sidebar {
+        width: 100%;
+        height: 250px;
+        overflow-x: auto;
+    }
+    
+    .map-container {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Gauge-style Header -->
+<div class="gauge-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div class="gauge-brand">TRAXOVO Fleet Intelligence</div>
+        <div class="text-sm opacity-75">Live Fleet Tracking & Analytics</div>
+    </div>
+</div>
+
+<!-- Navigation -->
+<div class="gauge-nav">
+    <a href="#" class="active">Map</a>
+    <a href="#">Assets</a>
+    <a href="#">Maintenance</a>
+    <a href="#">Data</a>
+    <a href="#">Reports</a>
+    <a href="#">Company</a>
+    <a href="#">Admin</a>
+</div>
+
+<!-- Map Container -->
+<div class="map-container">
+    <!-- Filter Sidebar -->
+    <div class="filter-sidebar">
+        <div class="filter-section">
+            <h6>Filters</h6>
+            <select class="filter-dropdown" onchange="applyFilter('district', this.value)">
+                <option value="">All Districts</option>
+                <option value="dallas">Dallas District</option>
+                <option value="houston">Houston District</option>
+                <option value="austin">Austin District</option>
+            </select>
+        </div>
+        
+        <div class="filter-section">
+            <h6>Sites</h6>
+            <select class="filter-dropdown" onchange="applyFilter('site', this.value)">
+                <option value="">All Sites</option>
+                <option value="central">Central Yard</option>
+                <option value="north">North Yard</option>
+                <option value="south">South Yard</option>
+            </select>
+        </div>
+        
+        <div class="filter-section">
+            <h6>Groups</h6>
+            <select class="filter-dropdown" onchange="applyFilter('group', this.value)">
+                <option value="">All Groups</option>
+                <option value="heavy">Heavy Equipment</option>
+                <option value="transport">Transport</option>
+                <option value="utility">Utility</option>
+            </select>
+        </div>
+        
+        <div class="filter-section">
+            <h6>Types</h6>
+            <select class="filter-dropdown" onchange="applyFilter('type', this.value)">
+                <option value="">All Types</option>
+                <option value="excavator">Excavators</option>
+                <option value="truck">Trucks</option>
+                <option value="loader">Loaders</option>
+                <option value="trailer">Trailers</option>
+            </select>
+        </div>
+        
+        <div class="filter-section">
+            <h6>Categories</h6>
+            <select class="filter-dropdown" onchange="applyFilter('category', this.value)">
+                <option value="">All Categories</option>
+                <option value="construction">Construction</option>
+                <option value="transport">Transportation</option>
+                <option value="maintenance">Maintenance</option>
+            </select>
+        </div>
+        
+        <div class="filter-section">
+            <h6>Classes</h6>
+            <select class="filter-dropdown" onchange="applyFilter('class', this.value)">
+                <option value="">All Classes</option>
+                <option value="class1">Class 1</option>
+                <option value="class2">Class 2</option>
+                <option value="class3">Class 3</option>
+            </select>
+        </div>
+        
+        <div class="filter-section">
+            <h6>States</h6>
+            <select class="filter-dropdown" onchange="applyFilter('state', this.value)">
+                <option value="">All States</option>
+                <option value="active">Active</option>
+                <option value="idle">Idle</option>
+                <option value="offline">Offline</option>
+                <option value="maintenance">Maintenance</option>
+            </select>
+        </div>
+        
+        <div class="filter-section">
+            <h6>Options</h6>
+            <div class="filter-checkbox">
+                <input type="checkbox" id="show-individual" onchange="toggleIndividualAssets(this.checked)">
+                <label for="show-individual">Show Individual Assets</label>
+            </div>
+            <div class="filter-checkbox">
+                <input type="checkbox" id="asset-trails" onchange="toggleAssetTrails(this.checked)">
+                <label for="asset-trails">Asset Trails</label>
+            </div>
+            <div class="filter-checkbox">
+                <input type="checkbox" id="geofences" onchange="toggleGeofences(this.checked)">
+                <label for="geofences">Geofences</label>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Map Area -->
+    <div class="map-area">
+        <div id="map"></div>
+        
+        <!-- Map Controls -->
+        <div class="map-controls">
+            <button class="map-control-btn" onclick="map.zoomIn()" title="Zoom In">
+                <i class="fas fa-plus"></i>
+            </button>
+            <button class="map-control-btn" onclick="map.zoomOut()" title="Zoom Out">
+                <i class="fas fa-minus"></i>
+            </button>
+            <button class="map-control-btn" onclick="centerMap()" title="Center View">
+                <i class="fas fa-crosshairs"></i>
+            </button>
+            <button class="map-control-btn" onclick="toggleFullscreen()" title="Fullscreen">
+                <i class="fas fa-expand"></i>
+            </button>
+        </div>
+        
+        <!-- Status Indicator -->
+        <div class="status-indicator">
+            <div class="asset-count">Assets: <span id="asset-count">{{ total_assets }}</span></div>
+            <div class="data-source">Data Source: Gauge API | Last Update: {{ "5/30/2025 2:38 PM CT" }}</div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+let map;
+let markers = [];
+let allAssets = {{ assets | tojson | safe }};
+let currentFilters = {};
+
+// Initialize map
+function initMap() {
+    map = L.map('map').setView([32.7767, -96.7970], 6);
+    
+    // Add satellite tile layer like Gauge
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: '© Esri',
+        maxZoom: 18
+    }).addTo(map);
+    
+    displayAssets();
+    updateAssetCount();
+}
+
+// Display assets on map
+function displayAssets() {
+    // Clear existing markers
+    markers.forEach(marker => map.removeLayer(marker));
+    markers = [];
+    
+    const filteredAssets = getFilteredAssets();
+    
+    filteredAssets.forEach(asset => {
+        if (!asset.lat || !asset.lng || asset.lat === 0 || asset.lng === 0) return;
+        
+        const markerClass = asset.status === 'active' ? 'marker-active' : 
+                           asset.status === 'idle' ? 'marker-idle' : 'marker-offline';
+        
+        const marker = L.circleMarker([asset.lat, asset.lng], {
+            radius: 6,
+            fillColor: asset.status === 'active' ? '#48bb78' : 
+                      asset.status === 'idle' ? '#ed8936' : '#e53e3e',
+            color: '#fff',
+            weight: 2,
+            opacity: 1,
+            fillOpacity: 0.8,
+            className: markerClass
+        });
+        
+        marker.bindPopup(`
+            <div style="min-width: 280px; font-family: 'Segoe UI', sans-serif;">
+                <div style="padding: 0.75rem; border-bottom: 1px solid #e2e8f0; background: #f7fafc;">
+                    <h6 style="margin: 0; color: #2d3748; font-weight: 600;">${asset.name}</h6>
+                    <small style="color: #718096;">${asset.id}</small>
+                </div>
+                <div style="padding: 0.75rem;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+                        <div><strong>Status:</strong><br><span style="color: ${marker.options.fillColor};">${asset.status.toUpperCase()}</span></div>
+                        <div><strong>Type:</strong><br>${asset.category}</div>
+                        <div><strong>Hours:</strong><br>${asset.hours || 'N/A'}</div>
+                        <div><strong>Location:</strong><br>${asset.location}</div>
+                    </div>
+                    <div style="border-top: 1px solid #e2e8f0; padding-top: 0.75rem; font-size: 0.875rem; color: #718096;">
+                        Last Update: ${asset.last_update}
+                    </div>
+                </div>
+            </div>
+        `);
+        
+        marker.addTo(map);
+        markers.push(marker);
+    });
+    
+    console.log(`Displayed ${filteredAssets.length} assets on map`);
+    updateAssetCount();
+}
+
+// Get filtered assets based on current filters
+function getFilteredAssets() {
+    return allAssets.filter(asset => {
+        for (let [filterType, filterValue] of Object.entries(currentFilters)) {
+            if (!filterValue) continue;
+            
+            switch(filterType) {
+                case 'type':
+                    if (!asset.category.toLowerCase().includes(filterValue.toLowerCase())) return false;
+                    break;
+                case 'state':
+                    if (asset.status !== filterValue) return false;
+                    break;
+                // Add more filter logic as needed
+            }
+        }
+        return true;
+    });
+}
+
+// Apply filter
+function applyFilter(filterType, filterValue) {
+    currentFilters[filterType] = filterValue;
+    displayAssets();
+}
+
+// Update asset count display
+function updateAssetCount() {
+    const count = getFilteredAssets().length;
+    document.getElementById('asset-count').textContent = count;
+}
+
+// Toggle functions
+function toggleIndividualAssets(show) {
+    console.log('Toggle individual assets:', show);
+}
+
+function toggleAssetTrails(show) {
+    console.log('Toggle asset trails:', show);
+}
+
+function toggleGeofences(show) {
+    console.log('Toggle geofences:', show);
+}
+
+function centerMap() {
+    map.setView([32.7767, -96.7970], 6);
+}
+
+function toggleFullscreen() {
+    const mapElement = document.getElementById('map');
+    if (mapElement.requestFullscreen) {
+        mapElement.requestFullscreen();
+    }
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    initMap();
+});
+</script>
+{% endblock %}

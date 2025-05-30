@@ -127,7 +127,7 @@ def load_attendance_matrix(date, job_id):
                     timecard_files.append(os.path.join(path, file))
     
     # Process the most recent timecard files
-    for file_path in timecard_files[:3]:  # Take most recent 3 files
+    for file_path in timecard_files:  # Process all available files
         try:
             if file_path.endswith('.xlsx'):
                 df = pd.read_excel(file_path)

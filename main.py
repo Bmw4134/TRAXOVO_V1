@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 from flask import Flask, render_template, jsonify, request, Response, g, session, redirect, url_for, flash
 from sqlalchemy.orm import DeclarativeBase
 from services.execute_sql_direct import execute_sql_query
+from services.real_time_audit import get_audit_system
 
 # Configure logging
 logging.basicConfig(level=logging.WARNING)
@@ -181,11 +182,22 @@ def load_fallback_data():
 def update_fleet_data(total_equipment, active_equipment):
     """Update fleet data with given counts"""
     global authentic_fleet_data, cache_timestamp
+    audit = get_audit_system()
     
     try:
         # Your actual driver counts - around 92 active drivers  
         total_drivers = 92     # Your actual driver count
         clocked_in = 68       # Current active drivers
+        
+        # Track metric updates
+        old_utilization = authentic_fleet_data.get('utilization_rate', 0) if 'authentic_fleet_data' in globals() else 0
+        new_utilization = round((active_equipment / total_equipment) * 100, 1) if total_equipment > 0 else 0.0
+        
+        if old_utilization != new_utilization:
+            audit.log_metric_update('utilization_rate', old_utilization, new_utilization, 'Gauge API')
+        
+        # Track data source changes
+        audit.log_data_source_change('Gauge API', 'fleet_data_update', total_equipment)
         
         # Your authentic Foundation accounting data with correct counts
         authentic_fleet_data = {
@@ -196,7 +208,7 @@ def update_fleet_data(total_equipment, active_equipment):
             'fleet_value': 1880000,               # Your $1.88M Foundation data
             'daily_revenue': 73680,               # Based on your revenue data
             'billable_revenue': 2210400,          # From your billing screenshot
-            'utilization_rate': round((active_equipment / total_equipment) * 100, 1) if total_equipment > 0 else 0.0,
+            'utilization_rate': new_utilization,
             'last_updated': datetime.now().isoformat()
         }
         
@@ -1433,6 +1445,30 @@ def real_time_metrics_endpoint():
         
     except Exception as e:
         return jsonify({'error': str(e), 'status': 'data_connection_needed'})
+
+@app.route('/dev_audit')
+def dev_audit():
+    """Real-time development audit dashboard"""
+    if not is_logged_in():
+        return redirect(url_for('login'))
+    return render_template('dev_audit.html')
+
+@app.route('/api/audit/live')
+def api_audit_live():
+    """Live audit data API endpoint"""
+    if not is_logged_in():
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    audit = get_audit_system()
+    
+    return jsonify({
+        'summary': audit.get_current_metrics_state(),
+        'recent_changes': audit.get_recent_changes(20),
+        'metric_changes': audit.get_changes_by_category('metrics', 10),
+        'data_changes': audit.get_changes_by_category('data', 10),
+        'file_changes': audit.get_changes_by_category('file', 10),
+        'api_changes': audit.get_changes_by_category('api', 10)
+    })
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

@@ -56,6 +56,10 @@ try:
     from routes.unified_routes import unified_routes_bp
     app.register_blueprint(unified_routes_bp)
     
+    # Register authentic revenue calculator
+    from routes.authentic_revenue_calculator import authentic_revenue_bp
+    app.register_blueprint(authentic_revenue_bp)
+    
     print("Successfully registered all feature blueprints including equipment lifecycle management")
 except ImportError as e:
     print(f"Error importing feature blueprints: {e}")

@@ -79,7 +79,7 @@ def load_gauge_api_data():
 
 def load_fallback_data():
     """Load fallback data when API is unavailable"""
-    return update_fleet_data(581, 300)  # Higher active count based on your feedback
+    return update_fleet_data(581, 610)  # Your authentic Gauge active asset count
 
 def update_fleet_data(total_equipment, active_equipment):
     """Update fleet data with given counts"""

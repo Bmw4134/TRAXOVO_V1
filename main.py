@@ -298,17 +298,16 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
         
-        print(f"Login attempt: username='{username}', password='{password}'")  # Debug
-        
+        # Fast authentication with minimal processing
         if username == 'admin' and password == 'TRAXOVOAdmin2025!':
             session['logged_in'] = True
             session['username'] = username
             session['role'] = 'admin'
             session.permanent = True
-            print("Login successful, session set")  # Debug
+            # Pre-cache data for faster dashboard load
+            load_gauge_api_data()
             return redirect('/dashboard')
         else:
-            print("Login failed - invalid credentials")  # Debug
             flash('Invalid credentials', 'error')
     
     return render_template('login.html')

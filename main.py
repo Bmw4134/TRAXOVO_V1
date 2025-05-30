@@ -92,6 +92,18 @@ try:
     from routes.executive_reports_engine import executive_reports
     app.register_blueprint(executive_reports)
     
+    # Register comprehensive attendance engine
+    from routes.comprehensive_attendance_engine import comprehensive_attendance
+    app.register_blueprint(comprehensive_attendance)
+    
+    # Register unified billing consolidation
+    from routes.unified_billing_consolidation import unified_billing
+    app.register_blueprint(unified_billing)
+    
+    # Register TRAXOVO unified kernel
+    from routes.traxovo_unified_kernel import unified_kernel
+    app.register_blueprint(unified_kernel)
+    
     print("Successfully registered all feature blueprints including equipment lifecycle management")
 except ImportError as e:
     print(f"Error importing feature blueprints: {e}")

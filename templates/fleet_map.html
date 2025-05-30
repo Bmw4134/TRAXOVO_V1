@@ -234,6 +234,10 @@ function initMap() {
         }
     });
     
+    // Add geofences and job zones
+    addGeofences();
+    addJobZones();
+    
     // Add assets to map
     addAssets();
     
@@ -306,6 +310,85 @@ function getEquipmentIcon(category) {
         'Flatbed Trailer': 'fa-trailer'
     };
     return iconMap[category] || 'fa-cog';
+}
+
+function addGeofences() {
+    const geofences = {{ geofences | tojson | safe }};
+    
+    geofences.forEach(geofence => {
+        if (geofence.type === 'polygon') {
+            const polygon = L.polygon(geofence.coordinates, {
+                color: geofence.color,
+                fillColor: geofence.fillColor,
+                fillOpacity: geofence.fillOpacity,
+                weight: 2
+            }).addTo(map);
+            
+            polygon.bindPopup(`
+                <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                    <h6 style="margin: 0 0 0.5rem 0; color: #343a40;">${geofence.name}</h6>
+                    <small style="color: #6c757d;">Operational Boundary</small>
+                </div>
+            `);
+        } else if (geofence.type === 'circle') {
+            const circle = L.circle(geofence.center, {
+                radius: geofence.radius,
+                color: geofence.color,
+                fillColor: geofence.fillColor,
+                fillOpacity: geofence.fillOpacity,
+                weight: 2
+            }).addTo(map);
+            
+            circle.bindPopup(`
+                <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                    <h6 style="margin: 0 0 0.5rem 0; color: #343a40;">${geofence.name}</h6>
+                    <small style="color: #6c757d;">Operational Area</small>
+                </div>
+            `);
+        }
+    });
+}
+
+function addJobZones() {
+    const jobZones = {{ job_zones | tojson | safe }};
+    
+    jobZones.forEach(zone => {
+        const zoneColor = zone.type === 'project' ? '#dc3545' : zone.type === 'yard' ? '#ffc107' : '#17a2b8';
+        
+        const circle = L.circle([zone.lat, zone.lng], {
+            radius: zone.radius,
+            color: zoneColor,
+            fillColor: zoneColor,
+            fillOpacity: 0.2,
+            weight: 2,
+            dashArray: '5, 5'
+        }).addTo(map);
+        
+        // Add zone label
+        const zoneIcon = L.divIcon({
+            className: 'zone-label',
+            html: `<div style="background: ${zoneColor}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
+                     ${zone.name.length > 25 ? zone.name.substring(0, 25) + '...' : zone.name}
+                   </div>`,
+            iconSize: [0, 0],
+            iconAnchor: [0, 0]
+        });
+        
+        L.marker([zone.lat, zone.lng], { icon: zoneIcon }).addTo(map);
+        
+        circle.bindPopup(`
+            <div style="min-width: 250px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                <div style="border-bottom: 1px solid #e9ecef; padding-bottom: 0.75rem; margin-bottom: 0.75rem;">
+                    <h6 style="margin: 0; color: #343a40; font-weight: 600;">${zone.name}</h6>
+                    <small style="color: ${zoneColor}; text-transform: uppercase; font-weight: 500;">${zone.type}</small>
+                </div>
+                <div style="font-size: 0.875rem;">
+                    <strong>Zone Radius:</strong> ${zone.radius}m<br>
+                    <strong>Coordinates:</strong> ${zone.lat.toFixed(4)}, ${zone.lng.toFixed(4)}
+                </div>
+            </div>
+        `);
+    });
 }
 
 function refreshMap() {

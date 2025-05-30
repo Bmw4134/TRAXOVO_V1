@@ -1359,24 +1359,28 @@ app.register_blueprint(ai_bp)
 def real_time_metrics_endpoint():
     """Get authentic real-time metrics from Gauge API and Excel data"""
     try:
-        from services.authentic_data_engine import get_authentic_engine
-        from services.dynamic_ai_engine import get_dynamic_ai
+        from services.asset_lifecycle_engine import get_asset_lifecycle_engine
         
-        authentic_engine = get_authentic_engine()
-        ai_engine = get_dynamic_ai()
+        lifecycle_engine = get_asset_lifecycle_engine()
+        fleet_summary = lifecycle_engine.get_fleet_summary()
         
-        # Get authentic data
+        # Get authentic asset counts
         metrics = {
-            'total_assets': len(ai_engine.gauge_api_data),
-            'dashboard_metrics': authentic_engine.get_dashboard_metrics(),
-            'asset_breakdown': authentic_engine.get_asset_breakdown(),
-            'pt125_data': {
+            'total_assets': fleet_summary['total_assets'],
+            'active_assets': fleet_summary['active_assets'],
+            'inactive_assets': fleet_summary['inactive_assets'],
+            'gauge_api_count': fleet_summary['gauge_api_assets'],
+            'disposed_stolen': fleet_summary['disposed_stolen'],
+            'total_fleet_value': fleet_summary['total_fleet_value'],
+            'pt125_analysis': {
                 'purchase_price': 25838.50,
                 'monthly_rate': 1300.00,
-                'description': '2018 F-150 C08140',
-                'category': 'Pickup Truck'
+                'current_book_value': 0.00,
+                'offer_amount': 2000.00,
+                'recommendation': 'ACCEPT - $2,000 gain',
+                'status': 'fully_depreciated'
             },
-            'data_sources': ['gauge_api', 'excel_billing'],
+            'data_sources': fleet_summary['data_sources'],
             'timestamp': 'real-time'
         }
         

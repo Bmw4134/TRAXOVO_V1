@@ -83,6 +83,17 @@ USERS = {
         'role': 'equipment',
         'department': 'Operations',
         'is_active': True
+    },
+    'viewer': {
+        'id': 7,
+        'username': 'viewer',
+        'email': 'viewer@traxovo.com',
+        'password_hash': generate_password_hash('TRAXOVOView2025!'),
+        'first_name': 'View Only',
+        'last_name': 'User',
+        'role': 'viewer',
+        'department': 'External',
+        'is_active': True
     }
 }
 
@@ -198,18 +209,58 @@ def profile():
 @admin_required
 def admin():
     """Admin panel"""
-    return render_template('auth/admin.html', users=USERS, user=current_user)
+    return render_template('auth/admin.html', users=USERS, user=current_user, 
+                         permissions=MODULE_PERMISSIONS, view_only=VIEW_ONLY_MODULES)
+
+@auth_bp.route('/admin/update_user/<username>', methods=['POST'])
+@admin_required
+def update_user_permissions(username):
+    """Update user permissions"""
+    if username in USERS:
+        new_role = request.form.get('role')
+        is_active = request.form.get('is_active') == 'on'
+        
+        if new_role in MODULE_PERMISSIONS:
+            USERS[username]['role'] = new_role
+            USERS[username]['is_active'] = is_active
+            flash(f'Updated permissions for {username}', 'success')
+        else:
+            flash('Invalid role selected', 'error')
+    else:
+        flash('User not found', 'error')
+    
+    return redirect(url_for('auth.admin'))
+
+@auth_bp.route('/job-zones')
+@login_required
+def job_zones():
+    """Job Zones Management Module"""
+    if not (can_access_module(current_user.role, 'job_zones') or 
+            can_access_module(current_user.role, 'job_zones_view')):
+        flash('Access denied to Job Zones module', 'error')
+        return redirect(url_for('auth.dashboard'))
+    
+    # Check if view-only
+    is_view_only = current_user.role == 'viewer'
+    
+    return render_template('modules/job_zones.html', 
+                         user=current_user, 
+                         is_view_only=is_view_only)
 
 # Module access control
 MODULE_PERMISSIONS = {
     'admin': ['all'],
-    'executive': ['executive_dashboard', 'executive_reports', 'analytics', 'billing', 'fleet_map'],
-    'controller': ['billing', 'analytics', 'revenue_reports', 'asset_profitability'],
-    'estimating': ['cost_analysis', 'project_estimation', 'asset_utilization'],
+    'executive': ['executive_dashboard', 'executive_reports', 'analytics', 'billing', 'fleet_map', 'job_zones', 'user_management'],
+    'controller': ['billing', 'analytics', 'revenue_reports', 'asset_profitability', 'job_zones'],
+    'estimating': ['cost_analysis', 'project_estimation', 'asset_utilization', 'job_zones'],
     'payroll': ['attendance', 'driver_management', 'time_tracking'],
-    'equipment': ['fleet_map', 'asset_manager', 'equipment_lifecycle', 'maintenance'],
+    'equipment': ['fleet_map', 'asset_manager', 'equipment_lifecycle', 'maintenance', 'job_zones'],
+    'viewer': ['dashboard', 'fleet_map_view', 'analytics_view', 'billing_view', 'job_zones_view'],
     'user': ['dashboard', 'basic_reports']
 }
+
+# View-only permissions (no edit/delete capabilities)
+VIEW_ONLY_MODULES = ['fleet_map_view', 'analytics_view', 'billing_view', 'job_zones_view']
 
 def can_access_module(user_role, module):
     """Check if user role can access specific module"""

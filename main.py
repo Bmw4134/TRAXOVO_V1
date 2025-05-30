@@ -297,7 +297,7 @@ def fleet_map():
         **{k: v for k, v in authentic_fleet_data.items()}
     }
     
-    return render_template('fleet_map.html', **context)
+    return render_template('fleet_map_working.html', **context)
 
 def get_authentic_job_zones():
     """Load authentic job zones from project data"""

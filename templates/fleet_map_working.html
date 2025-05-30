@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}Fleet Map - TRAXOVO{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+<style>
+.fleet-header {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.filter-btn {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 0.4rem 0.8rem;
+    color: #495057;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.15s ease;
+    margin-right: 0.5rem;
+}
+
+.filter-btn:hover, .filter-btn.active {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+    box-shadow: 0 2px 4px rgba(0,123,255,0.25);
+}
+
+#map {
+    width: 100%;
+    height: 600px;
+    border: 1px solid #dee2e6;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <!-- Header -->
+    <div class="fleet-header">
+        <div class="container-fluid px-4 py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0 fw-bold text-white">Fleet Operations</h1>
+                    <small style="opacity: 0.7;">Live asset tracking & monitoring</small>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="d-flex gap-4 text-white">
+                        <div class="text-center">
+                            <div class="h5 mb-0 fw-bold">{{ total_assets }}</div>
+                            <small style="opacity: 0.7;">Total</small>
+                        </div>
+                        <div class="text-center">
+                            <div class="h5 mb-0 fw-bold text-success">{{ active_assets }}</div>
+                            <small style="opacity: 0.7;">Active</small>
+                        </div>
+                        <div class="text-center">
+                            <div class="h5 mb-0 fw-bold text-info">{{ gps_enabled_count }}</div>
+                            <small style="opacity: 0.7;">GPS</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="bg-light border-bottom py-2">
+        <div class="container-fluid px-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <button class="filter-btn active" onclick="filterAssets('all')">All Equipment</button>
+                    <button class="filter-btn" onclick="filterAssets('excavator')">Excavators</button>
+                    <button class="filter-btn" onclick="filterAssets('truck')">Trucks</button>
+                    <button class="filter-btn" onclick="filterAssets('active')">Active Only</button>
+                    <button class="filter-btn" onclick="toggleJobZones()">Job Zones</button>
+                </div>
+                <div class="d-flex gap-3">
+                    <span class="small">
+                        <i class="fas fa-circle text-success me-1"></i>Active ({{ active_assets }})
+                    </span>
+                    <span class="small">
+                        <i class="fas fa-circle text-warning me-1"></i>Idle ({{ total_assets - active_assets }})
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Map -->
+    <div class="container-fluid p-4">
+        <div id="map"></div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+
+<script>
+let map;
+let markerCluster;
+let currentFilter = 'all';
+
+document.addEventListener('DOMContentLoaded', function() {
+    initMap();
+});
+
+function initMap() {
+    map = L.map('map').setView([32.7767, -96.7970], 9);
+    
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: '© Esri',
+        maxZoom: 18
+    }).addTo(map);
+    
+    markerCluster = L.markerClusterGroup();
+    
+    addAssets();
+    map.addLayer(markerCluster);
+}
+
+function addAssets() {
+    const assets = {{ assets | tojson | safe }};
+    
+    if (!assets || assets.length === 0) {
+        console.log('No assets to display');
+        return;
+    }
+    
+    assets.forEach((asset) => {
+        if (!asset.lat || !asset.lng || asset.lat === 0 || asset.lng === 0) {
+            return;
+        }
+        
+        if (currentFilter !== 'all') {
+            if (currentFilter === 'active' && asset.status !== 'active') return;
+            if (currentFilter === 'excavator' && !asset.category.toLowerCase().includes('excavator')) return;
+            if (currentFilter === 'truck' && !asset.category.toLowerCase().includes('truck')) return;
+        }
+        
+        let markerColor = asset.status === 'active' ? '#28a745' : '#ffc107';
+        
+        const customIcon = L.divIcon({
+            className: 'custom-marker',
+            html: `<div style="background-color: ${markerColor}; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);"></div>`,
+            iconSize: [24, 24],
+            iconAnchor: [12, 12]
+        });
+        
+        const marker = L.marker([asset.lat, asset.lng], { icon: customIcon });
+        
+        marker.bindPopup(`
+            <div style="min-width: 250px;">
+                <h6><strong>${asset.name}</strong></h6>
+                <p><strong>ID:</strong> ${asset.id}<br>
+                <strong>Status:</strong> ${asset.status}<br>
+                <strong>Category:</strong> ${asset.category}<br>
+                <strong>Location:</strong> ${asset.location}<br>
+                <strong>Last Update:</strong> ${asset.last_update}</p>
+            </div>
+        `);
+        
+        markerCluster.addLayer(marker);
+    });
+    
+    console.log(`Added ${assets.length} assets to map`);
+}
+
+function filterAssets(type) {
+    currentFilter = type;
+    
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    markerCluster.clearLayers();
+    addAssets();
+}
+
+function toggleJobZones() {
+    console.log('Job zones toggle clicked');
+}
+</script>
+{% endblock %}

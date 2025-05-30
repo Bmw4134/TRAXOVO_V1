@@ -204,14 +204,14 @@ def api_assistant():
 # Navigation routes
 @app.route('/fleet-map')
 def fleet_map():
-    """Live Fleet Map"""
+    """Elite Fleet Map with HERC-inspired interface"""
     context = {
         'total_assets': authentic_fleet_data.get('total_assets', 581),
-        'active_assets': authentic_fleet_data.get('active_assets', 75),
+        'active_assets': authentic_fleet_data.get('active_assets', 610),
         'total_drivers': authentic_fleet_data.get('total_drivers', 92),
         'last_updated': authentic_fleet_data.get('last_updated', 'Just now')
     }
-    return render_template('fleet_map.html', **context)
+    return render_template('fleet_map_elite.html', **context)
 
 @app.route('/asset-manager')
 def asset_manager():
@@ -347,6 +347,22 @@ def not_found(error):
 @app.errorhandler(500)
 def internal_error(error):
     return jsonify({'error': 'Internal server error'}), 500
+
+# Asset detail route for drill-down functionality
+@app.route('/asset/<asset_id>')
+def asset_detail(asset_id):
+    """Individual asset detail page with HERC-inspired design"""
+    # In production, this would fetch real asset data from your database
+    context = {
+        'asset_id': asset_id,
+        'asset_name': f'Asset {asset_id}',
+        'asset_type': 'Heavy Equipment',
+        'revenue_ytd': '47,250',
+        'utilization': '87',
+        'costs_ytd': '18,920',
+        'profit_ytd': '28,330'
+    }
+    return render_template('asset_detail.html', **context)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

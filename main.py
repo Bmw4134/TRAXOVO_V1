@@ -941,5 +941,49 @@ def asset_detail(asset_id):
     }
     return render_template('asset_detail.html', **context)
 
+@app.route('/demo')
+def demo_executive():
+    """Executive demo with real-time upload capabilities"""
+    return render_template('demo_executive.html')
+
+@app.route('/api/upload-gauge-report', methods=['POST'])
+def upload_gauge_report():
+    """Upload and process authentic Gauge report data"""
+    try:
+        if 'file' not in request.files:
+            return jsonify({'success': False, 'error': 'No file uploaded'})
+        
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'success': False, 'error': 'No file selected'})
+        
+        # Process your authentic Gauge data
+        import pandas as pd
+        import io
+        
+        if file.filename.endswith('.json'):
+            data = json.loads(file.read().decode('utf-8'))
+            equipment_count = len(data.get('assets', []))
+            active_count = len([a for a in data.get('assets', []) if a.get('status') == 'active'])
+        elif file.filename.endswith(('.xlsx', '.xls')):
+            df = pd.read_excel(io.BytesIO(file.read()))
+            equipment_count = len(df)
+            active_count = len(df[df.iloc[:, 1].str.contains('active', case=False, na=False)])
+        else:
+            return jsonify({'success': False, 'error': 'Unsupported file format'})
+        
+        return jsonify({
+            'success': True,
+            'equipment_count': equipment_count,
+            'active_count': active_count,
+            'filename': file.filename,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+# Removed duplicate - keeping the original upload_groundworks function
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

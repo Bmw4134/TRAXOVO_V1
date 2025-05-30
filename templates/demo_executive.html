@@ -178,6 +178,55 @@
             </div>
         </div>
 
+        <!-- Real-Time Upload Demo -->
+        <div class="row g-4 mt-4">
+            <div class="col-md-6">
+                <div class="dashboard-card p-4">
+                    <h5><i class="fas fa-upload text-primary me-2"></i>Gauge Report Upload</h5>
+                    <p>Upload your authentic Gauge API reports for real-time processing</p>
+                    
+                    <form id="gaugeUploadForm" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <input type="file" class="form-control" id="gaugeFile" accept=".json,.xlsx,.xls">
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="uploadGaugeReport()">
+                            <i class="fas fa-cloud-upload-alt me-2"></i>Process Gauge Data
+                        </button>
+                    </form>
+                    
+                    <div id="gaugeResults" class="mt-3" style="display: none;">
+                        <div class="alert alert-success">
+                            <strong>Upload Success:</strong>
+                            <div id="gaugeDetails"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="dashboard-card p-4">
+                    <h5><i class="fas fa-clock text-success me-2"></i>GroundWorks Timecards</h5>
+                    <p>Upload timecard files to enhance attendance matrix</p>
+                    
+                    <form id="groundworksUploadForm" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <input type="file" class="form-control" id="groundworksFile" accept=".xlsx,.xls">
+                        </div>
+                        <button type="button" class="btn btn-success" onclick="uploadGroundWorks()">
+                            <i class="fas fa-users me-2"></i>Update Attendance Matrix
+                        </button>
+                    </form>
+                    
+                    <div id="groundworksResults" class="mt-3" style="display: none;">
+                        <div class="alert alert-success">
+                            <strong>Matrix Updated:</strong>
+                            <div id="groundworksDetails"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Integration Status -->
         <div class="row g-4 mt-4">
             <div class="col-12">
@@ -274,6 +323,70 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- NO AUTO-REFRESH CODE - Static performance demo -->
+    <script>
+        function uploadGaugeReport() {
+            const fileInput = document.getElementById('gaugeFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select a Gauge report file');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            fetch('/api/upload-gauge-report', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('gaugeDetails').innerHTML = `
+                        Processed ${data.equipment_count} equipment records<br>
+                        ${data.active_count} active assets detected<br>
+                        File: ${data.filename}
+                    `;
+                    document.getElementById('gaugeResults').style.display = 'block';
+                } else {
+                    alert('Upload failed: ' + data.error);
+                }
+            })
+            .catch(error => alert('Upload error: ' + error));
+        }
+        
+        function uploadGroundWorks() {
+            const fileInput = document.getElementById('groundworksFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select a GroundWorks timecard file');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            fetch('/api/upload-groundworks', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('groundworksDetails').innerHTML = `
+                        Updated attendance for ${data.total_employees} employees<br>
+                        Real-time matrix enhancement complete<br>
+                        File: ${data.filename}
+                    `;
+                    document.getElementById('groundworksResults').style.display = 'block';
+                } else {
+                    alert('Upload failed: ' + data.error);
+                }
+            })
+            .catch(error => alert('Upload error: ' + error));
+        }
+    </script>
 </body>
 </html>

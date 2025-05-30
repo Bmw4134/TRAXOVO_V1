@@ -103,36 +103,12 @@
 <body>
     <div class="container-fluid">
         <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-2 sidebar">
-                <div class="text-center mb-4">
-                    <h4 class="text-white">TRAXOVO</h4>
-                    <small class="text-muted">Fleet Intelligence</small>
-                </div>
-                <nav class="nav flex-column">
-                    <a class="nav-link active" href="/dashboard">
-                        <i class="fas fa-tachometer-alt me-2"></i> Dashboard
-                    </a>
-                    <a class="nav-link" href="/fleet-map">
-                        <i class="fas fa-map me-2"></i> Fleet Map
-                    </a>
-                    <a class="nav-link" href="/asset-manager">
-                        <i class="fas fa-cogs me-2"></i> Asset Manager
-                    </a>
-                    <a class="nav-link" href="/attendance-complete">
-                        <i class="fas fa-users me-2"></i> Attendance
-                    </a>
-                    <a class="nav-link" href="/billing-consolidation">
-                        <i class="fas fa-chart-line me-2"></i> Billing
-                    </a>
-                    <a class="nav-link" href="/executive-reports">
-                        <i class="fas fa-file-alt me-2"></i> Reports
-                    </a>
-                </nav>
-            </div>
+            <!-- Unified Navigation -->
+            {% include 'components/unified_navigation.html' %}
 
             <!-- Main Content -->
-            <div class="col-md-10 dashboard-container">
+            <div class="main-content">
+                <div class="dashboard-container">
                 <!-- Header -->
                 <div class="row mb-4">
                     <div class="col-md-8">

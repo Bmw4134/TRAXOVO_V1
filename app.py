@@ -180,6 +180,10 @@ app.register_blueprint(unified_driver_bp)
 from routes.direct_admin_login import direct_admin_bp
 app.register_blueprint(direct_admin_bp)
 
+# Register Simple Authentication blueprint
+from routes.simple_auth import simple_auth_bp
+app.register_blueprint(simple_auth_bp)
+
 @oauth_authorized.connect
 def logged_in(blueprint, token):
     try:
@@ -239,9 +243,20 @@ app.register_blueprint(maps_bp, url_prefix='/maps')
 
 # Routes
 @app.route('/')
-@login_required
+def index():
+    """Index route - redirect to login or dashboard"""
+    from routes.simple_auth import get_current_user
+    if get_current_user():
+        return redirect(url_for('dashboard'))
+    return redirect(url_for('simple_auth.login'))
+
+@app.route('/dashboard')
 def dashboard():
     """Main dashboard with executive overview"""
+    from routes.simple_auth import get_current_user
+    user = get_current_user()
+    if not user:
+        return redirect(url_for('simple_auth.login'))
     try:
         # CRITICAL FIX: Use Foundation data source (same as Executive Reports)
         try:

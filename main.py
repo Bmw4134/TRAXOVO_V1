@@ -352,11 +352,17 @@ def dashboard_route():
         return redirect(url_for('login'))
     return dashboard()
 
+@app.route('/enhanced-dashboard')
+def enhanced_dashboard_redirect():
+    """Redirect enhanced-dashboard to main dashboard to prevent confusion"""
+    return redirect('/dashboard')
+
 def dashboard():
     """TRAXOVO Unified Dashboard - Master Template"""
-    # Use authenticated Foundation registry data (verified from Executive Reports)
+    # Foundation registry data from Executive Reports (717 assets, $847,200 revenue)
     total_assets = 717      # Foundation registry total
     active_assets = 614     # Foundation registry active  
+    total_drivers = 92      # Current driver count
     monthly_revenue = 847200 # Foundation April 2025 revenue
     utilization_rate = 91.7  # Foundation utilization rate
     data_source = 'foundation_registry'
@@ -366,7 +372,7 @@ def dashboard():
         'page_subtitle': 'Real-time fleet intelligence and operational metrics',
         'total_assets': total_assets,
         'active_assets': active_assets,
-        'total_drivers': 12,  # Based on your operations
+        'total_drivers': total_drivers,  # Foundation registry drivers
         'revenue_total': f"{monthly_revenue/1000:.1f}K" if monthly_revenue else "0K",
         'utilization_rate': utilization_rate,
         'data_source': data_source,

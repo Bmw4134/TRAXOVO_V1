@@ -27,10 +27,14 @@ from routes.attendance import attendance_bp
 from routes.job_zones import job_zones_bp
 from routes.intelligent_ideas import intelligent_ideas_bp
 from routes.dashboard_widgets import dashboard_widgets_bp
+from routes.adaptive_refresh import adaptive_refresh_bp
+from routes.performance_insights import performance_insights_bp
 app.register_blueprint(attendance_bp)
 app.register_blueprint(job_zones_bp)
 app.register_blueprint(intelligent_ideas_bp)
 app.register_blueprint(dashboard_widgets_bp)
+app.register_blueprint(adaptive_refresh_bp)
+app.register_blueprint(performance_insights_bp)
 
 # Import and register new feature blueprints
 try:

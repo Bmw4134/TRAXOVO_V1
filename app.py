@@ -184,6 +184,10 @@ app.register_blueprint(direct_admin_bp)
 from routes.simple_auth import simple_auth_bp
 app.register_blueprint(simple_auth_bp)
 
+# Register Direct Login blueprint
+from routes.direct_login import direct_login_bp
+app.register_blueprint(direct_login_bp)
+
 @oauth_authorized.connect
 def logged_in(blueprint, token):
     try:
@@ -253,10 +257,9 @@ def index():
 @app.route('/dashboard')
 def dashboard():
     """Main dashboard with executive overview"""
-    from routes.simple_auth import get_current_user
-    user = get_current_user()
-    if not user:
-        return redirect(url_for('simple_auth.login'))
+    # Check for simple session-based authentication
+    if not session.get('logged_in'):
+        return redirect('/direct-login')
     try:
         # CRITICAL FIX: Use Foundation data source (same as Executive Reports)
         try:

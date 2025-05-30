@@ -333,6 +333,13 @@
             <a href="/workflow-optimization" class="nav-item" @click="sidebarOpen = false"><i class="fas fa-magic me-2"></i>Workflow Optimization</a>
             <a href="/alerts" class="nav-item" @click="sidebarOpen = false"><i class="fas fa-shield-alt me-2"></i>Security Alerts</a>
             <a href="/dev/assistant" class="nav-item" @click="sidebarOpen = false"><i class="fas fa-code me-2"></i>Dev Assistant</a>
+            
+            <!-- Logout Button in Sidebar -->
+            <div class="mt-auto p-3">
+                <a href="/auth/logout" class="nav-item text-danger" @click="sidebarOpen = false">
+                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                </a>
+            </div>
         </nav>
         
         <!-- Main Content Area -->
@@ -347,6 +354,9 @@
                     <button class="btn btn-outline-primary btn-sm" onclick="location.reload()">
                         <i class="fas fa-sync-alt"></i> Refresh
                     </button>
+                    <a href="/auth/logout" class="btn btn-outline-danger btn-sm">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
                     {% endblock %}
                 </div>
             </div>

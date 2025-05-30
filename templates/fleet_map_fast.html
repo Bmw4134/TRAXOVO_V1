@@ -129,19 +129,18 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initMap() {
-    // Initialize map with performance settings
-    map = L.map('map', {
-        preferCanvas: true,
-        fadeAnimation: false,
-        zoomAnimation: false
-    }).setView([{{ center_lat }}, {{ center_lng }}], 11);
+    console.log('Initializing map...');
     
-    // Use fast Carto tiles
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        attribution: '© CARTO',
-        maxZoom: 18,
-        subdomains: 'abcd'
+    // Initialize map with Austin coordinates
+    map = L.map('map').setView([30.2672, -97.7431], 10);
+    
+    // Add OpenStreetMap tiles (reliable and fast)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 18
     }).addTo(map);
+    
+    console.log('Map tiles added');
     
     // Initialize marker cluster
     markerCluster = L.markerClusterGroup({
@@ -156,19 +155,36 @@ function initMap() {
     
     // Add cluster to map
     map.addLayer(markerCluster);
+    
+    console.log('Map initialization complete');
 }
 
 function addAssets() {
+    console.log('Adding assets to map...');
     const assets = {{ assets | tojson | safe }};
+    console.log('Assets data:', assets);
     
-    assets.forEach(asset => {
+    if (!assets || assets.length === 0) {
+        console.log('No assets to display');
+        return;
+    }
+    
+    assets.forEach((asset, index) => {
+        console.log(`Adding asset ${index + 1}:`, asset);
+        
+        // Create marker with custom icon based on status
+        let iconColor = 'blue';
+        if (asset.status === 'active') iconColor = 'green';
+        else if (asset.status === 'maintenance') iconColor = 'red';
+        else if (asset.status === 'idle') iconColor = 'orange';
+        
         const marker = L.marker([asset.lat, asset.lng]);
         
         const popupContent = `
             <div style="min-width: 200px;">
                 <h6><strong>${asset.name}</strong></h6>
                 <p><strong>ID:</strong> ${asset.id}<br>
-                <strong>Status:</strong> ${asset.status}<br>
+                <strong>Status:</strong> <span style="color: ${iconColor};">${asset.status}</span><br>
                 <strong>Last Update:</strong> ${asset.last_update}</p>
             </div>
         `;
@@ -176,6 +192,8 @@ function addAssets() {
         marker.bindPopup(popupContent);
         markerCluster.addLayer(marker);
     });
+    
+    console.log(`Added ${assets.length} assets to cluster`);
 }
 
 function refreshMap() {

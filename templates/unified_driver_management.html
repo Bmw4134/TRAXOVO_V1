@@ -1,0 +1,249 @@
+{% extends "master_unified.html" %}
+
+{% block extra_css %}
+<style>
+    .driver-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 1rem;
+        transition: transform 0.2s;
+    }
+    .driver-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+    .status-present { background: #dcfce7; color: #166534; }
+    .status-partial { background: #fef3c7; color: #92400e; }
+    .status-absent { background: #fee2e2; color: #991b1b; }
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        text-align: center;
+    }
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+    .stat-label {
+        opacity: 0.9;
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2>Unified Driver Management</h2>
+                <p class="text-muted">Comprehensive driver tracking and attendance management</p>
+            </div>
+            <div>
+                <button class="btn btn-primary me-2" onclick="exportReport('excel')">
+                    <i class="fas fa-file-excel"></i> Export Excel
+                </button>
+                <button class="btn btn-outline-primary" onclick="refreshData()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Overview -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-number">{{ report_data.statistics.total_drivers }}</div>
+        <div class="stat-label">Total Drivers</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ report_data.statistics.present_today }}</div>
+        <div class="stat-label">Present Today</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ report_data.statistics.attendance_rate }}%</div>
+        <div class="stat-label">Attendance Rate</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ report_data.statistics.late_arrivals }}</div>
+        <div class="stat-label">Late Arrivals</div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <button class="btn btn-outline-primary w-100 mb-2" onclick="viewDailyReport()">
+                            <i class="fas fa-calendar-day"></i> Daily Report
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-outline-success w-100 mb-2" onclick="viewAttendanceMatrix()">
+                            <i class="fas fa-th"></i> Attendance Matrix
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-outline-info w-100 mb-2" onclick="searchDrivers()">
+                            <i class="fas fa-search"></i> Search Drivers
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-outline-warning w-100 mb-2" onclick="generateReport()">
+                            <i class="fas fa-file-alt"></i> Generate Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Driver List -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Today's Driver Activity</h5>
+                <input type="text" class="form-control w-25" placeholder="Search drivers..." 
+                       id="driver-search" onkeyup="filterDrivers()">
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Driver</th>
+                                <th>Clock In</th>
+                                <th>Clock Out</th>
+                                <th>Total Hours</th>
+                                <th>Job Site</th>
+                                <th>Equipment</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="driver-table-body">
+                            {% for driver in report_data.drivers %}
+                            <tr data-driver="{{ driver.driver_name|lower }}">
+                                <td>
+                                    <strong>{{ driver.driver_name }}</strong>
+                                </td>
+                                <td>{{ driver.clock_in }}</td>
+                                <td>{{ driver.clock_out }}</td>
+                                <td>{{ driver.total_hours }}</td>
+                                <td>{{ driver.job_site }}</td>
+                                <td>{{ driver.equipment }}</td>
+                                <td>
+                                    <span class="status-badge status-{{ driver.status|lower }}">
+                                        {{ driver.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function exportReport(format) {
+    window.open(`/drivers/export/${format}`, '_blank');
+}
+
+function refreshData() {
+    window.location.reload();
+}
+
+function viewDailyReport() {
+    window.location.href = '/drivers/daily-report';
+}
+
+function viewAttendanceMatrix() {
+    window.location.href = '/drivers/attendance-matrix';
+}
+
+function searchDrivers() {
+    const query = prompt('Enter search term:');
+    if (query) {
+        fetch(`/drivers/search?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                updateDriverTable(data.data);
+            });
+    }
+}
+
+function generateReport() {
+    // Show report options
+    if (confirm('Generate comprehensive driver report for today?')) {
+        exportReport('excel');
+    }
+}
+
+function filterDrivers() {
+    const searchTerm = document.getElementById('driver-search').value.toLowerCase();
+    const rows = document.querySelectorAll('#driver-table-body tr');
+    
+    rows.forEach(row => {
+        const driverName = row.getAttribute('data-driver');
+        const text = row.textContent.toLowerCase();
+        
+        if (text.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+function updateDriverTable(drivers) {
+    const tbody = document.getElementById('driver-table-body');
+    tbody.innerHTML = '';
+    
+    drivers.forEach(driver => {
+        const row = `
+            <tr data-driver="${driver.driver_name.toLowerCase()}">
+                <td><strong>${driver.driver_name}</strong></td>
+                <td>${driver.clock_in}</td>
+                <td>${driver.clock_out}</td>
+                <td>${driver.total_hours}</td>
+                <td>${driver.job_site}</td>
+                <td>${driver.equipment}</td>
+                <td>
+                    <span class="status-badge status-${driver.status.toLowerCase()}">
+                        ${driver.status}
+                    </span>
+                </td>
+            </tr>
+        `;
+        tbody.innerHTML += row;
+    });
+}
+</script>
+{% endblock %}

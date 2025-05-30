@@ -22,8 +22,11 @@
     <!-- Fleet Management -->
     <div class="nav-section">
         <div class="nav-section-title">Fleet Management</div>
-        <a class="nav-link {{ 'active' if 'attendance' in request.endpoint }}" href="/attendance-complete">
-            <i class="fas fa-users me-2"></i> Attendance System
+        <a class="nav-link {{ 'active' if 'drivers' in request.endpoint }}" href="/drivers">
+            <i class="fas fa-users me-2"></i> Driver Management
+        </a>
+        <a class="nav-link {{ 'active' if 'asset-manager' in request.endpoint }}" href="/asset-manager">
+            <i class="fas fa-cogs me-2"></i> Asset Manager
         </a>
         <a class="nav-link {{ 'active' if 'equipment-lifecycle' in request.endpoint }}" href="/equipment-lifecycle">
             <i class="fas fa-recycle me-2"></i> Equipment Lifecycle

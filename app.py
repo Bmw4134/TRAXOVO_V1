@@ -172,6 +172,10 @@ app.register_blueprint(job_zone_bp)
 from routes.executive_kpi_suite import executive_kpi_bp
 app.register_blueprint(executive_kpi_bp)
 
+# Register Unified Driver Management blueprint
+from routes.unified_driver_management import unified_driver_bp
+app.register_blueprint(unified_driver_bp)
+
 @oauth_authorized.connect
 def logged_in(blueprint, token):
     try:

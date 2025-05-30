@@ -1,13 +1,3 @@
-"""
-Attendance Blueprint
-
-This module provides routes and functionality for daily driver attendance reporting, including:
-- Prior day Late Start, Early End, Not On Job reports
-- Current day Late Start, Not On Job reports
-- Report history management
-- Attendance metrics and analytics
-"""
-
 from flask import Blueprint, render_template, jsonify, request, current_app, flash, redirect, url_for, send_file
 from flask_login import login_required, current_user
 import logging
@@ -206,6 +196,10 @@ def download_report(filename):
         logger.error(f"Error downloading report file: {e}")
         flash(f'Error downloading file: {str(e)}', 'error')
         return redirect(url_for('attendance.history'))
+
+@attendance_bp.route('/attendance')
+def attendance():
+    return "Attendance Dashboard"
 
 def register_blueprint(app):
     """Register the attendance blueprint with the app."""

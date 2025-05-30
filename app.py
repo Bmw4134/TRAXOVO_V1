@@ -202,6 +202,15 @@ def get_authentic_asset_count():
     except:
         return 182
 
+# Register blueprints
+from blueprints.billing import billing_bp
+from blueprints.attendance import attendance_bp
+from blueprints.maps import maps_bp
+
+app.register_blueprint(billing_bp, url_prefix='/billing')
+app.register_blueprint(attendance_bp, url_prefix='/attendance')
+app.register_blueprint(maps_bp, url_prefix='/maps')
+
 # Routes
 @app.route('/')
 @login_required

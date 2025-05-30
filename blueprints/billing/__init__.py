@@ -1,13 +1,3 @@
-"""
-Billing Blueprint
-
-This module provides routes and functionality for equipment billing management, including:
-- Monthly billing allocation review
-- Billing comparison and approval workflow
-- Region-based billing export generation
-- Billing history tracking
-"""
-
 from flask import Blueprint, render_template, jsonify, request, current_app, flash, redirect, url_for, send_file
 from flask_login import login_required, current_user
 import logging

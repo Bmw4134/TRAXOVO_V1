@@ -25,14 +25,16 @@ app.secret_key = os.environ.get("SESSION_SECRET") or "traxovo-fleet-secret"
 # Global data store for authentic data with caching
 authentic_fleet_data = {}
 cache_timestamp = None
-CACHE_DURATION = 30  # Cache for 30 seconds to reduce API calls
+CACHE_DURATION = 30  # Default cache duration (seconds)
+REALTIME_MODE = False  # Toggle for real-time tracking
 
 def load_gauge_api_data():
     """Load real-time data from Gauge API with caching"""
     global authentic_fleet_data, cache_timestamp
     
-    # Check if cache is still valid
-    if cache_timestamp and datetime.now() - cache_timestamp < timedelta(seconds=CACHE_DURATION):
+    # Check if cache is still valid (use shorter duration for real-time mode)
+    cache_duration = 15 if REALTIME_MODE else CACHE_DURATION
+    if cache_timestamp and datetime.now() - cache_timestamp < timedelta(seconds=cache_duration):
         return True
     
     try:
@@ -95,27 +97,48 @@ def update_fleet_data(total_equipment, active_equipment):
             'last_updated': datetime.now().isoformat()
         }
         
-        logging.info(f"Loaded authentic data: {authentic_fleet_data['total_assets']} total assets, {authentic_fleet_data['active_assets']} active, {authentic_fleet_data['total_drivers']} drivers")
+        cache_timestamp = datetime.now()
+        logging.info(f"Updated fleet data: {authentic_fleet_data['total_assets']} total assets, {authentic_fleet_data['active_assets']} active, {authentic_fleet_data['total_drivers']} drivers")
         return True
         
     except Exception as e:
-        logging.error(f"Failed to load authentic data: {e}")
-        # Fallback to your Gauge screenshot values
-        authentic_fleet_data = {
-            'total_assets': 581,     # From Gauge screenshots
-            'active_assets': 75,     # Active assets
-            'total_drivers': 92,     # Total drivers
-            'clocked_in': 68,       # Currently clocked in
-            'fleet_value': 1880000,
-            'daily_revenue': 73680,
-            'billable_revenue': 2210400,
-            'utilization_rate': 12.9,  # 75/581 = 12.9%
-            'last_updated': datetime.now().isoformat()
-        }
-        return True
+        logging.error(f"Failed to update fleet data: {e}")
+        return False
 
 # Load data on startup
-load_authentic_data()
+load_gauge_api_data()
+
+@app.route('/api/toggle-realtime', methods=['POST'])
+def toggle_realtime():
+    """Toggle real-time tracking mode"""
+    global REALTIME_MODE, CACHE_DURATION
+    data = request.get_json()
+    REALTIME_MODE = data.get('enabled', False)
+    
+    # Adjust cache duration based on mode
+    if REALTIME_MODE:
+        cache_duration = 15  # 15-second updates for real-time
+    else:
+        cache_duration = 30  # 30-second updates for standard
+    
+    return jsonify({
+        'realtime_mode': REALTIME_MODE,
+        'cache_duration': cache_duration,
+        'message': f"Real-time tracking {'enabled' if REALTIME_MODE else 'disabled'}"
+    })
+
+@app.route('/api/refresh-data', methods=['POST'])
+def refresh_data():
+    """Force refresh data from Gauge API"""
+    global cache_timestamp
+    cache_timestamp = None  # Clear cache to force refresh
+    success = load_gauge_api_data()
+    
+    return jsonify({
+        'success': success,
+        'data': authentic_fleet_data,
+        'timestamp': datetime.now().isoformat()
+    })
 
 @app.route('/')
 def dashboard():

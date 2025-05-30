@@ -36,7 +36,9 @@ try:
     from routes.asset_checkout import asset_checkout_bp
     from routes.employee_ideas import employee_ideas_bp
     from routes.equipment_lifecycle import equipment_lifecycle_bp
-from routes.consolidated_modules import consolidated_bp
+    from routes.consolidated_modules import consolidated_bp
+    from routes.user_management import user_mgmt_bp
+    from routes.accurate_asset_counter import accurate_assets_bp
     
     app.register_blueprint(cost_simulator_bp)
     app.register_blueprint(foundation_bp)
@@ -46,7 +48,14 @@ from routes.consolidated_modules import consolidated_bp
     app.register_blueprint(asset_checkout_bp)
     app.register_blueprint(employee_ideas_bp)
     app.register_blueprint(equipment_lifecycle_bp)
-app.register_blueprint(consolidated_bp)
+    app.register_blueprint(consolidated_bp)
+    app.register_blueprint(user_mgmt_bp)
+    app.register_blueprint(accurate_assets_bp)
+    
+    # Register unified routes to fix navigation issues
+    from routes.unified_routes import unified_routes_bp
+    app.register_blueprint(unified_routes_bp)
+    
     print("Successfully registered all feature blueprints including equipment lifecycle management")
 except ImportError as e:
     print(f"Error importing feature blueprints: {e}")

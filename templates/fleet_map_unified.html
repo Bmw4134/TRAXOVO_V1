@@ -1,237 +1,373 @@
-{% extends "master_unified.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAXOVO Fleet Intelligence</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    {% include 'components/unified_design_system.html' %}
+</head>
+<body>
+    <div class="unified-container">
+        <!-- Unified Sidebar -->
+        {% include 'components/unified_navigation.html' %}
+        
+        <!-- Main Content -->
+        <div class="unified-main">
+            <!-- Header -->
+            <div class="unified-header">
+                <div>
+                    <h1 class="unified-title" style="margin: 0;">Live Fleet Intelligence</h1>
+                    <p class="unified-text-small" style="margin: 0;">Real-time tracking & analytics</p>
+                </div>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <span class="unified-status unified-status-success">
+                        <i class="fas fa-circle" style="font-size: 8px;"></i>
+                        Live Data Connected
+                    </span>
+                    <span class="unified-text-small">Last Update: <span id="lastUpdate">Just now</span></span>
+                </div>
+            </div>
 
-{% block extra_css %}
-<style>
-    #map { 
-        height: 600px; 
-        width: 100%; 
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    
-    .map-controls {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        z-index: 1000;
-        background: white;
-        border-radius: 8px;
-        padding: 15px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    
-    .fleet-status-bar {
-        background: linear-gradient(135deg, #1a365d 0%, #2d3748 100%);
-        color: white;
-        padding: 20px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-    }
-    
-    .status-item {
-        text-align: center;
-    }
-    
-    .status-number {
-        font-size: 2rem;
-        font-weight: bold;
-        display: block;
-    }
-</style>
-{% endblock %}
+            <!-- Map Container -->
+            <div class="unified-content" style="padding: 0; height: calc(100vh - 80px);">
+                <div style="position: relative; height: 100%;">
+                    <!-- Map Controls Panel -->
+                    <div class="unified-map-controls" style="width: 280px;">
+                        <!-- Quick Stats -->
+                        <div style="margin-bottom: 1.5rem;">
+                            <div class="unified-grid unified-grid-2" style="gap: 0.5rem;">
+                                <div class="unified-metric" style="background: var(--dark-surface-2); border-radius: var(--radius-md); padding: 0.75rem;">
+                                    <div class="unified-metric-value" style="font-size: 1.5rem;" id="activeAssets">{{ active_assets }}</div>
+                                    <div class="unified-metric-label">Active Assets</div>
+                                </div>
+                                <div class="unified-metric" style="background: var(--dark-surface-2); border-radius: var(--radius-md); padding: 0.75rem;">
+                                    <div class="unified-metric-value" style="font-size: 1.5rem;" id="onlineAssets">{{ online_assets }}</div>
+                                    <div class="unified-metric-label">Online Now</div>
+                                </div>
+                            </div>
+                        </div>
 
-{% block content %}
-<!-- Fleet Status Bar -->
-<div class="fleet-status-bar">
-    <div class="row text-center">
-        <div class="col-md-3">
-            <div class="status-item">
-                <span class="status-number text-success">{{ active_assets or 610 }}</span>
-                <span class="small">ONLINE</span>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="status-item">
-                <span class="status-number text-warning">47</span>
-                <span class="small">IDLE</span>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="status-item">
-                <span class="status-number text-danger">0</span>
-                <span class="small">OFFLINE</span>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="status-item">
-                <span class="status-number text-info">{{ total_assets or 581 }}</span>
-                <span class="small">TOTAL FLEET</span>
-            </div>
-        </div>
-    </div>
-</div>
+                        <!-- Filters -->
+                        <div class="unified-filter-section">
+                            <div class="unified-filter-label">
+                                <i class="fas fa-filter" style="margin-right: 0.5rem;"></i>
+                                Divisions
+                            </div>
+                            <select class="unified-select" id="divisionFilter">
+                                <option value="">All Divisions</option>
+                                <option value="ragle">Ragle Inc</option>
+                                <option value="select">Select Maintenance</option>
+                            </select>
+                        </div>
 
-<!-- Map Container -->
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-body p-0">
-                <div style="position: relative;">
-                    <div id="map"></div>
-                    
-                    <!-- Map Controls -->
-                    <div class="map-controls">
-                        <div class="btn-group-vertical" role="group">
-                            <button type="button" class="btn btn-outline-primary btn-sm mb-2" onclick="toggleView('satellite')">
-                                <i class="fas fa-satellite"></i>
-                            </button>
-                            <button type="button" class="btn btn-outline-success btn-sm mb-2" onclick="toggleView('terrain')">
-                                <i class="fas fa-mountain"></i>
-                            </button>
-                            <button type="button" class="btn btn-outline-info btn-sm mb-2" onclick="refreshLocations()">
+                        <div class="unified-filter-section">
+                            <div class="unified-filter-label">
+                                <i class="fas fa-map-marker-alt" style="margin-right: 0.5rem;"></i>
+                                Sites
+                            </div>
+                            <select class="unified-select" id="siteFilter">
+                                <option value="">All Sites</option>
+                                {% for site in sites %}
+                                <option value="{{ site }}">{{ site }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="unified-filter-section">
+                            <div class="unified-filter-label">
+                                <i class="fas fa-layer-group" style="margin-right: 0.5rem;"></i>
+                                Groups
+                            </div>
+                            <select class="unified-select" id="groupFilter">
+                                <option value="">All Groups</option>
+                                {% for group in groups %}
+                                <option value="{{ group }}">{{ group }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="unified-filter-section">
+                            <div class="unified-filter-label">
+                                <i class="fas fa-cogs" style="margin-right: 0.5rem;"></i>
+                                Types
+                            </div>
+                            <select class="unified-select" id="typeFilter">
+                                <option value="">All Types</option>
+                                <option value="heavy_equipment">Heavy Equipment</option>
+                                <option value="vehicles">Vehicles</option>
+                                <option value="trailers">Trailers</option>
+                                <option value="support_equipment">Support Equipment</option>
+                            </select>
+                        </div>
+
+                        <div class="unified-filter-section">
+                            <div class="unified-filter-label">
+                                <i class="fas fa-tags" style="margin-right: 0.5rem;"></i>
+                                Categories
+                            </div>
+                            <select class="unified-select" id="categoryFilter">
+                                <option value="">All Categories</option>
+                                {% for category in categories %}
+                                <option value="{{ category }}">{{ category }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="unified-filter-section">
+                            <div class="unified-filter-label">
+                                <i class="fas fa-graduation-cap" style="margin-right: 0.5rem;"></i>
+                                Classes
+                            </div>
+                            <select class="unified-select" id="classFilter">
+                                <option value="">All Classes</option>
+                                {% for class in classes %}
+                                <option value="{{ class }}">{{ class }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="unified-filter-section">
+                            <div class="unified-filter-label">
+                                <i class="fas fa-info-circle" style="margin-right: 0.5rem;"></i>
+                                Status
+                            </div>
+                            <select class="unified-select" id="statusFilter">
+                                <option value="">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="idle">Idle</option>
+                                <option value="maintenance">Maintenance</option>
+                                <option value="offline">Offline</option>
+                            </select>
+                        </div>
+
+                        <div class="unified-filter-section">
+                            <div class="unified-filter-label">
+                                <i class="fas fa-truck" style="margin-right: 0.5rem;"></i>
+                                Assets
+                            </div>
+                            <select class="unified-select" id="assetFilter">
+                                <option value="">All Assets</option>
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+
+                        <!-- Map Controls -->
+                        <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--dark-border);">
+                            <div class="unified-filter-label">
+                                <i class="fas fa-eye" style="margin-right: 0.5rem;"></i>
+                                Display Options
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                <label style="display: flex; align-items: center; gap: 0.5rem; color: var(--dark-text-muted); font-size: 0.875rem;">
+                                    <input type="checkbox" id="showGeofences" checked style="margin: 0;">
+                                    Show Geofences
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem; color: var(--dark-text-muted); font-size: 0.875rem;">
+                                    <input type="checkbox" id="showTrails" style="margin: 0;">
+                                    Show Trails
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem; color: var(--dark-text-muted); font-size: 0.875rem;">
+                                    <input type="checkbox" id="showLabels" checked style="margin: 0;">
+                                    Show Labels
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Refresh Button -->
+                        <div style="margin-top: 1rem;">
+                            <button class="unified-btn unified-btn-primary" style="width: 100%;" onclick="refreshAssets()">
                                 <i class="fas fa-sync-alt"></i>
-                            </button>
-                            <button type="button" class="btn btn-outline-warning btn-sm" onclick="toggleTracking()">
-                                <i class="fas fa-crosshairs"></i>
+                                Refresh Locations
                             </button>
                         </div>
                     </div>
+
+                    <!-- Map -->
+                    <div id="map" class="unified-map-container"></div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Asset Details Panel -->
-<div class="row mt-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Fleet Asset Locations</h5>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Asset ID</th>
-                                <th>Type</th>
-                                <th>Status</th>
-                                <th>Location</th>
-                                <th>Last Update</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="assetTable">
-                            <tr>
-                                <td>EXC-001</td>
-                                <td>Excavator</td>
-                                <td><span class="badge bg-success">Online</span></td>
-                                <td>Job Site Alpha</td>
-                                <td>2 min ago</td>
-                                <td><button class="btn btn-sm btn-outline-primary" onclick="centerOnAsset('EXC-001')">View</button></td>
-                            </tr>
-                            <tr>
-                                <td>TRK-045</td>
-                                <td>Truck</td>
-                                <td><span class="badge bg-warning">Idle</span></td>
-                                <td>Yard</td>
-                                <td>5 min ago</td>
-                                <td><button class="btn btn-sm btn-outline-primary" onclick="centerOnAsset('TRK-045')">View</button></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
-
-{% block extra_js %}
-<script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
-<script>
-// Initialize map without Mapbox dependency - using OpenStreetMap
-// mapboxgl.accessToken = 'pk.eyJ1IjoidHJheG92byIsImEiOiJjbG5uYjJ0YWUwMWE4MmxwZjIzaGZ5eGp2In0.mock_token';
-
-// Create a simple map interface without external dependencies
-document.getElementById('map').innerHTML = `
-    <div style="background: #2d3748; height: 100%; display: flex; align-items: center; justify-content: center; color: white; flex-direction: column;">
-        <i class="fas fa-map-marked-alt fa-4x mb-3 text-warning"></i>
-        <h4>Fleet Map Interface</h4>
-        <p class="text-center">Austin, TX Region<br>610 Assets Online</p>
-        <div class="row mt-3">
-            <div class="col text-center">
-                <div class="bg-success rounded p-2 mb-2">EXC-001</div>
-                <small>Online</small>
-            </div>
-            <div class="col text-center">
-                <div class="bg-warning rounded p-2 mb-2">TRK-045</div>
-                <small>Idle</small>
-            </div>
-            <div class="col text-center">
-                <div class="bg-success rounded p-2 mb-2">DOZ-012</div>
-                <small>Online</small>
-            </div>
-        </div>
-    </div>
-`;
-
-// Add sample markers for fleet assets
-const assets = [
-    { id: 'EXC-001', coords: [-97.7431, 30.2672], status: 'online' },
-    { id: 'TRK-045', coords: [-97.7631, 30.2872], status: 'idle' },
-    { id: 'DOZ-012', coords: [-97.7231, 30.2472], status: 'online' }
-];
-
-// Add markers
-assets.forEach(asset => {
-    const color = asset.status === 'online' ? '#28a745' : '#ffc107';
-    
-    new mapboxgl.Marker({ color })
-        .setLngLat(asset.coords)
-        .setPopup(new mapboxgl.Popup().setHTML(`
-            <strong>${asset.id}</strong><br>
-            Status: ${asset.status}<br>
-            <button class="btn btn-sm btn-primary mt-1" onclick="viewAssetDetails('${asset.id}')">Details</button>
-        `))
-        .addTo(map);
-});
-
-function toggleView(type) {
-    const styles = {
-        satellite: 'mapbox://styles/mapbox/satellite-v9',
-        terrain: 'mapbox://styles/mapbox/outdoors-v11'
-    };
-    
-    if (styles[type]) {
-        map.setStyle(styles[type]);
-    }
-}
-
-function refreshLocations() {
-    // Simulate refreshing asset locations
-    console.log('Refreshing asset locations...');
-    // In real implementation, this would fetch from your API
-}
-
-function toggleTracking() {
-    console.log('Toggle real-time tracking');
-    // Implement real-time tracking toggle
-}
-
-function centerOnAsset(assetId) {
-    const asset = assets.find(a => a.id === assetId);
-    if (asset) {
-        map.flyTo({
-            center: asset.coords,
-            zoom: 15
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Initialize map with professional satellite view
+        const map = L.map('map', {
+            center: [31.3069, -92.4426], // Louisiana center
+            zoom: 8,
+            zoomControl: false
         });
-    }
-}
 
-function viewAssetDetails(assetId) {
-    window.location.href = `/asset-detail/${assetId}`;
-}
-</script>
-{% endblock %}
+        // Add zoom control to top right
+        L.control.zoom({
+            position: 'topright'
+        }).addTo(map);
+
+        // Professional satellite tile layer
+        const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: '&copy; Esri &mdash; Source: Esri, Maxar, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community',
+            maxZoom: 19
+        });
+
+        // Street overlay for labels
+        const streetOverlay = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors',
+            opacity: 0.3,
+            maxZoom: 19
+        });
+
+        // Add layers to map
+        satelliteLayer.addTo(map);
+        streetOverlay.addTo(map);
+
+        // Asset markers and data
+        let assetMarkers = [];
+        let geofenceLayer = L.layerGroup().addTo(map);
+        let lastUpdateTime = new Date();
+
+        // Custom marker icons
+        const createCustomIcon = (status, type) => {
+            const colors = {
+                'active': '#059669',
+                'idle': '#d97706',
+                'maintenance': '#dc2626',
+                'offline': '#6b7280'
+            };
+            
+            const icons = {
+                'heavy_equipment': 'fas fa-truck',
+                'vehicles': 'fas fa-car',
+                'trailers': 'fas fa-trailer',
+                'support_equipment': 'fas fa-tools'
+            };
+
+            const color = colors[status] || colors['offline'];
+            const icon = icons[type] || 'fas fa-circle';
+
+            return L.divIcon({
+                html: `<div style="background: ${color}; border: 2px solid white; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"><i class="${icon}" style="color: white; font-size: 8px;"></i></div>`,
+                className: 'custom-marker',
+                iconSize: [16, 16],
+                iconAnchor: [8, 8]
+            });
+        };
+
+        // Load and display assets
+        async function loadAssets() {
+            try {
+                console.log('Refreshing asset locations...');
+                const response = await fetch('/api/gauge-data');
+                const data = await response.json();
+                
+                // Clear existing markers
+                assetMarkers.forEach(marker => map.removeLayer(marker));
+                assetMarkers = [];
+
+                // Add new markers
+                let validAssets = 0;
+                data.vehicles.forEach(vehicle => {
+                    if (vehicle.latitude && vehicle.longitude) {
+                        const marker = L.marker([vehicle.latitude, vehicle.longitude], {
+                            icon: createCustomIcon(vehicle.status || 'active', vehicle.type || 'vehicles')
+                        });
+
+                        // Professional popup
+                        marker.bindPopup(`
+                            <div style="font-family: inherit; min-width: 200px;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; font-weight: 600; color: var(--dark-text);">
+                                    <i class="fas fa-truck" style="color: var(--primary-blue);"></i>
+                                    ${vehicle.name || vehicle.id}
+                                </div>
+                                <div style="font-size: 0.875rem; color: var(--dark-text-muted); line-height: 1.4;">
+                                    <div><strong>Status:</strong> <span style="color: ${vehicle.status === 'active' ? 'var(--accent-green)' : 'var(--warning-yellow)'};">${vehicle.status || 'Unknown'}</span></div>
+                                    <div><strong>Location:</strong> ${vehicle.address || 'Updating...'}</div>
+                                    <div><strong>Last Update:</strong> ${new Date(vehicle.timestamp || Date.now()).toLocaleTimeString()}</div>
+                                </div>
+                            </div>
+                        `);
+
+                        marker.addTo(map);
+                        assetMarkers.push(marker);
+                        validAssets++;
+                    }
+                });
+
+                // Update counters
+                document.getElementById('activeAssets').textContent = validAssets;
+                document.getElementById('onlineAssets').textContent = Math.floor(validAssets * 0.85); // Simulate online percentage
+
+                console.log(`Displayed ${validAssets} assets on map`);
+                
+                // Update timestamp
+                lastUpdateTime = new Date();
+                updateLastUpdateDisplay();
+                
+            } catch (error) {
+                console.error('Error loading assets:', error);
+            }
+        }
+
+        // Update last update display
+        function updateLastUpdateDisplay() {
+            const now = new Date();
+            const diff = Math.floor((now - lastUpdateTime) / 1000);
+            
+            let displayText = 'Just now';
+            if (diff > 60) {
+                displayText = `${Math.floor(diff / 60)}m ago`;
+            } else if (diff > 0) {
+                displayText = `${diff}s ago`;
+            }
+            
+            document.getElementById('lastUpdate').textContent = displayText;
+        }
+
+        // Refresh function
+        function refreshAssets() {
+            loadAssets();
+        }
+
+        // Geofence toggle
+        document.getElementById('showGeofences').addEventListener('change', function() {
+            console.log('Toggle geofences:', this.checked);
+            if (this.checked) {
+                geofenceLayer.addTo(map);
+            } else {
+                map.removeLayer(geofenceLayer);
+            }
+        });
+
+        // Auto-refresh every 15 seconds
+        setInterval(() => {
+            loadAssets();
+        }, 15000);
+
+        // Update timestamp display every second
+        setInterval(updateLastUpdateDisplay, 1000);
+
+        // Initial load
+        loadAssets();
+
+        // Add some sample geofences
+        setTimeout(() => {
+            // Sample geofence circles
+            const geofence1 = L.circle([31.3069, -92.4426], {
+                color: 'var(--primary-blue)',
+                fillColor: 'var(--primary-blue)',
+                fillOpacity: 0.1,
+                radius: 5000
+            }).addTo(geofenceLayer);
+
+            const geofence2 = L.circle([31.2069, -92.3426], {
+                color: 'var(--accent-green)',
+                fillColor: 'var(--accent-green)',
+                fillOpacity: 0.1,
+                radius: 3000
+            }).addTo(geofenceLayer);
+        }, 1000);
+    </script>
+</body>
+</html>

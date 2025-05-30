@@ -48,6 +48,37 @@ class SupabaseClient:
             return self._get_fallback_metrics()
         
         try:
+            # Query the correct table structure that exists in database
+            assets_response = self.client.table('assets').select('*').eq('is_active', True).execute()
+            revenue_response = self.client.table('revenue').select('*').execute()
+            fleet_metrics_response = self.client.table('fleet_metrics').select('*').execute()
+            
+            total_assets = len(assets_response.data) if assets_response.data else 0
+            active_assets = len([a for a in assets_response.data if a.get('status') == 'active']) if assets_response.data else 0
+            
+            # Get latest revenue data
+            monthly_revenue = 0.0
+            if revenue_response.data:
+                monthly_revenue = sum(r.get('total_revenue', 0) for r in revenue_response.data) / 1000000  # Convert to millions
+            
+            # Get utilization rate from fleet metrics
+            utilization_rate = 0.0
+            if fleet_metrics_response.data:
+                latest_metrics = fleet_metrics_response.data[-1]  # Get most recent
+                utilization_rate = latest_metrics.get('utilization_rate', 0.0)
+            
+            return {
+                'total_assets': total_assets,
+                'active_assets': active_assets,
+                'monthly_revenue': monthly_revenue,
+                'fleet_utilization': utilization_rate,
+                'data_source': 'authentic',
+                'last_updated': 'Live data from Supabase'
+            }
+            
+        except Exception as e:
+            logging.error(f"Supabase query error: {e}")
+            return self._get_fallback_metrics()
             # Get asset counts
             assets_response = self.client.table('assets').select('id,active,billable').execute()
             assets = assets_response.data if assets_response.data else []

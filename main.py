@@ -272,7 +272,7 @@ def login():
             session['username'] = username
             session.permanent = True
             print("Login successful, session set")  # Debug
-            return redirect(url_for('dashboard'))
+            return redirect(url_for('dashboard_route'))
         else:
             print("Login failed - invalid credentials")  # Debug
             flash('Invalid credentials', 'error')

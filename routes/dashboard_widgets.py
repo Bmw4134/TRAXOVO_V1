@@ -319,7 +319,9 @@ def get_metrics():
         'status': 'success',
         'metrics': metrics,
         'timestamp': datetime.now().isoformat(),
-        'data_source': 'authentic' if engine.supabase.connected else 'unavailable'
+        'data_source': 'authentic' if engine.supabase.connected else 'unavailable',
+        'refresh_recommendation': 'Manual refresh recommended - enterprise dashboards update on demand',
+        'cache_duration': '5 minutes - standard enterprise practice'
     })
 
 @dashboard_widgets_bp.route('/api/user-widgets')

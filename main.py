@@ -148,19 +148,18 @@ def refresh_data():
 
 @app.route('/')
 def dashboard():
-    """TRAXOVO Professional Dashboard with authentic data"""
+    """TRAXOVO HERC-Inspired Professional Dashboard"""
     # Use your authenticated data from screenshots and Excel files
     context = {
         'billable_revenue': authentic_fleet_data.get('billable_revenue', 2210400),
         'total_assets': authentic_fleet_data.get('total_assets', 581),
-        'active_assets': authentic_fleet_data.get('active_assets', 75),
+        'active_assets': authentic_fleet_data.get('active_assets', 610),
         'total_drivers': authentic_fleet_data.get('total_drivers', 92),
-        'clocked_in': authentic_fleet_data.get('clocked_in', 68),
-        'utilization_rate': authentic_fleet_data.get('utilization_rate', 12.9),
+        'revenue_total': '2.21M',
         'last_updated': authentic_fleet_data.get('last_updated', 'Just now')
     }
     
-    return render_template('dashboard_clean_executive.html', **context)
+    return render_template('dashboard_herc_inspired.html', **context)
 
 # Keep all existing API endpoints
 @app.route('/api/assets')

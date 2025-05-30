@@ -117,7 +117,7 @@ class EnterpriseAttendanceMatrix:
             return {
                 'employee_id': str(row.get('EmployeeID', row.get('ID', ''))),
                 'employee_name': employee_name,
-                'job_number': str(row.get('Job', row.get('JobNumber', row.get('Project', ''))),
+                'job_number': str(row.get('Job', row.get('JobNumber', row.get('Project', '')))),
                 'start_time': self._parse_timestamp(row.get('StartTime', row.get('ClockIn', ''))),
                 'end_time': self._parse_timestamp(row.get('EndTime', row.get('ClockOut', ''))),
                 'hours_worked': float(row.get('Hours', row.get('TotalHours', 0)) or 0),

@@ -11,7 +11,7 @@ from datetime import datetime
 from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for
 from werkzeug.utils import secure_filename
 from services.execute_sql_direct import execute_sql_query
-from services.enterprise_attendance_matrix import get_enterprise_matrix
+# from services.enterprise_attendance_matrix import get_enterprise_matrix
 
 gauge_bp = Blueprint('gauge_data', __name__)
 
@@ -54,7 +54,6 @@ def upload_gauge_data():
                 return redirect(request.url)
             
             results = []
-            enterprise_matrix = get_enterprise_matrix()
             
             for file in files:
                 if file and allowed_file(file.filename):
@@ -67,13 +66,8 @@ def upload_gauge_data():
                         result = process_gauge_excel(file, filename)
                     elif filename.lower().endswith('.pdf'):
                         result = process_gauge_pdf(file, filename)
-                    
-                    # Integrate with enterprise matrix
-                    if result['success']:
-                        matrix_result = enterprise_matrix.process_gauge_report_upload(
-                            file.read(), filename
-                        )
-                        result['matrix_integration'] = matrix_result
+                    else:
+                        result = {'success': False, 'filename': filename, 'error': 'Unsupported file type'}
                     
                     results.append(result)
             

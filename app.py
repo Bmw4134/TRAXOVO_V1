@@ -160,6 +160,18 @@ from routes.routes_api_assets import api_assets
 app.register_blueprint(asset_manager)
 app.register_blueprint(api_assets)
 
+# Register System Admin blueprint
+from routes.routes_system_admin import system_admin
+app.register_blueprint(system_admin)
+
+# Register Job Zone blueprint
+from routes.job_zone import job_zone_bp
+app.register_blueprint(job_zone_bp)
+
+# Register Executive KPI blueprint
+from routes.executive_kpi_suite import executive_kpi_bp
+app.register_blueprint(executive_kpi_bp)
+
 @oauth_authorized.connect
 def logged_in(blueprint, token):
     try:

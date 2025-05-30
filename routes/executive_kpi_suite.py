@@ -168,8 +168,17 @@ kpi_engine = ExecutiveKPIEngine()
 
 @executive_kpi_bp.route('/executive-dashboard')
 def executive_dashboard():
-    """Main executive dashboard"""
-    return render_template('executive_dashboard.html')
+    """Main executive dashboard with authentic data"""
+    # Load authentic data immediately instead of relying on AJAX
+    kpi_data = {
+        'fleet_efficiency': kpi_engine.get_fleet_efficiency_kpis(),
+        'financial_performance': kpi_engine.get_financial_performance_kpis(),
+        'operational_excellence': kpi_engine.get_operational_excellence_kpis(),
+        'workforce_productivity': kpi_engine.get_workforce_productivity_kpis(),
+        'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    }
+    
+    return render_template('executive_dashboard.html', kpi_data=kpi_data)
 
 @executive_kpi_bp.route('/api/executive/kpi-summary')
 def get_kpi_summary():

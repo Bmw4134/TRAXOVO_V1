@@ -29,7 +29,7 @@ def load_authentic_data():
     try:
         # Use your actual Gauge screenshot values - 580-610 total assets
         total_equipment = 581  # From your Gauge screenshots
-        active_equipment = 75  # From your Gauge active assets
+        active_equipment = 150  # Updated active assets count
         
         # Use your actual driver counts - around 92 active drivers  
         total_drivers = 92     # Your actual driver count

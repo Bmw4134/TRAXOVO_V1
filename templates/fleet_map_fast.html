@@ -92,13 +92,17 @@
                                     <td>
                                         {% if asset.status == 'active' %}
                                             <span class="badge bg-success">Active</span>
-                                        {% elif asset.status == 'maintenance' %}
-                                            <span class="badge bg-danger">Maintenance</span>
                                         {% else %}
                                             <span class="badge bg-warning">Idle</span>
                                         {% endif %}
                                     </td>
-                                    <td>{{ "%.4f"|format(asset.lat) }}, {{ "%.4f"|format(asset.lng) }}</td>
+                                    <td>
+                                        {% if asset.lat and asset.lng %}
+                                            {{ "%.4f"|format(asset.lat) }}, {{ "%.4f"|format(asset.lng) }}
+                                        {% else %}
+                                            No GPS Data
+                                        {% endif %}
+                                    </td>
                                     <td>{{ asset.last_update }}</td>
                                 </tr>
                                 {% endfor %}
@@ -181,10 +185,13 @@ function addAssets() {
         const marker = L.marker([asset.lat, asset.lng]);
         
         const popupContent = `
-            <div style="min-width: 200px;">
+            <div style="min-width: 250px;">
                 <h6><strong>${asset.name}</strong></h6>
-                <p><strong>ID:</strong> ${asset.id}<br>
+                <p><strong>Asset ID:</strong> ${asset.id}<br>
+                <strong>Category:</strong> ${asset.category || 'Equipment'}<br>
                 <strong>Status:</strong> <span style="color: ${iconColor};">${asset.status}</span><br>
+                <strong>Location:</strong> ${asset.location || 'Unknown'}<br>
+                <strong>Hours:</strong> ${asset.hours || 0}<br>
                 <strong>Last Update:</strong> ${asset.last_update}</p>
             </div>
         `;

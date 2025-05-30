@@ -621,6 +621,13 @@ def system_admin():
                          page_title="User Management",
                          **{k: v for k, v in authentic_fleet_data.items()})
 
+@app.route('/deployment-test')
+def deployment_test():
+    """Internal deployment testing suite for complete module verification"""
+    return render_template('deployment_test_suite.html',
+        page_title='TRAXOVO Deployment Test Suite',
+        page_subtitle='Comprehensive module verification with authentic data')
+
 # Attendance Matrix Export Routes
 @app.route('/attendance/matrix/export/<format>')
 def export_attendance_matrix(format):

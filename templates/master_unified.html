@@ -506,5 +506,65 @@
             });
         });
     </script>
+
+    <!-- KAIZEN UI BOOST PACK START -->
+    <script src="{{ url_for('static', filename='js/kaizen_ui_enhancements.js') }}"></script>
+    
+    <!-- Simulate Live Metrics Button -->
+    <style>
+        .kaizen-simulate-btn {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 1000;
+            margin: 1rem;
+            padding: 0.5rem 1rem;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .kaizen-simulate-btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+    
+    <button id="simulateData" class="kaizen-simulate-btn">
+        Simulate Live Metrics
+    </button>
+    
+    <script>
+        // Safe initialization that won't interfere with existing functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Only initialize if KAIZEN enhancements are loaded
+            if (window.KaizenUI) {
+                window.KaizenUI.markPlaceholderCards();
+                window.KaizenUI.initializePlaceholderTooltips();
+                window.KaizenUI.addDataSourceIndicators();
+            }
+            
+            // Simulate button functionality
+            const simulateBtn = document.getElementById('simulateData');
+            if (simulateBtn) {
+                simulateBtn.onclick = () => {
+                    document.querySelectorAll('.metric-card.placeholder, .metric-card[data-auth="false"]').forEach(card => {
+                        const values = ['87.3%', '91.7%', '94.2%', '89.6%', '92.1%'];
+                        const randomValue = values[Math.floor(Math.random() * values.length)];
+                        const valueNode = card.querySelector('h3, .metric-value');
+                        if (valueNode) {
+                            valueNode.innerText = randomValue;
+                            card.style.animation = 'pulse 0.5s ease-in-out';
+                        }
+                    });
+                };
+            }
+        });
+    </script>
+    <!-- KAIZEN UI BOOST PACK END -->
+    
 </body>
 </html>

@@ -1,0 +1,1 @@
+# Predictive countdown for equipment

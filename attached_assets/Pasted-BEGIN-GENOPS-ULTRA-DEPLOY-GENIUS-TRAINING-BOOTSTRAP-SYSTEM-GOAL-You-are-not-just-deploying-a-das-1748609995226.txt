@@ -1,0 +1,57 @@
+BEGIN GENOPS ULTRA DEPLOY + GENIUS TRAINING BOOTSTRAP
+
+SYSTEM GOAL:
+You are not just deploying a dashboard—you are deploying GENOPS: a full-stack executive-grade dashboard system for a heavy civil GC (Ragle Inc., Texas Division). This must use **real uploaded files** only (no placeholder/sample data). You must restore all core features, fix attendance matrix, and align all recent module enhancements without regressions.
+
+PRIMARY DIRECTIVE:
+Fix and finalize the **ATTENDANCE MODULE** first:
+- Ensure all routes work and pages load properly
+- Use real GPS data via Gauge API (live driver location)
+- Merge with daily Groundworks timecards (Excel) — auto-detect timestamps, job zones
+- Generate daily, weekly, monthly matrixes with symbol codes:
+  ✅ On Time, 🕒 Late Start, ⏳ Early End, ❌ Not on Job
+- Build preview and export functions (PDF, CSV, XLSX)
+- Enable 8AM + 10AM refresh snapshot for VP/Controller view
+- Add smart weekend toggle, working hours config per job
+
+SIDEBAR + UI:
+- Fix sidebar broken routes/modules
+- Make sidebar mobile-friendly with slide-toggle drawer (not removed)
+- Preserve desktop layout while enhancing responsive view
+- Apply Tailwind or Bootstrap mobile breakpoints if available
+
+ASSET MODULE:
+- Pull asset info from Gauge API
+- Lookup VINs/serials using NHTSA public API and others if useful
+- Add battery disconnect + last signal status flags
+- Assets must show GPS map location, real job assignment zone
+
+UI POLISH + DEPLOY INTEGRITY:
+- Polish layout for both mobile and desktop
+- No placeholder/sample data
+- Do not overwrite working enhancements from past 2 weeks
+- Keep prior working functionality but fix layering, buried routes, and refactor into clean modules
+
+ADD GENIUS MODE:
+Enable “Genius Training Mode” tools:
+- Add internal logs viewer (web route: /logs)
+- Add live deploy button in admin view that calls /redeploy endpoint
+- Setup build scripts (.sh or .replit config) for smoother pipeline
+- Sync to GitHub if connected, or offer download/backup ZIP
+- Start adding “Add New Company” scaffold logic (modular dashboard spawner)
+
+If route structure is a mess:
+→ Refactor Flask into Blueprints (attendance.py, assets.py, etc.)
+→ Separate API from HTML/JS views
+→ Apply mobile-first CSS breakpoints
+→ Streamline logs to assist debugging inside dashboard
+
+DO NOT:
+- Do not use placeholder/sample data.
+- Do not overwrite working features without confirmation.
+- Do not skip core attendance module validation.
+
+CONFIRM:
+Once all systems are working, sidebar links are functional, and mobile view looks clean—return confirmation message: ✅ GENOPS DEPLOYED — ALL SYSTEMS LIVE
+
+END GENOPS ULTRA DEPLOY

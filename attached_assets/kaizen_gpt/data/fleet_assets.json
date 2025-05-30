@@ -1,0 +1,22 @@
+[
+  {
+    "id": "EQ-001",
+    "operator": "John Martinez",
+    "task": "Highway Reconstruction"
+  },
+  {
+    "id": "EQ-002",
+    "operator": "Mike Rodriguez",
+    "task": "Plaza Development"
+  },
+  {
+    "id": "EQ-003",
+    "operator": "Sarah Johnson",
+    "task": "E Long Avenue"
+  },
+  {
+    "id": "EQ-004",
+    "operator": "David Wilson",
+    "task": "Commercial Site"
+  }
+]

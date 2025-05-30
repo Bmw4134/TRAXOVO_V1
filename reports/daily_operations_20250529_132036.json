@@ -1,0 +1,25 @@
+{
+  "timestamp": "2025-05-29T13:20:36.874227",
+  "report_date": "2025-05-29",
+  "attendance_summary": {
+    "total_drivers": 92,
+    "active_today": 78,
+    "on_leave": 3,
+    "gps_correlation": "94.6%",
+    "accuracy_rate": "97.2%"
+  },
+  "alerts": [
+    {
+      "type": "maintenance",
+      "message": "3 assets due for service this week"
+    },
+    {
+      "type": "utilization",
+      "message": "5 assets with low utilization"
+    },
+    {
+      "type": "gps",
+      "message": "2 assets with GPS connectivity issues"
+    }
+  ]
+}

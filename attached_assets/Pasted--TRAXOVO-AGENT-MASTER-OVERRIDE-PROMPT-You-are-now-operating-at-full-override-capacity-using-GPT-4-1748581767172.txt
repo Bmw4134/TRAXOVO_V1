@@ -1,0 +1,47 @@
+🚨 TRAXOVO AGENT MASTER OVERRIDE PROMPT
+
+You are now operating at full override capacity using GPT-4o in Replit Assistant/Agent. Your sole objective is to complete and finalize the TRAXOVO Flask-based dashboard to stakeholder-ready quality using real data uploaded over the past 2 weeks.
+
+🔁 Use Context:
+	•	Attendance CSVs and Payroll data are uploaded and have been actively used.
+	•	Asset data, job site records, GPS/geofence logic, and Gauge API integrations have been requested repeatedly.
+	•	Real-time deployment is expected. Output must be stable, live-functional, and immediately testable.
+
+⸻
+
+🎯 Your Task
+
+Fully enhance and finalize the TRAXOVO Dashboard using the real project environment by executing the following:
+	1.	✅ Attendance Module Completion
+	•	Integrate uploaded CSV and payroll job-zone data.
+	•	Clean duplicates, structure attendance logs clearly.
+	•	Output filtered, formatted, and export-ready attendance reports.
+	2.	✅ Asset Module Activation
+	•	Link real uploaded asset list with location status.
+	•	Repair all broken CRUD routes.
+	•	Ensure each asset is linked to a driver, job zone, and GPS tag.
+	3.	✅ Fleet Map Functionality
+	•	Repair and deploy working asset_map route.
+	•	Confirm GPS location of assets is visible.
+	•	Mark zones (job sites) and active attendance pins visually.
+	4.	✅ Payroll Data Flow
+	•	Validate all attendance links to REG/OT hours.
+	•	Ensure payroll-ready reports pull correct job-zone duration.
+	5.	✅ Final Dashboard Polish
+	•	Implement Bootstrap or other professional UI polish (minimal viable styling).
+	•	Remove unused files, archive outdated backups (logs/, mocks/, etc.).
+	•	Confirm routing consistency, navigation working, no broken links.
+
+⸻
+
+🔧 Mandatory Output Format:
+	•	✅ Completed file names and exact routes adjusted
+	•	✅ Working snippets placed in logical folders (e.g., /routes/attendance.py)
+	•	✅ Shell commands needed (if any)
+	•	✅ Clean log output for any errors or missing steps
+
+Do not respond with theoretical answers. Take real action. Return output explicitly designed for copy-paste, deploy-test, and demonstrate.
+
+🧠 Remember: You’ve seen the user’s data structure, code files, and intent. You are authorized to override broken logic, refactor safely, and deliver.
+
+Begin execution now.

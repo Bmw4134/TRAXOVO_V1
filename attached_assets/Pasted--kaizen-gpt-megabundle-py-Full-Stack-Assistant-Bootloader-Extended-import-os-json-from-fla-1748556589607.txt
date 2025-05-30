@@ -1,0 +1,107 @@
+# kaizen_gpt/megabundle.py – Full Stack Assistant Bootloader (Extended)
+
+import os, json
+from flask import Blueprint, request, jsonify, send_from_directory, render_template_string
+
+# Stub modules for tracking, validation, etc.
+from kaizen_gpt.modules.goal_tracker import GoalTracker
+from kaizen_gpt.modules.session_audit import SessionAuditor
+from kaizen_gpt.modules.diff_watcher import DiffWatcher
+from kaizen_gpt.modules.prompt_fingerprint import Fingerprinter
+from kaizen_gpt.modules.llm_test import LLMTestHarness
+
+# System objects
+tracker = GoalTracker("goal_tracker.json")
+auditor = SessionAuditor("session_audit.json")
+diff = DiffWatcher(".")
+fingerprint = Fingerprinter("fingerprint.json")
+llm_test = LLMTestHarness()
+
+assistant_api = Blueprint("assistant_api", __name__)
+
+@assistant_api.route("/assistant", methods=["POST"])
+def assistant_handler():
+    prompt = request.json.get("prompt")
+    user = request.json.get("user_id", "anon")
+
+    fingerprint.store(prompt)
+    auditor.log_session(user=user, prompt=prompt)
+    goal = tracker.match_goal(prompt)
+    result = {"result": f"Processed prompt: {prompt}", "prompt": prompt}
+    llm_test.validate(result)
+    tracker.link_prompt(prompt)
+
+    return jsonify(result)
+
+@assistant_api.route("/map", methods=["GET"])
+def map_data():
+    with open("kaizen_gpt/data/map_assets.json") as f:
+        return jsonify(json.load(f))
+
+@assistant_api.route("/assets", methods=["GET"])
+def asset_data():
+    with open("kaizen_gpt/data/fleet_assets.json") as f:
+        return jsonify(json.load(f))
+
+@assistant_api.route("/attendance", methods=["GET"])
+def attendance_data():
+    with open("kaizen_gpt/data/attendance.json") as f:
+        return jsonify(json.load(f))
+
+# === Job Zone Integration ===
+@assistant_api.route("/jobs", methods=["GET"])
+def job_zone():
+    try:
+        with open("kaizen_gpt/data/job_zone.json") as f:
+            return jsonify(json.load(f))
+    except FileNotFoundError:
+        return jsonify({"error": "Job zone data not found."}), 404
+
+# === Asset Manager ===
+@assistant_api.route("/asset-manager", methods=["GET"])
+def asset_manager():
+    try:
+        with open("kaizen_gpt/data/asset_manager.json") as f:
+            return jsonify(json.load(f))
+    except FileNotFoundError:
+        return jsonify({"error": "Asset manager data not found."}), 404
+
+# === UI Endpoints ===
+@assistant_api.route("/admin", methods=["GET"])
+def serve_admin():
+    return send_from_directory("static", "admin_ui.html")
+
+@assistant_api.route("/ui", methods=["GET"])
+def serve_ui():
+    return send_from_directory("static", "assistant_ui.html")
+
+# === Dashboard Route for Main Visibility ===
+@assistant_api.route("/dashboard", methods=["GET"])
+def main_dashboard():
+    data = {
+        "metrics": {
+            "fleet_value": 1880000,
+            "active_assets": 3,
+            "gps_enabled": 2,
+            "geofence_violations": 0,
+            "daily_revenue": 73680,
+        },
+        "cache_status": "Loading cache statistics..."
+    }
+    html = """
+    <html>
+    <head><title>TRAXOVO Executive Dashboard</title></head>
+    <body style='font-family: sans-serif; padding: 2rem;'>
+        <h2>TRAXOVO Fleet Intelligence</h2>
+        <ul>
+            {% for key, val in metrics.items() %}<li><strong>{{ key.replace('_', ' ').title() }}:</strong> {{ val }}</li>{% endfor %}
+        </ul>
+        <p><em>{{ cache_status }}</em></p>
+        <a href='/admin'>Go to Admin</a> | <a href='/ui'>Try Assistant</a>
+    </body></html>
+    """
+    return render_template_string(html, **data)
+
+def init_kaizen_assistant(app):
+    app.register_blueprint(assistant_api)
+    print("Kaizen GPT Assistant fully loaded with Megabundle stack + map, asset, attendance, UI, dashboard, job zone, and asset manager routes.")

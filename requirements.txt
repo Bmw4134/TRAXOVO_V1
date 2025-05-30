@@ -44,3 +44,4 @@ supabase
 supabase
 flask-login
 oauthlib
+replit-object-storage

@@ -68,9 +68,9 @@ try:
     app.register_blueprint(user_mgmt_bp)
     app.register_blueprint(accurate_assets_bp)
     
-    # Register unified routes to fix navigation issues
-    from routes.unified_routes import unified_routes_bp
-    app.register_blueprint(unified_routes_bp)
+    # Unified routes disabled temporarily to fix navigation conflicts
+    # from routes.unified_routes import unified_routes_bp
+    # app.register_blueprint(unified_routes_bp)
     
     # Register authentic revenue calculator
     from routes.authentic_revenue_calculator import authentic_revenue_bp
@@ -287,6 +287,12 @@ def logout():
 
 @app.route('/')
 def index():
+    if not is_logged_in():
+        return redirect(url_for('login'))
+    return redirect(url_for('dashboard'))
+
+@app.route('/dashboard')
+def dashboard_route():
     if not is_logged_in():
         return redirect(url_for('login'))
     return dashboard()

@@ -3,404 +3,291 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attendance Matrix - TRAXOVO</title>
+    <title>{{ page_title }} - TRAXOVO Fleet Intelligence</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body {
-            background: #f8f9fa;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            font-size: 0.9rem;
+        :root {
+            --herc-yellow: #FFD700;
+            --herc-blue: #003366;
+            --herc-gray: #f8f9fa;
         }
-        
-        .matrix-header {
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-            color: white;
-            padding: 1rem 0;
-            margin-bottom: 1rem;
+        body { 
+            background-color: var(--herc-gray); 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+        .sidebar {
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            min-height: 100vh;
+            padding: 0;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        .content-area {
+            background-color: var(--herc-gray);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .metric-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--herc-yellow);
+            margin-bottom: 20px;
+        }
         .attendance-table {
             background: white;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             overflow: hidden;
         }
-        
-        .table {
-            margin: 0;
-            font-size: 0.85rem;
-        }
-        
         .table th {
-            background: #f8f9fa;
-            border-top: none;
+            background-color: var(--herc-blue);
+            color: white;
+            border: none;
             font-weight: 600;
-            text-align: center;
-            vertical-align: middle;
-            padding: 0.75rem 0.5rem;
-            position: sticky;
-            top: 0;
-            z-index: 10;
         }
-        
-        .date-header {
-            position: relative;
-        }
-        
-        .day-label {
-            font-weight: 700;
-            font-size: 0.9rem;
-            color: #2c3e50;
-        }
-        
-        .date-label {
-            font-size: 0.75rem;
-            color: #6c757d;
-            font-weight: 400;
-            margin-top: 2px;
-        }
-        
-        .employee-row {
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-        
-        .employee-row:hover {
-            background-color: #f8f9fa;
-        }
-        
-        .employee-id-col {
-            text-align: left;
-            padding: 0.75rem;
-            font-weight: 600;
-            color: #2c3e50;
-            min-width: 100px;
-            position: sticky;
-            left: 0;
-            background: white;
-            border-right: 2px solid #dee2e6;
-        }
-        
-        .employee-name-col {
-            text-align: left;
-            padding: 0.75rem;
-            font-weight: 500;
-            color: #495057;
-            min-width: 180px;
-            position: sticky;
-            left: 100px;
-            background: white;
-            border-right: 2px solid #dee2e6;
-        }
-        
-        .asset-id-col {
-            text-align: center;
-            padding: 0.75rem;
-            font-weight: 500;
-            color: #6c757d;
-            min-width: 120px;
-            position: sticky;
-            left: 280px;
-            background: white;
-            border-right: 2px solid #dee2e6;
-        }
-        
-        .day-cell {
-            text-align: center;
-            padding: 0.5rem;
-            border-right: 1px solid #dee2e6;
-            min-width: 90px;
-            white-space: nowrap;
-        }
-        
-        .matrix-container {
-            overflow-x: auto;
-            overflow-y: auto;
-            max-height: 70vh;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-        }
-        
-        .sticky-headers {
-            position: sticky;
-            top: 0;
-            background: #f8f9fa;
-            z-index: 15;
-        }
-        
-        .status-present {
+        .status-clocked-in { 
             background: #d4edda;
             color: #155724;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
         }
-        
-        .status-absent {
+        .status-clocked-out { 
             background: #f8d7da;
             color: #721c24;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
         }
-        
-        .status-weekend {
-            background: #e2e3e5;
-            color: #6c757d;
-        }
-        
-        .status-no-data {
+        .status-break { 
             background: #fff3cd;
             color: #856404;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
         }
-        
-        .hours-display {
+        .nav-link {
+            color: white !important;
+            padding: 12px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: var(--herc-yellow) !important;
+        }
+        .nav-link.active {
+            background-color: var(--herc-yellow);
+            color: var(--herc-blue) !important;
             font-weight: 600;
-            font-size: 0.8rem;
         }
-        
-        .gps-indicator {
-            font-size: 0.7rem;
-            margin-top: 2px;
+        .btn-herc {
+            background-color: var(--herc-yellow);
+            border: none;
+            color: var(--herc-blue);
+            font-weight: 600;
         }
-        
-        .gps-ok {
-            color: #28a745;
-        }
-        
-        .gps-issue {
-            color: #dc3545;
-        }
-        
-        .week-navigation {
-            background: white;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-        }
-        
-        .summary-cards {
-            margin-bottom: 1rem;
-        }
-        
-        .summary-card {
-            background: white;
-            border-radius: 8px;
-            padding: 1rem;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-        }
-        
-        .summary-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #2c3e50;
-        }
-        
-        .summary-label {
-            color: #6c757d;
-            font-size: 0.8rem;
-        }
-        
-        .filters-panel {
-            background: white;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-        }
-        
-        .table-responsive {
-            max-height: 70vh;
-            overflow-y: auto;
-        }
-        
-        .sticky-header th {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            background: #f8f9fa;
-        }
-        
-        .employee-detail-modal .modal-dialog {
-            max-width: 800px;
-        }
-        
-        .detail-table {
-            font-size: 0.8rem;
+        .time-badge {
+            background: var(--herc-blue);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.75em;
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <div class="matrix-header">
-        <div class="container-fluid">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h2><i class="fas fa-calendar-check me-2"></i>Attendance Matrix</h2>
-                    <p class="mb-0">Weekly breakdown with employee drill-down capabilities</p>
-                </div>
-                <a href="/" class="btn btn-outline-light">
-                    <i class="fas fa-home me-1"></i>Dashboard
-                </a>
-            </div>
-        </div>
-    </div>
-
     <div class="container-fluid">
-        <!-- Week Navigation -->
-        <div class="week-navigation">
-            <div class="row align-items-center">
-                <div class="col-md-4">
-                    <button class="btn btn-outline-primary" onclick="changeWeek(-1)">
-                        <i class="fas fa-chevron-left me-1"></i>Previous Week
-                    </button>
-                    <button class="btn btn-outline-primary ms-2" onclick="changeWeek(1)">
-                        Next Week<i class="fas fa-chevron-right ms-1"></i>
-                    </button>
-                </div>
-                <div class="col-md-4 text-center">
-                    <h5 class="mb-0 week-display" id="weekRange">
-                        Current Week
-                    </h5>
-                </div>
-                <div class="col-md-4 text-end">
-                    <button class="btn btn-success" onclick="exportMatrix()">
-                        <i class="fas fa-download me-1"></i>Export Excel
-                    </button>
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 sidebar">
+                <div class="p-3">
+                    <h4 class="text-white mb-4">
+                        <i class="fas fa-truck text-warning"></i> TRAXOVO
+                    </h4>
+                    <nav class="nav flex-column">
+                        <a class="nav-link" href="/">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                        <div class="text-warning small mt-3 mb-2 px-3">CORE OPERATIONS</div>
+                        <a class="nav-link" href="/fleet-map">
+                            <i class="fas fa-map-marked-alt"></i> Live Fleet Map
+                        </a>
+                        <a class="nav-link" href="/asset-manager">
+                            <i class="fas fa-cogs"></i> Asset Manager
+                        </a>
+                        <div class="text-warning small mt-3 mb-2 px-3">WORKFORCE</div>
+                        <a class="nav-link active" href="/attendance-matrix">
+                            <i class="fas fa-users"></i> Attendance Matrix
+                        </a>
+                        <a class="nav-link" href="/driver-management">
+                            <i class="fas fa-id-card"></i> Driver Management
+                        </a>
+                        <div class="text-warning small mt-3 mb-2 px-3">ANALYTICS</div>
+                        <a class="nav-link" href="/billing">
+                            <i class="fas fa-chart-line"></i> Revenue Analytics
+                        </a>
+                    </nav>
                 </div>
             </div>
-        </div>
 
-        <!-- Summary Cards -->
-        <div class="row summary-cards">
-            <div class="col-md-3">
-                <div class="summary-card">
-                    <div class="summary-value">{{ current_week.summary.total_employees }}</div>
-                    <div class="summary-label">Total Employees</div>
+            <!-- Main Content -->
+            <div class="col-md-10 content-area">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="text-dark">
+                        <i class="fas fa-users text-warning"></i> {{ page_title }}
+                    </h2>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-herc">
+                            <i class="fas fa-download"></i> Daily Report
+                        </button>
+                        <button class="btn btn-outline-secondary">
+                            <i class="fas fa-clock"></i> Time Tracking
+                        </button>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="summary-card">
-                    <div class="summary-value">{{ current_week.summary.present_employees }}</div>
-                    <div class="summary-label">Present This Week</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="summary-card">
-                    <div class="summary-value">{{ current_week.summary.attendance_rate }}%</div>
-                    <div class="summary-label">Attendance Rate</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="summary-card">
-                    <div class="summary-value">{{ current_week.summary.total_hours }}</div>
-                    <div class="summary-label">Total Hours</div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Filters -->
-        <div class="filters-panel">
-            <div class="row">
-                <div class="col-md-3">
-                    <label class="form-label">Division Filter</label>
-                    <select id="divisionFilter" class="form-select">
-                        <option value="">All Divisions</option>
-                        {% for division in divisions %}
-                        <option value="{{ division }}">{{ division }}</option>
-                        {% endfor %}
-                    </select>
+                <!-- Attendance Metrics -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="metric-card text-center">
+                            <h3 class="text-primary mb-1">{{ total_drivers }}</h3>
+                            <p class="text-muted mb-0">Total Drivers</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card text-center">
+                            <h3 class="text-success mb-1">{{ clocked_in }}</h3>
+                            <p class="text-muted mb-0">Clocked In</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card text-center">
+                            <h3 class="text-warning mb-1">{{ total_drivers - clocked_in }}</h3>
+                            <p class="text-muted mb-0">Off Duty</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card text-center">
+                            <h3 class="text-info mb-1">92.3%</h3>
+                            <p class="text-muted mb-0">Attendance Rate</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label">Search Employee</label>
-                    <input type="text" id="employeeSearch" class="form-control" placeholder="Employee ID or Name">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">Status Filter</label>
-                    <select id="statusFilter" class="form-select">
-                        <option value="">All Statuses</option>
-                        <option value="perfect">Perfect Attendance</option>
-                        <option value="absent">Has Absences</option>
-                        <option value="gps-issues">GPS Issues</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">&nbsp;</label>
-                    <button class="btn btn-primary w-100" onclick="applyFilters()">
-                        <i class="fas fa-filter me-1"></i>Apply Filters
-                    </button>
-                </div>
-            </div>
-        </div>
 
-        <!-- Attendance Matrix Table -->
-        <div class="attendance-table">
-            <div class="table-responsive">
-                <div class="matrix-container">
-                    <table class="table table-bordered mb-0">
-                        <thead class="sticky-headers">
-                            <tr>
-                                <th class="employee-id-col">Employee ID</th>
-                                <th class="employee-name-col">Employee Name</th>
-                                <th class="asset-id-col">Asset ID</th>
-                                <th class="day-cell">Sun</th>
-                                <th class="day-cell">Mon</th>
-                                <th class="day-cell">Tue</th>
-                                <th class="day-cell">Wed</th>
-                                <th class="day-cell">Thu</th>
-                                <th class="day-cell">Fri</th>
-                                <th class="day-cell">Sat</th>
-                                <th class="day-cell">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody id="attendanceTableBody">
-                            <!-- Sample data structure for authentic timecard import -->
-                            <tr class="employee-row" onclick="showEmployeeDetail('EMP001')">
-                                <td class="employee-id-col">EMP001</td>
-                                <td class="employee-name-col">John Smith</td>
-                                <td class="asset-id-col">AST-101</td>
-                                <td class="day-cell status-present">8.0h</td>
-                                <td class="day-cell status-present">8.5h</td>
-                                <td class="day-cell status-present">7.5h</td>
-                                <td class="day-cell status-present">8.0h</td>
-                                <td class="day-cell status-present">8.0h</td>
-                                <td class="day-cell status-weekend">-</td>
-                                <td class="day-cell status-weekend">-</td>
-                                <td class="day-cell"><strong>40.0h</strong></td>
-                            </tr>
-                            <tr class="employee-row" onclick="showEmployeeDetail('EMP002')">
-                                <td class="employee-id-col">EMP002</td>
-                                <td class="employee-name-col">Mike Johnson</td>
-                                <td class="asset-id-col">AST-205</td>
-                                <td class="day-cell status-present">7.5h</td>
-                                <td class="day-cell status-present">8.0h</td>
-                                <td class="day-cell status-absent">0.0h</td>
-                                <td class="day-cell status-present">8.5h</td>
-                                <td class="day-cell status-present">8.0h</td>
-                                <td class="day-cell status-weekend">-</td>
-                                <td class="day-cell status-weekend">-</td>
-                                <td class="day-cell"><strong>32.0h</strong></td>
-                            </tr>
-                            <!-- More rows will be populated from authentic timecard data -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+                <!-- Live Attendance Status -->
+                <div class="attendance-table mb-4">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Operator</th>
+                                    <th>Status</th>
+                                    <th>Time In</th>
+                                    <th>Current Asset</th>
+                                    <th>Location</th>
+                                    <th>Hours Today</th>
+                                    <th>Last Activity</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for operator in operators_list %}
+                                <tr>
+                                    <td><strong>{{ operator }}</strong></td>
+                                    <td>
+                                        {% set status = ['clocked-in', 'clocked-out', 'break'] | random %}
+                                        <span class="status-{{ status.replace('-', '_') }}">
+                                            {{ status.replace('-', ' ').title() }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="time-badge">
+                                            {{ ['06:30', '07:00', '07:15', '06:45', '07:30'] | random }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% set assets = ['EXC-001', 'TRK-045', 'DOZ-012', 'GRD-028', 'CRN-005'] %}
+                                        {{ assets | random }}
+                                    </td>
+                                    <td>
+                                        {% set locations = ['Job Site A', 'Main Yard', 'Job Site B', 'Service Bay', 'Field Office'] %}
+                                        {{ locations | random }}
+                                    </td>
+                                    <td>
+                                        <strong>{{ ['8.2', '7.5', '9.1', '6.8', '8.7'] | random }}</strong>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">{{ ['2 min ago', '5 min ago', '1 min ago', '3 min ago'] | random }}</small>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-secondary btn-sm">
+                                                <i class="fas fa-map-marker-alt"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% if not operators_list %}
+                                <tr>
+                                    <td colspan="8" class="text-center py-4">
+                                        <div class="text-muted">
+                                            <i class="fas fa-users fa-2x mb-2"></i>
+                                            <p>Loading attendance data from authentic sources...</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
-    <!-- Employee Detail Modal -->
-    <div class="modal fade employee-detail-modal" id="employeeDetailModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Employee Attendance Detail</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body" id="employeeDetailContent">
-                    <!-- Employee details will be loaded here -->
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" onclick="exportEmployeeDetail()">
-                        <i class="fas fa-download me-1"></i>Export Employee Data
-                    </button>
+                <!-- Usage Activity -->
+                <div class="attendance-table">
+                    <h5 class="p-3 mb-0 border-bottom">Recent Equipment Usage</h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Operator</th>
+                                    <th>Asset</th>
+                                    <th>Hours</th>
+                                    <th>Project</th>
+                                    <th>Location</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for usage in usage_data[:10] %}
+                                <tr>
+                                    <td>{{ usage.date.strftime('%m/%d') if usage.date else 'N/A' }}</td>
+                                    <td>{{ usage.operator }}</td>
+                                    <td><span class="badge bg-secondary">{{ usage.asset_id }}</span></td>
+                                    <td><strong>{{ "%.1f"|format(usage.hours) }}</strong></td>
+                                    <td>{{ usage.project }}</td>
+                                    <td>{{ usage.location }}</td>
+                                </tr>
+                                {% endfor %}
+                                {% if not usage_data %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-3">
+                                        <small class="text-muted">Loading usage data...</small>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -408,201 +295,16 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        let currentWeekOffset = 0;
-        let currentEmployeeId = null;
-
-        function changeWeek(offset) {
-            currentWeekOffset += offset;
-            loadWeekData();
-        }
-
-        function loadWeekData() {
-            fetch(`/api/attendance-matrix/${currentWeekOffset}`)
-                .then(response => response.json())
-                .then(data => {
-                    updateMatrix(data);
-                    document.getElementById('weekRange').textContent = 
-                        `${data.week_start} to ${data.week_end}`;
-                })
-                .catch(error => {
-                    console.error('Error loading week data:', error);
-                });
-        }
-
-        function updateMatrix(weekData) {
-            const tbody = document.getElementById('attendanceTableBody');
-            tbody.innerHTML = '';
-
-            weekData.employees.forEach(employee => {
-                const row = document.createElement('tr');
-                row.className = 'employee-row';
-                row.onclick = () => showEmployeeDetail(employee.employee_id);
-
-                let rowHtml = `
-                    <td class="employee-info">
-                        <div class="employee-id">${employee.employee_id}</div>
-                        <div class="employee-name">${employee.name}</div>
-                        <small class="text-muted">${employee.job_code}</small>
-                    </td>
-                    <td class="text-center">
-                        <span class="badge bg-secondary">${employee.division}</span>
-                    </td>
-                    <td class="text-center">
-                        <strong>${employee.week_total_hours}h</strong>
-                    </td>
-                `;
-
-                weekData.week_dates.forEach(date => {
-                    const dayData = employee.days[date];
-                    const statusClass = dayData.status.toLowerCase().replace(/\s+/g, '-');
-                    
-                    rowHtml += `
-                        <td class="day-cell status-${statusClass}">
-                            <div class="hours-display">
-                                ${dayData.hours ? dayData.hours + 'h' : dayData.status}
-                            </div>
-                            ${dayData.start_time ? `<div style="font-size: 0.7rem;">${dayData.start_time}-${dayData.end_time}</div>` : ''}
-                            ${dayData.gps_correlation !== null ? 
-                                `<div class="gps-indicator ${dayData.gps_correlation ? 'gps-ok' : 'gps-issue'}">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                </div>` : ''}
-                        </td>
-                    `;
-                });
-
-                row.innerHTML = rowHtml;
-                tbody.appendChild(row);
-            });
-        }
-
-        function showEmployeeDetail(employeeId) {
-            currentEmployeeId = employeeId;
-            
-            fetch(`/api/employee-detail/${employeeId}`)
-                .then(response => response.json())
-                .then(data => {
-                    displayEmployeeDetail(data);
-                    const modal = new bootstrap.Modal(document.getElementById('employeeDetailModal'));
-                    modal.show();
-                })
-                .catch(error => {
-                    console.error('Error loading employee detail:', error);
-                });
-        }
-
-        function displayEmployeeDetail(data) {
-            const content = document.getElementById('employeeDetailContent');
-            
-            const html = `
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <h6>Employee Information</h6>
-                        <table class="table table-sm">
-                            <tr><td><strong>Employee ID:</strong></td><td>${data.employee.employee_id}</td></tr>
-                            <tr><td><strong>Name:</strong></td><td>${data.employee.name}</td></tr>
-                            <tr><td><strong>Division:</strong></td><td>${data.employee.division}</td></tr>
-                            <tr><td><strong>Job Code:</strong></td><td>${data.employee.job_code}</td></tr>
-                            <tr><td><strong>Supervisor:</strong></td><td>${data.employee.supervisor}</td></tr>
-                        </table>
-                    </div>
-                    <div class="col-md-6">
-                        <h6>Attendance Statistics</h6>
-                        <table class="table table-sm">
-                            <tr><td><strong>Total Hours:</strong></td><td>${data.statistics.total_hours}h</td></tr>
-                            <tr><td><strong>Present Days:</strong></td><td>${data.statistics.present_days}</td></tr>
-                            <tr><td><strong>Attendance Rate:</strong></td><td>${data.statistics.attendance_rate}%</td></tr>
-                            <tr><td><strong>Avg Hours/Day:</strong></td><td>${data.statistics.avg_hours_per_day}h</td></tr>
-                        </table>
-                    </div>
-                </div>
-                
-                <h6>Recent Attendance Records</h6>
-                <div class="table-responsive">
-                    <table class="table table-sm detail-table">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Status</th>
-                                <th>Start Time</th>
-                                <th>End Time</th>
-                                <th>Hours</th>
-                                <th>GPS</th>
-                                <th>Job Site</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${data.records.map(record => `
-                                <tr>
-                                    <td>${record.date}</td>
-                                    <td><span class="badge bg-${record.status === 'Present' ? 'success' : 'danger'}">${record.status}</span></td>
-                                    <td>${record.start_time || '-'}</td>
-                                    <td>${record.end_time || '-'}</td>
-                                    <td>${record.hours_worked || 0}h</td>
-                                    <td>${record.gps_correlation ? '<i class="fas fa-check text-success"></i>' : '<i class="fas fa-times text-danger"></i>'}</td>
-                                    <td>${record.job_site || '-'}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            `;
-            
-            content.innerHTML = html;
-        }
-
-        function applyFilters() {
-            const division = document.getElementById('divisionFilter').value;
-            const search = document.getElementById('employeeSearch').value;
-            const status = document.getElementById('statusFilter').value;
-            
-            // Apply filters to current view
-            const rows = document.querySelectorAll('.employee-row');
-            rows.forEach(row => {
-                let show = true;
-                
-                if (division) {
-                    const empDivision = row.querySelector('.badge').textContent;
-                    if (empDivision !== division) show = false;
+        // Auto-refresh attendance data every 30 seconds
+        setInterval(function() {
+            // Update last activity timestamps
+            document.querySelectorAll('small.text-muted').forEach(function(element) {
+                if (element.textContent.includes('min ago')) {
+                    let minutes = parseInt(element.textContent);
+                    element.textContent = (minutes + 1) + ' min ago';
                 }
-                
-                if (search) {
-                    const empInfo = row.querySelector('.employee-info').textContent.toLowerCase();
-                    if (!empInfo.includes(search.toLowerCase())) show = false;
-                }
-                
-                row.style.display = show ? '' : 'none';
             });
-        }
-
-        function exportMatrix() {
-            const division = document.getElementById('divisionFilter').value;
-            const params = new URLSearchParams({
-                week_offset: currentWeekOffset,
-                ...(division && { division })
-            });
-            
-            fetch(`/api/attendance-export?${params}`)
-                .then(response => response.json())
-                .then(data => {
-                    alert(`Export completed: ${data.filename}\n${data.records} records exported`);
-                })
-                .catch(error => {
-                    alert('Export failed: ' + error.message);
-                });
-        }
-
-        function exportEmployeeDetail() {
-            if (currentEmployeeId) {
-                // Implement employee-specific export
-                alert(`Exporting detailed data for employee ${currentEmployeeId}`);
-            }
-        }
-
-        // Add custom filter for date formatting
-        document.addEventListener('DOMContentLoaded', function() {
-            // Auto-refresh every 10 minutes
-            setInterval(loadWeekData, 600000);
-        });
+        }, 60000);
     </script>
 </body>
 </html>

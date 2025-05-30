@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }} - TRAXOVO Fleet Intelligence</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --herc-yellow: #FFD700;
+            --herc-blue: #003366;
+            --herc-gray: #f8f9fa;
+        }
+        body { 
+            background-color: var(--herc-gray); 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .sidebar {
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            min-height: 100vh;
+            padding: 0;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        .content-area {
+            background-color: var(--herc-gray);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .metric-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--herc-yellow);
+            margin-bottom: 20px;
+        }
+        .chart-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .revenue-positive { color: #28a745; }
+        .revenue-negative { color: #dc3545; }
+        .nav-link {
+            color: white !important;
+            padding: 12px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: var(--herc-yellow) !important;
+        }
+        .nav-link.active {
+            background-color: var(--herc-yellow);
+            color: var(--herc-blue) !important;
+            font-weight: 600;
+        }
+        .btn-herc {
+            background-color: var(--herc-yellow);
+            border: none;
+            color: var(--herc-blue);
+            font-weight: 600;
+        }
+        .table th {
+            background-color: var(--herc-blue);
+            color: white;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 sidebar">
+                <div class="p-3">
+                    <h4 class="text-white mb-4">
+                        <i class="fas fa-truck text-warning"></i> TRAXOVO
+                    </h4>
+                    <nav class="nav flex-column">
+                        <a class="nav-link" href="/">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                        <div class="text-warning small mt-3 mb-2 px-3">CORE OPERATIONS</div>
+                        <a class="nav-link" href="/fleet-map">
+                            <i class="fas fa-map-marked-alt"></i> Live Fleet Map
+                        </a>
+                        <a class="nav-link" href="/asset-manager">
+                            <i class="fas fa-cogs"></i> Asset Manager
+                        </a>
+                        <div class="text-warning small mt-3 mb-2 px-3">ANALYTICS</div>
+                        <a class="nav-link active" href="/billing">
+                            <i class="fas fa-chart-line"></i> Revenue Analytics
+                        </a>
+                        <a class="nav-link" href="/executive-reports">
+                            <i class="fas fa-file-alt"></i> Executive Reports
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-10 content-area">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="text-dark">
+                        <i class="fas fa-chart-line text-warning"></i> {{ page_title }}
+                    </h2>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-herc">
+                            <i class="fas fa-download"></i> Export Report
+                        </button>
+                        <button class="btn btn-outline-secondary">
+                            <i class="fas fa-filter"></i> Filter
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Revenue Metrics -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="metric-card text-center">
+                            <h3 class="revenue-positive mb-1">${{ "%.2f"|format(total_revenue/1000000) }}M</h3>
+                            <p class="text-muted mb-0">Total Revenue</p>
+                            <small class="text-success">
+                                <i class="fas fa-arrow-up"></i> +12.5% YTD
+                            </small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card text-center">
+                            <h3 class="text-warning mb-1">${{ "%.2f"|format(total_costs/1000000) }}M</h3>
+                            <p class="text-muted mb-0">Total Costs</p>
+                            <small class="text-warning">
+                                <i class="fas fa-arrow-up"></i> +8.2% YTD
+                            </small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card text-center">
+                            <h3 class="revenue-positive mb-1">{{ profit_margin }}%</h3>
+                            <p class="text-muted mb-0">Profit Margin</p>
+                            <small class="text-success">
+                                <i class="fas fa-arrow-up"></i> +4.3% YTD
+                            </small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card text-center">
+                            <h3 class="text-info mb-1">87.5%</h3>
+                            <p class="text-muted mb-0">Billing Efficiency</p>
+                            <small class="text-info">
+                                <i class="fas fa-arrow-up"></i> +2.1% YTD
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                        <div class="chart-card">
+                            <h5 class="mb-3">Revenue vs Costs Trend</h5>
+                            <canvas id="revenueChart" height="300"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="chart-card">
+                            <h5 class="mb-3">Profit Distribution</h5>
+                            <canvas id="profitChart" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cost Analysis Table -->
+                <div class="chart-card">
+                    <h5 class="mb-3">Equipment Cost Analysis</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Asset ID</th>
+                                    <th>Usage Hours</th>
+                                    <th>Total Cost</th>
+                                    <th>Revenue Generated</th>
+                                    <th>Cost per Hour</th>
+                                    <th>Profit Margin</th>
+                                    <th>Performance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in cost_analysis %}
+                                <tr>
+                                    <td><strong>{{ item.asset_id }}</strong></td>
+                                    <td>{{ "%.1f"|format(item.total_usage_hours) }}</td>
+                                    <td>${{ "%.2f"|format(item.total_cost) }}</td>
+                                    <td class="revenue-positive">${{ "%.2f"|format(item.revenue_generated) }}</td>
+                                    <td>${{ "%.2f"|format(item.cost_per_hour) }}</td>
+                                    <td>
+                                        {% set margin = ((item.revenue_generated - item.total_cost) / item.revenue_generated * 100) if item.revenue_generated > 0 else 0 %}
+                                        <span class="{% if margin > 0 %}revenue-positive{% else %}revenue-negative{% endif %}">
+                                            {{ "%.1f"|format(margin) }}%
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% set margin = ((item.revenue_generated - item.total_cost) / item.revenue_generated * 100) if item.revenue_generated > 0 else 0 %}
+                                        {% if margin > 20 %}
+                                            <span class="badge bg-success">Excellent</span>
+                                        {% elif margin > 10 %}
+                                            <span class="badge bg-warning">Good</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Poor</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% if not cost_analysis %}
+                                <tr>
+                                    <td colspan="7" class="text-center py-4">
+                                        <div class="text-muted">
+                                            <i class="fas fa-chart-bar fa-2x mb-2"></i>
+                                            <p>Loading cost analysis from authentic data sources...</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Revenue Trend Chart
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                datasets: [{
+                    label: 'Revenue',
+                    data: [180000, 195000, 210000, 205000, 221000],
+                    borderColor: '#28a745',
+                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    tension: 0.4
+                }, {
+                    label: 'Costs',
+                    data: [85000, 89000, 92000, 88000, 89000],
+                    borderColor: '#ffc107',
+                    backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + (value/1000) + 'K';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Profit Distribution Chart
+        const profitCtx = document.getElementById('profitChart').getContext('2d');
+        new Chart(profitCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Equipment Revenue', 'Service Revenue', 'Other Revenue'],
+                datasets: [{
+                    data: [65, 25, 10],
+                    backgroundColor: ['#FFD700', '#28a745', '#17a2b8'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

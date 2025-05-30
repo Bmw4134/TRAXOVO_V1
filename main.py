@@ -22,7 +22,8 @@ class Base(DeclarativeBase):
 
 # Initialize Flask app
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET") or "traxovo-fleet-secret"
+app.secret_key = os.environ.get("SESSION_SECRET") or "traxovo-fleet-secret-dev-key-123"
+app.config['SESSION_TYPE'] = 'filesystem'
 
 # Import and register routes with error handling
 try:
@@ -264,12 +265,16 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
         
+        print(f"Login attempt: username='{username}', password='{password}'")  # Debug
+        
         if username == 'admin' and password == 'admin':
             session['logged_in'] = True
             session['username'] = username
-            flash('Login successful', 'success')
-            return redirect(url_for('index'))
+            session.permanent = True
+            print("Login successful, session set")  # Debug
+            return redirect(url_for('dashboard'))
         else:
+            print("Login failed - invalid credentials")  # Debug
             flash('Invalid credentials', 'error')
     
     return render_template('login.html')

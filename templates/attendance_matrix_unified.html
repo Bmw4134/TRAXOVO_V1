@@ -18,14 +18,9 @@
             <div class="card-body">
                 <h6 class="card-title">View Options</h6>
                 <div class="btn-group w-100" role="group">
-                    <input type="radio" class="btn-check" name="viewType" id="daily" checked>
-                    <label class="btn btn-outline-primary" for="daily">Daily</label>
-                    
-                    <input type="radio" class="btn-check" name="viewType" id="weekly">
-                    <label class="btn btn-outline-primary" for="weekly">Weekly</label>
-                    
-                    <input type="radio" class="btn-check" name="viewType" id="monthly">
-                    <label class="btn btn-outline-primary" for="monthly">Monthly</label>
+                    <a href="/attendance-matrix/daily" class="btn {% if view_type == 'daily' %}btn-primary{% else %}btn-outline-primary{% endif %}">Daily</a>
+                    <a href="/attendance-matrix/weekly" class="btn {% if view_type == 'weekly' %}btn-primary{% else %}btn-outline-primary{% endif %}">Weekly</a>
+                    <a href="/attendance-matrix/monthly" class="btn {% if view_type == 'monthly' %}btn-primary{% else %}btn-outline-primary{% endif %}">Monthly</a>
                 </div>
             </div>
         </div>

@@ -413,7 +413,8 @@ def billing_consolidation_dashboard():
         'quality_factors': quality_assessment.get('factors', {}),
         'intelligent_analysis': duplicate_analysis,
         'fluff_files': duplicate_analysis.get('fluff_files', []),
-        'original_record_count': len(consolidated_data)
+        'original_record_count': len(consolidated_data),
+        'monthly_breakdown': analysis.get('monthly_breakdown', {})  # Add missing template variable
     }
     
     return render_template('billing_consolidation_dashboard.html', **context)

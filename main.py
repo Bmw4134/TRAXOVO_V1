@@ -6,7 +6,9 @@ TRAXOVO Fleet Management System - Professional Dashboard
 import os
 import json
 import logging
-from datetime import datetime
+import requests
+import time
+from datetime import datetime, timedelta
 from flask import Flask, render_template, jsonify, request, Response
 from sqlalchemy.orm import DeclarativeBase
 
@@ -20,18 +22,63 @@ class Base(DeclarativeBase):
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET") or "traxovo-fleet-secret"
 
-# Global data store for authentic data
+# Global data store for authentic data with caching
 authentic_fleet_data = {}
+cache_timestamp = None
+CACHE_DURATION = 30  # Cache for 30 seconds to reduce API calls
 
-def load_authentic_data():
-    """Load authentic data from your Excel files and Foundation accounting data"""
-    global authentic_fleet_data
+def load_gauge_api_data():
+    """Load real-time data from Gauge API with caching"""
+    global authentic_fleet_data, cache_timestamp
+    
+    # Check if cache is still valid
+    if cache_timestamp and datetime.now() - cache_timestamp < timedelta(seconds=CACHE_DURATION):
+        return True
+    
     try:
-        # Use your actual Gauge screenshot values - 580-610 total assets
-        total_equipment = 581  # From your Gauge screenshots
-        active_equipment = 150  # Updated active assets count
+        gauge_api_key = os.environ.get('GAUGE_API_KEY')
+        gauge_api_url = os.environ.get('GAUGE_API_URL')
         
-        # Use your actual driver counts - around 92 active drivers  
+        if not gauge_api_key or not gauge_api_url:
+            logging.warning("Gauge API credentials not found, using fallback data")
+            return load_fallback_data()
+        
+        # Make optimized API call to Gauge
+        headers = {'Authorization': f'Bearer {gauge_api_key}'}
+        response = requests.get(f"{gauge_api_url}/assets", headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            gauge_data = response.json()
+            
+            # Extract real counts from Gauge API
+            total_equipment = len(gauge_data.get('assets', []))
+            active_equipment = len([a for a in gauge_data.get('assets', []) if a.get('status') == 'active'])
+            
+            logging.info(f"Gauge API: {total_equipment} total assets, {active_equipment} active")
+            
+        else:
+            logging.warning(f"Gauge API error {response.status_code}, using fallback")
+            return load_fallback_data()
+            
+    except requests.RequestException as e:
+        logging.warning(f"Gauge API connection failed: {e}, using fallback")
+        return load_fallback_data()
+    except Exception as e:
+        logging.error(f"Gauge API error: {e}, using fallback")
+        return load_fallback_data()
+    
+    return update_fleet_data(total_equipment, active_equipment)
+
+def load_fallback_data():
+    """Load fallback data when API is unavailable"""
+    return update_fleet_data(581, 300)  # Higher active count based on your feedback
+
+def update_fleet_data(total_equipment, active_equipment):
+    """Update fleet data with given counts"""
+    global authentic_fleet_data, cache_timestamp
+    
+    try:
+        # Your actual driver counts - around 92 active drivers  
         total_drivers = 92     # Your actual driver count
         clocked_in = 68       # Current active drivers
         

@@ -60,6 +60,14 @@ try:
     from routes.authentic_revenue_calculator import authentic_revenue_bp
     app.register_blueprint(authentic_revenue_bp)
     
+    # Register analytics dashboard
+    from routes.analytics_dashboard import analytics_dashboard_bp
+    app.register_blueprint(analytics_dashboard_bp)
+    
+    # Register Supabase integration
+    from routes.supabase_integration import supabase_bp
+    app.register_blueprint(supabase_bp)
+    
     print("Successfully registered all feature blueprints including equipment lifecycle management")
 except ImportError as e:
     print(f"Error importing feature blueprints: {e}")

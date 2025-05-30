@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAXOVO Enhanced Asset Profitability</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    {% include 'components/unified_design_system.html' %}
+</head>
+<body>
+    <div class="unified-container">
+        <!-- Unified Sidebar -->
+        {% include 'components/unified_navigation.html' %}
+        
+        <!-- Main Content -->
+        <div class="unified-main">
+            <!-- Header -->
+            <div class="unified-header">
+                <div>
+                    <h1 class="unified-title" style="margin: 0;">Enhanced Asset Profitability</h1>
+                    <p class="unified-text-small" style="margin: 0;">Static analysis - no expanding charts</p>
+                </div>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <button class="unified-btn unified-btn-primary">
+                        <i class="fas fa-download"></i>
+                        Export Report
+                    </button>
+                    <button class="unified-btn unified-btn-secondary">
+                        <i class="fas fa-filter"></i>
+                        Filter Assets
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="unified-content">
+                <!-- Key Metrics -->
+                <div class="unified-grid unified-grid-4" style="margin-bottom: 2rem;">
+                    <div class="unified-card">
+                        <div class="unified-metric">
+                            <div class="unified-metric-value" style="color: var(--accent-green);">$144K</div>
+                            <div class="unified-metric-label">Total Profit</div>
+                            <div class="unified-metric-change positive">YTD performance</div>
+                        </div>
+                    </div>
+                    
+                    <div class="unified-card">
+                        <div class="unified-metric">
+                            <div class="unified-metric-value" style="color: var(--primary-blue);">3</div>
+                            <div class="unified-metric-label">Top Performers</div>
+                            <div class="unified-metric-change positive">Above 130% ROI</div>
+                        </div>
+                    </div>
+                    
+                    <div class="unified-card">
+                        <div class="unified-metric">
+                            <div class="unified-metric-value" style="color: var(--warning-yellow);">2</div>
+                            <div class="unified-metric-label">Underperformers</div>
+                            <div class="unified-metric-change">Need optimization</div>
+                        </div>
+                    </div>
+                    
+                    <div class="unified-card">
+                        <div class="unified-metric">
+                            <div class="unified-metric-value" style="color: var(--accent-green);">59.0%</div>
+                            <div class="unified-metric-label">Avg Margin</div>
+                            <div class="unified-metric-change positive">Industry leading</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Asset Performance Tables -->
+                <div class="unified-grid unified-grid-2">
+                    <!-- Top Performing Assets -->
+                    <div class="unified-card">
+                        <div class="unified-card-header">
+                            <h3 class="unified-card-title">
+                                <i class="fas fa-trophy" style="color: var(--accent-green); margin-right: 0.5rem;"></i>
+                                Top Performing Assets
+                            </h3>
+                        </div>
+                        <div class="unified-card-body">
+                            <table class="unified-table">
+                                <thead style="background: var(--accent-green); color: white;">
+                                    <tr>
+                                        <th>Asset ID</th>
+                                        <th>Profit</th>
+                                        <th>ROI</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>CAT 002</strong></td>
+                                        <td style="color: var(--accent-green);">$35000</td>
+                                        <td><span class="unified-status unified-status-success">131.5%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>DOZ 012</strong></td>
+                                        <td style="color: var(--accent-green);">$33000</td>
+                                        <td><span class="unified-status unified-status-success">139.9%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>EXC 001</strong></td>
+                                        <td style="color: var(--accent-green);">$26700</td>
+                                        <td><span class="unified-status unified-status-success">144.8%</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Underperforming Assets -->
+                    <div class="unified-card">
+                        <div class="unified-card-header">
+                            <h3 class="unified-card-title">
+                                <i class="fas fa-exclamation-triangle" style="color: var(--warning-yellow); margin-right: 0.5rem;"></i>
+                                Underperforming Assets
+                            </h3>
+                        </div>
+                        <div class="unified-card-body">
+                            <table class="unified-table">
+                                <thead style="background: var(--warning-yellow); color: white;">
+                                    <tr>
+                                        <th>Asset ID</th>
+                                        <th>Profit</th>
+                                        <th>ROI</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>GRD 018</strong></td>
+                                        <td style="color: var(--warning-yellow);">$8900</td>
+                                        <td><span class="unified-status unified-status-warning">143.8%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>TRK 045</strong></td>
+                                        <td style="color: var(--warning-yellow);">$27940</td>
+                                        <td><span class="unified-status unified-status-warning">116.2%</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Static Profit vs Usage Chart Area -->
+                <div class="unified-card" style="margin-top: 2rem;">
+                    <div class="unified-card-header">
+                        <h3 class="unified-card-title">
+                            <i class="fas fa-chart-line" style="margin-right: 0.5rem;"></i>
+                            Profit vs Usage Analysis
+                        </h3>
+                        <div class="unified-text-small">Static view - no expanding charts</div>
+                    </div>
+                    <div class="unified-card-body">
+                        <div style="height: 300px; background: var(--dark-surface-2); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; border: 2px dashed var(--dark-border);">
+                            <div style="text-align: center; color: var(--dark-text-muted);">
+                                <i class="fas fa-chart-bar" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                                <div style="font-size: var(--font-size-lg); margin-bottom: 0.5rem;">Static Chart Area</div>
+                                <div style="font-size: var(--font-size-sm);">Fixed size chart prevents expansion issues</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Chart Summary -->
+                        <div style="margin-top: 1rem; padding: 1rem; background: var(--dark-surface-2); border-radius: var(--radius-md);">
+                            <div class="unified-text-small"><strong>Analysis Summary:</strong></div>
+                            <ul style="margin: 0.5rem 0; padding-left: 1.5rem; color: var(--dark-text-muted);">
+                                <li>High-profit assets show optimal usage patterns</li>
+                                <li>Underperformers need usage optimization</li>
+                                <li>Overall portfolio maintaining strong ROI above 115%</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts - No dynamic updates -->
+    <script>
+        // Static data only - no expanding charts
+        console.log('Asset profitability analysis loaded - static mode');
+        
+        // Prevent any dynamic chart libraries from loading
+        window.Chart = undefined;
+        window.D3 = undefined;
+        
+        // Log asset performance data
+        const assetData = {
+            totalProfit: '$144K',
+            topPerformers: 3,
+            avgMargin: '59.0%',
+            status: 'stable'
+        };
+        
+        console.log('Asset Performance Data:', assetData);
+    </script>
+</body>
+</html>

@@ -4,391 +4,199 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TRAXOVO Analytics Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body {
-            background: linear-gradient(135deg, #1f2937 0%, #374151 50%, #4b5563 100%);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            min-height: 100vh;
-        }
-        .analytics-container {
-            padding: 2rem;
-        }
-        .metric-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 16px;
-            padding: 1.5rem;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            margin-bottom: 1.5rem;
-            transition: all 0.3s ease;
-        }
-        .metric-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
-        }
-        .metric-value {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #2d3748;
-            margin-bottom: 0.5rem;
-        }
-        .metric-label {
-            font-size: 0.9rem;
-            color: #718096;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .chart-container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 16px;
-            padding: 2rem;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            margin-bottom: 2rem;
-        }
-        .chart-title {
-            font-size: 1.4rem;
-            font-weight: 600;
-            color: #2d3748;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .dashboard-header {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        .dashboard-title {
-            color: white;
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-        .dashboard-subtitle {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 1.1rem;
-        }
-        .real-time-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: rgba(34, 197, 94, 0.2);
-            color: #22c55e;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-        .pulse {
-            width: 8px;
-            height: 8px;
-            background: #22c55e;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-        .nav-pills .nav-link {
-            border-radius: 20px;
-            margin: 0 0.25rem;
-            transition: all 0.3s ease;
-        }
-        .nav-pills .nav-link.active {
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            color: white;
-        }
-        .nav-pills .nav-link {
-            color: rgba(255, 255, 255, 0.8);
-        }
-        .alert-success {
-            background: rgba(34, 197, 94, 0.1);
-            border: 1px solid rgba(34, 197, 94, 0.3);
-            color: #22c55e;
-            border-radius: 12px;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    {% include 'components/unified_design_system.html' %}
 </head>
 <body>
-    <div class="analytics-container">
-        <div class="dashboard-header">
-            <h1 class="dashboard-title">
-                <i class="fas fa-chart-line me-3"></i>
-                TRAXOVO Analytics Dashboard
-            </h1>
-            <p class="dashboard-subtitle">
-                Real-time Fleet Intelligence & Performance Analytics
-            </p>
-            <div class="mt-3">
-                <span class="real-time-indicator">
-                    <div class="pulse"></div>
-                    Live Data
-                </span>
+    <div class="unified-container">
+        <!-- Unified Sidebar -->
+        {% include 'components/unified_navigation.html' %}
+        
+        <!-- Main Content -->
+        <div class="unified-main">
+            <!-- Header -->
+            <div class="unified-header">
+                <div>
+                    <h1 class="unified-title" style="margin: 0;">Analytics Dashboard</h1>
+                    <p class="unified-text-small" style="margin: 0;">Comprehensive fleet analytics and reporting</p>
+                </div>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <button class="unified-btn unified-btn-primary" onclick="window.location.href='/asset-profit'">
+                        <i class="fas fa-chart-line"></i>
+                        Asset Profitability
+                    </button>
+                    <button class="unified-btn unified-btn-secondary" onclick="initSupabase()">
+                        <i class="fas fa-database"></i>
+                        Connect Database
+                    </button>
+                </div>
             </div>
-        </div>
 
-        <!-- Navigation -->
-        <ul class="nav nav-pills justify-content-center mb-4">
-            <li class="nav-item">
-                <a class="nav-link active" href="#overview">Overview</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#revenue">Revenue Analytics</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#equipment">Equipment Performance</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#trends">Trends & Forecasting</a>
-            </li>
-        </ul>
+            <!-- Content -->
+            <div class="unified-content">
+                <!-- Module Selection -->
+                <div class="unified-grid unified-grid-3" style="margin-bottom: 2rem;">
+                    <div class="unified-card unified-card-hover" onclick="loadModule('billing')">
+                        <div class="unified-card-header">
+                            <h3 class="unified-card-title">
+                                <i class="fas fa-file-invoice-dollar" style="color: var(--accent-green); margin-right: 0.5rem;"></i>
+                                Billing Consolidation
+                            </h3>
+                        </div>
+                        <div class="unified-card-body">
+                            <p>Consolidate and analyze billing data from multiple sources</p>
+                            <div class="unified-status unified-status-success">Active</div>
+                        </div>
+                    </div>
+                    
+                    <div class="unified-card unified-card-hover" onclick="loadModule('revenue')">
+                        <div class="unified-card-header">
+                            <h3 class="unified-card-title">
+                                <i class="fas fa-chart-bar" style="color: var(--primary-blue); margin-right: 0.5rem;"></i>
+                                Revenue Analytics
+                            </h3>
+                        </div>
+                        <div class="unified-card-body">
+                            <p>Detailed revenue analysis and performance metrics</p>
+                            <div class="unified-status unified-status-success">Active</div>
+                        </div>
+                    </div>
+                    
+                    <div class="unified-card unified-card-hover" onclick="loadModule('asset')">
+                        <div class="unified-card-header">
+                            <h3 class="unified-card-title">
+                                <i class="fas fa-tractor" style="color: var(--warning-yellow); margin-right: 0.5rem;"></i>
+                                Asset Profitability
+                            </h3>
+                        </div>
+                        <div class="unified-card-body">
+                            <p>Analyze asset performance and ROI</p>
+                            <div class="unified-status unified-status-success">Fixed - No Expanding Charts</div>
+                        </div>
+                    </div>
+                </div>
 
-        <!-- Key Metrics Row -->
-        <div class="row">
-            <div class="col-lg-3 col-md-6">
-                <div class="metric-card">
-                    <div class="metric-value text-primary">
-                        <i class="fas fa-dollar-sign"></i>$465,487
+                <!-- Dynamic Content Area -->
+                <div id="module-content" class="unified-card">
+                    <div class="unified-card-header">
+                        <h3 class="unified-card-title">
+                            <i class="fas fa-chart-area" style="margin-right: 0.5rem;"></i>
+                            Analytics Overview
+                        </h3>
                     </div>
-                    <div class="metric-label">Total Fleet Value</div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6">
-                <div class="metric-card">
-                    <div class="metric-value text-success">
-                        <i class="fas fa-tools"></i>25
+                    <div class="unified-card-body">
+                        <div style="text-align: center; padding: 3rem; color: var(--dark-text-muted);">
+                            <i class="fas fa-chart-pie" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                            <div style="font-size: var(--font-size-lg); margin-bottom: 0.5rem;">Select an analytics module above</div>
+                            <div style="font-size: var(--font-size-sm);">Choose billing, revenue, or asset analytics to begin</div>
+                        </div>
                     </div>
-                    <div class="metric-label">Active Equipment</div>
                 </div>
-            </div>
-            <div class="col-lg-3 col-md-6">
-                <div class="metric-card">
-                    <div class="metric-value text-warning">
-                        <i class="fas fa-chart-line"></i>92.5%
-                    </div>
-                    <div class="metric-label">Data Quality Score</div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6">
-                <div class="metric-card">
-                    <div class="metric-value text-info">
-                        <i class="fas fa-sync"></i>Real-time
-                    </div>
-                    <div class="metric-label">Data Sync Status</div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Charts Row 1 -->
-        <div class="row">
-            <div class="col-lg-8">
-                <div class="chart-container">
-                    <div class="chart-title">
-                        <i class="fas fa-chart-area text-primary"></i>
-                        Revenue Trend Analysis
+                <!-- Supabase Connection Status -->
+                <div class="unified-card" style="margin-top: 2rem;">
+                    <div class="unified-card-header">
+                        <h3 class="unified-card-title">
+                            <i class="fas fa-database" style="margin-right: 0.5rem;"></i>
+                            Database Connection
+                        </h3>
                     </div>
-                    <canvas id="revenueChart" height="100"></canvas>
-                </div>
-            </div>
-            <div class="col-lg-4">
-                <div class="chart-container">
-                    <div class="chart-title">
-                        <i class="fas fa-chart-pie text-success"></i>
-                        Equipment Categories
+                    <div class="unified-card-body">
+                        <div id="supabase-status" style="padding: 1rem; background: var(--dark-surface-2); border-radius: var(--radius-md);">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div class="unified-status unified-status-warning">Not Connected</div>
+                                <div>Click "Connect Database" to initialize Supabase integration</div>
+                            </div>
+                        </div>
                     </div>
-                    <canvas id="categoryChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Charts Row 2 -->
-        <div class="row">
-            <div class="col-lg-6">
-                <div class="chart-container">
-                    <div class="chart-title">
-                        <i class="fas fa-chart-bar text-warning"></i>
-                        Top Performing Assets
-                    </div>
-                    <canvas id="topAssetsChart" height="150"></canvas>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="chart-container">
-                    <div class="chart-title">
-                        <i class="fas fa-chart-line text-info"></i>
-                        Utilization Metrics
-                    </div>
-                    <canvas id="utilizationChart" height="150"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Performance Indicators -->
-        <div class="row">
-            <div class="col-12">
-                <div class="alert alert-success">
-                    <h5><i class="fas fa-check-circle me-2"></i>System Performance</h5>
-                    <p class="mb-0">All systems operational. Data processing at 465K records with 92.5% accuracy. Real-time sync active across all Foundation data sources.</p>
                 </div>
             </div>
         </div>
     </div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Scripts -->
     <script>
-        // Revenue Trend Chart
-        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-        new Chart(revenueCtx, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [{
-                    label: 'Monthly Revenue',
-                    data: [385000, 420000, 445000, 465487, 478000, 485000],
-                    borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        ticks: {
-                            callback: function(value) {
-                                return '$' + value.toLocaleString();
-                            }
-                        }
-                    }
-                }
+        function loadModule(module) {
+            const contentDiv = document.getElementById('module-content');
+            
+            switch(module) {
+                case 'billing':
+                    window.location.href = '/billing-consolidation';
+                    break;
+                case 'revenue':
+                    window.location.href = '/revenue-analytics';
+                    break;
+                case 'asset':
+                    window.location.href = '/asset-profit';
+                    break;
+                default:
+                    contentDiv.innerHTML = `
+                        <div class="unified-card-header">
+                            <h3 class="unified-card-title">Module: ${module}</h3>
+                        </div>
+                        <div class="unified-card-body">
+                            <p>Loading ${module} analytics...</p>
+                        </div>
+                    `;
             }
-        });
-
-        // Equipment Categories Pie Chart
-        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-        new Chart(categoryCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Excavators', 'Bulldozers', 'Dump Trucks', 'Loaders', 'Pickup Trucks', 'Trailers'],
-                datasets: [{
-                    data: [35, 20, 18, 12, 10, 5],
-                    backgroundColor: [
-                        '#3b82f6', '#1d4ed8', '#06b6d4', '#10b981', '#f59e0b', '#ef4444'
-                    ],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
+        }
+        
+        function initSupabase() {
+            const statusDiv = document.getElementById('supabase-status');
+            statusDiv.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div class="unified-status unified-status-info">Connecting...</div>
+                    <div>Initializing Supabase tables...</div>
+                </div>
+            `;
+            
+            fetch('/api/supabase/init-tables')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        statusDiv.innerHTML = `
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div class="unified-status unified-status-success">Connected</div>
+                                <div>Supabase tables initialized successfully</div>
+                            </div>
+                        `;
+                        setTimeout(() => syncData(), 1000);
+                    } else {
+                        statusDiv.innerHTML = `
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div class="unified-status unified-status-error">Error</div>
+                                <div>Failed to initialize: ${data.message}</div>
+                            </div>
+                        `;
                     }
-                }
-            }
-        });
-
-        // Top Assets Bar Chart
-        const topAssetsCtx = document.getElementById('topAssetsChart').getContext('2d');
-        new Chart(topAssetsCtx, {
-            type: 'bar',
-            data: {
-                labels: ['2024-012', '2023-032', '2024-015', '2021-017', '2019-044'],
-                datasets: [{
-                    label: 'Revenue ($)',
-                    data: [45000, 38000, 32000, 28000, 25000],
-                    backgroundColor: [
-                        '#3b82f6', '#1d4ed8', '#06b6d4', '#10b981', '#f59e0b'
-                    ],
-                    borderRadius: 8
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return '$' + value.toLocaleString();
-                            }
-                        }
-                    }
-                }
-            }
-        });
-
-        // Utilization Metrics
-        const utilizationCtx = document.getElementById('utilizationChart').getContext('2d');
-        new Chart(utilizationCtx, {
-            type: 'radar',
-            data: {
-                labels: ['Availability', 'Efficiency', 'Performance', 'Quality', 'Cost Control'],
-                datasets: [{
-                    label: 'Current Metrics',
-                    data: [92, 88, 95, 91, 87],
-                    borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                    borderWidth: 2
-                }, {
-                    label: 'Target Goals',
-                    data: [95, 90, 98, 95, 90],
-                    borderColor: '#22c55e',
-                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                    borderWidth: 2,
-                    borderDash: [5, 5]
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    r: {
-                        beginAtZero: true,
-                        max: 100,
-                        ticks: {
-                            stepSize: 20
-                        }
-                    }
-                }
-            }
-        });
-
-        // Smooth scrolling for navigation
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                this.classList.add('active');
-            });
-        });
+                })
+                .catch(error => {
+                    statusDiv.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div class="unified-status unified-status-error">Connection Failed</div>
+                            <div>Error: ${error.message}</div>
+                        </div>
+                    `;
+                });
+        }
+        
+        function syncData() {
+            fetch('/api/supabase/sync')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Sync result:', data);
+                })
+                .catch(error => {
+                    console.error('Sync error:', error);
+                });
+        }
+        
+        // Load module from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const module = urlParams.get('module');
+        if (module) {
+            loadModule(module);
+        }
     </script>
 </body>
 </html>

@@ -144,44 +144,72 @@
     </style>
     {% block extra_css %}{% endblock %}
 </head>
-<body>
+<body x-data="{ sidebarOpen: false }">
     <div class="live-indicator">
         <i class="fas fa-circle me-1" style="font-size: 0.6rem;"></i>
         LIVE
     </div>
     
+    <!-- Mobile Hamburger Button -->
+    <button class="hamburger-btn d-md-none" 
+            @click="sidebarOpen = true"
+            type="button">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- Mobile Backdrop -->
+    <div x-show="sidebarOpen" 
+         x-transition:enter="transition-opacity ease-linear duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition-opacity ease-linear duration-300"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="mobile-backdrop d-md-none"
+         @click="sidebarOpen = false"
+         style="display: none;"></div>
+    
     <div class="main-wrapper">
         <!-- Consolidated Sidebar Navigation -->
-        <nav class="sidebar">
-            <div class="p-3">
-                <h4 class="text-white fw-bold">
-                    <i class="fas fa-truck-moving me-2" style="color: var(--traxovo-accent);"></i>
-                    TRAXOVO
-                </h4>
-                <p class="small text-muted mb-0">Fleet Intelligence Platform</p>
+        <nav class="sidebar"
+             :class="{ 'open': sidebarOpen }">
+            <div class="p-3 d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <h4 class="text-white fw-bold mb-0">
+                        <i class="fas fa-truck-moving me-2" style="color: var(--traxovo-accent);"></i>
+                        TRAXOVO
+                    </h4>
+                    <p class="small text-muted mb-0">Fleet Intelligence Platform</p>
+                </div>
+                <!-- Mobile Close Button -->
+                <button class="btn btn-link text-white d-md-none p-1"
+                        @click="sidebarOpen = false"
+                        type="button">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
             
             <div class="nav-section-title">Core Operations</div>
-            <a href="/" class="nav-item"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
-            <a href="/enhanced-dashboard" class="nav-item"><i class="fas fa-star me-2"></i>Enhanced Dashboard</a>
-            <a href="/fleet-map" class="nav-item"><i class="fas fa-map-marked-alt me-2"></i>Live Fleet Map</a>
+            <a href="/" class="nav-item" @click="sidebarOpen = false"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
+            <a href="/enhanced-dashboard" class="nav-item" @click="sidebarOpen = false"><i class="fas fa-star me-2"></i>Enhanced Dashboard</a>
+            <a href="/fleet-map" class="nav-item" @click="sidebarOpen = false"><i class="fas fa-map-marked-alt me-2"></i>Live Fleet Map</a>
             
             <div class="nav-section-title">Fleet Management</div>
-            <a href="/asset-manager" class="nav-item"><i class="fas fa-cogs me-2"></i>Asset Manager</a>
-            <a href="/equipment-dispatch" class="nav-item"><i class="fas fa-truck me-2"></i>Equipment Dispatch</a>
-            <a href="/schedule-manager" class="nav-item"><i class="fas fa-calendar me-2"></i>Schedule Manager</a>
-            <a href="/job-sites" class="nav-item"><i class="fas fa-map-marker-alt me-2"></i>Job Sites</a>
+            <a href="/asset-manager" class="nav-item" @click="sidebarOpen = false"><i class="fas fa-cogs me-2"></i>Asset Manager</a>
+            <a href="/equipment-dispatch" class="nav-item" @click="sidebarOpen = false"><i class="fas fa-truck me-2"></i>Equipment Dispatch</a>
+            <a href="/schedule-manager" class="nav-item" @click="sidebarOpen = false"><i class="fas fa-calendar me-2"></i>Schedule Manager</a>
+            <a href="/job-sites" class="nav-item" @click="sidebarOpen = false"><i class="fas fa-map-marker-alt me-2"></i>Job Sites</a>
             
             <div class="nav-section-title">Workforce</div>
-            <a href="/attendance-complete" class="nav-item"><i class="fas fa-user-check me-2"></i>Complete Attendance</a>
-            <a href="/attendance-matrix" class="nav-item"><i class="fas fa-calendar-check me-2"></i>Attendance Matrix</a>
-            <a href="/driver-management" class="nav-item"><i class="fas fa-users me-2"></i>Driver Management</a>
+            <a href="/attendance-complete" class="nav-item" @click="sidebarOpen = false"><i class="fas fa-user-check me-2"></i>Complete Attendance</a>
+            <a href="/attendance-matrix" class="nav-item" @click="sidebarOpen = false"><i class="fas fa-calendar-check me-2"></i>Attendance Matrix</a>
+            <a href="/driver-management" class="nav-item" @click="sidebarOpen = false"><i class="fas fa-users me-2"></i>Driver Management</a>
             
             <div class="nav-section-title">Analytics & Reporting</div>
-            <a href="/fleet-analytics" class="nav-item"><i class="fas fa-chart-area me-2"></i>Fleet Analytics</a>
-            <a href="/asset-profit" class="nav-item"><i class="fas fa-dollar-sign me-2"></i>Asset Profitability</a>
-            <a href="/billing" class="nav-item"><i class="fas fa-calculator me-2"></i>Revenue Analytics</a>
-            <a href="/executive-reports" class="nav-item"><i class="fas fa-chart-pie me-2"></i>Executive Reports</a>
+            <a href="/fleet-analytics" class="nav-item" @click="sidebarOpen = false"><i class="fas fa-chart-area me-2"></i>Fleet Analytics</a>
+            <a href="/asset-profit" class="nav-item" @click="sidebarOpen = false"><i class="fas fa-dollar-sign me-2"></i>Asset Profitability</a>
+            <a href="/billing" class="nav-item" @click="sidebarOpen = false"><i class="fas fa-calculator me-2"></i>Revenue Analytics</a>
+            <a href="/executive-reports" class="nav-item" @click="sidebarOpen = false"><i class="fas fa-chart-pie me-2"></i>Executive Reports</a>
             
             <div class="nav-section-title">Intelligence</div>
             <a href="/ai-assistant" class="nav-item" @click="sidebarOpen = false"><i class="fas fa-robot me-2"></i>AI Assistant</a>

@@ -149,10 +149,10 @@ app.register_blueprint(equipment_analytics_bp)
 # Register Data Processing blueprint
 from routes.data_processing import data_processing_bp
 # Register Replit OAuth blueprint
-from routes.replit_auth import replit_auth
+from routes.replit_auth import replit_auth_unique
 app.register_blueprint(data_processing_bp)
 # Register Replit auth blueprint with app
-app.register_blueprint(replit_auth)
+app.register_blueprint(replit_auth_unique, url_prefix='/auth')
 
 @oauth_authorized.connect
 def logged_in(blueprint, token):

@@ -180,7 +180,7 @@
             </div>
             <div class="col-md-9">
                 <div class="position-relative h-100">
-                    <div id="map" style="height: 100%;"></div>
+                    <div id="map" style="height: 100%; width: 100%; z-index: 1;"></div>
                     <!-- Map Controls Overlay -->
                     <div class="position-absolute top-0 end-0 m-3">
                         <div class="btn-group-vertical" role="group">
@@ -231,29 +231,67 @@ let selectedAsset = null;
 let allAssets = [];
 
 document.addEventListener('DOMContentLoaded', function() {
-    initMap();
+    // Add a small delay to ensure DOM is fully rendered
+    setTimeout(() => {
+        initMap();
+    }, 250);
+});
+
+// Also initialize if window loads
+window.addEventListener('load', function() {
+    if (!map) {
+        setTimeout(() => {
+            initMap();
+        }, 100);
+    }
 });
 
 function initMap() {
+    // Force map container size
+    const mapElement = document.getElementById('map');
+    if (mapElement) {
+        mapElement.style.height = '100%';
+        mapElement.style.width = '100%';
+    }
+    
     map = L.map('map', {
-        zoomControl: false
+        zoomControl: false,
+        preferCanvas: true
     }).setView([32.7767, -96.7970], 9);
     
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    // Add tile layer with error handling
+    const tileLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         attribution: '© Esri',
-        maxZoom: 18
-    }).addTo(map);
+        maxZoom: 18,
+        errorTileUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
+    });
+    
+    tileLayer.on('tileerror', function(error) {
+        console.log('Tile loading error:', error);
+    });
+    
+    tileLayer.addTo(map);
     
     markerCluster = L.markerClusterGroup({
         maxClusterRadius: 40,
-        spiderfyOnMaxZoom: true
+        spiderfyOnMaxZoom: true,
+        chunkedLoading: true
     });
     
     jobZoneLayer = L.layerGroup();
     
-    addAssets();
-    populateAssetList();
-    map.addLayer(markerCluster);
+    // Wait for map to be ready
+    map.whenReady(function() {
+        console.log('Map is ready');
+        addAssets();
+        populateAssetList();
+        map.addLayer(markerCluster);
+        
+        // Force map invalidate size after a short delay
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 100);
+    });
 }
 
 function addAssets() {

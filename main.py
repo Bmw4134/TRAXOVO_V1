@@ -9,7 +9,7 @@ import logging
 import requests
 import time
 from datetime import datetime, timedelta
-from flask import Flask, render_template, jsonify, request, Response
+from flask import Flask, render_template, jsonify, request, Response, g
 from sqlalchemy.orm import DeclarativeBase
 
 # Configure logging
@@ -21,6 +21,15 @@ class Base(DeclarativeBase):
 # Initialize Flask app
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET") or "traxovo-fleet-secret"
+
+# Import and register persistent development engine
+from persistent_dev_engine import persistent_dev_bp, load_dev_context
+app.register_blueprint(persistent_dev_bp)
+
+# Load development context before each request
+@app.before_request
+def before_request():
+    load_dev_context()
 
 # Global data store for authentic data with caching
 authentic_fleet_data = {}

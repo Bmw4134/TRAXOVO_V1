@@ -400,7 +400,7 @@ def dashboard():
         'active_jobs': ['2019-044 E Long Avenue', '2021-017 Plant Extension']
     }
     
-    return render_template('master_unified.html', **context)
+    return render_template('dashboard.html', **context)
 
 # Keep all existing API endpoints
 @app.route('/api/assets')

@@ -165,6 +165,15 @@ args = "process_gauge_data()"
 task = "shell.exec"
 args = "\""
 
+[[workflows.workflow]]
+name = "Run TRAXOVO"
+author = 42738758
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"
+
 [[ports]]
 localPort = 5000
 externalPort = 80

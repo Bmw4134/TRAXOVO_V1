@@ -1,220 +1,222 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Live Fleet Map - TRAXOVO</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+{% extends "base.html" %}
+
+{% block title %}Fleet Map - TRAXOVO{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        {% include "includes/sidebar.html" %}
         
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f8fafc;
-            min-height: 100vh;
-            display: flex;
-        }
-        
-        .sidebar {
-            width: 280px;
-            background: linear-gradient(180deg, #2d3748 0%, #1a202c 100%);
-            color: white;
-            position: fixed;
-            height: 100vh;
-            overflow-y: auto;
-            box-shadow: 4px 0 12px rgba(0,0,0,0.15);
-        }
-        
-        .sidebar-header {
-            padding: 2rem 1.5rem 1rem;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .sidebar-header h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-        
-        .nav-item {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem 1.5rem;
-            color: #e2e8f0;
-            text-decoration: none;
-            transition: all 0.2s ease;
-            border-left: 3px solid transparent;
-        }
-        
-        .nav-item:hover {
-            background: rgba(255,255,255,0.1);
-            border-left-color: #667eea;
-            color: white;
-            text-decoration: none;
-        }
-        
-        .nav-item.active {
-            background: rgba(102, 126, 234, 0.2);
-            border-left-color: #667eea;
-            color: #667eea;
-        }
-        
-        .main-content {
-            margin-left: 280px;
-            flex: 1;
-            padding: 2rem;
-            background: white;
-        }
-        
-        .page-header {
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        
-        .page-title {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #1a202c;
-            margin-bottom: 0.5rem;
-        }
-        
-        .page-subtitle {
-            color: #64748b;
-        }
-        
-        .map-container {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 2rem;
-            min-height: 500px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-        }
-        
-        .back-link {
-            color: #3b82f6;
-            text-decoration: none;
-            margin-bottom: 1rem;
-            display: inline-block;
-        }
-        
-        .back-link:hover {
-            text-decoration: underline;
-        }
-        
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: fixed;
-                top: 0;
-                left: -100%;
-                transition: left 0.3s ease;
-                z-index: 1000;
-            }
-            
-            .sidebar.open {
-                left: 0;
-            }
-            
-            .main-content {
-                margin-left: 0;
-                padding: 1rem;
-                padding-top: 60px;
-            }
-            
-            .mobile-menu-btn {
-                display: block;
-                position: fixed;
-                top: 15px;
-                left: 15px;
-                z-index: 1001;
-                background: #2d3748;
-                color: white;
-                border: none;
-                padding: 12px;
-                border-radius: 8px;
-                cursor: pointer;
-                font-size: 18px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            }
-        }
-        
-        @media (min-width: 769px) {
-            .mobile-menu-btn {
-                display: none;
-            }
-        }
-    </style>
-</head>
-<body>
-    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
-    
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <h1>TRAXOVO</h1>
-        </div>
-        
-        <nav>
-            <a href="/" class="nav-item">🎯 Dashboard</a>
-            <a href="/fleet-map" class="nav-item active">🗺️ Live Fleet Map</a>
-            <a href="/asset-manager" class="nav-item">🚛 Asset Manager</a>
-            <a href="/attendance-matrix" class="nav-item">👥 Attendance Matrix</a>
-            <a href="/billing" class="nav-item">💰 Revenue Analytics</a>
-        </nav>
-    </div>
-    
-    <div class="main-content">
-        <div class="page-header">
-            <a href="/" class="back-link">← Back to Dashboard</a>
-            <h1 class="page-title">Live Fleet Map</h1>
-            <p class="page-subtitle">Real-time GPS tracking of {{ total_assets or 581 }} fleet assets</p>
-        </div>
-        
-        <div class="map-container">
-            <h3 style="color: #1a202c; margin-bottom: 1rem;">GPS Fleet Tracking</h3>
-            <p style="color: #64748b; text-align: center; margin-bottom: 2rem;">
-                Real-time location data for {{ active_assets or 75 }} active assets<br>
-                Connected to Gauge API for live updates
-            </p>
-            <div style="background: #f8fafc; padding: 2rem; border-radius: 8px; border: 1px solid #e2e8f0;">
-                <h4 style="color: #1a202c; margin-bottom: 1rem;">Fleet Status</h4>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                    <div style="text-align: center;">
-                        <div style="font-size: 2rem; font-weight: bold; color: #059669;">{{ total_assets or 581 }}</div>
-                        <div style="color: #64748b;">Total Assets</div>
+        <div class="col-md-9">
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">Live Fleet Map</h2>
+                    <p class="text-muted">Real-time GPS tracking and asset monitoring</p>
+                </div>
+                <div>
+                    <button class="btn btn-primary" onclick="refreshMap()">
+                        <i class="fas fa-sync-alt me-2"></i>Refresh Map
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="text-primary">{{ total_assets }}</h5>
+                            <small class="text-muted">Total Assets</small>
+                        </div>
                     </div>
-                    <div style="text-align: center;">
-                        <div style="font-size: 2rem; font-weight: bold; color: #d97706;">{{ active_assets or 75 }}</div>
-                        <div style="color: #64748b;">GPS Active</div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="text-success">{{ active_assets }}</h5>
+                            <small class="text-muted">Active Now</small>
+                        </div>
                     </div>
-                    <div style="text-align: center;">
-                        <div style="font-size: 2rem; font-weight: bold; color: #2563eb;">100%</div>
-                        <div style="color: #64748b;">Coverage</div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="text-info">8</h5>
+                            <small class="text-muted">GPS Enabled</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="text-warning">0</h5>
+                            <small class="text-muted">Alerts</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Simplified Map Container -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Equipment Locations</h5>
+                </div>
+                <div class="card-body">
+                    <div id="map" style="height: 500px; width: 100%;"></div>
+                </div>
+            </div>
+
+            <!-- Asset List -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Asset Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Asset ID</th>
+                                    <th>Equipment</th>
+                                    <th>Status</th>
+                                    <th>Location</th>
+                                    <th>Last Update</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for asset in assets %}
+                                <tr>
+                                    <td><strong>{{ asset.id }}</strong></td>
+                                    <td>{{ asset.name }}</td>
+                                    <td>
+                                        {% if asset.status == 'active' %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                            <span class="badge bg-warning">Idle</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if asset.lat and asset.lng %}
+                                            {{ "%.4f"|format(asset.lat) }}, {{ "%.4f"|format(asset.lng) }}
+                                        {% else %}
+                                            No GPS Data
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ asset.last_update }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+<!-- Leaflet CSS and JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+
+<script>
+// Fast-loading map implementation
+let map;
+let markerCluster;
+
+document.addEventListener('DOMContentLoaded', function() {
+    initMap();
+});
+
+function initMap() {
+    console.log('Initializing map...');
     
-    <script>
-        function toggleMobileMenu() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('open');
-        }
+    // Initialize map with Austin coordinates
+    map = L.map('map').setView([30.2672, -97.7431], 10);
+    
+    // Add OpenStreetMap tiles (reliable and fast)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 18
+    }).addTo(map);
+    
+    console.log('Map tiles added');
+    
+    // Initialize marker cluster
+    markerCluster = L.markerClusterGroup({
+        maxClusterRadius: 50,
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false,
+        zoomToBoundsOnClick: true
+    });
+    
+    // Add assets to map
+    addAssets();
+    
+    // Add cluster to map
+    map.addLayer(markerCluster);
+    
+    console.log('Map initialization complete');
+}
+
+function addAssets() {
+    console.log('Adding assets to map...');
+    const assets = {{ assets | tojson | safe }};
+    console.log('Assets data:', assets);
+    
+    if (!assets || assets.length === 0) {
+        console.log('No assets to display');
+        return;
+    }
+    
+    assets.forEach((asset, index) => {
+        console.log(`Adding asset ${index + 1}:`, asset);
         
-        document.addEventListener('click', function(event) {
-            const sidebar = document.getElementById('sidebar');
-            const menuBtn = document.querySelector('.mobile-menu-btn');
-            
-            if (window.innerWidth <= 768) {
-                if (!sidebar.contains(event.target) && !menuBtn.contains(event.target)) {
-                    sidebar.classList.remove('open');
-                }
-            }
-        });
-    </script>
-</body>
-</html>
+        // Create marker with custom icon based on status
+        let iconColor = 'blue';
+        if (asset.status === 'active') iconColor = 'green';
+        else if (asset.status === 'maintenance') iconColor = 'red';
+        else if (asset.status === 'idle') iconColor = 'orange';
+        
+        const marker = L.marker([asset.lat, asset.lng]);
+        
+        const popupContent = `
+            <div style="min-width: 250px;">
+                <h6><strong>${asset.name}</strong></h6>
+                <p><strong>Asset ID:</strong> ${asset.id}<br>
+                <strong>Category:</strong> ${asset.category || 'Equipment'}<br>
+                <strong>Status:</strong> <span style="color: ${iconColor};">${asset.status}</span><br>
+                <strong>Location:</strong> ${asset.location || 'Unknown'}<br>
+                <strong>Hours:</strong> ${asset.hours || 0}<br>
+                <strong>Last Update:</strong> ${asset.last_update}</p>
+            </div>
+        `;
+        
+        marker.bindPopup(popupContent);
+        markerCluster.addLayer(marker);
+    });
+    
+    console.log(`Added ${assets.length} assets to cluster`);
+}
+
+function refreshMap() {
+    // Simple refresh - in production this would fetch new data
+    console.log('Map refreshed');
+    
+    // Show brief loading indicator
+    const btn = event.target.closest('button');
+    const originalContent = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Refreshing...';
+    btn.disabled = true;
+    
+    setTimeout(() => {
+        btn.innerHTML = originalContent;
+        btn.disabled = false;
+    }, 1000);
+}
+</script>
+{% endblock %}

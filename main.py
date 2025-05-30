@@ -9,7 +9,7 @@ import logging
 import requests
 import time
 from datetime import datetime, timedelta
-from flask import Flask, render_template, jsonify, request, Response, g
+from flask import Flask, render_template, jsonify, request, Response, g, session, redirect, url_for, flash
 from sqlalchemy.orm import DeclarativeBase
 from services.execute_sql_direct import execute_sql_query
 
@@ -243,8 +243,35 @@ def refresh_data():
         'timestamp': datetime.now().isoformat()
     })
 
+def is_logged_in():
+    return session.get('logged_in', False)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        if username == 'admin' and password == 'admin':
+            session['logged_in'] = True
+            session['username'] = username
+            flash('Login successful', 'success')
+            return redirect(url_for('index'))
+        else:
+            flash('Invalid credentials', 'error')
+    
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash('You have been logged out', 'info')
+    return redirect(url_for('login'))
+
 @app.route('/')
 def index():
+    if not is_logged_in():
+        return redirect(url_for('login'))
     return dashboard()
 
 def dashboard():

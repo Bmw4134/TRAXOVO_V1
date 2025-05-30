@@ -8,6 +8,8 @@ import os
 from datetime import datetime
 from flask import Blueprint, jsonify, render_template
 import hashlib
+import difflib
+from collections import defaultdict
 
 billing_consolidation_bp = Blueprint('billing_consolidation', __name__)
 

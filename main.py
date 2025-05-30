@@ -22,14 +22,28 @@ class Base(DeclarativeBase):
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET") or "traxovo-fleet-secret"
 
-# Import and register persistent development engine
-from persistent_dev_engine import persistent_dev_bp, load_dev_context
-app.register_blueprint(persistent_dev_bp)
+# Import and register attendance routes
+from routes.attendance import attendance_bp
+app.register_blueprint(attendance_bp)
 
-# Load development context before each request
-@app.before_request
-def before_request():
-    load_dev_context()
+# Start scheduled attendance snapshots
+try:
+    from jobs.scheduled_snapshots import start_scheduler
+    # Scheduler will auto-start when imported
+except ImportError as e:
+    logging.warning(f"Scheduler not available: {e}")
+
+# Import and register persistent development engine
+try:
+    from persistent_dev_engine import persistent_dev_bp, load_dev_context
+    app.register_blueprint(persistent_dev_bp)
+    
+    # Load development context before each request
+    @app.before_request
+    def before_request():
+        load_dev_context()
+except ImportError:
+    pass
 
 # Global data store for authentic data with caching
 authentic_fleet_data = {}

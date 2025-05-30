@@ -52,6 +52,30 @@
     background: #007bff;
     color: white;
     border-color: #007bff;
+    transform: translateY(-1px);
+}
+
+.map-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255,255,255,0.95);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    z-index: 1000;
+}
+
+.zone-toggle {
+    position: absolute;
+    top: 80px;
+    right: 10px;
+    z-index: 1000;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 0.5rem;
 }
 
 #map {
@@ -79,6 +103,16 @@
     height: 12px;
     border-radius: 50%;
     margin-right: 0.5rem;
+}
+
+.pulse-active {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 3px 10px rgba(0,0,0,0.4), 0 0 0 0 rgba(40, 167, 69, 0.7); }
+    70% { box-shadow: 0 3px 10px rgba(0,0,0,0.4), 0 0 0 10px rgba(40, 167, 69, 0); }
+    100% { box-shadow: 0 3px 10px rgba(0,0,0,0.4), 0 0 0 0 rgba(40, 167, 69, 0); }
 }
 </style>
 {% endblock %}
@@ -151,10 +185,11 @@
             <div class="map-controls">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <button class="filter-btn active">All Equipment</button>
-                        <button class="filter-btn">Excavators</button>
-                        <button class="filter-btn">Trucks</button>
-                        <button class="filter-btn">Active Only</button>
+                        <button class="filter-btn active" onclick="filterAssets('all')">All Equipment</button>
+                        <button class="filter-btn" onclick="filterAssets('excavator')">Excavators</button>
+                        <button class="filter-btn" onclick="filterAssets('truck')">Trucks</button>
+                        <button class="filter-btn" onclick="filterAssets('active')">Active Only</button>
+                        <button class="filter-btn" onclick="toggleGeofences()">Toggle Zones</button>
                     </div>
                     <div class="d-flex align-items-center">
                         <div class="legend-item">
@@ -172,7 +207,22 @@
                     </div>
                 </div>
             </div>
-            <div id="map"></div>
+            <div id="map" style="position: relative;">
+                <div id="map-loading" class="map-loading" style="display: none;">
+                    <div class="text-center">
+                        <i class="fas fa-spinner fa-spin fa-2x text-primary mb-2"></i>
+                        <p class="mb-0">Loading fleet data...</p>
+                    </div>
+                </div>
+                <div class="zone-toggle">
+                    <button class="btn btn-sm btn-outline-secondary" onclick="toggleJobZones()" title="Toggle Job Zones">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="toggleOperationalZones()" title="Toggle Operational Areas">
+                        <i class="fas fa-draw-polygon"></i>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -189,6 +239,10 @@
 // Fast-loading map implementation
 let map;
 let markerCluster;
+let jobZoneLayer;
+let geofenceLayer;
+let currentFilter = 'all';
+let showJobZones = false;
 
 document.addEventListener('DOMContentLoaded', function() {
     initMap();
@@ -234,9 +288,12 @@ function initMap() {
         }
     });
     
-    // Add geofences and job zones
-    addGeofences();
-    addJobZones();
+    // Initialize layers
+    jobZoneLayer = L.layerGroup();
+    geofenceLayer = L.layerGroup();
+    
+    // Add operational geofences (always visible but subtle)
+    addOperationalGeofences();
     
     // Add assets to map
     addAssets();
@@ -258,35 +315,45 @@ function addAssets() {
             return;
         }
         
-        // Create custom marker based on status and category
+        // Apply current filter
+        if (currentFilter !== 'all') {
+            if (currentFilter === 'active' && asset.status !== 'active') return;
+            if (currentFilter === 'excavator' && !asset.category.toLowerCase().includes('excavator')) return;
+            if (currentFilter === 'truck' && !asset.category.toLowerCase().includes('truck')) return;
+        }
+        
+        // Create enhanced marker based on status and category
         let markerColor = asset.status === 'active' ? '#28a745' : '#ffc107';
         let markerIcon = getEquipmentIcon(asset.category);
+        let pulseClass = asset.status === 'active' ? 'pulse-active' : '';
         
         const customIcon = L.divIcon({
             className: 'custom-marker',
-            html: `<div style="background-color: ${markerColor}; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px;">
+            html: `<div class="${pulseClass}" style="background-color: ${markerColor}; width: 28px; height: 28px; border-radius: 50%; border: 3px solid white; box-shadow: 0 3px 10px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; color: white; font-size: 13px; font-weight: 500;">
                      <i class="fas ${markerIcon}"></i>
                    </div>`,
-            iconSize: [30, 30],
-            iconAnchor: [15, 15]
+            iconSize: [34, 34],
+            iconAnchor: [17, 17]
         });
         
         const marker = L.marker([asset.lat, asset.lng], { icon: customIcon });
         
         const popupContent = `
-            <div style="min-width: 280px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                <div style="border-bottom: 1px solid #e9ecef; padding-bottom: 0.75rem; margin-bottom: 0.75rem;">
-                    <h6 style="margin: 0; color: #343a40; font-weight: 600;">${asset.name}</h6>
-                    <small style="color: #6c757d;">${asset.id}</small>
+            <div style="min-width: 300px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                <div style="background: linear-gradient(135deg, ${markerColor}22 0%, ${markerColor}11 100%); margin: -12px -12px 12px -12px; padding: 12px; border-radius: 8px 8px 0 0;">
+                    <h6 style="margin: 0; color: #343a40; font-weight: 600; font-size: 16px;">${asset.name}</h6>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+                        <small style="color: #6c757d; font-weight: 500;">${asset.id}</small>
+                        <span style="background: ${markerColor}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600;">${asset.status.toUpperCase()}</span>
+                    </div>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.875rem;">
-                    <div><strong>Status:</strong><br><span style="color: ${markerColor}; font-weight: 500;">${asset.status.toUpperCase()}</span></div>
-                    <div><strong>Category:</strong><br>${asset.category || 'Equipment'}</div>
-                    <div><strong>Hours:</strong><br>${asset.hours || 'N/A'}</div>
-                    <div><strong>Location:</strong><br>${asset.location || 'Unknown'}</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 14px; margin-bottom: 12px;">
+                    <div><strong style="color: #495057;">Category:</strong><br><span style="color: #6c757d;">${asset.category || 'Equipment'}</span></div>
+                    <div><strong style="color: #495057;">Hours:</strong><br><span style="color: #6c757d;">${asset.hours || 'N/A'}</span></div>
                 </div>
-                <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #e9ecef; font-size: 0.8rem; color: #6c757d;">
-                    Last Update: ${asset.last_update}
+                <div style="border-top: 1px solid #e9ecef; padding-top: 12px;">
+                    <div style="margin-bottom: 8px;"><strong style="color: #495057;">Location:</strong><br><span style="color: #6c757d; font-size: 13px;">${asset.location || 'Unknown'}</span></div>
+                    <div style="font-size: 12px; color: #6c757d;"><strong>Last Update:</strong> ${asset.last_update}</div>
                 </div>
             </div>
         `;
@@ -312,45 +379,39 @@ function getEquipmentIcon(category) {
     return iconMap[category] || 'fa-cog';
 }
 
-function addGeofences() {
+function addOperationalGeofences() {
     const geofences = {{ geofences | tojson | safe }};
     
     geofences.forEach(geofence => {
         if (geofence.type === 'polygon') {
             const polygon = L.polygon(geofence.coordinates, {
-                color: geofence.color,
-                fillColor: geofence.fillColor,
-                fillOpacity: geofence.fillOpacity,
-                weight: 2
-            }).addTo(map);
+                color: '#007bff',
+                fillColor: '#007bff',
+                fillOpacity: 0.05,
+                weight: 1,
+                opacity: 0.3,
+                dashArray: '3, 3'
+            });
             
             polygon.bindPopup(`
                 <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
                     <h6 style="margin: 0 0 0.5rem 0; color: #343a40;">${geofence.name}</h6>
-                    <small style="color: #6c757d;">Operational Boundary</small>
+                    <small style="color: #6c757d;">Primary Service Area</small>
                 </div>
             `);
-        } else if (geofence.type === 'circle') {
-            const circle = L.circle(geofence.center, {
-                radius: geofence.radius,
-                color: geofence.color,
-                fillColor: geofence.fillColor,
-                fillOpacity: geofence.fillOpacity,
-                weight: 2
-            }).addTo(map);
             
-            circle.bindPopup(`
-                <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                    <h6 style="margin: 0 0 0.5rem 0; color: #343a40;">${geofence.name}</h6>
-                    <small style="color: #6c757d;">Operational Area</small>
-                </div>
-            `);
+            geofenceLayer.addLayer(polygon);
         }
     });
+    
+    map.addLayer(geofenceLayer);
 }
 
 function addJobZones() {
     const jobZones = {{ job_zones | tojson | safe }};
+    
+    // Clear existing job zones
+    jobZoneLayer.clearLayers();
     
     jobZones.forEach(zone => {
         const zoneColor = zone.type === 'project' ? '#dc3545' : zone.type === 'yard' ? '#ffc107' : '#17a2b8';
@@ -359,43 +420,76 @@ function addJobZones() {
             radius: zone.radius,
             color: zoneColor,
             fillColor: zoneColor,
-            fillOpacity: 0.2,
+            fillOpacity: 0.15,
             weight: 2,
-            dashArray: '5, 5'
-        }).addTo(map);
+            dashArray: '8, 4'
+        });
         
         // Add zone label
         const zoneIcon = L.divIcon({
             className: 'zone-label',
-            html: `<div style="background: ${zoneColor}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
-                     ${zone.name.length > 25 ? zone.name.substring(0, 25) + '...' : zone.name}
+            html: `<div style="background: ${zoneColor}; color: white; padding: 4px 10px; border-radius: 16px; font-size: 12px; font-weight: 600; white-space: nowrap; box-shadow: 0 3px 10px rgba(0,0,0,0.3); border: 2px solid white;">
+                     ${zone.name.length > 20 ? zone.name.substring(0, 20) + '...' : zone.name}
                    </div>`,
             iconSize: [0, 0],
             iconAnchor: [0, 0]
         });
         
-        L.marker([zone.lat, zone.lng], { icon: zoneIcon }).addTo(map);
+        const marker = L.marker([zone.lat, zone.lng], { icon: zoneIcon });
         
-        circle.bindPopup(`
-            <div style="min-width: 250px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+        const popup = `
+            <div style="min-width: 280px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
                 <div style="border-bottom: 1px solid #e9ecef; padding-bottom: 0.75rem; margin-bottom: 0.75rem;">
                     <h6 style="margin: 0; color: #343a40; font-weight: 600;">${zone.name}</h6>
-                    <small style="color: ${zoneColor}; text-transform: uppercase; font-weight: 500;">${zone.type}</small>
+                    <span style="background: ${zoneColor}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; text-transform: uppercase; font-weight: 500;">${zone.type}</span>
                 </div>
-                <div style="font-size: 0.875rem;">
-                    <strong>Zone Radius:</strong> ${zone.radius}m<br>
-                    <strong>Coordinates:</strong> ${zone.lat.toFixed(4)}, ${zone.lng.toFixed(4)}
+                <div style="font-size: 0.875rem; color: #495057;">
+                    <div style="margin-bottom: 0.5rem;"><strong>Zone Radius:</strong> ${zone.radius}m</div>
+                    <div><strong>Coordinates:</strong> ${zone.lat.toFixed(4)}, ${zone.lng.toFixed(4)}</div>
                 </div>
             </div>
-        `);
+        `;
+        
+        circle.bindPopup(popup);
+        marker.bindPopup(popup);
+        
+        jobZoneLayer.addLayer(circle);
+        jobZoneLayer.addLayer(marker);
     });
 }
 
-function refreshMap() {
-    // Simple refresh - in production this would fetch new data
-    console.log('Map refreshed');
+function toggleGeofences() {
+    showJobZones = !showJobZones;
     
-    // Show brief loading indicator
+    if (showJobZones) {
+        addJobZones();
+        map.addLayer(jobZoneLayer);
+        // Update button style
+        event.target.closest('button').classList.add('active');
+    } else {
+        map.removeLayer(jobZoneLayer);
+        event.target.closest('button').classList.remove('active');
+    }
+}
+
+function filterAssets(type) {
+    currentFilter = type;
+    
+    // Update button states
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        if (btn.onclick && btn.onclick.toString().includes(type)) {
+            btn.classList.add('active');
+        } else if (!btn.onclick.toString().includes('toggleGeofences')) {
+            btn.classList.remove('active');
+        }
+    });
+    
+    // Clear and re-add filtered assets
+    markerCluster.clearLayers();
+    addAssets();
+}
+
+function refreshMap() {
     const btn = event.target.closest('button');
     const originalContent = btn.innerHTML;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Refreshing...';
@@ -404,7 +498,9 @@ function refreshMap() {
     setTimeout(() => {
         btn.innerHTML = originalContent;
         btn.disabled = false;
-    }, 1000);
+        // Re-apply current filter
+        filterAssets(currentFilter);
+    }, 1200);
 }
 </script>
 {% endblock %}

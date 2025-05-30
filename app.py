@@ -154,6 +154,12 @@ app.register_blueprint(data_processing_bp)
 # Register Replit auth blueprint with app
 app.register_blueprint(replit_auth_unique, url_prefix='/auth')
 
+# Register Asset Manager blueprints
+from routes.routes_asset_manager import asset_manager
+from routes.routes_api_assets import api_assets
+app.register_blueprint(asset_manager)
+app.register_blueprint(api_assets)
+
 @oauth_authorized.connect
 def logged_in(blueprint, token):
     try:

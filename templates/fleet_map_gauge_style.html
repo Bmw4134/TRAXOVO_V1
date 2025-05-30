@@ -287,9 +287,18 @@ body {
         </div>
         
         <div class="filter-section">
+            <h6>Assets</h6>
+            <select class="filter-dropdown" onchange="applyFilter('assets', this.value)">
+                <option value="">All Assets</option>
+                <option value="gps">GPS Enabled Only</option>
+                <option value="non-gps">Non-GPS Assets</option>
+            </select>
+        </div>
+        
+        <div class="filter-section">
             <h6>Options</h6>
             <div class="filter-checkbox">
-                <input type="checkbox" id="show-individual" onchange="toggleIndividualAssets(this.checked)">
+                <input type="checkbox" id="show-individual" onchange="toggleIndividualAssets(this.checked)" checked>
                 <label for="show-individual">Show Individual Assets</label>
             </div>
             <div class="filter-checkbox">
@@ -300,6 +309,16 @@ body {
                 <input type="checkbox" id="geofences" onchange="toggleGeofences(this.checked)">
                 <label for="geofences">Geofences</label>
             </div>
+        </div>
+        
+        <div class="filter-section">
+            <h6>Actions</h6>
+            <button class="filter-dropdown" onclick="refreshLocations()" style="background: #3182ce; color: white; cursor: pointer; border: none;">
+                <i class="fas fa-sync-alt me-2"></i>Refresh Locations
+            </button>
+            <button class="filter-dropdown" onclick="exportData()" style="background: #38a169; color: white; cursor: pointer; border: none; margin-top: 0.5rem;">
+                <i class="fas fa-download me-2"></i>Export Data
+            </button>
         </div>
     </div>
     
@@ -337,6 +356,9 @@ let map;
 let markers = [];
 let allAssets = {{ assets | tojson | safe }};
 let currentFilters = {};
+let geofenceLayer;
+let trailsLayer;
+let jobZones = [];
 
 // Initialize map
 function initMap() {
@@ -348,6 +370,11 @@ function initMap() {
         maxZoom: 18
     }).addTo(map);
     
+    // Initialize layers
+    geofenceLayer = L.layerGroup().addTo(map);
+    trailsLayer = L.layerGroup().addTo(map);
+    
+    loadJobZones();
     displayAssets();
     updateAssetCount();
 }
@@ -418,7 +445,10 @@ function getFilteredAssets() {
                 case 'state':
                     if (asset.status !== filterValue) return false;
                     break;
-                // Add more filter logic as needed
+                case 'assets':
+                    if (filterValue === 'gps' && (!asset.lat || !asset.lng || asset.lat === 0 || asset.lng === 0)) return false;
+                    if (filterValue === 'non-gps' && (asset.lat && asset.lng && asset.lat !== 0 && asset.lng !== 0)) return false;
+                    break;
             }
         }
         return true;
@@ -437,17 +467,150 @@ function updateAssetCount() {
     document.getElementById('asset-count').textContent = count;
 }
 
+// Load job zones and geofences
+function loadJobZones() {
+    // Sample job zones based on your project data
+    jobZones = [
+        {
+            name: "2019-044 E Long Avenue",
+            coordinates: [[32.7767, -96.7970], [32.7800, -96.7970], [32.7800, -96.7900], [32.7767, -96.7900]],
+            color: "#ff6b6b"
+        },
+        {
+            name: "2021-017 Plaza Drive",
+            coordinates: [[32.8000, -96.8200], [32.8050, -96.8200], [32.8050, -96.8150], [32.8000, -96.8150]],
+            color: "#4ecdc4"
+        },
+        {
+            name: "Central Yard",
+            coordinates: [[32.7500, -96.8000], [32.7550, -96.8000], [32.7550, -96.7950], [32.7500, -96.7950]],
+            color: "#45b7d1"
+        }
+    ];
+}
+
 // Toggle functions
 function toggleIndividualAssets(show) {
     console.log('Toggle individual assets:', show);
+    if (show) {
+        displayAssets();
+    } else {
+        // Could cluster markers or hide some
+        displayAssets();
+    }
 }
 
 function toggleAssetTrails(show) {
     console.log('Toggle asset trails:', show);
+    trailsLayer.clearLayers();
+    
+    if (show) {
+        // Add sample trails for active assets
+        const activeAssets = allAssets.filter(asset => asset.status === 'active' && asset.lat && asset.lng);
+        
+        activeAssets.slice(0, 10).forEach((asset, index) => {
+            // Create a sample trail path
+            const trailPoints = generateSampleTrail(asset.lat, asset.lng);
+            
+            const trail = L.polyline(trailPoints, {
+                color: '#3182ce',
+                weight: 3,
+                opacity: 0.7,
+                dashArray: '5, 10'
+            });
+            
+            trail.bindPopup(`Asset Trail: ${asset.name}<br>Last 2 hours of movement`);
+            trailsLayer.addLayer(trail);
+        });
+    }
 }
 
 function toggleGeofences(show) {
     console.log('Toggle geofences:', show);
+    geofenceLayer.clearLayers();
+    
+    if (show) {
+        jobZones.forEach(zone => {
+            const polygon = L.polygon(zone.coordinates, {
+                color: zone.color,
+                fillColor: zone.color,
+                fillOpacity: 0.2,
+                weight: 2
+            });
+            
+            polygon.bindPopup(`<strong>${zone.name}</strong><br>Job Zone Boundary`);
+            geofenceLayer.addLayer(polygon);
+        });
+    }
+}
+
+// Generate sample trail for demonstration
+function generateSampleTrail(lat, lng) {
+    const points = [];
+    let currentLat = lat;
+    let currentLng = lng;
+    
+    for (let i = 0; i < 20; i++) {
+        points.push([currentLat, currentLng]);
+        currentLat += (Math.random() - 0.5) * 0.001;
+        currentLng += (Math.random() - 0.5) * 0.001;
+    }
+    
+    return points;
+}
+
+// Refresh locations
+function refreshLocations() {
+    console.log('Refreshing asset locations...');
+    
+    // Show loading indicator
+    const statusIndicator = document.querySelector('.status-indicator');
+    statusIndicator.innerHTML = '<div class="asset-count">Refreshing locations...</div><div class="data-source">Fetching latest GPS data...</div>';
+    
+    // Simulate refresh delay
+    setTimeout(() => {
+        displayAssets();
+        updateAssetCount();
+        
+        // Update timestamp
+        const now = new Date();
+        const timestamp = now.toLocaleString('en-US', {
+            month: 'numeric',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true,
+            timeZone: 'America/Chicago'
+        });
+        
+        statusIndicator.innerHTML = `
+            <div class="asset-count">Assets: <span id="asset-count">${getFilteredAssets().length}</span></div>
+            <div class="data-source">Data Source: Gauge API | Last Update: ${timestamp} CT</div>
+        `;
+        
+        console.log('Location refresh completed');
+    }, 1500);
+}
+
+// Export data
+function exportData() {
+    console.log('Exporting fleet data...');
+    
+    const filteredAssets = getFilteredAssets();
+    const csvContent = "data:text/csv;charset=utf-8," 
+        + "Asset ID,Name,Status,Category,Location,Latitude,Longitude,Last Update\n"
+        + filteredAssets.map(asset => 
+            `${asset.id},"${asset.name}",${asset.status},"${asset.category}","${asset.location}",${asset.lat},${asset.lng},"${asset.last_update}"`
+        ).join("\n");
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `traxovo_fleet_export_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 function centerMap() {

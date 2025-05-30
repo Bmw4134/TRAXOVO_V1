@@ -40,6 +40,18 @@ def load_excel(file_path):
         logger.error(f"Error loading Excel file {file_path}: {str(e)}")
         return None
 
+import pandas as pd
+logger = logging.getLogger(__name__)
+
+def setup_environment():
+    logger.debug("Setting up environment")
+    try:
+        import pandas as pd  # Ensure pandas is imported
+        logger.info("Pandas is available.")
+    except ImportError as e:
+        logger.error("Pandas is not installed. Running pip to install.")
+        raise
+
 def process_pm_allocations(ragle_file_path, pm_file_paths, verify_with_asset_list=True):
     """
     Process PM allocation files and compare against the base RAGLE file

@@ -1,8 +1,5 @@
 """
-TRAXORA Fleet Management System - Asset Map Module
-
-This module provides routes and functionality for the Asset Map, displaying
-real-time asset locations and historical route data.
+The code has been modified to enable SSL verification for API requests in the asset_map.py file.
 """
 import os
 import logging
@@ -40,14 +37,14 @@ def asset_map():
         job_sites = JobSite.query.filter_by(active=True).all()
     except Exception:
         job_sites = []
-    
+
     # Get asset types for filtering (with error handling)
     try:
         asset_types = db.session.query(Asset.type).distinct().all()
         asset_types = [t[0] for t in asset_types if t[0] is not None]
     except Exception:
         asset_types = []
-    
+
     return render_template(
         'asset_map/index.html',
         job_sites=job_sites,
@@ -61,26 +58,26 @@ def api_assets():
         # Query parameters for filtering
         asset_type = request.args.get('type')
         job_site_id = request.args.get('job_site')
-        
+
         # Direct connection to the Gauge API - no fallbacks, pure real-time data
         from gauge_api import GaugeAPI
         import requests
-        
+
         api = GaugeAPI()
-        
+
         # Authenticate with API
         api.authenticate()
-        
+
         # Get direct real-time asset data from API
         logger.info("Fetching real-time asset data directly from Gauge API")
-        
+
         # Make direct API call to get assets
         try:
             # Use the endpoint for getting all assets from the asset list
             url = f"{api.api_url}/AssetList/{api.asset_list_id}"
-            
+
             # Make direct authenticated request to API
-            # Disable SSL verification in development mode
+            # Enable SSL verification for secure connections
             response = requests.get(
                 url,
                 auth=(api.username, api.password),
@@ -89,26 +86,26 @@ def api_assets():
                     "Accept": "application/json"
                 },
                 timeout=15,
-                verify=False  # Temporarily disable SSL verification to work around certificate issues
+                verify=True  # Enable SSL verification
             )
-            
+
             if response.status_code != 200:
                 logger.error(f"Gauge API returned status code {response.status_code}")
                 raise Exception(f"API returned status code {response.status_code}")
-            
+
             # Parse API response
             api_data = response.json()
-            
+
             # Transform API data to our format
             assets_data = []
             assets_without_coords = 0
             assets_with_valid_coords = 0
-            
+
             for item in api_data:
                 # Extract coordinates, ensuring they're valid floats
                 latitude = item.get('Latitude') or item.get('latitude')
                 longitude = item.get('Longitude') or item.get('longitude')
-                
+
                 # Try to convert to float if they're strings
                 try:
                     if latitude is not None:
@@ -118,7 +115,7 @@ def api_assets():
                 except (ValueError, TypeError):
                     latitude = None
                     longitude = None
-                
+
                 # Include all assets, even those without coordinates
                 # For assets without valid coordinates, use a default location (central Texas)
                 if latitude is None or longitude is None or not (-90 <= latitude <= 90) or not (-180 <= longitude <= 180):
@@ -128,7 +125,7 @@ def api_assets():
                     longitude = -99.5120
                 else:
                     assets_with_valid_coords += 1
-                
+
                 asset = {
                     'id': item.get('id') or item.get('AssetId'),
                     'asset_id': item.get('AssetId') or item.get('id'),
@@ -141,47 +138,47 @@ def api_assets():
                     'status': 'active'
                 }
                 assets_data.append(asset)
-                
+
             logger.info(f"Assets with valid coordinates: {assets_with_valid_coords}, without coordinates: {assets_without_coords}")
-                
+
             # Apply filters directly on API data
             if asset_type:
                 assets_data = [a for a in assets_data if a.get('type') == asset_type]
-            
+
             if job_site_id:
                 # We would need to filter by job site - simplifying for now
                 pass
-                
+
             logger.info(f"Successfully fetched {len(assets_data)} assets directly from API")
             return jsonify(assets_data)
-            
+
         except Exception as api_error:
             logger.error(f"Error fetching assets directly from API: {str(api_error)}")
             return jsonify([]), 500
-            
+
         return jsonify(assets_data)
     except Exception as e:
         logger.error(f"Error in api_assets: {str(e)}")
-        
+
         # Fallback to direct database query in case of error with data provider
         try:
             # Base query with safe defaults for filter variables
             asset_type_filter = request.args.get('type')
             job_site_filter = request.args.get('job_site')
-            
+
             query = db.session.query(Asset)
-            
+
             # Apply filters if provided
             if asset_type_filter:
                 query = query.filter(Asset.type == asset_type_filter)
-            
+
             if job_site_filter:
                 # Join with AssetLocation to filter by job_site_id
                 query = query.join(AssetLocation).filter(AssetLocation.job_site_id == job_site_filter)
-            
+
             # Get the assets
             assets = query.filter(Asset.status == 'active').all()
-            
+
             # Prepare the response
             result = []
             for asset in assets:
@@ -197,7 +194,7 @@ def api_assets():
                     'status': asset.status
                 }
                 result.append(asset_data)
-            
+
             return jsonify(result)
         except Exception as inner_e:
             logger.error(f"Error in api_assets fallback: {str(inner_e)}")
@@ -210,22 +207,22 @@ def api_asset_route(asset_id):
         # Get date range from query parameters, default to today
         start_date_str = request.args.get('start_date', datetime.now().strftime('%Y-%m-%d'))
         end_date_str = request.args.get('end_date', datetime.now().strftime('%Y-%m-%d'))
-        
+
         # Convert to datetime
         start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
         end_date = datetime.strptime(end_date_str, '%Y-%m-%d') + timedelta(days=1)  # Include the end date
-        
+
         # Use the asset data provider for reliable asset location data
         from utils.asset_data_provider import AssetDataProvider
         data_provider = AssetDataProvider()
-        
+
         # Get asset locations with fallback mechanisms
         locations_data = data_provider.get_asset_location(asset_id, start_date, end_date)
-        
+
         # If we got data from the provider, return it
         if locations_data:
             return jsonify(locations_data)
-        
+
         # Fallback to direct database query
         # Get the asset locations using the location_timestamp column
         from sqlalchemy import column
@@ -235,7 +232,7 @@ def api_asset_route(asset_id):
             location_timestamp >= start_date,
             location_timestamp < end_date
         ).order_by(location_timestamp).all()
-        
+
         # Prepare the response
         result = []
         for location in locations:
@@ -251,7 +248,7 @@ def api_asset_route(asset_id):
                 'ignition_status': location.ignition_status
             }
             result.append(location_data)
-        
+
         return jsonify(result)
     except ValueError:
         return jsonify({'error': f"Invalid date format"}), 400
@@ -266,20 +263,20 @@ def api_job_sites():
         # Direct connection to the Gauge API - no fallbacks, pure real-time data
         from gauge_api import GaugeAPI
         import requests
-        
+
         api = GaugeAPI()
-        
+
         # Authenticate with API
         api.authenticate()
-        
+
         # Get direct real-time job site data from API
         logger.info("Fetching real-time job site data directly from Gauge API")
-        
+
         # Make direct API call to get job sites
         try:
             # Use the endpoint for job sites
             url = f"{api.api_url}/JobSites"
-            
+
             # Make direct authenticated request to API
             response = requests.get(
                 url,
@@ -289,16 +286,16 @@ def api_job_sites():
                     "Accept": "application/json"
                 },
                 timeout=15,
-                verify=False  # Temporarily disable SSL verification to work around certificate issues
+                verify=True  # Enable SSL verification
             )
-            
+
             if response.status_code != 200:
                 logger.error(f"Gauge API job sites endpoint returned status code {response.status_code}")
                 raise Exception(f"API returned status code {response.status_code}")
-            
+
             # Parse API response
             api_data = response.json()
-            
+
             # Transform API data to our format
             job_sites_data = []
             for item in api_data:
@@ -313,17 +310,17 @@ def api_job_sites():
                     'active': True  # Assume active from API
                 }
                 job_sites_data.append(site_data)
-                
+
             logger.info(f"Successfully fetched {len(job_sites_data)} job sites directly from API")
             return jsonify(job_sites_data)
-            
+
         except Exception as api_error:
             logger.error(f"Error fetching job sites directly from API: {str(api_error)}")
-            
+
             # Try secondary job sites endpoint if first one fails
             try:
                 url = f"{api.api_url}/AssetList/{api.asset_list_id}/jobsites"
-                
+
                 response = requests.get(
                     url,
                     auth=(api.username, api.password),
@@ -332,12 +329,12 @@ def api_job_sites():
                         "Accept": "application/json"
                     },
                     timeout=15,
-                    verify=False  # Temporarily disable SSL verification to work around certificate issues
+                    verify=True  # Enable SSL verification
                 )
-                
+
                 if response.status_code == 200:
                     api_data = response.json()
-                    
+
                     job_sites_data = []
                     for item in api_data:
                         site_data = {
@@ -351,13 +348,13 @@ def api_job_sites():
                             'active': True
                         }
                         job_sites_data.append(site_data)
-                    
+
                     logger.info(f"Successfully fetched {len(job_sites_data)} job sites from secondary API endpoint")
                     return jsonify(job_sites_data)
-            
+
             except Exception as secondary_error:
                 logger.error(f"Error with secondary job sites endpoint: {str(secondary_error)}")
-            
+
             # If API calls fail, create central Texas job sites as placeholders
             default_sites = [
                 {
@@ -381,10 +378,10 @@ def api_job_sites():
                     'active': True
                 }
             ]
-            
+
             logger.warning("Using placeholder job sites due to API connection issues")
             return jsonify(default_sites)
-            
+
     except Exception as e:
         logger.error(f"Error in api_job_sites: {str(e)}")
         return jsonify({'error': str(e)}), 500
@@ -397,18 +394,18 @@ def api_heatmap():
         days = int(request.args.get('days', 7))
         end_date = datetime.now()
         start_date = end_date - timedelta(days=days)
-        
+
         # First try the data provider for reliable heatmap data with fallbacks
         from utils.asset_data_provider import AssetDataProvider
         data_provider = AssetDataProvider()
-        
+
         # Get heatmap data with fallback mechanisms
         heatmap_data = data_provider.get_heatmap_data(start_date, end_date)
-        
+
         # If we got data from the provider, return it
         if heatmap_data:
             return jsonify(heatmap_data)
-            
+
         # Fallback to direct database query
         # Get the asset locations aggregated by geographic grid
         from sqlalchemy import column
@@ -421,13 +418,13 @@ def api_heatmap():
             location_timestamp >= start_date,
             location_timestamp <= end_date
         ).group_by('lat_grid', 'lng_grid').all()
-        
+
         # Prepare the response
         result = []
         max_count = 10  # Default if no data
         if locations:
             max_count = max(count for _, _, count in locations)
-            
+
         for lat_grid, lng_grid, count in locations:
             point = {
                 'latitude': float(lat_grid),
@@ -435,7 +432,7 @@ def api_heatmap():
                 'weight': min(count / max_count, 1.0)  # Normalize weight between 0 and 1
             }
             result.append(point)
-        
+
         return jsonify(result)
     except Exception as e:
         logger.error(f"Error in api_heatmap: {str(e)}")

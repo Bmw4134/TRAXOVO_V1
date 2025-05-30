@@ -263,7 +263,7 @@ def fleet_map():
                 'name': equipment_name,
                 'lat': lat,
                 'lng': lng,
-                'status': 'active' if asset.get('Active', False) else 'idle',
+                'status': 'active' if asset.get('Active') == True else 'idle',
                 'last_update': asset.get('EventDateTimeString', 'Unknown'),
                 'category': asset.get('AssetCategory', 'Equipment'),
                 'location': asset.get('Location', 'Unknown'),
@@ -287,6 +287,7 @@ def fleet_map():
         'center_lng': -97.7431,
         'total_assets': len(authentic_assets),
         'active_assets': len([a for a in authentic_assets if a['status'] == 'active']),
+        'gps_enabled_count': len([a for a in authentic_assets if a.get('lat') and a.get('lng') and a['lat'] != 0 and a['lng'] != 0]),
         **{k: v for k, v in authentic_fleet_data.items()}
     }
     

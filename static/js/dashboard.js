@@ -32,6 +32,42 @@ document.addEventListener('DOMContentLoaded', function() {
     if (searchInput) {
         searchInput.addEventListener('keyup', function() {
             const searchValue = this.value.toLowerCase();
+
+function initRealtimeCharts() {
+    // Example: Initialize real-time charts using Chart.js or a similar library
+    const ctx = document.getElementById('realtimeChart').getContext('2d');
+    
+    const realtimeChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            datasets: [{
+                label: 'Live Data Stream',
+                fill: false,
+                borderColor: 'rgb(75, 192, 192)',
+                data: []
+            }]
+        }
+    });
+
+    function updateChartData() {
+        fetch('/api/metrics')
+            .then(response => response.json())
+            .then(data => {
+                // Assuming the server sends a timestamp and value
+                const newDataPoint = { x: new Date(), y: data.data.estimated_revenue };
+                realtimeChart.data.datasets[0].data.push(newDataPoint);
+                realtimeChart.update();
+            })
+            .catch(console.error);
+    }
+
+    setInterval(updateChartData, 5000); // update every 5 seconds
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    initRealtimeCharts();
+});
+
             const assetCards = document.querySelectorAll('.asset-card');
             
             assetCards.forEach(function(card) {

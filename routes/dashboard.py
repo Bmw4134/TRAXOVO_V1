@@ -59,15 +59,19 @@ def api_driver_count():
     """Direct driver count from data analysis"""
     from utils.dashboard_metrics import get_real_driver_count
     
-    data = get_real_driver_count()
-    return jsonify({
-        'total': data['total_drivers'],
-        'source': data['source'],
-        'breakdown': {
-            'from_assets': data.get('assigned_from_assets', 0),
-            'from_csv': data.get('from_csv_files', 0)
-        }
-    })
+    try:
+        data = get_real_driver_count()
+        return jsonify({
+            'success': True,
+            'total': data['total_drivers'],
+            'source': data['source'],
+            'breakdown': {
+                'from_assets': data.get('assigned_from_assets', 0),
+                'from_csv': data.get('from_csv_files', 0)
+            }
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
 
 @dashboard.route('/api/cache-growth')
 @login_required

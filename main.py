@@ -265,11 +265,12 @@ def dashboard():
         'page_subtitle': 'Real-time fleet intelligence and operational metrics',
         'total_assets': total_assets,
         'active_assets': active_assets,
-        'total_drivers': 92,  # TODO: Get from Supabase
+        'total_drivers': 0,  # Will be loaded from Supabase when connected
         'revenue_total': f"{monthly_revenue/1000000:.2f}M" if monthly_revenue > 0 else "0.00M",
         'utilization_rate': utilization_rate,
         'data_source': data_source,
-        'billable_revenue': authentic_fleet_data.get('billable_revenue', monthly_revenue),
+        'connection_status': 'Database connection required for authentic metrics',
+        'billable_revenue': monthly_revenue,
         'last_updated': authentic_fleet_data.get('last_updated', 'Just now'),
         **{k: v for k, v in authentic_fleet_data.items()}
     }

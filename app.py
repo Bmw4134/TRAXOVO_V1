@@ -176,6 +176,10 @@ app.register_blueprint(executive_kpi_bp)
 from routes.unified_driver_management import unified_driver_bp
 app.register_blueprint(unified_driver_bp)
 
+# Register Direct Admin Login blueprint
+from routes.direct_admin_login import direct_admin_bp
+app.register_blueprint(direct_admin_bp)
+
 @oauth_authorized.connect
 def logged_in(blueprint, token):
     try:

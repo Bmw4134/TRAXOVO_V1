@@ -300,12 +300,13 @@ def login():
         
         print(f"Login attempt: username='{username}', password='{password}'")  # Debug
         
-        if username == 'admin' and password == 'admin':
+        if username == 'admin' and password == 'TRAXOVOAdmin2025!':
             session['logged_in'] = True
             session['username'] = username
+            session['role'] = 'admin'
             session.permanent = True
             print("Login successful, session set")  # Debug
-            return redirect(url_for('dashboard_route'))
+            return redirect('/dashboard')
         else:
             print("Login failed - invalid credentials")  # Debug
             flash('Invalid credentials', 'error')

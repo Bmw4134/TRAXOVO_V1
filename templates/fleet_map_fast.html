@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block title %}Fleet Map - TRAXOVO{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        {% include "includes/sidebar.html" %}
+        
+        <div class="col-md-9">
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">Live Fleet Map</h2>
+                    <p class="text-muted">Real-time GPS tracking and asset monitoring</p>
+                </div>
+                <div>
+                    <button class="btn btn-primary" onclick="refreshMap()">
+                        <i class="fas fa-sync-alt me-2"></i>Refresh Map
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="text-primary">{{ total_assets }}</h5>
+                            <small class="text-muted">Total Assets</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="text-success">{{ active_assets }}</h5>
+                            <small class="text-muted">Active Now</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="text-info">8</h5>
+                            <small class="text-muted">GPS Enabled</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="text-warning">0</h5>
+                            <small class="text-muted">Alerts</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Simplified Map Container -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Equipment Locations</h5>
+                </div>
+                <div class="card-body">
+                    <div id="map" style="height: 500px; width: 100%;"></div>
+                </div>
+            </div>
+
+            <!-- Asset List -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Asset Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Asset ID</th>
+                                    <th>Equipment</th>
+                                    <th>Status</th>
+                                    <th>Location</th>
+                                    <th>Last Update</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for asset in assets %}
+                                <tr>
+                                    <td><strong>{{ asset.id }}</strong></td>
+                                    <td>{{ asset.name }}</td>
+                                    <td>
+                                        {% if asset.status == 'active' %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% elif asset.status == 'maintenance' %}
+                                            <span class="badge bg-danger">Maintenance</span>
+                                        {% else %}
+                                            <span class="badge bg-warning">Idle</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ "%.4f"|format(asset.lat) }}, {{ "%.4f"|format(asset.lng) }}</td>
+                                    <td>{{ asset.last_update }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Leaflet CSS and JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+
+<script>
+// Fast-loading map implementation
+let map;
+let markerCluster;
+
+document.addEventListener('DOMContentLoaded', function() {
+    initMap();
+});
+
+function initMap() {
+    // Initialize map with performance settings
+    map = L.map('map', {
+        preferCanvas: true,
+        fadeAnimation: false,
+        zoomAnimation: false
+    }).setView([{{ center_lat }}, {{ center_lng }}], 11);
+    
+    // Use fast Carto tiles
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '© CARTO',
+        maxZoom: 18,
+        subdomains: 'abcd'
+    }).addTo(map);
+    
+    // Initialize marker cluster
+    markerCluster = L.markerClusterGroup({
+        maxClusterRadius: 50,
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false,
+        zoomToBoundsOnClick: true
+    });
+    
+    // Add assets to map
+    addAssets();
+    
+    // Add cluster to map
+    map.addLayer(markerCluster);
+}
+
+function addAssets() {
+    const assets = {{ assets | tojson | safe }};
+    
+    assets.forEach(asset => {
+        const marker = L.marker([asset.lat, asset.lng]);
+        
+        const popupContent = `
+            <div style="min-width: 200px;">
+                <h6><strong>${asset.name}</strong></h6>
+                <p><strong>ID:</strong> ${asset.id}<br>
+                <strong>Status:</strong> ${asset.status}<br>
+                <strong>Last Update:</strong> ${asset.last_update}</p>
+            </div>
+        `;
+        
+        marker.bindPopup(popupContent);
+        markerCluster.addLayer(marker);
+    });
+}
+
+function refreshMap() {
+    // Simple refresh - in production this would fetch new data
+    console.log('Map refreshed');
+    
+    // Show brief loading indicator
+    const btn = event.target.closest('button');
+    const originalContent = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Refreshing...';
+    btn.disabled = true;
+    
+    setTimeout(() => {
+        btn.innerHTML = originalContent;
+        btn.disabled = false;
+    }, 1000);
+}
+</script>
+{% endblock %}

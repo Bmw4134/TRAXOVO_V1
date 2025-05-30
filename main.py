@@ -170,6 +170,9 @@ def refresh_data():
     })
 
 @app.route('/')
+def index():
+    return dashboard()
+
 def dashboard():
     """TRAXOVO Unified Dashboard - Master Template"""
     context = {
@@ -253,7 +256,7 @@ def fleet_map():
         **{k: v for k, v in authentic_fleet_data.items()}
     }
     
-    return render_template('fleet_map_enhanced.html', **context)
+    return render_template('fleet_map_fast.html', **context)
 
 @app.route('/asset-manager')
 def asset_manager():

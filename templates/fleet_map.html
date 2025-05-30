@@ -2,115 +2,177 @@
 
 {% block title %}Fleet Map - TRAXOVO{% endblock %}
 
+{% block head %}
+<style>
+.fleet-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1.5rem 0;
+    margin-bottom: 0;
+}
+
+.stat-card {
+    background: white;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+}
+
+.map-container {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+    overflow: hidden;
+    border: none;
+}
+
+.map-controls {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.filter-btn {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    margin-right: 0.5rem;
+    color: #495057;
+    transition: all 0.2s;
+}
+
+.filter-btn:hover, .filter-btn.active {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+#map {
+    height: 600px;
+    border-radius: 0 0 16px 16px;
+}
+
+.asset-info-panel {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    border: none;
+}
+
+.legend-item {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 1rem;
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid mt-4">
-    <div class="row">
-        {% include "includes/sidebar.html" %}
-        
-        <div class="col-md-9">
-            <!-- Page Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="mb-1">Live Fleet Map</h2>
-                    <p class="text-muted">Real-time GPS tracking and asset monitoring</p>
+<div class="container-fluid p-0">
+    <!-- Modern Header -->
+    <div class="fleet-header">
+        <div class="container-fluid px-4">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="mb-1 fw-bold">Live Fleet Map</h2>
+                    <p class="mb-0 opacity-75">Real-time equipment tracking and location monitoring</p>
                 </div>
-                <div>
-                    <button class="btn btn-primary" onclick="refreshMap()">
-                        <i class="fas fa-sync-alt me-2"></i>Refresh Map
+                <div class="col-md-4 text-end">
+                    <button class="btn btn-light btn-sm me-2" onclick="refreshMap()">
+                        <i class="fas fa-sync-alt me-2"></i>Refresh
+                    </button>
+                    <button class="btn btn-outline-light btn-sm">
+                        <i class="fas fa-download me-2"></i>Export
                     </button>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Quick Stats -->
-            <div class="row mb-4">
-                <div class="col-md-3">
-                    <div class="card text-center">
-                        <div class="card-body">
-                            <h5 class="text-primary">{{ total_assets }}</h5>
-                            <small class="text-muted">Total Assets</small>
-                        </div>
+    <div class="container-fluid px-4 py-4">
+        <!-- Stats Row -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-card card text-center p-3">
+                    <div class="mb-2">
+                        <i class="fas fa-truck text-primary" style="font-size: 2rem;"></i>
                     </div>
+                    <h3 class="mb-1 text-primary fw-bold">{{ total_assets }}</h3>
+                    <small class="text-muted">Total Assets</small>
                 </div>
-                <div class="col-md-3">
-                    <div class="card text-center">
-                        <div class="card-body">
-                            <h5 class="text-success">{{ active_assets }}</h5>
-                            <small class="text-muted">Active Equipment</small>
-                        </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-card card text-center p-3">
+                    <div class="mb-2">
+                        <i class="fas fa-play-circle text-success" style="font-size: 2rem;"></i>
                     </div>
+                    <h3 class="mb-1 text-success fw-bold">{{ active_assets }}</h3>
+                    <small class="text-muted">Active Equipment</small>
                 </div>
-                <div class="col-md-3">
-                    <div class="card text-center">
-                        <div class="card-body">
-                            <h5 class="text-info">{{ gps_enabled_count }}</h5>
-                            <small class="text-muted">GPS Enabled</small>
-                        </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-card card text-center p-3">
+                    <div class="mb-2">
+                        <i class="fas fa-satellite-dish text-info" style="font-size: 2rem;"></i>
                     </div>
+                    <h3 class="mb-1 text-info fw-bold">{{ gps_enabled_count }}</h3>
+                    <small class="text-muted">GPS Enabled</small>
                 </div>
-                <div class="col-md-3">
-                    <div class="card text-center">
-                        <div class="card-body">
-                            <h5 class="text-warning">0</h5>
-                            <small class="text-muted">Alerts</small>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-card card text-center p-3">
+                    <div class="mb-2">
+                        <i class="fas fa-exclamation-triangle text-warning" style="font-size: 2rem;"></i>
+                    </div>
+                    <h3 class="mb-1 text-warning fw-bold">0</h3>
+                    <small class="text-muted">Alerts</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Container -->
+        <div class="map-container">
+            <div class="map-controls">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <button class="filter-btn active">All Equipment</button>
+                        <button class="filter-btn">Excavators</button>
+                        <button class="filter-btn">Trucks</button>
+                        <button class="filter-btn">Active Only</button>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="legend-item">
+                            <div class="legend-dot bg-success"></div>
+                            Active
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot bg-warning"></div>
+                            Idle
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot bg-danger"></div>
+                            Offline
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Simplified Map Container -->
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Equipment Locations</h5>
-                </div>
-                <div class="card-body">
-                    <div id="map" style="height: 500px; width: 100%;"></div>
-                </div>
-            </div>
-
-            <!-- Asset List -->
-            <div class="card mt-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Asset Details</h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Asset ID</th>
-                                    <th>Equipment</th>
-                                    <th>Status</th>
-                                    <th>Location</th>
-                                    <th>Last Update</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for asset in assets %}
-                                <tr>
-                                    <td><strong>{{ asset.id }}</strong></td>
-                                    <td>{{ asset.name }}</td>
-                                    <td>
-                                        {% if asset.status == 'active' %}
-                                            <span class="badge bg-success">Active</span>
-                                        {% else %}
-                                            <span class="badge bg-warning">Idle</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if asset.lat and asset.lng %}
-                                            {{ "%.4f"|format(asset.lat) }}, {{ "%.4f"|format(asset.lng) }}
-                                        {% else %}
-                                            No GPS Data
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ asset.last_update }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+            <div id="map"></div>
         </div>
     </div>
 </div>
@@ -133,25 +195,43 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initMap() {
-    console.log('Initializing map...');
+    // Initialize map centered on DFW area
+    map = L.map('map', {
+        zoomControl: false
+    }).setView([32.7767, -96.7970], 9);
     
-    // Initialize map with Austin coordinates
-    map = L.map('map').setView([30.2672, -97.7431], 10);
+    // Add custom zoom control
+    L.control.zoom({
+        position: 'topright'
+    }).addTo(map);
     
-    // Add OpenStreetMap tiles (reliable and fast)
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
+    // Use satellite/hybrid tiles for professional look
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: '© Esri',
         maxZoom: 18
     }).addTo(map);
     
-    console.log('Map tiles added');
+    // Add street overlay
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        opacity: 0.3,
+        maxZoom: 18
+    }).addTo(map);
     
-    // Initialize marker cluster
+    // Initialize marker cluster with custom styling
     markerCluster = L.markerClusterGroup({
-        maxClusterRadius: 50,
+        maxClusterRadius: 40,
         spiderfyOnMaxZoom: true,
         showCoverageOnHover: false,
-        zoomToBoundsOnClick: true
+        zoomToBoundsOnClick: true,
+        iconCreateFunction: function(cluster) {
+            var count = cluster.getChildCount();
+            var size = count < 10 ? 'small' : count < 100 ? 'medium' : 'large';
+            return new L.DivIcon({
+                html: '<div><span>' + count + '</span></div>',
+                className: 'marker-cluster marker-cluster-' + size,
+                iconSize: new L.Point(40, 40)
+            });
+        }
     });
     
     // Add assets to map
@@ -159,48 +239,73 @@ function initMap() {
     
     // Add cluster to map
     map.addLayer(markerCluster);
-    
-    console.log('Map initialization complete');
 }
 
 function addAssets() {
-    console.log('Adding assets to map...');
     const assets = {{ assets | tojson | safe }};
-    console.log('Assets data:', assets);
     
     if (!assets || assets.length === 0) {
-        console.log('No assets to display');
         return;
     }
     
-    assets.forEach((asset, index) => {
-        console.log(`Adding asset ${index + 1}:`, asset);
+    assets.forEach((asset) => {
+        // Skip assets without valid coordinates
+        if (!asset.lat || !asset.lng || asset.lat === 0 || asset.lng === 0) {
+            return;
+        }
         
-        // Create marker with custom icon based on status
-        let iconColor = 'blue';
-        if (asset.status === 'active') iconColor = 'green';
-        else if (asset.status === 'maintenance') iconColor = 'red';
-        else if (asset.status === 'idle') iconColor = 'orange';
+        // Create custom marker based on status and category
+        let markerColor = asset.status === 'active' ? '#28a745' : '#ffc107';
+        let markerIcon = getEquipmentIcon(asset.category);
         
-        const marker = L.marker([asset.lat, asset.lng]);
+        const customIcon = L.divIcon({
+            className: 'custom-marker',
+            html: `<div style="background-color: ${markerColor}; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px;">
+                     <i class="fas ${markerIcon}"></i>
+                   </div>`,
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+        });
+        
+        const marker = L.marker([asset.lat, asset.lng], { icon: customIcon });
         
         const popupContent = `
-            <div style="min-width: 250px;">
-                <h6><strong>${asset.name}</strong></h6>
-                <p><strong>Asset ID:</strong> ${asset.id}<br>
-                <strong>Category:</strong> ${asset.category || 'Equipment'}<br>
-                <strong>Status:</strong> <span style="color: ${iconColor};">${asset.status}</span><br>
-                <strong>Location:</strong> ${asset.location || 'Unknown'}<br>
-                <strong>Hours:</strong> ${asset.hours || 0}<br>
-                <strong>Last Update:</strong> ${asset.last_update}</p>
+            <div style="min-width: 280px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                <div style="border-bottom: 1px solid #e9ecef; padding-bottom: 0.75rem; margin-bottom: 0.75rem;">
+                    <h6 style="margin: 0; color: #343a40; font-weight: 600;">${asset.name}</h6>
+                    <small style="color: #6c757d;">${asset.id}</small>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.875rem;">
+                    <div><strong>Status:</strong><br><span style="color: ${markerColor}; font-weight: 500;">${asset.status.toUpperCase()}</span></div>
+                    <div><strong>Category:</strong><br>${asset.category || 'Equipment'}</div>
+                    <div><strong>Hours:</strong><br>${asset.hours || 'N/A'}</div>
+                    <div><strong>Location:</strong><br>${asset.location || 'Unknown'}</div>
+                </div>
+                <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #e9ecef; font-size: 0.8rem; color: #6c757d;">
+                    Last Update: ${asset.last_update}
+                </div>
             </div>
         `;
         
         marker.bindPopup(popupContent);
         markerCluster.addLayer(marker);
     });
-    
-    console.log(`Added ${assets.length} assets to cluster`);
+}
+
+function getEquipmentIcon(category) {
+    const iconMap = {
+        'Excavator': 'fa-shovel',
+        'Truck': 'fa-truck',
+        'Heavy Truck': 'fa-truck',
+        'Pickup Truck': 'fa-truck-pickup',
+        'Personal Vehicle': 'fa-car',
+        'Wheel Loader': 'fa-cogs',
+        'Message Board': 'fa-sign',
+        'Vacuum': 'fa-wind',
+        'Sweeper': 'fa-broom',
+        'Flatbed Trailer': 'fa-trailer'
+    };
+    return iconMap[category] || 'fa-cog';
 }
 
 function refreshMap() {

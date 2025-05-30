@@ -166,7 +166,7 @@ def load_gauge_api_data():
 
 def load_fallback_data():
     """Load fallback data when API is unavailable"""
-    return update_fleet_data(581, 610)  # Your authentic Gauge active asset count
+    return update_fleet_data(0, 0)  # Show zeros when authentic data unavailable
 
 def update_fleet_data(total_equipment, active_equipment):
     """Update fleet data with given counts"""
@@ -186,7 +186,7 @@ def update_fleet_data(total_equipment, active_equipment):
             'fleet_value': 1880000,               # Your $1.88M Foundation data
             'daily_revenue': 73680,               # Based on your revenue data
             'billable_revenue': 2210400,          # From your billing screenshot
-            'utilization_rate': round((active_equipment / total_equipment) * 100, 1) if total_equipment > 0 else 12.9,
+            'utilization_rate': round((active_equipment / total_equipment) * 100, 1) if total_equipment > 0 else 0.0,
             'last_updated': datetime.now().isoformat()
         }
         

@@ -269,7 +269,7 @@ def dashboard():
         total_assets = asset_metrics['total_assets']
         active_assets = asset_metrics['active_assets']
         monthly_revenue = revenue_data['total_monthly_revenue'] or 0
-        utilization_rate = (active_assets / total_assets * 100) if total_assets > 0 else 0
+        utilization_rate = round((active_assets / total_assets * 100), 1) if total_assets > 0 else 0
         
         data_source = 'authentic_supabase'
         

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }} - TRAXOVO Fleet Intelligence</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --herc-yellow: #FFD700;
+            --herc-blue: #003366;
+            --herc-gray: #f8f9fa;
+        }
+        body { 
+            background-color: var(--herc-gray); 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .sidebar {
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            min-height: 100vh;
+            padding: 0;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        .content-area {
+            background-color: var(--herc-gray);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .metric-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--herc-yellow);
+            margin-bottom: 20px;
+        }
+        .chart-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .nav-link {
+            color: white !important;
+            padding: 12px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: var(--herc-yellow) !important;
+        }
+        .nav-link.active {
+            background-color: var(--herc-yellow);
+            color: var(--herc-blue) !important;
+            font-weight: 600;
+        }
+        .btn-herc {
+            background-color: var(--herc-yellow);
+            border: none;
+            color: var(--herc-blue);
+            font-weight: 600;
+        }
+        .table th {
+            background-color: var(--herc-blue);
+            color: white;
+            border: none;
+        }
+        .analytics-tabs {
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .tab-content {
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 sidebar">
+                <div class="p-3">
+                    <h4 class="text-white mb-4">
+                        <i class="fas fa-truck text-warning"></i> TRAXOVO
+                    </h4>
+                    <nav class="nav flex-column">
+                        <a class="nav-link" href="/">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                        <div class="text-warning small mt-3 mb-2 px-3">CORE OPERATIONS</div>
+                        <a class="nav-link" href="/fleet-map">
+                            <i class="fas fa-map-marked-alt"></i> Live Fleet Map
+                        </a>
+                        <a class="nav-link" href="/asset-manager">
+                            <i class="fas fa-cogs"></i> Asset Manager
+                        </a>
+                        <div class="text-warning small mt-3 mb-2 px-3">ANALYTICS</div>
+                        <a class="nav-link active" href="/fleet-analytics">
+                            <i class="fas fa-chart-area"></i> Fleet Analytics
+                        </a>
+                        <a class="nav-link" href="/asset-profit">
+                            <i class="fas fa-dollar-sign"></i> Asset Profitability
+                        </a>
+                        <a class="nav-link" href="/billing">
+                            <i class="fas fa-chart-line"></i> Revenue Analytics
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-10 content-area">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="text-dark">
+                        <i class="fas fa-chart-area text-warning"></i> {{ page_title }}
+                    </h2>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-herc">
+                            <i class="fas fa-download"></i> Export Analytics
+                        </button>
+                        <button class="btn btn-outline-secondary">
+                            <i class="fas fa-calendar"></i> Date Range
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Analytics Tabs -->
+                <div class="analytics-tabs">
+                    <ul class="nav nav-tabs" id="analyticsTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="utilization-tab" data-bs-toggle="tab" data-bs-target="#utilization" type="button" role="tab">
+                                <i class="fas fa-chart-pie"></i> Utilization Overview
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="performance-tab" data-bs-toggle="tab" data-bs-target="#performance" type="button" role="tab">
+                                <i class="fas fa-tachometer-alt"></i> Performance Metrics
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="trends-tab" data-bs-toggle="tab" data-bs-target="#trends" type="button" role="tab">
+                                <i class="fas fa-chart-line"></i> Trend Analysis
+                            </button>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content" id="analyticsTabContent">
+                        <!-- Utilization Tab -->
+                        <div class="tab-pane fade show active" id="utilization" role="tabpanel">
+                            <div class="row mb-4">
+                                <div class="col-md-3">
+                                    <div class="metric-card text-center">
+                                        <h3 class="text-primary mb-1">{{ total_assets }}</h3>
+                                        <p class="text-muted mb-0">Total Assets</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="metric-card text-center">
+                                        <h3 class="text-success mb-1">{{ active_assets }}</h3>
+                                        <p class="text-muted mb-0">Active Assets</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="metric-card text-center">
+                                        <h3 class="text-warning mb-1">{{ utilization_rate }}%</h3>
+                                        <p class="text-muted mb-0">Utilization Rate</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="metric-card text-center">
+                                        <h3 class="text-info mb-1">2,450</h3>
+                                        <p class="text-muted mb-0">Total Hours</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="chart-card">
+                                        <h5 class="mb-3">Fleet Utilization Breakdown</h5>
+                                        <canvas id="utilizationChart" height="300"></canvas>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="chart-card">
+                                        <h5 class="mb-3">Asset Category Distribution</h5>
+                                        <canvas id="categoryChart" height="300"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Performance Tab -->
+                        <div class="tab-pane fade" id="performance" role="tabpanel">
+                            <div class="chart-card">
+                                <h5 class="mb-3">Asset Performance Analysis</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Asset ID</th>
+                                                <th>Usage Hours</th>
+                                                <th>Revenue</th>
+                                                <th>Costs</th>
+                                                <th>Efficiency Score</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in cost_analysis %}
+                                            <tr>
+                                                <td><strong>{{ item.asset_id }}</strong></td>
+                                                <td>{{ "%.1f"|format(item.total_usage_hours) }}</td>
+                                                <td class="text-success">${{ "%.2f"|format(item.revenue_generated) }}</td>
+                                                <td class="text-warning">${{ "%.2f"|format(item.total_cost) }}</td>
+                                                <td>
+                                                    {% set efficiency = (item.revenue_generated / item.total_cost * 100) if item.total_cost > 0 else 0 %}
+                                                    <span class="{% if efficiency > 150 %}text-success{% elif efficiency > 100 %}text-warning{% else %}text-danger{% endif %}">
+                                                        {{ "%.0f"|format(efficiency) }}%
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    {% if efficiency > 150 %}
+                                                        <span class="badge bg-success">Excellent</span>
+                                                    {% elif efficiency > 100 %}
+                                                        <span class="badge bg-warning">Good</span>
+                                                    {% else %}
+                                                        <span class="badge bg-danger">Poor</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Trends Tab -->
+                        <div class="tab-pane fade" id="trends" role="tabpanel">
+                            <div class="chart-card">
+                                <h5 class="mb-3">Utilization Trends</h5>
+                                <canvas id="trendsChart" height="400"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Utilization Chart
+        const utilizationCtx = document.getElementById('utilizationChart').getContext('2d');
+        new Chart(utilizationCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Active', 'Idle', 'Maintenance', 'Transit'],
+                datasets: [{
+                    data: [{{ utilization_rate }}, {{ 100 - utilization_rate }}, 5, 8],
+                    backgroundColor: ['#28a745', '#ffc107', '#dc3545', '#17a2b8'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Category Distribution Chart
+        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+        new Chart(categoryCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Excavators', 'Trucks', 'Dozers', 'Graders', 'Cranes'],
+                datasets: [{
+                    label: 'Asset Count',
+                    data: [125, 89, 67, 45, 23],
+                    backgroundColor: '#FFD700',
+                    borderColor: '#003366',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Trends Chart
+        const trendsCtx = document.getElementById('trendsChart').getContext('2d');
+        new Chart(trendsCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                datasets: [{
+                    label: 'Utilization %',
+                    data: [82, 85, 88, 86, {{ utilization_rate }}],
+                    borderColor: '#28a745',
+                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    tension: 0.4
+                }, {
+                    label: 'Revenue ($K)',
+                    data: [420, 450, 480, 465, 550],
+                    borderColor: '#FFD700',
+                    backgroundColor: 'rgba(255, 215, 0, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

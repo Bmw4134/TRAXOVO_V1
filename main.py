@@ -45,9 +45,15 @@ def load_gauge_api_data():
             logging.warning("Gauge API credentials not found, using fallback data")
             return load_fallback_data()
         
-        # Make optimized API call to Gauge
-        headers = {'Authorization': f'Bearer {gauge_api_key}'}
-        response = requests.get(f"{gauge_api_url}/assets", headers=headers, timeout=10)
+        # Make optimized API call to Gauge with proper headers
+        headers = {
+            'Authorization': f'Bearer {gauge_api_key}',
+            'Content-Type': 'application/json',
+            'User-Agent': 'TRAXOVO/1.0'
+        }
+        # Use the full URL you provided
+        api_url = gauge_api_url if gauge_api_url.startswith('http') else f"https://api.gaugesmart.com/AssetList/{gauge_api_url}"
+        response = requests.get(api_url, headers=headers, timeout=15, verify=False)
         
         if response.status_code == 200:
             gauge_data = response.json()

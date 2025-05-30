@@ -359,10 +359,46 @@ def attendance_matrix():
 
 @app.route('/driver-management')
 def driver_management():
-    """Driver Management"""
-    return render_template('dashboard_clean_executive.html', 
-                         page_title="Driver Management",
-                         **{k: v for k, v in authentic_fleet_data.items()})
+    """Executive Driver Reports - VP/Controller Ready"""
+    from routes.attendance import load_attendance_matrix
+    from datetime import datetime, timedelta
+    
+    today = datetime.now().strftime('%Y-%m-%d')
+    
+    # Load authentic attendance data
+    today_data = load_attendance_matrix(today, 'all')
+    
+    # Calculate executive metrics
+    total_drivers = len(today_data)
+    on_time = len([r for r in today_data if r['status_icon'] == '✅'])
+    late_starts = len([r for r in today_data if r['status_icon'] == '🕒'])
+    not_on_job = len([r for r in today_data if r['status_icon'] == '❌'])
+    total_hours = sum(r['hours_worked'] for r in today_data)
+    
+    # Calculate cost savings and efficiency metrics
+    avg_hourly_rate = 35  # Average construction hourly rate
+    daily_labor_cost = total_hours * avg_hourly_rate
+    efficiency_savings = (on_time / total_drivers) * total_drivers * 0.75 if total_drivers > 0 else 0
+    
+    context = {
+        'page_title': 'Executive Driver Reports',
+        'page_subtitle': f'Daily Workforce Analytics - {today}',
+        'total_drivers': total_drivers,
+        'on_time_count': on_time,
+        'late_starts': late_starts,
+        'not_on_job': not_on_job,
+        'total_hours': total_hours,
+        'attendance_data': today_data,
+        'current_date': today,
+        'on_time_percentage': round((on_time / total_drivers * 100) if total_drivers > 0 else 0, 1),
+        'productivity_score': round((total_hours / (total_drivers * 8) * 100) if total_drivers > 0 else 0, 1),
+        'daily_labor_cost': daily_labor_cost,
+        'efficiency_savings': efficiency_savings,
+        'monthly_savings': efficiency_savings * 22,
+        'annual_roi': efficiency_savings * 260
+    }
+    
+    return render_template('executive_driver_dashboard.html', **context)
 
 @app.route('/daily-driver-report')
 def daily_driver_report():

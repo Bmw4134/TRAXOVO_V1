@@ -3,122 +3,213 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRAXOVO - Executive Login</title>
+    <title>TRAXOVO - Fleet Intelligence Platform</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            color: #f9fafb;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .login-container {
-            max-width: 400px;
-            margin: 10vh auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            overflow: hidden;
+            background: rgba(31, 41, 55, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 20px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
         }
-        .login-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 2rem;
+        .logo-section {
             text-align: center;
+            margin-bottom: 2rem;
         }
-        .login-body {
-            padding: 2rem;
+        .logo-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #10b981, #059669);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .logo-subtitle {
+            color: #9ca3af;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
         }
         .form-control {
-            border-radius: 10px;
-            border: 2px solid #e9ecef;
-            padding: 12px 15px;
+            background: rgba(31, 41, 55, 0.8);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #f9fafb;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
             margin-bottom: 1rem;
         }
         .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            border-color: #10b981;
+            box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.25);
+            background: rgba(31, 41, 55, 0.9);
+            color: #f9fafb;
+        }
+        .form-control::placeholder {
+            color: #9ca3af;
         }
         .btn-login {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(45deg, #10b981, #059669);
             border: none;
-            border-radius: 10px;
-            padding: 12px;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 12px;
             font-weight: 600;
             width: 100%;
-            margin-bottom: 1rem;
+            transition: all 0.3s ease;
         }
         .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+            color: white;
         }
-        .reset-link {
-            color: #667eea;
-            text-decoration: none;
+        .input-group {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            z-index: 10;
+        }
+        .form-control.with-icon {
+            padding-left: 2.5rem;
+        }
+        .alert {
+            border-radius: 12px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fecaca;
+        }
+        .alert.alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #a7f3d0;
+        }
+        .demo-credentials {
+            background: rgba(16, 185, 129, 0.05);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+        .demo-credentials small {
+            color: #9ca3af;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .demo-credential {
+            background: rgba(31, 41, 55, 0.6);
+            padding: 0.5rem;
+            border-radius: 8px;
+            margin: 0.25rem 0;
+            font-family: 'Courier New', monospace;
             font-size: 0.9rem;
-        }
-        .reset-link:hover {
-            color: #764ba2;
-            text-decoration: underline;
         }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <div class="login-header">
-            <h2><i class="bi bi-shield-lock me-2"></i>TRAXOVO</h2>
-            <p class="mb-0">Executive Fleet Intelligence</p>
+        <!-- Logo Section -->
+        <div class="logo-section">
+            <div class="logo-title">TRAXOVO</div>
+            <div class="logo-subtitle">Fleet Intelligence Platform</div>
         </div>
-        <div class="login-body">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
 
-            <form method="POST">
-                <div class="mb-3">
-                    <label for="username" class="form-label">Username</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-person"></i></span>
-                        <input type="text" class="form-control" id="username" name="username" required>
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
-                </div>
-                
-                <div class="mb-3">
-                    <label for="password" class="form-label">Password</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                        <input type="password" class="form-control" id="password" name="password" required>
-                    </div>
-                </div>
-                
-                <button type="submit" class="btn btn-primary btn-login">
-                    <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
-                </button>
-            </form>
-            
-            <div class="text-center">
-                <a href="{{ url_for('auth.reset_password') }}" class="reset-link">
-                    <i class="bi bi-key me-1"></i>Reset Password
-                </a>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Login Form -->
+        <form method="POST">
+            <div class="input-group">
+                <i class="fas fa-user input-icon"></i>
+                <input type="text" 
+                       class="form-control with-icon" 
+                       name="username" 
+                       placeholder="Username or Email" 
+                       required 
+                       autocomplete="username">
             </div>
-            
-            <div class="mt-4 pt-3 border-top text-center">
-                <small class="text-muted">
-                    <strong>Executive Accounts:</strong><br>
-                    William Rather: <code>Rather</code><br>
-                    Troy Ragle: <code>Ragle</code>
-                </small>
+
+            <div class="input-group">
+                <i class="fas fa-lock input-icon"></i>
+                <input type="password" 
+                       class="form-control with-icon" 
+                       name="password" 
+                       placeholder="Password" 
+                       required 
+                       autocomplete="current-password">
             </div>
+
+            <button type="submit" class="btn btn-login">
+                <i class="fas fa-sign-in-alt me-2"></i>
+                Sign In
+            </button>
+        </form>
+
+        <!-- Demo Credentials -->
+        <div class="demo-credentials">
+            <small>Demo Credentials:</small>
+            <div class="demo-credential">
+                <strong>Username:</strong> admin
+            </div>
+            <div class="demo-credential">
+                <strong>Password:</strong> TRAXOVOAdmin2025!
+            </div>
+        </div>
+
+        <!-- System Status -->
+        <div class="text-center mt-3">
+            <small class="text-muted">
+                <i class="fas fa-database me-1 text-success"></i>
+                Connected to Supabase • 
+                <i class="fas fa-shield-alt me-1 text-success"></i>
+                Secure Authentication
+            </small>
         </div>
     </div>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Auto-focus username field
+        document.addEventListener('DOMContentLoaded', function() {
+            const usernameField = document.querySelector('input[name="username"]');
+            if (usernameField) {
+                usernameField.focus();
+            }
+        });
+
+        // Handle form submission with loading state
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const submitBtn = document.querySelector('.btn-login');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Signing in...';
+            submitBtn.disabled = true;
+        });
+    </script>
 </body>
 </html>

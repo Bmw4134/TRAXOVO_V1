@@ -36,6 +36,7 @@ try:
     from routes.asset_checkout import asset_checkout_bp
     from routes.employee_ideas import employee_ideas_bp
     from routes.equipment_lifecycle import equipment_lifecycle_bp
+from routes.consolidated_modules import consolidated_bp
     
     app.register_blueprint(cost_simulator_bp)
     app.register_blueprint(foundation_bp)
@@ -45,6 +46,7 @@ try:
     app.register_blueprint(asset_checkout_bp)
     app.register_blueprint(employee_ideas_bp)
     app.register_blueprint(equipment_lifecycle_bp)
+app.register_blueprint(consolidated_bp)
     print("Successfully registered all feature blueprints including equipment lifecycle management")
 except ImportError as e:
     print(f"Error importing feature blueprints: {e}")
@@ -1032,6 +1034,11 @@ def system_admin():
     return render_template('dashboard_clean_executive.html', 
                          page_title="User Management",
                          **{k: v for k, v in authentic_fleet_data.items()})
+
+@app.route('/deployment-dashboard')
+def deployment_dashboard():
+    """Elite deployment dashboard with AI feedback system"""
+    return render_template('deployment_dashboard.html')
 
 @app.route('/deployment-test')
 def deployment_test():

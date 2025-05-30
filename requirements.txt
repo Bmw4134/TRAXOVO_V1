@@ -40,3 +40,4 @@ anthropic
 psycopg2-binary
 routes
 trafilatura
+supabase

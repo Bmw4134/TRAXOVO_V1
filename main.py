@@ -239,15 +239,37 @@ def index():
 
 def dashboard():
     """TRAXOVO Unified Dashboard - Master Template"""
+    # Get authentic metrics from Supabase
+    try:
+        from services.supabase_client import get_supabase_client
+        supabase = get_supabase_client()
+        authentic_metrics = supabase.get_authentic_metrics()
+        
+        # Use authentic data or show zeros if unavailable
+        total_assets = authentic_metrics.get('total_assets', 0)
+        active_assets = authentic_metrics.get('active_assets', 0)
+        monthly_revenue = authentic_metrics.get('monthly_revenue', 0)
+        utilization_rate = authentic_metrics.get('utilization_rate', 0.0)
+        data_source = authentic_metrics.get('data_source', 'unavailable')
+        
+    except Exception as e:
+        logging.error(f"Dashboard metrics error: {e}")
+        total_assets = 0
+        active_assets = 0
+        monthly_revenue = 0
+        utilization_rate = 0.0
+        data_source = 'error'
+    
     context = {
         'page_title': 'Executive Dashboard',
         'page_subtitle': 'Real-time fleet intelligence and operational metrics',
-        'total_assets': 581,
-        'active_assets': 610,
-        'total_drivers': 92,
-        'revenue_total': '2.21M',
-        'utilization_rate': 87.5,
-        'billable_revenue': authentic_fleet_data.get('billable_revenue', 2210400),
+        'total_assets': total_assets,
+        'active_assets': active_assets,
+        'total_drivers': 92,  # TODO: Get from Supabase
+        'revenue_total': f"{monthly_revenue/1000000:.2f}M" if monthly_revenue > 0 else "0.00M",
+        'utilization_rate': utilization_rate,
+        'data_source': data_source,
+        'billable_revenue': authentic_fleet_data.get('billable_revenue', monthly_revenue),
         'last_updated': authentic_fleet_data.get('last_updated', 'Just now'),
         **{k: v for k, v in authentic_fleet_data.items()}
     }

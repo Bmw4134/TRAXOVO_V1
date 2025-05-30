@@ -31,7 +31,7 @@ try:
     from routes.cost_savings_simulator import cost_simulator_bp
     from routes.foundation_integration import foundation_bp
     from routes.predictive_analytics import predictive_bp
-    from routes.billing_consolidation_fixed import billing_consolidation_bp
+    from routes.billing_consolidation_demo import billing_consolidation_bp
     from routes.platform_guide import platform_guide_bp
     from routes.asset_checkout import asset_checkout_bp
     from routes.employee_ideas import employee_ideas_bp

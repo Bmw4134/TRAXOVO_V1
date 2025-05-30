@@ -16,7 +16,7 @@
       "select_assets": 6,
       "total_unique": 6
     },
-    "last_updated": "2025-05-30T17:09:22.083078"
+    "last_updated": "2025-05-30T17:12:55.814160"
   },
   "assets": [
     {
@@ -62,5 +62,5 @@
       "category": "mixed_equipment"
     }
   ],
-  "generated_at": "2025-05-30T17:09:22.083089"
+  "generated_at": "2025-05-30T17:12:55.814172"
 }

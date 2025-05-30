@@ -9,21 +9,42 @@
     {% include 'components/unified_dark_theme.html' %}
     <style>
         .attendance-container {
-            background: var(--bg-primary);
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             min-height: 100vh;
+            color: #f8fafc;
         }
         .controls-panel {
-            background: var(--bg-card);
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            border: 1px solid var(--border-color);
+            background: linear-gradient(145deg, #1e293b, #334155);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
         }
         .attendance-table {
-            background: var(--bg-card);
-            border-radius: 0.75rem;
-            border: 1px solid var(--border-color);
+            background: linear-gradient(145deg, #1e293b, #334155);
+            border-radius: 1rem;
+            border: 1px solid rgba(148, 163, 184, 0.2);
             overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        }
+        .table thead th {
+            background: linear-gradient(90deg, #4f46e5, #7c3aed);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border: none;
+            padding: 1rem;
+        }
+        .table tbody td {
+            background: rgba(30, 41, 59, 0.8);
+            color: #e2e8f0;
+            border-color: rgba(148, 163, 184, 0.1);
+            padding: 1rem;
+        }
+        .table tbody tr:hover td {
+            background: rgba(51, 65, 85, 0.9);
         }
         .status-icon {
             font-size: 1.2rem;
@@ -56,19 +77,31 @@
             background: rgba(79, 70, 229, 0.05);
         }
         .metric-card {
-            background: var(--bg-secondary);
-            border-radius: 0.5rem;
-            padding: 1rem;
-            border: 1px solid var(--border-color);
+            background: linear-gradient(145deg, #1e293b, #334155);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+            transition: all 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
         }
         .metric-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--text-primary);
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #10b981, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         .metric-label {
             font-size: 0.875rem;
-            color: var(--text-secondary);
+            color: #94a3b8;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
     </style>
 </head>

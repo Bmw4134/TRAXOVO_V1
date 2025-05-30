@@ -25,8 +25,10 @@ app.secret_key = os.environ.get("SESSION_SECRET") or "traxovo-fleet-secret"
 # Import and register attendance routes
 from routes.attendance import attendance_bp
 from routes.job_zones import job_zones_bp
+from routes.intelligent_ideas import intelligent_ideas_bp
 app.register_blueprint(attendance_bp)
 app.register_blueprint(job_zones_bp)
+app.register_blueprint(intelligent_ideas_bp)
 
 # Import and register new feature blueprints
 try:

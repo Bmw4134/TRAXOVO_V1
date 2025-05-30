@@ -290,7 +290,7 @@ def refresh_data():
     })
 
 def is_logged_in():
-    return session.get('logged_in', False)
+    return session.get('logged_in', False) or session.get('username') is not None
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

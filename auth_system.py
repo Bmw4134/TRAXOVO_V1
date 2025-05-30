@@ -275,6 +275,7 @@ def init_auth(app):
     login_manager.login_message = 'Please log in to access this page.'
     login_manager.login_message_category = 'info'
     
+    # Register blueprint with app
     app.register_blueprint(auth_bp, url_prefix='/auth')
     
     # Add template globals

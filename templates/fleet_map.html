@@ -458,13 +458,12 @@ function addJobZones() {
     });
 }
 
-function toggleGeofences() {
+function toggleJobZones() {
     showJobZones = !showJobZones;
     
     if (showJobZones) {
         addJobZones();
         map.addLayer(jobZoneLayer);
-        // Update button style
         event.target.closest('button').classList.add('active');
     } else {
         map.removeLayer(jobZoneLayer);

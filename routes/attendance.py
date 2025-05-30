@@ -3,32 +3,313 @@ Attendance Routes - Live Dashboard and Matrix Views
 Production-grade attendance tracking with GPS validation
 """
 
-from flask import Blueprint, render_template, jsonify, request, send_file
+from flask import Blueprint, render_template, jsonify, request, send_file, flash, redirect, url_for
 from datetime import datetime, timedelta
 import pandas as pd
 from io import BytesIO
 import os
+import logging
+import requests
+from math import radians, cos, sin, asin, sqrt
+import tabula
 
 attendance_bp = Blueprint('attendance', __name__, url_prefix='/attendance')
 
+def get_combined_attendance(period, start_date, end_date):
+    """
+    GENOPS Step 1.1: Get combined attendance data from Supabase + Gauge API
+    Returns list of attendance records with GPS validation
+    """
+    try:
+        combined_data = []
+        
+        # Fetch from Supabase attendance table
+        try:
+            from services.supabase_client import get_supabase_client
+            supabase = get_supabase_client()
+            
+            attendance_response = supabase.table('attendance')\
+                .select('*')\
+                .gte('date', start_date.isoformat())\
+                .lte('date', end_date.isoformat())\
+                .execute()
+            
+            supabase_data = attendance_response.data if attendance_response.data else []
+            logging.info(f"Fetched {len(supabase_data)} records from Supabase")
+            
+        except Exception as e:
+            logging.error(f"Supabase fetch error: {e}")
+            supabase_data = []
+        
+        # Fetch GPS data from Gauge API
+        try:
+            gauge_api_key = os.environ.get('GAUGE_API_KEY')
+            gauge_api_url = os.environ.get('GAUGE_API_URL')
+            
+            if gauge_api_key and gauge_api_url:
+                gps_response = requests.get(
+                    f"{gauge_api_url}/gps",
+                    headers={'Authorization': f'Bearer {gauge_api_key}'},
+                    params={
+                        'start': start_date.isoformat(),
+                        'end': end_date.isoformat()
+                    }
+                )
+                gps_data = gps_response.json() if gps_response.status_code == 200 else []
+            else:
+                gps_data = []
+                
+        except Exception as e:
+            logging.error(f"Gauge API fetch error: {e}")
+            gps_data = []
+        
+        # Merge and process data with job zone logic
+        for record in supabase_data:
+            record['gps_validated'] = validate_gps_location(record, gps_data)
+            record['status_icon'] = get_status_icon(record)
+            record['in_zone'] = check_job_zone_geofence(record)
+            combined_data.append(record)
+        
+        return combined_data
+        
+    except Exception as e:
+        logging.error(f"Error in get_combined_attendance: {e}")
+        return []
+
+def validate_gps_location(record, gps_data):
+    """Validate attendance record against GPS data"""
+    if not gps_data:
+        return False
+    
+    # Find matching GPS ping for this employee/asset
+    for gps_ping in gps_data:
+        if (gps_ping.get('employee_id') == record.get('employee_id') or 
+            gps_ping.get('asset_id') == record.get('asset_id')):
+            return True
+    
+    return False
+
+def get_status_icon(record):
+    """GENOPS Step 3.2: Get status icon based on attendance record"""
+    if not record.get('check_in'):
+        return "❌"  # No-Show
+    elif record.get('late_start', False):
+        return "🕒"  # Late Start  
+    elif record.get('early_end', False):
+        return "⏳"  # Early End
+    else:
+        return "✅"  # On-Time
+
+def check_job_zone_geofence(record):
+    """Check if attendance location is within job zone geofence"""
+    try:
+        from routes.job_zones import get_job_zones
+        job_zones = get_job_zones()
+        
+        if not record.get('latitude') or not record.get('longitude'):
+            return False
+            
+        for zone in job_zones:
+            distance = haversine(
+                record['longitude'], record['latitude'],
+                zone['longitude'], zone['latitude']
+            )
+            
+            # Within 0.5 mile radius
+            if distance <= 0.5:
+                return True
+                
+        return False
+        
+    except Exception as e:
+        logging.error(f"Job zone check error: {e}")
+        return False
+
+def haversine(lon1, lat1, lon2, lat2):
+    """Calculate distance between two GPS coordinates in miles"""
+    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+    dlon = lon2 - lon1 
+    dlat = lat2 - lat1 
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    c = 2 * asin(sqrt(a)) 
+    r = 3956  # Radius of earth in miles
+    return c * r
+
+# GENOPS Step 2.1: Time-card upload handler
+@attendance_bp.route('/upload/groundworks', methods=['POST'])
+def upload_groundworks():
+    """GENOPS Step 2.1: Handle timecard uploads (CSV/XLSX/PDF)"""
+    try:
+        if 'file' not in request.files:
+            flash('No file selected', 'error')
+            return redirect(url_for('attendance.attendance_matrix'))
+        
+        file = request.files['file']
+        if file.filename == '':
+            flash('No file selected', 'error')
+            return redirect(url_for('attendance.attendance_matrix'))
+        
+        filename = file.filename.lower()
+        
+        # Parse based on file type
+        if filename.endswith('.csv'):
+            df = pd.read_csv(file)
+        elif filename.endswith(('.xlsx', '.xls')):
+            df = pd.read_excel(file)
+        elif filename.endswith('.pdf'):
+            # Use tabula for PDF parsing
+            df = tabula.read_pdf(file, pages='all')[0] if tabula.read_pdf(file, pages='all') else pd.DataFrame()
+        else:
+            flash('Unsupported file format. Use CSV, Excel, or PDF.', 'error')
+            return redirect(url_for('attendance.attendance_matrix'))
+        
+        # Upsert to Supabase
+        records_processed = 0
+        try:
+            from services.supabase_client import get_supabase_client
+            supabase = get_supabase_client()
+            
+            for _, row in df.iterrows():
+                try:
+                    record = {
+                        'employee_id': str(row.get('employee_id', row.get('Employee ID', ''))),
+                        'date': str(row.get('date', row.get('Date', ''))),
+                        'check_in': str(row.get('check_in', row.get('Check In', ''))),
+                        'check_out': str(row.get('check_out', row.get('Check Out', ''))),
+                        'hours': float(row.get('hours', row.get('Hours', 0))),
+                        'job_site': str(row.get('job_site', row.get('Job Site', '')))
+                    }
+                    
+                    supabase.table('attendance').upsert(record).execute()
+                    records_processed += 1
+                    
+                except Exception as row_error:
+                    logging.error(f"Row processing error: {row_error}")
+                    continue
+            
+            flash(f'Successfully processed {records_processed} attendance records', 'success')
+            
+            # GENOPS Step 2.2: Warm cache after upload
+            today = datetime.now().date()
+            get_combined_attendance("daily", today, today)
+            
+        except Exception as db_error:
+            logging.error(f"Database error: {db_error}")
+            flash('Database error during upload. Records may be partially processed.', 'warning')
+        
+    except Exception as e:
+        logging.error(f"Upload error: {e}")
+        flash('Upload failed. Please check file format and try again.', 'error')
+    
+    return redirect(url_for('attendance.attendance_matrix'))
+
+# GENOPS Step 5.1: Export endpoints
+@attendance_bp.route('/export/csv')
+def export_attendance_csv():
+    """Export attendance data as CSV"""
+    period = request.args.get('period', 'daily')
+    start_date, end_date = get_period_dates(period)
+    
+    data = get_combined_attendance(period, start_date, end_date)
+    df = pd.DataFrame(data)
+    
+    output = BytesIO()
+    df.to_csv(output, index=False)
+    output.seek(0)
+    
+    return send_file(
+        output,
+        mimetype='text/csv',
+        as_attachment=True,
+        download_name=f'attendance_{period}_{datetime.now().strftime("%Y%m%d")}.csv'
+    )
+
+@attendance_bp.route('/export/xlsx') 
+def export_attendance_xlsx():
+    """Export attendance data as Excel"""
+    period = request.args.get('period', 'daily')
+    start_date, end_date = get_period_dates(period)
+    
+    data = get_combined_attendance(period, start_date, end_date)
+    df = pd.DataFrame(data)
+    
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, sheet_name='Attendance', index=False)
+    output.seek(0)
+    
+    return send_file(
+        output,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        as_attachment=True,
+        download_name=f'attendance_{period}_{datetime.now().strftime("%Y%m%d")}.xlsx'
+    )
+
+@attendance_bp.route('/refresh')
+def refresh_attendance():
+    """GENOPS Step 5.2: Scheduled refresh endpoint"""
+    period = request.args.get('period', 'daily')
+    start_date, end_date = get_period_dates(period)
+    
+    data = get_combined_attendance(period, start_date, end_date)
+    
+    return jsonify({
+        'status': 'success',
+        'period': period,
+        'records_processed': len(data),
+        'timestamp': datetime.now().isoformat()
+    })
+
+def get_period_dates(period):
+    """Get start and end dates for period"""
+    now = datetime.now()
+    
+    if period == 'daily':
+        return now.date(), now.date()
+    elif period == 'weekly':
+        start = now - timedelta(days=now.weekday())
+        return start.date(), now.date()
+    elif period == 'monthly':
+        start = now.replace(day=1)
+        return start.date(), now.date()
+    else:
+        return now.date(), now.date()
+
 @attendance_bp.route('/matrix')
 def attendance_matrix():
-    """Live attendance matrix dashboard with GPS validation"""
-    date = request.args.get('date', datetime.now().strftime('%Y-%m-%d'))
-    job_id = request.args.get('job_id', 'all')
+    """GENOPS Step 4.1: Live attendance matrix with dark theme"""
+    period = request.args.get('period', 'daily')
+    include_weekends = request.args.get('weekends', 'false') == 'true'
     
-    # Load authentic attendance data
-    matrix_data = load_attendance_matrix(date, job_id)
+    # GENOPS Step 1.2: Inline check
+    start_date, end_date = get_period_dates(period)
     
-    context = {
-        'page_title': 'Attendance Matrix',
-        'page_subtitle': 'GPS-validated workforce tracking',
-        'matrix_data': matrix_data,
-        'current_date': date,
-        'selected_job': job_id
-    }
-    
-    return render_template('attendance_matrix.html', **context)
+    try:
+        # Get combined attendance data
+        matrix_data = get_combined_attendance(period, start_date, end_date)
+        assert isinstance(matrix_data, list), "get_combined_attendance must return a list"
+        
+        context = {
+            'page_title': 'Attendance Matrix',
+            'page_subtitle': 'GPS-validated workforce tracking with job zone integration',
+            'matrix_data': matrix_data,
+            'current_period': period,
+            'include_weekends': include_weekends,
+            'total_records': len(matrix_data),
+            'datetime': datetime  # For template date formatting
+        }
+        
+        return render_template('attendance_matrix_unified.html', **context)
+        
+    except Exception as e:
+        logging.error(f"Attendance matrix error: {e}")
+        flash('Error loading attendance data. Please try again.', 'error')
+        return render_template('attendance_matrix_unified.html', 
+                             matrix_data=[], 
+                             current_period=period,
+                             include_weekends=include_weekends,
+                             total_records=0,
+                             datetime=datetime)
 
 @attendance_bp.route('/api/live-status')
 def api_live_status():

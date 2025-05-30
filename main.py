@@ -736,14 +736,17 @@ def export_attendance_matrix(format):
 
 @app.route('/attendance/matrix/preview/pdf')
 def preview_attendance_pdf():
-    """Preview attendance matrix as PDF"""
-    view_type = request.args.get('view', 'weekly')
-    include_weekends = request.args.get('weekends', 'true') == 'true'
-    
-    # Return HTML preview for now
-    return render_template('attendance_matrix_unified.html',
-                         page_title='Attendance Matrix PDF Preview',
-                         preview_mode=True)
+    """Download attendance matrix PDF - prevents redirect loop"""
+    try:
+        from routes.attendance import generate_pdf_response
+        today = datetime.now().strftime('%Y-%m-%d')
+        
+        response = generate_pdf_response(today, 'all')
+        response.headers['Content-Disposition'] = f'attachment; filename="attendance_matrix_{today}.pdf"'
+        return response
+        
+    except Exception as e:
+        return redirect(url_for('attendance_matrix'))
 
 @app.route('/upload/groundworks', methods=['POST'])
 def upload_groundworks():

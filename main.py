@@ -392,14 +392,38 @@ def attendance_complete():
 
 @app.route('/attendance-matrix')
 def attendance_matrix():
-    """Smart Attendance Matrix with GPS validation"""
+    """Dynamic Attendance Matrix with Authentic Timecard Data"""
+    from routes.attendance import load_attendance_matrix
+    from datetime import datetime
+    
+    # Get today's authentic attendance data
+    today = datetime.now().strftime('%Y-%m-%d')
+    attendance_data = load_attendance_matrix(today, 'all')
+    
+    # Calculate real-time metrics from authentic data
+    total_drivers = len(attendance_data)
+    on_time = len([r for r in attendance_data if r.get('status_icon') == '✅'])
+    late_starts = len([r for r in attendance_data if r.get('status_icon') == '🕒'])
+    early_ends = len([r for r in attendance_data if r.get('status_icon') == '⏳'])
+    not_on_job = len([r for r in attendance_data if r.get('status_icon') == '❌'])
+    
+    # Calculate productivity metrics
+    total_hours = sum(r.get('hours_worked', 0) for r in attendance_data)
+    on_time_percentage = round((on_time / total_drivers * 100) if total_drivers > 0 else 0, 1)
+    
     context = {
-        'page_title': 'Smart Attendance Matrix',
-        'page_subtitle': 'GPS-verified attendance tracking with geofence validation',
-        'total_drivers': 92,
-        'on_site': 87,
-        'off_site': 2,
-        'late_early': 3,
+        'page_title': 'Attendance Matrix',
+        'page_subtitle': 'GPS-validated workforce tracking with authentic timecard data',
+        'attendance_data': attendance_data,
+        'total_drivers': total_drivers,
+        'on_time': on_time,
+        'late_starts': late_starts,
+        'early_ends': early_ends,
+        'not_on_job': not_on_job,
+        'total_hours': total_hours,
+        'on_time_percentage': on_time_percentage,
+        'current_date': today,
+        'last_updated': 'Just now',
         **{k: v for k, v in authentic_fleet_data.items()}
     }
     

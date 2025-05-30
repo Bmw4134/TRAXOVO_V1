@@ -295,20 +295,26 @@ def is_logged_in():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '').strip()
         
-        # Fast authentication with minimal processing
+        # Direct authentication without flash or complex logic
         if username == 'admin' and password == 'TRAXOVOAdmin2025!':
+            session.clear()  # Clear any old session data
             session['logged_in'] = True
             session['username'] = username
             session['role'] = 'admin'
             session.permanent = True
-            # Pre-cache data for faster dashboard load
-            load_gauge_api_data()
+            return redirect('/dashboard')
+        elif username == 'executive' and password == 'executive':
+            session.clear()
+            session['logged_in'] = True
+            session['username'] = username
+            session['role'] = 'executive'
+            session.permanent = True
             return redirect('/dashboard')
         else:
-            flash('Invalid credentials', 'error')
+            return render_template('login.html', error='Invalid credentials')
     
     return render_template('login.html')
 

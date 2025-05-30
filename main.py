@@ -32,12 +32,14 @@ try:
     from routes.foundation_integration import foundation_bp
     from routes.predictive_analytics import predictive_bp
     from routes.billing_consolidation import billing_consolidation_bp
+    from routes.platform_guide import platform_guide_bp
     
     app.register_blueprint(cost_simulator_bp)
     app.register_blueprint(foundation_bp)
     app.register_blueprint(predictive_bp)
     app.register_blueprint(billing_consolidation_bp)
-    print("Successfully registered all feature blueprints including billing consolidation")
+    app.register_blueprint(platform_guide_bp)
+    print("Successfully registered all feature blueprints including enhanced billing and platform guide")
 except ImportError as e:
     print(f"Error importing feature blueprints: {e}")
 

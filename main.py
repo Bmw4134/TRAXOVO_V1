@@ -400,7 +400,13 @@ def dashboard():
         'active_jobs': ['2019-044 E Long Avenue', '2021-017 Plant Extension']
     }
     
-    return render_template('dashboard.html', **context)
+    # Validation check for future template mismatches
+    if total_assets != 717 or active_assets != 614:
+        logging.warning(f"TEMPLATE DATA MISMATCH: Expected 717/614 assets, got {total_assets}/{active_assets} from {data_source}")
+    else:
+        logging.info(f"Dashboard metrics validated: {total_assets} total, {active_assets} active from {data_source}")
+    
+    return render_template('master_unified.html', **context)
 
 # Keep all existing API endpoints
 @app.route('/api/assets')

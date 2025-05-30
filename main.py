@@ -35,6 +35,7 @@ try:
     from routes.platform_guide import platform_guide_bp
     from routes.asset_checkout import asset_checkout_bp
     from routes.employee_ideas import employee_ideas_bp
+    from routes.equipment_lifecycle import equipment_lifecycle_bp
     
     app.register_blueprint(cost_simulator_bp)
     app.register_blueprint(foundation_bp)
@@ -43,7 +44,8 @@ try:
     app.register_blueprint(platform_guide_bp)
     app.register_blueprint(asset_checkout_bp)
     app.register_blueprint(employee_ideas_bp)
-    print("Successfully registered all feature blueprints including asset checkout and employee ideas")
+    app.register_blueprint(equipment_lifecycle_bp)
+    print("Successfully registered all feature blueprints including equipment lifecycle management")
 except ImportError as e:
     print(f"Error importing feature blueprints: {e}")
 

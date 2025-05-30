@@ -24,6 +24,8 @@ def index():
 
 @attendance_bp.route('/daily_driver_report')
 def daily_driver_report():
+    # Add your improvements and integrations here.
+    # Pull real-time GPS data and merge with Excel timecards
     """Display the daily driver report dashboard"""
     # Get parameters from request
     selected_date = request.args.get('date', None)

@@ -216,35 +216,35 @@ def fleet_map():
 @app.route('/asset-manager')
 def asset_manager():
     """Asset Manager"""
-    return render_template('dashboard_professional.html', 
+    return render_template('dashboard_clean_executive.html', 
                          page_title="Asset Manager",
                          **{k: v for k, v in authentic_fleet_data.items()})
 
 @app.route('/equipment-dispatch')
 def equipment_dispatch():
     """Equipment Dispatch"""
-    return render_template('dashboard_professional.html', 
+    return render_template('dashboard_clean_executive.html', 
                          page_title="Equipment Dispatch",
                          **{k: v for k, v in authentic_fleet_data.items()})
 
 @app.route('/schedule-manager')
 def schedule_manager():
     """Schedule Manager"""
-    return render_template('dashboard_professional.html', 
+    return render_template('dashboard_clean_executive.html', 
                          page_title="Schedule Manager",
                          **{k: v for k, v in authentic_fleet_data.items()})
 
 @app.route('/job-sites')
 def job_sites():
     """Job Sites"""
-    return render_template('dashboard_professional.html', 
+    return render_template('dashboard_clean_executive.html', 
                          page_title="Job Sites",
                          **{k: v for k, v in authentic_fleet_data.items()})
 
 @app.route('/attendance-matrix')
 def attendance_matrix():
     """Attendance Matrix"""
-    return render_template('dashboard_professional.html', 
+    return render_template('dashboard_clean_executive.html', 
                          page_title="Attendance Matrix",
                          **{k: v for k, v in authentic_fleet_data.items()})
 

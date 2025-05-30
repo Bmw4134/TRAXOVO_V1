@@ -45,15 +45,187 @@ def create_record_hash(equipment_id, amount, date_info):
     hash_string = f"{equipment_id}_{amount}_{date_info}"
     return hashlib.md5(hash_string.encode()).hexdigest()
 
+class IntelligentFileAnalyzer:
+    """Machine Learning-powered file duplicate and fluff detection"""
+    
+    def __init__(self):
+        self.vectorizer = TfidfVectorizer(max_features=1000, stop_words='english')
+        self.file_signatures = {}
+        self.content_similarity_threshold = 0.85
+        self.structural_similarity_threshold = 0.90
+        
+    def analyze_file_content(self, df, file_path):
+        """Analyze file content for similarity detection"""
+        try:
+            # Create content signature from data structure
+            structure_signature = {
+                'rows': len(df),
+                'cols': len(df.columns),
+                'data_types': str(df.dtypes.tolist()),
+                'null_pattern': df.isnull().sum().tolist(),
+                'numeric_cols': len(df.select_dtypes(include=[np.number]).columns)
+            }
+            
+            # Extract text content for similarity analysis
+            text_content = []
+            for col in df.columns:
+                if df[col].dtype == 'object':
+                    text_content.extend(df[col].dropna().astype(str).tolist())
+            
+            content_text = ' '.join(text_content[:1000])  # Limit to prevent memory issues
+            
+            return {
+                'structure': structure_signature,
+                'content_text': content_text,
+                'file_size': os.path.getsize(file_path) if os.path.exists(file_path) else 0
+            }
+        except Exception as e:
+            logging.warning(f"Error analyzing file content: {e}")
+            return {'structure': {}, 'content_text': '', 'file_size': 0}
+    
+    def detect_duplicate_files(self, file_analyses):
+        """Use ML to detect duplicate and similar files"""
+        duplicates = []
+        fluff_files = []
+        
+        # Extract content texts for similarity analysis
+        contents = [analysis['content_text'] for analysis in file_analyses.values()]
+        
+        if len(contents) > 1 and any(contents):
+            try:
+                # Calculate content similarity using TF-IDF
+                tfidf_matrix = self.vectorizer.fit_transform(contents)
+                similarity_matrix = cosine_similarity(tfidf_matrix)
+                
+                file_names = list(file_analyses.keys())
+                
+                for i in range(len(file_names)):
+                    for j in range(i + 1, len(file_names)):
+                        content_sim = similarity_matrix[i][j]
+                        
+                        # Check structural similarity
+                        struct1 = file_analyses[file_names[i]]['structure']
+                        struct2 = file_analyses[file_names[j]]['structure']
+                        
+                        structural_sim = self._calculate_structural_similarity(struct1, struct2)
+                        
+                        # Determine if files are duplicates or similar
+                        if content_sim > self.content_similarity_threshold and structural_sim > self.structural_similarity_threshold:
+                            # Choose the larger file as primary, smaller as duplicate
+                            size1 = file_analyses[file_names[i]]['file_size']
+                            size2 = file_analyses[file_names[j]]['file_size']
+                            
+                            if size1 >= size2:
+                                duplicates.append({
+                                    'primary': file_names[i],
+                                    'duplicate': file_names[j],
+                                    'content_similarity': content_sim,
+                                    'structural_similarity': structural_sim,
+                                    'confidence': (content_sim + structural_sim) / 2
+                                })
+                            else:
+                                duplicates.append({
+                                    'primary': file_names[j],
+                                    'duplicate': file_names[i],
+                                    'content_similarity': content_sim,
+                                    'structural_similarity': structural_sim,
+                                    'confidence': (content_sim + structural_sim) / 2
+                                })
+                        
+                        # Detect low-value "fluff" files
+                        elif content_sim < 0.1 and struct1.get('rows', 0) < 10:
+                            fluff_files.append({
+                                'file': file_names[i],
+                                'reason': 'Low content value and minimal data',
+                                'confidence': 0.8
+                            })
+                            
+            except Exception as e:
+                logging.warning(f"Error in ML duplicate detection: {e}")
+        
+        return duplicates, fluff_files
+    
+    def _calculate_structural_similarity(self, struct1, struct2):
+        """Calculate structural similarity between two file structures"""
+        if not struct1 or not struct2:
+            return 0.0
+        
+        similarities = []
+        
+        # Compare numeric features
+        for key in ['rows', 'cols', 'numeric_cols']:
+            if key in struct1 and key in struct2:
+                val1, val2 = struct1[key], struct2[key]
+                if val1 == 0 and val2 == 0:
+                    similarities.append(1.0)
+                elif max(val1, val2) == 0:
+                    similarities.append(0.0)
+                else:
+                    similarities.append(min(val1, val2) / max(val1, val2))
+        
+        return np.mean(similarities) if similarities else 0.0
+    
+    def generate_quality_score(self, duplicates, fluff_files, total_files):
+        """Generate intelligent data quality score"""
+        if total_files == 0:
+            return 0
+        
+        duplicate_penalty = len(duplicates) / total_files * 30  # Max 30% penalty
+        fluff_penalty = len(fluff_files) / total_files * 20     # Max 20% penalty
+        
+        base_score = 100
+        quality_score = max(0, base_score - duplicate_penalty - fluff_penalty)
+        
+        return {
+            'score': round(quality_score, 1),
+            'grade': self._get_quality_grade(quality_score),
+            'issues': {
+                'duplicates': len(duplicates),
+                'fluff_files': len(fluff_files),
+                'clean_files': total_files - len(duplicates) - len(fluff_files)
+            },
+            'recommendations': self._generate_recommendations(duplicates, fluff_files)
+        }
+    
+    def _get_quality_grade(self, score):
+        """Convert numeric score to letter grade"""
+        if score >= 95: return 'A+'
+        elif score >= 90: return 'A'
+        elif score >= 85: return 'B+'
+        elif score >= 80: return 'B'
+        elif score >= 75: return 'C+'
+        elif score >= 70: return 'C'
+        elif score >= 60: return 'D'
+        else: return 'F'
+    
+    def _generate_recommendations(self, duplicates, fluff_files):
+        """Generate actionable recommendations"""
+        recommendations = []
+        
+        if duplicates:
+            recommendations.append(f"Remove {len(duplicates)} duplicate files to improve data integrity")
+        
+        if fluff_files:
+            recommendations.append(f"Archive {len(fluff_files)} low-value files to streamline processing")
+        
+        if not duplicates and not fluff_files:
+            recommendations.append("Data quality is excellent - no duplicates or fluff files detected")
+        
+        return recommendations
+
 def process_consolidated_billing():
-    """Intelligently process all billing files using Foundation structure mappings"""
+    """Intelligently process all billing files using Foundation structure mappings with ML optimization"""
     all_files = get_all_billing_files()
     consolidated_data = []
     seen_hashes = set()
     duplicate_count = 0
     processing_stats = {}
     
-    # Foundation billing structure mappings based on your files
+    # Initialize ML analyzer
+    analyzer = IntelligentFileAnalyzer()
+    file_analyses = {}
+    
+    # Foundation billing structure mappings based on your authentic files
     foundation_mappings = {
         'RAGLE EQ BILLINGS': {
             'equipment_col': 0,  # Equipment ID in first column
@@ -103,6 +275,9 @@ def process_consolidated_billing():
             
             # Read Excel with proper sheet handling
             df = pd.read_excel(file_path, engine='openpyxl', skiprows=file_mapping['header_rows'])
+            
+            # Analyze file for ML duplicate detection
+            file_analyses[file_info['name']] = analyzer.analyze_file_content(df, file_path)
             
             for idx, row in df.iterrows():
                 file_stats['records_processed'] += 1
@@ -193,7 +368,16 @@ def process_consolidated_billing():
             
         processing_stats[file_info['name']] = file_stats
     
-    return consolidated_data, processing_stats, duplicate_count
+    # Run ML analysis on all processed files
+    duplicates, fluff_files = analyzer.detect_duplicate_files(file_analyses)
+    quality_analysis = analyzer.generate_quality_score(duplicates, fluff_files, len(all_files))
+    
+    return consolidated_data, processing_stats, duplicate_count, {
+        'duplicates': duplicates,
+        'fluff_files': fluff_files,
+        'quality_score': quality_analysis,
+        'ml_recommendations': quality_analysis['recommendations']
+    }
 
 def analyze_consolidated_data(consolidated_data):
     """Analyze the consolidated billing data for insights"""
@@ -276,8 +460,8 @@ def billing_consolidation_dashboard():
 
 @billing_consolidation_bp.route('/api/billing-export')
 def export_consolidated_billing():
-    """Export consolidated billing data with CYA documentation"""
-    consolidated_data, processing_stats, duplicate_count = process_consolidated_billing()
+    """Export consolidated billing data with CYA documentation and ML analysis"""
+    consolidated_data, processing_stats, duplicate_count, ml_analysis = process_consolidated_billing()
     analysis = analyze_consolidated_data(consolidated_data)
     
     # Create comprehensive export for CYA documentation
@@ -300,6 +484,13 @@ def export_consolidated_billing():
             'source_files_verified': list(processing_stats.keys()),
             'total_amount_cross_verified': analysis.get('total_amount', 0),
             'equipment_count_verified': analysis.get('unique_equipment', 0)
+        },
+        'ml_quality_analysis': {
+            'quality_score': ml_analysis['quality_score']['score'],
+            'quality_grade': ml_analysis['quality_score']['grade'],
+            'duplicates_detected': ml_analysis['duplicates'],
+            'fluff_files_detected': ml_analysis['fluff_files'],
+            'recommendations': ml_analysis['ml_recommendations']
         }
     }
     

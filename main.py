@@ -77,6 +77,16 @@ except ImportError as e:
     print(f"Error importing feature blueprints: {e}")
 
 # Start scheduled attendance snapshots
+# Initialize authentication system first
+try:
+    from auth_system import init_auth
+    login_manager = init_auth(app)
+    print("Authentication system initialized successfully")
+except ImportError as e:
+    print(f"Authentication system not available: {e}")
+except Exception as e:
+    print(f"Error initializing authentication: {e}")
+
 try:
     from jobs.scheduled_snapshots import start_scheduler
     # Scheduler will auto-start when imported

@@ -1,6 +1,3 @@
-` tags.
-
-```python
 """
 TRAXORA Fleet Management System - Gauge API Module
 

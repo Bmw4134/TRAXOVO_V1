@@ -1079,6 +1079,24 @@ def asset_detail(asset_id):
     }
     return render_template('asset_detail.html', **context)
 
+# Removed duplicate equipment_dispatch route - using the one at line 1082
+
+@app.route('/interactive-schedule')
+def interactive_schedule():
+    """Interactive schedule manager"""
+    return render_template('interactive_schedule.html',
+        page_title='Schedule Manager',
+        page_subtitle='Interactive equipment and crew scheduling',
+        **{k: v for k, v in authentic_fleet_data.items()})
+
+@app.route('/driver-asset-tracking')
+def driver_asset_tracking():
+    """Driver and asset tracking management"""
+    return render_template('driver_asset_tracking.html',
+        page_title='Driver Management',
+        page_subtitle='Driver assignments and performance tracking',
+        **{k: v for k, v in authentic_fleet_data.items()})
+
 @app.route('/demo')
 def demo_executive():
     """Executive demo with real-time upload capabilities"""

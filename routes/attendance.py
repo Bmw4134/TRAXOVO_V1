@@ -127,7 +127,7 @@ def load_attendance_matrix(date, job_id):
                     timecard_files.append(os.path.join(path, file))
     
     # Process the most recent timecard files
-    for file_path in timecard_files:  # Process all available files
+    for file_path in timecard_files[:2]:  # Process 2 most recent files for efficiency
         try:
             if file_path.endswith('.xlsx'):
                 df = pd.read_excel(file_path)
@@ -138,7 +138,7 @@ def load_attendance_matrix(date, job_id):
             df.columns = [col.strip().lower().replace(' ', '_') for col in df.columns]
             
             # Extract attendance records
-            for _, row in df.iterrows():
+            for _, row in df.head(50).iterrows():  # Limit to 50 records per file for performance
                 # Try to find employee name in various column formats
                 employee_name = None
                 for col in ['employee_name', 'name', 'driver', 'operator', 'employee']:

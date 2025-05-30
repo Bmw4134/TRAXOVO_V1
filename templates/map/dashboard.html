@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Fleet Map - TRAXOVO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        :root {
+            --herc-yellow: #FFD700;
+            --herc-blue: #003366;
+            --herc-gray: #f8f9fa;
+        }
+        
+        body { background-color: var(--herc-gray); }
+        
+        #map {
+            height: 70vh;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .control-panel {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .asset-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--herc-yellow);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .asset-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        
+        .status-active { background: #d4edda; color: #155724; }
+        .status-idle { background: #fff3cd; color: #856404; }
+        .status-maintenance { background: #f8d7da; color: #721c24; }
+        
+        .violation-alert {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .map-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .leaflet-popup-content {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .asset-popup {
+            min-width: 200px;
+        }
+        
+        .asset-popup h6 {
+            color: var(--herc-blue);
+            margin-bottom: 10px;
+        }
+        
+        .asset-popup .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        
+        .status-active .status-indicator { background: #28a745; }
+        .status-idle .status-indicator { background: #ffc107; }
+        .status-maintenance .status-indicator { background: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="container-fluid p-3">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="text-dark">
+                <i class="fas fa-map-marked-alt text-warning"></i> Interactive Fleet Map
+            </h2>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-primary" id="refreshBtn">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+                <button class="btn btn-warning" id="liveTrackingBtn">
+                    <i class="fas fa-satellite-dish"></i> Live Tracking
+                </button>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- Map Section -->
+            <div class="col-md-8">
+                <div class="control-panel">
+                    <div class="row align-items-center">
+                        <div class="col-md-4">
+                            <label class="form-label">Filter Assets:</label>
+                            <select class="form-select" id="assetFilter">
+                                <option value="all">All Assets</option>
+                                <option value="active">Active Only</option>
+                                <option value="idle">Idle Assets</option>
+                                <option value="maintenance">In Maintenance</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Show Zones:</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="showGeofences" checked>
+                                <label class="form-check-label">Geofence Zones</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Time Range:</label>
+                            <select class="form-select" id="timeRange">
+                                <option value="current">Current Location</option>
+                                <option value="1h">Last 1 Hour</option>
+                                <option value="4h">Last 4 Hours</option>
+                                <option value="24h">Last 24 Hours</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="map" class="position-relative">
+                    <div class="map-controls">
+                        <div class="btn-group-vertical btn-group-sm">
+                            <button class="btn btn-outline-secondary" id="centerMapBtn" title="Center Map">
+                                <i class="fas fa-crosshairs"></i>
+                            </button>
+                            <button class="btn btn-outline-secondary" id="fullscreenBtn" title="Fullscreen">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Asset List and Alerts -->
+            <div class="col-md-4">
+                <!-- Asset Status -->
+                <div class="control-panel">
+                    <h5 class="mb-3">Asset Status</h5>
+                    <div id="assetList"></div>
+                </div>
+                
+                <!-- Geofence Violations -->
+                <div class="control-panel">
+                    <h5 class="mb-3 text-danger">
+                        <i class="fas fa-exclamation-triangle"></i> Alerts
+                    </h5>
+                    <div id="violationsList"></div>
+                </div>
+                
+                <!-- Live Statistics -->
+                <div class="control-panel">
+                    <h5 class="mb-3">Live Statistics</h5>
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="h4 text-success" id="activeCount">-</div>
+                            <small class="text-muted">Active Assets</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="h4 text-warning" id="idleCount">-</div>
+                            <small class="text-muted">Idle Assets</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        // Initialize map
+        let map = L.map('map').setView([32.7767, -96.7970], 12);
+        
+        // Add tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        
+        // Global variables
+        let assetMarkers = {};
+        let geofenceCircles = {};
+        let isLiveTracking = false;
+        let liveTrackingInterval;
+        
+        // Asset icons
+        const assetIcons = {
+            active: L.divIcon({
+                html: '<i class="fas fa-truck" style="color: #28a745; font-size: 20px;"></i>',
+                iconSize: [30, 30],
+                className: 'custom-div-icon'
+            }),
+            idle: L.divIcon({
+                html: '<i class="fas fa-truck" style="color: #ffc107; font-size: 20px;"></i>',
+                iconSize: [30, 30],
+                className: 'custom-div-icon'
+            }),
+            maintenance: L.divIcon({
+                html: '<i class="fas fa-truck" style="color: #dc3545; font-size: 20px;"></i>',
+                iconSize: [30, 30],
+                className: 'custom-div-icon'
+            })
+        };
+        
+        // Load initial map data
+        async function loadMapData() {
+            try {
+                const response = await fetch('/map/api/map-data');
+                const data = await response.json();
+                
+                updateAssetMarkers(data.assets);
+                updateGeofenceZones(data.geofence_zones);
+                updateAssetList(data.assets);
+                updateStatistics(data.assets);
+                
+                // Load violations
+                loadViolations();
+                
+            } catch (error) {
+                console.error('Error loading map data:', error);
+            }
+        }
+        
+        function updateAssetMarkers(assets) {
+            // Clear existing markers
+            Object.values(assetMarkers).forEach(marker => map.removeLayer(marker));
+            assetMarkers = {};
+            
+            assets.forEach(asset => {
+                const icon = assetIcons[asset.status] || assetIcons.idle;
+                
+                const marker = L.marker([asset.latitude, asset.longitude], { icon })
+                    .bindPopup(createAssetPopup(asset))
+                    .addTo(map);
+                
+                assetMarkers[asset.asset_id] = marker;
+            });
+        }
+        
+        function updateGeofenceZones(zones) {
+            // Clear existing circles
+            Object.values(geofenceCircles).forEach(circle => map.removeLayer(circle));
+            geofenceCircles = {};
+            
+            if (document.getElementById('showGeofences').checked) {
+                zones.forEach(zone => {
+                    const color = zone.type === 'job_site' ? '#28a745' : 
+                                 zone.type === 'yard' ? '#007bff' : '#ffc107';
+                    
+                    const circle = L.circle([zone.center_lat, zone.center_lng], {
+                        color: color,
+                        fillColor: color,
+                        fillOpacity: 0.1,
+                        radius: zone.radius
+                    }).bindPopup(`
+                        <div class="text-center">
+                            <h6>${zone.name}</h6>
+                            <p class="mb-1">${zone.description}</p>
+                            <small class="text-muted">Radius: ${zone.radius}m</small>
+                        </div>
+                    `).addTo(map);
+                    
+                    geofenceCircles[zone.zone_id] = circle;
+                });
+            }
+        }
+        
+        function createAssetPopup(asset) {
+            return `
+                <div class="asset-popup">
+                    <h6>
+                        <span class="status-indicator status-${asset.status}"></span>
+                        ${asset.asset_id}
+                    </h6>
+                    <p class="mb-2"><strong>${asset.description}</strong></p>
+                    <div class="small">
+                        <div><strong>Status:</strong> <span class="asset-status status-${asset.status}">${asset.status}</span></div>
+                        <div><strong>Operator:</strong> ${asset.operator || 'Unassigned'}</div>
+                        <div><strong>Hours Today:</strong> ${asset.hours_today}</div>
+                        <div><strong>Job Site:</strong> ${asset.job_site}</div>
+                        <div><strong>Last Update:</strong> ${new Date(asset.last_update).toLocaleTimeString()}</div>
+                    </div>
+                    <div class="mt-2">
+                        <button class="btn btn-sm btn-primary" onclick="showAssetHistory('${asset.asset_id}')">
+                            <i class="fas fa-history"></i> History
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function updateAssetList(assets) {
+            const assetList = document.getElementById('assetList');
+            assetList.innerHTML = '';
+            
+            assets.forEach(asset => {
+                const assetCard = document.createElement('div');
+                assetCard.className = 'asset-card';
+                assetCard.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>${asset.asset_id}</strong>
+                            <div class="small text-muted">${asset.description}</div>
+                        </div>
+                        <span class="asset-status status-${asset.status}">${asset.status}</span>
+                    </div>
+                    <div class="small mt-1">
+                        <div>Operator: ${asset.operator || 'Unassigned'}</div>
+                        <div>Hours: ${asset.hours_today}</div>
+                    </div>
+                `;
+                
+                assetCard.addEventListener('click', () => {
+                    const marker = assetMarkers[asset.asset_id];
+                    if (marker) {
+                        map.setView(marker.getLatLng(), 15);
+                        marker.openPopup();
+                    }
+                });
+                
+                assetList.appendChild(assetCard);
+            });
+        }
+        
+        function updateStatistics(assets) {
+            const activeCount = assets.filter(a => a.status === 'active').length;
+            const idleCount = assets.filter(a => a.status === 'idle').length;
+            
+            document.getElementById('activeCount').textContent = activeCount;
+            document.getElementById('idleCount').textContent = idleCount;
+        }
+        
+        async function loadViolations() {
+            try {
+                const response = await fetch('/map/api/geofence-violations');
+                const data = await response.json();
+                
+                const violationsList = document.getElementById('violationsList');
+                violationsList.innerHTML = '';
+                
+                if (data.violations.length === 0) {
+                    violationsList.innerHTML = '<div class="text-success">No violations detected</div>';
+                } else {
+                    data.violations.forEach(violation => {
+                        const alert = document.createElement('div');
+                        alert.className = 'violation-alert';
+                        alert.innerHTML = `
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <strong>${violation.asset_id}</strong>
+                                    <div class="small">${violation.type.replace('_', ' ')}</div>
+                                    <div class="small text-muted">${violation.operator || 'No operator'}</div>
+                                </div>
+                                <span class="badge bg-warning">${violation.severity}</span>
+                            </div>
+                        `;
+                        violationsList.appendChild(alert);
+                    });
+                }
+                
+            } catch (error) {
+                console.error('Error loading violations:', error);
+            }
+        }
+        
+        // Event listeners
+        document.getElementById('refreshBtn').addEventListener('click', loadMapData);
+        
+        document.getElementById('liveTrackingBtn').addEventListener('click', function() {
+            if (isLiveTracking) {
+                clearInterval(liveTrackingInterval);
+                this.innerHTML = '<i class="fas fa-satellite-dish"></i> Live Tracking';
+                this.className = 'btn btn-warning';
+                isLiveTracking = false;
+            } else {
+                liveTrackingInterval = setInterval(loadMapData, 30000); // 30 seconds
+                this.innerHTML = '<i class="fas fa-stop"></i> Stop Tracking';
+                this.className = 'btn btn-danger';
+                isLiveTracking = true;
+            }
+        });
+        
+        document.getElementById('showGeofences').addEventListener('change', function() {
+            if (this.checked) {
+                loadMapData();
+            } else {
+                Object.values(geofenceCircles).forEach(circle => map.removeLayer(circle));
+                geofenceCircles = {};
+            }
+        });
+        
+        document.getElementById('centerMapBtn').addEventListener('click', function() {
+            map.setView([32.7767, -96.7970], 12);
+        });
+        
+        document.getElementById('assetFilter').addEventListener('change', function() {
+            const filter = this.value;
+            // Implement filtering logic
+            loadMapData(); // For now, just reload
+        });
+        
+        // Show asset history function
+        function showAssetHistory(assetId) {
+            // This would open a modal or new view with asset history
+            console.log('Showing history for asset:', assetId);
+        }
+        
+        // Initialize
+        loadMapData();
+    </script>
+</body>
+</html>

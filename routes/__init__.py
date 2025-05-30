@@ -1,2 +1,1 @@
-# routes/__init__.py
-# Initialize the routes package
+# Routes package initialization

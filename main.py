@@ -1141,5 +1141,12 @@ def upload_gauge_report():
 
 # Removed duplicate - keeping the original upload_groundworks function
 
+# Register development tools blueprint
+try:
+    from routes.dev_tools import bp as dev_tools_bp
+    app.register_blueprint(dev_tools_bp)
+except ImportError:
+    print("Dev tools blueprint not found - creating routes inline")
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

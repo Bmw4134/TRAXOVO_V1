@@ -160,7 +160,7 @@ def dashboard():
         'last_updated': authentic_fleet_data.get('last_updated', 'Just now')
     }
     
-    return render_template('dashboard_professional.html', **context)
+    return render_template('dashboard_clean_executive.html', **context)
 
 # Keep all existing API endpoints
 @app.route('/api/assets')

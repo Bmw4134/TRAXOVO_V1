@@ -1136,40 +1136,7 @@ def asset_profit():
     
     return render_template('asset_profitability.html', **context)
 
-@app.route('/enhanced-dashboard')
-def enhanced_dashboard():
-    """Consolidated Executive Dashboard with Advanced Operations Controls"""
-    try:
-        # Get authentic fleet data
-        load_gauge_api_data()
-        
-        # Enhanced executive metrics
-        enhanced_metrics = {
-            'cost_savings': 185000,
-            'internal_equipment_roi': 320000, 
-            'ownership_savings_percent': 23.4,
-            'equipment_utilization': 87.5,
-            'active_equipment_count': authentic_fleet_data.get('active_assets', 42),
-            'maintenance_due_count': 6,
-            'idle_assets_count': 12,
-            'total_revenue': authentic_fleet_data.get('billable_revenue', 2210400),
-            'operational_hours': 336,
-            'utilization_rate': authentic_fleet_data.get('utilization_rate', 87.5),
-            'total_assets': authentic_fleet_data.get('total_assets', 581),
-            'page_title': 'TRAXOVO Executive Dashboard',
-            'monthly_revenue': 847200,
-            'april_revenue': 394400
-        }
-        
-        context = {**authentic_fleet_data, **enhanced_metrics}
-        return render_template('dashboard_clean_executive.html', **context)
-        
-    except Exception as e:
-        print(f"Error in enhanced dashboard: {e}")
-        return render_template('dashboard_clean_executive.html',
-                             total_assets=581,
-                             cost_savings=185000,
-                             total_revenue=2210400)
+
 
 @app.route('/ai-assistant')
 def ai_assistant():

@@ -42,3 +42,5 @@ routes
 trafilatura
 supabase
 supabase
+flask-login
+oauthlib

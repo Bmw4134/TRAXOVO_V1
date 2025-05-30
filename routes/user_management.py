@@ -312,7 +312,7 @@ def login():
         session['session_token'] = session_token
         
         flash('Login successful', 'success')
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('dashboard_route'))
     else:
         flash('Invalid credentials', 'error')
         return redirect(url_for('user_mgmt.login_page'))

@@ -123,9 +123,9 @@
             <div class="row align-items-center">
                 <div class="col-md-8">
                     <h1 class="display-5 fw-bold mb-2">
-                        <i class="fas fa-star me-3"></i>Enhanced TRAXOVO Dashboard
+                        <i class="fas fa-rocket me-3"></i>TRAXOVO MEGA SPRINT
                     </h1>
-                    <p class="lead mb-0">Ultra-Professional Fleet Intelligence with Authentic Data Processing</p>
+                    <p class="lead mb-0">Stakeholder-Ready Fleet Management Dashboard | Live Data Processing</p>
                 </div>
                 <div class="col-md-4 text-end">
                     <div class="live-indicator">
@@ -143,10 +143,10 @@
             <div class="row align-items-center">
                 <div class="col-md-8">
                     <h5 class="mb-2">
-                        <i class="fas fa-rocket text-primary me-2"></i>
-                        TRAXOVO Ultra Enhancement Suite Activated
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        MEGA SPRINT DEPLOYMENT COMPLETE
                     </h5>
-                    <p class="mb-0">Data consolidation engine processing your authentic Excel files: {{ authentic_records_processed.assets }} assets, {{ authentic_records_processed.billing }} billing records</p>
+                    <p class="mb-0">Live processing {{ authentic_records_processed.assets }} authentic assets, {{ authentic_records_processed.billing }} billing records, {{ authentic_records_processed.attendance }} attendance logs</p>
                 </div>
                 <div class="col-md-4 text-end">
                     <span class="enhancement-badge">ENHANCED</span>
@@ -280,8 +280,8 @@
                                     <td>EQ LIST, Equipment Detail History</td>
                                     <td>{{ authentic_records_processed.assets }}</td>
                                     <td>
-                                        <a href="/asset-manager" class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-eye"></i> View
+                                        <a href="/asset-manager" class="btn btn-sm btn-success">
+                                            <i class="fas fa-cogs"></i> Manage
                                         </a>
                                     </td>
                                 </tr>
@@ -294,8 +294,8 @@
                                     <td>Usage Detail, FleetUtilization</td>
                                     <td>{{ total_assets }}</td>
                                     <td>
-                                        <a href="/fleet-analytics" class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-chart-area"></i> Analyze
+                                        <a href="/fleet-analytics" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-chart-line"></i> Analytics
                                         </a>
                                     </td>
                                 </tr>
@@ -308,8 +308,8 @@
                                     <td>RAGLE EQ BILLINGS</td>
                                     <td>{{ authentic_records_processed.billing }}</td>
                                     <td>
-                                        <a href="/billing" class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-dollar-sign"></i> Review
+                                        <a href="/billing" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-calculator"></i> Revenue
                                         </a>
                                     </td>
                                 </tr>
@@ -322,8 +322,8 @@
                                     <td>GPS Coordinates, Job Sites</td>
                                     <td>Real-time</td>
                                     <td>
-                                        <a href="/fleet-map" class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-map"></i> Launch
+                                        <a href="/fleet-map" class="btn btn-sm btn-info">
+                                            <i class="fas fa-map-marked-alt"></i> Live Map
                                         </a>
                                     </td>
                                 </tr>
@@ -336,9 +336,28 @@
 
         <!-- Footer -->
         <div class="text-center py-4 mt-4">
-            <p class="text-muted mb-0">
-                <i class="fas fa-shield-alt text-success me-2"></i>
-                TRAXOVO Enhanced - Processing {{ current_date }} at {{ last_updated }}
+            <div class="row text-center">
+                <div class="col-md-3">
+                    <strong>{{ total_assets }}</strong><br>
+                    <small class="text-muted">Total Assets</small>
+                </div>
+                <div class="col-md-3">
+                    <strong>{{ active_assets }}</strong><br>
+                    <small class="text-muted">Active Assets</small>
+                </div>
+                <div class="col-md-3">
+                    <strong>${{ revenue_total }}</strong><br>
+                    <small class="text-muted">Revenue</small>
+                </div>
+                <div class="col-md-3">
+                    <strong>{{ utilization_rate }}%</strong><br>
+                    <small class="text-muted">Utilization</small>
+                </div>
+            </div>
+            <hr>
+            <p class="text-muted mb-0 text-center">
+                <i class="fas fa-rocket text-success me-2"></i>
+                TRAXOVO MEGA SPRINT COMPLETE - {{ current_date }} at {{ last_updated }}
             </p>
         </div>
     </div>

@@ -195,7 +195,7 @@ localPort = 8080
 externalPort = 8080
 
 [[ports]]
-localPort = 42553
+localPort = 41459
 externalPort = 3003
 
 [objectStorage]

@@ -1,0 +1,5072 @@
+{
+  "start_time": "2025-05-31 19:50:55.849973",
+  "original_size": 351707782,
+  "optimized_size": 291953241,
+  "compression_ratio": 16.989826230231095,
+  "files_processed": 1963,
+  "space_saved": 59754541,
+  "optimizations": [
+    {
+      "type": "log_cleanup",
+      "file": "Pasted-Hi-Replit-I-need-help-finalizing-critical-logic-for-our-TRAXOVO-deployment-We-re-a-construction-op-1748385963375.txt",
+      "space_saved": 2044
+    },
+    {
+      "type": "log_cleanup",
+      "file": "Pasted--SYSTEMSMITH-Master-Prompt-for-Adaptive-Logic-UI-Enhancements-Great-job-on-the-login-1747340081122.txt",
+      "space_saved": 2572
+    },
+    {
+      "type": "log_cleanup",
+      "file": "Pasted--TRAXORA-EXCEL-SYSTEM-LOGIC-FLOW-MASTER-WORKBOOK-MAP-WORKBOOK-Equipment-Billing-xlsx-1-Asse-1747792241523.txt",
+      "space_saved": 2449
+    },
+    {
+      "type": "log_cleanup",
+      "file": "Pasted--TRAXORA-Granular-Backend-Frontend-Task-List-No-Module-Disruption-1-AUTH-LOGIN-INIT-ERRO-1747459642505.txt",
+      "space_saved": 4516
+    },
+    {
+      "type": "log_cleanup",
+      "file": "logs/traxovo_app.log",
+      "space_saved": 0
+    },
+    {
+      "type": "log_cleanup",
+      "file": "logs/traxovo_api.log",
+      "space_saved": 0
+    },
+    {
+      "type": "log_cleanup",
+      "file": "logs/traxovo_errors.log",
+      "space_saved": 0
+    },
+    {
+      "type": "log_cleanup",
+      "file": "logs/traxovo_security.log",
+      "space_saved": 0
+    },
+    {
+      "type": "code_optimization",
+      "file": "report_data.json",
+      "original_size": 17672,
+      "optimized_size": 13016,
+      "space_saved": 4656
+    },
+    {
+      "type": "code_optimization",
+      "file": "validation_results.json",
+      "original_size": 663,
+      "optimized_size": 541,
+      "space_saved": 122
+    },
+    {
+      "type": "code_optimization",
+      "file": "complex_test_report.json",
+      "original_size": 37175,
+      "optimized_size": 27401,
+      "space_saved": 9774
+    },
+    {
+      "type": "code_optimization",
+      "file": "complex_test_validation.json",
+      "original_size": 727,
+      "optimized_size": 598,
+      "space_saved": 129
+    },
+    {
+      "type": "code_optimization",
+      "file": "overnight_test_report.json",
+      "original_size": 3317,
+      "optimized_size": 2415,
+      "space_saved": 902
+    },
+    {
+      "type": "code_optimization",
+      "file": "trend_report_2025-05-19.json",
+      "original_size": 14689,
+      "optimized_size": 8809,
+      "space_saved": 5880
+    },
+    {
+      "type": "code_optimization",
+      "file": "test_trend_analysis_results.json",
+      "original_size": 834,
+      "optimized_size": 591,
+      "space_saved": 243
+    },
+    {
+      "type": "code_optimization",
+      "file": "improved_trend_analysis_results.json",
+      "original_size": 834,
+      "optimized_size": 591,
+      "space_saved": 243
+    },
+    {
+      "type": "code_optimization",
+      "file": "test_trend_report_results.json",
+      "original_size": 4083,
+      "optimized_size": 2368,
+      "space_saved": 1715
+    },
+    {
+      "type": "code_optimization",
+      "file": "test_driver_classification_results.json",
+      "original_size": 4358,
+      "optimized_size": 3019,
+      "space_saved": 1339
+    },
+    {
+      "type": "code_optimization",
+      "file": "feedback_digest.json",
+      "original_size": 2614,
+      "optimized_size": 2040,
+      "space_saved": 574
+    },
+    {
+      "type": "code_optimization",
+      "file": "site_scorecard.json",
+      "original_size": 3953,
+      "optimized_size": 2786,
+      "space_saved": 1167
+    },
+    {
+      "type": "code_optimization",
+      "file": "agent_config_tuning.json",
+      "original_size": 2918,
+      "optimized_size": 2227,
+      "space_saved": 691
+    },
+    {
+      "type": "code_optimization",
+      "file": "pipeline_test_results_20250522_211001.json",
+      "original_size": 25358144,
+      "optimized_size": 19320312,
+      "space_saved": 6037832
+    },
+    {
+      "type": "code_optimization",
+      "file": "targeted_test_results_20250522_211043.json",
+      "original_size": 5298,
+      "optimized_size": 3669,
+      "space_saved": 1629
+    },
+    {
+      "type": "code_optimization",
+      "file": "alternative_processor.py",
+      "original_size": 2715,
+      "optimized_size": 2635,
+      "space_saved": 80
+    },
+    {
+      "type": "code_optimization",
+      "file": "integrity_audit_20250524_053646.json",
+      "original_size": 276388,
+      "optimized_size": 206441,
+      "space_saved": 69947
+    },
+    {
+      "type": "code_optimization",
+      "file": "config_fingerprint.json",
+      "original_size": 2308,
+      "optimized_size": 1901,
+      "space_saved": 407
+    },
+    {
+      "type": "code_optimization",
+      "file": "blueprint_consolidation_report.json",
+      "original_size": 3130,
+      "optimized_size": 2620,
+      "space_saved": 510
+    },
+    {
+      "type": "code_optimization",
+      "file": "module_registry.json",
+      "original_size": 5855,
+      "optimized_size": 4702,
+      "space_saved": 1153
+    },
+    {
+      "type": "code_optimization",
+      "file": "routes_snapshot.json",
+      "original_size": 33027,
+      "optimized_size": 23202,
+      "space_saved": 9825
+    },
+    {
+      "type": "code_optimization",
+      "file": "blueprints_snapshot.json",
+      "original_size": 4791,
+      "optimized_size": 3806,
+      "space_saved": 985
+    },
+    {
+      "type": "code_optimization",
+      "file": "modules.json",
+      "original_size": 1596,
+      "optimized_size": 1191,
+      "space_saved": 405
+    },
+    {
+      "type": "code_optimization",
+      "file": "GAUGE API PULL 1045AM_05.15.2025.json",
+      "original_size": 769909,
+      "optimized_size": 519101,
+      "space_saved": 250808
+    },
+    {
+      "type": "code_optimization",
+      "file": "traxora_jobsite_catalog_v2.json",
+      "original_size": 488,
+      "optimized_size": 379,
+      "space_saved": 109
+    },
+    {
+      "type": "code_optimization",
+      "file": "weekly_driver_report_2025-05-18_to_2025-05-24.json",
+      "original_size": 218073,
+      "optimized_size": 130442,
+      "space_saved": 87631
+    },
+    {
+      "type": "code_optimization",
+      "file": "plugins_enabled.json",
+      "original_size": 834,
+      "optimized_size": 632,
+      "space_saved": 202
+    },
+    {
+      "type": "code_optimization",
+      "file": "fleet_cache.json",
+      "original_size": 562760,
+      "optimized_size": 519285,
+      "space_saved": 43475
+    },
+    {
+      "type": "code_optimization",
+      "file": "startup_health_report.json",
+      "original_size": 640,
+      "optimized_size": 467,
+      "space_saved": 173
+    },
+    {
+      "type": "code_optimization",
+      "file": "kaizen_module_registry.json",
+      "original_size": 595,
+      "optimized_size": 512,
+      "space_saved": 83
+    },
+    {
+      "type": "code_optimization",
+      "file": "kaizen_integration_report.json",
+      "original_size": 1272,
+      "optimized_size": 933,
+      "space_saved": 339
+    },
+    {
+      "type": "code_optimization",
+      "file": "kaizen_parse_memory.json",
+      "original_size": 589,
+      "optimized_size": 385,
+      "space_saved": 204
+    },
+    {
+      "type": "code_optimization",
+      "file": "kaizen_ui_state.json",
+      "original_size": 134,
+      "optimized_size": 117,
+      "space_saved": 17
+    },
+    {
+      "type": "code_optimization",
+      "file": "kaizen_bootstrap_report.json",
+      "original_size": 525,
+      "optimized_size": 438,
+      "space_saved": 87
+    },
+    {
+      "type": "code_optimization",
+      "file": "eq_utilization_summary.json",
+      "original_size": 95092,
+      "optimized_size": 60434,
+      "space_saved": 34658
+    },
+    {
+      "type": "code_optimization",
+      "file": "po_settings.json",
+      "original_size": 707,
+      "optimized_size": 476,
+      "space_saved": 231
+    },
+    {
+      "type": "code_optimization",
+      "file": "deployment.json",
+      "original_size": 623,
+      "optimized_size": 472,
+      "space_saved": 151
+    },
+    {
+      "type": "code_optimization",
+      "file": "validation_report.json",
+      "original_size": 1181,
+      "optimized_size": 983,
+      "space_saved": 198
+    },
+    {
+      "type": "code_optimization",
+      "file": "audit_report.json",
+      "original_size": 6194,
+      "optimized_size": 4497,
+      "space_saved": 1697
+    },
+    {
+      "type": "code_optimization",
+      "file": "context_state.json",
+      "original_size": 3210,
+      "optimized_size": 2754,
+      "space_saved": 456
+    },
+    {
+      "type": "code_optimization",
+      "file": "sidebar_routes.json",
+      "original_size": 1210,
+      "optimized_size": 822,
+      "space_saved": 388
+    },
+    {
+      "type": "code_optimization",
+      "file": "data_integrity_report.json",
+      "original_size": 2419,
+      "optimized_size": 1565,
+      "space_saved": 854
+    },
+    {
+      "type": "code_optimization",
+      "file": "intent_log.json",
+      "original_size": 1253,
+      "optimized_size": 966,
+      "space_saved": 287
+    },
+    {
+      "type": "code_optimization",
+      "file": "deployment_report_20250531_045124.json",
+      "original_size": 1971,
+      "optimized_size": 1621,
+      "space_saved": 350
+    },
+    {
+      "type": "code_optimization",
+      "file": "performance_config.json",
+      "original_size": 153,
+      "optimized_size": 144,
+      "space_saved": 9
+    },
+    {
+      "type": "code_optimization",
+      "file": "cache_config.json",
+      "original_size": 173,
+      "optimized_size": 159,
+      "space_saved": 14
+    },
+    {
+      "type": "code_optimization",
+      "file": "competitive_analysis.json",
+      "original_size": 568,
+      "optimized_size": 538,
+      "space_saved": 30
+    },
+    {
+      "type": "code_optimization",
+      "file": "cost_optimization_rules.json",
+      "original_size": 408,
+      "optimized_size": 387,
+      "space_saved": 21
+    },
+    {
+      "type": "code_optimization",
+      "file": "data_integrity_config.json",
+      "original_size": 438,
+      "optimized_size": 414,
+      "space_saved": 24
+    },
+    {
+      "type": "code_optimization",
+      "file": "advanced_analytics_config.json",
+      "original_size": 609,
+      "optimized_size": 575,
+      "space_saved": 34
+    },
+    {
+      "type": "code_optimization",
+      "file": "storage_optimization_plan.json",
+      "original_size": 653,
+      "optimized_size": 619,
+      "space_saved": 34
+    },
+    {
+      "type": "code_optimization",
+      "file": "traxovo_repository_consolidated_20250531_083740.json",
+      "original_size": 4587,
+      "optimized_size": 3304,
+      "space_saved": 1283
+    },
+    {
+      "type": "code_optimization",
+      "file": "dashboard_metrics_consolidated_20250531_083740.json",
+      "original_size": 590,
+      "optimized_size": 471,
+      "space_saved": 119
+    },
+    {
+      "type": "code_optimization",
+      "file": "consolidation_summary_20250531_083740.json",
+      "original_size": 361,
+      "optimized_size": 315,
+      "space_saved": 46
+    },
+    {
+      "type": "code_optimization",
+      "file": "session_audit.json",
+      "original_size": 1090,
+      "optimized_size": 844,
+      "space_saved": 246
+    },
+    {
+      "type": "code_optimization",
+      "file": "prompt_dna.json",
+      "original_size": 1699,
+      "optimized_size": 1280,
+      "space_saved": 419
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/smart-ui-resizer.js",
+      "original_size": 11080,
+      "optimized_size": 6988,
+      "space_saved": 4092
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/tour-guide.js",
+      "original_size": 17908,
+      "optimized_size": 11176,
+      "space_saved": 6732
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/loading-animations.css",
+      "original_size": 5677,
+      "optimized_size": 4041,
+      "space_saved": 1636
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/loading-controller.js",
+      "original_size": 8821,
+      "optimized_size": 5989,
+      "space_saved": 2832
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/universal-search.js",
+      "original_size": 8569,
+      "optimized_size": 5857,
+      "space_saved": 2712
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/universal-search.css",
+      "original_size": 4915,
+      "optimized_size": 3514,
+      "space_saved": 1401
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/drill-down-charts.js",
+      "original_size": 12105,
+      "optimized_size": 7698,
+      "space_saved": 4407
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/drill-down-charts.css",
+      "original_size": 4953,
+      "optimized_size": 3442,
+      "space_saved": 1511
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/smooth-transitions.css",
+      "original_size": 3478,
+      "optimized_size": 2417,
+      "space_saved": 1061
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/smooth-transitions.js",
+      "original_size": 6628,
+      "optimized_size": 4799,
+      "space_saved": 1829
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/asset-tooltips.css",
+      "original_size": 3688,
+      "optimized_size": 2720,
+      "space_saved": 968
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/asset-tooltips.js",
+      "original_size": 9287,
+      "optimized_size": 6436,
+      "space_saved": 2851
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/css/style.css",
+      "original_size": 5328,
+      "optimized_size": 3897,
+      "space_saved": 1431
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/css/themes.css",
+      "original_size": 4184,
+      "optimized_size": 3185,
+      "space_saved": 999
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/css/light-theme.css",
+      "original_size": 3211,
+      "optimized_size": 2442,
+      "space_saved": 769
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/css/custom-light.css",
+      "original_size": 2974,
+      "optimized_size": 2348,
+      "space_saved": 626
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/css/custom.css",
+      "original_size": 5277,
+      "optimized_size": 3609,
+      "space_saved": 1668
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/css/neutral-theme.css",
+      "original_size": 8393,
+      "optimized_size": 6144,
+      "space_saved": 2249
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/css/transitions.css",
+      "original_size": 2548,
+      "optimized_size": 1811,
+      "space_saved": 737
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/css/reports.css",
+      "original_size": 3206,
+      "optimized_size": 2590,
+      "space_saved": 616
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/css/responsive.css",
+      "original_size": 4087,
+      "optimized_size": 2188,
+      "space_saved": 1899
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/css/quick-actions.css",
+      "original_size": 3578,
+      "optimized_size": 2663,
+      "space_saved": 915
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/css/loading-animations.css",
+      "original_size": 8671,
+      "optimized_size": 6425,
+      "space_saved": 2246
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/css/map_style.css",
+      "original_size": 4920,
+      "optimized_size": 3699,
+      "space_saved": 1221
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/css/main.css",
+      "original_size": 858,
+      "optimized_size": 653,
+      "space_saved": 205
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/css/kaizen_theme.css",
+      "original_size": 8299,
+      "optimized_size": 6843,
+      "space_saved": 1456
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/css/accessibility.css",
+      "original_size": 6634,
+      "optimized_size": 5216,
+      "space_saved": 1418
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/css/adaptive_responsive_system.css",
+      "original_size": 8250,
+      "optimized_size": 5803,
+      "space_saved": 2447
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/css/dashboard_animations.css",
+      "original_size": 7641,
+      "optimized_size": 5315,
+      "space_saved": 2326
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/css/onboarding_tour.css",
+      "original_size": 4484,
+      "optimized_size": 3173,
+      "space_saved": 1311
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/css/mobile_responsive_fix.css",
+      "original_size": 3843,
+      "optimized_size": 1930,
+      "space_saved": 1913
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/css/enterprise_polish.css",
+      "original_size": 8817,
+      "optimized_size": 6577,
+      "space_saved": 2240
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/map.js",
+      "original_size": 7570,
+      "optimized_size": 4660,
+      "space_saved": 2910
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/charts.js",
+      "original_size": 7111,
+      "optimized_size": 4019,
+      "space_saved": 3092
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/main.js",
+      "original_size": 9522,
+      "optimized_size": 6454,
+      "space_saved": 3068
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/regional_billing.js",
+      "original_size": 4749,
+      "optimized_size": 2609,
+      "space_saved": 2140
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/transitions.js",
+      "original_size": 3563,
+      "optimized_size": 2145,
+      "space_saved": 1418
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/mobile-tables.js",
+      "original_size": 4034,
+      "optimized_size": 2472,
+      "space_saved": 1562
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/feedback.js",
+      "original_size": 17735,
+      "optimized_size": 10352,
+      "space_saved": 7383
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/user-preferences.js",
+      "original_size": 15037,
+      "optimized_size": 9253,
+      "space_saved": 5784
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/intent-mapper.js",
+      "original_size": 22456,
+      "optimized_size": 12608,
+      "space_saved": 9848
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/rbac.js",
+      "original_size": 4463,
+      "optimized_size": 2257,
+      "space_saved": 2206
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/theme-switcher.js",
+      "original_size": 4156,
+      "optimized_size": 2489,
+      "space_saved": 1667
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/report-generator.js",
+      "original_size": 27538,
+      "optimized_size": 17727,
+      "space_saved": 9811
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/loading-animations.js",
+      "original_size": 10783,
+      "optimized_size": 7390,
+      "space_saved": 3393
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/quick-actions.js",
+      "original_size": 12979,
+      "optimized_size": 7391,
+      "space_saved": 5588
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/genius_core_agents.js",
+      "original_size": 21114,
+      "optimized_size": 10328,
+      "space_saved": 10786
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/genius_core_module_status.js",
+      "original_size": 10564,
+      "optimized_size": 6260,
+      "space_saved": 4304
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/genius_core_integration.js",
+      "original_size": 10965,
+      "optimized_size": 5568,
+      "space_saved": 5397
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/genius_core_manifest.js",
+      "original_size": 13587,
+      "optimized_size": 8059,
+      "space_saved": 5528
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/genius_core_driver_pipeline.js",
+      "original_size": 20432,
+      "optimized_size": 11038,
+      "space_saved": 9394
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/genius_core_billing.js",
+      "original_size": 23079,
+      "optimized_size": 12499,
+      "space_saved": 10580
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/genius_core_ui.js",
+      "original_size": 17249,
+      "optimized_size": 11184,
+      "space_saved": 6065
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/genius_core_continuity.js",
+      "original_size": 32948,
+      "optimized_size": 17828,
+      "space_saved": 15120
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/genius_core_visual_diagnostics.js",
+      "original_size": 42750,
+      "optimized_size": 23381,
+      "space_saved": 19369
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/genius_core_confidence_system.js",
+      "original_size": 48780,
+      "optimized_size": 26733,
+      "space_saved": 22047
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/genius_core_enhanced_map.js",
+      "original_size": 37242,
+      "optimized_size": 19662,
+      "space_saved": 17580
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/genius_core_driver_improved.js",
+      "original_size": 24436,
+      "optimized_size": 12725,
+      "space_saved": 11711
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/genius_core_equipment_billing.js",
+      "original_size": 36349,
+      "optimized_size": 19680,
+      "space_saved": 16669
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/genius_core_agent_routing.js",
+      "original_size": 35012,
+      "optimized_size": 18339,
+      "space_saved": 16673
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/genius_core_map_enhanced_ux.js",
+      "original_size": 40050,
+      "optimized_size": 22065,
+      "space_saved": 17985
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/genius_core_offline_fallback.js",
+      "original_size": 15358,
+      "optimized_size": 7410,
+      "space_saved": 7948
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/genius_core_map_direct_enhancements.js",
+      "original_size": 47086,
+      "optimized_size": 24003,
+      "space_saved": 23083
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/unified_navigation.js",
+      "original_size": 7842,
+      "optimized_size": 4871,
+      "space_saved": 2971
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/zero-state-handler.js",
+      "original_size": 34324,
+      "optimized_size": 22278,
+      "space_saved": 12046
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/dashboard.js",
+      "original_size": 3665,
+      "optimized_size": 2521,
+      "space_saved": 1144
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/accessibility.js",
+      "original_size": 19095,
+      "optimized_size": 13460,
+      "space_saved": 5635
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/ideas_widget.js",
+      "original_size": 11279,
+      "optimized_size": 7299,
+      "space_saved": 3980
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/contextual_help_system.js",
+      "original_size": 14870,
+      "optimized_size": 10119,
+      "space_saved": 4751
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/dashboard_layout_builder.js",
+      "original_size": 19519,
+      "optimized_size": 12083,
+      "space_saved": 7436
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/billing_chart.js",
+      "original_size": 2324,
+      "optimized_size": 1395,
+      "space_saved": 929
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/asset_manager.js",
+      "original_size": 791,
+      "optimized_size": 676,
+      "space_saved": 115
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/onboarding_tour.js",
+      "original_size": 10207,
+      "optimized_size": 6743,
+      "space_saved": 3464
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/contextual_navigation_wizard.js",
+      "original_size": 16730,
+      "optimized_size": 11074,
+      "space_saved": 5656
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/performance_optimization.js",
+      "original_size": 10537,
+      "optimized_size": 6665,
+      "space_saved": 3872
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/kaizen_ui_enhancements.js",
+      "original_size": 5092,
+      "optimized_size": 3278,
+      "space_saved": 1814
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/js/asset-tooltips.js",
+      "original_size": 971,
+      "optimized_size": 698,
+      "space_saved": 273
+    },
+    {
+      "type": "code_optimization",
+      "file": "static/reports/integrity_audit_20250524_053646.json",
+      "original_size": 276388,
+      "optimized_size": 206441,
+      "space_saved": 69947
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/reports_dashboard.html",
+      "original_size": 11836,
+      "optimized_size": 5557,
+      "space_saved": 6279
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/basic_base.html",
+      "original_size": 5234,
+      "optimized_size": 3797,
+      "space_saved": 1437
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/driver_reports_dashboard.html",
+      "original_size": 5140,
+      "optimized_size": 3221,
+      "space_saved": 1919
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/basic_dashboard.html",
+      "original_size": 11542,
+      "optimized_size": 7305,
+      "space_saved": 4237
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/live_tracking_dashboard.html",
+      "original_size": 15693,
+      "optimized_size": 11170,
+      "space_saved": 4523
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/mobile_optimized_base.html",
+      "original_size": 13459,
+      "optimized_size": 8585,
+      "space_saved": 4874
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/comprehensive_reports_dashboard.html",
+      "original_size": 34136,
+      "optimized_size": 20881,
+      "space_saved": 13255
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/work_zone_dashboard.html",
+      "original_size": 15460,
+      "optimized_size": 7886,
+      "space_saved": 7574
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/driver_reports_working.html",
+      "original_size": 31590,
+      "optimized_size": 17529,
+      "space_saved": 14061
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/driver_reports_clean.html",
+      "original_size": 11422,
+      "optimized_size": 6688,
+      "space_saved": 4734
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/basic_error.html",
+      "original_size": 893,
+      "optimized_size": 662,
+      "space_saved": 231
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/dashboard_clean.html",
+      "original_size": 11252,
+      "optimized_size": 6805,
+      "space_saved": 4447
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/dashboard_compact.html",
+      "original_size": 11312,
+      "optimized_size": 8406,
+      "space_saved": 2906
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/dashboard_mobile_fixed.html",
+      "original_size": 9118,
+      "optimized_size": 5837,
+      "space_saved": 3281
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/layout_unified.html",
+      "original_size": 4211,
+      "optimized_size": 2859,
+      "space_saved": 1352
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/login_simple.html",
+      "original_size": 4080,
+      "optimized_size": 2634,
+      "space_saved": 1446
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/secure_attendance_simple.html",
+      "original_size": 5476,
+      "optimized_size": 3421,
+      "space_saved": 2055
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/mobile_map.html",
+      "original_size": 11783,
+      "optimized_size": 7992,
+      "space_saved": 3791
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/mobile_attendance.html",
+      "original_size": 13618,
+      "optimized_size": 9362,
+      "space_saved": 4256
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/smart_risk_dashboard.html",
+      "original_size": 10845,
+      "optimized_size": 6865,
+      "space_saved": 3980
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/division_login.html",
+      "original_size": 3236,
+      "optimized_size": 2269,
+      "space_saved": 967
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/division_dashboard.html",
+      "original_size": 8075,
+      "optimized_size": 4861,
+      "space_saved": 3214
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/minimal_dashboard.html",
+      "original_size": 6877,
+      "optimized_size": 4630,
+      "space_saved": 2247
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/smart_risk_analytics.html",
+      "original_size": 1103,
+      "optimized_size": 777,
+      "space_saved": 326
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/intelligence_restored_dashboard.html",
+      "original_size": 13507,
+      "optimized_size": 8357,
+      "space_saved": 5150
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/ai_ops_dashboard.html",
+      "original_size": 17132,
+      "optimized_size": 8611,
+      "space_saved": 8521
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/smart_search.html",
+      "original_size": 4333,
+      "optimized_size": 3202,
+      "space_saved": 1131
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/efficiency_visualizer_dashboard.html",
+      "original_size": 15741,
+      "optimized_size": 9806,
+      "space_saved": 5935
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/asset_availability_dashboard.html",
+      "original_size": 16337,
+      "optimized_size": 9983,
+      "space_saved": 6354
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/field_service_billing_dashboard.html",
+      "original_size": 16394,
+      "optimized_size": 10365,
+      "space_saved": 6029
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/equipment_lifecycle_dashboard.html",
+      "original_size": 18847,
+      "optimized_size": 11094,
+      "space_saved": 7753
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/driver_performance_heatmap.html",
+      "original_size": 13380,
+      "optimized_size": 8458,
+      "space_saved": 4922
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/attendance_grid_dashboard.html",
+      "original_size": 15580,
+      "optimized_size": 10554,
+      "space_saved": 5026
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/gps_tracking_enhanced.html",
+      "original_size": 30090,
+      "optimized_size": 18609,
+      "space_saved": 11481
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/interactive_driver_heatmap.html",
+      "original_size": 10609,
+      "optimized_size": 5270,
+      "space_saved": 5339
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/dashboard_light_fixed.html",
+      "original_size": 17151,
+      "optimized_size": 11200,
+      "space_saved": 5951
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/internal_eq_tracker.html",
+      "original_size": 3216,
+      "optimized_size": 1863,
+      "space_saved": 1353
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/smart_po_system.html",
+      "original_size": 7717,
+      "optimized_size": 4395,
+      "space_saved": 3322
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/404.html",
+      "original_size": 857,
+      "optimized_size": 750,
+      "space_saved": 107
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/attendance_workflow.html",
+      "original_size": 1674,
+      "optimized_size": 1396,
+      "space_saved": 278
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/kaizen_dashboard.html",
+      "original_size": 1722,
+      "optimized_size": 1413,
+      "space_saved": 309
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/dashboard_executive.html",
+      "original_size": 13184,
+      "optimized_size": 8856,
+      "space_saved": 4328
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/maintenance_countdown_dashboard.html",
+      "original_size": 8742,
+      "optimized_size": 5836,
+      "space_saved": 2906
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/asset_management.html",
+      "original_size": 14437,
+      "optimized_size": 8482,
+      "space_saved": 5955
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/widget_dashboard.html",
+      "original_size": 21510,
+      "optimized_size": 13216,
+      "space_saved": 8294
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/feedback_collector.html",
+      "original_size": 19238,
+      "optimized_size": 12169,
+      "space_saved": 7069
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/feedback_analytics.html",
+      "original_size": 10749,
+      "optimized_size": 6496,
+      "space_saved": 4253
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/mood_selector.html",
+      "original_size": 14378,
+      "optimized_size": 9025,
+      "space_saved": 5353
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/onboarding_wizard.html",
+      "original_size": 16666,
+      "optimized_size": 9973,
+      "space_saved": 6693
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/onboarding_analytics.html",
+      "original_size": 11448,
+      "optimized_size": 7118,
+      "space_saved": 4330
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/performance_boost.html",
+      "original_size": 17412,
+      "optimized_size": 11080,
+      "space_saved": 6332
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/500.html",
+      "original_size": 1238,
+      "optimized_size": 1007,
+      "space_saved": 231
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/smart_analytics.html",
+      "original_size": 7972,
+      "optimized_size": 4852,
+      "space_saved": 3120
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/automated_attendance.html",
+      "original_size": 11732,
+      "optimized_size": 6875,
+      "space_saved": 4857
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/gps_efficiency.html",
+      "original_size": 13453,
+      "optimized_size": 7513,
+      "space_saved": 5940
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/dashboard_modern.html",
+      "original_size": 32341,
+      "optimized_size": 19865,
+      "space_saved": 12476
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/accessibility_settings.html",
+      "original_size": 22015,
+      "optimized_size": 14525,
+      "space_saved": 7490
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/executive_billing_dashboard.html",
+      "original_size": 29416,
+      "optimized_size": 14798,
+      "space_saved": 14618
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/financial_forecasting.html",
+      "original_size": 24691,
+      "optimized_size": 15589,
+      "space_saved": 9102
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/intake_form.html",
+      "original_size": 29531,
+      "optimized_size": 18268,
+      "space_saved": 11263
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/fleet_manager_dashboard.html",
+      "original_size": 22035,
+      "optimized_size": 14016,
+      "space_saved": 8019
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/time_logger.html",
+      "original_size": 20266,
+      "optimized_size": 12402,
+      "space_saved": 7864
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/reset_password.html",
+      "original_size": 3821,
+      "optimized_size": 2654,
+      "space_saved": 1167
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/reset_password_confirm.html",
+      "original_size": 4753,
+      "optimized_size": 3258,
+      "space_saved": 1495
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/executive_overview.html",
+      "original_size": 10462,
+      "optimized_size": 6162,
+      "space_saved": 4300
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/base_navigation.html",
+      "original_size": 23582,
+      "optimized_size": 14243,
+      "space_saved": 9339
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/traxovo_fleet_map.html",
+      "original_size": 30129,
+      "optimized_size": 19621,
+      "space_saved": 10508
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/index.html",
+      "original_size": 24197,
+      "optimized_size": 14292,
+      "space_saved": 9905
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/timecard_import.html",
+      "original_size": 13347,
+      "optimized_size": 8154,
+      "space_saved": 5193
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/pdf_editor.html",
+      "original_size": 21192,
+      "optimized_size": 12764,
+      "space_saved": 8428
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/predictive_pathing.html",
+      "original_size": 18774,
+      "optimized_size": 10746,
+      "space_saved": 8028
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/billing.html",
+      "original_size": 4905,
+      "optimized_size": 2395,
+      "space_saved": 2510
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/internal_ai.html",
+      "original_size": 13869,
+      "optimized_size": 7720,
+      "space_saved": 6149
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/workflow_optimization.html",
+      "original_size": 23486,
+      "optimized_size": 10524,
+      "space_saved": 12962
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/dashboard_clickable.html",
+      "original_size": 31289,
+      "optimized_size": 18505,
+      "space_saved": 12784
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/financial_forecast.html",
+      "original_size": 24318,
+      "optimized_size": 15232,
+      "space_saved": 9086
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/dashboard_simple.html",
+      "original_size": 4653,
+      "optimized_size": 3083,
+      "space_saved": 1570
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/dashboard_professional.html",
+      "original_size": 18980,
+      "optimized_size": 11428,
+      "space_saved": 7552
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/asset_detail.html",
+      "original_size": 19597,
+      "optimized_size": 11921,
+      "space_saved": 7676
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/fleet_map_elite.html",
+      "original_size": 29037,
+      "optimized_size": 18465,
+      "space_saved": 10572
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/asset_profitability.html",
+      "original_size": 16232,
+      "optimized_size": 8268,
+      "space_saved": 7964
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/dashboard_herc_inspired.html",
+      "original_size": 22193,
+      "optimized_size": 13863,
+      "space_saved": 8330
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/enhanced_dashboard_simple.html",
+      "original_size": 15296,
+      "optimized_size": 8233,
+      "space_saved": 7063
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/attendance_matrix_complete.html",
+      "original_size": 10092,
+      "optimized_size": 6169,
+      "space_saved": 3923
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/enhanced_dashboard_unified.html",
+      "original_size": 7579,
+      "optimized_size": 4079,
+      "space_saved": 3500
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/dev_assistant_dashboard.html",
+      "original_size": 8108,
+      "optimized_size": 5516,
+      "space_saved": 2592
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/job_detail_unified.html",
+      "original_size": 12156,
+      "optimized_size": 7363,
+      "space_saved": 4793
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/alerts_unified.html",
+      "original_size": 10944,
+      "optimized_size": 6263,
+      "space_saved": 4681
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/executive_attendance_summary.html",
+      "original_size": 8397,
+      "optimized_size": 5991,
+      "space_saved": 2406
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/executive_driver_dashboard.html",
+      "original_size": 12153,
+      "optimized_size": 8539,
+      "space_saved": 3614
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/live_asset_manager.html",
+      "original_size": 7076,
+      "optimized_size": 5198,
+      "space_saved": 1878
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/deployment_test_suite.html",
+      "original_size": 13985,
+      "optimized_size": 10190,
+      "space_saved": 3795
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/enhanced_executive_summary.html",
+      "original_size": 4820,
+      "optimized_size": 3382,
+      "space_saved": 1438
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/demo_executive.html",
+      "original_size": 16732,
+      "optimized_size": 9102,
+      "space_saved": 7630
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/equipment_dispatch.html",
+      "original_size": 5439,
+      "optimized_size": 2484,
+      "space_saved": 2955
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/interactive_schedule.html",
+      "original_size": 5846,
+      "optimized_size": 3100,
+      "space_saved": 2746
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/driver_asset_tracking.html",
+      "original_size": 9221,
+      "optimized_size": 3855,
+      "space_saved": 5366
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/base.html",
+      "original_size": 4818,
+      "optimized_size": 3496,
+      "space_saved": 1322
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/fleet_map.html",
+      "original_size": 17348,
+      "optimized_size": 13165,
+      "space_saved": 4183
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/fleet_map_working.html",
+      "original_size": 18799,
+      "optimized_size": 13562,
+      "space_saved": 5237
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/fleet_map_basic.html",
+      "original_size": 8193,
+      "optimized_size": 6274,
+      "space_saved": 1919
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/fleet_map_gauge_style.html",
+      "original_size": 19792,
+      "optimized_size": 15417,
+      "space_saved": 4375
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/job_management.html",
+      "original_size": 11395,
+      "optimized_size": 8798,
+      "space_saved": 2597
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/landing.html",
+      "original_size": 11231,
+      "optimized_size": 6369,
+      "space_saved": 4862
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/attendance_unified_master.html",
+      "original_size": 20162,
+      "optimized_size": 15828,
+      "space_saved": 4334
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/attendance_unified.html",
+      "original_size": 25282,
+      "optimized_size": 19307,
+      "space_saved": 5975
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/cost_simulator_dashboard.html",
+      "original_size": 11838,
+      "optimized_size": 7915,
+      "space_saved": 3923
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/billing_consolidation_dashboard.html",
+      "original_size": 13234,
+      "optimized_size": 8142,
+      "space_saved": 5092
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/dashboard_clean_executive.html",
+      "original_size": 23009,
+      "optimized_size": 13488,
+      "space_saved": 9521
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/employee_checkout_portal.html",
+      "original_size": 14932,
+      "optimized_size": 9366,
+      "space_saved": 5566
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/equipment_lifecycle.html",
+      "original_size": 22115,
+      "optimized_size": 14238,
+      "space_saved": 7877
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/dashboard_unified.html",
+      "original_size": 19736,
+      "optimized_size": 11418,
+      "space_saved": 8318
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/deployment_dashboard.html",
+      "original_size": 14681,
+      "optimized_size": 9040,
+      "space_saved": 5641
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/user_management.html",
+      "original_size": 12847,
+      "optimized_size": 7487,
+      "space_saved": 5360
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/fleet_map_unified.html",
+      "original_size": 18019,
+      "optimized_size": 10861,
+      "space_saved": 7158
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/asset_manager_unified.html",
+      "original_size": 15626,
+      "optimized_size": 8957,
+      "space_saved": 6669
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/analytics_dashboard.html",
+      "original_size": 9663,
+      "optimized_size": 5683,
+      "space_saved": 3980
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/executive_dashboard.html",
+      "original_size": 23222,
+      "optimized_size": 13595,
+      "space_saved": 9627
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/error.html",
+      "original_size": 1650,
+      "optimized_size": 1200,
+      "space_saved": 450
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/attendance_matrix_unified.html",
+      "original_size": 15583,
+      "optimized_size": 9452,
+      "space_saved": 6131
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/intelligent_ideas.html",
+      "original_size": 16210,
+      "optimized_size": 9984,
+      "space_saved": 6226
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/admin_module_generator.html",
+      "original_size": 13296,
+      "optimized_size": 8683,
+      "space_saved": 4613
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/widget_customizer.html",
+      "original_size": 21935,
+      "optimized_size": 15498,
+      "space_saved": 6437
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/dev_audit.html",
+      "original_size": 10309,
+      "optimized_size": 6345,
+      "space_saved": 3964
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/attendance_comprehensive.html",
+      "original_size": 26243,
+      "optimized_size": 13786,
+      "space_saved": 12457
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/billing_analytics.html",
+      "original_size": 12706,
+      "optimized_size": 6996,
+      "space_saved": 5710
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/attendance_complete_unified.html",
+      "original_size": 6445,
+      "optimized_size": 3569,
+      "space_saved": 2876
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/master_unified.html",
+      "original_size": 23739,
+      "optimized_size": 15025,
+      "space_saved": 8714
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/asset_profit_static.html",
+      "original_size": 6565,
+      "optimized_size": 3493,
+      "space_saved": 3072
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/system_admin.html",
+      "original_size": 14943,
+      "optimized_size": 10176,
+      "space_saved": 4767
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/unified_driver_management.html",
+      "original_size": 8587,
+      "optimized_size": 5657,
+      "space_saved": 2930
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/quick_admin_login.html",
+      "original_size": 2060,
+      "optimized_size": 1520,
+      "space_saved": 540
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/direct_login.html",
+      "original_size": 1605,
+      "optimized_size": 1199,
+      "space_saved": 406
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/enhanced_billing_controller.html",
+      "original_size": 8478,
+      "optimized_size": 4722,
+      "space_saved": 3756
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/master_billing_dashboard.html",
+      "original_size": 14505,
+      "optimized_size": 8284,
+      "space_saved": 6221
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/admin_dashboard.html",
+      "original_size": 15360,
+      "optimized_size": 9552,
+      "space_saved": 5808
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/fleet_map_consolidated.html",
+      "original_size": 17316,
+      "optimized_size": 11255,
+      "space_saved": 6061
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/unified_base.html",
+      "original_size": 9110,
+      "optimized_size": 5801,
+      "space_saved": 3309
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/ai_assistant_main.html",
+      "original_size": 8719,
+      "optimized_size": 5624,
+      "space_saved": 3095
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/authentic_billing_dashboard.html",
+      "original_size": 16205,
+      "optimized_size": 9255,
+      "space_saved": 6950
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/automation_dashboard.html",
+      "original_size": 7731,
+      "optimized_size": 4850,
+      "space_saved": 2881
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/intelligent_ideas_dashboard.html",
+      "original_size": 19344,
+      "optimized_size": 12304,
+      "space_saved": 7040
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/workflow_automation.html",
+      "original_size": 16841,
+      "optimized_size": 9756,
+      "space_saved": 7085
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/predictive_maintenance.html",
+      "original_size": 14644,
+      "optimized_size": 7026,
+      "space_saved": 7618
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/executive_roi_presentation.html",
+      "original_size": 13068,
+      "optimized_size": 8918,
+      "space_saved": 4150
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/bleeding_edge_dashboard.html",
+      "original_size": 12777,
+      "optimized_size": 7596,
+      "space_saved": 5181
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/human_amplification_demo.html",
+      "original_size": 10624,
+      "optimized_size": 6279,
+      "space_saved": 4345
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/smart_asset_lookup.html",
+      "original_size": 6938,
+      "optimized_size": 4622,
+      "space_saved": 2316
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/controller_dashboard.html",
+      "original_size": 14554,
+      "optimized_size": 8764,
+      "space_saved": 5790
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/simple_login.html",
+      "original_size": 2750,
+      "optimized_size": 1880,
+      "space_saved": 870
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/dev_log_dashboard.html",
+      "original_size": 13729,
+      "optimized_size": 8630,
+      "space_saved": 5099
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/login.html",
+      "original_size": 8730,
+      "optimized_size": 5531,
+      "space_saved": 3199
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/billing_intelligence.html",
+      "original_size": 3763,
+      "optimized_size": 2552,
+      "space_saved": 1211
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/seamless_fleet_map.html",
+      "original_size": 33766,
+      "optimized_size": 21802,
+      "space_saved": 11964
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/watson_admin_dashboard.html",
+      "original_size": 13378,
+      "optimized_size": 8897,
+      "space_saved": 4481
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/asset_manager.html",
+      "original_size": 3101,
+      "optimized_size": 2072,
+      "space_saved": 1029
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/ai_assistant.html",
+      "original_size": 5771,
+      "optimized_size": 4004,
+      "space_saved": 1767
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/industry_news.html",
+      "original_size": 3038,
+      "optimized_size": 2117,
+      "space_saved": 921
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/project_accountability.html",
+      "original_size": 3844,
+      "optimized_size": 2693,
+      "space_saved": 1151
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/data_upload.html",
+      "original_size": 4001,
+      "optimized_size": 2776,
+      "space_saved": 1225
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/billing_dashboard.html",
+      "original_size": 3770,
+      "optimized_size": 2585,
+      "space_saved": 1185
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/executive_reports.html",
+      "original_size": 3415,
+      "optimized_size": 2350,
+      "space_saved": 1065
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/attendance_matrix.html",
+      "original_size": 18320,
+      "optimized_size": 12595,
+      "space_saved": 5725
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/idea_box.html",
+      "original_size": 10860,
+      "optimized_size": 6366,
+      "space_saved": 4494
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/workflow_optimization_simple.html",
+      "original_size": 2242,
+      "optimized_size": 1678,
+      "space_saved": 564
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/asset_manager_simple.html",
+      "original_size": 4216,
+      "optimized_size": 2888,
+      "space_saved": 1328
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/performance_metrics.html",
+      "original_size": 15585,
+      "optimized_size": 10705,
+      "space_saved": 4880
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/document_intelligence.html",
+      "original_size": 18048,
+      "optimized_size": 12265,
+      "space_saved": 5783
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/fleet_analytics.html",
+      "original_size": 13437,
+      "optimized_size": 9275,
+      "space_saved": 4162
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/ai_training_module.html",
+      "original_size": 16088,
+      "optimized_size": 11394,
+      "space_saved": 4694
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/sop_management.html",
+      "original_size": 16611,
+      "optimized_size": 9776,
+      "space_saved": 6835
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/landing_clean.html",
+      "original_size": 8828,
+      "optimized_size": 5533,
+      "space_saved": 3295
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/infrastructure_dashboard.html",
+      "original_size": 18780,
+      "optimized_size": 12950,
+      "space_saved": 5830
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/dashboard.html",
+      "original_size": 49290,
+      "optimized_size": 29891,
+      "space_saved": 19399
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/animated_performance_metrics.html",
+      "original_size": 27033,
+      "optimized_size": 17446,
+      "space_saved": 9587
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/deployment_optimization.html",
+      "original_size": 19433,
+      "optimized_size": 12880,
+      "space_saved": 6553
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/cya/index.html",
+      "original_size": 7533,
+      "optimized_size": 4341,
+      "space_saved": 3192
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/kaizen/index.html",
+      "original_size": 18953,
+      "optimized_size": 10254,
+      "space_saved": 8699
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/kaizen/dashboard.html",
+      "original_size": 4169,
+      "optimized_size": 2499,
+      "space_saved": 1670
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/parsers/index.html",
+      "original_size": 13998,
+      "optimized_size": 8153,
+      "space_saved": 5845
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/map/index.html",
+      "original_size": 30585,
+      "optimized_size": 19577,
+      "space_saved": 11008
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/map/dashboard.html",
+      "original_size": 18052,
+      "optimized_size": 11218,
+      "space_saved": 6834
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/utilization/index.html",
+      "original_size": 9881,
+      "optimized_size": 5981,
+      "space_saved": 3900
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/maintenance/index.html",
+      "original_size": 28443,
+      "optimized_size": 17447,
+      "space_saved": 10996
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/billing/index.html",
+      "original_size": 11315,
+      "optimized_size": 6168,
+      "space_saved": 5147
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/billing/dashboard.html",
+      "original_size": 12792,
+      "optimized_size": 8178,
+      "space_saved": 4614
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/attendance/index.html",
+      "original_size": 12197,
+      "optimized_size": 6829,
+      "space_saved": 5368
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/attendance/dashboard.html",
+      "original_size": 9188,
+      "optimized_size": 6290,
+      "space_saved": 2898
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/reports/dashboard.html",
+      "original_size": 10211,
+      "optimized_size": 4475,
+      "space_saved": 5736
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/reports/index.html",
+      "original_size": 2477,
+      "optimized_size": 1836,
+      "space_saved": 641
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/reports/asset_utilization.html",
+      "original_size": 5691,
+      "optimized_size": 3658,
+      "space_saved": 2033
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/alerts/dashboard.html",
+      "original_size": 20739,
+      "optimized_size": 11590,
+      "space_saved": 9149
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/job_zone/index.html",
+      "original_size": 9260,
+      "optimized_size": 5170,
+      "space_saved": 4090
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/historical/dashboard.html",
+      "original_size": 17254,
+      "optimized_size": 10027,
+      "space_saved": 7227
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/dashboard/optimized_executive.html",
+      "original_size": 24657,
+      "optimized_size": 14053,
+      "space_saved": 10604
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/driver_reports/dashboard.html",
+      "original_size": 14297,
+      "optimized_size": 7677,
+      "space_saved": 6620
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/asset_tracking/dashboard.html",
+      "original_size": 33855,
+      "optimized_size": 25754,
+      "space_saved": 8101
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/admin/index.html",
+      "original_size": 7988,
+      "optimized_size": 4490,
+      "space_saved": 3498
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/drivers/index.html",
+      "original_size": 4133,
+      "optimized_size": 2059,
+      "space_saved": 2074
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/drivers/attendance_dashboard.html",
+      "original_size": 12005,
+      "optimized_size": 4983,
+      "space_saved": 7022
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/pm_master/index.html",
+      "original_size": 12056,
+      "optimized_size": 6407,
+      "space_saved": 5649
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/components/unified_design_system.html",
+      "original_size": 11048,
+      "optimized_size": 9823,
+      "space_saved": 1225
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/components/unified_dark_theme.html",
+      "original_size": 8940,
+      "optimized_size": 6996,
+      "space_saved": 1944
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/components/smart_performance_widgets.html",
+      "original_size": 15328,
+      "optimized_size": 10628,
+      "space_saved": 4700
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/components/adaptive_base.html",
+      "original_size": 3013,
+      "optimized_size": 2124,
+      "space_saved": 889
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/components/unified_navigation.html",
+      "original_size": 5388,
+      "optimized_size": 4347,
+      "space_saved": 1041
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/uploads/index.html",
+      "original_size": 10530,
+      "optimized_size": 7192,
+      "space_saved": 3338
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/workzone/index.html",
+      "original_size": 454,
+      "optimized_size": 398,
+      "space_saved": 56
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/ocr/index.html",
+      "original_size": 439,
+      "optimized_size": 383,
+      "space_saved": 56
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/main/index.html",
+      "original_size": 442,
+      "optimized_size": 386,
+      "space_saved": 56
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/export_reports/index.html",
+      "original_size": 472,
+      "optimized_size": 416,
+      "space_saved": 56
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/foundation_exports/index.html",
+      "original_size": 484,
+      "optimized_size": 428,
+      "space_saved": 56
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/historical_analysis/index.html",
+      "original_size": 487,
+      "optimized_size": 431,
+      "space_saved": 56
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/report_generator/index.html",
+      "original_size": 478,
+      "optimized_size": 422,
+      "space_saved": 56
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/billing_module/index.html",
+      "original_size": 472,
+      "optimized_size": 416,
+      "space_saved": 56
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/maintenance_module/index.html",
+      "original_size": 484,
+      "optimized_size": 428,
+      "space_saved": 56
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/geo_tracking/index.html",
+      "original_size": 466,
+      "optimized_size": 410,
+      "space_saved": 56
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/geo_tracking_basic/index.html",
+      "original_size": 484,
+      "optimized_size": 428,
+      "space_saved": 56
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/export_report_function/index.html",
+      "original_size": 496,
+      "optimized_size": 440,
+      "space_saved": 56
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/driver_module_export/index.html",
+      "original_size": 490,
+      "optimized_size": 434,
+      "space_saved": 56
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/simple_export/index.html",
+      "original_size": 469,
+      "optimized_size": 413,
+      "space_saved": 56
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/april_billing_simulation/index.html",
+      "original_size": 502,
+      "optimized_size": 446,
+      "space_saved": 56
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/driver_exports/index.html",
+      "original_size": 472,
+      "optimized_size": 416,
+      "space_saved": 56
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/driver_module_clean/index.html",
+      "original_size": 487,
+      "optimized_size": 431,
+      "space_saved": 56
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/driver_module_new/index.html",
+      "original_size": 481,
+      "optimized_size": 425,
+      "space_saved": 56
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/trend_api/index.html",
+      "original_size": 457,
+      "optimized_size": 401,
+      "space_saved": 56
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/system_logs/index.html",
+      "original_size": 463,
+      "optimized_size": 407,
+      "space_saved": 56
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/driver_module/index.html",
+      "original_size": 469,
+      "optimized_size": 413,
+      "space_saved": 56
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/downloads/index.html",
+      "original_size": 457,
+      "optimized_size": 401,
+      "space_saved": 56
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/driver_module_fixed/index.html",
+      "original_size": 487,
+      "optimized_size": 431,
+      "space_saved": 56
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/asset_map/index.html",
+      "original_size": 18126,
+      "optimized_size": 10678,
+      "space_saved": 7448
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/system_health/index.html",
+      "original_size": 13583,
+      "optimized_size": 9076,
+      "space_saved": 4507
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/system_health/dashboard.html",
+      "original_size": 2649,
+      "optimized_size": 1833,
+      "space_saved": 816
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/mtd_reports/dashboard.html",
+      "original_size": 2805,
+      "optimized_size": 1852,
+      "space_saved": 953
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/mtd_reports/simple_dashboard.html",
+      "original_size": 3777,
+      "optimized_size": 2121,
+      "space_saved": 1656
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/file_processor/index.html",
+      "original_size": 22166,
+      "optimized_size": 11811,
+      "space_saved": 10355
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/react_upload/index.html",
+      "original_size": 17679,
+      "optimized_size": 8748,
+      "space_saved": 8931
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/attendance_report/index.html",
+      "original_size": 29965,
+      "optimized_size": 18549,
+      "space_saved": 11416
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/file_upload/index.html",
+      "original_size": 20148,
+      "optimized_size": 12698,
+      "space_saved": 7450
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/dynamic_timecard/dashboard.html",
+      "original_size": 7998,
+      "optimized_size": 5522,
+      "space_saved": 2476
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/asset_manager/dashboard.html",
+      "original_size": 29290,
+      "optimized_size": 17139,
+      "space_saved": 12151
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/weekly_driver_report/dashboard.html",
+      "original_size": 9406,
+      "optimized_size": 6218,
+      "space_saved": 3188
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/daily_driver_report/dashboard.html",
+      "original_size": 13445,
+      "optimized_size": 8605,
+      "space_saved": 4840
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/enhanced_weekly_report/dashboard.html",
+      "original_size": 4661,
+      "optimized_size": 3214,
+      "space_saved": 1447
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/weekly_report/dashboard.html",
+      "original_size": 9321,
+      "optimized_size": 5627,
+      "space_saved": 3694
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/system_admin/index.html",
+      "original_size": 10898,
+      "optimized_size": 6789,
+      "space_saved": 4109
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/kaizen_monitor/index.html",
+      "original_size": 14228,
+      "optimized_size": 7954,
+      "space_saved": 6274
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/kaizen_admin/index.html",
+      "original_size": 8365,
+      "optimized_size": 4181,
+      "space_saved": 4184
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/auto_attendance/index.html",
+      "original_size": 10020,
+      "optimized_size": 5738,
+      "space_saved": 4282
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/auto_attendance/dashboard.html",
+      "original_size": 23769,
+      "optimized_size": 14717,
+      "space_saved": 9052
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/includes/sidebar.html",
+      "original_size": 7069,
+      "optimized_size": 5105,
+      "space_saved": 1964
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/daily_attendance/index.html",
+      "original_size": 17837,
+      "optimized_size": 12541,
+      "space_saved": 5296
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/file_organizer/index.html",
+      "original_size": 12098,
+      "optimized_size": 8776,
+      "space_saved": 3322
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/driver_asset_manager/dashboard.html",
+      "original_size": 8864,
+      "optimized_size": 4058,
+      "space_saved": 4806
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/report_browser/index.html",
+      "original_size": 42436,
+      "optimized_size": 27864,
+      "space_saved": 14572
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/monthly_driver_report/dashboard.html",
+      "original_size": 6474,
+      "optimized_size": 3599,
+      "space_saved": 2875
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/daily_driver_fixed/dashboard.html",
+      "original_size": 7039,
+      "optimized_size": 3713,
+      "space_saved": 3326
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/daily_driver_complete/dashboard.html",
+      "original_size": 13755,
+      "optimized_size": 7710,
+      "space_saved": 6045
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/mtd_review/dashboard.html",
+      "original_size": 7234,
+      "optimized_size": 4337,
+      "space_saved": 2897
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/enhanced_daily/dashboard.html",
+      "original_size": 10505,
+      "optimized_size": 6186,
+      "space_saved": 4319
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/driver_attendance/dashboard.html",
+      "original_size": 11507,
+      "optimized_size": 6124,
+      "space_saved": 5383
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/attendance_workflow/dashboard.html",
+      "original_size": 15201,
+      "optimized_size": 9813,
+      "space_saved": 5388
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/database_explorer/dashboard.html",
+      "original_size": 4954,
+      "optimized_size": 3104,
+      "space_saved": 1850
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/mtd_data_review/dashboard.html",
+      "original_size": 18991,
+      "optimized_size": 9939,
+      "space_saved": 9052
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/job_management/dashboard.html",
+      "original_size": 4471,
+      "optimized_size": 2233,
+      "space_saved": 2238
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/job_management/edit.html",
+      "original_size": 5404,
+      "optimized_size": 2935,
+      "space_saved": 2469
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/time_on_site/dashboard.html",
+      "original_size": 12685,
+      "optimized_size": 6761,
+      "space_saved": 5924
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/mtd_compliance/dashboard.html",
+      "original_size": 17468,
+      "optimized_size": 7895,
+      "space_saved": 9573
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/demo_module/dashboard.html",
+      "original_size": 4909,
+      "optimized_size": 2637,
+      "space_saved": 2272
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/demo_module/edit.html",
+      "original_size": 6056,
+      "optimized_size": 3260,
+      "space_saved": 2796
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/unified_attendance/job_zones.html",
+      "original_size": 8190,
+      "optimized_size": 4686,
+      "space_saved": 3504
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/unified_attendance/dashboard.html",
+      "original_size": 10722,
+      "optimized_size": 6377,
+      "space_saved": 4345
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/auth/request_reset.html",
+      "original_size": 3730,
+      "optimized_size": 2224,
+      "space_saved": 1506
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/auth/quick_login.html",
+      "original_size": 7108,
+      "optimized_size": 4000,
+      "space_saved": 3108
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/auth/login.html",
+      "original_size": 6236,
+      "optimized_size": 4476,
+      "space_saved": 1760
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/auth/dashboard.html",
+      "original_size": 10065,
+      "optimized_size": 6708,
+      "space_saved": 3357
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/secure_attendance/dashboard.html",
+      "original_size": 7685,
+      "optimized_size": 5162,
+      "space_saved": 2523
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/gps_map/dashboard.html",
+      "original_size": 20425,
+      "optimized_size": 12807,
+      "space_saved": 7618
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/gps_map/simple_map.html",
+      "original_size": 10180,
+      "optimized_size": 6254,
+      "space_saved": 3926
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/job_security_monitoring/dashboard.html",
+      "original_size": 255,
+      "optimized_size": 227,
+      "space_saved": 28
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/enhanced_map/dashboard.html",
+      "original_size": 25822,
+      "optimized_size": 15791,
+      "space_saved": 10031
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/zone_schedule/upload.html",
+      "original_size": 4750,
+      "optimized_size": 2801,
+      "space_saved": 1949
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/pe_zone_filter/dashboard.html",
+      "original_size": 271,
+      "optimized_size": 243,
+      "space_saved": 28
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/dashboards/fuel_tracker.html",
+      "original_size": 6127,
+      "optimized_size": 3812,
+      "space_saved": 2315
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/smart_assets/dashboard.html",
+      "original_size": 8944,
+      "optimized_size": 5473,
+      "space_saved": 3471
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/gps_efficiency/dashboard.html",
+      "original_size": 6559,
+      "optimized_size": 4569,
+      "space_saved": 1990
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/automated_attendance/dashboard.html",
+      "original_size": 8890,
+      "optimized_size": 6056,
+      "space_saved": 2834
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/smart_backend/dashboard.html",
+      "original_size": 9155,
+      "optimized_size": 5855,
+      "space_saved": 3300
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/assets/asset_dashboard.html",
+      "original_size": 13757,
+      "optimized_size": 8726,
+      "space_saved": 5031
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/equipment_analytics/dashboard.html",
+      "original_size": 27868,
+      "optimized_size": 14906,
+      "space_saved": 12962
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/equipment_analytics/fleet_utilization_details.html",
+      "original_size": 16956,
+      "optimized_size": 8506,
+      "space_saved": 8450
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates/data_processing/dashboard.html",
+      "original_size": 8086,
+      "optimized_size": 5072,
+      "space_saved": 3014
+    },
+    {
+      "type": "code_optimization",
+      "file": "config/settings.json",
+      "original_size": 273,
+      "optimized_size": 244,
+      "space_saved": 29
+    },
+    {
+      "type": "code_optimization",
+      "file": "config/zone_schedule_rules.json",
+      "original_size": 1607,
+      "optimized_size": 1189,
+      "space_saved": 418
+    },
+    {
+      "type": "code_optimization",
+      "file": "config/consolidated_zones.json",
+      "original_size": 805,
+      "optimized_size": 612,
+      "space_saved": 193
+    },
+    {
+      "type": "code_optimization",
+      "file": "mockups/driver_reports_mockups.html",
+      "original_size": 54622,
+      "optimized_size": 24436,
+      "space_saved": 30186
+    },
+    {
+      "type": "code_optimization",
+      "file": "temp_extract/templates/base.html",
+      "original_size": 378,
+      "optimized_size": 334,
+      "space_saved": 44
+    },
+    {
+      "type": "code_optimization",
+      "file": "temp_extract/templates/navbar.html",
+      "original_size": 174,
+      "optimized_size": 145,
+      "space_saved": 29
+    },
+    {
+      "type": "code_optimization",
+      "file": "temp_extract/templates/footer.html",
+      "original_size": 54,
+      "optimized_size": 48,
+      "space_saved": 6
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/asset_detail.html",
+      "original_size": 12592,
+      "optimized_size": 6323,
+      "space_saved": 6269
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/admin.html",
+      "original_size": 8876,
+      "optimized_size": 5041,
+      "space_saved": 3835
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/maintenance_reports.html",
+      "original_size": 22352,
+      "optimized_size": 11825,
+      "space_saved": 10527
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/attendance_reports.html",
+      "original_size": 16421,
+      "optimized_size": 7368,
+      "space_saved": 9053
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/upload.html",
+      "original_size": 14544,
+      "optimized_size": 9156,
+      "space_saved": 5388
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/maintenance_schedules.html",
+      "original_size": 30749,
+      "optimized_size": 17697,
+      "space_saved": 13052
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/pm_allocation_results.html",
+      "original_size": 21246,
+      "optimized_size": 10401,
+      "space_saved": 10845
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/generate_driver_report.html",
+      "original_size": 7467,
+      "optimized_size": 4590,
+      "space_saved": 2877
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/view_csv_report.html",
+      "original_size": 6370,
+      "optimized_size": 4017,
+      "space_saved": 2353
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/attendance_trends.html",
+      "original_size": 18931,
+      "optimized_size": 9691,
+      "space_saved": 9240
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/map_view.html",
+      "original_size": 13960,
+      "optimized_size": 9136,
+      "space_saved": 4824
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/pm_allocation_upload.html",
+      "original_size": 10977,
+      "optimized_size": 6529,
+      "space_saved": 4448
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/maintenance.html",
+      "original_size": 55022,
+      "optimized_size": 30235,
+      "space_saved": 24787
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/driver_reports.html",
+      "original_size": 10330,
+      "optimized_size": 6410,
+      "space_saved": 3920
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/reports.html",
+      "original_size": 9636,
+      "optimized_size": 5885,
+      "space_saved": 3751
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/admin_settings.html",
+      "original_size": 12068,
+      "optimized_size": 7647,
+      "space_saved": 4421
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/view_report.html",
+      "original_size": 1165,
+      "optimized_size": 758,
+      "space_saved": 407
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/auto_process.html",
+      "original_size": 7564,
+      "optimized_size": 4760,
+      "space_saved": 2804
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/assets.html",
+      "original_size": 8252,
+      "optimized_size": 5429,
+      "space_saved": 2823
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/login.html",
+      "original_size": 3652,
+      "optimized_size": 2238,
+      "space_saved": 1414
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/pm_allocation.html",
+      "original_size": 15321,
+      "optimized_size": 8862,
+      "space_saved": 6459
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/ocr_tool.html",
+      "original_size": 9659,
+      "optimized_size": 5661,
+      "space_saved": 3998
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/foundation_result.html",
+      "original_size": 6000,
+      "optimized_size": 3515,
+      "space_saved": 2485
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/pm_master_result.html",
+      "original_size": 15523,
+      "optimized_size": 7411,
+      "space_saved": 8112
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/export_reports.html",
+      "original_size": 11110,
+      "optimized_size": 6002,
+      "space_saved": 5108
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/export_reports_result.html",
+      "original_size": 8816,
+      "optimized_size": 4647,
+      "space_saved": 4169
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/pm_master.html",
+      "original_size": 17983,
+      "optimized_size": 9891,
+      "space_saved": 8092
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/foundation_exports.html",
+      "original_size": 11302,
+      "optimized_size": 6350,
+      "space_saved": 4952
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/foundation_exports_result.html",
+      "original_size": 6078,
+      "optimized_size": 3488,
+      "space_saved": 2590
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/daily_report_export.html",
+      "original_size": 7240,
+      "optimized_size": 4669,
+      "space_saved": 2571
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/pm_report.html",
+      "original_size": 4590,
+      "optimized_size": 2697,
+      "space_saved": 1893
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/download.html",
+      "original_size": 4459,
+      "optimized_size": 2894,
+      "space_saved": 1565
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/geo_tracking.html",
+      "original_size": 27655,
+      "optimized_size": 19223,
+      "space_saved": 8432
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/map_view_basic.html",
+      "original_size": 26554,
+      "optimized_size": 16843,
+      "space_saved": 9711
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/map_view_mobile.html",
+      "original_size": 28874,
+      "optimized_size": 18788,
+      "space_saved": 10086
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/map_simple.html",
+      "original_size": 12114,
+      "optimized_size": 8201,
+      "space_saved": 3913
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/layout.html",
+      "original_size": 20484,
+      "optimized_size": 14249,
+      "space_saved": 6235
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/daily_report.html",
+      "original_size": 15040,
+      "optimized_size": 7923,
+      "space_saved": 7117
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/404.html",
+      "original_size": 1484,
+      "optimized_size": 968,
+      "space_saved": 516
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/500.html",
+      "original_size": 1655,
+      "optimized_size": 1074,
+      "space_saved": 581
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/error.html",
+      "original_size": 1433,
+      "optimized_size": 917,
+      "space_saved": 516
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/asset_map.html",
+      "original_size": 12292,
+      "optimized_size": 9441,
+      "space_saved": 2851
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/basic_error.html",
+      "original_size": 841,
+      "optimized_size": 623,
+      "space_saved": 218
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/simple_map.html",
+      "original_size": 14494,
+      "optimized_size": 8593,
+      "space_saved": 5901
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/standalone_map.html",
+      "original_size": 59877,
+      "optimized_size": 30166,
+      "space_saved": 29711
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/direct_map.html",
+      "original_size": 71083,
+      "optimized_size": 41458,
+      "space_saved": 29625
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/footer.html",
+      "original_size": 413,
+      "optimized_size": 298,
+      "space_saved": 115
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/dashboard_new.html",
+      "original_size": 15792,
+      "optimized_size": 9423,
+      "space_saved": 6369
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/navbar.html",
+      "original_size": 1339,
+      "optimized_size": 969,
+      "space_saved": 370
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/layout_unified.html",
+      "original_size": 12842,
+      "optimized_size": 8121,
+      "space_saved": 4721
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/layout_unified_enhanced.html",
+      "original_size": 17913,
+      "optimized_size": 11641,
+      "space_saved": 6272
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/driver_attendance_controls.html",
+      "original_size": 7409,
+      "optimized_size": 5643,
+      "space_saved": 1766
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/job_site_detail.html",
+      "original_size": 6949,
+      "optimized_size": 3832,
+      "space_saved": 3117
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/data_upload_manager.html",
+      "original_size": 17262,
+      "optimized_size": 9314,
+      "space_saved": 7948
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/daily_report_detail.html",
+      "original_size": 10901,
+      "optimized_size": 5556,
+      "space_saved": 5345
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/weekly_report_detail.html",
+      "original_size": 12438,
+      "optimized_size": 5943,
+      "space_saved": 6495
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/work_zone_validation_detail.html",
+      "original_size": 21288,
+      "optimized_size": 10714,
+      "space_saved": 10574
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/enhanced_mobile_navigation.html",
+      "original_size": 15370,
+      "optimized_size": 9950,
+      "space_saved": 5420
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/live_gps_tracking.html",
+      "original_size": 16042,
+      "optimized_size": 9650,
+      "space_saved": 6392
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/enhanced_driver_performance.html",
+      "original_size": 20380,
+      "optimized_size": 12588,
+      "space_saved": 7792
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/may_week_uploader.html",
+      "original_size": 19612,
+      "optimized_size": 11360,
+      "space_saved": 8252
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/may_reports_view.html",
+      "original_size": 12149,
+      "optimized_size": 6953,
+      "space_saved": 5196
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/dashboard_mobile_optimized.html",
+      "original_size": 15807,
+      "optimized_size": 11240,
+      "space_saved": 4567
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/cya/audit.html",
+      "original_size": 7548,
+      "optimized_size": 4165,
+      "space_saved": 3383
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/kaizen/health.html",
+      "original_size": 20333,
+      "optimized_size": 11380,
+      "space_saved": 8953
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/parsers/result.html",
+      "original_size": 23390,
+      "optimized_size": 11590,
+      "space_saved": 11800
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/parsers/upload.html",
+      "original_size": 27455,
+      "optimized_size": 16834,
+      "space_saved": 10621
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/parsers/compare.html",
+      "original_size": 28981,
+      "optimized_size": 13703,
+      "space_saved": 15278
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/maintenance/schedules.html",
+      "original_size": 19766,
+      "optimized_size": 11426,
+      "space_saved": 8340
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/billing/pm_allocation.html",
+      "original_size": 24509,
+      "optimized_size": 14904,
+      "space_saved": 9605
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/billing/pm_allocation_upload.html",
+      "original_size": 17251,
+      "optimized_size": 9277,
+      "space_saved": 7974
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/billing/invoices.html",
+      "original_size": 31680,
+      "optimized_size": 19269,
+      "space_saved": 12411
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/billing/april_region_detail.html",
+      "original_size": 10339,
+      "optimized_size": 5849,
+      "space_saved": 4490
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/billing/april_job_detail.html",
+      "original_size": 13945,
+      "optimized_size": 7726,
+      "space_saved": 6219
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/billing/april_cost_codes.html",
+      "original_size": 9690,
+      "optimized_size": 5647,
+      "space_saved": 4043
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/billing/april_asset_detail.html",
+      "original_size": 8735,
+      "optimized_size": 4741,
+      "space_saved": 3994
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/billing/april_simulation.html",
+      "original_size": 16588,
+      "optimized_size": 9200,
+      "space_saved": 7388
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/billing/pm_allocation_processor.html",
+      "original_size": 8212,
+      "optimized_size": 5158,
+      "space_saved": 3054
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/billing/pm_allocation_results.html",
+      "original_size": 12803,
+      "optimized_size": 8041,
+      "space_saved": 4762
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/attendance/prior_day.html",
+      "original_size": 10809,
+      "optimized_size": 6189,
+      "space_saved": 4620
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/attendance/current_day.html",
+      "original_size": 8970,
+      "optimized_size": 5182,
+      "space_saved": 3788
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/attendance/history.html",
+      "original_size": 6137,
+      "optimized_size": 2880,
+      "space_saved": 3257
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/attendance/driver_detail.html",
+      "original_size": 5631,
+      "optimized_size": 4030,
+      "space_saved": 1601
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/attendance/job_site_detail.html",
+      "original_size": 6306,
+      "optimized_size": 4490,
+      "space_saved": 1816
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/attendance/error.html",
+      "original_size": 896,
+      "optimized_size": 795,
+      "space_saved": 101
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/attendance/daily_driver_report.html",
+      "original_size": 23740,
+      "optimized_size": 13862,
+      "space_saved": 9878
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/reports/view_attendance.html",
+      "original_size": 7878,
+      "optimized_size": 4177,
+      "space_saved": 3701
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/reports/trends.html",
+      "original_size": 22213,
+      "optimized_size": 12468,
+      "space_saved": 9745
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/reports/export.html",
+      "original_size": 9645,
+      "optimized_size": 5760,
+      "space_saved": 3885
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/reports/driver_reports.html",
+      "original_size": 3354,
+      "optimized_size": 2588,
+      "space_saved": 766
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/asset_drivers/import.html",
+      "original_size": 10616,
+      "optimized_size": 5895,
+      "space_saved": 4721
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/asset_drivers/list.html",
+      "original_size": 13203,
+      "optimized_size": 7272,
+      "space_saved": 5931
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/asset_drivers/assign.html",
+      "original_size": 5229,
+      "optimized_size": 3605,
+      "space_saved": 1624
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/asset_drivers/end_assignment.html",
+      "original_size": 3824,
+      "optimized_size": 2488,
+      "space_saved": 1336
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/asset_drivers/history.html",
+      "original_size": 9294,
+      "optimized_size": 4758,
+      "space_saved": 4536
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/alerts/asset_alerts.html",
+      "original_size": 16629,
+      "optimized_size": 9186,
+      "space_saved": 7443
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/alerts/settings.html",
+      "original_size": 15619,
+      "optimized_size": 9507,
+      "space_saved": 6112
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/job_zone/view.html",
+      "original_size": 30161,
+      "optimized_size": 16762,
+      "space_saved": 13399
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/job_zone/report.html",
+      "original_size": 10336,
+      "optimized_size": 6236,
+      "space_saved": 4100
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/historical/equipment_trend.html",
+      "original_size": 8451,
+      "optimized_size": 4931,
+      "space_saved": 3520
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/historical/job_trend.html",
+      "original_size": 7452,
+      "optimized_size": 4266,
+      "space_saved": 3186
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/historical/equipment_lifecycle.html",
+      "original_size": 21703,
+      "optimized_size": 16435,
+      "space_saved": 5268
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/dashboard/dashboard_v2.html",
+      "original_size": 20522,
+      "optimized_size": 15064,
+      "space_saved": 5458
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/driver_reports/enhanced_daily.html",
+      "original_size": 20387,
+      "optimized_size": 14843,
+      "space_saved": 5544
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/driver_reports/dashboard_new.html",
+      "original_size": 19318,
+      "optimized_size": 11200,
+      "space_saved": 8118
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/asset_tracking/list.html",
+      "original_size": 10862,
+      "optimized_size": 8073,
+      "space_saved": 2789
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/asset_tracking/detail.html",
+      "original_size": 15368,
+      "optimized_size": 11130,
+      "space_saved": 4238
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/asset_tracking/map.html",
+      "original_size": 15178,
+      "optimized_size": 12055,
+      "space_saved": 3123
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/asset_tracking/health_prediction.html",
+      "original_size": 26364,
+      "optimized_size": 19856,
+      "space_saved": 6508
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/admin/activity_logs.html",
+      "original_size": 19989,
+      "optimized_size": 11009,
+      "space_saved": 8980
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/drivers/detail.html",
+      "original_size": 23721,
+      "optimized_size": 14086,
+      "space_saved": 9635
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/drivers/list.html",
+      "original_size": 25580,
+      "optimized_size": 16047,
+      "space_saved": 9533
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/drivers/export_success.html",
+      "original_size": 3791,
+      "optimized_size": 1888,
+      "space_saved": 1903
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/drivers/vehicle_audit.html",
+      "original_size": 9448,
+      "optimized_size": 4528,
+      "space_saved": 4920
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/drivers/driver_list.html",
+      "original_size": 12583,
+      "optimized_size": 7535,
+      "space_saved": 5048
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/drivers/pdf_viewer.html",
+      "original_size": 5897,
+      "optimized_size": 4185,
+      "space_saved": 1712
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/drivers/daily_report.html",
+      "original_size": 7333,
+      "optimized_size": 4688,
+      "space_saved": 2645
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/drivers/upload.html",
+      "original_size": 7247,
+      "optimized_size": 4607,
+      "space_saved": 2640
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/pm_master/batch_results.html",
+      "original_size": 13807,
+      "optimized_size": 6944,
+      "space_saved": 6863
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/pm_master/help.html",
+      "original_size": 11332,
+      "optimized_size": 7567,
+      "space_saved": 3765
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/pm_master/summary.html",
+      "original_size": 7769,
+      "optimized_size": 4109,
+      "space_saved": 3660
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/components/recent_activity.html",
+      "original_size": 3535,
+      "optimized_size": 1984,
+      "space_saved": 1551
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/components/data_card.html",
+      "original_size": 795,
+      "optimized_size": 616,
+      "space_saved": 179
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/components/driver_card.html",
+      "original_size": 4509,
+      "optimized_size": 3458,
+      "space_saved": 1051
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/logs/viewer.html",
+      "original_size": 14288,
+      "optimized_size": 9603,
+      "space_saved": 4685
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/pm_allocation/processor.html",
+      "original_size": 1295,
+      "optimized_size": 1079,
+      "space_saved": 216
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/pm_allocation/auto_process.html",
+      "original_size": 831,
+      "optimized_size": 718,
+      "space_saved": 113
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/pm_allocation/results.html",
+      "original_size": 3599,
+      "optimized_size": 2506,
+      "space_saved": 1093
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/mtd_reports/interval_reports.html",
+      "original_size": 16729,
+      "optimized_size": 7940,
+      "space_saved": 8789
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/mtd_reports/interval_report.html",
+      "original_size": 15301,
+      "optimized_size": 7294,
+      "space_saved": 8007
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/mtd_reports/reports_list.html",
+      "original_size": 6094,
+      "optimized_size": 2763,
+      "space_saved": 3331
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/mtd_reports/driver_detail.html",
+      "original_size": 12751,
+      "optimized_size": 7032,
+      "space_saved": 5719
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/mtd_reports/job_site_detail.html",
+      "original_size": 16282,
+      "optimized_size": 9078,
+      "space_saved": 7204
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/mtd_reports/report.html",
+      "original_size": 13610,
+      "optimized_size": 6050,
+      "space_saved": 7560
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/mtd_reports/upload.html",
+      "original_size": 9298,
+      "optimized_size": 4853,
+      "space_saved": 4445
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/mtd_reports/simple_upload.html",
+      "original_size": 4404,
+      "optimized_size": 2441,
+      "space_saved": 1963
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/mtd_reports/simple_reports.html",
+      "original_size": 3379,
+      "optimized_size": 1702,
+      "space_saved": 1677
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/mtd_reports/report_placeholder.html",
+      "original_size": 3536,
+      "optimized_size": 1838,
+      "space_saved": 1698
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/mtd_reports/enhanced_report.html",
+      "original_size": 12590,
+      "optimized_size": 6823,
+      "space_saved": 5767
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/attendance_report/view.html",
+      "original_size": 12704,
+      "optimized_size": 7288,
+      "space_saved": 5416
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/dynamic_timecard/comparison.html",
+      "original_size": 19778,
+      "optimized_size": 12960,
+      "space_saved": 6818
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/asset_manager/view.html",
+      "original_size": 24946,
+      "optimized_size": 14698,
+      "space_saved": 10248
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/weekly_driver_report/upload.html",
+      "original_size": 15658,
+      "optimized_size": 9191,
+      "space_saved": 6467
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/weekly_driver_report/generate.html",
+      "original_size": 14980,
+      "optimized_size": 9493,
+      "space_saved": 5487
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/weekly_driver_report/view.html",
+      "original_size": 33189,
+      "optimized_size": 19224,
+      "space_saved": 13965
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/daily_driver_report/upload.html",
+      "original_size": 17023,
+      "optimized_size": 10386,
+      "space_saved": 6637
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/daily_driver_report/view.html",
+      "original_size": 14878,
+      "optimized_size": 9272,
+      "space_saved": 5606
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/daily_driver_report/upload_enhanced.html",
+      "original_size": 13583,
+      "optimized_size": 8135,
+      "space_saved": 5448
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/daily_driver_report/view_enhanced.html",
+      "original_size": 17730,
+      "optimized_size": 9800,
+      "space_saved": 7930
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/daily_driver_report/view_simple.html",
+      "original_size": 6205,
+      "optimized_size": 3341,
+      "space_saved": 2864
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/daily_driver_report/dashboard_enhanced.html",
+      "original_size": 19169,
+      "optimized_size": 10855,
+      "space_saved": 8314
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/enhanced_weekly_report/upload_fixed.html",
+      "original_size": 15405,
+      "optimized_size": 9758,
+      "space_saved": 5647
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/enhanced_weekly_report/upload.html",
+      "original_size": 15411,
+      "optimized_size": 9764,
+      "space_saved": 5647
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/enhanced_weekly_report/view_simple.html",
+      "original_size": 6774,
+      "optimized_size": 4126,
+      "space_saved": 2648
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/enhanced_weekly_report/dashboard_new.html",
+      "original_size": 10001,
+      "optimized_size": 5714,
+      "space_saved": 4287
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/enhanced_weekly_report/comparison.html",
+      "original_size": 11105,
+      "optimized_size": 5709,
+      "space_saved": 5396
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/enhanced_weekly_report/view.html",
+      "original_size": 49496,
+      "optimized_size": 30057,
+      "space_saved": 19439
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/weekly_report/view.html",
+      "original_size": 8257,
+      "optimized_size": 3792,
+      "space_saved": 4465
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/system_admin/sync_check.html",
+      "original_size": 11633,
+      "optimized_size": 6407,
+      "space_saved": 5226
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/kaizen_monitor/audit_results.html",
+      "original_size": 10475,
+      "optimized_size": 6955,
+      "space_saved": 3520
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/kaizen_admin/admin_actions.html",
+      "original_size": 9985,
+      "optimized_size": 5118,
+      "space_saved": 4867
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/kaizen_admin/sync_history.html",
+      "original_size": 6444,
+      "optimized_size": 3419,
+      "space_saved": 3025
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/kaizen_admin/templates.html",
+      "original_size": 15943,
+      "optimized_size": 8335,
+      "space_saved": 7608
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/kaizen_admin/integrity_check.html",
+      "original_size": 13892,
+      "optimized_size": 5897,
+      "space_saved": 7995
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/kaizen_admin/history_entry.html",
+      "original_size": 5337,
+      "optimized_size": 3015,
+      "space_saved": 2322
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/auto_attendance/view_report.html",
+      "original_size": 8481,
+      "optimized_size": 3521,
+      "space_saved": 4960
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/includes/navigation.html",
+      "original_size": 2743,
+      "optimized_size": 2028,
+      "space_saved": 715
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/daily_attendance/upload.html",
+      "original_size": 32388,
+      "optimized_size": 21348,
+      "space_saved": 11040
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/file_organizer/report.html",
+      "original_size": 6209,
+      "optimized_size": 3733,
+      "space_saved": 2476
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/driver_asset_manager/upload.html",
+      "original_size": 4109,
+      "optimized_size": 2566,
+      "space_saved": 1543
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/driver_attendance/daily.html",
+      "original_size": 9902,
+      "optimized_size": 5555,
+      "space_saved": 4347
+    },
+    {
+      "type": "code_optimization",
+      "file": "templates_backup_20250527_170301/driver_attendance/upload.html",
+      "original_size": 14355,
+      "optimized_size": 8461,
+      "space_saved": 5894
+    },
+    {
+      "type": "code_optimization",
+      "file": "modules/security/pe_zone_assignment.json",
+      "original_size": 2739,
+      "optimized_size": 1886,
+      "space_saved": 853
+    },
+    {
+      "type": "code_optimization",
+      "file": "gw replacement/admin_embed_snippet.html",
+      "original_size": 215,
+      "optimized_size": 207,
+      "space_saved": 8
+    },
+    {
+      "type": "code_optimization",
+      "file": "gw replacement/templates/attendance_workflow/dashboard.html",
+      "original_size": 331,
+      "optimized_size": 321,
+      "space_saved": 10
+    },
+    {
+      "type": "code_optimization",
+      "file": "traxora/goal_tracker.json",
+      "original_size": 159,
+      "optimized_size": 127,
+      "space_saved": 32
+    },
+    {
+      "type": "code_optimization",
+      "file": "traxora/prompt_dna.json",
+      "original_size": 3,
+      "optimized_size": 2,
+      "space_saved": 1
+    },
+    {
+      "type": "code_optimization",
+      "file": "traxora/session_audit.json",
+      "original_size": 3,
+      "optimized_size": 2,
+      "space_saved": 1
+    },
+    {
+      "type": "code_optimization",
+      "file": "1_UI_COMPONENTS/dashboard_tab_definitions.json",
+      "original_size": 314,
+      "optimized_size": 182,
+      "space_saved": 132
+    },
+    {
+      "type": "code_optimization",
+      "file": "4_QA_AUTOMATION/qa_metadata.json",
+      "original_size": 521,
+      "optimized_size": 343,
+      "space_saved": 178
+    },
+    {
+      "type": "code_optimization",
+      "file": "5_DATA/foundation_costs_metadata.json",
+      "original_size": 521,
+      "optimized_size": 376,
+      "space_saved": 145
+    },
+    {
+      "type": "code_optimization",
+      "file": "attached_assets/refresh_hook.js",
+      "original_size": 41,
+      "optimized_size": 0,
+      "space_saved": 41
+    },
+    {
+      "type": "code_optimization",
+      "file": "attached_assets/attendance.json",
+      "original_size": 523,
+      "optimized_size": 402,
+      "space_saved": 121
+    },
+    {
+      "type": "code_optimization",
+      "file": "attached_assets/fleet_assets.json",
+      "original_size": 377,
+      "optimized_size": 280,
+      "space_saved": 97
+    },
+    {
+      "type": "code_optimization",
+      "file": "attached_assets/map_assets.json",
+      "original_size": 495,
+      "optimized_size": 350,
+      "space_saved": 145
+    },
+    {
+      "type": "code_optimization",
+      "file": "attached_assets/meta/kaizen_parse_memory.json",
+      "original_size": 813,
+      "optimized_size": 606,
+      "space_saved": 207
+    },
+    {
+      "type": "code_optimization",
+      "file": "attached_assets/kaizen_gpt/data/map_assets.json",
+      "original_size": 495,
+      "optimized_size": 350,
+      "space_saved": 145
+    },
+    {
+      "type": "code_optimization",
+      "file": "attached_assets/kaizen_gpt/data/fleet_assets.json",
+      "original_size": 377,
+      "optimized_size": 280,
+      "space_saved": 97
+    },
+    {
+      "type": "code_optimization",
+      "file": "attached_assets/kaizen_gpt/data/attendance.json",
+      "original_size": 523,
+      "optimized_size": 402,
+      "space_saved": 121
+    },
+    {
+      "type": "code_optimization",
+      "file": "attached_assets/billing_patch/billing_chart.js",
+      "original_size": 1026,
+      "optimized_size": 760,
+      "space_saved": 266
+    },
+    {
+      "type": "code_optimization",
+      "file": "attached_assets/asset_module/asset_manager.html",
+      "original_size": 1116,
+      "optimized_size": 1078,
+      "space_saved": 38
+    },
+    {
+      "type": "code_optimization",
+      "file": "attached_assets/asset_module/asset_manager.js",
+      "original_size": 791,
+      "optimized_size": 676,
+      "space_saved": 115
+    },
+    {
+      "type": "code_optimization",
+      "file": "meta/kaizen_parse_memory.json",
+      "original_size": 813,
+      "optimized_size": 606,
+      "space_saved": 207
+    },
+    {
+      "type": "code_optimization",
+      "file": "meta/ui_theme_config.json",
+      "original_size": 27,
+      "optimized_size": 26,
+      "space_saved": 1
+    },
+    {
+      "type": "code_optimization",
+      "file": "reports/daily_operations_20250529_131934.json",
+      "original_size": 534,
+      "optimized_size": 403,
+      "space_saved": 131
+    },
+    {
+      "type": "code_optimization",
+      "file": "reports/daily_operations_20250529_132036.json",
+      "original_size": 534,
+      "optimized_size": 403,
+      "space_saved": 131
+    },
+    {
+      "type": "code_optimization",
+      "file": "reports/daily_operations_20250529_132037.json",
+      "original_size": 534,
+      "optimized_size": 403,
+      "space_saved": 131
+    },
+    {
+      "type": "code_optimization",
+      "file": "reports/daily_operations_20250529_140121.json",
+      "original_size": 534,
+      "optimized_size": 403,
+      "space_saved": 131
+    },
+    {
+      "type": "code_optimization",
+      "file": "reports/daily_operations_20250529_140130.json",
+      "original_size": 534,
+      "optimized_size": 403,
+      "space_saved": 131
+    },
+    {
+      "type": "code_optimization",
+      "file": "reports/daily_operations_20250529_142651.json",
+      "original_size": 534,
+      "optimized_size": 403,
+      "space_saved": 131
+    },
+    {
+      "type": "code_optimization",
+      "file": "reports/daily_operations_20250529_150943.json",
+      "original_size": 534,
+      "optimized_size": 403,
+      "space_saved": 131
+    },
+    {
+      "type": "code_optimization",
+      "file": "reports/daily_operations_20250529_152333.json",
+      "original_size": 534,
+      "optimized_size": 403,
+      "space_saved": 131
+    },
+    {
+      "type": "code_optimization",
+      "file": "reports/daily_operations_20250529_152436.json",
+      "original_size": 534,
+      "optimized_size": 403,
+      "space_saved": 131
+    },
+    {
+      "type": "code_optimization",
+      "file": "reports/daily_operations_20250529_152439.json",
+      "original_size": 534,
+      "optimized_size": 403,
+      "space_saved": 131
+    },
+    {
+      "type": "code_optimization",
+      "file": "reports/daily_operations_20250529_161134.json",
+      "original_size": 534,
+      "optimized_size": 403,
+      "space_saved": 131
+    },
+    {
+      "type": "code_optimization",
+      "file": "reports/daily_operations_20250529_161136.json",
+      "original_size": 534,
+      "optimized_size": 403,
+      "space_saved": 131
+    },
+    {
+      "type": "code_optimization",
+      "file": "data_cache/revenue_data.json",
+      "original_size": 138,
+      "optimized_size": 131,
+      "space_saved": 7
+    },
+    {
+      "type": "code_optimization",
+      "file": "data_cache/asset_count.json",
+      "original_size": 112,
+      "optimized_size": 105,
+      "space_saved": 7
+    },
+    {
+      "type": "code_optimization",
+      "file": "data_cache/processed_assets.json",
+      "original_size": 132,
+      "optimized_size": 123,
+      "space_saved": 9
+    },
+    {
+      "type": "code_optimization",
+      "file": "data_cache/dashboard_metrics.json",
+      "original_size": 108,
+      "optimized_size": 101,
+      "space_saved": 7
+    },
+    {
+      "type": "code_optimization",
+      "file": "data_cache/fleet_utilization_FleetUtilization (2).xlsx.json",
+      "original_size": 814,
+      "optimized_size": 760,
+      "space_saved": 54
+    },
+    {
+      "type": "code_optimization",
+      "file": "data_cache/fleet_utilization_FleetUtilization (3).xlsx.json",
+      "original_size": 1998,
+      "optimized_size": 1857,
+      "space_saved": 141
+    },
+    {
+      "type": "code_optimization",
+      "file": "data_cache/sequential_processing_results.json",
+      "original_size": 2083,
+      "optimized_size": 1514,
+      "space_saved": 569
+    },
+    {
+      "type": "code_optimization",
+      "file": "data_cache/76c1c7abc104fb41d4edba65c7a45f4b.json",
+      "original_size": 342,
+      "optimized_size": 323,
+      "space_saved": 19
+    },
+    {
+      "type": "code_optimization",
+      "file": "data_cache/accurate_asset_counts.json",
+      "original_size": 1940,
+      "optimized_size": 1511,
+      "space_saved": 429
+    },
+    {
+      "type": "code_optimization",
+      "file": "demo_data/consolidated_billing.json",
+      "original_size": 32237,
+      "optimized_size": 24703,
+      "space_saved": 7534
+    },
+    {
+      "type": "code_optimization",
+      "file": "workflow_templates/daily_attendance_processing.json",
+      "original_size": 1096,
+      "optimized_size": 711,
+      "space_saved": 385
+    },
+    {
+      "type": "code_optimization",
+      "file": "workflow_templates/equipment_utilization_analysis.json",
+      "original_size": 1132,
+      "optimized_size": 738,
+      "space_saved": 394
+    },
+    {
+      "type": "code_optimization",
+      "file": "dev_logs/watson_dev_log.json",
+      "original_size": 3294,
+      "optimized_size": 2143,
+      "space_saved": 1151
+    },
+    {
+      "type": "asset_compression",
+      "file": "static/images/traxora-logo.png",
+      "original_size": 1386897,
+      "space_saved": 416069
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748467648348.png",
+      "original_size": 1871256,
+      "space_saved": 561376
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8101.png",
+      "original_size": 2124665,
+      "space_saved": 637399
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8100.png",
+      "original_size": 3151253,
+      "space_saved": 945375
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8114.png",
+      "original_size": 1061558,
+      "space_saved": 318467
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8185.png",
+      "original_size": 1080141,
+      "space_saved": 324042
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8184.png",
+      "original_size": 1078257,
+      "space_saved": 323477
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8183.png",
+      "original_size": 1080323,
+      "space_saved": 324096
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8182.png",
+      "original_size": 1080055,
+      "space_saved": 324016
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748528384272.png",
+      "original_size": 2283315,
+      "space_saved": 684994
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748528400311.png",
+      "original_size": 2283735,
+      "space_saved": 685120
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748528414530.png",
+      "original_size": 3412135,
+      "space_saved": 1023640
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748528500302.png",
+      "original_size": 3633986,
+      "space_saved": 1090195
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748528601627.png",
+      "original_size": 3625415,
+      "space_saved": 1087624
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748528621222.png",
+      "original_size": 3606422,
+      "space_saved": 1081926
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748528628033.png",
+      "original_size": 3588030,
+      "space_saved": 1076409
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748528662069.png",
+      "original_size": 3473479,
+      "space_saved": 1042043
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748528663911.png",
+      "original_size": 3473479,
+      "space_saved": 1042043
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748528684449.png",
+      "original_size": 3259510,
+      "space_saved": 977853
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748528690601.png",
+      "original_size": 3271152,
+      "space_saved": 981345
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748528696137.png",
+      "original_size": 3261910,
+      "space_saved": 978573
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748528698271.png",
+      "original_size": 3261910,
+      "space_saved": 978573
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748528705815.png",
+      "original_size": 3264116,
+      "space_saved": 979234
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748528707830.png",
+      "original_size": 3264116,
+      "space_saved": 979234
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748528713749.png",
+      "original_size": 3262673,
+      "space_saved": 978801
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748528719507.png",
+      "original_size": 3259928,
+      "space_saved": 977978
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748528726438.png",
+      "original_size": 3262461,
+      "space_saved": 978738
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748528744971.png",
+      "original_size": 3328287,
+      "space_saved": 998486
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748532540140.png",
+      "original_size": 1108462,
+      "space_saved": 332538
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748533709846.png",
+      "original_size": 3411067,
+      "space_saved": 1023320
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8212.png",
+      "original_size": 1497091,
+      "space_saved": 449127
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748545988512.png",
+      "original_size": 3628812,
+      "space_saved": 1088643
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748546061818.png",
+      "original_size": 3628812,
+      "space_saved": 1088643
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748550180113.png",
+      "original_size": 1392511,
+      "space_saved": 417753
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748555599957.png",
+      "original_size": 1346807,
+      "space_saved": 404042
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748555866481.png",
+      "original_size": 3493506,
+      "space_saved": 1048051
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748555909597.png",
+      "original_size": 3493506,
+      "space_saved": 1048051
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8221.png",
+      "original_size": 1366532,
+      "space_saved": 409959
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8220.jpeg",
+      "original_size": 2825208,
+      "space_saved": 847562
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8263.png",
+      "original_size": 1236169,
+      "space_saved": 370850
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8261.png",
+      "original_size": 4398393,
+      "space_saved": 1319517
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8252.png",
+      "original_size": 2031687,
+      "space_saved": 609506
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8249.png",
+      "original_size": 2464728,
+      "space_saved": 739418
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748612724800.png",
+      "original_size": 1534552,
+      "space_saved": 460365
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748612973816.png",
+      "original_size": 1530109,
+      "space_saved": 459032
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748613814402.png",
+      "original_size": 1584349,
+      "space_saved": 475304
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748614236354.png",
+      "original_size": 2032893,
+      "space_saved": 609867
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748614320423.png",
+      "original_size": 1410291,
+      "space_saved": 423087
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/download.png",
+      "original_size": 1410291,
+      "space_saved": 423087
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748615933304.png",
+      "original_size": 2262635,
+      "space_saved": 678790
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748616089508.png",
+      "original_size": 2628162,
+      "space_saved": 788448
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748616117146.png",
+      "original_size": 3722723,
+      "space_saved": 1116816
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748616222401.png",
+      "original_size": 2454852,
+      "space_saved": 736455
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748617644451.png",
+      "original_size": 3422604,
+      "space_saved": 1026781
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748622190579.png",
+      "original_size": 2004092,
+      "space_saved": 601227
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/image_1748623373893.png",
+      "original_size": 1539749,
+      "space_saved": 461924
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8422.png",
+      "original_size": 1348415,
+      "space_saved": 404524
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8423.png",
+      "original_size": 1849862,
+      "space_saved": 554958
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8512.png",
+      "original_size": 1540431,
+      "space_saved": 462129
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8507.png",
+      "original_size": 1071990,
+      "space_saved": 321597
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8506.png",
+      "original_size": 1187680,
+      "space_saved": 356304
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8503.png",
+      "original_size": 1113540,
+      "space_saved": 334062
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8500.png",
+      "original_size": 1108286,
+      "space_saved": 332485
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8493.png",
+      "original_size": 1387827,
+      "space_saved": 416348
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8492.png",
+      "original_size": 1352837,
+      "space_saved": 405851
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8491.png",
+      "original_size": 1373153,
+      "space_saved": 411945
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8489.png",
+      "original_size": 1260329,
+      "space_saved": 378098
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8488.png",
+      "original_size": 1314215,
+      "space_saved": 394264
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8487.png",
+      "original_size": 1057432,
+      "space_saved": 317229
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8486.png",
+      "original_size": 1070240,
+      "space_saved": 321072
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8485.png",
+      "original_size": 1075289,
+      "space_saved": 322586
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8482.png",
+      "original_size": 1437527,
+      "space_saved": 431258
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8481.png",
+      "original_size": 1580103,
+      "space_saved": 474030
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8480.png",
+      "original_size": 1579375,
+      "space_saved": 473812
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8490.png",
+      "original_size": 2105793,
+      "space_saved": 631737
+    },
+    {
+      "type": "asset_compression",
+      "file": "attached_assets/IMG_8530.png",
+      "original_size": 1107081,
+      "space_saved": 332124
+    }
+  ],
+  "end_time": "2025-05-31 19:51:01.692681",
+  "duration": 5.842708
+}

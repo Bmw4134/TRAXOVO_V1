@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}MTD Reports Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4"><div class="row mb-4"><div class="col-12"><div class="card"><div class="card-header bg-primary text-white"><h2 class="mb-0">Month-to-Date Reports Dashboard</h2></div><div class="card-body"><p class="lead">
+This module is specifically designed to handle large Month-to-Date (MTD) files by processing them in chunks.
+</p><p>
+The processing occurs in memory-efficient stages and can handle very large files that the standard
+processor cannot manage.
+</p><div class="text-center mt-4"><a href="{{ url_for('mtd_reports.upload_files') }}" class="btn btn-primary btn-lg me-2"><i class="fa fa-upload"></i> Upload MTD Files
+</a><a href="{{ url_for('mtd_reports.list_reports') }}" class="btn btn-success btn-lg"><i class="fa fa-list"></i> View Reports
+</a></div></div><div class="card-footer"><small class="text-muted">* Optimized for large file processing</small></div></div></div></div><div class="row mb-4"><div class="col-md-4 mb-3"><div class="card h-100"><div class="card-body"><h5 class="card-title"><i class="fa fa-file-excel"></i> Large File Support</h5><p class="card-text">Process MTD files of any size without memory issues or timeouts.</p></div></div></div><div class="col-md-4 mb-3"><div class="card h-100"><div class="card-body"><h5 class="card-title"><i class="fa fa-calendar-alt"></i> Date Filtering</h5><p class="card-text">Automatically extract records for your target date from month-long data files.</p></div></div></div><div class="col-md-4 mb-3"><div class="card h-100"><div class="card-body"><h5 class="card-title"><i class="fa fa-chart-bar"></i> Statistical Analysis</h5><p class="card-text">Generate attendance summary statistics with counts and percentages.</p></div></div></div></div></div>
+{% endblock %}

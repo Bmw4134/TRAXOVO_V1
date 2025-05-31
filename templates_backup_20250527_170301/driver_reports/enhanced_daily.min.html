@@ -1,0 +1,364 @@
+{% extends "base.html" %}
+
+{% block title %}Enhanced Daily Driver Report{% endblock %}
+
+{% block extra_css %}
+<style>
+.driver-metrics-card {
+transition: transform 0.2s, box-shadow 0.2s;
+border-radius: 8px;
+overflow: hidden;
+}
+
+.driver-metrics-card:hover {
+transform: translateY(-5px);
+box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+}
+
+.metrics-header {
+padding: 15px;
+border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.metrics-body {
+padding: 20px;
+}
+
+.metrics-value {
+font-size: 2.5rem;
+font-weight: 700;
+line-height: 1;
+}
+
+.metrics-label {
+font-size: 0.9rem;
+color: #777;
+text-transform: uppercase;
+}
+
+.metrics-change {
+font-size: 0.8rem;
+padding: 3px 8px;
+border-radius: 20px;
+margin-left: 5px;
+}
+
+.time-chart-container {
+height: 250px;
+position: relative;
+}
+
+.driver-activity-item {
+padding: 10px 15px;
+border-left: 3px solid transparent;
+transition: background-color 0.2s, border-left-color 0.2s;
+}
+
+.driver-activity-item:hover {
+background-color: rgba(0,0,0,0.03);
+border-left-color: #4e73df;
+}
+
+.late-start {
+border-left-color: #e74a3b;
+}
+
+.early-end {
+border-left-color: #f6c23e;
+}
+
+.not-on-job {
+border-left-color: #858796;
+}
+
+.on-time {
+border-left-color: #1cc88a;
+}
+
+.activity-icon {
+width: 36px;
+height: 36px;
+border-radius: 50%;
+display: flex;
+justify-content: center;
+align-items: center;
+margin-right: 15px;
+}
+
+.icon-late {
+background-color: rgba(231, 74, 59, 0.1);
+color: #e74a3b;
+}
+
+.icon-early {
+background-color: rgba(246, 194, 62, 0.1);
+color: #f6c23e;
+}
+
+.icon-not-on-job {
+background-color: rgba(133, 135, 150, 0.1);
+color: #858796;
+}
+
+.icon-on-time {
+background-color: rgba(28, 200, 138, 0.1);
+color: #1cc88a;
+}
+
+.site-map {
+height: 300px;
+border-radius: 8px;
+}
+
+.attendance-trend {
+height: 250px;
+}
+
+.filters-bar {
+background-color: #f8f9fc;
+border-radius: 8px;
+padding: 15px;
+margin-bottom: 20px;
+}
+
+.select2-container--bootstrap5 .select2-selection {
+border-radius: 8px;
+}
+
+.job-tag {
+display: inline-block;
+padding: 2px 8px;
+border-radius: 4px;
+font-size: 0.75rem;
+margin-right: 5px;
+font-weight: 600;
+}
+
+.job-site-efficiency {
+height: 300px;
+}
+
+.sparkline {
+display: inline-block;
+height: 30px;
+width: 100px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4"><div class="d-sm-flex align-items-center justify-content-between mb-4"><h1 class="h3 mb-0">Enhanced Daily Driver Report</h1><div><span class="text-muted me-3">{{ report_date }}</span><div class="btn-group" role="group"><button type="button" class="btn btn-sm btn-outline-primary"><i class="bi bi-download"></i> Download PDF
+</button><button type="button" class="btn btn-sm btn-outline-primary"><i class="bi bi-envelope"></i> Email Report
+</button></div></div></div><div class="filters-bar mb-4"><div class="row"><div class="col-md-3 mb-2 mb-md-0"><select class="form-select" id="driverFilter"><option value="all">All Drivers</option><option value="late">Late Start Drivers</option><option value="early">Early End Drivers</option><option value="not-on-job">Not On Job Drivers</option></select></div><div class="col-md-3 mb-2 mb-md-0"><select class="form-select" id="jobSiteFilter"><option value="all">All Job Sites</option><option value="2023-032">2023-032 Highway 83</option><option value="2023-034">2023-034 River Crossing</option><option value="2024-016">2024-016 Commercial Plaza</option><option value="2024-019">2024-019 Matagorda Drainage</option><option value="2024-025">2024-025 Water Treatment</option></select></div><div class="col-md-3 mb-2 mb-md-0"><div class="input-group"><span class="input-group-text"><i class="bi bi-calendar"></i></span><input type="date" class="form-control" id="dateFilter" value="{{ today_date }}"></div></div><div class="col-md-3 d-grid"><button class="btn btn-primary" id="applyFilters"><i class="bi bi-funnel"></i> Apply Filters
+</button></div></div></div><div class="row mb-4"><div class="col-xl-3 col-md-6 mb-4"><div class="card driver-metrics-card h-100 border-left-danger"><div class="metrics-header bg-danger text-white"><div class="d-flex justify-content-between align-items-center"><h6 class="m-0 font-weight-bold">Late Starts</h6><i class="bi bi-clock-history"></i></div></div><div class="metrics-body"><div class="row align-items-center"><div class="col-auto"><div class="metrics-value text-danger">{{ late_starts|default('7', true) }}</div><div class="metrics-label">Drivers</div></div><div class="col"><div class="d-flex justify-content-end"><span class="metrics-change bg-danger-subtle text-danger"><i class="bi bi-arrow-up-short"></i> 12%
+</span></div><canvas id="lateStartsSparkline" class="sparkline"></canvas></div></div></div></div></div><div class="col-xl-3 col-md-6 mb-4"><div class="card driver-metrics-card h-100 border-left-warning"><div class="metrics-header bg-warning text-dark"><div class="d-flex justify-content-between align-items-center"><h6 class="m-0 font-weight-bold">Early Ends</h6><i class="bi bi-clock"></i></div></div><div class="metrics-body"><div class="row align-items-center"><div class="col-auto"><div class="metrics-value text-warning">{{ early_ends|default('4', true) }}</div><div class="metrics-label">Drivers</div></div><div class="col"><div class="d-flex justify-content-end"><span class="metrics-change bg-warning-subtle text-warning"><i class="bi bi-arrow-down-short"></i> 8%
+</span></div><canvas id="earlyEndsSparkline" class="sparkline"></canvas></div></div></div></div></div><div class="col-xl-3 col-md-6 mb-4"><div class="card driver-metrics-card h-100 border-left-secondary"><div class="metrics-header bg-secondary text-white"><div class="d-flex justify-content-between align-items-center"><h6 class="m-0 font-weight-bold">Not On Job</h6><i class="bi bi-geo-alt"></i></div></div><div class="metrics-body"><div class="row align-items-center"><div class="col-auto"><div class="metrics-value text-secondary">{{ not_on_job|default('3', true) }}</div><div class="metrics-label">Drivers</div></div><div class="col"><div class="d-flex justify-content-end"><span class="metrics-change bg-secondary-subtle text-secondary"><i class="bi bi-arrow-right-short"></i> 0%
+</span></div><canvas id="notOnJobSparkline" class="sparkline"></canvas></div></div></div></div></div><div class="col-xl-3 col-md-6 mb-4"><div class="card driver-metrics-card h-100 border-left-success"><div class="metrics-header bg-success text-white"><div class="d-flex justify-content-between align-items-center"><h6 class="m-0 font-weight-bold">On Time</h6><i class="bi bi-check-circle"></i></div></div><div class="metrics-body"><div class="row align-items-center"><div class="col-auto"><div class="metrics-value text-success">{{ on_time|default('16', true) }}</div><div class="metrics-label">Drivers</div></div><div class="col"><div class="d-flex justify-content-end"><span class="metrics-change bg-success-subtle text-success"><i class="bi bi-arrow-up-short"></i> 5%
+</span></div><canvas id="onTimeSparkline" class="sparkline"></canvas></div></div></div></div></div></div><div class="row"><div class="col-xl-7"><div class="card shadow mb-4"><div class="card-header py-3 d-flex justify-content-between align-items-center"><h6 class="m-0 font-weight-bold text-primary">Driver Activity</h6><div class="dropdown"><button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+Sort By
+</button><ul class="dropdown-menu" aria-labelledby="sortDropdown"><li><a class="dropdown-item" href="#">Latest Activity</a></li><li><a class="dropdown-item" href="#">Driver Name</a></li><li><a class="dropdown-item" href="#">Status</a></li><li><a class="dropdown-item" href="#">Job Site</a></li></ul></div></div><div class="card-body p-0"><div class="list-group list-group-flush">
+{% for activity in driver_activities %}
+<div class="list-group-item driver-activity-item {{ activity.status_class }}"><div class="d-flex align-items-center"><div class="activity-icon icon-{{ activity.icon_class }}"><i class="bi {{ activity.icon }}"></i></div><div class="flex-grow-1"><div class="d-flex justify-content-between align-items-center"><h6 class="mb-0">{{ activity.driver_name }}</h6><span class="badge bg-{{ activity.badge_class }}">{{ activity.status }}</span></div><div class="text-muted small">{{ activity.details }}</div><div class="mt-1"><span class="job-tag" style="background-color: {{ activity.job_color }}; color: white;">{{ activity.job_number }}</span><small>{{ activity.timestamp }}</small></div></div></div></div>
+{% endfor %}
+</div></div><div class="card-footer"><nav aria-label="Page navigation"><ul class="pagination pagination-sm justify-content-center mb-0"><li class="page-item disabled"><a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a></li><li class="page-item active"><a class="page-link" href="#">1</a></li><li class="page-item"><a class="page-link" href="#">2</a></li><li class="page-item"><a class="page-link" href="#">3</a></li><li class="page-item"><a class="page-link" href="#">Next</a></li></ul></nav></div></div><div class="card shadow mb-4"><div class="card-header py-3"><h6 class="m-0 font-weight-bold text-primary">Driver & Job Site Locations</h6></div><div class="card-body"><div id="driverMap" class="site-map"></div><div class="row mt-3 text-center"><div class="col-md-3 col-6 mb-2"><div class="p-2 bg-danger-subtle text-danger rounded">
+{{ late_starts|default('7', true) }} Late Start
+</div></div><div class="col-md-3 col-6 mb-2"><div class="p-2 bg-warning-subtle text-warning rounded">
+{{ early_ends|default('4', true) }} Early End
+</div></div><div class="col-md-3 col-6 mb-2"><div class="p-2 bg-secondary-subtle text-secondary rounded">
+{{ not_on_job|default('3', true) }} Not On Job
+</div></div><div class="col-md-3 col-6 mb-2"><div class="p-2 bg-success-subtle text-success rounded">
+{{ on_time|default('16', true) }} On Time
+</div></div></div></div></div></div><div class="col-xl-5"><div class="card shadow mb-4"><div class="card-header py-3"><h6 class="m-0 font-weight-bold text-primary">Weekly Attendance Trend</h6></div><div class="card-body"><canvas id="attendanceTrend" class="attendance-trend"></canvas></div></div><div class="card shadow mb-4"><div class="card-header py-3"><h6 class="m-0 font-weight-bold text-primary">Job Site Efficiency</h6></div><div class="card-body"><canvas id="jobSiteEfficiency" class="job-site-efficiency"></canvas></div><div class="card-footer bg-light"><div class="d-flex justify-content-between align-items-center"><div><i class="bi bi-info-circle text-primary"></i><small class="text-muted">Efficiency = On-time drivers / Total assigned drivers</small></div><button class="btn btn-sm btn-outline-primary"><i class="bi bi-download"></i> Export Data
+</button></div></div></div></div></div></div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script><script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script><script>
+document.addEventListener('DOMContentLoaded', function() {
+// Initialize sparkline charts
+function createSparkline(elementId, data, color) {
+var ctx = document.getElementById(elementId).getContext('2d');
+return new Chart(ctx, {
+type: 'line',
+data: {
+labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+datasets: [{
+data: data,
+borderColor: color,
+backgroundColor: color + '20',
+tension: 0.4,
+borderWidth: 2,
+pointRadius: 0,
+fill: true
+}]
+},
+options: {
+responsive: true,
+plugins: {
+legend: {
+display: false
+},
+tooltip: {
+enabled: false
+}
+},
+scales: {
+x: {
+display: false
+},
+y: {
+display: false
+}
+},
+maintainAspectRatio: false
+}
+});
+}
+
+// Create sparklines for all metrics
+createSparkline('lateStartsSparkline', [5, 8, 6, 9, 6, 4, 7], '#e74a3b');
+createSparkline('earlyEndsSparkline', [6, 5, 3, 7, 5, 6, 4], '#f6c23e');
+createSparkline('notOnJobSparkline', [3, 2, 4, 2, 5, 3, 3], '#858796');
+createSparkline('onTimeSparkline', [14, 15, 17, 12, 16, 19, 16], '#1cc88a');
+
+// Initialize driver map
+var map = L.map('driverMap').setView([32.7767, -96.7970], 10);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+
+// Add job site markers
+var jobSites = [
+{name: 'Highway 83 Expansion', number: '2023-032', lat: 32.7516, lng: -96.8339, drivers: 7},
+{name: 'River Crossing Bridge', number: '2023-034', lat: 32.7641, lng: -96.7596, drivers: 5},
+{name: 'Commercial Plaza', number: '2024-016', lat: 32.8075, lng: -96.8148, drivers: 6},
+{name: 'Matagorda Drainage', number: '2024-019', lat: 32.7865, lng: -96.7986, drivers: 8},
+{name: 'Water Treatment Plant', number: '2024-025', lat: 32.7972, lng: -96.8192, drivers: 4}
+];
+
+// Create job site markers with popup information
+jobSites.forEach(function(site) {
+var marker = L.marker([site.lat, site.lng]).addTo(map);
+marker.bindPopup(`
+<strong>${site.name}</strong><br>
+Job #: ${site.number}<br>
+Drivers: ${site.drivers}<br><a href="#" class="text-primary">View Details</a>
+`);
+});
+
+// Create the weekly attendance trend chart
+var attendanceTrendCtx = document.getElementById('attendanceTrend').getContext('2d');
+var attendanceTrendChart = new Chart(attendanceTrendCtx, {
+type: 'line',
+data: {
+labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+datasets: [
+{
+label: 'Late Starts',
+data: [5, 8, 6, 9, 6, 4, 7],
+borderColor: '#e74a3b',
+backgroundColor: 'rgba(231, 74, 59, 0.1)',
+borderWidth: 2,
+tension: 0.4,
+fill: true
+},
+{
+label: 'Early Ends',
+data: [6, 5, 3, 7, 5, 6, 4],
+borderColor: '#f6c23e',
+backgroundColor: 'rgba(246, 194, 62, 0.1)',
+borderWidth: 2,
+tension: 0.4,
+fill: true
+},
+{
+label: 'Not On Job',
+data: [3, 2, 4, 2, 5, 3, 3],
+borderColor: '#858796',
+backgroundColor: 'rgba(133, 135, 150, 0.1)',
+borderWidth: 2,
+tension: 0.4,
+fill: true
+}
+]
+},
+options: {
+responsive: true,
+plugins: {
+legend: {
+position: 'top',
+},
+tooltip: {
+mode: 'index',
+intersect: false,
+}
+},
+scales: {
+y: {
+beginAtZero: true,
+title: {
+display: true,
+text: 'Number of Drivers'
+}
+}
+},
+interaction: {
+mode: 'nearest',
+axis: 'x',
+intersect: false
+}
+}
+});
+
+// Create the job site efficiency chart
+var jobSiteEfficiencyCtx = document.getElementById('jobSiteEfficiency').getContext('2d');
+var jobSiteEfficiencyChart = new Chart(jobSiteEfficiencyCtx, {
+type: 'bar',
+data: {
+labels: ['2023-032', '2023-034', '2024-016', '2024-019', '2024-025'],
+datasets: [
+{
+label: 'Efficiency',
+data: [72, 85, 67, 79, 91],
+backgroundColor: [
+'#4e73df',
+'#1cc88a',
+'#36b9cc',
+'#f6c23e',
+'#e74a3b'
+],
+borderWidth: 0
+}
+]
+},
+options: {
+indexAxis: 'y',
+responsive: true,
+plugins: {
+legend: {
+display: false
+},
+tooltip: {
+callbacks: {
+label: function(context) {
+return context.raw + '% Efficiency';
+}
+}
+}
+},
+scales: {
+x: {
+beginAtZero: true,
+max: 100,
+title: {
+display: true,
+text: 'Efficiency (%)'
+}
+}
+}
+}
+});
+});
+</script>
+{% endblock %}

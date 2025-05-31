@@ -1,0 +1,266 @@
+{% extends "base.html" %}
+
+{% block title %}Asset Map | TRAXORA{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="anonymous"><style>
+#map-container {
+height: 70vh;
+width: 100%;
+border-radius: 8px;
+margin-bottom: 20px;
+box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.asset-marker {
+cursor: pointer;
+}
+.asset-marker.active {
+color: #28a745;
+z-index: 1000;
+}
+.asset-marker.disposed {
+color: #6c757d;
+opacity: 0.7;
+}
+.asset-popup {
+padding: 10px;
+}
+.asset-popup h5 {
+margin-top: 0;
+margin-bottom: 10px;
+font-weight: 600;
+}
+.asset-popup p {
+margin-bottom: 5px;
+}
+.filter-controls {
+margin-bottom: 15px;
+}
+.status-badge {
+display: inline-block;
+padding: 0.25em 0.6em;
+border-radius: 0.25rem;
+font-size: 0.85rem;
+font-weight: 500;
+line-height: 1;
+}
+.status-active {
+background-color: #28a745;
+color: white;
+}
+.status-disposed {
+background-color: #6c757d;
+color: white;
+}
+.status-unknown {
+background-color: #ffc107;
+color: #212529;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container pt-4"><h1 class="mb-4">Asset Map Dashboard</h1><div class="row"><div class="col-md-9"><div class="card mb-4"><div class="card-header"><div class="d-flex justify-content-between align-items-center"><h5 class="mb-0">Equipment Location Map</h5><div><input type="date" id="date-picker" class="form-control form-control-sm" value="{{ date }}"></div></div></div><div class="card-body p-0"><div id="map-container"></div></div></div></div><div class="col-md-3"><div class="card mb-4"><div class="card-header"><h5 class="mb-0">Filters</h5></div><div class="card-body"><div class="filter-controls"><div class="form-group"><label for="division-filter">Division:</label><select id="division-filter" class="form-control"><option value="all">All Divisions</option><option value="Houston">Houston</option><option value="DFW">DFW</option><option value="West Texas">West Texas</option></select></div><div class="form-check mt-3"><input class="form-check-input" type="checkbox" id="show-disposed" checked><label class="form-check-label" for="show-disposed">
+Show Disposed Assets
+</label></div></div><div class="asset-summary mt-4"><h6>Asset Summary</h6><div id="asset-count" class="text-center py-3"><div class="spinner-border spinner-border-sm" role="status"><span class="sr-only">Loading...</span></div><p class="mb-0 mt-2">Loading asset data...</p></div></div></div></div><div class="card"><div class="card-header"><h5 class="mb-0">Legend</h5></div><div class="card-body"><div class="d-flex align-items-center mb-2"><span class="status-badge status-active mr-2">Active</span><span class="ml-2">Equipment currently in use</span></div><div class="d-flex align-items-center mb-2"><span class="status-badge status-disposed mr-2">Disposed</span><span class="ml-2">Equipment no longer in service</span></div><div class="d-flex align-items-center"><span class="status-badge status-unknown mr-2">Unknown</span><span class="ml-2">Status could not be determined</span></div></div></div></div></div></div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin="anonymous"></script><script>
+document.addEventListener('DOMContentLoaded', function() {
+// Initialize map
+const map = L.map('map-container').setView([32.7767, -96.7970], 9); // Dallas area
+
+// Add tile layer (MapBox with better resolution)
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+maxZoom: 19,
+tileSize: 512,
+zoomOffset: -1
+}).addTo(map);
+
+// Asset markers layer groups by status
+const activeMarkersLayer = L.layerGroup().addTo(map);
+const disposedMarkersLayer = L.layerGroup().addTo(map);
+
+// Create custom icon based on asset type
+function createAssetIcon(assetType, status) {
+// Default values
+let iconUrl = '/static/img/truck-icon.svg';
+let iconSize = [32, 32];
+
+// Set icon based on asset type
+if (assetType && typeof assetType === 'string') {
+const type = assetType.toLowerCase();
+if (type.includes('truck') || type.includes('pickup')) {
+iconUrl = '/static/img/truck-icon.svg';
+} else if (type.includes('excavator') || type.includes('backhoe')) {
+iconUrl = '/static/img/excavator-icon.svg';
+} else if (type.includes('loader')) {
+iconUrl = '/static/img/loader-icon.svg';
+} else if (type.includes('dozer')) {
+iconUrl = '/static/img/dozer-icon.svg';
+}
+}
+
+// Create icon with opacity based on status
+return L.icon({
+iconUrl: iconUrl,
+iconSize: iconSize,
+iconAnchor: [iconSize[0] / 2, iconSize[1] / 2],
+popupAnchor: [0, -iconSize[1] / 2],
+className: `asset-marker ${status || 'active'}`
+});
+}
+
+// Asset counts for summary
+let assetCounts = {
+total: 0,
+active: 0,
+disposed: 0,
+byDivision: {}
+};
+
+// Load asset data
+function loadAssetData(date) {
+// Reset counts
+assetCounts = {
+total: 0,
+active: 0,
+disposed: 0,
+byDivision: {}
+};
+
+// Clear existing markers
+activeMarkersLayer.clearLayers();
+disposedMarkersLayer.clearLayers();
+
+// Show loading state
+document.getElementById('asset-count').innerHTML = `
+<div class="spinner-border spinner-border-sm" role="status"><span class="sr-only">Loading...</span></div><p class="mb-0 mt-2">Loading asset data...</p>
+`;
+
+fetch(`/asset-map/api/assets?date=${date}`)
+.then(response => response.json())
+.then(data => {
+// Update total count
+assetCounts.total = data.length;
+
+// Add markers for each asset
+data.forEach(asset => {
+if (!asset.latitude || !asset.longitude) return;
+
+// Update counts
+if (asset.status === 'disposed') {
+assetCounts.disposed++;
+} else {
+assetCounts.active++;
+}
+
+// Track by division
+const division = asset.division || 'Unknown';
+if (!assetCounts.byDivision[division]) {
+assetCounts.byDivision[division] = 0;
+}
+assetCounts.byDivision[division]++;
+
+// Create marker with custom icon
+const marker = L.marker(
+[parseFloat(asset.latitude), parseFloat(asset.longitude)],
+{
+title: asset.asset_id,
+alt: asset.asset_id,
+icon: createAssetIcon(asset.type, asset.status)
+}
+);
+
+// Determine asset type display
+const assetType = asset.type || 'Equipment';
+
+// Create popup content
+const popupContent = `
+<div class="asset-popup"><h5>${asset.asset_id}</h5><p><strong>Type:</strong> ${assetType}</p><p><strong>Status:</strong><span class="status-badge status-${asset.status || 'unknown'}">${asset.status || 'Unknown'}</span></p><p><strong>Driver:</strong> ${asset.driver_id || 'None'}</p><p><strong>Location:</strong> ${asset.location || 'Unknown'}</p><p><strong>Division:</strong> ${division}</p><p><strong>Source:</strong> ${asset.location_source || 'Unknown'}</p><p class="text-muted small">Last updated: ${new Date(asset.last_updated).toLocaleString()}</p><button class="btn btn-sm btn-primary mt-2" onclick="window.location.href='/asset-map/detail/${asset.asset_id}'">View Details</button></div>
+`;
+
+// Add popup to marker
+marker.bindPopup(popupContent);
+
+// Add marker to appropriate layer
+if (asset.status === 'disposed') {
+disposedMarkersLayer.addLayer(marker);
+} else {
+activeMarkersLayer.addLayer(marker);
+}
+});
+
+// Update asset count display
+updateAssetCountDisplay();
+
+// Fit map to markers if we have any
+const allLayers = L.layerGroup([activeMarkersLayer, disposedMarkersLayer]);
+if (allLayers.getLayers().length > 0) {
+const bounds = L.featureGroup(allLayers.getLayers()).getBounds();
+map.fitBounds(bounds, { padding: [50, 50] });
+}
+
+// Apply filters
+applyFilters();
+})
+.catch(error => {
+console.error('Error loading asset data:', error);
+document.getElementById('asset-count').innerHTML = `
+<div class="text-danger">Error</div><p class="text-muted mb-0">Could not load asset data</p>
+`;
+});
+}
+
+// Update asset count display
+function updateAssetCountDisplay() {
+const countHtml = `
+<div class="h3 mb-0">${assetCounts.total}</div><p class="text-muted mb-0">Total Assets</p><div class="row mt-3"><div class="col-6"><div class="text-success font-weight-bold">${assetCounts.active}</div><p class="text-muted small mb-0">Active</p></div><div class="col-6"><div class="text-secondary font-weight-bold">${assetCounts.disposed}</div><p class="text-muted small mb-0">Disposed</p></div></div>
+`;
+document.getElementById('asset-count').innerHTML = countHtml;
+}
+
+// Apply filters to map layers
+function applyFilters() {
+const division = document.getElementById('division-filter').value;
+const showDisposed = document.getElementById('show-disposed').checked;
+
+// Always show/hide disposed assets based on checkbox
+if (showDisposed) {
+map.addLayer(disposedMarkersLayer);
+} else {
+map.removeLayer(disposedMarkersLayer);
+}
+
+// Filter by division if needed
+if (division !== 'all') {
+// We would implement filtering by division here
+// For this to work fully we would need to add division info to the assets API
+}
+}
+
+// Initialize with current date
+const datePicker = document.getElementById('date-picker');
+loadAssetData(datePicker.value);
+
+// Update on date change
+datePicker.addEventListener('change', function() {
+loadAssetData(this.value);
+});
+
+// Filter by division
+document.getElementById('division-filter').addEventListener('change', function() {
+applyFilters();
+});
+
+// Toggle disposed assets
+document.getElementById('show-disposed').addEventListener('change', function() {
+applyFilters();
+});
+});
+</script>
+{% endblock %}

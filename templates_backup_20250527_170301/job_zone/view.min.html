@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+
+{% block title %}{{ job_zone.name }} - TRAXORA{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4"><div class="row mb-4"><div class="col-md-8"><h1>{{ job_zone.name }}</h1><p class="text-muted">{{ job_zone.description }}</p></div><div class="col-md-4 text-end"><a href="{{ url_for('job_zone.index') }}" class="btn btn-secondary"><i class="bi bi-arrow-left me-2"></i> Back to Job Zones
+</a><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editZoneModal"><i class="bi bi-pencil me-2"></i> Edit Zone
+</button></div></div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category, message in messages %}
+<div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+{{ message }}
+<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+<div class="row"><div class="col-md-4"><div class="card mb-4"><div class="card-header bg-primary text-white"><h5 class="mb-0">Zone Details</h5></div><div class="card-body"><div class="mb-3"><strong>Job Site:</strong> {{ job_zone.job_site.name }}
+</div><div class="mb-3"><strong>Zone Type:</strong> {{ job_zone.zone_type|title }}
+</div><div class="mb-3"><strong>Priority:</strong> {{ job_zone.priority }}
+</div><div class="mb-3"><strong>Coordinates:</strong><br><small>
+Latitude: {{ job_zone.latitude_min }} to {{ job_zone.latitude_max }}<br>
+Longitude: {{ job_zone.longitude_min }} to {{ job_zone.longitude_max }}
+</small></div></div></div></div><div class="col-md-8"><div class="card mb-4"><div class="card-header bg-primary text-white d-flex justify-content-between align-items-center"><h5 class="mb-0">Working Hours</h5><button class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#addOverrideModal"><i class="bi bi-calendar-plus me-1"></i> Add Override
+</button></div><div class="card-body p-0"><div class="table-responsive"><table class="table table-hover mb-0"><thead><tr><th>Day</th><th>Working Hours</th><th>Breaks</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+{% for day_index in range(7) %}
+<tr><td>{{ days_of_week[day_index] }}</td>
+{% if day_index in working_hours %}
+{% set hours = working_hours[day_index] %}
+<td>
+{% if hours.is_working_day %}
+{{ hours.start_time.strftime('%H:%M') }} - {{ hours.end_time.strftime('%H:%M') }}
+{% else %}
+--
+{% endif %}
+</td><td>
+{% if hours.is_working_day %}
+{% if hours.lunch_start and hours.lunch_end %}
+Lunch: {{ hours.lunch_start.strftime('%H:%M') }} - {{ hours.lunch_end.strftime('%H:%M') }}<br>
+{% endif %}
+{% if hours.break_start and hours.break_end %}
+Break: {{ hours.break_start.strftime('%H:%M') }} - {{ hours.break_end.strftime('%H:%M') }}
+{% endif %}
+{% else %}
+--
+{% endif %}
+</td><td>
+{% if hours.is_working_day %}
+<span class="badge bg-success">Working Day</span>
+{% else %}
+<span class="badge bg-secondary">Non-Working Day</span>
+{% endif %}
+</td>
+{% else %}
+<td>--</td><td>--</td><td><span class="badge bg-danger">Not Configured</span></td>
+{% endif %}
+<td><button class="btn btn-sm btn-primary"
+onclick="editWorkingHours({{ day_index }})"
+data-bs-toggle="modal"
+data-bs-target="#editHoursModal"><i class="bi bi-pencil"></i> Edit
+</button></td></tr>
+{% endfor %}
+</tbody></table></div></div></div><div class="card mb-4"><div class="card-header bg-info text-white"><h5 class="mb-0">Upcoming Overrides</h5></div><div class="card-body p-0"><div class="table-responsive"><table class="table table-hover mb-0"><thead><tr><th>Date</th><th>Working Hours</th><th>Breaks</th><th>Status</th></tr></thead><tbody>
+{% if overrides %}
+{% for override in overrides %}
+<tr><td>{{ override.date.strftime('%Y-%m-%d') }}</td><td>
+{% if override.is_working_day %}
+{{ override.start_time.strftime('%H:%M') }} - {{ override.end_time.strftime('%H:%M') }}
+{% else %}
+--
+{% endif %}
+</td><td>
+{% if override.is_working_day and override.lunch_start and override.lunch_end %}
+Lunch: {{ override.lunch_start.strftime('%H:%M') }} - {{ override.lunch_end.strftime('%H:%M') }}
+{% else %}
+--
+{% endif %}
+</td><td>
+{% if override.is_working_day %}
+<span class="badge bg-success">Working Day</span>
+{% else %}
+<span class="badge bg-secondary">Non-Working Day</span>
+{% endif %}
+</td></tr>
+{% endfor %}
+{% else %}
+<tr><td colspan="4" class="text-center py-3">No upcoming overrides</td></tr>
+{% endif %}
+</tbody></table></div></div></div></div></div><div class="row"><div class="col-md-12"><div class="card"><div class="card-header bg-primary text-white"><h5 class="mb-0">Recent Activity</h5></div><div class="card-body p-0"><div class="table-responsive"><table class="table table-hover mb-0"><thead><tr><th>Asset</th><th>Driver</th><th>Entry Time</th><th>Exit Time</th><th>Duration</th><th>Status</th></tr></thead><tbody>
+{% if activities %}
+{% for activity in activities %}
+<tr><td>{{ activity.asset.asset_identifier }}</td><td>
+{% if activity.driver %}
+{{ activity.driver.name }}
+{% else %}
+--
+{% endif %}
+</td><td>{{ activity.entry_time.strftime('%Y-%m-%d %H:%M') }}</td><td>
+{% if activity.exit_time %}
+{{ activity.exit_time.strftime('%Y-%m-%d %H:%M') }}
+{% else %}
+<span class="badge bg-warning">Active</span>
+{% endif %}
+</td><td>
+{% if activity.duration_minutes %}
+{{ activity.duration_minutes // 60 }}h {{ activity.duration_minutes % 60 }}m
+{% else %}
+--
+{% endif %}
+</td><td>
+{% if activity.is_within_working_hours %}
+<span class="badge bg-success">Working Hours</span>
+{% else %}
+<span class="badge bg-danger">Outside Hours</span>
+{% endif %}
+</td></tr>
+{% endfor %}
+{% else %}
+<tr><td colspan="6" class="text-center py-3">No recent activity</td></tr>
+{% endif %}
+</tbody></table></div></div></div></div></div></div><div class="modal fade" id="editZoneModal" tabindex="-1" aria-labelledby="editZoneModalLabel" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header bg-primary text-white"><h5 class="modal-title" id="editZoneModalLabel">Edit Job Zone</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><form action="{{ url_for('job_zone.update_job_zone', job_zone_id=job_zone.id) }}" method="POST"><div class="modal-body"><div class="row mb-3"><div class="col-md-6"><label for="name" class="form-label">Zone Name</label><input type="text" class="form-control" id="name" name="name" value="{{ job_zone.name }}" required></div><div class="col-md-6"><label for="zone_type" class="form-label">Zone Type</label><select class="form-select" id="zone_type" name="zone_type"><option value="work" {% if job_zone.zone_type == 'work' %}selected{% endif %}>Work Zone</option><option value="storage" {% if job_zone.zone_type == 'storage' %}selected{% endif %}>Storage Area</option><option value="maintenance" {% if job_zone.zone_type == 'maintenance' %}selected{% endif %}>Maintenance Area</option><option value="rest" {% if job_zone.zone_type == 'rest' %}selected{% endif %}>Rest Area</option></select></div></div><div class="mb-3"><label for="description" class="form-label">Description</label><textarea class="form-control" id="description" name="description" rows="2">{{ job_zone.description }}</textarea></div><div class="mb-3"><label for="priority" class="form-label">Priority</label><input type="number" class="form-control" id="priority" name="priority" value="{{ job_zone.priority }}" min="1" max="10"><small class="text-muted">Higher priority zones take precedence when overlapping</small></div><h5 class="mt-4 mb-3">Geofence Boundary</h5><div class="row"><div class="col-md-6"><div class="mb-3"><label for="latitude_min" class="form-label">Minimum Latitude</label><input type="number" class="form-control" id="latitude_min" name="latitude_min" step="0.0000001" value="{{ job_zone.latitude_min }}" required></div><div class="mb-3"><label for="latitude_max" class="form-label">Maximum Latitude</label><input type="number" class="form-control" id="latitude_max" name="latitude_max" step="0.0000001" value="{{ job_zone.latitude_max }}" required></div></div><div class="col-md-6"><div class="mb-3"><label for="longitude_min" class="form-label">Minimum Longitude</label><input type="number" class="form-control" id="longitude_min" name="longitude_min" step="0.0000001" value="{{ job_zone.longitude_min }}" required></div><div class="mb-3"><label for="longitude_max" class="form-label">Maximum Longitude</label><input type="number" class="form-control" id="longitude_max" name="longitude_max" step="0.0000001" value="{{ job_zone.longitude_max }}" required></div></div></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Save Changes</button></div></form></div></div></div><div class="modal fade" id="editHoursModal" tabindex="-1" aria-labelledby="editHoursModalLabel" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-primary text-white"><h5 class="modal-title" id="editHoursModalLabel">Edit Working Hours</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><form id="editHoursForm" method="POST"><input type="hidden" id="edit_day" name="edit_day" value=""><div class="modal-body"><div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox" id="is_working_day" name="is_working_day" checked><label class="form-check-label" for="is_working_day">Working Day</label></div><div class="working-hours-settings"><div class="row mb-3"><div class="col-md-6"><label for="start_time" class="form-label">Start Time</label><input type="time" class="form-control" id="start_time" name="start_time" value="08:00"></div><div class="col-md-6"><label for="end_time" class="form-label">End Time</label><input type="time" class="form-control" id="end_time" name="end_time" value="17:00"></div></div><div class="mb-3"><label class="form-label">Lunch Break</label><div class="row"><div class="col-md-6"><input type="time" class="form-control" id="lunch_start" name="lunch_start" placeholder="Start"></div><div class="col-md-6"><input type="time" class="form-control" id="lunch_end" name="lunch_end" placeholder="End"></div></div></div><div class="mb-3"><label class="form-label">Additional Break</label><div class="row"><div class="col-md-6"><input type="time" class="form-control" id="break_start" name="break_start" placeholder="Start"></div><div class="col-md-6"><input type="time" class="form-control" id="break_end" name="break_end" placeholder="End"></div></div></div></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Save Changes</button></div></form></div></div></div><div class="modal fade" id="addOverrideModal" tabindex="-1" aria-labelledby="addOverrideModalLabel" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-info text-white"><h5 class="modal-title" id="addOverrideModalLabel">Add Schedule Override</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><form action="{{ url_for('job_zone.add_override', job_zone_id=job_zone.id) }}" method="POST" id="overrideForm"><div class="modal-body"><div class="mb-3"><label for="override_date" class="form-label">Date</label><input type="date" class="form-control" id="override_date" name="override_date" required></div><div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox" id="override_is_working_day" name="is_working_day" checked><label class="form-check-label" for="override_is_working_day">Working Day</label></div><div class="override-working-hours-settings"><div class="row mb-3"><div class="col-md-6"><label for="override_start_time" class="form-label">Start Time</label><input type="time" class="form-control" id="override_start_time" name="start_time" value="08:00"></div><div class="col-md-6"><label for="override_end_time" class="form-label">End Time</label><input type="time" class="form-control" id="override_end_time" name="end_time" value="17:00"></div></div><div class="mb-3"><label class="form-label">Lunch Break</label><div class="row"><div class="col-md-6"><input type="time" class="form-control" id="override_lunch_start" name="lunch_start" placeholder="Start"></div><div class="col-md-6"><input type="time" class="form-control" id="override_lunch_end" name="lunch_end" placeholder="End"></div></div></div></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Add Override</button></div></form></div></div></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+// Working day switch functionality
+const workingDaySwitch = document.getElementById('is_working_day');
+const workingHoursSettings = document.querySelector('.working-hours-settings');
+
+workingDaySwitch.addEventListener('change', function() {
+workingHoursSettings.style.display = this.checked ? 'block' : 'none';
+});
+
+// Override working day switch functionality
+const overrideWorkingDaySwitch = document.getElementById('override_is_working_day');
+const overrideWorkingHoursSettings = document.querySelector('.override-working-hours-settings');
+
+overrideWorkingDaySwitch.addEventListener('change', function() {
+overrideWorkingHoursSettings.style.display = this.checked ? 'block' : 'none';
+});
+
+// Handle form submission with AJAX
+document.getElementById('editHoursForm').addEventListener('submit', function(e) {
+e.preventDefault();
+
+const day = document.getElementById('edit_day').value;
+const formData = new FormData(this);
+
+// Convert checkbox value to string
+formData.set('is_working_day', document.getElementById('is_working_day').checked ? 'true' : 'false');
+
+fetch(`/job_zone/{{ job_zone.id }}/hours/${day}`, {
+method: 'POST',
+body: formData
+})
+.then(response => response.json())
+.then(data => {
+if (data.success) {
+// Close modal and reload page
+const modal = bootstrap.Modal.getInstance(document.getElementById('editHoursModal'));
+modal.hide();
+window.location.reload();
+} else {
+alert('Error updating working hours: ' + data.error);
+}
+})
+.catch(error => {
+console.error('Error:', error);
+alert('Error updating working hours');
+});
+});
+
+// Handle override form submission with AJAX
+document.getElementById('overrideForm').addEventListener('submit', function(e) {
+e.preventDefault();
+
+const formData = new FormData(this);
+
+// Convert checkbox value to string
+formData.set('is_working_day', document.getElementById('override_is_working_day').checked ? 'true' : 'false');
+
+fetch(`/job_zone/{{ job_zone.id }}/override`, {
+method: 'POST',
+body: formData
+})
+.then(response => response.json())
+.then(data => {
+if (data.success) {
+// Close modal and reload page
+const modal = bootstrap.Modal.getInstance(document.getElementById('addOverrideModal'));
+modal.hide();
+window.location.reload();
+} else {
+alert('Error adding override: ' + data.error);
+}
+})
+.catch(error => {
+console.error('Error:', error);
+alert('Error adding override');
+});
+});
+});
+
+// Function to populate the edit hours modal
+function editWorkingHours(day) {
+document.getElementById('edit_day').value = day;
+document.getElementById('editHoursModalLabel').innerText = `Edit Working Hours - ${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][day]}`;
+
+// Here you would typically load the existing working hours
+// For simplicity, we're just setting default values
+const workingHours = {{ working_hours|tojson }};
+
+if (workingHours[day]) {
+const hours = workingHours[day];
+
+document.getElementById('is_working_day').checked = hours.is_working_day;
+
+if (hours.is_working_day) {
+document.getElementById('start_time').value = hours.start_time;
+document.getElementById('end_time').value = hours.end_time;
+
+if (hours.lunch_start && hours.lunch_end) {
+document.getElementById('lunch_start').value = hours.lunch_start;
+document.getElementById('lunch_end').value = hours.lunch_end;
+} else {
+document.getElementById('lunch_start').value = '';
+document.getElementById('lunch_end').value = '';
+}
+
+if (hours.break_start && hours.break_end) {
+document.getElementById('break_start').value = hours.break_start;
+document.getElementById('break_end').value = hours.break_end;
+} else {
+document.getElementById('break_start').value = '';
+document.getElementById('break_end').value = '';
+}
+}
+
+// Show/hide working hours settings based on is_working_day
+document.querySelector('.working-hours-settings').style.display = hours.is_working_day ? 'block' : 'none';
+}
+}
+</script>
+{% endblock %}

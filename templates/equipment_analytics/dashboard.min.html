@@ -1,0 +1,246 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Equipment Analytics - TRAXOVO</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/chart.js"></script></head><body class="bg-light"><nav class="navbar navbar-expand-lg navbar-dark bg-primary"><div class="container"><a class="navbar-brand" href="/"><i class="fas fa-chart-line me-2"></i>TRAXOVO Equipment Analytics
+</a><div class="navbar-nav ms-auto"><a class="nav-link" href="/" onclick="window.history.back()"><i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+</a></div></div></nav><div class="container mt-4"><div class="row mb-4"><div class="col-12"><div class="d-flex justify-content-between align-items-center"><h2><i class="fas fa-analytics me-2"></i>Equipment Analytics Dashboard</h2><div><button class="btn btn-outline-primary" onclick="refreshData()"><i class="fas fa-sync-alt me-1"></i>Refresh
+</button><button class="btn btn-success" onclick="exportData()"><i class="fas fa-download me-1"></i>Export
+</button></div></div></div></div>
+
+
+{% if utilization and 'summary' in utilization %}
+<div class="row mb-4"><div class="col-md-3"><div class="card bg-primary text-white"><div class="card-body text-center"><i class="fas fa-truck fa-2x mb-2"></i><h3>{{ utilization.summary.get('total_equipment', 0) }}</h3><p class="mb-0">Total Equipment</p></div></div></div><div class="col-md-3"><div class="card bg-success text-white"><div class="card-body text-center"><i class="fas fa-chart-line fa-2x mb-2"></i><h3>{{ "%.1f"|format(utilization.summary.get('utilization_rate', 0)) }}%</h3><p class="mb-0">Utilization Rate</p></div></div></div><div class="col-md-3"><div class="card bg-warning text-dark"><div class="card-body text-center"><i class="fas fa-clock fa-2x mb-2"></i><h3>{{ "{:,.0f}"|format(utilization.summary.get('total_hours', 0)) }}</h3><p class="mb-0">Total Hours</p></div></div></div><div class="col-md-3"><div class="card bg-info text-white"><div class="card-body text-center"><i class="fas fa-dollar-sign fa-2x mb-2"></i><h3>${{ "{:,.0f}"|format(utilization.summary.get('total_cost', 0)) }}</h3><p class="mb-0">Total Cost</p></div></div></div></div>
+{% endif %}
+
+
+<div class="row mb-4"><div class="col-md-6"><div class="card"><div class="card-header"><h5><i class="fas fa-chart-pie me-2"></i>Utilization Distribution</h5></div><div class="card-body"><canvas id="utilizationChart" width="400" height="200"></canvas></div></div></div><div class="col-md-6"><div class="card"><div class="card-header"><h5><i class="fas fa-chart-bar me-2"></i>Cost Efficiency</h5></div><div class="card-body"><canvas id="costChart" width="400" height="200"></canvas></div></div></div></div>
+
+
+{% if cost_efficiency and 'top_performers' in cost_efficiency %}
+<div class="row mb-4"><div class="col-md-6"><div class="card"><div class="card-header bg-success text-white"><h5><i class="fas fa-trophy me-2"></i>Top Performers (Cost Efficient)</h5></div><div class="card-body"><div class="table-responsive"><table class="table table-sm"><thead><tr><th>Equipment</th><th>Cost/Hour</th><th>Hours</th><th>Total Cost</th></tr></thead><tbody>
+{% for performer in cost_efficiency.top_performers[:5] %}
+<tr><td>{{ performer.equipment }}</td><td>${{ "%.2f"|format(performer.cost_per_hour) }}</td><td>{{ "%.0f"|format(performer.total_hours) }}</td><td>${{ "{:,.0f}"|format(performer.total_cost) }}</td></tr>
+{% endfor %}
+</tbody></table></div></div></div></div><div class="col-md-6"><div class="card"><div class="card-header bg-warning text-dark"><h5><i class="fas fa-exclamation-triangle me-2"></i>Review Needed (High Cost)</h5></div><div class="card-body"><div class="table-responsive"><table class="table table-sm"><thead><tr><th>Equipment</th><th>Cost/Hour</th><th>Hours</th><th>Total Cost</th></tr></thead><tbody>
+{% for performer in cost_efficiency.underperformers[:5] %}
+<tr><td>{{ performer.equipment }}</td><td class="text-danger">${{ "%.2f"|format(performer.cost_per_hour) }}</td><td>{{ "%.0f"|format(performer.total_hours) }}</td><td>${{ "{:,.0f}"|format(performer.total_cost) }}</td></tr>
+{% endfor %}
+</tbody></table></div></div></div></div></div>
+{% endif %}
+
+
+<div class="row mb-4"><div class="col-md-6"><div class="card"><div class="card-header bg-warning text-dark"><h5><i class="fas fa-wrench me-2"></i>Maintenance Analytics</h5></div><div class="card-body" id="maintenanceAnalytics"><div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div></div></div></div><div class="col-md-6"><div class="card"><div class="card-header"><h5><i class="fas fa-upload me-2"></i>Upload Equipment Data</h5></div><div class="card-body"><form action="{{ url_for('equipment_analytics.upload_equipment_data') }}" method="post" enctype="multipart/form-data"><div class="mb-3"><label class="form-label">Equipment Details Report</label><input type="file" class="form-control" name="file" accept=".xlsx,.xls" required><div class="form-text">Upload equipment detail history or asset reports</div></div><button type="submit" class="btn btn-primary"><i class="fas fa-cloud-upload-alt me-2"></i>Process Equipment Data
+</button></form></div></div></div><div class="col-md-6"><div class="card border-success"><div class="card-header bg-success text-white"><h5><i class="fas fa-chart-line me-2"></i>Fleet Utilization (Gauge)</h5></div><div class="card-body"><form action="{{ url_for('equipment_analytics.upload_fleet_utilization') }}" method="post" enctype="multipart/form-data"><div class="mb-3"><label class="form-label">Fleet Utilization Report</label><input type="file" class="form-control" name="file" accept=".xlsx,.xls" required><div class="form-text"><strong>Since Gauge Telematics Inception</strong><br>
+Upload FleetUtilization.xlsx from Gauge system
+</div></div><button type="submit" class="btn btn-success"><i class="fas fa-satellite-dish me-2"></i>Process Fleet Utilization
+</button></form>
+
+{% if session.get('fleet_utilization_data') %}
+<hr><div class="alert alert-success mb-0"><strong>✅ Fleet Utilization Data Loaded!</strong><br><a href="{{ url_for('equipment_analytics.fleet_utilization_details') }}" class="btn btn-sm btn-outline-success me-2"><i class="fas fa-chart-bar me-1"></i>View Details
+</a><a href="{{ url_for('equipment_analytics.export_fleet_utilization') }}" class="btn btn-sm btn-outline-success"><i class="fas fa-download me-1"></i>Export CSV
+</a></div>
+{% endif %}
+</div></div></div></div>
+
+
+{% if recommendations %}
+<div class="row mb-4"><div class="col-md-12 mb-4"><div class="card"><div class="card-header"><h5>Fleet Utilization Report</h5><button class="btn btn-sm btn-outline-primary" onclick="loadFleetUtilization()">Load Data</button></div><div class="card-body"><div id="fleet-utilization-content"><p class="text-muted">Click "Load Data" to view Fleet Utilization report data.</p></div></div></div></div><div class="col-md-12 mb-4"><div class="card"><div class="card-header bg-primary text-white"><h5><i class="fas fa-lightbulb me-2"></i>Optimization Recommendations</h5></div><div class="card-body">
+{% for rec in recommendations %}
+<div class="alert alert-{{ 'danger' if rec.priority == 'high' else 'warning' if rec.priority == 'medium' else 'info' }} d-flex align-items-start"><div class="me-3"><i class="fas fa-{{ 'exclamation-circle' if rec.priority == 'high' else 'exclamation-triangle' if rec.priority == 'medium' else 'info-circle' }} fa-lg"></i></div><div class="flex-grow-1"><h6 class="alert-heading">{{ rec.title }}</h6><p class="mb-1">{{ rec.description }}</p>
+{% if rec.get('potential_savings') %}
+<small class="text-muted"><strong>Potential Savings:</strong> {{ rec.potential_savings }}</small>
+{% endif %}
+{% if rec.get('equipment_list') %}
+<div class="mt-2"><small class="text-muted"><strong>Equipment:</strong> {{ rec.equipment_list|join(', ') }}</small></div>
+{% endif %}
+</div></div>
+{% endfor %}
+</div></div></div></div>
+{% endif %}
+
+
+<div class="row"><div class="col-12"><div class="card"><div class="card-header"><h5><i class="fas fa-database me-2"></i>Data Sources</h5></div><div class="card-body"><div class="row"><div class="col-md-2"><div class="text-center"><i class="fas fa-list fa-2x {{ 'text-success' if utilization else 'text-muted' }}"></i><p class="small mt-2">Equipment Master</p></div></div><div class="col-md-2"><div class="text-center"><i class="fas fa-clock fa-2x {{ 'text-success' if utilization else 'text-muted' }}"></i><p class="small mt-2">Usage Detail</p></div></div><div class="col-md-2"><div class="text-center"><i class="fas fa-dollar-sign fa-2x {{ 'text-success' if cost_efficiency else 'text-muted' }}"></i><p class="small mt-2">Cost Analysis</p></div></div><div class="col-md-2"><div class="text-center"><i class="fas fa-tags fa-2x text-muted"></i><p class="small mt-2">Categories</p></div></div><div class="col-md-2"><div class="text-center"><i class="fas fa-code fa-2x text-muted"></i><p class="small mt-2">Service Codes</p></div></div></div></div></div></div></div></div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script><script>
+// Initialize charts
+function initializeCharts() {
+// Utilization Chart
+const utilizationCtx = document.getElementById('utilizationChart').getContext('2d');
+{% if utilization and 'summary' in utilization %}
+const totalEquipment = {{ utilization.summary.get('total_equipment', 0) }};
+const activeEquipment = {{ utilization.summary.get('active_equipment_count', 0) }};
+const idleEquipment = totalEquipment - activeEquipment;
+
+new Chart(utilizationCtx, {
+type: 'doughnut',
+data: {
+labels: ['Active', 'Idle'],
+datasets: [{
+data: [activeEquipment, idleEquipment],
+backgroundColor: ['#28a745', '#dc3545']
+}]
+},
+options: {
+responsive: true,
+maintainAspectRatio: false
+}
+});
+{% endif %}
+
+// Cost Chart
+const costCtx = document.getElementById('costChart').getContext('2d');
+{% if cost_efficiency and 'efficiency_metrics' in cost_efficiency %}
+new Chart(costCtx, {
+type: 'bar',
+data: {
+labels: ['Average Cost/Hour', 'Median Cost/Hour'],
+datasets: [{
+label: 'Cost per Hour ($)',
+data: [
+{{ cost_efficiency.efficiency_metrics.get('average_cost_per_hour', 0) }},
+{{ cost_efficiency.efficiency_metrics.get('median_cost_per_hour', 0) }}
+],
+backgroundColor: ['#007bff', '#17a2b8']
+}]
+},
+options: {
+responsive: true,
+maintainAspectRatio: false,
+scales: {
+y: {
+beginAtZero: true
+}
+}
+}
+});
+{% endif %}
+}
+
+function refreshData() {
+location.reload();
+}
+
+function exportData() {
+fetch('/equipment-analytics/export')
+.then(response => response.json())
+.then(data => {
+if (data.success) {
+alert('Analytics data exported successfully!');
+} else {
+alert('Error exporting data: ' + data.error);
+}
+})
+.catch(error => {
+alert('Error: ' + error);
+});
+}
+
+// Load maintenance analytics
+function loadMaintenanceAnalytics() {
+fetch('/equipment-analytics/api/maintenance-analytics')
+.then(response => response.json())
+.then(data => {
+if (data.error) {
+document.getElementById('maintenanceAnalytics').innerHTML =
+'<div class="alert alert-warning">No maintenance data available</div>';
+return;
+}
+
+let html = '';
+if (data.maintenance_summary) {
+const summary = data.maintenance_summary;
+html = `
+<div class="row text-center"><div class="col-6"><h4>${summary.total_work_orders || 0}</h4><small class="text-muted">Work Orders</small></div><div class="col-6"><h4>${summary.unique_equipment || 0}</h4><small class="text-muted">Equipment Units</small></div></div><hr><div class="row text-center"><div class="col-12"><h5>$${(summary.total_maintenance_cost || 0).toLocaleString()}</h5><small class="text-muted">Total Maintenance Cost</small></div></div>
+`;
+}
+document.getElementById('maintenanceAnalytics').innerHTML = html;
+})
+.catch(error => {
+document.getElementById('maintenanceAnalytics').innerHTML =
+'<div class="alert alert-danger">Error loading maintenance data</div>';
+});
+}
+
+// Load predictive insights
+function loadPredictiveInsights() {
+fetch('/equipment-analytics/api/predictive-insights')
+.then(response => response.json())
+.then(data => {
+let html = '';
+if (data && data.length > 0) {
+data.slice(0, 5).forEach(insight => {
+const badgeClass = insight.priority === 'high' ? 'danger' :
+insight.priority === 'medium' ? 'warning' : 'info';
+html += `
+<div class="alert alert-${badgeClass} py-2 mb-2"><small><strong>${insight.type.replace('_', ' ').toUpperCase()}:</strong>
+${insight.recommendation}</small></div>
+`;
+});
+} else {
+html = '<div class="alert alert-info">No predictive insights available</div>';
+}
+document.getElementById('predictiveInsights').innerHTML = html;
+})
+.catch(error => {
+document.getElementById('predictiveInsights').innerHTML =
+'<div class="alert alert-danger">Error loading insights</div>';
+});
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+initializeCharts();
+loadMaintenanceAnalytics();
+loadPredictiveInsights();
+});
+
+function loadFleetUtilization() {
+const content = document.getElementById('fleet-utilization-content');
+content.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+
+fetch('/equipment-analytics/api/fleet-utilization')
+.then(response => response.json())
+.then(data => {
+if (data.error) {
+content.innerHTML = `<div class="alert alert-warning">${data.error}</div>`;
+return;
+}
+
+let html = `
+<div class="row"><div class="col-md-3"><div class="card bg-primary text-white"><div class="card-body"><h4>${data.total_assets}</h4><p class="mb-0">Total Assets</p></div></div></div>`;
+
+if (data.utilization_summary) {
+for (const [month, stats] of Object.entries(data.utilization_summary)) {
+html += `
+<div class="col-md-3"><div class="card bg-info text-white"><div class="card-body"><h6>${month}</h6><p class="mb-0">${stats.total_hours.toFixed(0)} hrs total</p><small>${stats.assets_used} assets used</small></div></div></div>`;
+}
+}
+
+html += '</div>';
+
+if (data.sample_data && data.sample_data.length > 0) {
+html += `
+<div class="mt-4"><h6>Sample Data (First 10 Records)</h6><div class="table-responsive"><table class="table table-sm"><thead><tr>`;
+
+// Add headers
+Object.keys(data.sample_data[0]).slice(0, 6).forEach(key => {
+html += `<th>${key}</th>`;
+});
+
+html += `</tr></thead><tbody>`;
+
+// Add sample rows
+data.sample_data.forEach(row => {
+html += '<tr>';
+Object.values(row).slice(0, 6).forEach(value => {
+html += `<td>${value || ''}</td>`;
+});
+html += '</tr>';
+});
+
+html += '</tbody></table></div>';
+}
+
+content.innerHTML = html;
+})
+.catch(error => {
+console.error('Error loading fleet utilization:', error);
+content.innerHTML = '<div class="alert alert-danger">Error loading data</div>';
+});
+}
+</script></body></html>

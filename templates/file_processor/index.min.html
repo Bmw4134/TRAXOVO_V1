@@ -1,0 +1,294 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>TRAXOVO - File Processing</title><link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css"><style>
+body {
+padding-top: 2rem;
+padding-bottom: 2rem;
+}
+
+/* Drop zone styles */
+.drop-zone {
+border: 2px dashed var(--bs-primary);
+border-radius: 0.5rem;
+min-height: 180px;
+display: flex;
+align-items: center;
+justify-content: center;
+flex-direction: column;
+cursor: pointer;
+transition: border-color 0.3s, background-color 0.3s;
+padding: 2rem;
+margin-bottom: 1.5rem;
+}
+
+.drop-zone.highlight {
+border-color: var(--bs-success);
+background-color: rgba(var(--bs-success-rgb), 0.05);
+}
+
+.drop-zone-text {
+font-size: 1.2rem;
+font-weight: 500;
+margin-bottom: 1rem;
+}
+
+.drop-zone-icon {
+font-size: 2.5rem;
+margin-bottom: 1rem;
+color: var(--bs-primary);
+}
+
+.drop-zone-prompt {
+font-size: 0.9rem;
+opacity: 0.8;
+}
+
+.drop-zone-input {
+display: none;
+}
+
+/* Results section */
+.results-section {
+display: none;
+margin-top: 2rem;
+}
+
+.status-indicator {
+border-left: 4px solid var(--bs-info);
+padding: 0.75rem 1rem;
+margin-bottom: 1rem;
+background-color: rgba(var(--bs-info-rgb), 0.1);
+}
+
+.status-indicator.success {
+border-left-color: var(--bs-success);
+background-color: rgba(var(--bs-success-rgb), 0.1);
+}
+
+.status-indicator.error {
+border-left-color: var(--bs-danger);
+background-color: rgba(var(--bs-danger-rgb), 0.1);
+}
+
+.results-tabs .nav-tabs {
+margin-bottom: 1rem;
+}
+
+.classification-table {
+margin-bottom: 2rem;
+}
+
+.badge-cell {
+text-align: center;
+}
+
+.metrics-card {
+box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+margin-bottom: 1rem;
+}
+
+.metrics-card .card-header {
+font-weight: 600;
+font-size: 0.9rem;
+}
+
+.metrics-card .card-body {
+padding: 1rem;
+}
+
+.process-spinner {
+width: 1.5rem;
+height: 1.5rem;
+margin-right: 0.5rem;
+}
+
+.reason-badge {
+text-transform: capitalize;
+}
+</style></head><body><div class="container"><header class="mb-4"><div class="d-flex align-items-center mb-3"><h1 class="display-6 mb-0">TRAXOVO</h1><span class="badge bg-info ms-3">GENIUS CORE</span></div><h2 class="h4 mb-4 text-secondary">Driver Classification Tool</h2></header><div class="row"><div class="col-lg-10"><div class="card"><div class="card-body"><h3 class="card-title h5 mb-3">Upload File for Processing</h3><p class="text-muted small mb-4">
+Upload a CSV or Excel file containing driver data for classification. Files will be automatically processed using the GENIUS CORE driver classification system.
+</p><div class="drop-zone" id="dropZone"><span class="drop-zone-icon"><i class="bi bi-cloud-arrow-up"></i></span><span class="drop-zone-text">Drop file here or click to browse</span><span class="drop-zone-prompt text-muted">Accepts CSV and Excel files (.csv, .xlsx, .xls)</span><input type="file" name="file" class="drop-zone-input" id="fileInput" accept=".csv, .xlsx, .xls"></div><div class="status-indicator" id="statusIndicator" style="display: none;"><div class="d-flex align-items-center"><div class="spinner-border process-spinner text-info" role="status" id="processSpinner"><span class="visually-hidden">Loading...</span></div><div><h5 class="mb-1" id="statusTitle">Processing file...</h5><p class="mb-0 text-muted" id="statusMessage">Please wait while the file is being processed.</p></div></div></div><div class="results-section" id="resultsSection"><h4 class="h5 mt-4 mb-3">Classification Results</h4><div class="row mb-4"><div class="col-md-4"><div class="card metrics-card"><div class="card-header bg-transparent">Total Records</div><div class="card-body"><h5 class="card-title h2" id="totalRecords">0</h5></div></div></div><div class="col-md-4"><div class="card metrics-card"><div class="card-header bg-transparent">Classified Drivers</div><div class="card-body"><h5 class="card-title h2 text-success" id="classifiedCount">0</h5></div></div></div><div class="col-md-4"><div class="card metrics-card"><div class="card-header bg-transparent">Skipped Drivers</div><div class="card-body"><h5 class="card-title h2 text-warning" id="skippedCount">0</h5></div></div></div></div><div class="card mb-4" id="skipReasonsCard"><div class="card-header">
+Skip Reasons
+</div><div class="card-body"><div class="row" id="skipReasons"></div></div></div><div class="results-tabs"><ul class="nav nav-tabs" id="resultsTabs" role="tablist"><li class="nav-item" role="presentation"><button class="nav-link active" id="classified-tab" data-bs-toggle="tab" data-bs-target="#classified" type="button" role="tab" aria-controls="classified" aria-selected="true">
+Classified Drivers
+</button></li><li class="nav-item" role="presentation"><button class="nav-link" id="skipped-tab" data-bs-toggle="tab" data-bs-target="#skipped" type="button" role="tab" aria-controls="skipped" aria-selected="false">
+Skipped Drivers
+</button></li></ul><div class="tab-content" id="resultsTabsContent"><div class="tab-pane fade show active" id="classified" role="tabpanel" aria-labelledby="classified-tab"><div class="table-responsive"><table class="table table-striped classification-table"><thead><tr><th>Driver ID</th><th>Name</th><th>Vehicle Type</th><th>Job Site</th><th>Status</th></tr></thead><tbody id="classifiedTable"></tbody></table></div></div><div class="tab-pane fade" id="skipped" role="tabpanel" aria-labelledby="skipped-tab"><div class="table-responsive"><table class="table table-striped classification-table"><thead><tr><th>Driver ID</th><th>Name</th><th>Vehicle Type</th><th>Usage Type</th><th>Job Site</th><th>Skip Reason</th></tr></thead><tbody id="skippedTable"></tbody></table></div></div></div></div></div></div></div></div><div class="col-lg-2"><div class="card"><div class="card-body"><h5 class="card-title h6">Filter Criteria</h5><div class="mt-3"><p class="text-muted small mb-2">GENIUS CORE Classification:</p><ul class="list-group list-group-flush small"><li class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
+Vehicle Type
+<span class="badge bg-info rounded-pill">Pickup Truck</span></li><li class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
+Usage Type
+<span class="badge bg-info rounded-pill">On-Road</span></li><li class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
+Job Site
+<span class="badge bg-info rounded-pill">Valid</span></li></ul></div></div></div></div></div></div><script>
+document.addEventListener('DOMContentLoaded', function() {
+// Elements
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const statusIndicator = document.getElementById('statusIndicator');
+const statusTitle = document.getElementById('statusTitle');
+const statusMessage = document.getElementById('statusMessage');
+const processSpinner = document.getElementById('processSpinner');
+const resultsSection = document.getElementById('resultsSection');
+const totalRecords = document.getElementById('totalRecords');
+const classifiedCount = document.getElementById('classifiedCount');
+const skippedCount = document.getElementById('skippedCount');
+const skipReasons = document.getElementById('skipReasons');
+const classifiedTable = document.getElementById('classifiedTable');
+const skippedTable = document.getElementById('skippedTable');
+const skipReasonsCard = document.getElementById('skipReasonsCard');
+
+// Drop zone event listeners
+dropZone.addEventListener('click', () => fileInput.click());
+
+// Highlight drop zone when dragging file over it
+['dragover', 'dragenter'].forEach(eventName => {
+dropZone.addEventListener(eventName, highlight, false);
+});
+
+['dragleave', 'drop'].forEach(eventName => {
+dropZone.addEventListener(eventName, unhighlight, false);
+});
+
+// Handle dropped files
+dropZone.addEventListener('drop', handleDrop, false);
+
+// Handle selected files
+fileInput.addEventListener('change', () => {
+if (fileInput.files.length) {
+handleFiles(fileInput.files);
+}
+});
+
+// Helper functions
+function highlight(e) {
+e.preventDefault();
+e.stopPropagation();
+dropZone.classList.add('highlight');
+}
+
+function unhighlight(e) {
+e.preventDefault();
+e.stopPropagation();
+dropZone.classList.remove('highlight');
+}
+
+function handleDrop(e) {
+e.preventDefault();
+e.stopPropagation();
+
+const dt = e.dataTransfer;
+const files = dt.files;
+
+handleFiles(files);
+}
+
+function handleFiles(files) {
+if (files.length === 0) return;
+
+const file = files[0];
+uploadFile(file);
+}
+
+function uploadFile(file) {
+// Show status indicator
+statusIndicator.style.display = 'block';
+statusIndicator.className = 'status-indicator';
+statusTitle.innerText = 'Processing file...';
+statusMessage.innerText = `Uploaded ${file.name}. Running classification...`;
+processSpinner.style.display = 'inline-block';
+
+// Hide results section
+resultsSection.style.display = 'none';
+
+// Create FormData
+const formData = new FormData();
+formData.append('file', file);
+
+// Upload file
+fetch('/process/upload', {
+method: 'POST',
+body: formData
+})
+.then(response => response.json())
+.then(data => {
+if (data.error) {
+showError(data.error);
+} else {
+showResults(data);
+}
+})
+.catch(error => {
+showError('Error uploading file: ' + error.message);
+});
+}
+
+function showError(errorMessage) {
+// Update status indicator
+statusIndicator.className = 'status-indicator error';
+statusTitle.innerText = 'Error';
+statusMessage.innerText = errorMessage;
+processSpinner.style.display = 'none';
+}
+
+function showResults(data) {
+// Update status indicator
+statusIndicator.className = 'status-indicator success';
+statusTitle.innerText = 'Success';
+statusMessage.innerText = `Processed ${data.records_processed} records. ${data.classified_count} drivers classified, ${data.skipped_count} skipped.`;
+processSpinner.style.display = 'none';
+
+// Update results section
+totalRecords.innerText = data.records_processed;
+classifiedCount.innerText = data.classified_count;
+skippedCount.innerText = data.skipped_count;
+
+// Clear previous results
+classifiedTable.innerHTML = '';
+skippedTable.innerHTML = '';
+skipReasons.innerHTML = '';
+
+// Populate skip reasons
+if (data.metrics && data.metrics.skip_reasons) {
+const reasons = data.metrics.skip_reasons;
+let hasReasons = false;
+
+for (const [reason, count] of Object.entries(reasons)) {
+if (count > 0) {
+hasReasons = true;
+
+const reasonDiv = document.createElement('div');
+reasonDiv.className = 'col-md-3 mb-3';
+reasonDiv.innerHTML = `
+<div class="d-flex align-items-center"><div class="badge bg-warning text-dark me-2 reason-badge">${reason.replace(/_/g, ' ')}</div><div class="fw-bold">${count}</div></div>
+`;
+skipReasons.appendChild(reasonDiv);
+}
+}
+
+skipReasonsCard.style.display = hasReasons ? 'block' : 'none';
+} else {
+skipReasonsCard.style.display = 'none';
+}
+
+// Populate classified drivers table
+data.classified_drivers.forEach(driver => {
+const row = document.createElement('tr');
+row.innerHTML = `
+<td>${driver.driver_id || 'N/A'}</td><td>${driver.name || 'N/A'}</td><td>${driver.vehicle_type || 'N/A'}</td><td>${driver.jobsite_name || driver.jobsite_id || 'N/A'}</td><td class="badge-cell"><span class="badge bg-success">Classified</span></td>
+`;
+classifiedTable.appendChild(row);
+});
+
+// Populate skipped drivers table
+data.skipped_drivers.forEach(driver => {
+const row = document.createElement('tr');
+const reason = driver.classification?.reason || 'unknown';
+row.innerHTML = `
+<td>${driver.driver_id || 'N/A'}</td><td>${driver.name || 'N/A'}</td><td>${driver.vehicle_type || 'N/A'}</td><td>${driver.usage_type || 'N/A'}</td><td>${driver.jobsite_name || driver.jobsite_id || 'N/A'}</td><td><span class="badge bg-warning text-dark reason-badge">${reason.replace(/_/g, ' ')}</span></td>
+`;
+skippedTable.appendChild(row);
+});
+
+// Show results section
+resultsSection.style.display = 'block';
+}
+});
+</script></body></html>

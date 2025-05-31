@@ -1,0 +1,233 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>TRAXORA - Live GPS Tracking</title><link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"><style>
+.tracking-header {
+background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+color: white;
+padding: 2rem 0;
+margin-bottom: 2rem;
+}
+
+.metric-card {
+background: white;
+border-radius: 15px;
+padding: 1.5rem;
+box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+text-align: center;
+transition: transform 0.3s ease;
+}
+
+.metric-card:hover {
+transform: translateY(-5px);
+}
+
+.metric-value {
+font-size: 2.5rem;
+font-weight: bold;
+margin-bottom: 0.5rem;
+}
+
+.metric-label {
+color: #6c757d;
+font-size: 0.9rem;
+}
+
+.status-moving { color: #28a745; }
+.status-idle { color: #ffc107; }
+.status-offline { color: #dc3545; }
+
+.map-container {
+height: 400px;
+background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+border-radius: 15px;
+display: flex;
+align-items: center;
+justify-content: center;
+position: relative;
+overflow: hidden;
+}
+
+.map-placeholder {
+text-align: center;
+color: #6c757d;
+}
+
+.vehicle-list {
+max-height: 400px;
+overflow-y: auto;
+}
+
+.vehicle-item {
+background: white;
+border-radius: 10px;
+padding: 1rem;
+margin-bottom: 0.5rem;
+box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+cursor: pointer;
+transition: all 0.3s ease;
+}
+
+.vehicle-item:hover {
+box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+transform: translateX(5px);
+}
+
+.vehicle-status {
+width: 12px;
+height: 12px;
+border-radius: 50%;
+display: inline-block;
+margin-right: 0.5rem;
+}
+
+.auto-refresh-indicator {
+position: fixed;
+top: 20px;
+right: 20px;
+background: rgba(0,0,0,0.8);
+color: white;
+padding: 0.5rem 1rem;
+border-radius: 25px;
+font-size: 0.8rem;
+z-index: 1000;
+}
+
+.refresh-pulse {
+animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+0% { opacity: 1; }
+50% { opacity: 0.5; }
+100% { opacity: 1; }
+}
+</style></head><body><div id="refresh-indicator" class="auto-refresh-indicator"><i class="fas fa-satellite-dish"></i> Live GPS • Updates every 30s
+</div><div class="tracking-header"><div class="container"><div class="row align-items-center"><div class="col-md-8"><h1><i class="fas fa-satellite-dish"></i> Live GPS Tracking</h1><p class="mb-0">Real-time fleet monitoring • Last updated: {{ metrics.last_update }}</p></div><div class="col-md-4 text-end"><button class="btn btn-light me-2" onclick="toggleAutoRefresh()"><i class="fas fa-play" id="auto-refresh-icon"></i> Auto-Refresh
+</button><button class="btn btn-outline-light" onclick="refreshNow()"><i class="fas fa-sync-alt"></i> Refresh Now
+</button></div></div></div></div><div class="container"><div class="row mb-4"><div class="col-lg-3 col-md-6 mb-3"><div class="metric-card"><div class="metric-value text-primary">{{ metrics.total_vehicles }}</div><div class="metric-label">Total Vehicles</div></div></div><div class="col-lg-3 col-md-6 mb-3"><div class="metric-card"><div class="metric-value status-moving">{{ metrics.vehicles_moving }}</div><div class="metric-label">Moving</div></div></div><div class="col-lg-3 col-md-6 mb-3"><div class="metric-card"><div class="metric-value status-idle">{{ metrics.vehicles_idle }}</div><div class="metric-label">Idle</div></div></div><div class="col-lg-3 col-md-6 mb-3"><div class="metric-card"><div class="metric-value status-offline">{{ metrics.vehicles_offline }}</div><div class="metric-label">Offline</div></div></div></div><div class="row"><div class="col-lg-8 mb-4"><div class="card"><div class="card-header"><h5><i class="fas fa-map"></i> Live Fleet Map</h5></div><div class="card-body p-0"><div class="map-container"><div class="map-placeholder"><i class="fas fa-map-marked-alt fa-4x mb-3"></i><h4>Interactive GPS Map</h4><p>Real-time vehicle positions across North Texas</p><button class="btn btn-primary" onclick="initializeMap()"><i class="fas fa-satellite-dish"></i> Load Live Map
+</button></div></div></div></div></div><div class="col-lg-4 mb-4"><div class="card"><div class="card-header"><h5><i class="fas fa-list"></i> Vehicle Status</h5></div><div class="card-body"><div class="vehicle-list" id="vehicle-list">
+{% if asset_locations %}
+{% for vehicle in asset_locations %}
+<div class="vehicle-item" onclick="focusVehicle('{{ vehicle.id }}')"><div class="d-flex justify-content-between align-items-center"><div><div class="fw-bold"><span class="vehicle-status bg-{{ 'success' if vehicle.status == 'moving' else 'warning' if vehicle.status == 'idle' else 'danger' }}"></span>
+{{ vehicle.name or vehicle.id }}
+</div><small class="text-muted">{{ vehicle.location or 'Location updating...' }}</small></div><div class="text-end"><div class="small text-{{ 'success' if vehicle.status == 'moving' else 'warning' if vehicle.status == 'idle' else 'danger' }}">
+{{ vehicle.status|title }}
+</div><small class="text-muted">{{ vehicle.last_update or 'Just now' }}</small></div></div></div>
+{% endfor %}
+{% else %}
+<div class="text-center text-muted py-4"><i class="fas fa-satellite-dish fa-3x mb-3"></i><h5>Connecting to GPS...</h5><p>Loading live vehicle data from Gauge API</p></div>
+{% endif %}
+</div></div></div></div></div><div class="row mb-4"><div class="col-12"><div class="card"><div class="card-header"><h5><i class="fas fa-bolt"></i> Quick Actions</h5></div><div class="card-body"><div class="row"><div class="col-md-3 mb-2"><button class="btn btn-outline-primary w-100" onclick="exportGPSData()"><i class="fas fa-download"></i> Export GPS Data
+</button></div><div class="col-md-3 mb-2"><button class="btn btn-outline-success w-100" onclick="viewDriverReports()"><i class="fas fa-chart-line"></i> Driver Reports
+</button></div><div class="col-md-3 mb-2"><button class="btn btn-outline-info w-100" onclick="viewWorkZones()"><i class="fas fa-map-marked-alt"></i> Work Zones
+</button></div><div class="col-md-3 mb-2"><button class="btn btn-outline-warning w-100" onclick="generateAlerts()"><i class="fas fa-exclamation-triangle"></i> Generate Alerts
+</button></div></div></div></div></div></div></div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script><script>
+let autoRefreshEnabled = true;
+let refreshInterval;
+
+// Initialize auto-refresh
+function startAutoRefresh() {
+refreshInterval = setInterval(refreshGPSData, 30000); // 30 seconds
+}
+
+// Toggle auto-refresh
+function toggleAutoRefresh() {
+const icon = document.getElementById('auto-refresh-icon');
+const indicator = document.getElementById('refresh-indicator');
+
+if (autoRefreshEnabled) {
+clearInterval(refreshInterval);
+autoRefreshEnabled = false;
+icon.className = 'fas fa-pause';
+indicator.innerHTML = '<i class="fas fa-pause"></i> Auto-refresh paused';
+} else {
+startAutoRefresh();
+autoRefreshEnabled = true;
+icon.className = 'fas fa-play';
+indicator.innerHTML = '<i class="fas fa-satellite-dish"></i> Live GPS • Updates every 30s';
+}
+}
+
+// Refresh GPS data
+function refreshGPSData() {
+const indicator = document.getElementById('refresh-indicator');
+indicator.classList.add('refresh-pulse');
+
+fetch('/api/live-gps-data')
+.then(response => response.json())
+.then(data => {
+if (data.success) {
+updateVehicleList(data.data.asset_locations);
+updateMetrics(data.data);
+}
+})
+.catch(error => console.error('GPS refresh error:', error))
+.finally(() => {
+indicator.classList.remove('refresh-pulse');
+});
+}
+
+// Refresh now button
+function refreshNow() {
+refreshGPSData();
+}
+
+// Update vehicle list
+function updateVehicleList(vehicles) {
+const vehicleList = document.getElementById('vehicle-list');
+
+if (!vehicles || vehicles.length === 0) {
+vehicleList.innerHTML = `
+<div class="text-center text-muted py-4"><i class="fas fa-satellite-dish fa-3x mb-3"></i><h5>No vehicles found</h5><p>Check GPS connection and try again</p></div>
+`;
+return;
+}
+
+vehicleList.innerHTML = vehicles.map(vehicle => `
+<div class="vehicle-item" onclick="focusVehicle('${vehicle.id}')"><div class="d-flex justify-content-between align-items-center"><div><div class="fw-bold"><span class="vehicle-status bg-${vehicle.status === 'moving' ? 'success' : vehicle.status === 'idle' ? 'warning' : 'danger'}"></span>
+${vehicle.name || vehicle.id}
+</div><small class="text-muted">${vehicle.location || 'Location updating...'}</small></div><div class="text-end"><div class="small text-${vehicle.status === 'moving' ? 'success' : vehicle.status === 'idle' ? 'warning' : 'danger'}">
+${vehicle.status.charAt(0).toUpperCase() + vehicle.status.slice(1)}
+</div><small class="text-muted">${vehicle.last_update || 'Just now'}</small></div></div></div>
+`).join('');
+}
+
+// Update metrics
+function updateMetrics(data) {
+// Update metric cards with new data
+const metrics = data.metrics || {};
+// Implementation would update the metric displays
+}
+
+// Focus on specific vehicle
+function focusVehicle(vehicleId) {
+console.log('Focusing on vehicle:', vehicleId);
+// Would center map on vehicle and show details
+}
+
+// Initialize map
+function initializeMap() {
+alert('Map integration would connect to your preferred mapping service (Google Maps, Mapbox, etc.)');
+}
+
+// Quick action functions
+function exportGPSData() {
+window.open('/api/live-gps-data', '_blank');
+}
+
+function viewDriverReports() {
+window.location.href = '/working-reports';
+}
+
+function viewWorkZones() {
+window.location.href = '/work-zone';
+}
+
+function generateAlerts() {
+alert('Alert system would notify supervisors of vehicle issues');
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+startAutoRefresh();
+refreshGPSData(); // Initial load
+});
+</script></body></html>

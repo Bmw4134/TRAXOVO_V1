@@ -1,0 +1,393 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Maintenance Dashboard - SYSTEMSMITH</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css"><link rel="stylesheet" href="{{ url_for('static', filename='css/light-theme.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='css/custom-light.css') }}"><style>
+.task-card {
+border-left: 4px solid;
+transition: transform 0.2s;
+}
+.task-card:hover {
+transform: translateY(-3px);
+}
+.task-service {
+border-left-color: #198754;
+}
+.task-repair {
+border-left-color: #dc3545;
+}
+.task-inspection {
+border-left-color: #ffc107;
+}
+.task-other {
+border-left-color: #6c757d;
+}
+.status-badge {
+font-size: 0.75rem;
+padding: 0.25rem 0.5rem;
+}
+.status-scheduled {
+background-color: #0d6efd;
+}
+.status-pending {
+background-color: #6c757d;
+}
+.status-in-progress {
+background-color: #ffc107;
+color: #212529;
+}
+.status-completed {
+background-color: #198754;
+}
+.status-overdue {
+background-color: #dc3545;
+}
+.status-cancelled {
+background-color: #343a40;
+}
+.priority-high {
+border-left: 3px solid #dc3545;
+}
+.priority-medium {
+border-left: 3px solid #ffc107;
+}
+.priority-low {
+border-left: 3px solid #0dcaf0;
+}
+.stat-card {
+border-radius: 10px;
+border: none;
+transition: transform 0.2s;
+}
+.stat-card:hover {
+transform: translateY(-5px);
+}
+.asset-image {
+width: 40px;
+height: 40px;
+border-radius: 4px;
+object-fit: cover;
+}
+.task-date {
+font-size: 0.85rem;
+}
+.overdue-date {
+color: #dc3545;
+font-weight: bold;
+}
+.upcoming-date {
+color: #ffc107;
+}
+.days-label {
+font-size: 0.75rem;
+margin-top: -3px;
+}
+</style></head><body data-bs-theme="dark"><nav class="navbar navbar-expand-lg navbar-dark bg-dark"><div class="container-fluid"><a class="navbar-brand" href="/">SYSTEMSMITH</a><button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button><div class="collapse navbar-collapse" id="navbarNav"><ul class="navbar-nav"><li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}">Dashboard</a></li><li class="nav-item"><a class="nav-link" href="{{ url_for('assets') }}">Assets</a></li><li class="nav-item"><a class="nav-link active" href="{{ url_for('maintenance') }}">Maintenance</a></li><li class="nav-item"><a class="nav-link" href="{{ url_for('reports') }}">Reports</a></li><li class="nav-item"><a class="nav-link" href="{{ url_for('upload_files') }}">Upload Files</a></li></ul><ul class="navbar-nav ms-auto">
+{% if current_user.is_authenticated %}
+<li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Logout</a></li>
+{% else %}
+<li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Login</a></li>
+{% endif %}
+</ul></div></div></nav><div class="container-fluid py-4">
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div id="flash-messages" class="mb-4">
+{% for category, message in messages %}
+<div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+{{ message | safe }}
+<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+{% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
+<div class="row mb-4"><div class="col-md-6"><h1 class="mb-4">Maintenance Dashboard</h1></div><div class="col-md-6 text-md-end"><a href="{{ url_for('maintenance.maintenance_schedules') }}" class="btn btn-outline-secondary me-2"><i class="bi bi-calendar-range me-1"></i> Maintenance Schedules
+</a><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newMaintenanceModal"><i class="bi bi-wrench-adjustable me-1"></i> Add Maintenance
+</button></div></div><div class="row mb-4"><div class="col-md-3 mb-3"><div class="card stat-card bg-primary bg-opacity-25"><div class="card-body"><div class="d-flex justify-content-between"><div><h3 class="card-title h2 mb-0">{{ maintenance_stats.upcoming }}</h3><p class="card-text text-muted">Upcoming Maintenance</p></div><div class="align-self-center"><i class="bi bi-calendar-check fs-1 text-primary"></i></div></div><small class="text-muted">Next 30 days</small></div></div></div><div class="col-md-3 mb-3"><div class="card stat-card bg-success bg-opacity-25"><div class="card-body"><div class="d-flex justify-content-between"><div><h3 class="card-title h2 mb-0">{{ maintenance_stats.completed }}</h3><p class="card-text text-muted">Completed Tasks</p></div><div class="align-self-center"><i class="bi bi-check-circle fs-1 text-success"></i></div></div><small class="text-muted">Last 30 days</small></div></div></div><div class="col-md-3 mb-3"><div class="card stat-card bg-danger bg-opacity-25"><div class="card-body"><div class="d-flex justify-content-between"><div><h3 class="card-title h2 mb-0">{{ maintenance_stats.overdue }}</h3><p class="card-text text-muted">Overdue Tasks</p></div><div class="align-self-center"><i class="bi bi-exclamation-triangle fs-1 text-danger"></i></div></div><small class="text-muted">Needs attention</small></div></div></div><div class="col-md-3 mb-3"><div class="card stat-card bg-info bg-opacity-25"><div class="card-body"><div class="d-flex justify-content-between"><div><h3 class="card-title h2 mb-0">{{ maintenance_stats.avg_days }}</h3><p class="card-text text-muted">Average Completion</p></div><div class="align-self-center"><i class="bi bi-graph-up fs-1 text-info"></i></div></div><small class="text-muted">Days to complete</small></div></div></div></div><div class="row mb-4"><div class="col-12"><div class="card"><div class="card-header"><h5 class="mb-0">Filters</h5></div><div class="card-body"><form action="{{ url_for('maintenance.index') }}" method="get" class="row g-3"><div class="col-md-2"><label for="status" class="form-label">Status</label><select class="form-select" id="status" name="status"><option value="all" {% if status_filter == 'all' %}selected{% endif %}>All Statuses</option>
+{% for status in MaintenanceStatus %}
+<option value="{{ status.value }}" {% if status_filter == status.value %}selected{% endif %}>
+{{ status.value|capitalize }}
+</option>
+{% endfor %}
+</select></div><div class="col-md-2"><label for="type" class="form-label">Type</label><select class="form-select" id="type" name="type"><option value="all" {% if type_filter == 'all' %}selected{% endif %}>All Types</option>
+{% for type in MaintenanceType %}
+<option value="{{ type.value }}" {% if type_filter == type.value %}selected{% endif %}>
+{{ type.value|capitalize }}
+</option>
+{% endfor %}
+</select></div><div class="col-md-2"><label for="priority" class="form-label">Priority</label><select class="form-select" id="priority" name="priority"><option value="all" {% if priority_filter == 'all' %}selected{% endif %}>All Priorities</option>
+{% for priority in MaintenancePriority %}
+<option value="{{ priority.value }}" {% if priority_filter == priority.value %}selected{% endif %}>
+{{ priority.value|capitalize }}
+</option>
+{% endfor %}
+</select></div><div class="col-md-2"><label for="asset" class="form-label">Asset</label><select class="form-select" id="asset" name="asset"><option value="all" {% if asset_filter == 'all' %}selected{% endif %}>All Assets</option>
+{% for asset in assets %}
+<option value="{{ asset.id }}" {% if asset_filter == asset.id|string %}selected{% endif %}>
+{{ asset.label }}
+</option>
+{% endfor %}
+</select></div><div class="col-md-2"><label for="date_range" class="form-label">Date Range</label><select class="form-select" id="date_range" name="date_range"><option value="7" {% if date_range == '7' %}selected{% endif %}>Last 7 days</option><option value="14" {% if date_range == '14' %}selected{% endif %}>Last 14 days</option><option value="30" {% if date_range == '30' %}selected{% endif %}>Last 30 days</option><option value="90" {% if date_range == '90' %}selected{% endif %}>Last 90 days</option><option value="365" {% if date_range == '365' %}selected{% endif %}>Last year</option></select></div><div class="col-md-2 d-flex align-items-end"><button type="submit" class="btn btn-primary w-100"><i class="bi bi-filter me-1"></i> Apply Filters
+</button></div></form></div></div></div></div><div class="row"><div class="col-12"><div class="card"><div class="card-header"><h5 class="mb-0">Maintenance Tasks</h5></div><div class="card-body"><div class="table-responsive"><table class="table table-hover"><thead><tr><th>Asset</th><th>Task</th><th>Type</th><th>Scheduled</th><th>Status</th><th>Priority</th><th>Assigned To</th><th>Actions</th></tr></thead><tbody>
+{% for task in maintenance_tasks %}
+<tr class="priority-{{ task.priority.value }}"><td><div class="d-flex align-items-center">
+{% if task.asset.image_url %}
+<img src="{{ task.asset.image_url }}" class="asset-image me-2" alt="{{ task.asset.label }}">
+{% else %}
+<div class="asset-image me-2 bg-secondary d-flex align-items-center justify-content-center"><i class="bi bi-truck"></i></div>
+{% endif %}
+<div><strong>{{ task.asset.label }}</strong><br><small class="text-muted">{{ task.asset.asset_identifier }}</small></div></div></td><td><strong>{{ task.title }}</strong><br><small class="text-muted">{{ task.description[:50] ~ '...' if task.description and task.description|length > 50 else task.description }}</small></td><td>
+{% if task.maintenance_type.value == 'service' %}
+<span class="badge bg-success">Service</span>
+{% elif task.maintenance_type.value == 'repair' %}
+<span class="badge bg-danger">Repair</span>
+{% elif task.maintenance_type.value == 'inspection' %}
+<span class="badge bg-warning">Inspection</span>
+{% else %}
+<span class="badge bg-secondary">Other</span>
+{% endif %}
+</td><td><div class="task-date">
+{% if task.status == MaintenanceStatus.COMPLETED %}
+<span>{{ task.scheduled_date.strftime('%m/%d/%Y') }}</span>
+{% elif task.is_overdue %}
+<span class="overdue-date">{{ task.scheduled_date.strftime('%m/%d/%Y') }}</span><small class="text-danger d-block">{{ task.days_until_due|abs }} days overdue</small>
+{% elif task.days_until_due is not none and task.days_until_due <= 7 and task.days_until_due >= 0 %}
+<span class="upcoming-date">{{ task.scheduled_date.strftime('%m/%d/%Y') }}</span><small class="text-warning d-block">In {{ task.days_until_due }} days</small>
+{% else %}
+<span>{{ task.scheduled_date.strftime('%m/%d/%Y') }}</span>
+{% if task.days_until_due is not none and task.days_until_due > 0 %}
+<small class="text-muted d-block">In {{ task.days_until_due }} days</small>
+{% endif %}
+{% endif %}
+</div></td><td><span class="badge status-{{ task.status.value }}">
+{{ task.status.value|replace('_', ' ')|capitalize }}
+</span></td><td>
+{% if task.priority.value == 'high' %}
+<span class="badge bg-danger">High</span>
+{% elif task.priority.value == 'medium' %}
+<span class="badge bg-warning text-dark">Medium</span>
+{% else %}
+<span class="badge bg-info text-dark">Low</span>
+{% endif %}
+</td><td>
+{% if task.assigned_to %}
+{{ task.assigned_to }}
+{% else %}
+<span class="text-muted">Unassigned</span>
+{% endif %}
+</td><td><div class="btn-group" role="group"><button class="btn btn-sm btn-primary view-task-btn" data-id="{{ task.id }}" title="View Details" data-bs-toggle="modal" data-bs-target="#viewTaskModal"><i class="bi bi-eye"></i></button><button class="btn btn-sm btn-secondary edit-task-btn" data-id="{{ task.id }}" title="Edit Task" data-bs-toggle="modal" data-bs-target="#editTaskModal"><i class="bi bi-pencil"></i></button>
+{% if task.status != MaintenanceStatus.COMPLETED and task.status != MaintenanceStatus.CANCELLED %}
+<button class="btn btn-sm btn-success complete-task-btn" data-id="{{ task.id }}" title="Mark as Completed"><i class="bi bi-check-lg"></i></button>
+{% endif %}
+<button class="btn btn-sm btn-danger delete-task-btn" data-id="{{ task.id }}" title="Delete"><i class="bi bi-trash"></i></button></div></td></tr>
+{% endfor %}
+</tbody></table></div></div></div></div></div></div><div class="modal fade" id="newMaintenanceModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Schedule Maintenance Task</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><form id="newMaintenanceForm" action="{{ url_for('maintenance.add_maintenance') }}" method="post"><div class="row mb-3"><div class="col-md-6"><label for="asset_id" class="form-label">Asset</label><select class="form-select" id="asset_id" name="asset_id" required><option value="" selected disabled>Select Asset</option>
+{% for asset in assets %}
+<option value="{{ asset.id }}">{{ asset.label }} ({{ asset.asset_identifier }})</option>
+{% endfor %}
+</select></div><div class="col-md-6"><label for="maintenance_type" class="form-label">Maintenance Type</label><select class="form-select" id="maintenance_type" name="maintenance_type" required><option value="" selected disabled>Select Type</option><option value="service">Scheduled Service</option><option value="repair">Repair/Fix</option><option value="inspection">Inspection</option><option value="other">Other</option></select></div></div><div class="mb-3"><label for="title" class="form-label">Title</label><input type="text" class="form-control" id="title" name="title" required></div><div class="mb-3"><label for="description" class="form-label">Description</label><textarea class="form-control" id="description" name="description" rows="3"></textarea></div><div class="row mb-3"><div class="col-md-6"><label for="scheduled_date" class="form-label">Scheduled Date</label><input type="date" class="form-control" id="scheduled_date" name="scheduled_date" required></div><div class="col-md-6"><label for="due_date" class="form-label">Due Date (Optional)</label><input type="date" class="form-control" id="due_date" name="due_date"></div></div><div class="row mb-3"><div class="col-md-6"><label for="assigned_to" class="form-label">Assigned To</label><input type="text" class="form-control" id="assigned_to" name="assigned_to"></div><div class="col-md-6"><label for="priority" class="form-label">Priority</label><select class="form-select" id="priority" name="priority" required><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select></div></div><div class="row mb-3"><div class="col-md-6"><label for="estimated_cost" class="form-label">Estimated Cost (USD)</label><input type="number" class="form-control" id="estimated_cost" name="estimated_cost" min="0" step="0.01"></div><div class="col-md-6"><label for="estimated_hours" class="form-label">Estimated Hours</label><input type="number" class="form-control" id="estimated_hours" name="estimated_hours" min="0" step="0.5"></div></div><div class="mb-3"><label for="notes" class="form-label">Additional Notes</label><textarea class="form-control" id="notes" name="notes" rows="2"></textarea></div></form></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" form="newMaintenanceForm" class="btn btn-primary">Schedule Task</button></div></div></div></div><div class="modal fade" id="viewTaskModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Maintenance Task Details</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><div class="row"><div class="col-md-6"><div class="card mb-3"><div class="card-body"><h5 class="card-title" id="view-title"></h5><h6 class="card-subtitle mb-2 text-muted" id="view-asset"></h6><p class="card-text" id="view-description"></p><div class="row mt-3"><div class="col-6"><p class="mb-1"><strong>Type:</strong><span id="view-type"></span></p><p class="mb-1"><strong>Priority:</strong><span id="view-priority"></span></p><p class="mb-1"><strong>Status:</strong><span id="view-status"></span></p></div><div class="col-6"><p class="mb-1"><strong>Scheduled:</strong><span id="view-scheduled"></span></p><p class="mb-1"><strong>Due:</strong><span id="view-due"></span></p><p class="mb-1"><strong>Completed:</strong><span id="view-completed"></span></p></div></div></div></div><div class="card"><div class="card-header"><h6 class="mb-0">Cost & Time</h6></div><div class="card-body"><div class="row"><div class="col-6"><p class="mb-1"><strong>Est. Cost:</strong> $<span id="view-estimated-cost">0.00</span></p><p class="mb-1"><strong>Actual Cost:</strong> $<span id="view-actual-cost">0.00</span></p></div><div class="col-6"><p class="mb-1"><strong>Est. Hours:</strong><span id="view-estimated-hours">0</span></p><p class="mb-1"><strong>Actual Hours:</strong><span id="view-actual-hours">0</span></p></div></div></div></div></div><div class="col-md-6"><div class="card mb-3"><div class="card-header"><h6 class="mb-0">Parts & Materials</h6></div><div class="card-body" id="view-parts-container"><p class="text-muted" id="view-no-parts">No parts or materials recorded for this task.</p><div id="view-parts-list" class="d-none"><table class="table table-sm"><thead><tr><th>Part</th><th>Quantity</th><th>Cost</th></tr></thead><tbody id="view-parts-table-body"></tbody></table></div></div></div><div class="card"><div class="card-header"><h6 class="mb-0">Maintenance History</h6></div><div class="card-body" id="view-history-container"><p class="text-muted" id="view-no-history">No maintenance history for this asset.</p><div id="view-history-list" class="d-none"><table class="table table-sm"><thead><tr><th>Date</th><th>Service</th><th>Description</th></tr></thead><tbody id="view-history-table-body"></tbody></table></div></div></div></div></div><div class="row mt-3"><div class="col-12"><div class="card"><div class="card-header"><h6 class="mb-0">Notes</h6></div><div class="card-body"><div class="mb-3"><h6>Task Notes</h6><p id="view-notes" class="mb-0 text-muted">No notes available.</p></div><div><h6>Completion Notes</h6><p id="view-completion-notes" class="mb-0 text-muted">No completion notes available.</p></div></div></div></div></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button type="button" class="btn btn-primary" id="view-edit-btn">Edit Task</button></div></div></div></div><div class="modal fade" id="editTaskModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Edit Maintenance Task</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><form id="editTaskForm" action="{{ url_for('maintenance.update_maintenance') }}" method="post"><input type="hidden" id="edit_task_id" name="task_id"><div class="row mb-3"><div class="col-md-6"><label for="edit_asset_id" class="form-label">Asset</label><select class="form-select" id="edit_asset_id" name="asset_id" required>
+{% for asset in assets %}
+<option value="{{ asset.id }}">{{ asset.label }} ({{ asset.asset_identifier }})</option>
+{% endfor %}
+</select></div><div class="col-md-6"><label for="edit_maintenance_type" class="form-label">Maintenance Type</label><select class="form-select" id="edit_maintenance_type" name="maintenance_type" required><option value="service">Scheduled Service</option><option value="repair">Repair/Fix</option><option value="inspection">Inspection</option><option value="other">Other</option></select></div></div><div class="mb-3"><label for="edit_title" class="form-label">Title</label><input type="text" class="form-control" id="edit_title" name="title" required></div><div class="mb-3"><label for="edit_description" class="form-label">Description</label><textarea class="form-control" id="edit_description" name="description" rows="3"></textarea></div><div class="row mb-3"><div class="col-md-4"><label for="edit_scheduled_date" class="form-label">Scheduled Date</label><input type="date" class="form-control" id="edit_scheduled_date" name="scheduled_date" required></div><div class="col-md-4"><label for="edit_due_date" class="form-label">Due Date (Optional)</label><input type="date" class="form-control" id="edit_due_date" name="due_date"></div><div class="col-md-4"><label for="edit_status" class="form-label">Status</label><select class="form-select" id="edit_status" name="status" required><option value="scheduled">Scheduled</option><option value="pending">Pending</option><option value="in_progress">In Progress</option><option value="completed">Completed</option><option value="overdue">Overdue</option><option value="cancelled">Cancelled</option></select></div></div><div class="row mb-3"><div class="col-md-6"><label for="edit_assigned_to" class="form-label">Assigned To</label><input type="text" class="form-control" id="edit_assigned_to" name="assigned_to"></div><div class="col-md-6"><label for="edit_priority" class="form-label">Priority</label><select class="form-select" id="edit_priority" name="priority" required><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select></div></div><div class="row mb-3"><div class="col-md-3"><label for="edit_estimated_cost" class="form-label">Est. Cost ($)</label><input type="number" class="form-control" id="edit_estimated_cost" name="estimated_cost" min="0" step="0.01"></div><div class="col-md-3"><label for="edit_actual_cost" class="form-label">Actual Cost ($)</label><input type="number" class="form-control" id="edit_actual_cost" name="actual_cost" min="0" step="0.01"></div><div class="col-md-3"><label for="edit_estimated_hours" class="form-label">Est. Hours</label><input type="number" class="form-control" id="edit_estimated_hours" name="estimated_hours" min="0" step="0.5"></div><div class="col-md-3"><label for="edit_actual_hours" class="form-label">Actual Hours</label><input type="number" class="form-control" id="edit_actual_hours" name="actual_hours" min="0" step="0.5"></div></div><div class="mb-3"><label for="edit_notes" class="form-label">Task Notes</label><textarea class="form-control" id="edit_notes" name="notes" rows="2"></textarea></div><div class="mb-3"><label for="edit_completion_notes" class="form-label">Completion Notes</label><textarea class="form-control" id="edit_completion_notes" name="completion_notes" rows="2"></textarea></div></form></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" form="editTaskForm" class="btn btn-primary">Update Task</button></div></div></div></div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script><script>
+// Initialize date fields with today's date
+document.addEventListener('DOMContentLoaded', function() {
+const today = new Date();
+const formattedDate = today.toISOString().split('T')[0];
+
+if (document.getElementById('scheduled_date')) {
+document.getElementById('scheduled_date').value = formattedDate;
+}
+});
+
+// View task details
+document.querySelectorAll('.view-task-btn').forEach(btn => {
+btn.addEventListener('click', function() {
+const taskId = this.getAttribute('data-id');
+
+fetch(`/maintenance/task/${taskId}`)
+.then(response => response.json())
+.then(data => {
+if (data.success) {
+const task = data.task;
+
+// Set basic task information
+document.getElementById('view-title').textContent = task.title;
+document.getElementById('view-asset').textContent = `${task.asset.label} (${task.asset.identifier})`;
+document.getElementById('view-description').textContent = task.description || 'No description provided.';
+document.getElementById('view-type').textContent = task.type.charAt(0).toUpperCase() + task.type.slice(1);
+document.getElementById('view-priority').textContent = task.priority.charAt(0).toUpperCase() + task.priority.slice(1);
+document.getElementById('view-status').textContent = task.status.replace('_', ' ').charAt(0).toUpperCase() + task.status.replace('_', ' ').slice(1);
+document.getElementById('view-scheduled').textContent = task.scheduled_date;
+document.getElementById('view-due').textContent = task.due_date || 'Not specified';
+document.getElementById('view-completed').textContent = task.completed_date || 'Not completed';
+
+// Set cost and time information
+document.getElementById('view-estimated-cost').textContent = task.estimated_cost ? task.estimated_cost.toFixed(2) : '0.00';
+document.getElementById('view-actual-cost').textContent = task.actual_cost ? task.actual_cost.toFixed(2) : '0.00';
+document.getElementById('view-estimated-hours').textContent = task.estimated_hours || '0';
+document.getElementById('view-actual-hours').textContent = task.actual_hours || '0';
+
+// Set notes
+document.getElementById('view-notes').textContent = task.notes || 'No notes available.';
+document.getElementById('view-completion-notes').textContent = task.completion_notes || 'No completion notes available.';
+
+// Set parts list
+const partsContainer = document.getElementById('view-parts-container');
+const noParts = document.getElementById('view-no-parts');
+const partsList = document.getElementById('view-parts-list');
+const partsTableBody = document.getElementById('view-parts-table-body');
+
+if (task.parts && task.parts.length > 0) {
+noParts.classList.add('d-none');
+partsList.classList.remove('d-none');
+
+partsTableBody.innerHTML = '';
+task.parts.forEach(part => {
+const row = document.createElement('tr');
+row.innerHTML = `
+<td>${part.name} ${part.part_number ? `(${part.part_number})` : ''}</td><td>${part.quantity}</td><td>$${part.unit_cost ? (part.unit_cost * part.quantity).toFixed(2) : '0.00'}</td>
+`;
+partsTableBody.appendChild(row);
+});
+} else {
+noParts.classList.remove('d-none');
+partsList.classList.add('d-none');
+}
+
+// Set maintenance history
+const historyContainer = document.getElementById('view-history-container');
+const noHistory = document.getElementById('view-no-history');
+const historyList = document.getElementById('view-history-list');
+const historyTableBody = document.getElementById('view-history-table-body');
+
+if (task.history && task.history.length > 0) {
+noHistory.classList.add('d-none');
+historyList.classList.remove('d-none');
+
+historyTableBody.innerHTML = '';
+task.history.forEach(history => {
+const row = document.createElement('tr');
+row.innerHTML = `
+<td>${history.date}</td><td>${history.service_type.charAt(0).toUpperCase() + history.service_type.slice(1)}</td><td>${history.description || 'N/A'}</td>
+`;
+historyTableBody.appendChild(row);
+});
+} else {
+noHistory.classList.remove('d-none');
+historyList.classList.add('d-none');
+}
+
+// Set edit button
+document.getElementById('view-edit-btn').onclick = function() {
+document.querySelector('.modal-backdrop').remove();
+const editBtn = document.querySelector(`.edit-task-btn[data-id="${taskId}"]`);
+editBtn.click();
+};
+} else {
+alert('Error: ' + data.message);
+}
+})
+.catch(error => {
+console.error('Error:', error);
+alert('An error occurred while loading task details');
+});
+});
+});
+
+// Edit task
+document.querySelectorAll('.edit-task-btn').forEach(btn => {
+btn.addEventListener('click', function() {
+const taskId = this.getAttribute('data-id');
+
+fetch(`/maintenance/task/${taskId}`)
+.then(response => response.json())
+.then(data => {
+if (data.success) {
+const task = data.task;
+
+document.getElementById('edit_task_id').value = task.id;
+document.getElementById('edit_asset_id').value = task.asset.id;
+document.getElementById('edit_maintenance_type').value = task.type;
+document.getElementById('edit_title').value = task.title;
+document.getElementById('edit_description').value = task.description || '';
+
+// Convert date format MM/DD/YYYY to YYYY-MM-DD for input[type="date"]
+if (task.scheduled_date) {
+const parts = task.scheduled_date.split('/');
+document.getElementById('edit_scheduled_date').value = `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
+}
+
+if (task.due_date) {
+const parts = task.due_date.split('/');
+document.getElementById('edit_due_date').value = `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
+} else {
+document.getElementById('edit_due_date').value = '';
+}
+
+document.getElementById('edit_status').value = task.status;
+document.getElementById('edit_assigned_to').value = task.assigned_to || '';
+document.getElementById('edit_priority').value = task.priority;
+document.getElementById('edit_estimated_cost').value = task.estimated_cost || '';
+document.getElementById('edit_actual_cost').value = task.actual_cost || '';
+document.getElementById('edit_estimated_hours').value = task.estimated_hours || '';
+document.getElementById('edit_actual_hours').value = task.actual_hours || '';
+document.getElementById('edit_notes').value = task.notes || '';
+document.getElementById('edit_completion_notes').value = task.completion_notes || '';
+} else {
+alert('Error: ' + data.message);
+}
+})
+.catch(error => {
+console.error('Error:', error);
+alert('An error occurred while loading task data');
+});
+});
+});
+
+// Complete task
+document.querySelectorAll('.complete-task-btn').forEach(btn => {
+btn.addEventListener('click', function() {
+const taskId = this.getAttribute('data-id');
+
+if (confirm('Mark this task as completed?')) {
+fetch(`/maintenance/complete/${taskId}`, {
+method: 'POST'
+})
+.then(response => response.json())
+.then(data => {
+if (data.success) {
+window.location.reload();
+} else {
+alert('Error: ' + data.message);
+}
+})
+.catch(error => {
+console.error('Error:', error);
+alert('An error occurred while completing the task');
+});
+}
+});
+});
+
+// Delete task
+document.querySelectorAll('.delete-task-btn').forEach(btn => {
+btn.addEventListener('click', function() {
+const taskId = this.getAttribute('data-id');
+
+if (confirm('Are you sure you want to delete this maintenance task? This action cannot be undone.')) {
+fetch(`/maintenance/delete/${taskId}`, {
+method: 'POST'
+})
+.then(response => response.json())
+.then(data => {
+if (data.success) {
+window.location.reload();
+} else {
+alert('Error: ' + data.message);
+}
+})
+.catch(error => {
+console.error('Error:', error);
+alert('An error occurred while deleting the task');
+});
+}
+});
+});
+</script></body></html>

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}PM Master Results - TRAXORA{% endblock %}
+
+{% block content %}
+<div class="container py-4"><div class="row mb-4"><div class="col-12"><div class="section-header"><h2><i class="bi bi-check-circle me-2"></i>PM Master Processing Complete</h2><div class="section-actions"><a href="{{ url_for('pm_master.index') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i> Back to PM Master
+</a><a href="{{ url_for('index') }}" class="btn btn-outline-secondary ms-2"><i class="bi bi-house me-1"></i> Dashboard
+</a></div></div></div></div>
+
+
+{% if result.original %}
+<div class="row mb-4"><div class="col-12"><div class="card shadow"><div class="card-header bg-primary text-white"><h5 class="mb-0"><i class="bi bi-graph-up me-2"></i>Original vs. Revised Metrics</h5></div><div class="card-body"><div class="row"><div class="col-md-6"><div class="card mb-3"><div class="card-header bg-light"><h6 class="mb-0">Original Totals</h6></div><div class="card-body"><div class="row"><div class="col-6"><div class="text-center mb-3"><h3>${{ "{:,.2f}".format(result.original.total_amount) }}</h3><div class="text-muted">Total Amount</div></div></div><div class="col-6"><div class="text-center mb-3"><h3>{{ result.original.record_count }}</h3><div class="text-muted">Total Records</div></div></div></div><div class="text-center mb-2"><h5>Job Distribution: {{ result.original.job_count }} Jobs</h5></div>
+{% if result.original.job_distribution %}
+<div class="table-responsive"><table class="table table-sm table-striped"><thead><tr><th>Job #</th><th>Records</th><th>Amount</th></tr></thead><tbody>
+{% for job_num, data in result.original.job_distribution.items() %}
+<tr><td>{{ job_num }}</td><td>{{ data.count }}</td><td>${{ "{:,.2f}".format(data.amount) }}</td></tr>
+{% endfor %}
+</tbody></table></div>
+{% endif %}
+</div></div></div><div class="col-md-6"><div class="card mb-3"><div class="card-header bg-light"><h6 class="mb-0">Revised Totals</h6></div><div class="card-body"><div class="row"><div class="col-6"><div class="text-center mb-3"><h3>${{ "{:,.2f}".format(result.summary.total_amount) }}</h3><div class="text-muted">Final Amount</div>
+{% set amount_diff = result.summary.total_amount - result.original.total_amount %}
+<div class="{% if amount_diff >= 0 %}text-success{% else %}text-danger{% endif %}">
+{{ "+" if amount_diff >= 0 else "" }}${{ "{:,.2f}".format(amount_diff) }}
+</div></div></div><div class="col-6"><div class="text-center mb-3"><h3>{{ result.summary.total_rows }}</h3><div class="text-muted">Final Records</div>
+{% set record_diff = result.summary.total_rows - result.original.record_count %}
+<div class="{% if record_diff >= 0 %}text-success{% else %}text-danger{% endif %}">
+{{ "+" if record_diff >= 0 else "" }}{{ record_diff }}
+</div></div></div></div><div class="alert alert-info"><div class="row text-center"><div class="col-4"><div class="text-success"><strong>+{{ result.summary.added_rows }}</strong><div>Added</div></div></div><div class="col-4"><div class="text-warning"><strong>{{ result.summary.modified_rows }}</strong><div>Modified</div></div></div><div class="col-4"><div class="text-danger"><strong>{{ result.summary.deleted_rows }}</strong><div>Removed</div></div></div></div></div></div></div></div></div></div></div></div></div>
+{% endif %}
+
+<div class="row"><div class="col-md-6 mb-4"><div class="card shadow"><div class="card-header bg-success text-white"><h5 class="mb-0"><i class="bi bi-file-earmark-check me-2"></i>Master Output Generated</h5></div><div class="card-body"><div class="alert alert-success mb-4"><i class="bi bi-check-circle-fill me-2"></i><span>Your PM master file has been successfully generated!</span></div><div class="mb-4"><div class="d-flex justify-content-between"><strong>Generated:</strong><span>{{ result.timestamp }}</span></div><div class="d-flex justify-content-between"><strong>File Name:</strong><span>{{ result.file_name }}</span></div></div><div class="d-grid"><a href="{{ url_for('pm_master.download_file', filename=result.file_name) }}" class="btn btn-primary"><i class="bi bi-download me-2"></i> Download Master File
+</a></div></div></div></div><div class="col-md-6 mb-4"><div class="card shadow"><div class="card-header bg-info text-white"><h5 class="mb-0"><i class="bi bi-clipboard-data me-2"></i>Processing Summary</h5></div><div class="card-body">
+{% if result.summary %}
+<table class="table table-bordered"><tbody><tr><th class="bg-light">Total Records</th><td>{{ result.summary.total_rows }}</td></tr><tr><th class="bg-light">Active Records</th><td>{{ result.summary.active_rows }}</td></tr><tr><th class="bg-light">Deleted Records</th><td>{{ result.summary.deleted_rows }}</td></tr><tr><th class="bg-light">Modified Records</th><td>{{ result.summary.modified_rows }}</td></tr><tr><th class="bg-light">Added Records</th><td>{{ result.summary.added_rows }}</td></tr><tr><th class="bg-light">Total Amount</th><td>${{ "%.2f"|format(result.summary.total_amount) }}</td></tr><tr><th class="bg-light">Job Count</th><td>{{ result.summary.job_count }}</td></tr><tr><th class="bg-light">Processed Files</th><td>{{ result.summary.processed_files }}</td></tr></tbody></table>
+{% else %}
+<div class="alert alert-warning"><i class="bi bi-exclamation-triangle-fill me-2"></i><span>Summary information not available.</span></div>
+{% endif %}
+</div></div></div></div><div class="row"><div class="col-12"><div class="card shadow"><div class="card-header bg-primary text-white"><h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Understanding Your Master Output</h5></div><div class="card-body"><div class="row"><div class="col-md-4 mb-3"><h6><i class="bi bi-file-earmark-spreadsheet me-1"></i> Master Data Sheet</h6><p class="text-muted">Contains all the PM allocation data with change tracking. Entries are color-coded based on their status:</p><ul class="list-unstyled"><li><span class="badge bg-warning">Modified</span> Changes from original</li><li><span class="badge bg-success">Added</span> New entries</li><li><span class="badge bg-danger">Deleted</span> Removed entries</li></ul></div><div class="col-md-4 mb-3"><h6><i class="bi bi-clipboard-data me-1"></i> Summary Sheet</h6><p class="text-muted">Contains overall statistics and job-level summaries:</p><ul class="list-unstyled"><li>- Total record counts by status</li><li>- List of all processed files</li><li>- Job-by-job equipment counts and totals</li></ul></div><div class="col-md-4 mb-3"><h6><i class="bi bi-clock-history me-1"></i> Change Log Sheet</h6><p class="text-muted">A detailed log of all changes made across versions:</p><ul class="list-unstyled"><li>- Change type and source file</li><li>- Before and after values</li><li>- Net change amounts for financial tracking</li></ul></div></div><div class="alert alert-info mt-2"><i class="bi bi-lightbulb-fill me-2"></i><strong>Pro Tip:</strong> Use the filters in Excel to focus on specific jobs, equipment, or change types.
+</div></div></div></div></div></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+// Highlight the current navigation item
+const pmLinks = document.querySelectorAll('#pmDropdown + .dropdown-menu .dropdown-item');
+pmLinks.forEach(link => {
+if (link.getAttribute('href') && link.getAttribute('href').includes('pm-master')) {
+link.classList.add('active');
+}
+});
+});
+</script>
+{% endblock %}

@@ -1,0 +1,213 @@
+{% extends "master_unified.html" %}
+
+{% block extra_css %}
+<style>
+.executive-header {
+background: linear-gradient(135deg, #1a365d 0%, #2d5a87 100%);
+color: white;
+padding: 2rem;
+margin: -1rem -1rem 2rem -1rem;
+border-radius: 0 0 12px 12px;
+}
+
+.metric-card {
+background: white;
+border-radius: 8px;
+padding: 1.5rem;
+box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+border-left: 4px solid #ffd700;
+transition: transform 0.2s;
+}
+
+.metric-card:hover {
+transform: translateY(-2px);
+box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.metric-number {
+font-size: 2.5rem;
+font-weight: 700;
+color: #1a365d;
+margin-bottom: 0.5rem;
+}
+
+.metric-label {
+color: #64748b;
+font-weight: 500;
+text-transform: uppercase;
+font-size: 0.875rem;
+letter-spacing: 0.5px;
+}
+
+.status-breakdown {
+background: white;
+border-radius: 8px;
+padding: 1.5rem;
+box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.status-item {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 0.75rem 0;
+border-bottom: 1px solid #f1f5f9;
+}
+
+.status-item:last-child {
+border-bottom: none;
+}
+
+.status-icon {
+font-size: 1.25rem;
+margin-right: 0.75rem;
+}
+
+.driver-table {
+background: white;
+border-radius: 8px;
+overflow: hidden;
+box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.driver-table table {
+width: 100%;
+border-collapse: collapse;
+}
+
+.driver-table th {
+background: #f8fafc;
+padding: 1rem;
+text-align: left;
+font-weight: 600;
+color: #1a365d;
+border-bottom: 2px solid #e2e8f0;
+}
+
+.driver-table td {
+padding: 0.75rem 1rem;
+border-bottom: 1px solid #f1f5f9;
+}
+
+.priority-alert {
+background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+color: white;
+padding: 1rem;
+border-radius: 8px;
+margin-bottom: 1.5rem;
+}
+
+.productivity-gauge {
+position: relative;
+width: 120px;
+height: 120px;
+margin: 0 auto;
+}
+
+.gauge-bg {
+fill: none;
+stroke: #e2e8f0;
+stroke-width: 8;
+}
+
+.gauge-fill {
+fill: none;
+stroke: #059669;
+stroke-width: 8;
+stroke-linecap: round;
+transition: stroke-dasharray 1s ease;
+}
+
+@media (max-width: 768px) {
+.executive-header {
+margin: -1rem -1rem 1rem -1rem;
+padding: 1.5rem 1rem;
+}
+
+.metric-number {
+font-size: 2rem;
+}
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4"><div class="executive-header"><div class="row align-items-center"><div class="col-md-8"><h1 class="mb-2">Executive Driver Report</h1><p class="mb-0 opacity-75">Real-time workforce analytics for {{ current_date }}</p></div><div class="col-md-4 text-end"><div class="productivity-gauge"><svg width="120" height="120"><circle cx="60" cy="60" r="50" class="gauge-bg"></circle><circle cx="60" cy="60" r="50" class="gauge-fill"
+stroke-dasharray="{{ productivity_score * 3.14 }}, 314"
+transform="rotate(-90 60 60)"></circle></svg><div class="position-absolute top-50 start-50 translate-middle text-center"><div class="fw-bold">{{ productivity_score }}%</div><small>Productivity</small></div></div></div></div></div>
+
+
+{% if late_starts > 5 or not_on_job > 3 %}
+<div class="priority-alert"><h5 class="mb-2"><i class="fas fa-exclamation-triangle me-2"></i>Priority Action Required</h5><p class="mb-0">
+{% if late_starts > 5 %}High late start count ({{ late_starts }} drivers). {% endif %}
+{% if not_on_job > 3 %}{{ not_on_job }} drivers not on job sites. {% endif %}
+Immediate supervisor intervention recommended.
+</p></div>
+{% endif %}
+
+
+<div class="row g-4 mb-4"><div class="col-lg-3 col-md-6"><div class="metric-card" onclick="showDriverDetails()"><div class="metric-number">{{ total_drivers }}</div><div class="metric-label">Total Drivers</div><small class="text-muted">Click for breakdown</small></div></div><div class="col-lg-3 col-md-6"><div class="metric-card" onclick="showOnTimeDetails()"><div class="metric-number text-success">{{ on_time_percentage }}%</div><div class="metric-label">On-Time Rate</div><small class="text-success">+2.3% vs yesterday</small></div></div><div class="col-lg-3 col-md-6"><div class="metric-card" onclick="showHoursBreakdown()"><div class="metric-number">{{ "%.1f"|format(total_hours) }}</div><div class="metric-label">Total Hours</div><small class="text-info">${{ "%.0f"|format(total_hours * 35) }} labor cost</small></div></div><div class="col-lg-3 col-md-6"><div class="metric-card" onclick="showCostSavings()"><div class="metric-number text-success">${{ "%.0f"|format((on_time_percentage * total_drivers * 0.75)) }}</div><div class="metric-label">Daily Savings</div><small class="text-success">Efficiency gains</small></div></div></div><div class="row g-4"><div class="col-lg-4"><div class="status-breakdown"><h5 class="mb-3">Status Breakdown</h5><div class="status-item"><div class="d-flex align-items-center"><span class="status-icon">✅</span><span>On Time</span></div><span class="fw-bold text-success">{{ on_time_count }}</span></div><div class="status-item"><div class="d-flex align-items-center"><span class="status-icon">🕒</span><span>Late Start</span></div><span class="fw-bold text-warning">{{ late_starts }}</span></div><div class="status-item"><div class="d-flex align-items-center"><span class="status-icon">❌</span><span>Not on Job</span></div><span class="fw-bold text-danger">{{ not_on_job }}</span></div></div></div><div class="col-lg-8"><div class="driver-table"><h5 class="p-3 mb-0 border-bottom">Driver Details</h5><div style="max-height: 400px; overflow-y: auto;"><table><thead style="position: sticky; top: 0; background: #f8fafc; z-index: 10;"><tr><th>Driver</th><th>Status</th><th>Hours</th><th>Division</th><th>Job</th></tr></thead><tbody>
+{% for driver in attendance_data %}
+<tr><td class="fw-bold">{{ driver.employee_name }}</td><td class="text-center">{{ driver.status_icon }}</td><td class="{% if driver.hours_worked == 0 %}text-danger{% elif driver.hours_worked < 8 %}text-warning{% else %}text-success{% endif %}">
+{{ "%.1f"|format(driver.hours_worked) }}
+</td><td>{{ driver.division }}</td><td>{{ driver.job_id }}</td></tr>
+{% endfor %}
+</tbody></table></div></div></div></div><div class="row mt-4"><div class="col-12"><div class="d-flex gap-3 flex-wrap"><a href="/attendance/export/pdf/all/{{ current_date }}" class="btn btn-danger"><i class="fas fa-file-pdf me-2"></i>Export PDF Report
+</a><a href="/attendance/export/xlsx/all/{{ current_date }}" class="btn btn-success"><i class="fas fa-file-excel me-2"></i>Export Excel
+</a><a href="/attendance/matrix" class="btn btn-primary"><i class="fas fa-table me-2"></i>Full Attendance Matrix
+</a><button class="btn btn-warning" onclick="window.print()"><i class="fas fa-print me-2"></i>Print Report
+</button></div></div></div></div><script>
+// Cost Savings & Drill-Down Functions
+function showDriverDetails() {
+alert(`Driver Breakdown:\n• Active Today: {{ total_drivers }}\n• On Time: {{ on_time_count }}\n• Late Starts: {{ late_starts }}\n• Not on Job: {{ not_on_job }}\n\nClick "Full Matrix View" for complete details.`);
+}
+
+function showOnTimeDetails() {
+const savings = Math.round({{ on_time_percentage }} * {{ total_drivers }} * 0.50);
+alert(`On-Time Performance Impact:\n• Rate: {{ on_time_percentage }}%\n• Cost Avoidance: $${savings}/day\n• Annual Projection: $${savings * 260}\n• Industry Benchmark: 85%`);
+}
+
+function showHoursBreakdown() {
+const avgHours = {{ total_hours }} / {{ total_drivers }};
+const laborCost = {{ total_hours }} * 35;
+alert(`Hours Analysis:\n• Total Hours: {{ "%.1f"|format(total_hours) }}\n• Average per Driver: ${avgHours.toFixed(1)}\n• Labor Cost: $${laborCost.toFixed(0)}\n• Overtime Hours: ${Math.max(0, {{ total_hours }} - ({{ total_drivers }} * 8)).toFixed(1)}`);
+}
+
+function showCostSavings() {
+const dailySavings = {{ on_time_percentage }} * {{ total_drivers }} * 0.75;
+const weeklySavings = dailySavings * 5;
+const monthlySavings = dailySavings * 22;
+alert(`TRAXOVO Cost Savings:\n• Daily: $${dailySavings.toFixed(0)}\n• Weekly: $${weeklySavings.toFixed(0)}\n• Monthly: $${monthlySavings.toFixed(0)}\n• Annual: $${(monthlySavings * 12).toFixed(0)}\n\nROI from reduced delays, improved scheduling, and GPS validation.`);
+}
+
+// Auto-refresh every 5 minutes for live data
+setInterval(function() {
+if (!document.hidden) {
+window.location.reload();
+}
+}, 300000);
+
+// Print-friendly styles
+window.addEventListener('beforeprint', function() {
+document.body.classList.add('printing');
+});
+
+window.addEventListener('afterprint', function() {
+document.body.classList.remove('printing');
+});
+</script><style>
+@media print {
+.btn, .executive-header .productivity-gauge {
+display: none !important;
+}
+
+.metric-card {
+break-inside: avoid;
+}
+
+.driver-table {
+break-inside: avoid;
+}
+}
+</style>
+{% endblock %}

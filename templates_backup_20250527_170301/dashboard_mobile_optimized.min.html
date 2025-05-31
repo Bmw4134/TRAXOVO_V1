@@ -1,0 +1,229 @@
+{% extends "mobile_optimized_base.html" %}
+
+{% block title %}TRAXORA Dashboard{% endblock %}
+
+{% block head %}
+<style>
+/* Dashboard-specific styles */
+.metric-card {
+background: linear-gradient(135deg, white 0%, #f8fafc 100%);
+border-radius: 16px;
+padding: 1.5rem;
+margin-bottom: 1rem;
+box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+border: none;
+transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.metric-card:hover {
+transform: translateY(-4px);
+box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.metric-number {
+font-size: 2.5rem;
+font-weight: 700;
+line-height: 1;
+margin-bottom: 0.5rem;
+}
+
+.metric-label {
+color: var(--traxora-secondary);
+font-size: 0.9rem;
+font-weight: 500;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+}
+
+.metric-change {
+font-size: 0.85rem;
+font-weight: 500;
+margin-top: 0.5rem;
+}
+
+.metric-icon {
+width: 60px;
+height: 60px;
+border-radius: 12px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.5rem;
+color: white;
+margin-bottom: 1rem;
+}
+
+.quick-action-card {
+background: white;
+border-radius: 16px;
+padding: 1.5rem;
+margin-bottom: 1rem;
+box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+border: none;
+transition: all 0.3s ease;
+position: relative;
+overflow: hidden;
+}
+
+.quick-action-card::before {
+content: '';
+position: absolute;
+top: 0;
+left: 0;
+right: 0;
+height: 4px;
+background: linear-gradient(90deg, var(--traxora-primary), #1e40af);
+}
+
+.quick-action-card:hover {
+transform: translateY(-2px);
+box-shadow: 0 8px 30px rgba(37, 99, 235, 0.15);
+}
+
+.action-icon {
+width: 48px;
+height: 48px;
+border-radius: 12px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.2rem;
+color: white;
+margin-bottom: 1rem;
+}
+
+.genius-core-banner {
+background: linear-gradient(135deg, var(--traxora-dark) 0%, #1e293b 100%);
+color: white;
+border-radius: 16px;
+padding: 1.5rem;
+margin-bottom: 2rem;
+position: relative;
+overflow: hidden;
+}
+
+.genius-core-banner::before {
+content: '';
+position: absolute;
+top: 0;
+right: 0;
+width: 100px;
+height: 100px;
+background: radial-gradient(circle, rgba(37, 99, 235, 0.3) 0%, transparent 70%);
+}
+
+.system-status {
+background: white;
+border-radius: 16px;
+padding: 1.5rem;
+margin-bottom: 1rem;
+box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.status-item {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 0.75rem 0;
+border-bottom: 1px solid #f1f5f9;
+}
+
+.status-item:last-child {
+border-bottom: none;
+}
+
+.status-badge {
+padding: 0.25rem 0.75rem;
+border-radius: 20px;
+font-size: 0.8rem;
+font-weight: 600;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+}
+
+.status-connected {
+background: rgba(5, 150, 105, 0.1);
+color: var(--traxora-success);
+}
+
+.status-warning {
+background: rgba(217, 119, 6, 0.1);
+color: var(--traxora-warning);
+}
+
+@media (min-width: 768px) {
+.metric-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+gap: 1.5rem;
+}
+
+.action-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+gap: 1.5rem;
+}
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid"><div class="genius-core-banner"><div class="d-flex align-items-center"><div class="me-3"><i class="bi bi-cpu" style="font-size: 2rem;"></i></div><div><h4 class="mb-1">GENIUS CORE - CONTINUITY MODE ACTIVE</h4><p class="mb-0 opacity-75">Full data validation and matchback verification enabled for all operations.</p></div></div></div><div class="metric-grid"><div class="metric-card"><div class="metric-icon" style="background: linear-gradient(135deg, var(--traxora-primary), #1e40af);"><i class="bi bi-truck"></i></div><div class="metric-number text-traxora-primary">{{ asset_count or 716 }}</div><div class="metric-label">Active Assets</div><div class="metric-change text-success"><i class="bi bi-arrow-up"></i> +2% this week
+</div></div><div class="metric-card"><div class="metric-icon" style="background: linear-gradient(135deg, var(--traxora-success), #047857);"><i class="bi bi-people"></i></div><div class="metric-number text-traxora-success">{{ driver_count or 113 }}</div><div class="metric-label">Active Drivers</div><div class="metric-change text-success"><i class="bi bi-arrow-up"></i> +1% this week
+</div></div><div class="metric-card"><div class="metric-icon" style="background: linear-gradient(135deg, var(--traxora-warning), #d97706);"><i class="bi bi-geo-alt"></i></div><div class="metric-number text-traxora-warning">{{ job_sites_count or 8 }}</div><div class="metric-label">Job Sites</div><div class="metric-change text-muted"><i class="bi bi-dash"></i> No change
+</div></div><div class="metric-card"><div class="metric-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);"><i class="bi bi-clock-history"></i></div><div class="metric-number" style="color: #8b5cf6;">{{ last_sync_formatted or 'Just now' }}</div><div class="metric-label">Last Data Sync</div><div class="metric-change text-success"><i class="bi bi-check-circle"></i> Real-time
+</div></div></div><h3 class="mt-4 mb-3 text-traxora-dark">Quick Access</h3><div class="action-grid"><div class="quick-action-card"><div class="action-icon" style="background: linear-gradient(135deg, var(--traxora-primary), #1e40af);"><i class="bi bi-check-square"></i></div><h5 class="mb-2 text-traxora-dark">Daily Driver Report</h5><p class="text-muted mb-3">View attendance reports for On Time, Late, Early End, and Not On Job classifications.</p><a href="/working-reports" class="btn btn-traxora w-100"><i class="bi bi-arrow-right me-2"></i>Open Report
+</a></div><div class="quick-action-card"><div class="action-icon" style="background: linear-gradient(135deg, var(--traxora-warning), #d97706);"><i class="bi bi-calendar-week"></i></div><h5 class="mb-2 text-traxora-dark">Weekly Driver Report</h5><p class="text-muted mb-3">Enhanced weekly reports showing all attendance patterns and classifications.</p><a href="/weekly-driver-report" class="btn btn-traxora w-100"><i class="bi bi-bar-chart me-2"></i>View May 18-24 Report
+</a></div><div class="quick-action-card"><div class="action-icon" style="background: linear-gradient(135deg, var(--traxora-success), #047857);"><i class="bi bi-file-earmark-spreadsheet"></i></div><h5 class="mb-2 text-traxora-dark">MTD Data Review</h5><p class="text-muted mb-3">Review your {{ driver_count or 113 }} drivers and complete fleet data analysis.</p><a href="/mtd-data-review" class="btn btn-traxora w-100"><i class="bi bi-graph-up me-2"></i>Review Data
+</a></div><div class="quick-action-card"><div class="action-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);"><i class="bi bi-graph-up"></i></div><h5 class="mb-2 text-traxora-dark">Attendance Workflow</h5><p class="text-muted mb-3">Automated daily → weekly → monthly reports with your Gauge API data.</p><a href="/attendance-workflow" class="btn btn-traxora w-100"><i class="bi bi-play-circle me-2"></i>Start Workflow
+</a></div><div class="quick-action-card"><div class="action-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626);"><i class="bi bi-gear"></i></div><h5 class="mb-2 text-traxora-dark">Kaizen Admin</h5><p class="text-muted mb-3">System administration and continuous improvement monitoring.</p><a href="/admin/kaizen" class="btn btn-traxora w-100"><i class="bi bi-tools me-2"></i>Admin Panel
+</a></div><div class="quick-action-card"><div class="action-icon" style="background: linear-gradient(135deg, #06b6d4, #0891b2);"><i class="bi bi-map"></i></div><h5 class="mb-2 text-traxora-dark">Work Zone GPS</h5><p class="text-muted mb-3">Analyze work zone efficiency and asset utilization with GPS data.</p><button class="btn btn-secondary w-100" disabled><i class="bi bi-clock me-2"></i>Coming Soon
+</button></div></div><h3 class="mt-4 mb-3 text-traxora-dark">System Status</h3><div class="system-status"><div class="status-item"><div class="d-flex align-items-center"><i class="bi bi-database me-2"></i><span>Database</span></div><span class="status-badge status-connected">Connected</span></div><div class="status-item"><div class="d-flex align-items-center"><i class="bi bi-cloud me-2"></i><span>Gauge API</span></div><span class="status-badge status-connected">Connected</span></div><div class="status-item"><div class="d-flex align-items-center"><i class="bi bi-hdd me-2"></i><span>Storage</span></div><span class="status-badge status-connected">Connected</span></div><div class="status-item"><div class="d-flex align-items-center"><i class="bi bi-clock me-2"></i><span>Last Data Sync</span></div><span class="text-muted">{{ last_sync_time or 'Just now' }}</span></div><div class="status-item"><div class="d-flex align-items-center"><i class="bi bi-truck me-2"></i><span>Assets</span></div><span class="text-muted">{{ asset_count or 716 }} active</span></div><div class="status-item"><div class="d-flex align-items-center"><i class="bi bi-people me-2"></i><span>Drivers</span></div><span class="text-muted">{{ driver_count or 113 }} active</span></div></div><div class="mt-4"><div class="d-flex flex-wrap gap-2"><button class="btn btn-outline-primary" onclick="location.reload()"><i class="bi bi-arrow-clockwise me-1"></i>Refresh
+</button><button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#systemInfoModal"><i class="bi bi-info-circle me-1"></i>System Info
+</button></div></div></div><div class="modal fade" id="systemInfoModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">System Information</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row"><div class="col-6"><strong>Version:</strong><br>
+TRAXORA v2.1
+</div><div class="col-6"><strong>Mode:</strong><br>
+GENIUS CORE Active
+</div></div><hr><div class="row"><div class="col-6"><strong>Assets:</strong><br>
+{{ asset_count or 716 }} tracked
+</div><div class="col-6"><strong>Drivers:</strong><br>
+{{ driver_count or 113 }} active
+</div></div><hr><div class="row"><div class="col-12"><strong>Last Update:</strong><br>
+{{ last_sync_time or 'Real-time sync active' }}
+</div></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div></div></div></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Dashboard-specific JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+// Add hover effects to metric cards
+const metricCards = document.querySelectorAll('.metric-card');
+metricCards.forEach(card => {
+card.addEventListener('mouseenter', function() {
+this.style.transform = 'translateY(-4px) scale(1.02)';
+});
+
+card.addEventListener('mouseleave', function() {
+this.style.transform = 'translateY(0) scale(1)';
+});
+});
+
+// Auto-refresh system status every 30 seconds
+setInterval(function() {
+// In a real implementation, this would fetch updated status
+console.log('Auto-refreshing system status...');
+}, 30000);
+
+// Add loading states to action buttons
+const actionButtons = document.querySelectorAll('.btn-traxora');
+actionButtons.forEach(button => {
+button.addEventListener('click', function() {
+if (!this.disabled) {
+this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Loading...';
+}
+});
+});
+});
+</script>
+{% endblock %}

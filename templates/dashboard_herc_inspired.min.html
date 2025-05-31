@@ -1,0 +1,443 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>TRAXOVO Fleet Intelligence</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><style>
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+
+body {
+background: #f5f5f5;
+font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+color: #333;
+}
+
+/* HERC-inspired Header */
+.header {
+background: white;
+border-bottom: 1px solid #e0e0e0;
+padding: 1rem 0;
+position: sticky;
+top: 0;
+z-index: 1000;
+}
+
+.header-content {
+max-width: 1200px;
+margin: 0 auto;
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 0 1rem;
+}
+
+.company-name {
+font-size: 1.5rem;
+font-weight: 700;
+color: #333;
+}
+
+.company-dropdown {
+display: flex;
+align-items: center;
+gap: 0.5rem;
+cursor: pointer;
+}
+
+/* Tab Navigation */
+.tab-navigation {
+background: white;
+border-bottom: 1px solid #e0e0e0;
+overflow-x: auto;
+}
+
+.nav-tabs {
+border: none;
+max-width: 1200px;
+margin: 0 auto;
+padding: 0 1rem;
+}
+
+.nav-tabs .nav-link {
+border: none;
+border-bottom: 3px solid transparent;
+color: #666;
+font-weight: 500;
+padding: 1rem 1.5rem;
+white-space: nowrap;
+}
+
+.nav-tabs .nav-link.active {
+border-bottom-color: #ffc107;
+color: #333;
+background: none;
+}
+
+/* Main Content */
+.main-content {
+max-width: 1200px;
+margin: 0 auto;
+padding: 2rem 1rem;
+}
+
+/* HERC-style Cards */
+.herc-card {
+background: white;
+border-radius: 12px;
+box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+margin-bottom: 2rem;
+overflow: hidden;
+}
+
+.card-header {
+padding: 1.5rem;
+border-bottom: 1px solid #f0f0f0;
+border-left: 4px solid #ffc107;
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+
+.card-title {
+font-size: 1.2rem;
+font-weight: 600;
+color: #333;
+margin: 0;
+}
+
+.see-all-link {
+color: #666;
+text-decoration: none;
+font-size: 0.9rem;
+}
+
+.card-body {
+padding: 1.5rem;
+}
+
+/* Fleet Overview Grid */
+.fleet-overview {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+gap: 1.5rem;
+margin-bottom: 2rem;
+}
+
+.metric-card {
+background: white;
+border-radius: 12px;
+box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+padding: 1.5rem;
+text-align: center;
+border-left: 4px solid #ffc107;
+}
+
+.metric-value {
+font-size: 2.5rem;
+font-weight: 700;
+color: #333;
+margin-bottom: 0.5rem;
+}
+
+.metric-label {
+color: #666;
+font-size: 0.9rem;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+}
+
+/* Utilization Chart */
+.utilization-section {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 2rem;
+}
+
+.chart-container {
+position: relative;
+height: 300px;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.donut-chart {
+position: relative;
+width: 200px;
+height: 200px;
+}
+
+.chart-center {
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+text-align: center;
+}
+
+.chart-percentage {
+font-size: 2rem;
+font-weight: 700;
+color: #333;
+}
+
+.chart-subtitle {
+font-size: 0.8rem;
+color: #666;
+}
+
+/* Legend */
+.chart-legend {
+display: flex;
+flex-direction: column;
+gap: 1rem;
+justify-content: center;
+}
+
+.legend-item {
+display: flex;
+align-items: center;
+justify-content: space-between;
+}
+
+.legend-color {
+width: 12px;
+height: 12px;
+border-radius: 50%;
+margin-right: 0.75rem;
+}
+
+.legend-label {
+flex: 1;
+font-size: 0.9rem;
+color: #333;
+}
+
+.legend-value {
+font-weight: 600;
+color: #333;
+}
+
+/* Alert States */
+.empty-state {
+text-align: center;
+padding: 3rem 1.5rem;
+color: #666;
+}
+
+.empty-state-icon {
+font-size: 3rem;
+margin-bottom: 1rem;
+color: #ccc;
+}
+
+.empty-state-message {
+font-size: 1.1rem;
+margin-bottom: 0.5rem;
+}
+
+.empty-state-subtitle {
+font-size: 0.9rem;
+color: #999;
+}
+
+/* Action Buttons */
+.action-button {
+background: #ffc107;
+color: #333;
+border: none;
+border-radius: 25px;
+padding: 0.75rem 2rem;
+font-weight: 600;
+cursor: pointer;
+transition: all 0.2s ease;
+margin-top: 1rem;
+}
+
+.action-button:hover {
+background: #ffca2c;
+transform: translateY(-1px);
+}
+
+/* Period Selector */
+.period-selector {
+display: flex;
+gap: 0.5rem;
+margin-bottom: 1.5rem;
+}
+
+.period-btn {
+padding: 0.5rem 1rem;
+border: 1px solid #ddd;
+background: white;
+border-radius: 20px;
+cursor: pointer;
+font-size: 0.8rem;
+transition: all 0.2s ease;
+}
+
+.period-btn.active {
+background: #ffc107;
+border-color: #ffc107;
+color: #333;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+.utilization-section {
+grid-template-columns: 1fr;
+}
+
+.fleet-overview {
+grid-template-columns: repeat(2, 1fr);
+}
+
+.header-content {
+padding: 0 0.5rem;
+}
+
+.main-content {
+padding: 1rem 0.5rem;
+}
+}
+
+/* Status Colors */
+.status-online { color: #28a745; }
+.status-idle { color: #ffc107; }
+.status-offline { color: #dc3545; }
+
+.bg-online { background-color: #28a745; }
+.bg-idle { background-color: #ffc107; }
+.bg-offline { background-color: #dc3545; }
+
+/* Sidebar */
+.sidebar {
+position: fixed;
+left: -300px;
+top: 0;
+width: 300px;
+height: 100vh;
+background: #2c3e50;
+color: white;
+transition: left 0.3s ease;
+z-index: 2000;
+overflow-y: auto;
+}
+
+.sidebar.open {
+left: 0;
+}
+
+.sidebar-header {
+padding: 1.5rem;
+background: #34495e;
+text-align: center;
+}
+
+.sidebar-nav {
+padding: 1rem 0;
+}
+
+.nav-section {
+margin-bottom: 2rem;
+}
+
+.nav-section-title {
+padding: 0.5rem 1.5rem;
+font-size: 0.8rem;
+color: #bdc3c7;
+text-transform: uppercase;
+letter-spacing: 1px;
+font-weight: 600;
+}
+
+.nav-item {
+display: block;
+padding: 0.75rem 1.5rem;
+color: #ecf0f1;
+text-decoration: none;
+transition: all 0.2s ease;
+border-left: 3px solid transparent;
+}
+
+.nav-item:hover {
+background: #34495e;
+color: white;
+border-left-color: #ffc107;
+}
+
+.nav-item i {
+width: 20px;
+margin-right: 0.75rem;
+}
+
+/* Menu Toggle */
+.menu-toggle {
+position: fixed;
+top: 1rem;
+left: 1rem;
+z-index: 2001;
+background: white;
+border: 1px solid #ddd;
+border-radius: 8px;
+padding: 0.75rem;
+cursor: pointer;
+box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.sidebar-overlay {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: rgba(0,0,0,0.5);
+z-index: 1999;
+display: none;
+}
+
+.sidebar-overlay.show {
+display: block;
+}
+</style></head><body><button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button><div class="sidebar-overlay" onclick="toggleSidebar()"></div><div class="sidebar" id="sidebar"><div class="sidebar-header"><h3>TRAXOVO</h3><p>Fleet Intelligence Platform</p></div><nav class="sidebar-nav"><div class="nav-section"><div class="nav-section-title">Core Operations</div><a href="/" class="nav-item"><i class="fas fa-tachometer-alt"></i>Dashboard</a><a href="/fleet-map" class="nav-item"><i class="fas fa-map-marked-alt"></i>Live Fleet Map</a></div><div class="nav-section"><div class="nav-section-title">Fleet Management</div><a href="/asset-manager" class="nav-item"><i class="fas fa-truck"></i>Asset Manager</a><a href="/equipment-dispatch" class="nav-item"><i class="fas fa-shipping-fast"></i>Equipment Dispatch</a><a href="/schedule-manager" class="nav-item"><i class="fas fa-calendar-alt"></i>Schedule Manager</a><a href="/job-sites" class="nav-item"><i class="fas fa-map-pin"></i>Job Sites</a></div><div class="nav-section"><div class="nav-section-title">Workforce</div><a href="/attendance-matrix" class="nav-item"><i class="fas fa-users"></i>Attendance Matrix</a><a href="/driver-management" class="nav-item"><i class="fas fa-id-card"></i>Driver Management</a><a href="/daily-driver-report" class="nav-item"><i class="fas fa-clipboard-list"></i>Daily Reports</a><a href="/weekly-driver-report" class="nav-item"><i class="fas fa-chart-line"></i>Weekly Reports</a></div><div class="nav-section"><div class="nav-section-title">Analytics & Reporting</div><a href="/enhanced-dashboard" class="nav-item"><i class="fas fa-star"></i>Enhanced Dashboard</a><a href="/fleet-analytics" class="nav-item"><i class="fas fa-chart-area"></i>Fleet Analytics</a><a href="/asset-profit" class="nav-item"><i class="fas fa-dollar-sign"></i>Asset Profitability</a><a href="/billing" class="nav-item"><i class="fas fa-chart-line"></i>Revenue Analytics</a><a href="/project-accountability" class="nav-item"><i class="fas fa-tasks"></i>Project Tracking</a><a href="/executive-reports" class="nav-item"><i class="fas fa-chart-pie"></i>Executive Reports</a></div><div class="nav-section"><div class="nav-section-title">Intelligence</div><a href="/ai-assistant" class="nav-item"><i class="fas fa-robot"></i>AI Assistant</a><a href="/workflow-optimization" class="nav-item"><i class="fas fa-cogs"></i>Workflow Optimization</a><a href="/industry-news" class="nav-item"><i class="fas fa-newspaper"></i>Industry News</a></div><div class="nav-section"><div class="nav-section-title">Administration</div><a href="/system-health" class="nav-item"><i class="fas fa-heartbeat"></i>System Health</a><a href="/file-upload" class="nav-item"><i class="fas fa-upload"></i>Data Upload</a><a href="/system-admin" class="nav-item"><i class="fas fa-user-shield"></i>User Management</a></div></nav></div><div class="main-content"><div class="header"><div class="header-content"><div class="company-dropdown"><span class="company-name">RAGLE INC</span><i class="fas fa-chevron-down"></i></div><div><i class="fas fa-bars"></i></div></div></div><div class="tab-navigation"><ul class="nav nav-tabs"><li class="nav-item"><a class="nav-link active" href="#">Fleet Control</a></li><li class="nav-item"><a class="nav-link" href="#">Fleet Utilization</a></li><li class="nav-item"><a class="nav-link" href="#">Fleet Diagnostics</a></li><li class="nav-item"><a class="nav-link" href="#">Deliveries and Dispatch</a></li></ul></div><div class="fleet-overview"><div class="metric-card"><div class="metric-value">{{ total_assets or '581' }}</div><div class="metric-label">Total Assets</div></div><div class="metric-card"><div class="metric-value status-online">{{ active_assets or '610' }}</div><div class="metric-label">Active Assets</div></div><div class="metric-card"><div class="metric-value">{{ total_drivers or '92' }}</div><div class="metric-label">Drivers</div></div><div class="metric-card"><div class="metric-value">${{ (revenue_total or '2.21M') }}</div><div class="metric-label">YTD Revenue</div></div></div><div class="herc-card"><div class="card-header"><h3 class="card-title">Utilization</h3><a href="#" class="see-all-link">See All</a></div><div class="card-body"><div class="period-selector"><button class="period-btn active">Last 5 Workdays</button><button class="period-btn">Last 7 Days</button></div><div class="utilization-section"><div class="chart-container"><div class="donut-chart"><canvas id="utilizationChart" width="200" height="200"></canvas><div class="chart-center"><div class="chart-percentage">87.5<span style="font-size: 1rem;">%</span></div><div class="chart-subtitle">Active</div></div></div></div><div class="chart-legend"><div class="legend-item"><div style="display: flex; align-items: center;"><div class="legend-color bg-online"></div><span class="legend-label">Active (87.5%)</span></div><span class="legend-value">534</span></div><div class="legend-item"><div style="display: flex; align-items: center;"><div class="legend-color bg-idle"></div><span class="legend-label">Idle (8.2%)</span></div><span class="legend-value">47</span></div><div class="legend-item"><div style="display: flex; align-items: center;"><div class="legend-color bg-offline"></div><span class="legend-label">Offline (4.3%)</span></div><span class="legend-value">25</span></div></div></div></div></div><div class="herc-card"><div class="card-header"><h3 class="card-title">Service Requests</h3></div><div class="card-body"><div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;"><div style="text-align: center; padding: 2rem;"><div style="background: #f8f9fa; border-radius: 50%; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;"><i class="fas fa-clipboard-list" style="font-size: 2rem; color: #666;"></i></div><h4 style="margin-bottom: 0.5rem;">View Service Requests</h4></div><div style="text-align: center; padding: 2rem;"><div style="background: #f8f9fa; border-radius: 50%; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;"><i class="fas fa-wrench" style="font-size: 2rem; color: #666;"></i></div><h4 style="margin-bottom: 0.5rem;">Log a Service Call</h4></div></div></div></div><div class="herc-card"><div class="card-header"><h3 class="card-title">Alerts within last 24 hours</h3></div><div class="card-body"><div class="empty-state"><div class="empty-state-icon"><i class="fas fa-bell"></i></div><div class="empty-state-message">No Alerts Found</div><div class="empty-state-subtitle">All systems operating normally</div></div></div></div></div><script>
+// Initialize utilization donut chart
+document.addEventListener('DOMContentLoaded', function() {
+const ctx = document.getElementById('utilizationChart').getContext('2d');
+
+new Chart(ctx, {
+type: 'doughnut',
+data: {
+datasets: [{
+data: [87.5, 8.2, 4.3],
+backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
+borderWidth: 0
+}]
+},
+options: {
+responsive: false,
+maintainAspectRatio: false,
+cutout: '75%',
+plugins: {
+legend: { display: false },
+tooltip: { enabled: false }
+}
+}
+});
+});
+
+// Sidebar toggle
+function toggleSidebar() {
+const sidebar = document.getElementById('sidebar');
+const overlay = document.querySelector('.sidebar-overlay');
+
+sidebar.classList.toggle('open');
+overlay.classList.toggle('show');
+}
+
+// Period button toggle
+document.querySelectorAll('.period-btn').forEach(btn => {
+btn.addEventListener('click', function() {
+document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+this.classList.add('active');
+});
+});
+</script></body></html>

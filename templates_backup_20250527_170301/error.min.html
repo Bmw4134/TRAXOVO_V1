@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block title %}Error{% endblock %}
+
+{% block content %}
+<div class="container mt-5"><div class="row justify-content-center"><div class="col-md-8"><div class="card border-warning"><div class="card-header bg-warning text-dark"><h4 class="mb-0">Error</h4></div><div class="card-body"><div class="text-center mb-4"><i class="bi bi-exclamation-triangle-fill text-warning" style="font-size: 4rem;"></i></div><h5 class="card-title text-center">An error occurred.</h5><p class="card-text text-center">
+{{ error_message|default('We encountered an error processing your request.') }}
+</p><div class="d-grid gap-2 col-6 mx-auto mt-4"><a href="/" class="btn btn-primary"><i class="bi bi-house-door-fill me-2"></i>Return to Dashboard
+</a></div></div><div class="card-footer text-muted"><div class="small text-center">
+TRAXORA Fleet Management System
+</div></div></div></div></div></div>
+{% endblock %}

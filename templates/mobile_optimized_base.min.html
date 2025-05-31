@@ -1,0 +1,359 @@
+<!DOCTYPE html><html lang="en" data-bs-theme="light"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"><title>{% block title %}TRAXOVO Fleet Management{% endblock %}</title><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="theme-color" content="#2563eb"><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"><style>
+/* CSS Reset and Mobile-First Foundation */
+* {
+box-sizing: border-box;
+-webkit-tap-highlight-color: transparent;
+}
+
+html {
+font-size: 16px;
+height: 100%;
+margin: 0;
+padding: 0;
+}
+
+body {
+font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+background-color: #f8fafc;
+margin: 0;
+padding: 0;
+min-height: 100vh;
+line-height: 1.5;
+}
+
+/* TRAXOVO Design System */
+:root {
+--traxora-primary: #2563eb;
+--traxora-secondary: #64748b;
+--traxora-success: #059669;
+--traxora-warning: #d97706;
+--traxora-danger: #dc2626;
+--traxora-light: #f8fafc;
+--traxora-dark: #0f172a;
+--traxora-radius: 12px;
+--traxora-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Mobile-First Layout System */
+.app-container {
+display: flex;
+flex-direction: column;
+min-height: 100vh;
+width: 100%;
+}
+
+/* Mobile Header */
+.mobile-header {
+background: linear-gradient(135deg, var(--traxora-primary) 0%, #1e40af 100%);
+color: white;
+padding: 1rem;
+position: sticky;
+top: 0;
+z-index: 1000;
+box-shadow: var(--traxora-shadow);
+}
+
+.mobile-header .navbar-brand {
+font-weight: 700;
+font-size: 1.5rem;
+color: white !important;
+margin: 0;
+}
+
+.mobile-nav-toggle {
+background: rgba(255, 255, 255, 0.2);
+border: none;
+border-radius: 8px;
+color: white;
+padding: 0.5rem;
+font-size: 1.2rem;
+}
+
+/* Mobile Navigation Drawer */
+.mobile-nav-drawer {
+position: fixed;
+top: 0;
+left: -320px;
+width: 320px;
+height: 100vh;
+background: white;
+z-index: 2000;
+transition: left 0.3s ease;
+box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+overflow-y: auto;
+}
+
+.mobile-nav-drawer.open {
+left: 0;
+}
+
+.mobile-nav-overlay {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: rgba(0, 0, 0, 0.5);
+z-index: 1500;
+opacity: 0;
+visibility: hidden;
+transition: all 0.3s ease;
+}
+
+.mobile-nav-overlay.show {
+opacity: 1;
+visibility: visible;
+}
+
+.nav-drawer-header {
+background: var(--traxora-primary);
+color: white;
+padding: 1.5rem 1rem;
+font-weight: 600;
+}
+
+.nav-drawer-body {
+padding: 1rem 0;
+}
+
+.nav-drawer-item {
+display: flex;
+align-items: center;
+padding: 1rem 1.5rem;
+color: var(--traxora-dark);
+text-decoration: none;
+border-bottom: 1px solid #e2e8f0;
+transition: background-color 0.2s;
+}
+
+.nav-drawer-item:hover {
+background-color: #f1f5f9;
+color: var(--traxora-primary);
+}
+
+.nav-drawer-item i {
+width: 20px;
+margin-right: 12px;
+}
+
+/* Main Content Area */
+.main-content {
+flex: 1;
+padding: 1rem;
+width: 100%;
+}
+
+/* Card System */
+.traxora-card {
+background: white;
+border-radius: var(--traxora-radius);
+box-shadow: var(--traxora-shadow);
+border: none;
+margin-bottom: 1rem;
+overflow: hidden;
+}
+
+.traxora-card-header {
+background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+border-bottom: 1px solid #e2e8f0;
+padding: 1rem 1.5rem;
+font-weight: 600;
+color: var(--traxora-dark);
+}
+
+.traxora-card-body {
+padding: 1.5rem;
+}
+
+/* Button System */
+.btn-traxora {
+background: linear-gradient(135deg, var(--traxora-primary) 0%, #1e40af 100%);
+border: none;
+border-radius: 8px;
+color: white;
+font-weight: 500;
+padding: 0.75rem 1.5rem;
+transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-traxora:hover {
+transform: translateY(-1px);
+box-shadow: 0 8px 15px rgba(37, 99, 235, 0.3);
+color: white;
+}
+
+.btn-traxora:active {
+transform: translateY(0);
+}
+
+/* Status Indicators */
+.status-indicator {
+display: inline-flex;
+align-items: center;
+padding: 0.25rem 0.75rem;
+border-radius: 20px;
+font-size: 0.875rem;
+font-weight: 500;
+}
+
+.status-connected {
+background: rgba(5, 150, 105, 0.1);
+color: var(--traxora-success);
+}
+
+.status-warning {
+background: rgba(217, 119, 6, 0.1);
+color: var(--traxora-warning);
+}
+
+.status-danger {
+background: rgba(220, 38, 38, 0.1);
+color: var(--traxora-danger);
+}
+
+/* Desktop Responsive Breakpoints */
+@media (min-width: 768px) {
+.app-container {
+flex-direction: row;
+}
+
+.mobile-header {
+display: none;
+}
+
+.mobile-nav-drawer {
+position: sticky;
+top: 0;
+left: 0;
+width: 280px;
+height: 100vh;
+background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+border-right: 1px solid #e2e8f0;
+box-shadow: none;
+}
+
+.mobile-nav-overlay {
+display: none;
+}
+
+.nav-drawer-header {
+background: transparent;
+color: var(--traxora-primary);
+border-bottom: 1px solid #e2e8f0;
+}
+
+.main-content {
+flex: 1;
+padding: 2rem;
+}
+}
+
+@media (min-width: 1200px) {
+.main-content {
+padding: 2.5rem;
+}
+}
+
+/* Utility Classes */
+.text-traxora-primary { color: var(--traxora-primary) !important; }
+.text-traxora-secondary { color: var(--traxora-secondary) !important; }
+.bg-traxora-light { background-color: var(--traxora-light) !important; }
+
+/* Animation System */
+.fade-in {
+animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+from { opacity: 0; transform: translateY(20px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+.hover-lift {
+transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.hover-lift:hover {
+transform: translateY(-2px);
+box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+</style>
+
+{% block head %}{% endblock %}
+</head><body><div class="app-container"><header class="mobile-header d-md-none"><div class="d-flex justify-content-between align-items-center"><h1 class="navbar-brand mb-0">TRAXOVO</h1><button class="mobile-nav-toggle" id="mobileNavToggle"><i class="bi bi-list"></i></button></div></header><nav class="mobile-nav-drawer" id="mobileNavDrawer"><div class="nav-drawer-header"><div class="d-flex justify-content-between align-items-center"><span>TRAXOVO Fleet</span><button class="btn btn-link text-white p-0 d-md-none" id="closeNavDrawer"><i class="bi bi-x-lg"></i></button></div></div><div class="nav-drawer-body"><a href="/" class="nav-drawer-item"><i class="bi bi-speedometer2"></i>
+Dashboard
+</a><a href="/working-reports" class="nav-drawer-item"><i class="bi bi-person-check"></i>
+Driver Reports
+</a><a href="/mtd-data-review" class="nav-drawer-item"><i class="bi bi-graph-up"></i>
+MTD Data Review
+</a><a href="/admin/kaizen" class="nav-drawer-item"><i class="bi bi-gear"></i>
+Kaizen Admin
+</a><a href="/weekly-driver-report" class="nav-drawer-item"><i class="bi bi-calendar-week"></i>
+Weekly Reports
+</a><a href="/live-tracking" class="nav-drawer-item"><i class="bi bi-geo-alt-fill"></i>
+Live GPS Tracking
+</a></div></nav><div class="mobile-nav-overlay" id="mobileNavOverlay"></div><main class="main-content">
+{% block content %}{% endblock %}
+</main></div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script><script>
+// Mobile Navigation System
+document.addEventListener('DOMContentLoaded', function() {
+const navToggle = document.getElementById('mobileNavToggle');
+const navDrawer = document.getElementById('mobileNavDrawer');
+const navOverlay = document.getElementById('mobileNavOverlay');
+const closeNav = document.getElementById('closeNavDrawer');
+
+function openNav() {
+navDrawer.classList.add('open');
+navOverlay.classList.add('show');
+document.body.style.overflow = 'hidden';
+}
+
+function closeNavigation() {
+navDrawer.classList.remove('open');
+navOverlay.classList.remove('show');
+document.body.style.overflow = '';
+}
+
+if (navToggle) {
+navToggle.addEventListener('click', openNav);
+}
+
+if (closeNav) {
+closeNav.addEventListener('click', closeNavigation);
+}
+
+if (navOverlay) {
+navOverlay.addEventListener('click', closeNavigation);
+}
+
+// Close nav on escape key
+document.addEventListener('keydown', function(e) {
+if (e.key === 'Escape') {
+closeNavigation();
+}
+});
+
+// Add active state to current page
+const currentPath = window.location.pathname;
+const navItems = document.querySelectorAll('.nav-drawer-item');
+
+navItems.forEach(item => {
+if (item.getAttribute('href') === currentPath) {
+item.style.backgroundColor = '#f1f5f9';
+item.style.color = 'var(--traxora-primary)';
+item.style.fontWeight = '600';
+}
+});
+});
+
+// Add fade-in animation to content
+document.addEventListener('DOMContentLoaded', function() {
+const mainContent = document.querySelector('.main-content');
+if (mainContent) {
+mainContent.classList.add('fade-in');
+}
+});
+</script>
+
+{% block scripts %}{% endblock %}
+</body></html>

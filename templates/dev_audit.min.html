@@ -1,0 +1,158 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Development Audit - TRAXOVO</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet"><style>
+.audit-container {
+background: #f8f9fa;
+min-height: 100vh;
+padding: 20px 0;
+}
+.audit-card {
+background: white;
+border-radius: 10px;
+box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+margin-bottom: 20px;
+}
+.change-entry {
+border-left: 4px solid #007bff;
+padding: 15px;
+margin-bottom: 10px;
+background: #f8f9fa;
+border-radius: 5px;
+}
+.change-entry.metrics { border-left-color: #28a745; }
+.change-entry.data { border-left-color: #dc3545; }
+.change-entry.file { border-left-color: #ffc107; }
+.change-entry.api { border-left-color: #17a2b8; }
+
+.timestamp {
+font-size: 0.8em;
+color: #6c757d;
+}
+.live-indicator {
+display: inline-block;
+width: 8px;
+height: 8px;
+background: #28a745;
+border-radius: 50%;
+animation: pulse 2s infinite;
+}
+@keyframes pulse {
+0% { opacity: 1; }
+50% { opacity: 0.5; }
+100% { opacity: 1; }
+}
+.metric-diff {
+background: #e7f3ff;
+padding: 5px 10px;
+border-radius: 5px;
+margin: 5px 0;
+}
+.auto-refresh {
+position: fixed;
+top: 20px;
+right: 20px;
+z-index: 1000;
+}
+</style></head><body class="audit-container"><div class="container-fluid"><div class="row"><div class="col-12"><div class="audit-card"><div class="card-header d-flex justify-content-between align-items-center"><h3><i class="bi bi-activity me-2"></i>Real-Time Development Audit</h3><div><span class="live-indicator me-2"></span><span class="badge bg-success">LIVE</span></div></div><div class="card-body"><div class="row"><div class="col-md-3"><div class="text-center p-3 bg-light rounded"><h5 id="total-changes">0</h5><small>Total Changes</small></div></div><div class="col-md-3"><div class="text-center p-3 bg-light rounded"><h5 id="metric-changes">0</h5><small>Metric Updates</small></div></div><div class="col-md-3"><div class="text-center p-3 bg-light rounded"><h5 id="data-changes">0</h5><small>Data Changes</small></div></div><div class="col-md-3"><div class="text-center p-3 bg-light rounded"><h5 id="file-changes">0</h5><small>File Modifications</small></div></div></div></div></div></div></div><div class="row"><div class="col-md-6"><div class="audit-card"><div class="card-header"><h5><i class="bi bi-graph-up me-2"></i>Metric Changes</h5></div><div class="card-body" id="metric-changes-list" style="max-height: 400px; overflow-y: auto;"></div></div></div><div class="col-md-6"><div class="audit-card"><div class="card-header"><h5><i class="bi bi-database me-2"></i>Data Source Changes</h5></div><div class="card-body" id="data-changes-list" style="max-height: 400px; overflow-y: auto;"></div></div></div></div><div class="row"><div class="col-12"><div class="audit-card"><div class="card-header"><h5><i class="bi bi-clock-history me-2"></i>Recent Activity Log</h5></div><div class="card-body" id="activity-log" style="max-height: 500px; overflow-y: auto;"></div></div></div></div></div><div class="auto-refresh"><button class="btn btn-primary btn-sm" id="refresh-btn"><i class="bi bi-arrow-clockwise me-1"></i>Refresh
+</button></div><script>
+let refreshInterval;
+
+function formatTimestamp(timestamp) {
+return new Date(timestamp).toLocaleTimeString();
+}
+
+function createChangeEntry(change) {
+const entry = document.createElement('div');
+entry.className = `change-entry ${change.category}`;
+
+let content = `
+<div class="d-flex justify-content-between"><strong>${change.action}</strong><span class="timestamp">${formatTimestamp(change.timestamp)}</span></div>
+`;
+
+if (change.category === 'metrics' && change.details) {
+content += `
+<div class="metric-diff"><strong>${change.details.metric}:</strong>
+${change.details.old_value} → ${change.details.new_value}
+<small class="text-muted">(${change.details.source})</small></div>
+`;
+} else if (change.category === 'data' && change.details) {
+content += `
+<div><strong>Source:</strong> ${change.details.source}<br><strong>Operation:</strong> ${change.details.operation}
+${change.details.record_count ? `<br><strong>Records:</strong> ${change.details.record_count}` : ''}
+</div>
+`;
+} else if (change.details) {
+content += `<div><pre>${JSON.stringify(change.details, null, 2)}</pre></div>`;
+}
+
+entry.innerHTML = content;
+return entry;
+}
+
+function updateAuditDisplay(data) {
+// Update counters
+document.getElementById('total-changes').textContent = data.summary.total_changes;
+document.getElementById('metric-changes').textContent = data.summary.metric_changes;
+document.getElementById('data-changes').textContent = data.summary.data_changes;
+document.getElementById('file-changes').textContent = data.summary.file_changes;
+
+// Update metric changes
+const metricsList = document.getElementById('metric-changes-list');
+metricsList.innerHTML = '';
+data.metric_changes.forEach(change => {
+metricsList.appendChild(createChangeEntry(change));
+});
+
+// Update data changes
+const dataList = document.getElementById('data-changes-list');
+dataList.innerHTML = '';
+data.data_changes.forEach(change => {
+dataList.appendChild(createChangeEntry(change));
+});
+
+// Update activity log
+const activityLog = document.getElementById('activity-log');
+activityLog.innerHTML = '';
+data.recent_changes.forEach(change => {
+activityLog.appendChild(createChangeEntry(change));
+});
+}
+
+function refreshAuditData() {
+fetch('/api/audit/live')
+.then(response => response.json())
+.then(data => {
+updateAuditDisplay(data);
+})
+.catch(error => {
+console.error('Error fetching audit data:', error);
+});
+}
+
+// Auto-refresh every 2 seconds
+function startAutoRefresh() {
+refreshInterval = setInterval(setInterval(refreshAuditData, 60000);
+}
+
+function stopAutoRefresh() {
+if (refreshInterval) {
+clearInterval(refreshInterval);
+}
+}
+
+// Manual refresh button
+document.getElementById('refresh-btn').addEventListener('click', refreshAuditData);
+
+// Start auto-refresh on page load
+document.addEventListener('DOMContentLoaded', function() {
+refreshAuditData();
+startAutoRefresh();
+});
+
+// Stop auto-refresh when page is hidden
+document.addEventListener('visibilitychange', function() {
+if (document.hidden) {
+stopAutoRefresh();
+} else {
+startAutoRefresh();
+}
+});
+</script></body></html>

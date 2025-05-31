@@ -1,0 +1,169 @@
+{% extends "basic_base.html" %}
+
+{% block title %}MTD Interval Report: {{ report.label }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4"><div class="row"><div class="col-12 mb-4"><div class="card"><div class="card-header bg-primary text-white d-flex justify-content-between align-items-center"><h2 class="mb-0">{{ report.label }} Report</h2><div><a href="{{ url_for('mtd_reports.show_interval_reports', start=report.start_date, end=report.end_date) }}" class="btn btn-light btn-sm"><i class="fa fa-arrow-left"></i> Back to Interval Reports
+</a></div></div><div class="card-body"><div class="alert alert-info"><i class="fa fa-info-circle me-2"></i><strong>Date Range:</strong> {{ report.start_date }} to {{ report.end_date }}
+<span class="ms-3 badge bg-primary">{{ report.interval_type|capitalize }} Report</span></div><div class="mt-4"><h4>Period Summary</h4><div class="row"><div class="col-md-8"><div class="card mb-3"><div class="card-body"><canvas id="summaryChart" height="300"></canvas></div></div></div><div class="col-md-4"><div class="card mb-3"><div class="card-header bg-light"><h5 class="mb-0">Attendance Metrics</h5></div><div class="card-body"><div class="list-group"><div class="list-group-item d-flex justify-content-between align-items-center"><strong>Total Drivers:</strong><span class="badge bg-primary rounded-pill">{{ report.summary.total_drivers }}</span></div><div class="list-group-item d-flex justify-content-between align-items-center"><span>On Time:</span><span class="badge bg-success rounded-pill">{{ report.summary.on_time_count }} ({{ report.summary.on_time_percent }}%)</span></div><div class="list-group-item d-flex justify-content-between align-items-center"><span>Late:</span><span class="badge bg-danger rounded-pill">{{ report.summary.late_count }} ({{ report.summary.late_percent }}%)</span></div><div class="list-group-item d-flex justify-content-between align-items-center"><span>Early End:</span><span class="badge bg-warning rounded-pill">{{ report.summary.early_end_count }} ({{ report.summary.early_end_percent }}%)</span></div><div class="list-group-item d-flex justify-content-between align-items-center"><span>Not On Job:</span><span class="badge bg-secondary rounded-pill">{{ report.summary.not_on_job_count }} ({{ report.summary.not_on_job_percent }}%)</span></div></div></div></div></div></div></div><div class="mt-4"><h4>Daily Breakdown</h4><div class="card"><div class="card-body"><canvas id="dailyChart" height="300"></canvas></div></div></div><div class="mt-4"><h4>Daily Reports</h4><div class="table-responsive"><table class="table table-striped table-hover"><thead class="table-dark"><tr><th>Date</th><th class="text-center">Total Drivers</th><th class="text-center">On Time</th><th class="text-center">Late</th><th class="text-center">Early End</th><th class="text-center">Not On Job</th><th class="text-end">Actions</th></tr></thead><tbody>
+{% for day in report.days %}
+<tr><td><strong>{{ day.label }}</strong><br><small class="text-muted">{{ day.date }}</small></td><td class="text-center">{{ day.total_drivers }}</td><td class="text-center">
+{{ day.on_time_count }}
+{% if day.total_drivers > 0 %}
+<div class="progress" style="height: 5px;"><div class="progress-bar bg-success" role="progressbar"
+style="width: {{ (day.on_time_count / day.total_drivers * 100)|round }}%;"
+aria-valuenow="{{ (day.on_time_count / day.total_drivers * 100)|round }}"
+aria-valuemin="0"
+aria-valuemax="100"></div></div>
+{% endif %}
+</td><td class="text-center">
+{{ day.late_count }}
+{% if day.total_drivers > 0 %}
+<div class="progress" style="height: 5px;"><div class="progress-bar bg-danger" role="progressbar"
+style="width: {{ (day.late_count / day.total_drivers * 100)|round }}%;"
+aria-valuenow="{{ (day.late_count / day.total_drivers * 100)|round }}"
+aria-valuemin="0"
+aria-valuemax="100"></div></div>
+{% endif %}
+</td><td class="text-center">
+{{ day.early_end_count }}
+{% if day.total_drivers > 0 %}
+<div class="progress" style="height: 5px;"><div class="progress-bar bg-warning" role="progressbar"
+style="width: {{ (day.early_end_count / day.total_drivers * 100)|round }}%;"
+aria-valuenow="{{ (day.early_end_count / day.total_drivers * 100)|round }}"
+aria-valuemin="0"
+aria-valuemax="100"></div></div>
+{% endif %}
+</td><td class="text-center">
+{{ day.not_on_job_count }}
+{% if day.total_drivers > 0 %}
+<div class="progress" style="height: 5px;"><div class="progress-bar bg-secondary" role="progressbar"
+style="width: {{ (day.not_on_job_count / day.total_drivers * 100)|round }}%;"
+aria-valuenow="{{ (day.not_on_job_count / day.total_drivers * 100)|round }}"
+aria-valuemin="0"
+aria-valuemax="100"></div></div>
+{% endif %}
+</td><td class="text-end"><a href="{{ url_for('mtd_reports.show_report', date=day.date) }}"
+class="btn btn-sm btn-primary"><i class="fa fa-eye"></i> View
+</a></td></tr>
+{% endfor %}
+</tbody></table></div></div><div class="mt-4 d-flex justify-content-between"><a href="{{ url_for('mtd_reports.show_interval_reports', start=report.start_date, end=report.end_date) }}" class="btn btn-secondary"><i class="fa fa-arrow-left"></i> Back to Interval Reports
+</a><a href="{{ url_for('mtd_reports.upload_files') }}" class="btn btn-primary"><i class="fa fa-upload"></i> Upload New Files
+</a></div></div></div></div></div></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script><script>
+document.addEventListener('DOMContentLoaded', function() {
+// Data for summary chart
+const summaryData = {
+labels: ['On Time', 'Late', 'Early End', 'Not On Job'],
+datasets: [{
+data: [
+{{ report.summary.on_time_count }},
+{{ report.summary.late_count }},
+{{ report.summary.early_end_count }},
+{{ report.summary.not_on_job_count }}
+],
+backgroundColor: [
+'#28a745',
+'#dc3545',
+'#ffc107',
+'#6c757d'
+],
+borderWidth: 1
+}]
+};
+
+// Create summary pie chart
+const summaryCtx = document.getElementById('summaryChart').getContext('2d');
+new Chart(summaryCtx, {
+type: 'pie',
+data: summaryData,
+options: {
+responsive: true,
+plugins: {
+title: {
+display: true,
+text: 'Overall Attendance Distribution',
+font: {
+size: 16
+}
+},
+legend: {
+position: 'right'
+}
+}
+}
+});
+
+// Data for daily chart
+const days = {{ report.days|tojson }};
+const labels = days.map(day => day.label);
+const onTimeData = days.map(day => day.on_time_count);
+const lateData = days.map(day => day.late_count);
+const earlyEndData = days.map(day => day.early_end_count);
+const notOnJobData = days.map(day => day.not_on_job_count);
+const totalData = days.map(day => day.total_drivers);
+
+// Create daily chart
+const dailyCtx = document.getElementById('dailyChart').getContext('2d');
+new Chart(dailyCtx, {
+type: 'bar',
+data: {
+labels: labels,
+datasets: [
+{
+label: 'On Time',
+data: onTimeData,
+backgroundColor: '#28a745'
+},
+{
+label: 'Late',
+data: lateData,
+backgroundColor: '#dc3545'
+},
+{
+label: 'Early End',
+data: earlyEndData,
+backgroundColor: '#ffc107'
+},
+{
+label: 'Not On Job',
+data: notOnJobData,
+backgroundColor: '#6c757d'
+}
+]
+},
+options: {
+responsive: true,
+scales: {
+x: {
+stacked: true,
+},
+y: {
+stacked: true,
+beginAtZero: true,
+title: {
+display: true,
+text: 'Number of Drivers'
+}
+}
+},
+plugins: {
+title: {
+display: true,
+text: 'Daily Attendance Breakdown',
+font: {
+size: 16
+}
+},
+legend: {
+position: 'top'
+}
+}
+}
+});
+});
+</script>
+{% endblock %}

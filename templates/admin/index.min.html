@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - TRAXOVO{% endblock %}
+
+{% block extra_css %}
+<style>
+.admin-card {
+transition: all 0.3s ease;
+border-radius: 0.5rem;
+box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.admin-card:hover {
+transform: translateY(-5px);
+box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+.card-icon {
+font-size: 2.5rem;
+margin-bottom: 0.5rem;
+color: var(--bs-primary);
+}
+.stats-value {
+font-size: 2rem;
+font-weight: bold;
+}
+.stats-label {
+font-size: 0.85rem;
+opacity: 0.8;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4"><div class="row mb-4"><div class="col-md-8"><h1 class="display-5 fw-bold"><i class="bi bi-shield-lock me-2"></i>Admin Dashboard
+</h1><p class="text-muted">
+System management and monitoring tools
+</p></div><div class="col-md-4 text-end"><a href="{{ url_for('index') }}" class="btn btn-outline-primary"><i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+</a></div></div><div class="row mb-4"><div class="col-md-3 mb-4"><div class="card admin-card h-100"><div class="card-body text-center p-4"><div class="card-icon"><i class="bi bi-activity"></i></div><h5 class="card-title mb-3">Activity Logs</h5><p class="card-text text-muted mb-4">View user activities and system events</p><a href="{{ url_for('admin.activity_logs') }}" class="btn btn-primary"><i class="bi bi-eye me-2"></i>View Logs
+</a></div></div></div><div class="col-md-3 mb-4"><div class="card admin-card h-100"><div class="card-body text-center p-4"><div class="card-icon"><i class="bi bi-people"></i></div><h5 class="card-title mb-3">User Management</h5><p class="card-text text-muted mb-4">Manage users, roles and permissions</p><a href="#" class="btn btn-primary"><i class="bi bi-person-gear me-2"></i>Manage Users
+</a></div></div></div><div class="col-md-3 mb-4"><div class="card admin-card h-100"><div class="card-body text-center p-4"><div class="card-icon"><i class="bi bi-gear"></i></div><h5 class="card-title mb-3">System Settings</h5><p class="card-text text-muted mb-4">Configure system-wide settings</p><a href="#" class="btn btn-primary"><i class="bi bi-sliders me-2"></i>Settings
+</a></div></div></div><div class="col-md-3 mb-4"><div class="card admin-card h-100"><div class="card-body text-center p-4"><div class="card-icon"><i class="bi bi-database"></i></div><h5 class="card-title mb-3">Database</h5><p class="card-text text-muted mb-4">Manage database operations</p><a href="#" class="btn btn-primary"><i class="bi bi-table me-2"></i>Database Tools
+</a></div></div></div></div><div class="row mb-4"><div class="col-md-12"><div class="card"><div class="card-header"><h5 class="mb-0"><i class="bi bi-heart-pulse me-2"></i>System Health
+</h5></div><div class="card-body"><div class="row"><div class="col-md-3 text-center mb-3"><div class="stats-label">API PULLS TODAY</div><div class="stats-value text-info">12</div></div><div class="col-md-3 text-center mb-3"><div class="stats-label">ACTIVE USERS (24H)</div><div class="stats-value text-primary">8</div></div><div class="col-md-3 text-center mb-3"><div class="stats-label">REPORTS GENERATED</div><div class="stats-value text-success">23</div></div><div class="col-md-3 text-center mb-3"><div class="stats-label">ERROR RATE</div><div class="stats-value text-danger">0.5%</div></div></div></div></div></div></div><div class="row"><div class="col-md-12"><div class="card"><div class="card-header"><div class="d-flex justify-content-between align-items-center"><h5 class="mb-0">Recent Activity</h5><a href="{{ url_for('admin.activity_logs') }}" class="btn btn-sm btn-outline-primary">
+View All
+</a></div></div><div class="card-body p-0"><div class="table-responsive"><table class="table table-hover mb-0"><thead class="table-dark"><tr><th>Time</th><th>User</th><th>Event</th><th>Description</th></tr></thead><tbody><tr><td class="text-muted">{{ now.strftime('%H:%M') }}</td><td>Admin User</td><td><span class="badge bg-info">API Pull</span></td><td>Gauge API data sync (124 assets)</td></tr><tr><td class="text-muted">{{ (now - timedelta(minutes=15)).strftime('%H:%M') }}</td><td>John Doe</td><td><span class="badge bg-success">Report Export</span></td><td>Daily Driver Report (PDF)</td></tr><tr><td class="text-muted">{{ (now - timedelta(minutes=42)).strftime('%H:%M') }}</td><td>Jane Smith</td><td><span class="badge bg-warning text-dark">Document Upload</span></td><td>PM Allocation File (April 2025)</td></tr></tbody></table></div></div></div></div></div></div>
+{% endblock %}

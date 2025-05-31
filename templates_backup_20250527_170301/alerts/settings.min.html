@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Equipment Alerts Settings{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4"><div class="row mb-4"><div class="col-12"><div class="d-flex justify-content-between align-items-center"><h1 class="mb-0"><i class="bi bi-gear me-2"></i>Equipment Alerts Settings</h1><div><a href="{{ url_for('alerts.alerts_dashboard') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i> Back to Alerts
+</a><a href="{{ url_for('index') }}" class="btn btn-outline-primary ms-2"><i class="bi bi-house me-2"></i> Dashboard
+</a></div></div><p class="text-muted">Configure alert thresholds, notifications, and automation settings.</p></div></div><div class="row"><div class="col-lg-6"><div class="card mb-4"><div class="card-header bg-primary text-white"><h5 class="mb-0"><i class="bi bi-sliders me-2"></i>Alert Thresholds</h5></div><div class="card-body"><form id="thresholdForm"><h6 class="border-bottom pb-2 mb-3">Equipment Inactivity</h6><div class="row mb-4"><div class="col-md-6"><label class="form-label">Warning Threshold (Days)</label><div class="input-group"><input type="number" class="form-control" id="inactivityWarningDays" value="3" min="1" max="30"><span class="input-group-text">days</span></div><small class="text-muted">Generate warning alert after this many days of inactivity</small></div><div class="col-md-6"><label class="form-label">Critical Threshold (Days)</label><div class="input-group"><input type="number" class="form-control" id="inactivityCriticalDays" value="7" min="1" max="30"><span class="input-group-text">days</span></div><small class="text-muted">Generate critical alert after this many days of inactivity</small></div></div><h6 class="border-bottom pb-2 mb-3">Unusual Usage Patterns</h6><div class="row mb-4"><div class="col-md-6"><label class="form-label">Variance Threshold (Standard Deviations)</label><div class="input-group"><input type="number" class="form-control" id="usageVarianceThreshold" value="2" min="1" max="5" step="0.5"><span class="input-group-text">σ</span></div><small class="text-muted">Alert when usage deviates by this many standard deviations</small></div><div class="col-md-6"><label class="form-label">Historical Data Period</label><div class="input-group"><input type="number" class="form-control" id="usageDataPeriod" value="30" min="7" max="90"><span class="input-group-text">days</span></div><small class="text-muted">Historical window for establishing baseline usage</small></div></div><h6 class="border-bottom pb-2 mb-3">Maintenance Scheduling</h6><div class="row mb-4"><div class="col-md-6"><label class="form-label">Warning Threshold (% of Interval)</label><div class="input-group"><input type="number" class="form-control" id="maintenanceWarningPercent" value="90" min="50" max="99"><span class="input-group-text">%</span></div><small class="text-muted">Generate warning when this % of maintenance interval is reached</small></div><div class="col-md-6"><label class="form-label">Default Service Interval (Hours)</label><div class="input-group"><input type="number" class="form-control" id="defaultServiceHours" value="250" min="50" max="1000"><span class="input-group-text">hours</span></div><small class="text-muted">Default service interval for equipment without specific schedules</small></div></div><button type="submit" class="btn btn-primary"><i class="bi bi-save me-2"></i>Save Threshold Settings
+</button></form></div></div></div><div class="col-lg-6"><div class="card mb-4"><div class="card-header bg-info text-white"><h5 class="mb-0"><i class="bi bi-bell me-2"></i>Notification Settings</h5></div><div class="card-body"><form id="notificationForm"><div class="mb-3"><div class="form-check form-switch mb-2"><input class="form-check-input" type="checkbox" id="emailNotifications" checked><label class="form-check-label" for="emailNotifications">Email Notifications</label></div><input type="email" class="form-control" id="notificationEmail" placeholder="recipient@example.com" value="alerts@systemsmith.com"><small class="text-muted">Email address for receiving alert notifications</small></div><div class="mb-3"><div class="form-check form-switch mb-2"><input class="form-check-input" type="checkbox" id="smsNotifications"><label class="form-check-label" for="smsNotifications">SMS Notifications</label></div><input type="tel" class="form-control" id="notificationPhone" placeholder="+12345678901"><small class="text-muted">Phone number for receiving alert SMS (critical alerts only)</small></div><div class="mb-4"><label class="form-label">Notification Frequency</label><select class="form-select" id="notificationFrequency"><option value="immediate">Immediate (as alerts occur)</option><option value="hourly">Hourly Digest</option><option value="daily" selected>Daily Digest</option><option value="weekly">Weekly Digest</option></select><small class="text-muted">How frequently notifications should be sent</small></div><h6 class="border-bottom pb-2 mb-3">Notification Rules</h6><div class="mb-3"><label class="form-label">Send Notifications For:</label><div class="form-check"><input class="form-check-input" type="checkbox" id="notifyCritical" checked><label class="form-check-label" for="notifyCritical">Critical Alerts</label></div><div class="form-check"><input class="form-check-input" type="checkbox" id="notifyWarning" checked><label class="form-check-label" for="notifyWarning">Warning Alerts</label></div><div class="form-check"><input class="form-check-input" type="checkbox" id="notifyInfo"><label class="form-check-label" for="notifyInfo">Informational Alerts</label></div></div><button type="submit" class="btn btn-info"><i class="bi bi-save me-2"></i>Save Notification Settings
+</button></form></div></div><div class="card mb-4"><div class="card-header bg-success text-white"><h5 class="mb-0"><i class="bi bi-robot me-2"></i>Automation Settings</h5></div><div class="card-body"><form id="automationForm"><div class="mb-3"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="autoGenerateAlerts" checked><label class="form-check-label" for="autoGenerateAlerts">Automatic Alert Generation</label></div><small class="text-muted">Automatically generate equipment alerts on a schedule</small></div><div class="mb-4"><label class="form-label">Alert Generation Schedule</label><select class="form-select" id="alertSchedule"><option value="hourly">Every Hour</option><option value="every-6-hours">Every 6 Hours</option><option value="daily" selected>Daily (Midnight)</option><option value="daily-morning">Daily (6 AM)</option><option value="daily-evening">Daily (6 PM)</option></select><small class="text-muted">When to automatically generate new alerts</small></div><div class="mb-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="autoDismissResolved"><label class="form-check-label" for="autoDismissResolved">Auto-dismiss Resolved Conditions</label></div><small class="text-muted">Automatically resolve alerts when conditions return to normal</small></div><button type="submit" class="btn btn-success"><i class="bi bi-save me-2"></i>Save Automation Settings
+</button></form></div></div></div></div></div><script>
+document.addEventListener('DOMContentLoaded', function() {
+// Form submission handlers - prevent default and show feedback
+document.getElementById('thresholdForm').addEventListener('submit', function(e) {
+e.preventDefault();
+showToast('Threshold settings saved successfully');
+// In a real implementation, this would send the data to the server
+});
+
+document.getElementById('notificationForm').addEventListener('submit', function(e) {
+e.preventDefault();
+showToast('Notification settings saved successfully');
+// In a real implementation, this would send the data to the server
+});
+
+document.getElementById('automationForm').addEventListener('submit', function(e) {
+e.preventDefault();
+showToast('Automation settings saved successfully');
+// In a real implementation, this would send the data to the server
+});
+
+// SMS toggle handler
+document.getElementById('smsNotifications').addEventListener('change', function() {
+document.getElementById('notificationPhone').disabled = !this.checked;
+});
+
+// Toast notification helper
+function showToast(message) {
+// Create toast container if it doesn't exist
+if (!document.querySelector('.toast-container')) {
+const toastContainer = document.createElement('div');
+toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+document.body.appendChild(toastContainer);
+}
+
+const toastContainer = document.querySelector('.toast-container');
+
+// Create toast element
+const toastEl = document.createElement('div');
+toastEl.className = 'toast';
+toastEl.setAttribute('role', 'alert');
+toastEl.setAttribute('aria-live', 'assertive');
+toastEl.setAttribute('aria-atomic', 'true');
+
+toastEl.innerHTML = `
+<div class="toast-header"><strong class="me-auto">Alert Settings</strong><small>Just now</small><button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button></div><div class="toast-body">${message}</div>
+`;
+
+toastContainer.appendChild(toastEl);
+
+const toast = new bootstrap.Toast(toastEl);
+toast.show();
+
+// Remove after it's hidden
+toastEl.addEventListener('hidden.bs.toast', function() {
+toastEl.remove();
+});
+}
+
+// Initialize form state
+document.getElementById('notificationPhone').disabled = !document.getElementById('smsNotifications').checked;
+});
+</script>
+{% endblock %}

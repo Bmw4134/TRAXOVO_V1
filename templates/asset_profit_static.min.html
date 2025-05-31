@@ -1,0 +1,21 @@
+{% extends "master_unified.html" %}
+
+{% block extra_css %}
+<style>
+.profit-card {
+background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+color: white;
+border: none;
+}
+.metric-highlight {
+background: rgba(255, 255, 255, 0.1);
+border-radius: 8px;
+padding: 1rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="row g-4 mb-4"><div class="col-xl-3 col-md-6"><div class="card profit-card hover-card"><div class="card-body"><div class="d-flex align-items-center"><div class="flex-grow-1"><h4 class="mb-0">$144K</h4><p class="mb-0">Total Profit</p></div><div class="flex-shrink-0"><i class="fas fa-dollar-sign fa-2x"></i></div></div></div></div></div><div class="col-xl-3 col-md-6"><div class="card profit-card hover-card"><div class="card-body"><div class="d-flex align-items-center"><div class="flex-grow-1"><h4 class="mb-0">3</h4><p class="mb-0">Top Performers</p></div><div class="flex-shrink-0"><i class="fas fa-trophy fa-2x"></i></div></div></div></div></div><div class="col-xl-3 col-md-6"><div class="card profit-card hover-card"><div class="card-body"><div class="d-flex align-items-center"><div class="flex-grow-1"><h4 class="mb-0">2</h4><p class="mb-0">Underperforming Assets</p></div><div class="flex-shrink-0"><i class="fas fa-exclamation-triangle fa-2x"></i></div></div></div></div></div><div class="col-xl-3 col-md-6"><div class="card profit-card hover-card"><div class="card-body"><div class="d-flex align-items-center"><div class="flex-grow-1"><h4 class="mb-0">59.0%</h4><p class="mb-0">Avg Margin</p></div><div class="flex-shrink-0"><i class="fas fa-chart-line fa-2x"></i></div></div></div></div></div></div><div class="row g-4 mb-4"><div class="col-lg-6"><div class="card hover-card"><div class="card-header"><h5 class="mb-0"><i class="fas fa-star text-warning me-2"></i>Top Performing Assets</h5></div><div class="card-body"><div class="table-responsive"><table class="table table-sm"><thead><tr><th>Asset ID</th><th>Profit</th><th>ROI</th></tr></thead><tbody><tr><td><strong>CAT-862</strong></td><td class="text-success">$30000</td><td class="text-success">105%</td></tr><tr><td><strong>DOZ-612</strong></td><td class="text-success">$25000</td><td class="text-success">89%</td></tr><tr><td><strong>EXC-901</strong></td><td class="text-success">$22000</td><td class="text-success">87%</td></tr></tbody></table></div></div></div></div><div class="col-lg-6"><div class="card hover-card"><div class="card-header"><h5 class="mb-0"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Underperforming Assets</h5></div><div class="card-body"><div class="table-responsive"><table class="table table-sm"><thead><tr><th>Asset ID</th><th>Profit</th><th>ROI</th></tr></thead><tbody><tr><td><strong>GRD-018</strong></td><td class="text-danger">$800</td><td class="text-danger">15.0%</td></tr><tr><td><strong>TRK-045</strong></td><td class="text-warning">$2500</td><td class="text-warning">16.2%</td></tr></tbody></table></div></div></div></div></div><div class="row"><div class="col-12"><div class="card hover-card"><div class="card-header"><h5 class="mb-0"><i class="fas fa-chart-area me-2"></i>Profit vs Usage Analysis</h5><small class="text-muted">Static view: expanding charts disabled</small></div><div class="card-body"><div class="text-center py-5"><i class="fas fa-chart-bar fa-4x text-muted mb-3"></i><h5 class="text-muted">Static Chart Area</h5><p class="text-muted">Find our chart previous expansion issues</p></div></div></div></div></div>
+{% endblock %}

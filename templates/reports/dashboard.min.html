@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Reports Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4"><h1 class="mb-4">Reports Dashboard</h1><div class="row mb-5"><div class="col-md-12"><div class="card"><div class="card-header bg-primary text-white"><h4 class="mb-0">Daily Driver Reports</h4></div><div class="card-body"><div class="row"><div class="col-md-6"><div class="card mb-3"><div class="card-header bg-info text-white"><h5 class="mb-0">Prior Day Reports</h5></div><div class="card-body"><p>Generate late start, early end, and not on job reports for the previous day.</p><form action="{{ url_for('reports.generate_prior_day') }}" method="post"><div class="mb-3"><label for="prior_date" class="form-label">Select Date</label><input type="date" class="form-control" id="prior_date" name="date"
+value="{{ yesterday }}" required></div><button type="submit" class="btn btn-primary">Generate Report</button></form></div></div></div><div class="col-md-6"><div class="card mb-3"><div class="card-header bg-info text-white"><h5 class="mb-0">Current Day Reports</h5></div><div class="card-body"><p>Generate late start and not on job reports for the current day.</p><form action="{{ url_for('reports.generate_current_day') }}" method="post"><div class="mb-3"><label for="current_date" class="form-label">Select Date</label><input type="date" class="form-control" id="current_date" name="date"
+value="{{ today }}" required></div><button type="submit" class="btn btn-primary">Generate Report</button></form></div></div></div></div><div class="mt-4"><h5>Recent Reports</h5><div class="table-responsive"><table class="table table-hover"><thead><tr><th>Date</th><th>Type</th><th>Generated</th><th>Actions</th></tr></thead><tbody>
+{% for report in attendance_reports %}
+<tr><td>{{ report.date }}</td><td>{{ report.type }}</td><td>{{ report.created_at }}</td><td><a href="{{ url_for('reports.download_report', report_path=report.file_path) }}"
+class="btn btn-sm btn-success"><i class="fas fa-download"></i> Download
+</a><a href="{{ url_for('reports.view_report', report_date=report.date, report_type=report.type) }}"
+class="btn btn-sm btn-info"><i class="fas fa-eye"></i> View
+</a></td></tr>
+{% else %}
+<tr><td colspan="4" class="text-center">No recent reports available.</td></tr>
+{% endfor %}
+</tbody></table></div></div></div></div></div></div><div class="row mb-5"><div class="col-md-12"><div class="card"><div class="card-header bg-success text-white"><h4 class="mb-0">Billing Reports</h4></div><div class="card-body"><div class="row"><div class="col-md-6"><div class="card mb-3"><div class="card-header bg-info text-white"><h5 class="mb-0">Generate Regional Billing Exports</h5></div><div class="card-body"><p>Generate billing exports for each region based on the selected month.</p><form action="{{ url_for('reports.generate_regional_billing') }}" method="post"><div class="mb-3"><label for="billing_month" class="form-label">Select Month</label><input type="month" class="form-control" id="billing_month" name="month"
+value="{{ current_month }}" required></div><button type="submit" class="btn btn-primary">Generate Exports</button></form></div></div></div><div class="col-md-6"><div class="card mb-3"><div class="card-header bg-info text-white"><h5 class="mb-0">PM Allocation Review</h5></div><div class="card-body"><p>Compare PM edits against original billings and identify changes.</p><form action="{{ url_for('reports.review_pm_allocations') }}" method="post"><div class="mb-3"><label for="allocation_month" class="form-label">Select Month</label><input type="month" class="form-control" id="allocation_month" name="month"
+value="{{ current_month }}" required></div><button type="submit" class="btn btn-primary">Review Allocations</button></form></div></div></div></div><div class="mt-4"><h5>Recent Billing Exports</h5><div class="table-responsive"><table class="table table-hover"><thead><tr><th>Date</th><th>Region</th><th>Generated</th><th>Actions</th></tr></thead><tbody>
+{% for export in billing_exports %}
+<tr><td>{{ export.date }}</td><td>{{ export.region }}</td><td>{{ export.created_at }}</td><td><a href="{{ url_for('reports.download_export', export_path=export.file_path) }}"
+class="btn btn-sm btn-success"><i class="fas fa-download"></i> Download
+</a></td></tr>
+{% else %}
+<tr><td colspan="4" class="text-center">No recent exports available.</td></tr>
+{% endfor %}
+</tbody></table></div></div></div></div></div></div></div>
+{% endblock %}

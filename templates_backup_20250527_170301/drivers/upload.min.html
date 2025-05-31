@@ -1,0 +1,44 @@
+{% extends "basic_base.html" %}
+
+{% block title %}Upload Driver Files{% endblock %}
+
+{% block content %}
+<div class="container mt-4"><div class="card bg-dark shadow-sm mb-4"><div class="card-body"><div class="d-flex align-items-center justify-content-between"><h1 class="card-title mb-0"><i class="bi bi-upload me-2"></i>
+Upload Driver Files
+</h1><a href="{{ url_for('driver_reports.daily_report') }}" class="btn btn-outline-secondary"><i class="bi bi-calendar-check me-1"></i> Back to Daily Report
+</a></div></div></div><div class="row"><div class="col-lg-8"><div class="card bg-dark shadow-sm mb-4"><div class="card-body"><h4 class="card-title mb-3">Upload Files</h4><form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate><div class="mb-4"><label for="driving_history" class="form-label">Driving History File (CSV/Excel)</label><input type="file" class="form-control" id="driving_history" name="driving_history" accept=".csv,.xlsx" required><div class="form-text">
+Upload the Driving History export file from GaugeSmart. This file contains driver activity records.
+</div><div class="invalid-feedback">
+Please select a Driving History file.
+</div></div><div class="mb-4"><label for="activity_detail" class="form-label">Activity Detail File (CSV/Excel)</label><input type="file" class="form-control" id="activity_detail" name="activity_detail" accept=".csv,.xlsx" required><div class="form-text">
+Upload the Activity Detail export file from GaugeSmart. This file contains detailed driver activity.
+</div><div class="invalid-feedback">
+Please select an Activity Detail file.
+</div></div><div class="mb-4"><label for="asset_list" class="form-label">Asset List File (Optional)</label><input type="file" class="form-control" id="asset_list" name="asset_list" accept=".csv,.xlsx"><div class="form-text">
+Optionally upload an Asset List file to cross-verify driver-asset mappings.
+</div></div><div class="form-check mb-4"><input class="form-check-input" type="checkbox" id="verify_with_asset_list" name="verify_with_asset_list" checked><label class="form-check-label" for="verify_with_asset_list">
+Cross-verify with Asset List (GENIUS CORE CONTINUITY MODE)
+</label><div class="form-text">
+Enables strict verification of all driver records against the official Asset List.
+</div></div><div class="d-grid gap-2"><button type="submit" class="btn btn-primary"><i class="bi bi-cloud-upload me-1"></i> Upload and Process Files
+</button></div></form></div></div></div><div class="col-lg-4"><div class="card bg-dark shadow-sm mb-4"><div class="card-body"><h4 class="card-title mb-3">File Requirements</h4><div class="alert alert-info"><i class="bi bi-info-circle me-2"></i><strong>GENIUS CORE CONTINUITY MODE</strong> is active
+</div><h5 class="mt-4">Driving History File</h5><ul class="list-group list-group-flush mb-3"><li class="list-group-item bg-dark text-white border-secondary">Must contain <strong>Driver</strong> column</li><li class="list-group-item bg-dark text-white border-secondary">Must contain <strong>Date</strong> column</li><li class="list-group-item bg-dark text-white border-secondary">Must contain <strong>StartTime</strong> and <strong>EndTime</strong> columns</li></ul><h5 class="mt-3">Activity Detail File</h5><ul class="list-group list-group-flush mb-3"><li class="list-group-item bg-dark text-white border-secondary">Must contain <strong>Driver</strong> column</li><li class="list-group-item bg-dark text-white border-secondary">Must contain <strong>Date</strong> column</li><li class="list-group-item bg-dark text-white border-secondary">Must contain <strong>JobSite</strong> column</li></ul><h5 class="mt-3">Processing Logic</h5><ul class="list-group list-group-flush"><li class="list-group-item bg-dark text-white border-secondary">Driver names are normalized for matching</li><li class="list-group-item bg-dark text-white border-secondary">Start/End times derived from timestamps</li><li class="list-group-item bg-dark text-white border-secondary">Cross-verification with Asset List for data integrity</li><li class="list-group-item bg-dark text-white border-secondary">Status classification: On Time, Late, Early End, Not On Job</li></ul></div></div></div></div></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Form validation
+document.addEventListener('DOMContentLoaded', function() {
+const form = document.querySelector('.needs-validation');
+
+form.addEventListener('submit', function(event) {
+if (!form.checkValidity()) {
+event.preventDefault();
+event.stopPropagation();
+}
+
+form.classList.add('was-validated');
+}, false);
+});
+</script>
+{% endblock %}

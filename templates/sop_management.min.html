@@ -1,0 +1,115 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>SOP Management - TRAXOVO</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"><link href="{{ url_for('static', filename='smooth-transitions.css') }}" rel="stylesheet"><style>
+.sop-card {
+background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+border: none;
+border-radius: 15px;
+color: white;
+transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.sop-card:hover {
+transform: translateY(-5px);
+box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+.procedure-item {
+background: rgba(255,255,255,0.05);
+border-radius: 10px;
+padding: 15px;
+margin-bottom: 10px;
+backdrop-filter: blur(10px);
+}
+.compliance-indicator {
+width: 12px;
+height: 12px;
+border-radius: 50%;
+display: inline-block;
+margin-right: 8px;
+}
+.compliance-high { background-color: #28a745; }
+.compliance-medium { background-color: #ffc107; }
+.compliance-low { background-color: #dc3545; }
+.metric-card {
+background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+border-radius: 15px;
+padding: 20px;
+color: white;
+text-align: center;
+}
+.efficiency-gauge {
+position: relative;
+width: 120px;
+height: 120px;
+margin: 0 auto;
+}
+.gauge-circle {
+stroke-dasharray: 251.2;
+stroke-dashoffset: 0;
+transition: stroke-dashoffset 1s ease-in-out;
+}
+.real-time-badge {
+background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+color: white;
+padding: 5px 12px;
+border-radius: 20px;
+font-size: 0.8rem;
+animation: pulse 2s infinite;
+}
+@keyframes pulse {
+0% { opacity: 1; }
+50% { opacity: 0.7; }
+100% { opacity: 1; }
+}
+</style></head><body><nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top"><div class="container-fluid"><a class="navbar-brand fw-bold" href="/dashboard"><i class="fas fa-truck text-primary me-2"></i>TRAXOVO
+</a><div class="navbar-nav ms-auto"><a class="nav-link" href="/dashboard">Dashboard</a><a class="nav-link" href="/fleet-management">Fleet</a><a class="nav-link active" href="/sop-management">SOPs</a><a class="nav-link" href="/logout">Logout</a></div></div></nav><div class="container-fluid" style="margin-top: 80px; padding: 20px;"><div class="row mb-4"><div class="col-12"><h1 class="display-5 fw-bold text-dark mb-1"><i class="fas fa-clipboard-list text-primary me-3"></i>
+Dynamic SOP Management
+</h1><p class="text-muted">Fluid standard operating procedures integrated with your fleet operations</p><span class="real-time-badge"><i class="fas fa-sync-alt me-1"></i>Real-time Integration
+</span></div></div>
+
+{% if sop_data %}
+
+<div class="row mb-4"><div class="col-md-6 mb-3"><div class="card sop-card h-100"><div class="card-body"><h5 class="card-title"><i class="fas fa-tasks me-2"></i>Daily Inspections
+</h5><div class="row text-center"><div class="col-6"><h3>{{ sop_data.active_procedures.daily_inspections.completed_today }}</h3><small>Completed Today</small></div><div class="col-6"><h3>{{ sop_data.active_procedures.daily_inspections.required }}</h3><small>Required</small></div></div><div class="mt-3"><div class="progress" style="height: 8px;"><div class="progress-bar bg-success"
+style="width: {{ sop_data.active_procedures.daily_inspections.compliance_rate }}%"></div></div><small class="text-light mt-1 d-block">
+{{ sop_data.active_procedures.daily_inspections.compliance_rate }}% Compliance Rate
+</small></div></div></div></div><div class="col-md-6 mb-3"><div class="card sop-card h-100"><div class="card-body"><h5 class="card-title"><i class="fas fa-wrench me-2"></i>Maintenance Workflows
+</h5><div class="row text-center"><div class="col-4"><h4>{{ sop_data.active_procedures.maintenance_workflows.due_this_week }}</h4><small>Due This Week</small></div><div class="col-4"><h4>{{ sop_data.active_procedures.maintenance_workflows.scheduled }}</h4><small>Scheduled</small></div><div class="col-4"><h4 class="text-warning">{{ sop_data.active_procedures.maintenance_workflows.overdue }}</h4><small>Overdue</small></div></div></div></div></div></div><div class="row mb-4"><div class="col-md-3 mb-3"><div class="metric-card"><h3>{{ sop_data.sop_metrics.compliance_score }}%</h3><p class="mb-0">Compliance Score</p></div></div><div class="col-md-3 mb-3"><div class="metric-card"><h3>{{ sop_data.sop_metrics.avg_completion_time }}</h3><p class="mb-0">Avg Completion</p></div></div><div class="col-md-3 mb-3"><div class="metric-card"><h3>{{ sop_data.sop_metrics.procedures_automated }}</h3><p class="mb-0">Automated</p></div></div><div class="col-md-3 mb-3"><div class="metric-card"><h3>{{ sop_data.sop_metrics.total_procedures }}</h3><p class="mb-0">Total SOPs</p></div></div></div>
+
+{% if efficiency_metrics %}
+
+<div class="row mb-4"><div class="col-md-4 mb-3"><div class="card"><div class="card-header bg-primary text-white"><h6 class="mb-0"><i class="fas fa-chart-line me-2"></i>Operational Efficiency</h6></div><div class="card-body"><div class="procedure-item"><div class="d-flex justify-content-between align-items-center"><span>SOP Compliance Impact</span><span class="fw-bold">{{ efficiency_metrics.operational_efficiency.sop_compliance_impact }}%</span></div></div><div class="procedure-item"><div class="d-flex justify-content-between align-items-center"><span>Maintenance Prevention</span><span class="fw-bold">{{ efficiency_metrics.operational_efficiency.maintenance_prevention }}%</span></div></div><div class="procedure-item"><div class="d-flex justify-content-between align-items-center"><span>Process Optimization</span><span class="fw-bold">{{ efficiency_metrics.operational_efficiency.process_optimization }}%</span></div></div></div></div></div><div class="col-md-4 mb-3"><div class="card"><div class="card-header bg-success text-white"><h6 class="mb-0"><i class="fas fa-dollar-sign me-2"></i>Cost Impact</h6></div><div class="card-body"><div class="procedure-item"><div class="d-flex justify-content-between align-items-center"><span>Maintenance Savings</span><span class="fw-bold">${{ "{:,}".format(efficiency_metrics.cost_impact.maintenance_savings) }}</span></div></div><div class="procedure-item"><div class="d-flex justify-content-between align-items-center"><span>Efficiency Gains</span><span class="fw-bold">${{ "{:,}".format(efficiency_metrics.cost_impact.efficiency_gains) }}</span></div></div><div class="procedure-item"><div class="d-flex justify-content-between align-items-center"><span>Compliance Value</span><span class="fw-bold">${{ "{:,}".format(efficiency_metrics.cost_impact.compliance_value) }}</span></div></div></div></div></div><div class="col-md-4 mb-3"><div class="card"><div class="card-header bg-info text-white"><h6 class="mb-0"><i class="fas fa-clock me-2"></i>Time Savings</h6></div><div class="card-body"><div class="procedure-item"><div class="d-flex justify-content-between align-items-center"><span>Automated Workflows</span><span class="fw-bold">{{ efficiency_metrics.time_savings.automated_workflows }}</span></div></div><div class="procedure-item"><div class="d-flex justify-content-between align-items-center"><span>Reduced Paperwork</span><span class="fw-bold">{{ efficiency_metrics.time_savings.reduced_paperwork }}</span></div></div><div class="procedure-item"><div class="d-flex justify-content-between align-items-center"><span>Faster Decisions</span><span class="fw-bold">{{ efficiency_metrics.time_savings.faster_decisions }}</span></div></div></div></div></div></div>
+{% endif %}
+
+
+<div class="row"><div class="col-12"><div class="card"><div class="card-header bg-dark text-white"><h5 class="mb-0"><i class="fas fa-bell me-2"></i>Real-time Triggers
+<span class="real-time-badge float-end">Live</span></h5></div><div class="card-body"><div class="row"><div class="col-md-3 mb-3"><div class="text-center"><div class="display-6 text-danger">{{ sop_data.real_time_triggers.equipment_alerts }}</div><p class="text-muted mb-0">Equipment Alerts</p></div></div><div class="col-md-3 mb-3"><div class="text-center"><div class="display-6 text-warning">{{ sop_data.real_time_triggers.scheduled_maintenance }}</div><p class="text-muted mb-0">Scheduled Maintenance</p></div></div><div class="col-md-3 mb-3"><div class="text-center"><div class="display-6 text-info">{{ sop_data.real_time_triggers.safety_reminders }}</div><p class="text-muted mb-0">Safety Reminders</p></div></div><div class="col-md-3 mb-3"><div class="text-center"><div class="display-6 text-success">{{ sop_data.real_time_triggers.project_checkpoints }}</div><p class="text-muted mb-0">Project Checkpoints</p></div></div></div></div></div></div></div>
+
+{% else %}
+
+<div class="row"><div class="col-12 text-center"><div class="card border-warning"><div class="card-body"><i class="fas fa-exclamation-triangle text-warning fa-3x mb-3"></i><h4>SOP Data Loading</h4><p class="text-muted">Connecting to fleet data sources for SOP integration...</p><button class="btn btn-primary" onclick="location.reload()"><i class="fas fa-sync-alt me-2"></i>Refresh
+</button></div></div></div></div>
+{% endif %}
+</div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script><script>
+// Auto-refresh every 2 minutes for real-time data
+setTimeout(function() {
+location.reload();
+}, 120000);
+
+// Add smooth loading animations
+document.addEventListener('DOMContentLoaded', function() {
+const cards = document.querySelectorAll('.sop-card, .metric-card');
+cards.forEach((card, index) => {
+card.style.animationDelay = `${index * 0.1}s`;
+card.style.animation = 'fadeInUp 0.6s ease forwards';
+});
+});
+</script><style>
+@keyframes fadeInUp {
+from {
+opacity: 0;
+transform: translateY(30px);
+}
+to {
+opacity: 1;
+transform: translateY(0);
+}
+}
+</style></body></html>

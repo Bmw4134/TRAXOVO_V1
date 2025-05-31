@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}Historical Data Analysis{% endblock %}
+
+{% block content %}
+<div class="container mt-4"><h1 class="mb-4">Historical Data Analysis</h1><div class="row mb-4"><div class="col-md-12"><div class="card shadow-sm"><div class="card-header bg-primary text-white"><h5 class="mb-0">Overview</h5></div><div class="card-body"><div class="row"><div class="col-md-4 text-center mb-3"><div class="border rounded p-3 h-100"><h3 class="text-primary">{{ metrics.total_records }}</h3><p class="text-muted mb-0">Equipment Tracked</p></div></div><div class="col-md-4 text-center mb-3"><div class="border rounded p-3 h-100"><h3 class="text-primary">{{ metrics.total_jobs }}</h3><p class="text-muted mb-0">Jobs Analyzed</p></div></div><div class="col-md-4 text-center mb-3"><div class="border rounded p-3 h-100"><h3 class="text-primary">{{ metrics.months_analyzed }}</h3><p class="text-muted mb-0">Months of Data</p></div></div></div></div></div></div></div>
+
+{% if chart_path %}
+<div class="row mb-4"><div class="col-md-12"><div class="card shadow-sm"><div class="card-header bg-primary text-white"><h5 class="mb-0">Trend Analysis</h5></div><div class="card-body text-center"><img src="{{ url_for('static', filename=chart_path) }}" alt="Trend Analysis Chart" class="img-fluid rounded"></div></div></div></div>
+{% endif %}
+
+<div class="row mb-4"><div class="col-md-6"><div class="card shadow-sm h-100"><div class="card-header bg-primary text-white"><h5 class="mb-0">Trend Indicators</h5></div><div class="card-body"><ul class="list-group list-group-flush">
+{% for key, trend in trends.items() %}
+<li class="list-group-item d-flex justify-content-between align-items-center">
+{{ key|replace('_', ' ')|title }}
+<span class="badge {% if trend.direction == 'up' %}bg-success{% elif trend.direction == 'down' %}bg-danger{% else %}bg-secondary{% endif %} rounded-pill">
+{% if trend.direction == 'up' %}
+<i class="fas fa-arrow-up"></i> {{ (trend.magnitude * 100)|round(1) }}%
+{% elif trend.direction == 'down' %}
+<i class="fas fa-arrow-down"></i> {{ (trend.magnitude * -100)|round(1) }}%
+{% else %}
+<i class="fas fa-minus"></i> Steady
+{% endif %}
+</span></li>
+{% endfor %}
+</ul></div></div></div><div class="col-md-6"><div class="card shadow-sm h-100"><div class="card-header bg-primary text-white"><h5 class="mb-0">Forecasts</h5></div><div class="card-body"><ul class="list-group list-group-flush">
+{% for key, value in forecasts.items() %}
+<li class="list-group-item d-flex justify-content-between align-items-center">
+{{ key|replace('_', ' ')|replace('next month', 'Next Month')|title }}
+<span class="badge bg-info rounded-pill">
+{% if 'amount' in key %}
+${{ value|round(2)|int|format_number }}
+{% else %}
+{{ value|round(1) }}
+{% endif %}
+</span></li>
+{% endfor %}
+</ul></div></div></div></div><div class="row mb-4"><div class="col-md-6"><div class="card shadow-sm"><div class="card-header bg-primary text-white"><h5 class="mb-0">Top Equipment</h5></div><div class="card-body p-0"><div class="table-responsive"><table class="table table-hover mb-0"><thead><tr><th>Equipment ID</th><th class="text-end">Total Amount</th><th class="text-center">Actions</th></tr></thead><tbody>
+{% for equipment in top_equipment %}
+<tr><td>{{ equipment.equipment_id }}</td><td class="text-end">${{ equipment.total_amount|round(2)|int|format_number }}</td><td class="text-center"><a href="{{ url_for('historical.equipment_trend', equipment_id=equipment.equipment_id) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-chart-line"></i> View Trend
+</a></td></tr>
+{% endfor %}
+</tbody></table></div></div></div></div><div class="col-md-6"><div class="card shadow-sm"><div class="card-header bg-primary text-white"><h5 class="mb-0">Top Jobs</h5></div><div class="card-body p-0"><div class="table-responsive"><table class="table table-hover mb-0"><thead><tr><th>Job Number</th><th class="text-end">Total Amount</th><th class="text-center">Actions</th></tr></thead><tbody>
+{% for job in top_jobs %}
+<tr><td>{{ job.job_number }}</td><td class="text-end">${{ job.total_amount|round(2)|int|format_number }}</td><td class="text-center"><a href="{{ url_for('historical.job_trend', job_number=job.job_number) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-chart-line"></i> View Trend
+</a></td></tr>
+{% endfor %}
+</tbody></table></div></div></div></div></div><div class="row mb-4"><div class="col-md-12"><div class="card shadow-sm"><div class="card-header bg-primary text-white"><h5 class="mb-0">Month-to-Month Comparison</h5></div><div class="card-body"><form id="compareMonthsForm" class="mb-4"><div class="row g-3"><div class="col-md-5"><select class="form-select" id="month1"><option value="">Select First Month</option>
+{% for month in history.keys() %}
+<option value="{{ month }}">{{ month }}</option>
+{% endfor %}
+</select></div><div class="col-md-5"><select class="form-select" id="month2"><option value="">Select Second Month</option>
+{% for month in history.keys() %}
+<option value="{{ month }}">{{ month }}</option>
+{% endfor %}
+</select></div><div class="col-md-2"><button type="submit" class="btn btn-primary w-100">Compare</button></div></div></form><div id="comparisonResults" class="d-none"><div class="table-responsive"><table class="table table-bordered"><thead class="table-light"><tr><th>Metric</th><th class="text-center month1-header">Month 1</th><th class="text-center month2-header">Month 2</th><th class="text-center">Change</th></tr></thead><tbody><tr><td>Equipment Count</td><td class="text-center equipment-count1">-</td><td class="text-center equipment-count2">-</td><td class="text-center equipment-change">-</td></tr><tr><td>Job Count</td><td class="text-center job-count1">-</td><td class="text-center job-count2">-</td><td class="text-center job-change">-</td></tr><tr><td>Total Amount</td><td class="text-center total-amount1">-</td><td class="text-center total-amount2">-</td><td class="text-center amount-change">-</td></tr></tbody></table></div></div></div></div></div></div><div class="row mb-4"><div class="col-md-12"><div class="card shadow-sm"><div class="card-header bg-primary text-white"><h5 class="mb-0">Export Historical Data</h5></div><div class="card-body"><div class="d-flex gap-2"><a href="{{ url_for('historical.export_history', format='excel') }}" class="btn btn-success"><i class="fas fa-file-excel"></i> Export to Excel
+</a><a href="{{ url_for('historical.export_history', format='csv') }}" class="btn btn-info"><i class="fas fa-file-csv"></i> Export to CSV
+</a><a href="{{ url_for('historical.export_history', format='json') }}" class="btn btn-secondary"><i class="fas fa-file-code"></i> Export to JSON
+</a></div></div></div></div></div></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+// Handle month comparison form submission
+const compareForm = document.getElementById('compareMonthsForm');
+
+compareForm.addEventListener('submit', function(e) {
+e.preventDefault();
+
+const month1 = document.getElementById('month1').value;
+const month2 = document.getElementById('month2').value;
+
+if (!month1 || !month2) {
+alert('Please select two months to compare');
+return;
+}
+
+// Make API call to get comparison data
+fetch(`/historical/compare-months?month1=${encodeURIComponent(month1)}&month2=${encodeURIComponent(month2)}`)
+.then(response => response.json())
+.then(data => {
+if (data.status === 'success') {
+displayComparisonResults(data.comparison);
+} else {
+alert('Error: ' + data.message);
+}
+})
+.catch(error => {
+console.error('Error:', error);
+alert('An error occurred while comparing months');
+});
+});
+
+function displayComparisonResults(comparison) {
+// Update table headers
+document.querySelector('.month1-header').textContent = comparison.month1;
+document.querySelector('.month2-header').textContent = comparison.month2;
+
+// Update equipment counts
+document.querySelector('.equipment-count1').textContent = comparison.equipment_count1;
+document.querySelector('.equipment-count2').textContent = comparison.equipment_count2;
+
+const equipmentChange = comparison.equipment_change;
+const equipmentChangeEl = document.querySelector('.equipment-change');
+equipmentChangeEl.textContent = (equipmentChange > 0 ? '+' : '') + equipmentChange;
+equipmentChangeEl.classList.remove('text-success', 'text-danger');
+if (equipmentChange > 0) {
+equipmentChangeEl.classList.add('text-success');
+} else if (equipmentChange < 0) {
+equipmentChangeEl.classList.add('text-danger');
+}
+
+// Update job counts
+document.querySelector('.job-count1').textContent = comparison.job_count1;
+document.querySelector('.job-count2').textContent = comparison.job_count2;
+
+const jobChange = comparison.job_change;
+const jobChangeEl = document.querySelector('.job-change');
+jobChangeEl.textContent = (jobChange > 0 ? '+' : '') + jobChange;
+jobChangeEl.classList.remove('text-success', 'text-danger');
+if (jobChange > 0) {
+jobChangeEl.classList.add('text-success');
+} else if (jobChange < 0) {
+jobChangeEl.classList.add('text-danger');
+}
+
+// Update total amounts
+document.querySelector('.total-amount1').textContent = '$' + formatNumber(comparison.total_amount1.toFixed(2));
+document.querySelector('.total-amount2').textContent = '$' + formatNumber(comparison.total_amount2.toFixed(2));
+
+const amountChange = comparison.amount_change;
+const amountChangeEl = document.querySelector('.amount-change');
+amountChangeEl.textContent = '$' + formatNumber(Math.abs(amountChange).toFixed(2)) +
+' (' + (amountChange > 0 ? '+' : '-') +
+comparison.amount_change_pct.toFixed(1) + '%)';
+amountChangeEl.classList.remove('text-success', 'text-danger');
+if (amountChange > 0) {
+amountChangeEl.classList.add('text-success');
+} else if (amountChange < 0) {
+amountChangeEl.classList.add('text-danger');
+}
+
+// Show the results
+document.getElementById('comparisonResults').classList.remove('d-none');
+}
+
+function formatNumber(number) {
+return Number(number).toLocaleString(undefined, {
+minimumFractionDigits: 2,
+maximumFractionDigits: 2
+});
+}
+});
+</script>
+{% endblock %}

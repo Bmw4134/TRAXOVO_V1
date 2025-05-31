@@ -1,0 +1,466 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Customizable Dashboard - TRAXOVO</title><style>
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+
+body {
+font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+background: #f8fafc;
+color: #1e293b;
+}
+
+.dashboard-header {
+background: #fff;
+padding: 20px;
+border-bottom: 1px solid #e2e8f0;
+display: flex;
+justify-content: between;
+align-items: center;
+flex-wrap: wrap;
+gap: 15px;
+}
+
+.dashboard-title {
+font-size: 24px;
+font-weight: 700;
+color: #1e293b;
+}
+
+.dashboard-controls {
+display: flex;
+gap: 10px;
+align-items: center;
+}
+
+.control-btn {
+background: #3b82f6;
+color: white;
+border: none;
+padding: 8px 16px;
+border-radius: 6px;
+cursor: pointer;
+font-size: 14px;
+font-weight: 500;
+transition: background 0.3s ease;
+}
+
+.control-btn:hover {
+background: #2563eb;
+}
+
+.control-btn.secondary {
+background: #64748b;
+}
+
+.control-btn.secondary:hover {
+background: #475569;
+}
+
+/* Widget Grid Container */
+.widget-container {
+padding: 20px;
+min-height: calc(100vh - 100px);
+}
+
+.widget-grid {
+display: grid;
+grid-template-columns: repeat(12, 1fr);
+gap: 20px;
+grid-auto-rows: 80px;
+}
+
+/* Widget Base Styles */
+.widget {
+background: #fff;
+border-radius: 12px;
+padding: 20px;
+box-shadow: 0 4px 25px rgba(0,0,0,0.06);
+border: 1px solid #e2e8f0;
+position: relative;
+cursor: move;
+transition: all 0.3s ease;
+overflow: hidden;
+}
+
+.widget:hover {
+box-shadow: 0 8px 35px rgba(0,0,0,0.12);
+transform: translateY(-2px);
+}
+
+.widget.dragging {
+opacity: 0.7;
+transform: rotate(5deg);
+}
+
+.widget-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 15px;
+}
+
+.widget-title {
+font-size: 16px;
+font-weight: 600;
+color: #1e293b;
+}
+
+.widget-menu {
+background: none;
+border: none;
+color: #64748b;
+cursor: pointer;
+font-size: 18px;
+padding: 4px;
+border-radius: 4px;
+}
+
+.widget-menu:hover {
+background: #f1f5f9;
+}
+
+/* Specific Widget Layouts */
+.fleet-overview-widget {
+grid-column: span 6;
+grid-row: span 3;
+}
+
+.cost-savings-widget {
+grid-column: span 6;
+grid-row: span 3;
+}
+
+.asset-utilization-widget {
+grid-column: span 4;
+grid-row: span 4;
+}
+
+.gps-coverage-widget {
+grid-column: span 4;
+grid-row: span 4;
+}
+
+.billing-analytics-widget {
+grid-column: span 4;
+grid-row: span 4;
+}
+
+.performance-alerts-widget {
+grid-column: span 12;
+grid-row: span 3;
+}
+
+/* Widget Content Styles */
+.metric-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+gap: 15px;
+}
+
+.metric-item {
+text-align: center;
+}
+
+.metric-value {
+font-size: 28px;
+font-weight: 700;
+color: #3b82f6;
+line-height: 1;
+}
+
+.metric-label {
+font-size: 12px;
+color: #64748b;
+margin-top: 5px;
+}
+
+.savings-breakdown {
+display: grid;
+gap: 10px;
+margin-top: 15px;
+}
+
+.savings-item {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 8px 0;
+border-bottom: 1px solid #f1f5f9;
+}
+
+.savings-label {
+font-size: 14px;
+color: #475569;
+}
+
+.savings-value {
+font-weight: 600;
+color: #059669;
+}
+
+.utilization-chart {
+display: grid;
+gap: 12px;
+margin-top: 10px;
+}
+
+.utilization-item {
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+
+.utilization-bar {
+flex: 1;
+height: 8px;
+background: #f1f5f9;
+border-radius: 4px;
+margin: 0 10px;
+position: relative;
+overflow: hidden;
+}
+
+.utilization-fill {
+height: 100%;
+background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+border-radius: 4px;
+transition: width 0.5s ease;
+}
+
+.alert-list {
+display: grid;
+gap: 10px;
+max-height: 200px;
+overflow-y: auto;
+}
+
+.alert-item {
+display: flex;
+align-items: center;
+gap: 10px;
+padding: 10px;
+background: #f8fafc;
+border-radius: 6px;
+border-left: 4px solid #3b82f6;
+}
+
+.alert-item.warning {
+border-left-color: #f59e0b;
+}
+
+.alert-item.success {
+border-left-color: #10b981;
+}
+
+.alert-icon {
+font-size: 16px;
+}
+
+.alert-content {
+flex: 1;
+}
+
+.alert-message {
+font-size: 14px;
+color: #374151;
+margin-bottom: 2px;
+}
+
+.alert-time {
+font-size: 12px;
+color: #64748b;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+.widget-grid {
+grid-template-columns: 1fr;
+gap: 15px;
+}
+
+.widget {
+grid-column: 1 !important;
+grid-row: span 1 !important;
+min-height: 200px;
+}
+
+.dashboard-header {
+padding: 15px;
+}
+
+.dashboard-controls {
+width: 100%;
+justify-content: center;
+}
+
+.metric-grid {
+grid-template-columns: repeat(2, 1fr);
+}
+}
+
+/* Drag and Drop Styles */
+.drag-placeholder {
+background: #dbeafe;
+border: 2px dashed #3b82f6;
+border-radius: 12px;
+opacity: 0.7;
+}
+
+.edit-mode .widget {
+cursor: grab;
+}
+
+.edit-mode .widget:active {
+cursor: grabbing;
+}
+
+.edit-mode-indicator {
+position: fixed;
+top: 20px;
+right: 20px;
+background: #3b82f6;
+color: white;
+padding: 8px 16px;
+border-radius: 20px;
+font-size: 12px;
+font-weight: 600;
+z-index: 1000;
+}
+</style></head><body><div class="dashboard-header"><h1 class="dashboard-title">Customizable Dashboard</h1><div class="dashboard-controls"><button class="control-btn" onclick="toggleEditMode()">Edit Layout</button><button class="control-btn secondary" onclick="resetLayout()">Reset</button><button class="control-btn secondary" onclick="saveLayout()">Save</button></div></div><div class="edit-mode-indicator" id="editIndicator" style="display: none;">
+Edit Mode: Drag widgets to customize layout
+</div><div class="widget-container"><div class="widget-grid" id="widgetGrid"><div class="widget fleet-overview-widget" data-widget="fleet_overview" draggable="false"><div class="widget-header"><h3 class="widget-title">Fleet Overview</h3><button class="widget-menu">⋮</button></div><div class="metric-grid"><div class="metric-item"><div class="metric-value">{{ widgets.fleet_overview.total_assets }}</div><div class="metric-label">Total Assets</div></div><div class="metric-item"><div class="metric-value">{{ widgets.fleet_overview.gps_enabled }}</div><div class="metric-label">GPS Enabled</div></div><div class="metric-item"><div class="metric-value">{{ widgets.fleet_overview.active_drivers }}</div><div class="metric-label">Active Drivers</div></div><div class="metric-item"><div class="metric-value">{{ widgets.fleet_overview.gauge_assets }}</div><div class="metric-label">Gauge Assets</div></div></div></div><div class="widget cost-savings-widget" data-widget="cost_savings" draggable="false"><div class="widget-header"><h3 class="widget-title">Monthly Cost Savings</h3><button class="widget-menu">⋮</button></div><div class="metric-item" style="text-align: center; margin-bottom: 15px;"><div class="metric-value" style="font-size: 36px;">${{ "{:,}".format(widgets.cost_savings.monthly_total) }}</div><div class="metric-label">Total Monthly Savings</div></div><div class="savings-breakdown"><div class="savings-item"><span class="savings-label">Rental Reduction</span><span class="savings-value">${{ "{:,}".format(widgets.cost_savings.rental_reduction) }}</span></div><div class="savings-item"><span class="savings-label">Maintenance Optimization</span><span class="savings-value">${{ "{:,}".format(widgets.cost_savings.maintenance_optimization) }}</span></div><div class="savings-item"><span class="savings-label">Fuel Intelligence</span><span class="savings-value">${{ "{:,}".format(widgets.cost_savings.fuel_intelligence) }}</span></div></div></div><div class="widget asset-utilization-widget" data-widget="asset_utilization" draggable="false"><div class="widget-header"><h3 class="widget-title">Asset Utilization</h3><button class="widget-menu">⋮</button></div><div class="utilization-chart">
+{% for category, data in widgets.asset_utilization.items() %}
+<div class="utilization-item"><span style="font-size: 12px; color: #64748b; min-width: 80px;">{{ category.title() }} ({{ data.count }})</span><div class="utilization-bar"><div class="utilization-fill" style="width: {{ data.utilization }}%"></div></div><span style="font-size: 12px; font-weight: 600; min-width: 40px;">{{ data.utilization }}%</span></div>
+{% endfor %}
+</div></div><div class="widget gps-coverage-widget" data-widget="gps_coverage" draggable="false"><div class="widget-header"><h3 class="widget-title">GPS Coverage</h3><button class="widget-menu">⋮</button></div><div class="metric-item" style="text-align: center; margin-bottom: 20px;"><div class="metric-value" style="font-size: 48px; color: #10b981;">{{ widgets.gps_coverage.coverage_percent }}%</div><div class="metric-label">Coverage Rate</div></div><div class="metric-grid" style="grid-template-columns: repeat(2, 1fr);"><div class="metric-item"><div class="metric-value" style="font-size: 20px;">{{ widgets.gps_coverage.enabled_units }}</div><div class="metric-label">Enabled</div></div><div class="metric-item"><div class="metric-value" style="font-size: 20px; color: #ef4444;">{{ widgets.gps_coverage.offline_units }}</div><div class="metric-label">Offline</div></div></div></div><div class="widget billing-analytics-widget" data-widget="billing_analytics" draggable="false"><div class="widget-header"><h3 class="widget-title">Billing Analytics</h3><button class="widget-menu">⋮</button></div><div class="metric-grid"><div class="metric-item"><div class="metric-value">{{ widgets.billing_analytics.total_records }}</div><div class="metric-label">Total Records</div></div><div class="metric-item"><div class="metric-value">${{ "{:,.0f}".format(widgets.billing_analytics.april_revenue) }}</div><div class="metric-label">April Revenue</div></div><div class="metric-item"><div class="metric-value">{{ "{:.1f}".format(widgets.billing_analytics.avg_daily_billing) }}</div><div class="metric-label">Avg Daily</div></div><div class="metric-item"><div class="metric-value">{{ widgets.billing_analytics.top_division }}</div><div class="metric-label">Top Division</div></div></div></div><div class="widget performance-alerts-widget" data-widget="performance_alerts" draggable="false"><div class="widget-header"><h3 class="widget-title">Performance Alerts</h3><button class="widget-menu">⋮</button></div><div class="alert-list">
+{% for alert in widgets.performance_alerts %}
+<div class="alert-item {{ alert.type }}"><div class="alert-icon">
+{% if alert.type == 'warning' %}⚠️
+{% elif alert.type == 'success' %}✅
+{% else %}ℹ️{% endif %}
+</div><div class="alert-content"><div class="alert-message">{{ alert.message }}</div><div class="alert-time">{{ alert.time }}</div></div></div>
+{% endfor %}
+</div></div></div></div><script>
+let isEditMode = false;
+let draggedWidget = null;
+
+function toggleEditMode() {
+isEditMode = !isEditMode;
+const grid = document.getElementById('widgetGrid');
+const indicator = document.getElementById('editIndicator');
+const widgets = document.querySelectorAll('.widget');
+
+if (isEditMode) {
+grid.classList.add('edit-mode');
+indicator.style.display = 'block';
+widgets.forEach(widget => {
+widget.draggable = true;
+widget.addEventListener('dragstart', handleDragStart);
+widget.addEventListener('dragend', handleDragEnd);
+});
+} else {
+grid.classList.remove('edit-mode');
+indicator.style.display = 'none';
+widgets.forEach(widget => {
+widget.draggable = false;
+widget.removeEventListener('dragstart', handleDragStart);
+widget.removeEventListener('dragend', handleDragEnd);
+});
+}
+}
+
+function handleDragStart(e) {
+draggedWidget = e.target;
+e.target.classList.add('dragging');
+}
+
+function handleDragEnd(e) {
+e.target.classList.remove('dragging');
+draggedWidget = null;
+}
+
+function saveLayout() {
+if (!isEditMode) {
+alert('Enter edit mode to save layout changes');
+return;
+}
+
+const widgets = document.querySelectorAll('.widget');
+const layout = Array.from(widgets).map(widget => {
+const rect = widget.getBoundingClientRect();
+return {
+id: widget.dataset.widget,
+x: rect.left,
+y: rect.top,
+width: rect.width,
+height: rect.height
+};
+});
+
+fetch('/save-widget-layout', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json',
+},
+body: JSON.stringify({ layout })
+})
+.then(response => response.json())
+.then(data => {
+if (data.success) {
+alert('Layout saved successfully!');
+} else {
+alert('Failed to save layout');
+}
+})
+.catch(error => {
+console.error('Error saving layout:', error);
+alert('Error saving layout');
+});
+}
+
+function resetLayout() {
+if (confirm('Reset to default layout? This will remove all customizations.')) {
+fetch('/reset-widget-layout', {
+method: 'POST'
+})
+.then(response => response.json())
+.then(data => {
+if (data.success) {
+location.reload();
+} else {
+alert('Failed to reset layout');
+}
+})
+.catch(error => {
+console.error('Error resetting layout:', error);
+alert('Error resetting layout');
+});
+}
+}
+
+// Auto-refresh widget data every 30 seconds
+setInterval(() => {
+fetch('/get-widget-data')
+.then(response => response.json())
+.then(data => {
+// Update widget content with fresh data
+updateWidgetData(data);
+})
+.catch(error => console.error('Error refreshing data:', error));
+}, 30000);
+
+function updateWidgetData(data) {
+// Update fleet overview
+if (data.fleet_overview) {
+const values = document.querySelectorAll('.fleet-overview-widget .metric-value');
+if (values.length >= 4) {
+values[0].textContent = data.fleet_overview.total_assets;
+values[1].textContent = data.fleet_overview.gps_enabled;
+values[2].textContent = data.fleet_overview.active_drivers;
+values[3].textContent = data.fleet_overview.gauge_assets;
+}
+}
+}
+</script></body></html>

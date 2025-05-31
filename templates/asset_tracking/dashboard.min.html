@@ -1,0 +1,589 @@
+{% extends 'layout.html' %}
+
+{% block styles %}
+<link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css"><link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" /><style>
+.status-card {
+border-radius: 0.5rem;
+border: none;
+box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.asset-map {
+height: 500px;
+width: 100%;
+border-radius: 0.5rem;
+}
+
+.status-badge {
+font-size: 0.8rem;
+padding: 0.25rem 0.5rem;
+border-radius: 30px;
+}
+
+.asset-icon {
+font-size: 1.8rem;
+margin-bottom: 0.5rem;
+}
+
+.last-update {
+color: var(--bs-info);
+font-size: 0.8rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4"><div class="d-flex justify-content-between align-items-center mb-3"><h1>Live Asset Tracking</h1><div><a href="{{ url_for('asset_tracking.refresh_data') }}" class="btn btn-outline-primary"><i class="bi bi-arrow-clockwise"></i> Refresh Data
+</a><a href="{{ url_for('asset_tracking.map_view') }}" class="btn btn-outline-secondary ms-2"><i class="bi bi-map"></i> Full Map View
+</a></div></div><div class="card bg-dark mb-4"><div class="card-body"><div class="row g-3"><div class="col-md-3"><label for="quick-filter-type" class="form-label">Equipment Type</label><select id="quick-filter-type" class="form-select form-select-sm"><option value="">All Types</option></select></div><div class="col-md-3"><label for="quick-filter-location" class="form-label">Location</label><select id="quick-filter-location" class="form-select form-select-sm"><option value="">All Locations</option></select></div><div class="col-md-3"><label for="quick-filter-status" class="form-label">Status</label><select id="quick-filter-status" class="form-select form-select-sm"><option value="">All Statuses</option><option value="active">Active</option><option value="maintenance">In Maintenance</option><option value="offline">Offline</option><option value="idle">Idle</option></select></div><div class="col-md-3"><label for="quick-filter-search" class="form-label">Search</label><input type="text" id="quick-filter-search" class="form-control form-control-sm" placeholder="Asset name or ID..."></div></div><div class="mt-3 d-flex justify-content-end"><button id="apply-filters" class="btn btn-sm btn-info me-2"><i class="bi bi-funnel"></i> Apply Filters
+</button><button id="reset-filters" class="btn btn-sm btn-outline-secondary"><i class="bi bi-x-circle"></i> Reset
+</button></div></div></div>
+
+{% if update_stats.last_update %}
+<div class="alert alert-info mb-4"><i class="bi bi-info-circle"></i> Last data update: {{ update_stats.last_update.strftime('%Y-%m-%d %H:%M:%S') }}
+({{ update_stats.asset_count }} assets)
+</div>
+{% endif %}
+
+<div class="row mb-4"><div class="col-md-3"><div class="status-card card bg-dark text-white mb-3 hover-card"><div class="card-body text-center"><div class="asset-icon text-info"><i class="bi bi-truck"></i></div><h5 class="card-title" id="total-assets">--</h5><p class="card-text">Total Assets</p></div></div></div><div class="col-md-3"><div class="status-card card bg-dark text-white mb-3 hover-card"><div class="card-body text-center"><div class="asset-icon text-success"><i class="bi bi-lightning-charge"></i></div><h5 class="card-title" id="active-assets">--</h5><p class="card-text">Active Assets</p></div></div></div><div class="col-md-3"><div class="status-card card bg-dark text-white mb-3 hover-card"><div class="card-body text-center"><div class="asset-icon text-warning"><i class="bi bi-tools"></i></div><h5 class="card-title" id="maintenance-assets">--</h5><p class="card-text">In Maintenance</p></div></div></div><div class="col-md-3"><div class="status-card card bg-dark text-white mb-3 hover-card"><div class="card-body text-center"><div class="asset-icon text-danger"><i class="bi bi-exclamation-triangle"></i></div><h5 class="card-title" id="offline-assets">--</h5><p class="card-text">Offline Assets</p></div></div></div></div><div class="row"><div class="col-lg-8"><div class="card bg-dark mb-4"><div class="card-header d-flex justify-content-between align-items-center"><h5 class="mb-0">Asset Map</h5><span class="text-muted last-update" id="map-last-update"></span></div><div class="card-body"><div id="asset-map" class="asset-map"></div></div></div><div class="card bg-dark mb-4"><div class="card-header d-flex justify-content-between align-items-center"><h5 class="mb-0"><i class="bi bi-exclamation-triangle text-warning me-2"></i>
+Maintenance Alerts
+</h5><span class="badge bg-warning" id="alerts-count">0</span></div><div class="card-body p-0"><div class="list-group list-group-flush" id="maintenance-alerts"><div class="list-group-item list-group-item-action text-center text-muted py-4"><i class="bi bi-search me-2"></i> Loading maintenance alerts...
+</div></div></div></div></div><div class="col-lg-4"><div class="card bg-dark mb-4"><div class="card-header"><h5 class="mb-0">Recent Activity</h5></div><div class="card-body p-0"><div class="list-group list-group-flush" id="asset-activity"><div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><div class="placeholder-glow w-100"><span class="placeholder col-7"></span><br><span class="placeholder col-4"></span></div></div><div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><div class="placeholder-glow w-100"><span class="placeholder col-7"></span><br><span class="placeholder col-4"></span></div></div><div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"><div class="placeholder-glow w-100"><span class="placeholder col-7"></span><br><span class="placeholder col-4"></span></div></div></div></div><div class="card-footer text-center"><a href="{{ url_for('asset_tracking.list_assets') }}" class="btn btn-sm btn-outline-info">View All Assets</a></div></div><div class="card bg-dark mb-4"><div class="card-header"><h5 class="mb-0">Asset Status Summary</h5></div><div class="card-body"><canvas id="asset-status-chart" height="180"></canvas></div></div><div class="card bg-dark"><div class="card-header d-flex justify-content-between align-items-center"><h5 class="mb-0">Utilization Summary</h5><div class="dropdown"><button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="periodDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+Last 7 Days
+</button><ul class="dropdown-menu dropdown-menu-end" aria-labelledby="periodDropdown"><li><a class="dropdown-item active" href="#" data-period="7">Last 7 Days</a></li><li><a class="dropdown-item" href="#" data-period="30">Last 30 Days</a></li><li><a class="dropdown-item" href="#" data-period="90">Last 90 Days</a></li></ul></div></div><div class="card-body"><div class="row text-center mb-3"><div class="col-6"><div class="h3" id="avg-utilization">--</div><div class="text-muted">Avg. Utilization</div></div><div class="col-6"><div class="h3" id="idle-time">--</div><div class="text-muted">Idle Time</div></div></div><div class="mt-2"><small class="text-muted">Top Equipment by Utilization</small><div id="top-equipment-list" class="mt-2"><div class="d-flex justify-content-between mb-2"><div class="placeholder-glow"><span class="placeholder col-8"></span></div><div class="placeholder-glow"><span class="placeholder col-4"></span></div></div><div class="d-flex justify-content-between mb-2"><div class="placeholder-glow"><span class="placeholder col-8"></span></div><div class="placeholder-glow"><span class="placeholder col-4"></span></div></div><div class="d-flex justify-content-between mb-2"><div class="placeholder-glow"><span class="placeholder col-8"></span></div><div class="placeholder-glow"><span class="placeholder col-4"></span></div></div></div></div></div></div></div></div></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script><script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script><script>
+document.addEventListener('DOMContentLoaded', function() {
+// Initialize the map
+const map = L.map('asset-map').setView([32.7767, -96.7970], 10); // Default to Dallas
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+// Markers and popups storage
+const markers = {};
+
+// Store all assets data
+let allAssets = [];
+let assetTypes = new Set();
+let locations = new Set();
+
+// Function to load asset data
+function loadAssetData() {
+fetch('{{ url_for("asset_tracking.api_assets") }}')
+.then(response => response.json())
+.then(assets => {
+// Store all assets for filtering
+allAssets = assets;
+
+// Update counts
+document.getElementById('total-assets').textContent = assets.length;
+
+let activeCount = 0;
+let maintenanceCount = 0;
+let offlineCount = 0;
+
+// Clear existing activity items
+document.getElementById('asset-activity').innerHTML = '';
+
+// Clear existing maintenance alerts
+document.getElementById('maintenance-alerts').innerHTML = '';
+
+// Track maintenance alerts
+const maintenanceAlerts = [];
+
+// Collect asset types and locations for filters
+assetTypes.clear();
+locations.clear();
+
+// Process each asset
+assets.forEach(asset => {
+// Extract asset type and location for filters
+const assetType = asset.assetType || asset.type || asset.category || 'Unknown';
+if (assetType) assetTypes.add(assetType);
+
+const location = asset.location || asset.region || asset.area || 'Unknown';
+if (location) locations.add(location);
+
+// Determine status
+let status = 'idle';
+if (asset.ignition || asset.engTime > 0) {
+activeCount++;
+status = 'active';
+} else if (asset.status && asset.status.toLowerCase().includes('maintenance')) {
+maintenanceCount++;
+status = 'maintenance';
+} else if (!asset.lastReport || new Date(asset.lastReport) < new Date(Date.now() - 86400000)) {
+offlineCount++;
+status = 'offline';
+}
+
+// Check for maintenance alerts
+if (status === 'maintenance' ||
+(asset.engineHours && asset.engineHours > (asset.nextServiceAt || 250) - 20) ||
+(asset.fuelLevel && asset.fuelLevel < 15) ||
+(asset.diagnosticCodes && asset.diagnosticCodes.length > 0)) {
+
+// Create an alert record
+let alertText = '';
+let alertIcon = '';
+let alertUrgency = 'warning';
+
+if (status === 'maintenance') {
+alertText = 'In maintenance';
+alertIcon = 'tools';
+} else if (asset.diagnosticCodes && asset.diagnosticCodes.length > 0) {
+alertText = 'Diagnostic codes detected';
+alertIcon = 'exclamation-triangle';
+alertUrgency = 'danger';
+} else if (asset.engineHours && asset.engineHours > (asset.nextServiceAt || 250) - 20) {
+alertText = 'Service due soon';
+alertIcon = 'calendar-check';
+} else if (asset.fuelLevel && asset.fuelLevel < 15) {
+alertText = 'Low fuel';
+alertIcon = 'fuel-pump';
+}
+
+if (alertText) {
+maintenanceAlerts.push({
+id: asset.id || asset.assetId,
+name: asset.name || 'Unnamed Asset',
+text: alertText,
+icon: alertIcon,
+urgency: alertUrgency,
+lastReport: asset.lastReport
+});
+}
+}
+
+// Add to map
+const lat = asset.latitude || asset.lat;
+const lng = asset.longitude || asset.lng;
+
+if (lat && lng) {
+const assetId = asset.id || asset.assetId;
+
+// Create or update marker
+if (markers[assetId]) {
+markers[assetId].setLatLng([lat, lng]);
+} else {
+// Create custom marker icon based on asset type
+let iconHtml = '';
+
+if (assetType.toLowerCase().includes('truck') || assetType.toLowerCase().includes('pickup')) {
+iconHtml = `<div style="background-color: ${asset.status_color}; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center;"><i class="bi bi-truck" style="color: white; font-size: 10px;"></i></div>`;
+} else if (assetType.toLowerCase().includes('excavator') || assetType.toLowerCase().includes('backhoe')) {
+iconHtml = `<div style="background-color: ${asset.status_color}; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center;"><i class="bi bi-wrench" style="color: white; font-size: 10px;"></i></div>`;
+} else if (assetType.toLowerCase().includes('crane')) {
+iconHtml = `<div style="background-color: ${asset.status_color}; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center;"><i class="bi bi-arrow-up-square" style="color: white; font-size: 10px;"></i></div>`;
+} else {
+iconHtml = `<div style="background-color: ${asset.status_color}; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white;"></div>`;
+}
+
+const markerIcon = L.divIcon({
+html: iconHtml,
+className: 'asset-marker',
+iconSize: [25, 25]
+});
+
+markers[assetId] = L.marker([lat, lng], {
+icon: markerIcon,
+assetId: assetId,
+assetType: assetType,
+status: status
+}).addTo(map);
+}
+
+// Enhanced popup content with more details
+const lastReportDate = asset.lastReport ? new Date(asset.lastReport).toLocaleString() : 'Unknown';
+const engineHours = asset.engTime || asset.engineHours || 'N/A';
+const fuelLevel = asset.fuelLevel ? `${asset.fuelLevel}%` : 'N/A';
+
+markers[assetId].bindPopup(`
+<div><strong>${asset.name || 'Unnamed Asset'}</strong><br><b>Type:</b> ${assetType}<br><b>Status:</b> ${status.charAt(0).toUpperCase() + status.slice(1)}<br><b>Last Report:</b> ${lastReportDate}<br><b>Engine Hours:</b> ${engineHours}<br><b>Fuel Level:</b> ${fuelLevel}<br><a href="{{ url_for('asset_tracking.asset_detail', asset_id='') }}/${assetId}" class="btn btn-sm btn-info mt-2">View Details</a></div>
+`);
+}
+
+// Add to recent activity (for the first 5 assets with recent reports)
+if (asset.lastReport && new Date(asset.lastReport) > new Date(Date.now() - 86400000 * 2)) {
+const activityList = document.getElementById('asset-activity');
+if (activityList.children.length < 5) {
+const activityItem = document.createElement('a');
+activityItem.href = `{{ url_for('asset_tracking.asset_detail', asset_id='') }}/${asset.id || asset.assetId}`;
+activityItem.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
+
+const statusDot = document.createElement('span');
+statusDot.className = 'status-badge';
+statusDot.style.backgroundColor = asset.status_color;
+
+const content = document.createElement('div');
+content.innerHTML = `
+<div><strong>${asset.name || 'Unnamed Asset'}</strong></div><small class="text-muted">Last seen: ${new Date(asset.lastReport).toLocaleString()}</small>
+`;
+
+activityItem.appendChild(content);
+activityItem.appendChild(statusDot);
+activityList.appendChild(activityItem);
+}
+}
+});
+
+// Update counts
+document.getElementById('active-assets').textContent = activeCount;
+document.getElementById('maintenance-assets').textContent = maintenanceCount;
+document.getElementById('offline-assets').textContent = offlineCount;
+
+// Update last update time
+document.getElementById('map-last-update').textContent = `Updated: ${new Date().toLocaleTimeString()}`;
+
+// Fit map to markers if we have any
+if (Object.keys(markers).length > 0) {
+const markerBounds = L.featureGroup(Object.values(markers)).getBounds();
+map.fitBounds(markerBounds);
+}
+
+// Update the chart
+updateStatusChart(activeCount, maintenanceCount, offlineCount, assets.length - activeCount - maintenanceCount - offlineCount);
+
+// Populate filter dropdowns
+populateFilterDropdowns();
+
+// Update maintenance alerts
+updateMaintenanceAlerts(maintenanceAlerts);
+
+// Update utilization metrics
+updateUtilizationMetrics(assets);
+})
+.catch(error => {
+console.error('Error loading asset data:', error);
+});
+}
+
+// Populate filter dropdowns
+function populateFilterDropdowns() {
+// Equipment type filter
+const typeFilter = document.getElementById('quick-filter-type');
+const currentTypeValue = typeFilter.value;
+
+// Clear options except first
+typeFilter.innerHTML = '<option value="">All Types</option>';
+
+// Add sorted options
+Array.from(assetTypes).sort().forEach(type => {
+const option = document.createElement('option');
+option.value = type;
+option.textContent = type;
+if (type === currentTypeValue) option.selected = true;
+typeFilter.appendChild(option);
+});
+
+// Location filter
+const locationFilter = document.getElementById('quick-filter-location');
+const currentLocationValue = locationFilter.value;
+
+// Clear options except first
+locationFilter.innerHTML = '<option value="">All Locations</option>';
+
+// Add sorted options
+Array.from(locations).sort().forEach(location => {
+const option = document.createElement('option');
+option.value = location;
+option.textContent = location;
+if (location === currentLocationValue) option.selected = true;
+locationFilter.appendChild(option);
+});
+}
+
+// Update maintenance alerts section
+function updateMaintenanceAlerts(alerts) {
+const alertsContainer = document.getElementById('maintenance-alerts');
+const alertsCount = document.getElementById('alerts-count');
+
+// Update count badge
+alertsCount.textContent = alerts.length;
+
+// Clear existing alerts
+alertsContainer.innerHTML = '';
+
+if (alerts.length === 0) {
+alertsContainer.innerHTML = `
+<div class="list-group-item list-group-item-action text-center py-4"><i class="bi bi-check-circle text-success me-2"></i>
+No maintenance alerts at this time
+</div>
+`;
+return;
+}
+
+// Sort alerts by urgency (danger first, then warning)
+alerts.sort((a, b) => {
+if (a.urgency === 'danger' && b.urgency !== 'danger') return -1;
+if (a.urgency !== 'danger' && b.urgency === 'danger') return 1;
+return 0;
+});
+
+// Add alerts to container
+alerts.forEach(alert => {
+const alertItem = document.createElement('a');
+alertItem.href = `{{ url_for('asset_tracking.asset_detail', asset_id='') }}/${alert.id}`;
+alertItem.className = `list-group-item list-group-item-action d-flex align-items-center ${alert.urgency === 'danger' ? 'list-group-item-danger' : ''}`;
+
+alertItem.innerHTML = `
+<div class="me-3"><i class="bi bi-${alert.icon} text-${alert.urgency} fs-4"></i></div><div class="flex-grow-1"><div><strong>${alert.name}</strong></div><div>${alert.text}</div><small class="text-muted">Last update: ${alert.lastReport ? new Date(alert.lastReport).toLocaleString() : 'Unknown'}</small></div><div><i class="bi bi-chevron-right text-muted"></i></div>
+`;
+
+alertsContainer.appendChild(alertItem);
+});
+}
+
+// Update utilization metrics
+function updateUtilizationMetrics(assets) {
+// Calculate average utilization (based on engine hours or ignition time)
+let totalHours = 0;
+let activeAssets = 0;
+let idleTime = 0;
+
+// Track assets by utilization for top list
+const assetUtilization = [];
+
+assets.forEach(asset => {
+const engineHours = asset.engTime || asset.engineHours || 0;
+if (engineHours > 0) {
+totalHours += Number(engineHours);
+activeAssets++;
+
+// Track for top list
+assetUtilization.push({
+name: asset.name || 'Unnamed Asset',
+hours: engineHours,
+id: asset.id || asset.assetId
+});
+}
+
+// Calculate idle time (if we have lastReport and ignition status)
+if (asset.lastReport && asset.ignition === false) {
+const lastReport = new Date(asset.lastReport);
+const now = new Date();
+const hoursSinceLastReport = (now - lastReport) / (1000 * 60 * 60);
+idleTime += hoursSinceLastReport;
+}
+});
+
+// Calculate average utilization
+const avgUtilization = activeAssets > 0 ? (totalHours / activeAssets).toFixed(1) : 0;
+document.getElementById('avg-utilization').textContent = `${avgUtilization}h`;
+
+// Calculate idle time average
+const avgIdleTime = assets.length > 0 ? (idleTime / assets.length).toFixed(1) : 0;
+document.getElementById('idle-time').textContent = `${avgIdleTime}h`;
+
+// Populate top equipment list
+const topEquipmentList = document.getElementById('top-equipment-list');
+topEquipmentList.innerHTML = '';
+
+// Sort by utilization (hours) descending
+assetUtilization.sort((a, b) => b.hours - a.hours);
+
+// Take top 5
+assetUtilization.slice(0, 5).forEach(asset => {
+const item = document.createElement('div');
+item.className = 'd-flex justify-content-between mb-2';
+
+item.innerHTML = `
+<a href="{{ url_for('asset_tracking.asset_detail', asset_id='') }}/${asset.id}" class="text-truncate me-2">
+${asset.name}
+</a><span>${asset.hours.toFixed(1)}h</span>
+`;
+
+topEquipmentList.appendChild(item);
+});
+
+// If no assets with utilization data
+if (assetUtilization.length === 0) {
+topEquipmentList.innerHTML = '<div class="text-muted text-center">No utilization data available</div>';
+}
+}
+
+// Initialize status chart
+let statusChart = null;
+
+function updateStatusChart(active, maintenance, offline, idle) {
+const ctx = document.getElementById('asset-status-chart').getContext('2d');
+
+const data = {
+labels: ['Active', 'Maintenance', 'Offline', 'Idle'],
+datasets: [{
+data: [active, maintenance, offline, idle],
+backgroundColor: ['#28a745', '#fd7e14', '#dc3545', '#6c757d'],
+borderWidth: 0
+}]
+};
+
+const options = {
+responsive: true,
+maintainAspectRatio: false,
+plugins: {
+legend: {
+position: 'bottom'
+}
+}
+};
+
+// Create or update chart
+if (statusChart) {
+statusChart.data = data;
+statusChart.update();
+} else {
+statusChart = new Chart(ctx, {
+type: 'doughnut',
+data: data,
+options: options
+});
+}
+}
+
+// Handle filter interactions
+document.getElementById('apply-filters').addEventListener('click', function() {
+applyFilters();
+});
+
+document.getElementById('reset-filters').addEventListener('click', function() {
+document.getElementById('quick-filter-type').value = '';
+document.getElementById('quick-filter-location').value = '';
+document.getElementById('quick-filter-status').value = '';
+document.getElementById('quick-filter-search').value = '';
+applyFilters();
+});
+
+// Apply the selected filters to the map
+function applyFilters() {
+const typeFilter = document.getElementById('quick-filter-type').value;
+const locationFilter = document.getElementById('quick-filter-location').value;
+const statusFilter = document.getElementById('quick-filter-status').value;
+const searchFilter = document.getElementById('quick-filter-search').value.toLowerCase();
+
+// Don't completely remove markers, just update their appearance
+allAssets.forEach(asset => {
+const assetId = asset.id || asset.assetId;
+if (!markers[assetId]) return; // Skip if no marker exists
+
+const marker = markers[assetId];
+let isFiltered = false;
+
+// Check asset type
+const assetType = asset.assetType || asset.type || asset.category || 'Unknown';
+if (typeFilter && assetType !== typeFilter) isFiltered = true;
+
+// Check location
+const location = asset.location || asset.region || asset.area || 'Unknown';
+if (locationFilter && location !== locationFilter) isFiltered = true;
+
+// Check status
+let status = 'idle';
+if (asset.ignition || asset.engTime > 0) status = 'active';
+else if (asset.status && asset.status.toLowerCase().includes('maintenance')) status = 'maintenance';
+else if (!asset.lastReport || new Date(asset.lastReport) < new Date(Date.now() - 86400000)) status = 'offline';
+
+if (statusFilter && status !== statusFilter) isFiltered = true;
+
+// Check search text
+const assetName = (asset.name || 'Unnamed Asset').toLowerCase();
+const assetIdLower = assetId.toString().toLowerCase();
+
+if (searchFilter && !assetName.includes(searchFilter) && !assetIdLower.includes(searchFilter)) isFiltered = true;
+
+// Always add to map, but make inactive ones semi-transparent
+if (!map.hasLayer(marker)) {
+marker.addTo(map);
+}
+
+// If it's inactive (offline or not in use) make it less prominent
+if (status === 'offline' || status === 'idle') {
+// Make the marker semi-transparent
+const markerIcon = marker.getIcon();
+const iconDiv = marker._icon;
+if (iconDiv) {
+iconDiv.style.opacity = "0.5";
+}
+} else {
+// Make active and maintenance markers fully visible
+const iconDiv = marker._icon;
+if (iconDiv) {
+iconDiv.style.opacity = "1";
+}
+}
+
+// Apply filters - show/hide based on filter criteria
+if (isFiltered) {
+// Make filtered markers nearly invisible
+const iconDiv = marker._icon;
+if (iconDiv) {
+iconDiv.style.opacity = "0.2";
+}
+}
+});
+
+// Update map view to show all markers but focus on active ones
+const activeMarkers = Object.values(markers).filter(marker => {
+return marker.options.status === 'active' || marker.options.status === 'maintenance';
+});
+
+if (activeMarkers.length > 0) {
+const markerBounds = L.featureGroup(activeMarkers).getBounds();
+map.fitBounds(markerBounds, { padding: [50, 50] });
+} else {
+// If no active markers, show all markers
+const allMarkerBounds = L.featureGroup(Object.values(markers)).getBounds();
+map.fitBounds(allMarkerBounds, { padding: [50, 50] });
+}
+}
+
+// Handle period selection for utilization data
+document.querySelectorAll('[data-period]').forEach(item => {
+item.addEventListener('click', function(e) {
+e.preventDefault();
+
+// Update dropdown text
+document.getElementById('periodDropdown').textContent = this.textContent;
+
+// Remove active class from all items
+document.querySelectorAll('[data-period]').forEach(el => {
+el.classList.remove('active');
+});
+
+// Add active class to clicked item
+this.classList.add('active');
+
+// In real implementation, this would fetch period-specific data
+// For demo, we'll just simulate different utilization values
+const period = this.getAttribute('data-period');
+
+// Simulate different utilization metrics for different periods
+let avgUtilization, idleTime;
+
+if (period === '7') {
+avgUtilization = (Math.random() * 4 + 2).toFixed(1); // Between 2 and 6
+idleTime = (Math.random() * 3 + 1).toFixed(1); // Between 1 and 4
+} else if (period === '30') {
+avgUtilization = (Math.random() * 5 + 4).toFixed(1); // Between 4 and 9
+idleTime = (Math.random() * 4 + 2).toFixed(1); // Between 2 and 6
+} else { // 90 days
+avgUtilization = (Math.random() * 6 + 5).toFixed(1); // Between 5 and 11
+idleTime = (Math.random() * 5 + 3).toFixed(1); // Between 3 and 8
+}
+
+document.getElementById('avg-utilization').textContent = `${avgUtilization}h`;
+document.getElementById('idle-time').textContent = `${idleTime}h`;
+});
+});
+
+// Initial load
+loadAssetData();
+
+// Refresh every 60 seconds
+setInterval(loadAssetData, 60000);
+});
+</script>
+{% endblock %}

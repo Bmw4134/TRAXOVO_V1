@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Equipment Reports Export Result - TRAXORA{% endblock %}
+
+{% block content %}
+<div class="container py-4"><div class="row mb-4"><div class="col-12"><div class="section-header"><h2><i class="bi bi-check-circle-fill me-2 text-success"></i>Export Completed</h2><div class="section-actions"><a href="{{ url_for('export_reports.index') }}" class="btn btn-outline-primary"><i class="bi bi-arrow-left me-1"></i> Back to Exports
+</a><a href="{{ url_for('index') }}" class="btn btn-outline-secondary"><i class="bi bi-house me-1"></i> Dashboard
+</a></div></div></div></div><div class="row"><div class="col-lg-8 col-md-12 mb-4"><div class="card shadow h-100"><div class="card-header bg-success text-white"><h5 class="mb-0"><i class="bi bi-check2-all me-2"></i>Generated Files</h5></div><div class="card-body"><div class="alert alert-success mb-4"><h5 class="alert-heading"><i class="bi bi-check-circle me-2"></i>Success!</h5><p>Your equipment reports have been successfully generated in multiple formats.</p></div><h5 class="mb-3">Generated Files</h5><div class="table-responsive mb-4"><table class="table table-hover"><thead><tr><th>Format</th><th>Filename</th><th>Action</th></tr></thead><tbody>
+{% for file in result.files %}
+<tr><td><span class="badge rounded-pill
+{% if file.format == 'Excel' %}bg-success{% elif file.format == 'CSV' %}bg-primary{% else %}bg-danger{% endif %}">
+{{ file.format }}
+</span></td><td>{{ file.filename }}</td><td><a href="{{ url_for('export_reports.download_file', filename=file.path) }}" class="btn btn-sm btn-primary"><i class="bi bi-download me-1"></i> Download
+</a></td></tr>
+{% endfor %}
+</tbody></table></div><div class="d-grid gap-2"><a href="{{ url_for('export_reports.index') }}" class="btn btn-primary"><i class="bi bi-arrow-left me-2"></i> Back to Export Options
+</a></div></div></div></div><div class="col-lg-4 col-md-12 mb-4"><div class="card shadow h-100"><div class="card-header bg-info text-white"><h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Export Summary</h5></div><div class="card-body"><ul class="list-group list-group-flush mb-4"><li class="list-group-item d-flex justify-content-between align-items-center"><strong>Organization:</strong><span>{{ result.organization }}</span></li><li class="list-group-item d-flex justify-content-between align-items-center"><strong>Assets Included:</strong><span class="badge bg-primary rounded-pill">{{ result.asset_count }}</span></li><li class="list-group-item d-flex justify-content-between align-items-center"><strong>Region:</strong><span>{{ result.region }}</span></li><li class="list-group-item d-flex justify-content-between align-items-center"><strong>Status:</strong><span>{{ result.status }}</span></li><li class="list-group-item d-flex justify-content-between align-items-center"><strong>Generated At:</strong><span>{{ result.timestamp }}</span></li><li class="list-group-item d-flex justify-content-between align-items-center"><strong>File Formats:</strong><span>
+{% for file in result.files %}
+<span class="badge rounded-pill
+{% if file.format == 'Excel' %}bg-success{% elif file.format == 'CSV' %}bg-primary{% else %}bg-danger{% endif %} me-1">
+{{ file.format }}
+</span>
+{% endfor %}
+</span></li></ul><div class="alert alert-info"><i class="bi bi-lightbulb me-2"></i><strong>Tip:</strong> Excel exports include additional summary and breakdown sheets with charts and analysis.
+</div></div></div></div></div><div class="row mt-2"><div class="col-12"><div class="card shadow"><div class="card-header bg-primary text-white"><h5 class="mb-0"><i class="bi bi-arrow-right-circle me-2"></i>Next Steps</h5></div><div class="card-body"><div class="row"><div class="col-md-4"><div class="d-flex"><div class="flex-shrink-0"><i class="bi bi-graph-up text-success" style="font-size: 2rem;"></i></div><div class="flex-grow-1 ms-3"><h5>Analyze Data</h5><p class="text-muted">Use the reports to analyze asset performance and utilization metrics.</p></div></div></div><div class="col-md-4"><div class="d-flex"><div class="flex-shrink-0"><i class="bi bi-share text-primary" style="font-size: 2rem;"></i></div><div class="flex-grow-1 ms-3"><h5>Share Reports</h5><p class="text-muted">Share the exported reports with your team or stakeholders.</p></div></div></div><div class="col-md-4"><div class="d-flex"><div class="flex-shrink-0"><i class="bi bi-filter-circle text-danger" style="font-size: 2rem;"></i></div><div class="flex-grow-1 ms-3"><h5>Create New Export</h5><p class="text-muted">Generate a new report with different filters or formats.</p></div></div></div></div></div></div></div></div></div>
+{% endblock %}

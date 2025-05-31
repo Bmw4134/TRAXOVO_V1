@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ asset.AssetIdentifier }} Details - Fleet Management{% endblock %}
+
+{% block content %}
+<div class="row mb-4"><div class="col-md-12"><nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="/">Dashboard</a></li><li class="breadcrumb-item active" aria-current="page">Asset Details</li></ol></nav></div></div><div class="row"><div class="col-md-8"><div class="card mb-4"><div class="card-header d-flex justify-content-between align-items-center"><h5 class="card-title mb-0"><span class="status-indicator {% if asset.Active %}status-active{% else %}status-inactive{% endif %}"></span>
+{{ asset.AssetIdentifier }} - {{ asset.AssetMake }} {{ asset.AssetModel }}
+</h5><span class="badge {% if asset.Active %}bg-success{% else %}bg-danger{% endif %}">
+{{ 'Active' if asset.Active else 'Inactive' }}
+</span></div><div class="card-body"><div class="row"><div class="col-md-6"><h6 class="fw-bold">Basic Information</h6><table class="table table-sm"><tr><th>Label</th><td>{{ asset.Label or 'N/A' }}</td></tr><tr><th>Category</th><td>{{ asset.AssetCategory or 'N/A' }}</td></tr><tr><th>Class</th><td>{{ asset.AssetClass or 'N/A' }}</td></tr><tr><th>Make</th><td>{{ asset.AssetMake or 'N/A' }}</td></tr><tr><th>Model</th><td>{{ asset.AssetModel or 'N/A' }}</td></tr><tr><th>Serial Number</th><td>{{ asset.SerialNumber or 'N/A' }}</td></tr><tr><th>Device Serial</th><td>{{ asset.DeviceSerialNumber or 'N/A' }}</td></tr></table></div><div class="col-md-6"><h6 class="fw-bold">Status Information</h6><table class="table table-sm"><tr><th>Last Updated</th><td>{{ asset.FormattedDateTime or asset.EventDateTimeString or 'N/A' }}</td></tr><tr><th>Location</th><td>{{ asset.Location or 'Unknown' }}</td></tr><tr><th>Days Inactive</th><td>{{ asset.DaysInactive or 'N/A' }}</td></tr><tr><th>Reason</th><td>{{ asset.Reason or 'N/A' }}</td></tr><tr><th>Engine Hours</th><td>{{ asset.Engine1Hours or 'N/A' }}</td></tr><tr><th>Odometer</th><td>{{ asset.Odometer or 'N/A' }} {{ 'miles' if asset.Odometer else '' }}</td></tr><tr><th>Speed / Limit</th><td>{{ asset.Speed or '0' }} / {{ asset.SpeedLimit or 'N/A' }} mph</td></tr></table></div></div><div class="row mt-4"><div class="col-md-12"><h6 class="fw-bold">Technical Information</h6><table class="table table-sm"><tr><th>IMEI</th><td>{{ asset.IMEI or 'N/A' }}</td></tr><tr><th>Battery Level</th><td>
+{% if asset.BackupBatteryPct %}
+<div class="progress" style="height: 20px;"><div class="progress-bar
+{% if asset.BackupBatteryPct > 70 %}bg-success
+{% elif asset.BackupBatteryPct > 30 %}bg-warning
+{% else %}bg-danger{% endif %}"
+role="progressbar"
+style="width: {{ asset.BackupBatteryPct }}%;"
+aria-valuenow="{{ asset.BackupBatteryPct }}"
+aria-valuemin="0"
+aria-valuemax="100">
+{{ asset.BackupBatteryPct }}%
+</div></div>
+{% else %}
+N/A
+{% endif %}
+</td></tr><tr><th>Voltage</th><td>{{ asset.Voltage or 'N/A' }} {{ 'V' if asset.Voltage else '' }}</td></tr><tr><th>Ignition</th><td>
+{% if asset.Ignition is defined %}
+<span class="badge {% if asset.Ignition %}bg-success{% else %}bg-danger{% endif %}">
+{{ 'On' if asset.Ignition else 'Off' }}
+</span>
+{% else %}
+N/A
+{% endif %}
+</td></tr><tr><th>Heading</th><td>{{ asset.Heading or 'N/A' }}</td></tr><tr><th>Time Zone</th><td>{{ asset.TimeZone or 'N/A' }}</td></tr><tr><th>Coordinates</th><td>
+{% if asset.Latitude and asset.Longitude %}
+{{ asset.Latitude }}, {{ asset.Longitude }}
+<a href="https://www.google.com/maps?q={{ asset.Latitude }},{{ asset.Longitude }}" target="_blank" class="btn btn-sm btn-outline-info ms-2"><i class="fas fa-external-link-alt"></i> Google Maps
+</a>
+{% else %}
+N/A
+{% endif %}
+</td></tr></table></div></div></div></div></div><div class="col-md-4"><div class="card mb-4"><div class="card-header"><h5 class="card-title mb-0">Asset Location</h5></div><div class="card-body"><div id="asset-detail-map"></div></div></div><div class="card"><div class="card-header"><h5 class="card-title mb-0">Recent Activity</h5></div><div class="card-body"><div class="timeline"><div class="timeline-item"><div class="timeline-marker bg-primary"></div><div class="timeline-content"><h6 class="timeline-title">Last Update</h6><p>{{ asset.EventDateTimeString or 'Unknown' }}</p><p class="text-muted">{{ asset.Reason or 'No reason provided' }}</p></div></div>
+
+{% if asset.DaysInactive and asset.DaysInactive != 'N/A' %}
+<div class="timeline-item"><div class="timeline-marker {% if asset.Active %}bg-success{% else %}bg-danger{% endif %}"></div><div class="timeline-content"><h6 class="timeline-title">Inactive Period</h6><p>{{ asset.DaysInactive }} days inactive</p></div></div>
+{% endif %}
+
+{% if asset.Ignition is defined %}
+<div class="timeline-item"><div class="timeline-marker {% if asset.Ignition %}bg-success{% else %}bg-danger{% endif %}"></div><div class="timeline-content"><h6 class="timeline-title">Ignition Status</h6><p>Ignition is {% if asset.Ignition %}on{% else %}off{% endif %}</p></div></div>
+{% endif %}
+</div></div></div></div></div><style>
+.timeline {
+position: relative;
+padding: 1rem 0;
+}
+
+.timeline::before {
+content: '';
+position: absolute;
+height: 100%;
+width: 2px;
+background: rgba(255, 255, 255, 0.1);
+left: 8px;
+top: 0;
+}
+
+.timeline-item {
+position: relative;
+padding-left: 30px;
+margin-bottom: 20px;
+}
+
+.timeline-marker {
+position: absolute;
+width: 18px;
+height: 18px;
+border-radius: 50%;
+left: 0;
+top: 0;
+}
+
+.timeline-content {
+padding-bottom: 10px;
+border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.timeline-title {
+margin-bottom: 5px;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Initialize map with asset data when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+// Create an asset object from the server-rendered template
+const asset = {
+AssetIdentifier: "{{ asset.AssetIdentifier }}",
+Label: "{{ asset.Label }}",
+AssetCategory: "{{ asset.AssetCategory }}",
+AssetMake: "{{ asset.AssetMake }}",
+AssetModel: "{{ asset.AssetModel }}",
+Location: "{{ asset.Location }}",
+Active: {{ 'true' if asset.Active else 'false' }},
+Latitude: {{ asset.Latitude or 'null' }},
+Longitude: {{ asset.Longitude or 'null' }},
+EventDateTimeString: "{{ asset.EventDateTimeString }}",
+Reason: "{{ asset.Reason }}"
+};
+
+// Initialize the asset detail map
+initializeAssetMap(asset);
+});
+</script>
+{% endblock %}

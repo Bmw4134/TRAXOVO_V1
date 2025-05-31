@@ -1,0 +1,284 @@
+<!DOCTYPE html><html lang="en" data-bs-theme="dark"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>{% block title %}TRAXORA Fleet Management System{% endblock %}</title><link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"><script src="https://code.jquery.com/jquery-3.6.0.min.js"></script><link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet"><script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script><script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><style>
+body {
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+}
+
+.sidebar {
+width: 250px;
+height: 100vh;
+position: fixed;
+top: 0;
+left: 0;
+z-index: 100;
+padding-top: 60px;
+box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+transition: all 0.3s;
+background-color: var(--bs-dark);
+}
+
+.sidebar.collapsed {
+width: 60px;
+overflow: hidden;
+}
+
+.sidebar.collapsed .sidebar-text {
+display: none;
+}
+
+.sidebar.collapsed .sidebar-icon {
+margin: 0 auto;
+text-align: center;
+}
+
+.main-content {
+margin-left: 250px;
+transition: all 0.3s;
+flex: 1;
+width: calc(100% - 250px);
+}
+
+.main-content.expanded {
+margin-left: 60px;
+width: calc(100% - 60px);
+}
+
+.navbar {
+z-index: 101;
+box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+font-weight: 600;
+letter-spacing: 1px;
+}
+
+.nav-item {
+margin-bottom: 5px;
+}
+
+.nav-link {
+border-radius: 0.375rem;
+transition: all 0.2s;
+padding: 0.75rem 1rem;
+}
+
+.nav-link:hover, .nav-link.active {
+background-color: rgba(var(--bs-primary-rgb), 0.1);
+color: white !important;
+}
+
+.nav-link i {
+width: 20px;
+text-align: center;
+margin-right: 0.5rem;
+}
+
+.dropdown-menu {
+border-radius: 0.375rem;
+box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.card {
+border-radius: 0.5rem;
+box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+margin-bottom: 1.5rem;
+border: none;
+}
+
+.card-header {
+border-radius: 0.5rem 0.5rem 0 0 !important;
+background-color: transparent;
+border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+padding: 1rem;
+}
+
+.card-footer {
+border-radius: 0 0 0.5rem 0.5rem !important;
+background-color: transparent;
+border-top: 1px solid rgba(0, 0, 0, 0.125);
+padding: 1rem;
+}
+
+.page-content {
+padding: 1.5rem;
+}
+
+.theme-toggle {
+cursor: pointer;
+padding: 0.5rem;
+border-radius: 50%;
+width: 36px;
+height: 36px;
+display: flex;
+align-items: center;
+justify-content: center;
+margin-left: 0.5rem;
+}
+
+.theme-toggle:hover {
+background-color: rgba(255, 255, 255, 0.1);
+}
+
+footer {
+padding: 1rem;
+text-align: center;
+margin-top: auto;
+}
+
+.nav-item .nav-link-text {
+transition: opacity 0.3s;
+}
+
+.sidebar-collapsed .nav-link-text {
+opacity: 0;
+display: none;
+}
+
+.sidebar-collapsed .nav-link {
+text-align: center;
+padding: 0.75rem 0;
+}
+
+.sidebar-collapsed .nav-link i {
+margin-right: 0;
+font-size: 1.25rem;
+}
+
+.nav-category {
+font-size: 0.75rem;
+font-weight: 600;
+text-transform: uppercase;
+letter-spacing: 1px;
+color: var(--bs-gray-500);
+padding: 1rem 1.5rem 0.5rem;
+}
+
+.sidebar-collapsed .nav-category {
+display: none;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+.sidebar {
+margin-left: -250px;
+}
+
+.sidebar.active {
+margin-left: 0;
+}
+
+.main-content {
+margin-left: 0;
+}
+
+.main-content-expanded {
+margin-left: 0;
+}
+}
+
+/* Custom badge styles */
+.badge-system {
+background-color: var(--bs-indigo);
+color: white;
+}
+
+.badge-module {
+background-color: var(--bs-teal);
+color: white;
+}
+
+/* Status indicators */
+.status-indicator {
+display: inline-block;
+width: 10px;
+height: 10px;
+border-radius: 50%;
+margin-right: 5px;
+}
+
+.status-connected {
+background-color: var(--bs-success);
+}
+
+.status-warning {
+background-color: var(--bs-warning);
+}
+
+.status-error {
+background-color: var(--bs-danger);
+}
+
+/* Enhanced alerts */
+.alert-enhanced {
+border-left: 4px solid;
+}
+
+.alert-enhanced.alert-info {
+border-left-color: var(--bs-info);
+}
+
+.alert-enhanced.alert-success {
+border-left-color: var(--bs-success);
+}
+
+.alert-enhanced.alert-warning {
+border-left-color: var(--bs-warning);
+}
+
+.alert-enhanced.alert-danger {
+border-left-color: var(--bs-danger);
+}
+</style>
+
+{% block head_content %}{% endblock %}
+</head><body><nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top"><div class="container-fluid"><button id="sidebar-toggle" class="btn btn-link text-light me-2"><i class="fas fa-bars"></i></button><a class="navbar-brand" href="/"><i class="fas fa-truck-moving me-2"></i>
+TRAXORA
+</a><button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button><div class="collapse navbar-collapse" id="navbarNav"><ul class="navbar-nav ms-auto"><li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" id="quickActionsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-bolt"></i> Quick Actions
+</a><ul class="dropdown-menu dropdown-menu-end" aria-labelledby="quickActionsDropdown"><li><a class="dropdown-item" href="/daily-attendance/upload"><i class="fas fa-upload me-2"></i>Upload Data Files</a></li><li><a class="dropdown-item" href="/enhanced-weekly-report/"><i class="fas fa-calendar-week me-2"></i>Weekly Driver Report</a></li><li><a class="dropdown-item" href="/daily-driver-report/"><i class="fas fa-calendar-day me-2"></i>Daily Driver Report</a></li><li><hr class="dropdown-divider"></li><li><a class="dropdown-item" href="/file-organizer/"><i class="fas fa-folder-open me-2"></i>File Organizer</a></li></ul></li><li class="nav-item"><a class="nav-link" href="{{ url_for('system_health.dashboard') }}" title="System Health"><i class="fas fa-heartbeat"></i></a></li><li class="nav-item"><div class="theme-toggle" id="theme-toggle" title="Toggle Theme"><i class="fas fa-moon"></i></div></li><li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user-circle"></i></a><ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown"><li><a class="dropdown-item" href="/profile"><i class="fas fa-user me-2"></i>Profile</a></li><li><a class="dropdown-item" href="/settings"><i class="fas fa-cog me-2"></i>Settings</a></li><li><hr class="dropdown-divider"></li><li><a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li></ul></li></ul></div></div></nav><nav id="sidebar" class="sidebar"><ul class="nav flex-column"><div class="nav-category">Main</div><li class="nav-item"><a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/"><i class="fas fa-tachometer-alt"></i><span class="nav-link-text">Dashboard</span></a></li><div class="nav-category">Daily Operations</div><li class="nav-item"><a class="nav-link {% if '/daily-driver-report' in request.path %}active{% endif %}" href="{{ url_for('daily_driver_report.dashboard') }}"><i class="fas fa-calendar-day"></i><span class="nav-link-text">Daily Driver Report</span></a></li><li class="nav-item"><a class="nav-link {% if '/enhanced-weekly-report' in request.path %}active{% endif %}" href="/enhanced-weekly-report/"><i class="fas fa-calendar-week"></i><span class="nav-link-text">Weekly Driver Report</span></a></li><li class="nav-item"><a class="nav-link {% if '/monthly-driver-report' in request.path %}active{% endif %}" href="/monthly-driver-report/"><i class="fas fa-calendar-alt"></i><span class="nav-link-text">Monthly Driver Report</span></a></li><li class="nav-item"><a class="nav-link {% if '/daily-attendance' in request.path %}active{% endif %}" href="/daily-attendance/"><i class="fas fa-clipboard-check"></i><span class="nav-link-text">Daily Attendance</span></a></li><li class="nav-item"><a class="nav-link {% if '/reports' in request.path %}active{% endif %}" href="{{ url_for('report_browser.index') }}"><i class="fas fa-file-alt"></i><span class="nav-link-text">Report Browser</span></a></li><li class="nav-item"><a class="nav-link {% if '/file-organizer' in request.path %}active{% endif %}" href="/file-organizer/"><i class="fas fa-folder-open"></i><span class="nav-link-text">File Organizer</span></a></li><div class="nav-category">Maps & Assets</div><li class="nav-item"><a class="nav-link {% if '/asset-map' in request.path %}active{% endif %}" href="/asset-map/"><i class="fas fa-map-marked-alt"></i><span class="nav-link-text">Asset Map</span></a></li><li class="nav-item"><a class="nav-link {% if '/job-zone' in request.path %}active{% endif %}" href="/job-zone/"><i class="fas fa-hard-hat"></i><span class="nav-link-text">Job Zones</span></a></li><div class="nav-category">Management</div><li class="nav-item"><a class="nav-link {% if '/driver-asset-manager' in request.path %}active{% endif %}" href="/driver-asset-manager/"><i class="fas fa-id-card"></i><span class="nav-link-text">Drivers</span></a></li><li class="nav-item"><a class="nav-link {% if '/billing' in request.path %}active{% endif %}" href="/billing/"><i class="fas fa-file-invoice-dollar"></i><span class="nav-link-text">Equipment Billing</span></a></li><div class="nav-category">System</div><li class="nav-item"><a class="nav-link {% if '/admin' in request.path %}active{% endif %}" href="/admin/"><i class="fas fa-cogs"></i><span class="nav-link-text">System Admin</span></a></li><li class="nav-item"><a class="nav-link {% if '/system-health' in request.path %}active{% endif %}" href="/system-health/"><i class="fas fa-heartbeat"></i><span class="nav-link-text">System Health</span></a></li><div class="nav-category">KAIZEN CORE</div><li class="nav-item"><a class="nav-link {% if '/kaizen-admin' in request.path %}active{% endif %}" href="/kaizen-admin/"><i class="fas fa-brain"></i><span class="nav-link-text">Kaizen Admin</span></a></li><li class="nav-item"><a class="nav-link {% if '/kaizen-monitor' in request.path %}active{% endif %}" href="/kaizen-monitor/"><i class="fas fa-chart-line"></i><span class="nav-link-text">Kaizen Monitor</span></a></li></ul></nav><div id="main-content" class="main-content"><div class="page-content">
+{% block content %}{% endblock %}
+</div><footer class="bg-dark text-light"><div><span>&copy; 2025 TRAXORA Fleet Management</span><span class="mx-2">|</span><span>v2.5.0</span></div></footer></div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script><script>
+$(document).ready(function() {
+// Toggle sidebar
+$('#sidebar-toggle').click(function() {
+$('#sidebar').toggleClass('sidebar-collapsed');
+$('#main-content').toggleClass('main-content-expanded');
+});
+
+// Theme toggle
+$('#theme-toggle').click(function() {
+if ($('html').attr('data-bs-theme') === 'dark') {
+$('html').attr('data-bs-theme', 'light');
+$(this).html('<i class="fas fa-sun"></i>');
+} else {
+$('html').attr('data-bs-theme', 'dark');
+$(this).html('<i class="fas fa-moon"></i>');
+}
+});
+
+// Initialize DataTables if present
+if ($.fn.DataTable) {
+$('.datatable').DataTable({
+responsive: true,
+language: {
+search: "",
+searchPlaceholder: "Search..."
+},
+lengthMenu: [
+[10, 25, 50, -1],
+[10, 25, 50, "All"]
+]
+});
+}
+
+// Tooltip initialization
+const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+tooltipTriggerList.map(function (tooltipTriggerEl) {
+return new bootstrap.Tooltip(tooltipTriggerEl);
+});
+});
+</script>
+
+{% block scripts %}{% endblock %}
+</body></html>

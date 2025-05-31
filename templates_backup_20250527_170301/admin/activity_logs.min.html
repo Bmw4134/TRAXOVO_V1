@@ -1,0 +1,297 @@
+{% extends 'base.html' %}
+
+{% block title %}Activity Logs - TRAXORA{% endblock %}
+
+{% block extra_css %}
+<style>
+.filter-bar {
+background-color: var(--bs-dark);
+border-radius: 0.5rem;
+margin-bottom: 1.5rem;
+}
+.log-entry {
+transition: all 0.2s ease;
+}
+.log-entry:hover {
+background-color: rgba(13, 110, 253, 0.05);
+}
+.event-badge {
+font-size: 0.75rem;
+padding: 0.35em 0.65em;
+}
+.details-icon {
+cursor: pointer;
+transition: all 0.2s ease;
+}
+.details-icon:hover {
+color: var(--bs-primary);
+}
+.log-time {
+font-size: 0.85rem;
+opacity: 0.8;
+}
+.log-details {
+font-family: 'Courier New', monospace;
+font-size: 0.85rem;
+max-height: 250px;
+overflow-y: auto;
+}
+.pagination-container {
+margin-top: 2rem;
+margin-bottom: 2rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4"><div class="row mb-4"><div class="col-md-8"><h1 class="display-5 fw-bold"><i class="bi bi-activity me-2"></i>Activity Logs
+</h1><p class="text-muted">
+View and filter user interactions and system events
+</p></div><div class="col-md-4 text-end"><a href="{{ url_for('admin.export_activity_logs',
+event_type=selected_event_type,
+user_id=selected_user_id,
+resource_type=selected_resource_type,
+days=selected_days) }}"
+class="btn btn-success"><i class="bi bi-download me-2"></i>Export to CSV
+</a><a href="{{ url_for('admin.index') }}" class="btn btn-outline-secondary ms-2"><i class="bi bi-arrow-left me-2"></i>Back to Admin
+</a></div></div><div class="card filter-bar mb-4"><div class="card-body"><form method="GET" action="{{ url_for('admin.activity_logs') }}"><div class="row"><div class="col-md-3 mb-2"><label for="event_type" class="form-label">Event Type</label><select class="form-select" id="event_type" name="event_type"><option value="">All Events</option>
+{% for event_type in event_types %}
+<option value="{{ event_type }}" {% if selected_event_type == event_type %}selected{% endif %}>
+{{ event_type|replace('_', ' ')|title }}
+</option>
+{% endfor %}
+</select></div><div class="col-md-3 mb-2"><label for="user_id" class="form-label">User</label><select class="form-select" id="user_id" name="user_id"><option value="">All Users</option>
+{% for user in users %}
+<option value="{{ user.id }}" {% if selected_user_id == user.id %}selected{% endif %}>
+{{ user.get_display_name() }}
+</option>
+{% endfor %}
+</select></div><div class="col-md-3 mb-2"><label for="resource_type" class="form-label">Resource Type</label><select class="form-select" id="resource_type" name="resource_type"><option value="">All Resources</option>
+{% for resource_type in resource_types %}
+<option value="{{ resource_type }}" {% if selected_resource_type == resource_type %}selected{% endif %}>
+{{ resource_type|replace('_', ' ')|title }}
+</option>
+{% endfor %}
+</select></div><div class="col-md-3 mb-2"><label for="days" class="form-label">Time Range</label><select class="form-select" id="days" name="days"><option value="1" {% if selected_days == 1 %}selected{% endif %}>Last 24 Hours</option><option value="7" {% if selected_days == 7 %}selected{% endif %}>Last 7 Days</option><option value="30" {% if selected_days == 30 %}selected{% endif %}>Last 30 Days</option><option value="90" {% if selected_days == 90 %}selected{% endif %}>Last 90 Days</option><option value="0" {% if selected_days == 0 %}selected{% endif %}>All Time</option></select></div></div><div class="row mt-3"><div class="col-12 text-end"><button type="submit" class="btn btn-primary"><i class="bi bi-filter me-2"></i>Apply Filters
+</button><a href="{{ url_for('admin.activity_logs') }}" class="btn btn-outline-secondary ms-2"><i class="bi bi-x-circle me-2"></i>Clear Filters
+</a></div></div></form></div></div><div class="row mb-4"><div class="col-md-12"><div class="card"><div class="card-header"><h5 class="mb-0"><i class="bi bi-graph-up me-2"></i>Activity Overview
+</h5></div><div class="card-body"><div class="row"><div class="col-lg-9"><canvas id="activityTimeChart" height="250"></canvas></div><div class="col-lg-3"><canvas id="eventTypeChart" height="250"></canvas></div></div></div></div></div></div><div class="card"><div class="card-header"><div class="d-flex justify-content-between align-items-center"><h5 class="mb-0">Activity Records</h5><span class="badge bg-secondary">{{ logs.total }} Records</span></div></div><div class="card-body p-0"><div class="table-responsive"><table class="table table-hover table-striped mobile-card-view mb-0"><thead class="table-dark"><tr><th>ID</th><th>Time</th><th>User</th><th>Event</th><th>Resource</th><th>Action</th><th>Description</th><th>Status</th><th>Details</th></tr></thead><tbody>
+{% for log in logs.items %}
+<tr class="log-entry"><td>{{ log.id }}</td><td><span class="log-time">{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</span></td><td>
+{% if log.user %}
+<span>{{ log.user.get_display_name() }}</span>
+{% else %}
+<span class="text-muted">System</span>
+{% endif %}
+</td><td><span class="badge event-badge
+{% if log.event_type == 'api_pull' %}bg-info
+{% elif log.event_type == 'document_upload' %}bg-success
+{% elif log.event_type == 'report_view' %}bg-primary
+{% elif log.event_type == 'report_export' %}bg-warning text-dark
+{% elif log.event_type == 'user_login' %}bg-light text-dark
+{% elif log.event_type == 'pm_process' %}bg-secondary
+{% else %}bg-dark
+{% endif %}">
+{{ log.event_type|replace('_', ' ')|title }}
+</span></td><td>
+{% if log.resource_type %}
+{{ log.resource_type|replace('_', ' ')|title }}
+{% if log.resource_id %}
+<span class="small text-muted">{{ log.resource_id|truncate(20) }}</span>
+{% endif %}
+{% else %}
+-
+{% endif %}
+</td><td>
+{% if log.action %}
+{{ log.action|title }}
+{% else %}
+-
+{% endif %}
+</td><td>
+{{ log.description|default('-', true) }}
+</td><td>
+{% if log.success %}
+<span class="badge bg-success">Success</span>
+{% else %}
+<span class="badge bg-danger">Failed</span>
+{% endif %}
+</td><td>
+{% if log.details %}
+<i class="bi bi-info-circle details-icon"
+data-bs-toggle="modal"
+data-bs-target="#detailsModal"
+data-details="{{ log.details|tojson }}"></i>
+{% else %}
+-
+{% endif %}
+</td></tr>
+{% else %}
+<tr><td colspan="9" class="text-center py-4"><i class="bi bi-exclamation-circle me-2"></i>No activity logs found
+</td></tr>
+{% endfor %}
+</tbody></table></div></div></div>
+
+
+{% if logs.pages > 1 %}
+<div class="pagination-container d-flex justify-content-center"><nav><ul class="pagination"><li class="page-item {% if logs.page == 1 %}disabled{% endif %}"><a class="page-link" href="{{ url_for('admin.activity_logs', page=logs.prev_num,
+event_type=selected_event_type,
+user_id=selected_user_id,
+resource_type=selected_resource_type,
+days=selected_days) }}"><i class="bi bi-chevron-left"></i> Previous
+</a></li>
+
+{% set start_page = [logs.page - 2, 1]|max %}
+{% set end_page = [start_page + 4, logs.pages]|min %}
+{% set start_page = [end_page - 4, 1]|max %}
+
+{% for page_num in range(start_page, end_page + 1) %}
+<li class="page-item {% if page_num == logs.page %}active{% endif %}"><a class="page-link" href="{{ url_for('admin.activity_logs', page=page_num,
+event_type=selected_event_type,
+user_id=selected_user_id,
+resource_type=selected_resource_type,
+days=selected_days) }}">
+{{ page_num }}
+</a></li>
+{% endfor %}
+
+<li class="page-item {% if logs.page == logs.pages %}disabled{% endif %}"><a class="page-link" href="{{ url_for('admin.activity_logs', page=logs.next_num,
+event_type=selected_event_type,
+user_id=selected_user_id,
+resource_type=selected_resource_type,
+days=selected_days) }}">
+Next <i class="bi bi-chevron-right"></i></a></li></ul></nav></div>
+{% endif %}
+</div><div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="detailsModalLabel">Log Details</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><pre class="log-details bg-dark text-light p-3 rounded"></pre></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div></div></div></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script><script>
+document.addEventListener('DOMContentLoaded', function() {
+// Handle details modal
+const detailsModal = document.getElementById('detailsModal');
+if (detailsModal) {
+detailsModal.addEventListener('show.bs.modal', function(event) {
+const button = event.relatedTarget;
+const details = button.getAttribute('data-details');
+const detailsContainer = this.querySelector('.log-details');
+
+try {
+const formattedDetails = JSON.stringify(JSON.parse(details), null, 2);
+detailsContainer.textContent = formattedDetails;
+} catch (e) {
+detailsContainer.textContent = details || 'No details available';
+}
+});
+}
+
+// Fetch activity stats for charts
+fetch("{{ url_for('admin.activity_stats', days=selected_days) }}")
+.then(response => response.json())
+.then(data => {
+createActivityChart(data);
+createEventTypeChart(data);
+})
+.catch(error => console.error('Error loading activity stats:', error));
+
+// Activity over time chart
+function createActivityChart(data) {
+const dailyCounts = data.daily_counts || {};
+const dates = Object.keys(dailyCounts).sort();
+const counts = dates.map(date => dailyCounts[date]);
+
+const ctx = document.getElementById('activityTimeChart').getContext('2d');
+new Chart(ctx, {
+type: 'line',
+data: {
+labels: dates,
+datasets: [{
+label: 'Activity Count',
+data: counts,
+backgroundColor: 'rgba(13, 110, 253, 0.2)',
+borderColor: 'rgba(13, 110, 253, 1)',
+borderWidth: 2,
+tension: 0.1,
+pointRadius: 3
+}]
+},
+options: {
+responsive: true,
+plugins: {
+title: {
+display: true,
+text: 'Daily Activity'
+},
+legend: {
+display: false
+}
+},
+scales: {
+y: {
+beginAtZero: true,
+ticks: {
+precision: 0
+}
+}
+}
+}
+});
+}
+
+// Event type distribution chart
+function createEventTypeChart(data) {
+const eventCounts = data.event_counts || {};
+const eventTypes = Object.keys(eventCounts);
+const counts = eventTypes.map(type => eventCounts[type]);
+
+// Format event type labels
+const labels = eventTypes.map(type =>
+type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+);
+
+// Colors for different event types
+const bgColors = [
+'rgba(13, 110, 253, 0.7)',   // Primary blue
+'rgba(25, 135, 84, 0.7)',    // Success green
+'rgba(255, 193, 7, 0.7)',    // Warning yellow
+'rgba(220, 53, 69, 0.7)',    // Danger red
+'rgba(108, 117, 125, 0.7)',  // Secondary gray
+'rgba(32, 201, 151, 0.7)',   // Info teal
+'rgba(111, 66, 193, 0.7)',   // Purple
+'rgba(253, 126, 20, 0.7)'    // Orange
+];
+
+const ctx = document.getElementById('eventTypeChart').getContext('2d');
+new Chart(ctx, {
+type: 'doughnut',
+data: {
+labels: labels,
+datasets: [{
+data: counts,
+backgroundColor: bgColors.slice(0, eventTypes.length),
+borderWidth: 1
+}]
+},
+options: {
+responsive: true,
+plugins: {
+title: {
+display: true,
+text: 'Event Types'
+},
+legend: {
+position: 'bottom',
+labels: {
+boxWidth: 12,
+font: {
+size: 10
+}
+}
+}
+}
+}
+});
+}
+});
+</script>
+{% endblock %}

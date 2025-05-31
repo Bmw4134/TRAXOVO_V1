@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Time on Site Tracking - TRAXOVO{% endblock %}
+
+{% block content %}
+<div class="container-fluid"><div class="row"><div class="col-12"><div class="d-flex justify-content-between align-items-center mb-4"><div><h1 class="h3 mb-1">Time on Site Tracking</h1><p class="text-muted mb-0">Driver duration analysis and compliance flagging for {{ data.date }}</p></div><div class="text-end"><small class="text-muted">Last Updated: {{ data.last_updated }}</small></div></div><div class="row mb-4"><div class="col-md-3"><div class="card bg-primary text-white"><div class="card-body"><div class="d-flex justify-content-between"><div><h4 class="mb-0">{{ data.total_drivers }}</h4><p class="mb-0">Total Drivers</p></div><div class="align-self-center"><i class="fas fa-users fa-2x"></i></div></div></div></div></div><div class="col-md-3"><div class="card bg-warning text-dark"><div class="card-body"><div class="d-flex justify-content-between"><div><h4 class="mb-0">{{ data.flagged_drivers }}</h4><p class="mb-0">Flagged Issues</p></div><div class="align-self-center"><i class="fas fa-exclamation-triangle fa-2x"></i></div></div></div></div></div><div class="col-md-3"><div class="card bg-info text-white"><div class="card-body"><div class="d-flex justify-content-between"><div><h4 class="mb-0">{{ data.avg_hours_on_site }}</h4><p class="mb-0">Avg Hours</p></div><div class="align-self-center"><i class="fas fa-clock fa-2x"></i></div></div></div></div></div><div class="col-md-3"><div class="card bg-success text-white"><div class="card-body"><div class="d-flex justify-content-between"><div><h4 class="mb-0">{{ ((data.total_drivers - data.flagged_drivers) / data.total_drivers * 100) | round(1) if data.total_drivers > 0 else 0 }}%</h4><p class="mb-0">Compliance Rate</p></div><div class="align-self-center"><i class="fas fa-check-circle fa-2x"></i></div></div></div></div></div></div><div class="card mb-4"><div class="card-header"><h5 class="mb-0">Upload Driver Time Data</h5></div><div class="card-body"><form action="{{ url_for('time_on_site.upload_time_data') }}" method="post" enctype="multipart/form-data" class="row g-3"><div class="col-md-8"><input type="file" class="form-control" name="file" accept=".csv" required><div class="form-text">Upload CSV with driver time data (columns: Driver, Start Time, End Time, Job Site)</div></div><div class="col-md-4"><button type="submit" class="btn btn-primary w-100"><i class="fas fa-upload me-2"></i>Upload & Process
+</button></div></form></div></div><div class="card mb-4"><div class="card-body"><div class="row g-3"><div class="col-md-3"><label class="form-label">Filter by Project</label><select class="form-select" id="projectFilter"><option value="">All Projects</option>
+{% for item in data.time_data %}
+<option value="{{ item.job_site }}">{{ item.job_site }}</option>
+{% endfor %}
+</select></div><div class="col-md-3"><label class="form-label">Filter by Flag</label><select class="form-select" id="flagFilter"><option value="">All Flags</option><option value="low_attendance">Low Attendance</option><option value="compliance_issue">Compliance Issue</option><option value="normal">Normal</option></select></div><div class="col-md-3"><label class="form-label">Minimum Hours</label><input type="number" class="form-control" id="minHours" min="0" max="24" step="0.5" placeholder="0"></div><div class="col-md-3"><label class="form-label">Maximum Hours</label><input type="number" class="form-control" id="maxHours" min="0" max="24" step="0.5" placeholder="24"></div></div></div></div><div class="card"><div class="card-header"><h5 class="mb-0">Driver Time Analysis</h5></div><div class="card-body"><div class="table-responsive"><table class="table table-striped table-hover" id="timeTrackingTable"><thead class="table-dark"><tr><th>Status</th><th>Driver Name</th><th>Start Time</th><th>End Time</th><th>Hours on Site</th><th>Job Site</th><th>Flag Details</th></tr></thead><tbody>
+{% for item in data.time_data %}
+<tr data-project="{{ item.job_site }}" data-flag="{{ item.flag.flag }}" data-hours="{{ item.hours_on_site }}"><td><span class="badge bg-{{ item.flag.color }} fs-6"
+data-bs-toggle="tooltip"
+title="{{ item.flag.message }}">
+{{ item.flag.icon }}
+</span></td><td><strong>{{ item.driver_name }}</strong></td><td><span class="text-success"><i class="fas fa-clock me-1"></i>{{ item.start_time }}
+</span></td><td><span class="text-danger"><i class="fas fa-clock me-1"></i>{{ item.end_time }}
+</span></td><td><span class="badge bg-{% if item.hours_on_site < 2 %}warning{% elif item.hours_on_site > 14 %}danger{% else %}success{% endif %} fs-6">
+{{ item.hours_on_site }} hrs
+</span></td><td><small class="text-muted">{{ item.job_site }}</small></td><td>
+{% if item.flag.flag != 'normal' %}
+<small class="text-{{ item.flag.color }}"><i class="fas fa-info-circle me-1"></i>{{ item.flag.message }}
+</small>
+{% else %}
+<small class="text-muted">No issues detected</small>
+{% endif %}
+</td></tr>
+{% endfor %}
+</tbody></table></div></div></div></div></div></div><script>
+document.addEventListener('DOMContentLoaded', function() {
+// Initialize tooltips
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+return new bootstrap.Tooltip(tooltipTriggerEl);
+});
+
+// Filter functionality
+const projectFilter = document.getElementById('projectFilter');
+const flagFilter = document.getElementById('flagFilter');
+const minHours = document.getElementById('minHours');
+const maxHours = document.getElementById('maxHours');
+const table = document.getElementById('timeTrackingTable');
+const rows = table.querySelectorAll('tbody tr');
+
+function filterTable() {
+const projectValue = projectFilter.value.toLowerCase();
+const flagValue = flagFilter.value.toLowerCase();
+const minValue = parseFloat(minHours.value) || 0;
+const maxValue = parseFloat(maxHours.value) || 24;
+
+rows.forEach(row => {
+const project = row.dataset.project.toLowerCase();
+const flag = row.dataset.flag.toLowerCase();
+const hours = parseFloat(row.dataset.hours);
+
+const projectMatch = !projectValue || project.includes(projectValue);
+const flagMatch = !flagValue || flag === flagValue;
+const hoursMatch = hours >= minValue && hours <= maxValue;
+
+if (projectMatch && flagMatch && hoursMatch) {
+row.style.display = '';
+} else {
+row.style.display = 'none';
+}
+});
+}
+
+// Add event listeners
+projectFilter.addEventListener('change', filterTable);
+flagFilter.addEventListener('change', filterTable);
+minHours.addEventListener('input', filterTable);
+maxHours.addEventListener('input', filterTable);
+
+// Auto-refresh data every 5 minutes
+setInterval(function() {
+location.reload();
+}, 300000);
+});
+</script>
+{% endblock %}

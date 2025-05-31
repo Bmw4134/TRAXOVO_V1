@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Full-Stack Sync Check - TRAXORA{% endblock %}
+
+{% block content %}
+<div class="container mt-4"><div class="d-flex justify-content-between align-items-center mb-4"><h1>Full-Stack Sync Check</h1><a href="{{ url_for('system_admin.index') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Back to System Admin
+</a></div><div class="alert alert-info"><h4 class="alert-heading"><i class="bi bi-info-circle"></i> Scan Complete</h4><p>Full-stack synchronization check completed at {{ timestamp }}</p><hr><p class="mb-0">This report shows all synchronization issues between your backend routes and frontend UI elements.</p></div><div class="row mb-4"><div class="col-md-4"><div class="card text-white bg-primary"><div class="card-body"><h5 class="card-title">Total Routes</h5><p class="card-text display-4">{{ report.summary.total_routes }}</p></div></div></div><div class="col-md-4"><div class="card text-white bg-success"><div class="card-body"><h5 class="card-title">Referenced Endpoints</h5><p class="card-text display-4">{{ report.summary.total_endpoints_referenced }}</p></div></div></div><div class="col-md-4"><div class="card text-white {% if report.summary.orphaned_routes > 0 or report.summary.orphaned_templates > 0 or report.summary.database_issues > 0 or report.summary.conditional_blocks > 0 %}bg-danger{% else %}bg-success{% endif %}"><div class="card-body"><h5 class="card-title">Sync Issues</h5><p class="card-text display-4">{{ report.summary.orphaned_routes + report.summary.orphaned_templates + report.summary.database_issues + report.summary.conditional_blocks }}</p></div></div></div></div><div class="row"><div class="col-12 mb-4"><div class="card"><div class="card-header bg-primary text-white"><h5 class="mb-0"><i class="bi bi-list-check"></i> Summary</h5></div><div class="card-body"><div class="table-responsive"><table class="table table-striped"><thead><tr><th>Issue Type</th><th>Count</th><th>Status</th></tr></thead><tbody><tr><td>Orphaned Routes</td><td>{{ report.summary.orphaned_routes }}</td><td>
+{% if report.summary.orphaned_routes > 0 %}
+<span class="badge bg-warning">Needs Attention</span>
+{% else %}
+<span class="badge bg-success">Good</span>
+{% endif %}
+</td></tr><tr><td>Orphaned Template References</td><td>{{ report.summary.orphaned_templates }}</td><td>
+{% if report.summary.orphaned_templates > 0 %}
+<span class="badge bg-warning">Needs Attention</span>
+{% else %}
+<span class="badge bg-success">Good</span>
+{% endif %}
+</td></tr><tr><td>Database Issues</td><td>{{ report.summary.database_issues }}</td><td>
+{% if report.summary.database_issues > 0 %}
+<span class="badge bg-danger">Critical</span>
+{% else %}
+<span class="badge bg-success">Good</span>
+{% endif %}
+</td></tr><tr><td>Hidden UI Elements</td><td>{{ report.summary.conditional_blocks }}</td><td>
+{% if report.summary.conditional_blocks > 0 %}
+<span class="badge bg-info">Review</span>
+{% else %}
+<span class="badge bg-success">Good</span>
+{% endif %}
+</td></tr></tbody></table></div></div><div class="card-footer"><div class="d-flex justify-content-between align-items-center"><button class="btn btn-primary" onclick="window.location.reload();"><i class="bi bi-arrow-repeat"></i> Run Scan Again
+</button><a href="{{ html_report_url }}" class="btn btn-success" target="_blank"><i class="bi bi-file-earmark-text"></i> View Detailed Report
+</a></div></div></div></div></div>
+
+{% if report.summary.orphaned_routes > 0 %}
+<div class="row"><div class="col-12 mb-4"><div class="card"><div class="card-header bg-warning"><h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Orphaned Routes ({{ report.summary.orphaned_routes }})</h5></div><div class="card-body"><p class="text-muted">These backend routes don't have matching UI elements. They may be API endpoints or need UI components.</p><div class="table-responsive"><table class="table table-striped table-hover"><thead><tr><th>Route Path</th><th>Function</th><th>Blueprint</th><th>File</th></tr></thead><tbody>
+{% for route in report.orphaned_routes %}
+<tr><td><code>{{ route.path }}</code></td><td>{{ route.function }}</td><td>{{ route.blueprint or 'None' }}</td><td>{{ route.file }}</td></tr>
+{% endfor %}
+</tbody></table></div></div><div class="card-footer bg-light"><p class="mb-0 small"><strong>Recommendation:</strong> Create UI elements that reference these routes or mark them as API-only routes.</p></div></div></div></div>
+{% endif %}
+
+{% if report.summary.orphaned_templates > 0 %}
+<div class="row"><div class="col-12 mb-4"><div class="card"><div class="card-header bg-warning"><h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Orphaned Template References ({{ report.summary.orphaned_templates }})</h5></div><div class="card-body"><p class="text-muted">These UI elements reference endpoints that don't exist in the backend. They may be mistyped or need routes to be created.</p><div class="table-responsive"><table class="table table-striped table-hover"><thead><tr><th>Endpoint</th><th>References</th><th>Files</th></tr></thead><tbody>
+{% for template in report.orphaned_templates %}
+<tr><td><code>{{ template.endpoint }}</code></td><td>{{ template.references|length }}</td><td>
+{% for ref in template.references %}
+{{ ref.file }}{% if not loop.last %}, {% endif %}
+{% endfor %}
+</td></tr>
+{% endfor %}
+</tbody></table></div></div><div class="card-footer bg-light"><p class="mb-0 small"><strong>Recommendation:</strong> Create routes for these endpoints or correct the template references if mistyped.</p></div></div></div></div>
+{% endif %}
+
+{% if report.summary.database_issues > 0 %}
+<div class="row"><div class="col-12 mb-4"><div class="card"><div class="card-header bg-danger text-white"><h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Database Issues ({{ report.summary.database_issues }})</h5></div><div class="card-body"><p class="text-muted">These issues might affect database relationships and proper model mapping.</p><div class="list-group">
+{% for issue in report.database_issues %}
+<div class="list-group-item"><i class="bi bi-database-exclamation text-danger"></i> {{ issue }}
+</div>
+{% endfor %}
+</div></div><div class="card-footer bg-light"><p class="mb-0 small"><strong>Recommendation:</strong> Fix these issues to prevent database errors and relationship mapping problems.</p></div></div></div></div>
+{% endif %}
+</div>
+{% endblock %}

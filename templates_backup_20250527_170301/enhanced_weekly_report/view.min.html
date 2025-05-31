@@ -1,0 +1,561 @@
+{% extends "base.html" %}
+
+{% block title %}Weekly Driver Report: {{ start_formatted }} - {{ end_formatted }} - TRAXORA GENIUS CORE{% endblock %}
+
+{% block head %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" /><script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script><style>
+.status-badge {
+width: 12px;
+height: 12px;
+display: inline-block;
+border-radius: 50%;
+margin-right: 6px;
+}
+.status-badge.on-time {
+background-color: #28a745;
+}
+.status-badge.late-start {
+background-color: #ffc107;
+}
+.status-badge.early-end {
+background-color: #fd7e14;
+}
+.status-badge.not-on-job {
+background-color: #dc3545;
+}
+.map-container {
+height: 300px;
+border-radius: 0.25rem;
+}
+.nav-tabs .nav-link {
+color: #adb5bd;
+border: none;
+border-bottom: 2px solid transparent;
+}
+.nav-tabs .nav-link:hover {
+color: #fff;
+border-color: transparent;
+}
+.nav-tabs .nav-link.active {
+color: #28a745;
+background-color: transparent;
+border-color: #28a745;
+}
+.date-badge {
+cursor: pointer;
+transition: all 0.2s;
+}
+.date-badge:hover {
+transform: translateY(-2px);
+}
+.date-badge.active {
+background-color: #28a745 !important;
+color: #fff !important;
+}
+.table-hover-highlight tr:hover {
+background-color: rgba(40, 167, 69, 0.1);
+}
+</style>
+{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="/">Home</a></li><li class="breadcrumb-item"><a href="{{ url_for('enhanced_weekly_report_bp.dashboard') }}">Enhanced Weekly Driver Reports</a></li><li class="breadcrumb-item active" aria-current="page">{{ start_formatted }} - {{ end_formatted }}</li>
+{% endblock %}
+
+{% block page_title %}Weekly Driver Report: {{ start_formatted }} - {{ end_formatted }}{% endblock %}
+{% block page_subtitle %}Date range analysis with GENIUS CORE validation{% endblock %}
+
+{% block page_actions %}
+<a href="{{ url_for('enhanced_weekly_report_bp.generate_report') }}" class="btn btn-primary me-2"><i class="bi bi-play-circle me-2"></i> Generate New Report
+</a><div class="btn-group"><button type="button" class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-download me-2"></i> Download Report
+</button><ul class="dropdown-menu dropdown-menu-dark"><li><a class="dropdown-item" href="{{ url_for('enhanced_weekly_report_bp.download_report', start_date=start_date, end_date=end_date, format='csv') }}">CSV Format</a></li><li><a class="dropdown-item" href="{{ url_for('enhanced_weekly_report_bp.download_report', start_date=start_date, end_date=end_date, format='json') }}">JSON Format</a></li><li><a class="dropdown-item" href="{{ url_for('enhanced_weekly_report_bp.download_report', start_date=start_date, end_date=end_date, format='pdf') }}">PDF Format</a></li><li><a class="dropdown-item" href="{{ url_for('enhanced_weekly_report_bp.download_report', start_date=start_date, end_date=end_date, format='excel') }}">Excel Format</a></li></ul></div>
+{% endblock %}
+
+{% block content %}
+
+<div class="back-link mb-3"><a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Back to Dashboard
+</a></div><div class="row mb-4"><div class="col-12"><div class="card bg-dark border-0 shadow-sm"><div class="card-header bg-dark"><h5 class="card-title mb-0">Date Range</h5></div><div class="card-body"><div class="d-flex justify-content-between flex-wrap">
+{% for date in date_range %}
+<div class="date-badge p-2 mb-2 rounded bg-dark border {% if date.has_data %}border-success{% else %}border-secondary{% endif %} text-center"
+data-date="{{ date.date }}" onclick="selectDate('{{ date.date }}')"><div class="mb-1">{{ date.formatted }}</div>
+{% if date.has_data %}
+<div class="badge bg-success">Data Available</div>
+{% else %}
+<div class="badge bg-secondary">No Data</div>
+{% endif %}
+</div>
+{% endfor %}
+</div></div></div></div></div><div class="row mb-4"><div class="col-12"><div class="card bg-dark border-0 shadow-sm"><div class="card-header bg-dark"><h5 class="card-title mb-0">Filter Options</h5></div><div class="card-body"><form id="filterForm" class="row g-3"><div class="col-md-4"><label for="filterStatus" class="form-label">Status</label><select id="filterStatus" class="form-select bg-dark text-light border-secondary"><option value="all">All Statuses</option><option value="on-time">On Time</option><option value="late">Late Start</option><option value="early-end">Early End</option><option value="not-on-job">Not On Job</option></select></div><div class="col-md-4"><label for="filterJobSite" class="form-label">Job Site</label><select id="filterJobSite" class="form-select bg-dark text-light border-secondary"><option value="all">All Job Sites</option>
+{% for job_site in report.job_sites %}
+<option value="{{ job_site }}">{{ job_site }}</option>
+{% endfor %}
+</select></div><div class="col-md-4"><label for="filterDriver" class="form-label">Driver</label><input type="text" id="filterDriver" class="form-control bg-dark text-light border-secondary" placeholder="Driver name..."></div><div class="col-12 text-end"><button type="button" id="applyFilter" class="btn btn-primary"><i class="bi bi-funnel me-2"></i> Apply Filters
+</button><button type="button" id="resetFilter" class="btn btn-outline-secondary ms-2"><i class="bi bi-arrow-counterclockwise me-2"></i> Reset Filters
+</button></div></form></div></div></div></div><div class="row mb-4"><div class="col-12"><div class="card bg-dark border-0 shadow-sm"><div class="card-header bg-dark d-flex justify-content-between align-items-center"><h5 class="card-title mb-0">Weekly Summary</h5><span class="badge bg-success">{{ report.summary.total_drivers }} Drivers</span></div><div class="card-body"><div class="row"><div class="col-md-6"><div class="card bg-dark border-0 shadow-sm h-100"><div class="card-header bg-dark border-0"><h6 class="card-title mb-0">Attendance Overview</h6></div><div class="card-body"><div style="height: 250px"><canvas id="attendanceChart"></canvas></div><div class="row mt-3 text-center g-2"><div class="col-6 col-sm-3"><div class="metric-card on-time rounded p-2 bg-dark border border-success"><h4 class="mb-0 fs-5 fs-md-4">{{ report.summary.attendance_percentages.on_time }}%</h4><small class="text-muted d-block">On Time</small></div></div><div class="col-6 col-sm-3"><div class="metric-card late rounded p-2 bg-dark border border-warning"><h4 class="mb-0 fs-5 fs-md-4">{{ report.summary.attendance_percentages.late_starts }}%</h4><small class="text-muted d-block">Late Starts</small></div></div><div class="col-6 col-sm-3"><div class="metric-card early-end rounded p-2 bg-dark border border-info"><h4 class="mb-0 fs-5 fs-md-4">{{ report.summary.attendance_percentages.early_ends }}%</h4><small class="text-muted d-block">Early Ends</small></div></div><div class="col-6 col-sm-3"><div class="metric-card not-on-job rounded p-2 bg-dark border border-danger"><h4 class="mb-0 fs-5 fs-md-4">{{ report.summary.attendance_percentages.not_on_job }}%</h4><small class="text-muted d-block">Not On Job</small></div></div></div></div></div></div><div class="col-md-6"><div class="card bg-dark border-0 shadow-sm h-100"><div class="card-header bg-dark border-0"><h6 class="card-title mb-0">Daily Trend</h6></div><div class="card-body"><div style="height: 250px"><canvas id="dailyTrendChart"></canvas></div></div></div></div></div></div></div></div></div><div class="row mb-4"><div class="col-12"><div class="card bg-dark border-0 shadow-sm"><div class="card-header bg-dark"><h5 class="card-title mb-0">Chronic Issues</h5></div><div class="card-body p-0"><ul class="nav nav-tabs" id="issuesTabs" role="tablist"><li class="nav-item" role="presentation"><button class="nav-link active" id="late-tab" data-bs-toggle="tab" data-bs-target="#late" type="button" role="tab" aria-controls="late" aria-selected="true"><i class="bi bi-clock-history me-1"></i> Chronic Late Starts
+</button></li><li class="nav-item" role="presentation"><button class="nav-link" id="early-tab" data-bs-toggle="tab" data-bs-target="#early" type="button" role="tab" aria-controls="early" aria-selected="false"><i class="bi bi-clock-history me-1"></i> Chronic Early Ends
+</button></li><li class="nav-item" role="presentation"><button class="nav-link" id="not-on-job-tab" data-bs-toggle="tab" data-bs-target="#not-on-job" type="button" role="tab" aria-controls="not-on-job" aria-selected="false"><i class="bi bi-exclamation-triangle me-1"></i> Chronic Not On Job
+</button></li></ul><div class="tab-content p-3" id="issuesTabsContent"><div class="tab-pane fade show active" id="late" role="tabpanel" aria-labelledby="late-tab">
+{% if report.summary.chronic_issues.late_starts %}
+<div class="table-responsive"><table class="table table-dark table-hover table-hover-highlight mb-0"><thead><tr><th>Driver</th><th class="text-center">Occurrences</th></tr></thead><tbody>
+{% for issue in report.summary.chronic_issues.late_starts %}
+<tr><td><span class="status-badge late-start"></span>{{ issue.name }}</td><td class="text-center"><span class="badge {% if issue.count > 2 %}bg-danger{% elif issue.count > 1 %}bg-warning{% else %}bg-secondary{% endif %}">
+{{ issue.count }} days
+</span></td></tr>
+{% endfor %}
+</tbody></table></div>
+{% else %}
+<div class="text-center py-5"><i class="bi bi-check-circle text-success fs-1 mb-3"></i><p class="text-muted mb-0">No chronic late start issues detected in the date range.</p></div>
+{% endif %}
+</div><div class="tab-pane fade" id="early" role="tabpanel" aria-labelledby="early-tab">
+{% if report.summary.chronic_issues.early_ends %}
+<div class="table-responsive"><table class="table table-dark table-hover table-hover-highlight mb-0"><thead><tr><th>Driver</th><th class="text-center">Occurrences</th></tr></thead><tbody>
+{% for issue in report.summary.chronic_issues.early_ends %}
+<tr><td><span class="status-badge early-end"></span>{{ issue.name }}</td><td class="text-center"><span class="badge {% if issue.count > 2 %}bg-danger{% elif issue.count > 1 %}bg-warning{% else %}bg-secondary{% endif %}">
+{{ issue.count }} days
+</span></td></tr>
+{% endfor %}
+</tbody></table></div>
+{% else %}
+<div class="text-center py-5"><i class="bi bi-check-circle text-success fs-1 mb-3"></i><p class="text-muted mb-0">No chronic early end issues detected in the date range.</p></div>
+{% endif %}
+</div><div class="tab-pane fade" id="not-on-job" role="tabpanel" aria-labelledby="not-on-job-tab">
+{% if report.summary.chronic_issues.not_on_job %}
+<div class="table-responsive"><table class="table table-dark table-hover table-hover-highlight mb-0"><thead><tr><th>Driver</th><th class="text-center">Occurrences</th></tr></thead><tbody>
+{% for issue in report.summary.chronic_issues.not_on_job %}
+<tr><td><span class="status-badge not-on-job"></span>{{ issue.name }}</td><td class="text-center"><span class="badge {% if issue.count > 2 %}bg-danger{% elif issue.count > 1 %}bg-warning{% else %}bg-secondary{% endif %}">
+{{ issue.count }} days
+</span></td></tr>
+{% endfor %}
+</tbody></table></div>
+{% else %}
+<div class="text-center py-5"><i class="bi bi-check-circle text-success fs-1 mb-3"></i><p class="text-muted mb-0">No chronic not-on-job issues detected in the date range.</p></div>
+{% endif %}
+</div></div></div></div></div></div><div class="row mb-4" id="dailyReportSection" style="display: none;"><div class="col-12"><div class="card bg-dark border-0 shadow-sm"><div class="card-header bg-dark d-flex justify-content-between align-items-center"><h5 class="card-title mb-0">Daily Report: <span id="selectedDateDisplay"></span></h5><button type="button" class="btn btn-sm btn-outline-secondary" onclick="hideDailyReport()"><i class="bi bi-x-lg"></i> Close
+</button></div><div class="card-body"><div class="row mb-4"><div class="col-md-6"><div class="card bg-dark border-0 shadow-sm h-100"><div class="card-header bg-dark border-0"><h6 class="card-title mb-0">Summary</h6></div><div class="card-body"><div class="row text-center"><div class="col-3"><div class="p-3"><h3 id="daily-total-drivers" class="mb-0">0</h3><small class="text-muted">Total Drivers</small></div></div><div class="col-3"><div class="p-3"><h3 id="daily-on-time" class="mb-0 text-success">0</h3><small class="text-muted">On Time</small></div></div><div class="col-3"><div class="p-3"><h3 id="daily-late" class="mb-0 text-warning">0</h3><small class="text-muted">Late Starts</small></div></div><div class="col-3"><div class="p-3"><h3 id="daily-early" class="mb-0 text-orange">0</h3><small class="text-muted">Early Ends</small></div></div></div><div class="progress mt-3" style="height: 20px;"><div id="daily-on-time-bar" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div><div id="daily-late-bar" class="progress-bar bg-warning" role="progressbar" style="width: 0%"></div><div id="daily-early-bar" class="progress-bar bg-orange" role="progressbar" style="width: 0%"></div><div id="daily-not-on-job-bar" class="progress-bar bg-danger" role="progressbar" style="width: 0%"></div></div></div></div></div><div class="col-md-6"><div class="card bg-dark border-0 shadow-sm h-100"><div class="card-header bg-dark border-0"><h6 class="card-title mb-0">Data Sources</h6></div><div class="card-body"><div class="row"><div class="col-md-4"><div class="p-3 border border-info rounded text-center mb-3 mb-md-0"><i class="bi bi-geo-alt fs-3 text-info"></i><h6 class="mt-2 mb-0">Driving History</h6><div id="driving-history-badge" class="badge bg-secondary mt-2">Not Available</div></div></div><div class="col-md-4"><div class="p-3 border border-info rounded text-center mb-3 mb-md-0"><i class="bi bi-activity fs-3 text-info"></i><h6 class="mt-2 mb-0">Activity Detail</h6><div id="activity-data-badge" class="badge bg-secondary mt-2">Not Available</div></div></div><div class="col-md-4"><div class="p-3 border border-info rounded text-center"><i class="bi bi-clock-history fs-3 text-info"></i><h6 class="mt-2 mb-0">Time On Site</h6><div id="time-on-site-badge" class="badge bg-secondary mt-2">Not Available</div></div></div></div></div></div></div></div><div class="card bg-dark border-0 shadow-sm"><div class="card-header bg-dark border-0"><h6 class="card-title mb-0">Driver Status</h6></div><div class="card-body p-0"><div class="table-responsive"><table class="table table-dark table-hover table-hover-highlight mb-0"><thead><tr><th>Driver</th><th>Job Site</th><th>Status</th><th class="text-center">First Key On</th><th class="text-center">Last Key Off</th><th class="text-center">Late (min)</th><th class="text-center">Early (min)</th></tr></thead><tbody id="daily-driver-list"></tbody></table></div></div></div></div></div></div></div><div class="row mb-4"><div class="col-12"><div class="card bg-dark border-0 shadow-sm"><div class="card-header bg-dark"><div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2"><h5 class="card-title mb-md-0">Weekly Driver Attendance</h5><div class="d-flex flex-column flex-md-row align-items-md-center gap-2"><div class="input-group"><span class="input-group-text bg-dark border-secondary"><i class="bi bi-search text-light"></i></span><input type="text" class="form-control bg-dark border-secondary text-light" id="driverSearch" placeholder="Search drivers..."></div><div class="btn-group ms-md-2 mt-2 mt-md-0"><button type="button" class="btn btn-sm btn-outline-secondary filter-btn active" data-filter="all">All</button><button type="button" class="btn btn-sm btn-outline-success filter-btn" data-filter="on-time">On Time</button><button type="button" class="btn btn-sm btn-outline-warning filter-btn" data-filter="late-start">Late</button><button type="button" class="btn btn-sm btn-outline-danger filter-btn" data-filter="not-on-job">Not On Job</button></div><button class="btn btn-sm btn-outline-secondary ms-md-2 mt-2 mt-md-0" onclick="toggleAllDrivers()"><i class="bi bi-people-fill me-1"></i> Toggle All
+</button></div></div></div><div class="card-body p-0"><div class="table-responsive"><table class="table table-dark table-hover table-hover-highlight mb-0"><thead><tr><th>Driver</th>
+{% for date in date_range %}
+<th class="text-center">{{ date.formatted }}</th>
+{% endfor %}
+<th class="text-center">Attendance Rate</th></tr></thead><tbody id="weekly-driver-list">
+{% for driver_name, driver_data in report.summary.get('driver_attendance', {}).items() %}
+<tr class="driver-row" data-status="{{ driver_data.overall_status|default('unknown')|lower|replace(' ', '-') }}"><td>{{ driver_name }}</td>
+{% for date in date_range %}
+<td class="text-center">
+{% if driver_data.status_by_day[date.date] == 'On Time' %}
+<span class="status-badge on-time" title="On Time"></span>
+{% elif driver_data.status_by_day[date.date] == 'Late Start' %}
+<span class="status-badge late-start" title="Late Start"></span>
+{% elif driver_data.status_by_day[date.date] == 'Early End' %}
+<span class="status-badge early-end" title="Early End"></span>
+{% elif driver_data.status_by_day[date.date] == 'Not On Job' %}
+<span class="status-badge not-on-job" title="Not On Job"></span>
+{% else %}
+<span class="text-muted">—</span>
+{% endif %}
+</td>
+{% endfor %}
+<td class="text-center"><div class="progress" style="height: 12px;"><div class="progress-bar bg-success" role="progressbar" style="width: {{ driver_data.attendance_rate }}%"
+aria-valuenow="{{ driver_data.attendance_rate }}" aria-valuemin="0" aria-valuemax="100"></div></div></td></tr>
+{% endfor %}
+</tbody></table></div></div></div></div></div><div class="row mb-4"><div class="col-12"><div class="card bg-dark border-0 shadow-sm"><div class="card-header bg-dark"><h5 class="card-title mb-0">Job Site Analysis</h5></div><div class="card-body p-0"><div class="table-responsive"><table class="table table-dark table-hover table-hover-highlight mb-0"><thead><tr><th>Job Site</th><th class="text-center">Total Assignments</th><th class="text-center">Late Starts</th><th class="text-center">Early Ends</th><th class="text-center">Not On Job</th></tr></thead><tbody>
+{% for job_site, site_data in report.summary.job_site_attendance.items() %}
+<tr><td>{{ job_site }}</td><td class="text-center">{{ site_data.total_assignments }}</td><td class="text-center"><span class="badge {% if site_data.days_with_late_starts > 2 %}bg-danger{% elif site_data.days_with_late_starts > 0 %}bg-warning{% else %}bg-success{% endif %}">
+{{ site_data.days_with_late_starts }} days
+</span></td><td class="text-center"><span class="badge {% if site_data.days_with_early_ends > 2 %}bg-danger{% elif site_data.days_with_early_ends > 0 %}bg-warning{% else %}bg-success{% endif %}">
+{{ site_data.days_with_early_ends }} days
+</span></td><td class="text-center"><span class="badge {% if site_data.days_with_no_shows > 2 %}bg-danger{% elif site_data.days_with_no_shows > 0 %}bg-warning{% else %}bg-success{% endif %}">
+{{ site_data.days_with_no_shows }} days
+</span></td></tr>
+{% endfor %}
+</tbody></table></div></div></div></div></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const reportData = {{ report|tojson }};
+let attendanceChart, dailyTrendChart;
+
+document.addEventListener('DOMContentLoaded', function() {
+initializeCharts();
+setupSearchFilter();
+});
+
+function initializeCharts() {
+// Attendance Overview Chart
+const attendanceCtx = document.getElementById('attendanceChart').getContext('2d');
+attendanceChart = new Chart(attendanceCtx, {
+type: 'doughnut',
+data: {
+labels: ['On Time', 'Late Start', 'Early End', 'Not On Job'],
+datasets: [{
+data: [
+reportData.summary.attendance_totals.on_time,
+reportData.summary.attendance_totals.late_starts,
+reportData.summary.attendance_totals.early_ends,
+reportData.summary.attendance_totals.not_on_job
+],
+backgroundColor: [
+'#28a745',  // Green
+'#ffc107',  // Yellow
+'#fd7e14',  // Orange
+'#dc3545'   // Red
+],
+borderWidth: 0
+}]
+},
+options: {
+responsive: true,
+maintainAspectRatio: false,
+plugins: {
+legend: {
+position: 'bottom',
+labels: {
+color: '#e9ecef'
+}
+}
+}
+}
+});
+
+// Daily Trend Chart
+const dailyTrendCtx = document.getElementById('dailyTrendChart').getContext('2d');
+
+// Prepare data for each date
+const dates = Object.keys(reportData.summary.status_by_day).sort();
+const formattedDates = dates.map(date => {
+const d = new Date(date);
+return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+});
+
+const onTimeData = dates.map(date => reportData.summary.status_by_day[date].on_time);
+const lateStartData = dates.map(date => reportData.summary.status_by_day[date].late_start);
+const earlyEndData = dates.map(date => reportData.summary.status_by_day[date].early_end);
+const notOnJobData = dates.map(date => reportData.summary.status_by_day[date].not_on_job);
+
+dailyTrendChart = new Chart(dailyTrendCtx, {
+type: 'bar',
+data: {
+labels: formattedDates,
+datasets: [
+{
+label: 'On Time',
+data: onTimeData,
+backgroundColor: '#28a745'
+},
+{
+label: 'Late Start',
+data: lateStartData,
+backgroundColor: '#ffc107'
+},
+{
+label: 'Early End',
+data: earlyEndData,
+backgroundColor: '#fd7e14'
+},
+{
+label: 'Not On Job',
+data: notOnJobData,
+backgroundColor: '#dc3545'
+}
+]
+},
+options: {
+responsive: true,
+maintainAspectRatio: false,
+scales: {
+x: {
+stacked: true,
+grid: {
+color: 'rgba(255, 255, 255, 0.1)'
+},
+ticks: {
+color: '#adb5bd'
+}
+},
+y: {
+stacked: true,
+grid: {
+color: 'rgba(255, 255, 255, 0.1)'
+},
+ticks: {
+color: '#adb5bd'
+}
+}
+},
+plugins: {
+legend: {
+position: 'bottom',
+labels: {
+color: '#e9ecef'
+}
+}
+}
+}
+});
+}
+
+function selectDate(date) {
+// If the day has no data, do nothing
+if (!reportData.daily_reports[date]) {
+return;
+}
+
+// Get daily report data
+const dailyReport = reportData.daily_reports[date];
+
+// Update UI
+document.getElementById('selectedDateDisplay').textContent = dailyReport.formatted_date;
+document.getElementById('daily-total-drivers').textContent = dailyReport.total_drivers;
+document.getElementById('daily-on-time').textContent = dailyReport.total_on_time;
+document.getElementById('daily-late').textContent = dailyReport.total_late;
+document.getElementById('daily-early').textContent = dailyReport.total_early;
+
+// Update progress bars
+const total = dailyReport.total_drivers;
+if (total > 0) {
+const onTimePct = (dailyReport.total_on_time / total * 100).toFixed(1) + '%';
+const latePct = (dailyReport.total_late / total * 100).toFixed(1) + '%';
+const earlyPct = (dailyReport.total_early / total * 100).toFixed(1) + '%';
+const notOnJobPct = (dailyReport.total_not_on_job / total * 100).toFixed(1) + '%';
+
+document.getElementById('daily-on-time-bar').style.width = onTimePct;
+document.getElementById('daily-late-bar').style.width = latePct;
+document.getElementById('daily-early-bar').style.width = earlyPct;
+document.getElementById('daily-not-on-job-bar').style.width = notOnJobPct;
+}
+
+// Update data source badges
+document.getElementById('driving-history-badge').className = dailyReport.has_driving_data ? 'badge bg-success mt-2' : 'badge bg-secondary mt-2';
+document.getElementById('driving-history-badge').textContent = dailyReport.has_driving_data ? 'Available' : 'Not Available';
+
+document.getElementById('activity-data-badge').className = dailyReport.has_activity_data ? 'badge bg-success mt-2' : 'badge bg-secondary mt-2';
+document.getElementById('activity-data-badge').textContent = dailyReport.has_activity_data ? 'Available' : 'Not Available';
+
+document.getElementById('time-on-site-badge').className = dailyReport.has_time_on_site_data ? 'badge bg-success mt-2' : 'badge bg-secondary mt-2';
+document.getElementById('time-on-site-badge').textContent = dailyReport.has_time_on_site_data ? 'Available' : 'Not Available';
+
+// Create driver list
+const driverList = document.getElementById('daily-driver-list');
+driverList.innerHTML = '';
+
+Object.entries(dailyReport.driver_records).forEach(([driverName, driverRecord]) => {
+const tr = document.createElement('tr');
+
+// Driver name
+const tdName = document.createElement('td');
+tdName.textContent = driverName;
+tr.appendChild(tdName);
+
+// Job site
+const tdJobSite = document.createElement('td');
+tdJobSite.textContent = driverRecord.job_site;
+tr.appendChild(tdJobSite);
+
+// Status
+const tdStatus = document.createElement('td');
+const statusBadge = document.createElement('span');
+statusBadge.className = `status-badge ${driverRecord.status.toLowerCase().replace(' ', '-')}`;
+tdStatus.appendChild(statusBadge);
+tdStatus.appendChild(document.createTextNode(driverRecord.status));
+tr.appendChild(tdStatus);
+
+// First Key On
+const tdKeyOn = document.createElement('td');
+tdKeyOn.className = 'text-center';
+tdKeyOn.textContent = driverRecord.first_key_on || '—';
+tr.appendChild(tdKeyOn);
+
+// Last Key Off
+const tdKeyOff = document.createElement('td');
+tdKeyOff.className = 'text-center';
+tdKeyOff.textContent = driverRecord.last_key_off || '—';
+tr.appendChild(tdKeyOff);
+
+// Late Minutes
+const tdLate = document.createElement('td');
+tdLate.className = 'text-center';
+if (driverRecord.late_minutes > 0) {
+tdLate.textContent = driverRecord.late_minutes;
+tdLate.className = 'text-center text-warning';
+} else {
+tdLate.textContent = '0';
+}
+tr.appendChild(tdLate);
+
+// Early Minutes
+const tdEarly = document.createElement('td');
+tdEarly.className = 'text-center';
+if (driverRecord.early_minutes > 0) {
+tdEarly.textContent = driverRecord.early_minutes;
+tdEarly.className = 'text-center text-warning';
+} else {
+tdEarly.textContent = '0';
+}
+tr.appendChild(tdEarly);
+
+driverList.appendChild(tr);
+});
+
+// Show the daily report section
+document.getElementById('dailyReportSection').style.display = 'block';
+
+// Update date badges
+document.querySelectorAll('.date-badge').forEach(badge => {
+badge.classList.remove('active');
+if (badge.dataset.date === date) {
+badge.classList.add('active');
+}
+});
+
+// Scroll to daily report section
+document.getElementById('dailyReportSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+function hideDailyReport() {
+document.getElementById('dailyReportSection').style.display = 'none';
+document.querySelectorAll('.date-badge').forEach(badge => {
+badge.classList.remove('active');
+});
+}
+
+function setupSearchFilter() {
+const searchInput = document.getElementById('driverSearch');
+searchInput.addEventListener('keyup', function() {
+filterDrivers();
+});
+
+// Set up filter buttons
+document.querySelectorAll('.filter-btn').forEach(btn => {
+btn.addEventListener('click', function() {
+// Remove active class from all buttons
+document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+// Add active class to clicked button
+this.classList.add('active');
+filterDrivers();
+});
+});
+}
+
+function filterDrivers() {
+const searchText = document.getElementById('driverSearch').value.toLowerCase();
+const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+const rows = document.querySelectorAll('#weekly-driver-list .driver-row');
+
+rows.forEach(row => {
+const driverName = row.cells[0].textContent.toLowerCase();
+const driverStatus = row.dataset.status;
+
+// Search filter
+const matchesSearch = driverName.includes(searchText);
+
+// Status filter
+let matchesStatus = true;
+if (activeFilter !== 'all') {
+matchesStatus = driverStatus === activeFilter;
+}
+
+// Show row if it passes all filters
+if (matchesSearch && matchesStatus) {
+row.style.display = '';
+} else {
+row.style.display = 'none';
+}
+});
+}
+
+function toggleAllDrivers() {
+const rows = document.querySelectorAll('#weekly-driver-list .driver-row');
+const allHidden = Array.from(rows).every(row => row.style.display === 'none');
+
+rows.forEach(row => {
+row.style.display = allHidden ? '' : 'none';
+});
+
+// Reset filters
+document.getElementById('driverSearch').value = '';
+document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+document.querySelector('.filter-btn[data-filter="all"]').classList.add('active');
+}
+
+// Enhanced filtering functionality
+document.addEventListener('DOMContentLoaded', function() {
+// Set up filter functionality
+const applyFilterBtn = document.getElementById('applyFilter');
+const resetFilterBtn = document.getElementById('resetFilter');
+const filterStatus = document.getElementById('filterStatus');
+const filterJobSite = document.getElementById('filterJobSite');
+const filterDriver = document.getElementById('filterDriver');
+
+if (applyFilterBtn) {
+applyFilterBtn.addEventListener('click', function() {
+applyFilters();
+});
+}
+
+if (resetFilterBtn) {
+resetFilterBtn.addEventListener('click', function() {
+resetFilters();
+});
+}
+
+if (filterDriver) {
+filterDriver.addEventListener('keyup', function(e) {
+if (e.key === 'Enter') {
+applyFilters();
+}
+});
+}
+
+function applyFilters() {
+const status = filterStatus ? filterStatus.value : 'all';
+const jobSite = filterJobSite ? filterJobSite.value : 'all';
+const driverName = filterDriver ? filterDriver.value.toLowerCase() : '';
+
+const rows = document.querySelectorAll('#weekly-driver-list .driver-row');
+
+rows.forEach(row => {
+const rowStatus = row.getAttribute('data-status');
+const rowJobSite = row.getAttribute('data-job-site');
+const rowDriver = row.getAttribute('data-driver').toLowerCase();
+
+const statusMatch = status === 'all' || rowStatus === status;
+const jobSiteMatch = jobSite === 'all' || rowJobSite === jobSite;
+const driverMatch = driverName === '' || rowDriver.includes(driverName);
+
+if (statusMatch && jobSiteMatch && driverMatch) {
+row.style.display = '';
+} else {
+row.style.display = 'none';
+}
+});
+
+// Update filtered count
+const visibleCount = Array.from(rows).filter(row => row.style.display !== 'none').length;
+const totalCount = rows.length;
+
+const filterInfoEl = document.getElementById('filterInfo');
+if (filterInfoEl) {
+filterInfoEl.textContent = `Showing ${visibleCount} of ${totalCount} records`;
+filterInfoEl.style.display = 'block';
+}
+}
+
+function resetFilters() {
+if (filterStatus) filterStatus.value = 'all';
+if (filterJobSite) filterJobSite.value = 'all';
+if (filterDriver) filterDriver.value = '';
+
+const rows = document.querySelectorAll('#weekly-driver-list .driver-row');
+rows.forEach(row => {
+row.style.display = '';
+});
+
+const filterInfoEl = document.getElementById('filterInfo');
+if (filterInfoEl) {
+filterInfoEl.style.display = 'none';
+}
+}
+});
+</script>
+{% endblock %}

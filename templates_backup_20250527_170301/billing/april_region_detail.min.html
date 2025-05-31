@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ region_id }} Region Detail - April 2025{% endblock %}
+
+{% block content %}
+<div class="container-fluid my-4"><div class="row mb-4"><div class="col-md-6"><h1 class="display-5 mb-2"><i class="bi bi-geo-alt-fill me-2"></i>{{ region_id }} Region
+</h1><p class="lead text-muted">
+April 2025 Billing Detail
+</p></div><div class="col-md-6 text-md-end"><div class="btn-group"><a href="{{ url_for('april_billing.index') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+</a><a href="{{ url_for('april_billing.export_data') }}?type=detail&format=xlsx&region={{ region_id }}" class="btn btn-success"><i class="bi bi-file-earmark-excel me-1"></i> Export Detail
+</a><a href="{{ url_for('april_billing.export_data') }}?type=foundation&format=xlsx&region={{ region_id }}" class="btn btn-primary"><i class="bi bi-database-fill me-1"></i> FSI Export
+</a></div></div></div><div class="row mb-4"><div class="col-md-3 col-sm-6 mb-3"><div class="card bg-primary text-white h-100"><div class="card-body text-center"><h1 class="display-4 mb-0">{{ region_summary.asset_count }}</h1><h5 class="card-title">Total Assets</h5><p class="mb-0">{{ region_id }} Region</p></div></div></div><div class="col-md-3 col-sm-6 mb-3"><div class="card bg-info text-white h-100"><div class="card-body text-center"><h1 class="display-4 mb-0">{{ region_summary.job_count }}</h1><h5 class="card-title">Total Jobs</h5><p class="mb-0">April 2025</p></div></div></div><div class="col-md-3 col-sm-6 mb-3"><div class="card bg-success text-white h-100"><div class="card-body text-center"><h1 class="display-4 mb-0">{{ "%.1f"|format(region_summary.total_units) }}</h1><h5 class="card-title">Original Units</h5><p class="mb-0">Before Revisions</p></div></div></div><div class="col-md-3 col-sm-6 mb-3"><div class="card bg-warning text-dark h-100"><div class="card-body text-center"><h1 class="display-4 mb-0">{{ "%.1f"|format(region_summary.revised_units) }}</h1><h5 class="card-title">Revised Units</h5><p class="mb-0">After PM Allocation</p></div></div></div></div><div class="row mb-4"><div class="col-12"><div class="card shadow-sm"><div class="card-header bg-light d-flex justify-content-between align-items-center"><h5 class="card-title mb-0">{{ region_id }} Jobs</h5><span class="badge bg-primary rounded-pill">{{ jobs|length }} Jobs</span></div><div class="card-body p-0"><div class="table-responsive"><table class="table table-hover mb-0"><thead class="table-dark"><tr><th>Job</th><th class="text-center">Assets</th><th class="text-end">Original Units</th><th class="text-end">Revised Units</th><th class="text-end">Difference</th><th>Cost Codes</th><th class="text-center">Actions</th></tr></thead><tbody>
+{% for job in jobs %}
+<tr><td><a href="{{ url_for('april_billing.job_detail', job_id=job.job) }}" class="fw-bold text-primary">
+{{ job.job }}
+</a></td><td class="text-center">{{ job.asset_count }}</td><td class="text-end">{{ "%.1f"|format(job.total_units) }}</td><td class="text-end">{{ "%.1f"|format(job.revised_units) }}</td><td class="text-end text-{% if job.revised_units > job.total_units %}success{% elif job.revised_units < job.total_units %}danger{% else %}muted{% endif %}">
+{{ "%.1f"|format(job.revised_units - job.total_units) }}
+</td><td>
+{% for code in job.cost_codes %}
+<span class="badge bg-secondary">{{ code }}</span>
+{% endfor %}
+</td><td class="text-center"><div class="btn-group btn-group-sm"><a href="{{ url_for('april_billing.job_detail', job_id=job.job) }}" class="btn btn-outline-primary"><i class="bi bi-search"></i></a><a href="{{ url_for('april_billing.export_data') }}?type=detail&format=xlsx&job={{ job.job }}" class="btn btn-outline-success"><i class="bi bi-download"></i></a></div></td></tr>
+{% endfor %}
+</tbody></table></div></div></div></div></div>
+
+
+{% for job_id, assets in jobs_with_assets.items() %}
+<div class="row mb-4"><div class="col-12"><div class="card shadow-sm"><div class="card-header bg-light d-flex justify-content-between align-items-center"><h5 class="card-title mb-0"><a href="{{ url_for('april_billing.job_detail', job_id=job_id) }}" class="text-decoration-none">
+Job {{ job_id }} Assets
+</a></h5><span class="badge bg-primary rounded-pill">{{ assets|length }} Assets</span></div><div class="card-body p-0"><div class="table-responsive"><table class="table table-sm table-hover mb-0"><thead class="table-dark"><tr><th>Asset ID</th><th>Equipment</th><th>Driver</th><th class="text-center">Cost Code</th><th class="text-end">Original Units</th><th class="text-end">Revised Units</th><th class="text-center">Actions</th></tr></thead><tbody>
+{% for asset in assets %}
+<tr><td><a href="{{ url_for('april_billing.asset_detail', asset_id=asset['ASSET ID']) }}" class="fw-bold">
+{{ asset['ASSET ID'] }}
+</a></td><td>{{ asset['EQUIPMENT'] }}</td><td>{{ asset['DRIVER'] }}</td><td class="text-center">{{ asset['COST CODE'] or 'N/A' }}</td><td class="text-end">{{ "%.2f"|format(asset['UNIT ALLOCATION']) if asset['UNIT ALLOCATION'] is not none else '0.00' }}</td><td class="text-end text-{% if asset['REVISION'] and asset['REVISION'] > asset['UNIT ALLOCATION'] %}success{% elif asset['REVISION'] and asset['REVISION'] < asset['UNIT ALLOCATION'] %}danger{% else %}muted{% endif %}">
+{{ "%.2f"|format(asset['REVISION']) if asset['REVISION'] is not none else asset['UNIT ALLOCATION']|default('0.00') }}
+</td><td class="text-center"><a href="{{ url_for('april_billing.asset_detail', asset_id=asset['ASSET ID']) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-search"></i></a></td></tr>
+{% endfor %}
+</tbody></table></div></div></div></div></div>
+{% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+// Add any JavaScript needed for the page here
+});
+</script>
+{% endblock %}

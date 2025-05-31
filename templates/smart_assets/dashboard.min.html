@@ -1,0 +1,227 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Smart Asset Management - TRAXOVO</title><style>
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+
+body {
+font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+min-height: 100vh;
+color: #333;
+}
+
+.container {
+max-width: 1400px;
+margin: 0 auto;
+padding: 15px;
+}
+
+.header {
+background: rgba(255,255,255,0.95);
+border-radius: 15px;
+padding: 20px;
+margin-bottom: 20px;
+box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.header h1 {
+font-size: 2rem;
+background: linear-gradient(135deg, #667eea, #764ba2);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+margin-bottom: 8px;
+}
+
+.stats-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+gap: 15px;
+margin-bottom: 20px;
+}
+
+.stat-card {
+background: rgba(255,255,255,0.95);
+border-radius: 12px;
+padding: 20px;
+text-align: center;
+box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+transform: translateY(-3px);
+}
+
+.stat-value {
+font-size: 2rem;
+font-weight: 700;
+color: #667eea;
+margin-bottom: 8px;
+}
+
+.stat-label {
+color: #666;
+font-size: 0.9rem;
+}
+
+.assets-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+gap: 20px;
+}
+
+.asset-card {
+background: rgba(255,255,255,0.95);
+border-radius: 12px;
+padding: 20px;
+box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+transition: transform 0.3s ease;
+}
+
+.asset-card:hover {
+transform: translateY(-3px);
+}
+
+.asset-header {
+display: flex;
+justify-content: space-between;
+align-items: flex-start;
+margin-bottom: 15px;
+}
+
+.asset-name {
+font-weight: 700;
+font-size: 1.1rem;
+color: #333;
+}
+
+.asset-category {
+color: #666;
+font-size: 0.85rem;
+margin-top: 2px;
+}
+
+.status-badge {
+padding: 4px 10px;
+border-radius: 15px;
+font-size: 0.75rem;
+font-weight: 600;
+}
+
+.status-active {
+background: #d4edda;
+color: #155724;
+}
+
+.status-inactive {
+background: #f8d7da;
+color: #721c24;
+}
+
+.asset-metrics {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 15px;
+margin-bottom: 15px;
+}
+
+.metric {
+text-align: center;
+padding: 10px;
+background: #f8f9fa;
+border-radius: 8px;
+}
+
+.metric-value {
+font-size: 1.2rem;
+font-weight: 600;
+color: #28a745;
+}
+
+.metric-label {
+font-size: 0.8rem;
+color: #666;
+margin-top: 2px;
+}
+
+.utilization-bar {
+background: #e9ecef;
+height: 8px;
+border-radius: 4px;
+overflow: hidden;
+margin-bottom: 8px;
+}
+
+.utilization-fill {
+height: 100%;
+background: linear-gradient(90deg, #28a745, #20c997);
+transition: width 0.3s ease;
+}
+
+.back-nav {
+margin-bottom: 15px;
+}
+
+.back-nav a {
+color: white;
+text-decoration: none;
+font-weight: 600;
+display: inline-flex;
+align-items: center;
+gap: 8px;
+font-size: 0.9rem;
+}
+
+.maintenance-indicator {
+display: inline-flex;
+align-items: center;
+gap: 5px;
+font-size: 0.8rem;
+}
+
+.indicator-dot {
+width: 8px;
+height: 8px;
+border-radius: 50%;
+}
+
+.maintenance-due {
+background: #dc3545;
+}
+
+.maintenance-ok {
+background: #28a745;
+}
+
+@media (max-width: 768px) {
+.container {
+padding: 10px;
+}
+
+.header h1 {
+font-size: 1.5rem;
+}
+
+.stats-grid {
+grid-template-columns: repeat(2, 1fr);
+gap: 10px;
+}
+
+.assets-grid {
+grid-template-columns: 1fr;
+gap: 15px;
+}
+
+.stat-value {
+font-size: 1.5rem;
+}
+}
+</style></head><body><div class="container"><div class="back-nav"><a href="/">← Back to Dashboard</a></div><div class="header"><h1>Smart Asset Management</h1><p>Real-time asset tracking with your authentic Ragle data</p></div><div class="stats-grid"><div class="stat-card"><div class="stat-value">{{ total_assets }}</div><div class="stat-label">Total Assets</div></div><div class="stat-card"><div class="stat-value">{{ active_assets }}</div><div class="stat-label">Active Assets</div></div><div class="stat-card"><div class="stat-value">${{ "{:,.0f}".format(total_value) }}</div><div class="stat-label">Total Value</div></div><div class="stat-card"><div class="stat-value">${{ "{:,.0f}".format(monthly_revenue) }}</div><div class="stat-label">Monthly Revenue</div></div></div><div class="assets-grid">
+{% for asset in assets[:20] %}
+<div class="asset-card"><div class="asset-header"><div><div class="asset-name">{{ asset.name }}</div><div class="asset-category">{{ asset.category }}</div></div><span class="status-badge {% if asset.status == 'Active' %}status-active{% else %}status-inactive{% endif %}">
+{{ asset.status }}
+</span></div><div class="asset-metrics"><div class="metric"><div class="metric-value">${{ "{:,.0f}".format(asset.revenue_potential) }}</div><div class="metric-label">Monthly Revenue</div></div><div class="metric"><div class="metric-value">${{ "{:,.0f}".format(asset.depreciation) }}</div><div class="metric-label">Book Value</div></div></div><div><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;"><span style="font-size: 0.8rem; color: #666;">Utilization</span><span style="font-size: 0.8rem; font-weight: 600;">{{ asset.utilization }}%</span></div><div class="utilization-bar"><div class="utilization-fill" style="width: {{ asset.utilization }}%"></div></div></div><div class="maintenance-indicator"><div class="indicator-dot {% if asset.maintenance_due %}maintenance-due{% else %}maintenance-ok{% endif %}"></div><span>{% if asset.maintenance_due %}Maintenance Due{% else %}Maintenance OK{% endif %}</span></div></div>
+{% endfor %}
+</div></div></body></html>

@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}MTD Compliance Matrix - TRAXOVO{% endblock %}
+
+{% block content %}
+<div class="container-fluid"><div class="row"><div class="col-12"><div class="d-flex justify-content-between align-items-center mb-4"><div><h1 class="h3 mb-1">MTD Compliance Matrix</h1><p class="text-muted mb-0">Operations, PM, and VP attendance compliance overview • {{ data.date_range }}</p></div><div class="btn-group"><a href="{{ url_for('mtd_compliance.export_pdf') }}" class="btn btn-outline-light btn-sm"><i class="fas fa-file-pdf me-2"></i>Export PDF
+</a><a href="{{ url_for('mtd_compliance.export_csv') }}" class="btn btn-outline-light btn-sm"><i class="fas fa-file-csv me-2"></i>Export CSV
+</a></div></div><div class="row mb-4"><div class="col-md-2"><div class="card bg-primary text-white"><div class="card-body text-center"><h4 class="mb-1">{{ data.summary.total_drivers }}</h4><small>Total Drivers</small></div></div></div><div class="col-md-2"><div class="card bg-success text-white"><div class="card-body text-center"><h4 class="mb-1">{{ data.summary.high_compliance }}</h4><small>High Compliance (90%+)</small></div></div></div><div class="col-md-2"><div class="card bg-warning text-dark"><div class="card-body text-center"><h4 class="mb-1">{{ data.summary.medium_compliance }}</h4><small>Medium (70-89%)</small></div></div></div><div class="col-md-2"><div class="card bg-danger text-white"><div class="card-body text-center"><h4 class="mb-1">{{ data.summary.low_compliance }}</h4><small>Low Compliance (<70%)</small></div></div></div><div class="col-md-2"><div class="card bg-info text-white"><div class="card-body text-center"><h4 class="mb-1">{{ data.summary.avg_compliance }}%</h4><small>Avg Compliance</small></div></div></div><div class="col-md-2"><div class="card bg-dark text-white"><div class="card-body text-center"><h4 class="mb-1">{{ data.summary.flagged_drivers }}</h4><small>Flagged Issues</small></div></div></div></div><ul class="nav nav-tabs mb-4" id="complianceTabs" role="tablist"><li class="nav-item" role="presentation"><button class="nav-link active" id="daily-tab" data-bs-toggle="tab" data-bs-target="#daily" type="button">
+Daily Matrix
+</button></li><li class="nav-item" role="presentation"><button class="nav-link" id="jobs-tab" data-bs-toggle="tab" data-bs-target="#jobs" type="button">
+Job Sites
+</button></li><li class="nav-item" role="presentation"><button class="nav-link" id="drivers-tab" data-bs-toggle="tab" data-bs-target="#drivers" type="button">
+Driver Details
+</button></li></ul><div class="tab-content" id="complianceTabContent"><div class="tab-pane fade show active" id="daily" role="tabpanel"><div class="card"><div class="card-header"><h5 class="mb-0">Daily Compliance Matrix (Driver × Day)</h5><div class="mt-2"><span class="badge bg-success me-2">● On Time</span><span class="badge bg-warning me-2">● Late (>15 min)</span><span class="badge bg-danger me-2">● Absent</span><span class="badge bg-info me-2">● Early End</span></div></div><div class="card-body"><div class="table-responsive"><table class="table table-sm table-bordered"><thead class="table-dark"><tr><th style="width: 200px;">Driver</th><th style="width: 150px;">Job Site</th>
+{% for day in data.matrix_data[0].days if data.matrix_data %}
+<th class="text-center" style="width: 80px;">
+{{ day.day_name }}<br><small>{{ day.date }}</small></th>
+{% endfor %}
+</tr></thead><tbody>
+{% for driver in data.matrix_data %}
+<tr><td><strong>{{ driver.driver_name }}</strong></td><td><small class="text-muted">{{ driver.job_site }}</small></td>
+{% for day in driver.days %}
+<td class="text-center">
+{% if day.status == 'on_time' %}
+<span class="badge bg-success rounded-pill">●</span>
+{% elif day.status == 'late' %}
+<span class="badge bg-warning rounded-pill">●</span>
+{% elif day.status == 'absent' %}
+<span class="badge bg-danger rounded-pill">●</span>
+{% elif day.status == 'early_end' %}
+<span class="badge bg-info rounded-pill">●</span>
+{% endif %}
+</td>
+{% endfor %}
+</tr>
+{% endfor %}
+</tbody></table></div></div></div></div><div class="tab-pane fade" id="jobs" role="tabpanel"><div class="card"><div class="card-header"><h5 class="mb-0">Job Site Compliance Overview</h5></div><div class="card-body"><div class="table-responsive"><table class="table table-striped table-hover"><thead class="table-dark"><tr><th>Job Site</th><th>PM Assigned</th><th>Division</th><th>Total Drivers</th><th>Avg Compliance</th><th>Active Flags</th></tr></thead><tbody>
+{% for job in data.job_site_data %}
+<tr><td><strong>{{ job.job_site }}</strong></td><td>{{ job.pm_assigned }}</td><td><span class="badge bg-secondary">{{ job.division }}</span></td><td>{{ job.total_drivers }}</td><td><span class="badge bg-{% if job.compliance_avg >= 90 %}success{% elif job.compliance_avg >= 70 %}warning{% else %}danger{% endif %} fs-6">
+{{ job.compliance_avg }}%
+</span></td><td>
+{% for flag, count in job.flags.items() %}
+<span class="badge bg-warning me-1">{{ flag }} ({{ count }})</span>
+{% endfor %}
+{% if not job.flags %}
+<span class="text-muted">No flags</span>
+{% endif %}
+</td></tr>
+{% endfor %}
+</tbody></table></div></div></div></div><div class="tab-pane fade" id="drivers" role="tabpanel"><div class="card"><div class="card-header"><h5 class="mb-0">Individual Driver Compliance Details</h5></div><div class="card-body"><div class="table-responsive"><table class="table table-striped table-hover" id="driversTable"><thead class="table-dark"><tr><th>Driver</th><th>Asset</th><th>Job Site</th><th>PM</th><th>Attendance %</th><th>Late Arrivals</th><th>Missing Days</th><th>GPS Gaps</th><th>Compliance Score</th><th>Flags</th></tr></thead><tbody>
+{% for driver in data.compliance_data %}
+<tr><td><strong>{{ driver.driver_name }}</strong></td><td><small>{{ driver.asset_assignment }}</small></td><td><small>{{ driver.job_site }}</small></td><td><small>{{ driver.pm_assigned }}</small></td><td><span class="badge bg-{% if driver.attendance_rate >= 95 %}success{% elif driver.attendance_rate >= 85 %}warning{% else %}danger{% endif %}">
+{{ driver.attendance_rate }}%
+</span></td><td>
+{% if driver.late_arrivals > 3 %}
+<span class="badge bg-danger">{{ driver.late_arrivals }}</span>
+{% elif driver.late_arrivals > 1 %}
+<span class="badge bg-warning">{{ driver.late_arrivals }}</span>
+{% else %}
+<span class="badge bg-success">{{ driver.late_arrivals }}</span>
+{% endif %}
+</td><td>
+{% if driver.missing_days > 2 %}
+<span class="badge bg-danger">{{ driver.missing_days }}</span>
+{% elif driver.missing_days > 0 %}
+<span class="badge bg-warning">{{ driver.missing_days }}</span>
+{% else %}
+<span class="badge bg-success">{{ driver.missing_days }}</span>
+{% endif %}
+</td><td>
+{% if driver.gps_gaps > 4 %}
+<span class="badge bg-danger">{{ driver.gps_gaps }}</span>
+{% elif driver.gps_gaps > 2 %}
+<span class="badge bg-warning">{{ driver.gps_gaps }}</span>
+{% else %}
+<span class="badge bg-success">{{ driver.gps_gaps }}</span>
+{% endif %}
+</td><td><span class="badge bg-{% if driver.compliance_score >= 90 %}success{% elif driver.compliance_score >= 70 %}warning{% else %}danger{% endif %} fs-6">
+{{ driver.compliance_score }}%
+</span></td><td>
+{% for flag in driver.flags %}
+<span class="badge bg-danger me-1">{{ flag }}</span>
+{% endfor %}
+{% if not driver.flags %}
+<span class="text-success small">✓ No issues</span>
+{% endif %}
+</td></tr>
+{% endfor %}
+</tbody></table></div></div></div></div></div></div></div></div><script>
+document.addEventListener('DOMContentLoaded', function() {
+// Initialize DataTable for drivers table if available
+if (typeof DataTable !== 'undefined') {
+new DataTable('#driversTable', {
+pageLength: 25,
+order: [[8, 'desc']], // Sort by compliance score
+columnDefs: [
+{ targets: [4, 5, 6, 7, 8, 9], className: 'text-center' }
+]
+});
+}
+
+// Auto-refresh every 10 minutes
+setInterval(function() {
+location.reload();
+}, 600000);
+});
+</script>
+{% endblock %}

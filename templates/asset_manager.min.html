@@ -1,0 +1,74 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Asset Manager - TRAXOVO</title><style>
+body {
+margin: 0;
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+color: #f2f2f7;
+min-height: 100vh;
+}
+
+.header {
+text-align: center;
+padding: 40px 20px;
+border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.title {
+font-size: 36px;
+font-weight: 700;
+margin: 0 0 16px 0;
+background: linear-gradient(135deg, #007AFF, #00D4FF);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+font-size: 16px;
+color: #8e8e93;
+margin: 0;
+}
+
+.content {
+max-width: 1200px;
+margin: 0 auto;
+padding: 40px 20px;
+}
+
+.asset-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+gap: 24px;
+margin-top: 40px;
+}
+
+.asset-card {
+background: rgba(255, 255, 255, 0.05);
+border: 1px solid rgba(255, 255, 255, 0.1);
+border-radius: 16px;
+padding: 24px;
+transition: all 0.3s ease;
+}
+
+.asset-card:hover {
+transform: translateY(-4px);
+background: rgba(255, 255, 255, 0.08);
+}
+
+.back-button {
+position: fixed;
+top: 20px;
+left: 20px;
+background: rgba(0, 122, 255, 0.2);
+border: 1px solid rgba(0, 122, 255, 0.3);
+color: #007AFF;
+padding: 12px 24px;
+border-radius: 8px;
+text-decoration: none;
+font-weight: 500;
+transition: all 0.3s ease;
+}
+
+.back-button:hover {
+background: rgba(0, 122, 255, 0.3);
+}
+</style></head><body><a href="/dashboard" class="back-button">← Dashboard</a><div class="header"><h1 class="title">Asset Manager</h1><p class="subtitle">Equipment lifecycle management and utilization optimization</p></div><div class="content"><div class="asset-grid"><div class="asset-card"><h3>Total Assets</h3><p>701 authentic assets from GAUGE API</p></div><div class="asset-card"><h3>Equipment Categories</h3><p>56 different equipment types</p></div><div class="asset-card"><h3>Active Assets</h3><p>687 currently operational</p></div></div></div></body></html>

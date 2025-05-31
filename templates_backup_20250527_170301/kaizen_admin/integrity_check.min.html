@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Kaizen Core - Integrity Check{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4"><div class="row"><div class="col-md-3 col-lg-3 col-xl-2"><div class="card mb-4"><div class="card-header d-flex justify-content-between align-items-center"><h5 class="mb-0">Kaizen Core</h5><button class="btn btn-sm d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-expanded="true"><i class="bi bi-list"></i></button></div><div class="card-body p-0 collapse show" id="sidebarMenu"><div class="list-group list-group-flush"><a href="{{ url_for('kaizen_admin.index') }}" class="list-group-item list-group-item-action"><i class="bi bi-speedometer2 me-2"></i> Dashboard
+</a><a href="{{ url_for('kaizen_admin.sync_history') }}" class="list-group-item list-group-item-action"><i class="bi bi-clock-history me-2"></i> Sync History
+</a><a href="{{ url_for('kaizen_admin.templates') }}" class="list-group-item list-group-item-action"><i class="bi bi-file-earmark-code me-2"></i> Templates
+</a><a href="{{ url_for('kaizen_admin.run_all_checks') }}" class="list-group-item list-group-item-action active"><i class="bi bi-shield-check me-2"></i> Integrity Check
+</a><a href="{{ url_for('kaizen_admin.admin_actions') }}" class="list-group-item list-group-item-action"><i class="bi bi-person-badge me-2"></i> Admin Actions
+</a></div></div></div><div class="card mb-4"><div class="card-header"><h5 class="mb-0">Check Summary</h5></div><div class="card-body"><div class="d-flex align-items-center mb-3"><span class="me-2">Status:</span>
+{% if results.status == 'ok' %}
+<span class="badge bg-success">Passed</span>
+{% elif results.status == 'warning' %}
+<span class="badge bg-warning">Warning</span>
+{% elif results.status == 'critical' %}
+<span class="badge bg-danger">Critical</span>
+{% else %}
+<span class="badge bg-secondary">{{ results.status }}</span>
+{% endif %}
+</div><div class="mb-3"><span>Issues Found: <strong>{{ results.issues_count }}</strong></span></div><div class="mb-3"><span>Timestamp: <strong>{{ results.timestamp }}</strong></span></div><div class="d-grid"><button type="button" class="btn btn-primary btn-sm" onclick="location.reload()"><i class="bi bi-arrow-repeat me-2"></i> Run Again
+</button></div></div></div></div><div class="col-md-9"><div class="card mb-4"><div class="card-header"><h5 class="mb-0">Integrity Check Results</h5></div><div class="card-body">
+{% if results.error %}
+<div class="alert alert-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>
+Error running integrity check: {{ results.error }}
+</div>
+{% else %}
+<ul class="nav nav-tabs" id="checkTabs" role="tablist">
+{% for check in results.checks %}
+<li class="nav-item" role="presentation"><button class="nav-link {% if loop.first %}active{% endif %}"
+id="check-{{ check.name }}-tab"
+data-bs-toggle="tab"
+data-bs-target="#check-{{ check.name }}-content"
+type="button"
+role="tab"
+aria-controls="check-{{ check.name }}-content"
+aria-selected="{% if loop.first %}true{% else %}false{% endif %}">
+{{ check.name|replace('_', ' ')|title }}
+{% if check.status == 'ok' %}
+<i class="bi bi-check-circle-fill text-success ms-2"></i>
+{% elif check.status == 'warning' %}
+<i class="bi bi-exclamation-triangle-fill text-warning ms-2"></i>
+{% elif check.status == 'critical' %}
+<i class="bi bi-x-circle-fill text-danger ms-2"></i>
+{% endif %}
+</button></li>
+{% endfor %}
+</ul><div class="tab-content pt-3" id="checkTabsContent">
+{% for check in results.checks %}
+<div class="tab-pane fade {% if loop.first %}show active{% endif %}"
+id="check-{{ check.name }}-content"
+role="tabpanel"
+aria-labelledby="check-{{ check.name }}-tab"><div class="alert alert-{% if check.status == 'ok' %}success{% elif check.status == 'warning' %}warning{% elif check.status == 'critical' %}danger{% else %}info{% endif %} mb-3"><h5 class="alert-heading">{{ check.description }}</h5><p>Status: <strong>{{ check.status|upper }}</strong></p><p>Issues Found: <strong>{{ check.issues_count }}</strong></p></div>
+
+{% if check.name == 'template_sync' %}
+<div class="mb-4"><h5>Blueprints</h5><div class="table-responsive"><table class="table table-sm table-striped"><thead><tr><th>Blueprint</th><th>URL Prefix</th><th>Routes</th><th>Templates</th></tr></thead><tbody>
+{% for bp in check.blueprints %}
+<tr><td>{{ bp.name }}</td><td><code>{{ bp.url_prefix }}</code></td><td>{{ bp.routes_count }}</td><td>{{ bp.templates_count }}</td></tr>
+{% endfor %}
+</tbody></table></div></div>
+{% endif %}
+
+{% if check.issues and check.issues|length > 0 %}
+<div class="mb-4"><h5>Issues</h5><div class="table-responsive"><table class="table table-sm table-striped"><thead><tr><th>Type</th><th>Severity</th><th>Details</th></tr></thead><tbody>
+{% for issue in check.issues %}
+<tr><td>{{ issue.type|replace('_', ' ')|title }}</td><td>
+{% if issue.severity == 'error' %}
+<span class="badge bg-danger">Error</span>
+{% elif issue.severity == 'warning' %}
+<span class="badge bg-warning">Warning</span>
+{% elif issue.severity == 'info' %}
+<span class="badge bg-info">Info</span>
+{% else %}
+<span class="badge bg-secondary">{{ issue.severity }}</span>
+{% endif %}
+</td><td>
+{% if issue.blueprint %}
+<div>Blueprint: <code>{{ issue.blueprint }}</code></div>
+{% endif %}
+{% if issue.route %}
+<div>Route: <code>{{ issue.route }}</code></div>
+{% endif %}
+{% if issue.template %}
+<div>Template: <code>{{ issue.template }}</code></div>
+{% endif %}
+{% if issue.endpoint %}
+<div>Endpoint: <code>{{ issue.endpoint }}</code></div>
+{% endif %}
+{% if issue.reference %}
+<div>Reference: <code>{{ issue.reference }}</code></div>
+{% endif %}
+</td></tr>
+{% endfor %}
+</tbody></table></div></div>
+{% else %}
+<div class="alert alert-success"><i class="bi bi-check-circle-fill me-2"></i>
+No issues found in this check.
+</div>
+{% endif %}
+</div>
+{% endfor %}
+</div>
+{% endif %}
+</div></div></div></div></div>
+{% endblock %}

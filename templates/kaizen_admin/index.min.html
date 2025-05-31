@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Kaizen Core Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4"><div class="row"><div class="col-md-3 col-lg-3 col-xl-2"><div class="card mb-4"><div class="card-header d-flex justify-content-between align-items-center"><h5 class="mb-0">Kaizen Core</h5><button class="btn btn-sm d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-expanded="true"><i class="bi bi-list"></i></button></div><div class="card-body p-0 collapse show" id="sidebarMenu"><div class="list-group list-group-flush"><a href="{{ url_for('kaizen_admin.index') }}" class="list-group-item list-group-item-action active"><i class="bi bi-speedometer2 me-2"></i> Dashboard
+</a><a href="{{ url_for('kaizen_admin.sync_history') }}" class="list-group-item list-group-item-action"><i class="bi bi-clock-history me-2"></i> Sync History
+</a><a href="{{ url_for('kaizen_admin.templates') }}" class="list-group-item list-group-item-action"><i class="bi bi-file-earmark-code me-2"></i> Templates
+</a><a href="{{ url_for('kaizen_admin.run_all_checks') }}" class="list-group-item list-group-item-action"><i class="bi bi-shield-check me-2"></i> Integrity Check
+</a><a href="{{ url_for('kaizen_admin.admin_actions') }}" class="list-group-item list-group-item-action"><i class="bi bi-person-badge me-2"></i> Admin Actions
+</a></div></div></div><div class="card mb-4"><div class="card-header"><h5 class="mb-0">Watchdog Service</h5></div><div class="card-body"><p>
+Status:
+{% if watchdog_status %}
+<span class="badge bg-success">Running</span>
+{% else %}
+<span class="badge bg-danger">Stopped</span>
+{% endif %}
+</p><div class="d-grid gap-2">
+{% if watchdog_status %}
+<form action="{{ url_for('kaizen_admin.stop_watchdog_route') }}" method="post"><button type="submit" class="btn btn-danger btn-sm w-100"><i class="bi bi-stop-circle me-2"></i> Stop Watchdog
+</button></form>
+{% else %}
+<form action="{{ url_for('kaizen_admin.start_watchdog_route') }}" method="post"><button type="submit" class="btn btn-success btn-sm w-100"><i class="bi bi-play-circle me-2"></i> Start Watchdog
+</button></form>
+{% endif %}
+</div></div></div></div><div class="col-md-9"><div class="card mb-4"><div class="card-header"><h5 class="mb-0">Kaizen Core Dashboard</h5></div><div class="card-body"><div class="alert alert-info"><i class="bi bi-info-circle-fill me-2"></i>
+Kaizen Core provides full-stack sync enforcement to maintain integrity between routes and templates.
+</div><div class="row mb-4"><div class="col-md-4"><div class="card bg-primary text-white"><div class="card-body text-center"><h1 class="display-4">{{ history|length }}</h1><p class="lead">Sync Events</p></div></div></div><div class="col-md-4"><div class="card bg-success text-white"><div class="card-body text-center"><h1 class="display-4">{{ watchdog_status|int }}</h1><p class="lead">Watchdog Status</p></div></div></div><div class="col-md-4"><div class="card bg-info text-white"><div class="card-body text-center"><h1 class="display-4">{{ timestamp }}</h1><p class="lead">Last Updated</p></div></div></div></div><h5>Recent Sync Activities</h5>
+{% if history %}
+<div class="table-responsive"><table class="table table-striped table-hover"><thead><tr><th>Timestamp</th><th>Type</th><th>Status</th><th>Message</th></tr></thead><tbody>
+{% for entry in history %}
+<tr><td>{{ entry.timestamp }}</td><td>{{ entry.type }}</td><td>
+{% if entry.status == 'success' %}
+<span class="badge bg-success">Success</span>
+{% elif entry.status == 'warning' %}
+<span class="badge bg-warning">Warning</span>
+{% elif entry.status == 'error' %}
+<span class="badge bg-danger">Error</span>
+{% else %}
+<span class="badge bg-secondary">{{ entry.status }}</span>
+{% endif %}
+</td><td>{{ entry.message }}</td></tr>
+{% endfor %}
+</tbody></table></div><div class="text-end"><a href="{{ url_for('kaizen_admin.sync_history') }}" class="btn btn-primary"><i class="bi bi-clock-history me-2"></i> View All History
+</a></div>
+{% else %}
+<div class="alert alert-warning"><i class="bi bi-exclamation-triangle-fill me-2"></i>
+No sync history available yet.
+</div>
+{% endif %}
+</div></div></div></div></div>
+{% endblock %}

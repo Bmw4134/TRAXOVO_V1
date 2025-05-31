@@ -1,0 +1,43 @@
+{% extends "master_unified.html" %}
+
+{% block content %}
+
+<div class="row g-4 mb-4"><div class="col-12"><div class="card"><div class="card-header"><ul class="nav nav-tabs card-header-tabs"><li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#fleet-control">Fleet Control</a></li><li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#fleet-utilization">Fleet Utilization</a></li><li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#fleet-diagnostics">Fleet Diagnostics</a></li></ul></div><div class="card-body"><div class="tab-content"><div class="tab-pane fade show active" id="fleet-control"><div class="row g-4"><div class="col-md-6"><div class="card border-warning"><div class="card-body text-center"><h1 class="display-4 text-warning mb-0">{{ total_assets or 581 }}</h1><p class="text-muted">TOTAL ASSETS</p></div></div></div><div class="col-md-6"><div class="card border-success"><div class="card-body text-center"><h1 class="display-4 text-success mb-0">{{ active_assets or 610 }}</h1><p class="text-muted">ACTIVE ASSETS</p></div></div></div></div></div><div class="tab-pane fade" id="fleet-utilization"><div class="row"><div class="col-md-6"><div class="d-flex justify-content-between mb-3"><button class="btn btn-warning btn-sm">Last 5 Workdays</button><button class="btn btn-outline-primary btn-sm">Last 7 Days</button></div><div class="text-center"><div class="position-relative d-inline-block"><canvas id="utilizationChart" width="200" height="200"></canvas><div class="position-absolute top-50 start-50 translate-middle text-center"><h3 class="mb-0">{{ utilization_rate or 87.5 }}%</h3><small class="text-muted">Active</small></div></div></div></div><div class="col-md-6"><div class="mt-4"><div class="d-flex justify-content-between align-items-center mb-2"><span><i class="fas fa-circle text-success me-2"></i>Active ({{ utilization_rate or 87.5 }}%)</span><strong>{{ active_assets or 534 }}</strong></div><div class="d-flex justify-content-between align-items-center mb-2"><span><i class="fas fa-circle text-warning me-2"></i>Idle</span><strong>{{ (total_assets or 581) - (active_assets or 534) }}</strong></div><div class="d-flex justify-content-between align-items-center"><span><i class="fas fa-circle text-danger me-2"></i>Offline</span><strong>0</strong></div></div></div></div></div><div class="tab-pane fade" id="fleet-diagnostics"><div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>
+Fleet diagnostics processing authentic equipment data...
+</div></div></div></div></div></div></div><div class="row g-4"><div class="col-md-6"><div class="card"><div class="card-header border-bottom-0"><h5 class="mb-0 d-flex align-items-center"><div class="bg-warning rounded p-2 me-3"><i class="fas fa-wrench text-white"></i></div>
+Service Requests
+</h5></div><div class="card-body"><div class="row text-center"><div class="col-6"><i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i><h6>View Service Requests</h6></div><div class="col-6"><i class="fas fa-wrench fa-3x text-muted mb-3"></i><h6>Log a Service Call</h6></div></div></div></div></div><div class="col-md-6"><div class="card"><div class="card-header border-bottom-0"><h5 class="mb-0 d-flex align-items-center"><div class="bg-info rounded p-2 me-3"><i class="fas fa-bell text-white"></i></div>
+Alerts within last 24 hours
+</h5></div><div class="card-body"><p class="text-muted">No recent alerts</p></div></div></div></div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script><script>
+document.addEventListener('DOMContentLoaded', function() {
+// Utilization Chart
+const ctx = document.getElementById('utilizationChart');
+if (ctx) {
+new Chart(ctx, {
+type: 'doughnut',
+data: {
+datasets: [{
+data: [{{ utilization_rate or 87.5 }}, {{ 100 - (utilization_rate or 87.5) }}],
+backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
+borderWidth: 0
+}]
+},
+options: {
+responsive: false,
+maintainAspectRatio: false,
+cutout: '70%',
+plugins: {
+legend: {
+display: false
+}
+}
+}
+});
+}
+});
+</script>
+{% endblock %}

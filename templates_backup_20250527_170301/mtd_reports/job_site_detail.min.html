@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block title %}Job Site Detail - {{ job_site }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4"><nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ url_for('mtd_reports.dashboard') }}">MTD Reports</a></li><li class="breadcrumb-item"><a href="{{ url_for('mtd_reports.show_report', date=date) }}">Report {{ date }}</a></li><li class="breadcrumb-item active" aria-current="page">{{ job_site }}</li></ol></nav><div class="card mb-4"><div class="card-header bg-primary text-white d-flex justify-content-between align-items-center"><h4 class="mb-0"><i class="bi bi-building me-2"></i>
+Job Site: {{ job_site }}
+</h4><span class="badge bg-light text-dark">{{ date }}</span></div><div class="card-body"><div class="row mb-4"><div class="col-md-6"><div class="card"><div class="card-header bg-dark text-white"><h5 class="mb-0">Site Attendance Summary</h5></div><div class="card-body"><div class="row mb-2"><div class="col-md-6 fw-bold">Total Drivers:</div><div class="col-md-6">{{ metrics.total_drivers }}</div></div><div class="row mb-2"><div class="col-md-6 fw-bold">On Time:</div><div class="col-md-6"><span class="text-success">{{ metrics.on_time_count }} ({{ metrics.on_time_percent }}%)</span></div></div><div class="row mb-2"><div class="col-md-6 fw-bold">Late:</div><div class="col-md-6"><span class="text-danger">{{ metrics.late_count }} ({{ metrics.late_percent }}%)</span></div></div><div class="row mb-2"><div class="col-md-6 fw-bold">Early End:</div><div class="col-md-6"><span class="text-warning">{{ metrics.early_end_count }} ({{ metrics.early_end_percent }}%)</span></div></div><div class="row mb-2"><div class="col-md-6 fw-bold">Not On Job:</div><div class="col-md-6"><span class="text-secondary">{{ metrics.not_on_job_count }} ({{ metrics.not_on_job_percent }}%)</span></div></div></div></div></div><div class="col-md-6"><div class="card h-100"><div class="card-header bg-dark text-white"><h5 class="mb-0">Site Attendance Distribution</h5></div><div class="card-body"><canvas id="siteAttendanceChart" width="400" height="250"></canvas></div></div></div></div><div class="card mb-4"><div class="card-header bg-dark text-white"><h5 class="mb-0"><i class="bi bi-check-circle-fill me-2"></i>
+GENIUS CORE Site Analysis
+</h5></div><div class="card-body"><div class="alert alert-info"><h6 class="alert-heading"><i class="bi bi-info-circle-fill me-2"></i> Site Attendance Intelligence:</h6><p class="mb-0">
+{% if metrics.on_time_percent >= 80 %}
+<strong>Excellent Site Attendance:</strong> This job site has a high on-time rate of {{ metrics.on_time_percent }}%. Site productivity is at optimal levels.
+{% elif metrics.on_time_percent >= 60 %}
+<strong>Good Site Attendance:</strong> This job site has a good on-time rate of {{ metrics.on_time_percent }}%. Minor improvements could increase productivity.
+{% elif metrics.on_time_percent >= 40 %}
+<strong>Average Site Attendance:</strong> This job site has a moderate on-time rate of {{ metrics.on_time_percent }}%. Attendance issues may be affecting productivity.
+{% else %}
+<strong>Poor Site Attendance:</strong> This job site has a low on-time rate of {{ metrics.on_time_percent }}%. Significant attendance issues may be severely impacting productivity.
+{% endif %}
+</p></div><div class="alert {% if metrics.late_count > 0 %}alert-warning{% else %}alert-success{% endif %}"><h6 class="alert-heading"><i class="bi bi-clock-fill me-2"></i> Tardiness Analysis:</h6><p class="mb-0">
+{% if metrics.late_count == 0 %}
+<strong>No Late Arrivals:</strong> All drivers arrived on time at this job site.
+{% elif metrics.late_percent <= 20 %}
+<strong>Minor Tardiness:</strong> {{ metrics.late_count }} driver(s) ({{ metrics.late_percent }}%) arrived late at this job site.
+{% elif metrics.late_percent <= 40 %}
+<strong>Moderate Tardiness:</strong> {{ metrics.late_count }} driver(s) ({{ metrics.late_percent }}%) arrived late at this job site. This may impact project timelines.
+{% else %}
+<strong>Significant Tardiness:</strong> {{ metrics.late_count }} driver(s) ({{ metrics.late_percent }}%) arrived late at this job site. This is likely causing project delays.
+{% endif %}
+</p></div><div class="alert {% if metrics.early_end_count > 0 %}alert-warning{% else %}alert-success{% endif %}"><h6 class="alert-heading"><i class="bi bi-stopwatch-fill me-2"></i> Early Departure Analysis:</h6><p class="mb-0">
+{% if metrics.early_end_count == 0 %}
+<strong>No Early Departures:</strong> All drivers completed their full shifts at this job site.
+{% elif metrics.early_end_percent <= 20 %}
+<strong>Minor Early Departures:</strong> {{ metrics.early_end_count }} driver(s) ({{ metrics.early_end_percent }}%) left early from this job site.
+{% elif metrics.early_end_percent <= 40 %}
+<strong>Moderate Early Departures:</strong> {{ metrics.early_end_count }} driver(s) ({{ metrics.early_end_percent }}%) left early from this job site. This may affect project completion.
+{% else %}
+<strong>Significant Early Departures:</strong> {{ metrics.early_end_count }} driver(s) ({{ metrics.early_end_percent }}%) left early from this job site. This is likely causing project completion issues.
+{% endif %}
+</p></div></div></div><div class="card"><div class="card-header bg-dark text-white"><h5 class="mb-0">Drivers at {{ job_site }}</h5></div><div class="card-body"><div class="table-responsive"><table class="table table-striped table-hover" id="siteDriversTable"><thead class="table-dark"><tr><th>Driver</th><th>Status</th><th>Asset</th><th>Scheduled Start</th><th>Actual Start</th><th>Scheduled End</th><th>Actual End</th><th>Actions</th></tr></thead><tbody>
+{% for driver in drivers %}
+<tr class="
+{% if driver.status == 'on_time' %}table-success{%
+elif driver.status == 'late' %}table-danger{%
+elif driver.status == 'early_end' %}table-warning{%
+elif driver.status == 'not_on_job' %}table-secondary{%
+else %}{% endif %}
+"><td>{{ driver.name }}</td><td>
+{% if driver.status == 'on_time' %}
+<span class="badge bg-success">On Time</span>
+{% elif driver.status == 'late' %}
+<span class="badge bg-danger">Late ({{ driver.minutes_late }} min)</span>
+{% elif driver.status == 'early_end' %}
+<span class="badge bg-warning text-dark">Early End ({{ driver.minutes_early_end }} min)</span>
+{% elif driver.status == 'not_on_job' %}
+<span class="badge bg-secondary">Not On Job</span>
+{% else %}
+<span class="badge bg-info">Unknown</span>
+{% endif %}
+</td><td>{{ driver.asset|default('N/A', true) }}</td><td>{{ driver.scheduled_start|default('N/A', true) }}</td><td>
+{% if driver.actual_start %}
+{{ driver.actual_start }}
+{% if driver.minutes_late > 0 %}
+<small class="text-danger">(+{{ driver.minutes_late }} min)</small>
+{% endif %}
+{% else %}
+<span class="text-muted">Not Recorded</span>
+{% endif %}
+</td><td>{{ driver.scheduled_end|default('N/A', true) }}</td><td>
+{% if driver.actual_end %}
+{{ driver.actual_end }}
+{% if driver.minutes_early_end > 0 %}
+<small class="text-warning">(-{{ driver.minutes_early_end }} min)</small>
+{% endif %}
+{% else %}
+<span class="text-muted">Not Recorded</span>
+{% endif %}
+</td><td><a href="{{ url_for('mtd_reports.driver_detail', date=date, driver_id=driver.id) }}"
+class="btn btn-sm btn-primary"><i class="fa fa-user"></i> GENIUS Details
+</a></td></tr>
+{% endfor %}
+</tbody></table></div></div></div></div><div class="card-footer"><a href="{{ url_for('mtd_reports.show_report', date=date) }}" class="btn btn-secondary"><i class="bi bi-arrow-left me-1"></i> Back to Report
+</a></div></div></div><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><script>
+document.addEventListener('DOMContentLoaded', function() {
+// Site Attendance Distribution Chart
+const ctx = document.getElementById('siteAttendanceChart').getContext('2d');
+const siteAttendanceChart = new Chart(ctx, {
+type: 'pie',
+data: {
+labels: ['On Time', 'Late', 'Early End', 'Not On Job'],
+datasets: [{
+data: [
+{{ metrics.on_time_count }},
+{{ metrics.late_count }},
+{{ metrics.early_end_count }},
+{{ metrics.not_on_job_count }}
+],
+backgroundColor: [
+'rgba(40, 167, 69, 0.8)',  // Green for on time
+'rgba(220, 53, 69, 0.8)',  // Red for late
+'rgba(255, 193, 7, 0.8)',  // Yellow for early end
+'rgba(108, 117, 125, 0.8)' // Gray for not on job
+],
+borderColor: [
+'rgba(40, 167, 69, 1)',
+'rgba(220, 53, 69, 1)',
+'rgba(255, 193, 7, 1)',
+'rgba(108, 117, 125, 1)'
+],
+borderWidth: 1
+}]
+},
+options: {
+responsive: true,
+plugins: {
+legend: {
+position: 'bottom',
+labels: {
+color: '#fff',
+font: {
+size: 12
+}
+}
+},
+tooltip: {
+callbacks: {
+label: function(context) {
+const label = context.label || '';
+const value = context.raw || 0;
+const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+const percentage = Math.round((value / total) * 100);
+return `${label}: ${value} (${percentage}%)`;
+}
+}
+}
+}
+}
+});
+
+// Initialize DataTable
+$(document).ready(function() {
+$('#siteDriversTable').DataTable({
+responsive: true,
+order: [[1, 'desc']], // Sort by status by default
+pageLength: 25,
+lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]]
+});
+});
+});
+</script>
+{% endblock %}

@@ -1,0 +1,325 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>{{ page_title }} - TRAXOVO</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"><style>
+.time-header {
+background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+color: white;
+border-radius: 15px;
+padding: 25px;
+margin-bottom: 20px;
+box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.time-form {
+background: white;
+border-radius: 12px;
+padding: 25px;
+box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+margin-bottom: 20px;
+}
+
+.quick-time {
+background: #f8f9fa;
+border: 2px solid #dee2e6;
+border-radius: 8px;
+padding: 15px;
+text-align: center;
+cursor: pointer;
+transition: all 0.3s ease;
+margin-bottom: 10px;
+}
+
+.quick-time:hover {
+border-color: #007bff;
+background: #e3f2fd;
+}
+
+.quick-time.selected {
+border-color: #28a745;
+background: #d4edda;
+}
+
+.timer-display {
+font-size: 3rem;
+font-weight: bold;
+color: #2c3e50;
+text-align: center;
+margin: 20px 0;
+}
+
+.timer-controls {
+text-align: center;
+margin: 20px 0;
+}
+
+.timer-btn {
+background: linear-gradient(45deg, #28a745, #20c997);
+color: white;
+border: none;
+padding: 15px 30px;
+border-radius: 25px;
+font-weight: bold;
+font-size: 1.1rem;
+margin: 0 10px;
+transition: all 0.3s ease;
+}
+
+.timer-btn:hover {
+transform: translateY(-2px);
+box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+color: white;
+}
+
+.timer-btn.stop {
+background: linear-gradient(45deg, #dc3545, #fd7e14);
+}
+
+.vehicle-selector {
+background: #fff3cd;
+border: 1px solid #ffeaa7;
+border-radius: 8px;
+padding: 15px;
+margin-bottom: 20px;
+}
+
+.job-zone-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+gap: 10px;
+margin-bottom: 20px;
+}
+
+.job-zone-btn {
+background: white;
+border: 2px solid #dee2e6;
+border-radius: 8px;
+padding: 15px;
+text-align: center;
+cursor: pointer;
+transition: all 0.3s ease;
+}
+
+.job-zone-btn:hover {
+border-color: #007bff;
+}
+
+.job-zone-btn.selected {
+border-color: #28a745;
+background: #d4edda;
+}
+
+.task-type-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+gap: 10px;
+margin-bottom: 20px;
+}
+
+.recent-entries {
+background: white;
+border-radius: 12px;
+padding: 20px;
+box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.entry-item {
+background: #f8f9fa;
+border-left: 4px solid #007bff;
+padding: 15px;
+margin-bottom: 10px;
+border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+.timer-display {
+font-size: 2.5rem;
+}
+
+.timer-btn {
+padding: 12px 20px;
+font-size: 1rem;
+margin: 5px;
+}
+
+.job-zone-grid,
+.task-type-grid {
+grid-template-columns: 1fr;
+}
+}
+</style></head><body class="bg-light"><nav class="navbar navbar-expand-lg navbar-dark bg-dark"><div class="container"><a class="navbar-brand" href="/"><i class="fas fa-clock me-2"></i>TRAXOVO Time Logger
+</a><button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button><div class="collapse navbar-collapse" id="navbarNav"><ul class="navbar-nav ms-auto"><li class="nav-item"><a class="nav-link" href="/"><i class="fas fa-home me-1"></i>Dashboard</a></li><li class="nav-item"><a class="nav-link" href="/fleet-manager-dashboard"><i class="fas fa-truck me-1"></i>Fleet Manager</a></li><li class="nav-item"><a class="nav-link active" href="/time-logger"><i class="fas fa-clock me-1"></i>Time Logger</a></li></ul></div></div></nav><div class="container-fluid mt-4"><div class="row"><div class="col-12"><div class="time-header"><div class="row align-items-center"><div class="col-md-8"><h1 class="mb-1"><i class="fas fa-stopwatch me-3"></i>Time & Activity Logger</h1><p class="mb-0">Track your work hours with job zone integration for PT-107</p></div><div class="col-md-4 text-end"><span class="badge bg-light text-dark fs-6">Vehicle: PT-107</span></div></div></div></div></div><div class="row"><div class="col-lg-8"><div class="time-form"><form id="timeEntryForm" method="POST" action="/submit-time-entry"><div class="vehicle-selector"><h5><i class="fas fa-truck me-2"></i>Vehicle Assignment</h5><input type="hidden" name="user_id" value="chris_robertson"><select class="form-select" name="vehicle_used" required><option value="PT-107" selected>PT-107 - Fleet Management Truck</option><option value="WALKING">Walking/On Foot</option><option value="OTHER">Other Vehicle</option></select></div><div class="row mb-4"><div class="col-md-6"><h5><i class="fas fa-clock me-2"></i>Time Entry</h5><div class="timer-display" id="timerDisplay">00:00:00</div><div class="timer-controls"><button type="button" class="timer-btn" id="startTimer"><i class="fas fa-play me-2"></i>Start Timer
+</button><button type="button" class="timer-btn stop" id="stopTimer" style="display: none;"><i class="fas fa-stop me-2"></i>Stop Timer
+</button></div></div><div class="col-md-6"><h5><i class="fas fa-edit me-2"></i>Manual Entry</h5><div class="mb-3"><label class="form-label">Hours Worked</label><input type="number" class="form-control" name="hours" id="hoursInput"
+step="0.25" min="0" max="24" placeholder="8.0"></div><div class="row"><div class="col-6"><div class="quick-time" onclick="setQuickHours(4)">4 Hours</div></div><div class="col-6"><div class="quick-time" onclick="setQuickHours(8)">8 Hours</div></div></div></div></div><div class="mb-4"><h5><i class="fas fa-map-marker-alt me-2"></i>Job Zone</h5><div class="job-zone-grid">
+{% for zone in job_zones %}
+<div class="job-zone-btn" onclick="selectJobZone('{{ zone }}')"><strong>{{ zone }}</strong></div>
+{% endfor %}
+</div><input type="hidden" name="job_zone" id="selectedJobZone" required></div><div class="mb-4"><h5><i class="fas fa-tasks me-2"></i>Task Type</h5><div class="task-type-grid">
+{% for task in task_types %}
+<div class="job-zone-btn" onclick="selectTaskType('{{ task }}')"><i class="fas fa-cog me-2"></i>{{ task }}
+</div>
+{% endfor %}
+</div><input type="hidden" name="task_type" id="selectedTaskType" required></div><div class="mb-4"><label class="form-label"><strong>Notes & Details</strong></label><textarea class="form-control" name="notes" rows="3"
+placeholder="Describe the work performed, locations visited, equipment inspected, etc."></textarea></div><div class="text-center"><button type="submit" class="timer-btn"><i class="fas fa-save me-2"></i>Log Time Entry
+</button><button type="button" class="timer-btn" onclick="saveDraft()"><i class="fas fa-file-alt me-2"></i>Save Draft
+</button></div></form></div></div><div class="col-lg-4"><div class="recent-entries"><h5><i class="fas fa-history me-2"></i>Recent Entries</h5><div class="entry-item"><strong>Asset Inspection</strong><br><small>DFW - 6.5 hours</small><br><small class="text-muted">2025-05-29</small></div><div class="entry-item"><strong>Route Planning</strong><br><small>HOU - 3.0 hours</small><br><small class="text-muted">2025-05-28</small></div><div class="entry-item"><strong>Site Visit</strong><br><small>2023-007 - 8.0 hours</small><br><small class="text-muted">2025-05-27</small></div><div class="mt-4 p-3 bg-light rounded"><h6>This Week Summary</h6><p class="mb-1"><strong>Total Hours:</strong> 38.5</p><p class="mb-1"><strong>Days Worked:</strong> 5</p><p class="mb-0"><strong>Avg per Day:</strong> 7.7 hours</p></div><div class="mt-3"><button class="btn btn-outline-primary w-100" onclick="exportTimesheet()"><i class="fas fa-download me-2"></i>Export Timesheet
+</button></div></div></div></div></div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script><script>
+let timerInterval;
+let startTime;
+let elapsedTime = 0;
+
+// Timer functions
+function startTimer() {
+startTime = Date.now() - elapsedTime;
+timerInterval = setInterval(setInterval(updateTimer, 60000);
+document.getElementById('startTimer').style.display = 'none';
+document.getElementById('stopTimer').style.display = 'inline-block';
+}
+
+function stopTimer() {
+clearInterval(timerInterval);
+document.getElementById('startTimer').style.display = 'inline-block';
+document.getElementById('stopTimer').style.display = 'none';
+
+// Update hours input with timer value
+const hours = elapsedTime / (1000 * 60 * 60);
+document.getElementById('hoursInput').value = hours.toFixed(2);
+}
+
+function updateTimer() {
+elapsedTime = Date.now() - startTime;
+const hours = Math.floor(elapsedTime / (1000 * 60 * 60));
+const minutes = Math.floor((elapsedTime % (1000 * 60 * 60)) / (1000 * 60));
+const seconds = Math.floor((elapsedTime % (1000 * 60)) / 1000);
+
+document.getElementById('timerDisplay').textContent =
+`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+// Event listeners
+document.getElementById('startTimer').addEventListener('click', startTimer);
+document.getElementById('stopTimer').addEventListener('click', stopTimer);
+
+// Quick hour selection
+function setQuickHours(hours) {
+document.getElementById('hoursInput').value = hours;
+
+// Remove selected class from all quick-time buttons
+document.querySelectorAll('.quick-time').forEach(btn => {
+btn.classList.remove('selected');
+});
+
+// Add selected class to clicked button
+event.target.classList.add('selected');
+}
+
+// Job zone selection
+function selectJobZone(zone) {
+document.getElementById('selectedJobZone').value = zone;
+
+// Remove selected class from all job zone buttons
+document.querySelectorAll('.job-zone-btn').forEach(btn => {
+btn.classList.remove('selected');
+});
+
+// Add selected class to clicked button
+event.target.classList.add('selected');
+}
+
+// Task type selection
+function selectTaskType(task) {
+document.getElementById('selectedTaskType').value = task;
+
+// Remove selected class from all task type buttons in the task section
+const taskButtons = document.querySelectorAll('.task-type-grid .job-zone-btn');
+taskButtons.forEach(btn => {
+btn.classList.remove('selected');
+});
+
+// Add selected class to clicked button
+event.target.classList.add('selected');
+}
+
+// Form validation
+document.getElementById('timeEntryForm').addEventListener('submit', function(e) {
+const hours = document.getElementById('hoursInput').value;
+const jobZone = document.getElementById('selectedJobZone').value;
+const taskType = document.getElementById('selectedTaskType').value;
+
+if (!hours || parseFloat(hours) <= 0) {
+alert('Please enter valid hours or use the timer.');
+e.preventDefault();
+return;
+}
+
+if (!jobZone) {
+alert('Please select a job zone.');
+e.preventDefault();
+return;
+}
+
+if (!taskType) {
+alert('Please select a task type.');
+e.preventDefault();
+return;
+}
+});
+
+// Draft functionality
+function saveDraft() {
+const formData = new FormData(document.getElementById('timeEntryForm'));
+const draftData = Object.fromEntries(formData.entries());
+draftData.hours = document.getElementById('hoursInput').value;
+draftData.job_zone = document.getElementById('selectedJobZone').value;
+draftData.task_type = document.getElementById('selectedTaskType').value;
+
+localStorage.setItem('time_entry_draft', JSON.stringify(draftData));
+alert('Draft saved successfully!');
+}
+
+// Load draft on page load
+document.addEventListener('DOMContentLoaded', function() {
+const draft = localStorage.getItem('time_entry_draft');
+if (draft) {
+const draftData = JSON.parse(draft);
+
+// Populate form fields
+if (draftData.hours) {
+document.getElementById('hoursInput').value = draftData.hours;
+}
+
+if (draftData.job_zone) {
+selectJobZone(draftData.job_zone);
+}
+
+if (draftData.task_type) {
+selectTaskType(draftData.task_type);
+}
+
+if (draftData.notes) {
+document.querySelector('textarea[name="notes"]').value = draftData.notes;
+}
+}
+});
+
+// Export timesheet
+function exportTimesheet() {
+const timesheetData = {
+user: 'Chris Robertson',
+vehicle: 'PT-107',
+week_ending: new Date().toISOString().slice(0, 10),
+total_hours: 38.5,
+entries: [
+{date: '2025-05-29', task: 'Asset Inspection', zone: 'DFW', hours: 6.5},
+{date: '2025-05-28', task: 'Route Planning', zone: 'HOU', hours: 3.0},
+{date: '2025-05-27', task: 'Site Visit', zone: '2023-007', hours: 8.0}
+]
+};
+
+const blob = new Blob([JSON.stringify(timesheetData, null, 2)], {type: 'application/json'});
+const url = URL.createObjectURL(blob);
+const a = document.createElement('a');
+a.href = url;
+a.download = `Timesheet_${timesheetData.user.replace(' ', '_')}_${timesheetData.week_ending}.json`;
+a.click();
+URL.revokeObjectURL(url);
+}
+</script></body></html>

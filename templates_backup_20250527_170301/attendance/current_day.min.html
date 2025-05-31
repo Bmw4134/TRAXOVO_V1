@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4"><div class="row mb-4"><div class="col-12"><nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ url_for('attendance.index') }}">Attendance</a></li><li class="breadcrumb-item active" aria-current="page">Current Day Report</li></ol></nav><h1 class="h3">Current Day Attendance Report</h1><p class="text-muted">Late Start, Not On Job for {{ report_date }} (as of 8:30 AM)</p></div></div><div class="row mb-4"><div class="col-12"><div class="card"><div class="card-header d-flex justify-content-between align-items-center"><h5 class="card-title mb-0">Report Status</h5><div>
+{% if report_exists %}
+<a href="{{ url_for('attendance.download_report', filename=report_date + '/current_day_attendance_' + report_date + '.xlsx') }}" class="btn btn-sm btn-outline-primary me-2"><i class="bi bi-download me-1"></i>Download
+</a>
+{% endif %}
+<a href="{{ url_for('attendance.api_generate_current_day') }}" class="btn btn-sm btn-primary"><i class="bi bi-arrow-repeat me-1"></i>Generate Report
+</a></div></div><div class="card-body">
+{% if report_exists %}
+<div class="alert alert-success"><i class="bi bi-check-circle-fill me-2"></i>Current day attendance report for {{ report_date }} is available.
+</div><div class="row mb-4 mt-4"><div class="col-md-6 mb-3"><div class="card bg-primary bg-opacity-25"><div class="card-body p-3"><div class="row"><div class="col-8"><div class="stat-value" id="late-start-count">--</div><div class="stat-label">Late Start</div></div><div class="col-4 text-end"><i class="bi bi-hourglass-split fs-1 opacity-75"></i></div></div></div></div></div><div class="col-md-6 mb-3"><div class="card bg-danger bg-opacity-25"><div class="card-body p-3"><div class="row"><div class="col-8"><div class="stat-value" id="not-on-job-count">--</div><div class="stat-label">Not On Job</div></div><div class="col-4 text-end"><i class="bi bi-geo-alt fs-1 opacity-75"></i></div></div></div></div></div></div><div class="table-responsive"><table class="table table-hover" id="attendance-table"><thead><tr><th>Driver</th><th>Vehicle</th><th>Region</th><th>Expected Start</th><th>Status at 8:30 AM</th><th>Late By</th><th>Expected Job</th><th>Actual Location</th><th>Status</th></tr></thead><tbody><tr><td colspan="9" class="text-center">Loading report data...</td></tr></tbody></table></div>
+{% else %}
+<div class="alert alert-warning"><i class="bi bi-exclamation-triangle-fill me-2"></i>Current day attendance report for {{ report_date }} has not been generated yet.
+</div><p>Click the "Generate Report" button above to create this report.</p><div class="card bg-light mt-4"><div class="card-body"><h5 class="card-title">About Current Day Reports</h5><p class="mb-0">The current day report analyzes today's data ({{ report_date }}) up to 8:30 AM and identifies:</p><ul class="mt-2"><li><strong>Late Start:</strong> Drivers who have not yet arrived at their job site after their scheduled start time</li><li><strong>Not On Job:</strong> Drivers who are not at their assigned job site during expected working hours</li></ul><p class="mt-2">Note: This report does not include Early End data, as it only covers the morning period up to 8:30 AM.</p></div></div>
+{% endif %}
+</div></div></div></div></div>
+{% endblock %}
+
+{% block scripts %}
+{% if report_exists %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+// Sample data - in a real implementation, this would be loaded from the Excel file
+// For demonstration purposes, we'll use sample data
+const sampleData = [
+{ driver: 'John Smith', vehicle: 'PT-276', region: 'DFW', expectedStart: '7:00 AM', status: 'Not on site at 8:30 AM', lateBy: '90+ min', expectedJob: 'Site A', actualLocation: 'DFW Yard', status: 'Late Start' },
+{ driver: 'Jane Doe', vehicle: 'PT-277', region: 'DFW', expectedStart: '7:00 AM', status: 'En route to job site', lateBy: '90+ min', expectedJob: 'Site B', actualLocation: 'Highway 35', status: 'Late Start' },
+{ driver: 'Mike Johnson', vehicle: 'PT-278', region: 'HOU', expectedStart: '7:00 AM', status: 'At incorrect job site', lateBy: 'N/A', expectedJob: 'Site C', actualLocation: 'Site D', status: 'Not On Job' }
+];
+
+// Update summary counts
+document.getElementById('late-start-count').textContent = '2';
+document.getElementById('not-on-job-count').textContent = '1';
+
+// Populate table
+const tableBody = document.getElementById('attendance-table').querySelector('tbody');
+tableBody.innerHTML = ''; // Clear loading message
+
+sampleData.forEach(record => {
+const row = document.createElement('tr');
+
+// Add status class
+if (record.status.includes('Not On Job')) {
+row.classList.add('table-danger');
+} else if (record.status.includes('Late Start')) {
+row.classList.add('table-warning');
+}
+
+row.innerHTML = `
+<td>${record.driver}</td><td>${record.vehicle}</td><td>${record.region}</td><td>${record.expectedStart}</td><td>${record.status}</td><td>${record.lateBy}</td><td>${record.expectedJob}</td><td>${record.actualLocation}</td><td>${record.status}</td>
+`;
+
+tableBody.appendChild(row);
+});
+});
+</script>
+{% endif %}
+{% endblock %}

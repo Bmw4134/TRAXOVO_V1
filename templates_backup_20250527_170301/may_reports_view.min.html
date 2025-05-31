@@ -1,0 +1,138 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>TRAXORA - May 23-27 Reports</title><link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"><style>
+.report-header {
+background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+color: white;
+padding: 2rem 0;
+margin-bottom: 2rem;
+}
+
+.summary-card {
+background: white;
+border-radius: 10px;
+padding: 1.5rem;
+margin-bottom: 1rem;
+box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.metric-card {
+text-align: center;
+padding: 1rem;
+border-radius: 8px;
+margin-bottom: 1rem;
+}
+
+.metric-card.success { background: linear-gradient(135deg, #26de81 0%, #20bf6b 100%); color: white; }
+.metric-card.warning { background: linear-gradient(135deg, #ffc107 0%, #ff8f00 100%); color: white; }
+.metric-card.info { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+
+.daily-breakdown {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+gap: 1rem;
+margin-bottom: 2rem;
+}
+
+.day-card {
+background: white;
+border-radius: 10px;
+padding: 1rem;
+box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.driver-list {
+max-height: 300px;
+overflow-y: auto;
+background: #f8f9fa;
+border-radius: 8px;
+padding: 1rem;
+}
+
+.driver-item {
+background: white;
+border-radius: 6px;
+padding: 0.5rem;
+margin-bottom: 0.5rem;
+border-left: 4px solid #28a745;
+}
+
+.driver-item.late { border-left-color: #ffc107; }
+.driver-item.early { border-left-color: #fd7e14; }
+.driver-item.absent { border-left-color: #dc3545; }
+</style></head><body><div class="report-header"><div class="container"><div class="row"><div class="col-12 text-center"><h1><i class="fas fa-chart-line"></i> May 23-27 Weekly Report</h1><p class="mb-0">Complete analysis of your Friday through Tuesday data</p></div></div></div></div><div class="container">
+{% if reports %}
+
+<div class="row mb-4"><div class="col-12"><div class="summary-card"><h3><i class="fas fa-calendar-week"></i> Week Summary</h3>
+{% if reports.weekly_summary %}
+<div class="row"><div class="col-md-3"><div class="metric-card info"><h4>{{ reports.weekly_summary.total_drivers or 0 }}</h4><p>Total Drivers</p></div></div><div class="col-md-3"><div class="metric-card success"><h4>{{ reports.weekly_summary.total_records or 0 }}</h4><p>Total Records</p></div></div><div class="col-md-3"><div class="metric-card warning"><h4>5</h4><p>Days Covered</p></div></div><div class="col-md-3"><div class="metric-card info"><h4>May 2025</h4><p>Report Month</p></div></div></div>
+{% endif %}
+</div></div></div>
+
+
+{% if reports.daily_reports %}
+<div class="row mb-4"><div class="col-12"><h4><i class="fas fa-calendar-day"></i> Daily Breakdown</h4><div class="daily-breakdown">
+{% for date, day_data in reports.daily_reports.items() %}
+<div class="day-card"><h6>
+{% if date == '2025-05-23' %}Friday{% endif %}
+{% if date == '2025-05-24' %}Saturday{% endif %}
+{% if date == '2025-05-25' %}Sunday{% endif %}
+{% if date == '2025-05-26' %}Monday{% endif %}
+{% if date == '2025-05-27' %}Tuesday{% endif %}
+<br><small class="text-muted">{{ date }}</small></h6><div class="row text-center"><div class="col-6"><strong>{{ day_data.total_drivers or 0 }}</strong><br><small>Drivers</small></div><div class="col-6"><strong>{{ day_data.on_time or 0 }}</strong><br><small>On Time</small></div></div>
+{% if day_data.issues and day_data.issues > 0 %}
+<div class="mt-2"><span class="badge bg-warning">{{ day_data.issues }} Issues</span></div>
+{% endif %}
+</div>
+{% endfor %}
+</div></div></div>
+{% endif %}
+
+
+<div class="row mb-4"><div class="col-12"><div class="summary-card"><h4><i class="fas fa-users"></i> Driver Performance Details</h4>
+
+{% if reports.daily_reports %}
+<div class="accordion" id="driverAccordion">
+{% for date, day_data in reports.daily_reports.items() %}
+<div class="accordion-item"><h2 class="accordion-header" id="heading{{ loop.index }}"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+data-bs-target="#collapse{{ loop.index }}" aria-expanded="false">
+{{ date }} - {{ day_data.total_drivers or 0 }} drivers
+({{ day_data.on_time or 0 }} on time, {{ day_data.issues or 0 }} issues)
+</button></h2><div id="collapse{{ loop.index }}" class="accordion-collapse collapse"
+data-bs-parent="#driverAccordion"><div class="accordion-body">
+{% if day_data.drivers %}
+<div class="driver-list">
+{% for driver in day_data.drivers %}
+<div class="driver-item {% if driver.status != 'On Time' %}{% if driver.status == 'Late Start' %}late{% elif driver.status == 'Early End' %}early{% else %}absent{% endif %}{% endif %}"><div class="d-flex justify-content-between"><div><strong>{{ driver.driver_name or 'Unknown Driver' }}</strong><br><small>{{ driver.job_site or 'No Job Site' }}</small></div><div class="text-end"><span class="badge {% if driver.status == 'On Time' %}bg-success{% elif driver.status == 'Late Start' %}bg-warning{% elif driver.status == 'Early End' %}bg-info{% else %}bg-danger{% endif %}">
+{{ driver.status or 'Unknown' }}
+</span><br><small>{{ driver.start_time or '--' }} - {{ driver.end_time or '--' }}</small></div></div></div>
+{% endfor %}
+</div>
+{% else %}
+<p class="text-muted">No driver data available for this date.</p>
+{% endif %}
+</div></div></div>
+{% endfor %}
+</div>
+{% endif %}
+</div></div></div>
+
+
+{% if reports.monthly_update %}
+<div class="row mb-4"><div class="col-12"><div class="summary-card"><h4><i class="fas fa-calendar-alt"></i> Monthly Report Status</h4><div class="alert alert-success"><i class="fas fa-check-circle"></i><strong>May Monthly Report Ready!</strong><br>
+Added {{ reports.monthly_update.new_records_added or 0 }} new records for {{ reports.monthly_update.date_range_covered or 'May 23-27' }}.
+Your May 2025 reporting is now complete.
+</div></div></div></div>
+{% endif %}
+
+
+<div class="row mb-4"><div class="col-12 text-center"><a href="/working-reports" class="btn btn-primary me-2"><i class="fas fa-chart-bar"></i> Driver Dashboard
+</a><a href="/reports-dashboard" class="btn btn-success me-2"><i class="fas fa-file-alt"></i> All Reports
+</a><a href="/upload-may-week-data" class="btn btn-outline-info me-2"><i class="fas fa-upload"></i> Upload More Data
+</a><button class="btn btn-outline-secondary" onclick="window.print()"><i class="fas fa-print"></i> Print Report
+</button></div></div>
+
+{% else %}
+
+<div class="row"><div class="col-12"><div class="text-center"><i class="fas fa-file-excel fa-4x text-muted mb-3"></i><h3>No May Reports Available</h3><p class="text-muted">Upload your May 23-27 data files to generate reports.</p><a href="/upload-may-week-data" class="btn btn-primary"><i class="fas fa-upload"></i> Upload May Data
+</a></div></div></div>
+{% endif %}
+</div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script></body></html>

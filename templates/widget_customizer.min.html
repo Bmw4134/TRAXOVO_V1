@@ -1,0 +1,462 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>TRAXOVO - Customize Dashboard Widgets</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"><link href="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.css" rel="stylesheet"><style>
+body {
+background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+min-height: 100vh;
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.customizer-container {
+background: rgba(255,255,255,0.95);
+backdrop-filter: blur(20px);
+border-radius: 20px;
+box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+margin: 2rem auto;
+max-width: 1400px;
+padding: 2rem;
+}
+
+.widget-preview {
+background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+border-radius: 15px;
+padding: 1.5rem;
+margin-bottom: 2rem;
+border: 2px solid #e2e8f0;
+}
+
+.widget-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+gap: 1rem;
+margin: 1rem 0;
+}
+
+.widget-card {
+background: rgba(255,255,255,0.9);
+border-radius: 15px;
+padding: 1.5rem;
+border: 2px solid #e2e8f0;
+cursor: move;
+transition: all 0.3s ease;
+position: relative;
+}
+
+.widget-card:hover {
+transform: translateY(-3px);
+box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+border-color: #667eea;
+}
+
+.widget-card.sortable-ghost {
+opacity: 0.5;
+transform: rotate(5deg);
+}
+
+.widget-card.sortable-chosen {
+background: linear-gradient(135deg, #667eea, #764ba2);
+color: white;
+}
+
+.widget-card.small {
+grid-column: span 1;
+}
+
+.widget-card.medium {
+grid-column: span 2;
+}
+
+.widget-card.large {
+grid-column: span 3;
+}
+
+.widget-controls {
+position: absolute;
+top: 0.5rem;
+right: 0.5rem;
+display: flex;
+gap: 0.25rem;
+}
+
+.widget-control-btn {
+background: rgba(0,0,0,0.1);
+border: none;
+border-radius: 50%;
+width: 24px;
+height: 24px;
+font-size: 0.7rem;
+cursor: pointer;
+transition: all 0.2s ease;
+}
+
+.widget-control-btn:hover {
+background: rgba(0,0,0,0.2);
+transform: scale(1.1);
+}
+
+.available-widgets {
+background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+border-radius: 15px;
+padding: 1.5rem;
+margin-top: 2rem;
+}
+
+.available-widget-item {
+background: rgba(255,255,255,0.8);
+border-radius: 10px;
+padding: 1rem;
+margin: 0.5rem 0;
+cursor: pointer;
+transition: all 0.3s ease;
+border: 2px solid transparent;
+}
+
+.available-widget-item:hover {
+background: rgba(255,255,255,1);
+border-color: #667eea;
+transform: translateX(5px);
+}
+
+.metric-value {
+font-size: 2rem;
+font-weight: 800;
+background: linear-gradient(45deg, #667eea, #764ba2);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+}
+
+.metric-label {
+color: #64748b;
+font-size: 0.9rem;
+font-weight: 600;
+}
+
+.save-widgets-btn {
+background: linear-gradient(135deg, #10b981, #059669);
+border: none;
+border-radius: 15px;
+padding: 1rem 2rem;
+color: white;
+font-weight: 600;
+font-size: 1.1rem;
+cursor: pointer;
+transition: all 0.3s ease;
+position: fixed;
+bottom: 2rem;
+right: 2rem;
+z-index: 1000;
+}
+
+.save-widgets-btn:hover {
+background: linear-gradient(135deg, #059669, #047857);
+transform: translateY(-2px);
+box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+}
+
+.role-selector {
+background: linear-gradient(135deg, #4338ca, #3730a3);
+color: white;
+border-radius: 15px;
+padding: 1rem;
+margin-bottom: 2rem;
+}
+
+.role-tabs {
+display: flex;
+gap: 1rem;
+margin-top: 1rem;
+}
+
+.role-tab {
+background: rgba(255,255,255,0.2);
+border: none;
+border-radius: 10px;
+padding: 0.5rem 1rem;
+color: white;
+cursor: pointer;
+transition: all 0.3s ease;
+}
+
+.role-tab.active {
+background: rgba(255,255,255,0.3);
+box-shadow: 0 4px 15px rgba(255,255,255,0.2);
+}
+
+.widget-explanation {
+background: rgba(79, 70, 229, 0.1);
+border: 1px solid rgba(79, 70, 229, 0.3);
+border-radius: 10px;
+padding: 1rem;
+margin-top: 0.5rem;
+font-size: 0.8rem;
+color: #4c1d95;
+}
+</style></head><body><div class="customizer-container"><div class="d-flex justify-content-between align-items-center mb-4"><div><h1><i class="fas fa-cogs text-primary"></i> Customize Dashboard Widgets</h1><p class="text-muted">Personalize your dashboard with the metrics that matter most to your workflow</p></div><a href="/" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+</a></div><div class="role-selector"><h5><i class="fas fa-user-tag me-2"></i>Customize for Role</h5><p class="mb-2">Different roles see different default widgets optimized for their workflow</p><div class="role-tabs"><button class="role-tab active" data-role="executive">Executive</button><button class="role-tab" data-role="operations">Operations Manager</button><button class="role-tab" data-role="dispatcher">Dispatcher</button><button class="role-tab" data-role="safety">Safety Manager</button><button class="role-tab" data-role="maintenance">Maintenance</button></div></div><div class="widget-preview"><h4><i class="fas fa-desktop me-2"></i>Your Dashboard Preview</h4><p class="text-muted">Drag and drop widgets to rearrange. Click controls to resize or remove.</p><div id="widgetGrid" class="widget-grid"></div></div><div class="available-widgets"><h4><i class="fas fa-plus-circle me-2"></i>Available Widgets</h4><p class="text-muted">Click to add widgets to your dashboard</p><div class="row" id="availableWidgets"></div></div></div><button id="saveWidgetsBtn" class="save-widgets-btn"><i class="fas fa-save me-2"></i>Save Configuration
+</button><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script><script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script><script>
+let currentWidgets = [];
+let currentRole = 'executive';
+let currentMetrics = {};
+
+const availableWidgetTypes = {
+'total_assets': { title: 'Total Assets', icon: 'fas fa-truck', category: 'assets', description: 'Total equipment in fleet with authentic asset database integration' },
+'active_assets': { title: 'Active Assets', icon: 'fas fa-play-circle', category: 'assets', description: 'Equipment currently operational and generating revenue' },
+'monthly_revenue': { title: 'Monthly Revenue', icon: 'fas fa-dollar-sign', category: 'financial', description: 'Total revenue from authentic billing records for current month' },
+'daily_revenue': { title: 'Daily Revenue', icon: 'fas fa-chart-line', category: 'financial', description: 'Average daily revenue based on authentic billing data' },
+'fleet_utilization': { title: 'Fleet Utilization', icon: 'fas fa-tachometer-alt', category: 'operations', description: 'Equipment utilization rate from operational data (capped at 100%)' },
+'driver_attendance': { title: 'Driver Attendance', icon: 'fas fa-users', category: 'workforce', description: 'Real-time driver attendance from authentic timecard systems' },
+'safety_score': { title: 'Safety Score', icon: 'fas fa-shield-alt', category: 'safety', description: 'Safety performance based on authentic incident records' },
+'maintenance_costs': { title: 'Maintenance Costs', icon: 'fas fa-wrench', category: 'maintenance', description: 'Monthly maintenance expenses from authentic service records' },
+'work_orders': { title: 'Work Orders', icon: 'fas fa-clipboard-list', category: 'maintenance', description: 'Active maintenance work orders from service management system' },
+'fuel_efficiency': { title: 'Fuel Efficiency', icon: 'fas fa-gas-pump', category: 'operations', description: 'Fleet fuel efficiency metrics from telematics data' },
+'project_profitability': { title: 'Project Profitability', icon: 'fas fa-chart-pie', category: 'financial', description: 'Project profit margins from Foundation accounting integration' },
+'equipment_uptime': { title: 'Equipment Uptime', icon: 'fas fa-clock', category: 'operations', description: 'Equipment availability percentage from operational records' }
+};
+
+const rolePresets = {
+executive: ['monthly_revenue', 'fleet_utilization', 'safety_score', 'total_assets'],
+operations: ['fleet_utilization', 'active_assets', 'driver_attendance', 'equipment_uptime'],
+dispatcher: ['active_assets', 'driver_attendance', 'work_orders', 'fuel_efficiency'],
+safety: ['safety_score', 'driver_attendance', 'work_orders', 'equipment_uptime'],
+maintenance: ['maintenance_costs', 'work_orders', 'equipment_uptime', 'active_assets']
+};
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+loadMetrics();
+loadAvailableWidgets();
+loadUserWidgets();
+initializeSortable();
+initializeRoleTabs();
+});
+
+async function loadMetrics() {
+try {
+const response = await fetch('/widgets/api/metrics');
+const data = await response.json();
+currentMetrics = data.metrics;
+} catch (error) {
+console.error('Error loading metrics:', error);
+currentMetrics = {};
+}
+}
+
+async function loadUserWidgets() {
+try {
+const response = await fetch('/widgets/api/user-widgets');
+const data = await response.json();
+currentWidgets = data.widgets;
+renderWidgets();
+} catch (error) {
+console.error('Error loading user widgets:', error);
+// Load role preset
+currentWidgets = rolePresets[currentRole].map((id, index) => ({
+id: id,
+title: availableWidgetTypes[id].title,
+type: 'metric',
+size: 'medium',
+position: index
+}));
+renderWidgets();
+}
+}
+
+function loadAvailableWidgets() {
+const container = document.getElementById('availableWidgets');
+container.innerHTML = '';
+
+Object.entries(availableWidgetTypes).forEach(([id, widget]) => {
+const widgetElement = document.createElement('div');
+widgetElement.className = 'col-md-6 col-lg-4';
+widgetElement.innerHTML = `
+<div class="available-widget-item" onclick="addWidget('${id}')"><div class="d-flex align-items-center"><i class="${widget.icon} fa-2x text-primary me-3"></i><div><h6 class="mb-1">${widget.title}</h6><small class="text-muted">${widget.category}</small></div></div><div class="widget-explanation">
+${widget.description}
+</div></div>
+`;
+container.appendChild(widgetElement);
+});
+}
+
+function renderWidgets() {
+const container = document.getElementById('widgetGrid');
+container.innerHTML = '';
+
+currentWidgets.sort((a, b) => a.position - b.position).forEach((widget, index) => {
+const widgetElement = createWidgetElement(widget, index);
+container.appendChild(widgetElement);
+});
+}
+
+function createWidgetElement(widget, index) {
+const widgetData = availableWidgetTypes[widget.id];
+const metrics = currentMetrics[widget.id] || {};
+
+const element = document.createElement('div');
+element.className = `widget-card ${widget.size}`;
+element.dataset.widgetId = widget.id;
+element.dataset.index = index;
+
+element.innerHTML = `
+<div class="widget-controls"><button class="widget-control-btn" onclick="resizeWidget(${index})" title="Resize"><i class="fas fa-expand-arrows-alt"></i></button><button class="widget-control-btn" onclick="removeWidget(${index})" title="Remove"><i class="fas fa-times"></i></button></div><div class="d-flex align-items-center mb-2"><i class="${widgetData.icon} text-primary me-2"></i><h6 class="mb-0">${widget.title}</h6></div><div class="metric-value">${formatMetricValue(widget.id, metrics)}</div><div class="metric-label">${getMetricLabel(widget.id)}</div><div class="widget-explanation"><small>${metrics.explanation || 'Authentic data integration - connect to database for real metrics'}</small></div>
+`;
+
+return element;
+}
+
+function formatMetricValue(widgetId, metrics) {
+const value = metrics.value || getMetricValue(widgetId, metrics);
+
+if (widgetId.includes('revenue') || widgetId.includes('cost')) {
+return `$${(value / 1000000).toFixed(2)}M`;
+} else if (widgetId.includes('utilization') || widgetId.includes('rate') || widgetId.includes('score')) {
+return `${value.toFixed(1)}%`;
+} else if (widgetId.includes('uptime')) {
+return `${value.toFixed(1)}%`;
+} else {
+return value.toLocaleString();
+}
+}
+
+function getMetricValue(widgetId, metrics) {
+// Map widget IDs to metric values
+const valueMap = {
+'total_assets': currentMetrics.assets?.total_assets || 0,
+'active_assets': currentMetrics.assets?.active_assets || 0,
+'monthly_revenue': currentMetrics.revenue?.monthly_revenue || 0,
+'daily_revenue': currentMetrics.revenue?.daily_average || 0,
+'fleet_utilization': currentMetrics.utilization?.fleet_utilization || 0,
+'driver_attendance': currentMetrics.drivers?.attendance_rate || 0,
+'safety_score': currentMetrics.safety?.safety_score || 0,
+'maintenance_costs': currentMetrics.maintenance?.maintenance_costs || 0,
+'work_orders': currentMetrics.maintenance?.work_orders || 0,
+'equipment_uptime': currentMetrics.maintenance?.uptime_percentage || 0
+};
+
+return valueMap[widgetId] || 0;
+}
+
+function getMetricLabel(widgetId) {
+const labelMap = {
+'total_assets': 'Equipment Units',
+'active_assets': 'Operational Units',
+'monthly_revenue': 'Current Month',
+'daily_revenue': 'Daily Average',
+'fleet_utilization': 'Utilization Rate',
+'driver_attendance': 'Attendance Rate',
+'safety_score': 'Safety Rating',
+'maintenance_costs': 'Monthly Costs',
+'work_orders': 'Active Orders',
+'equipment_uptime': 'Availability'
+};
+
+return labelMap[widgetId] || 'Metric';
+}
+
+function addWidget(widgetId) {
+if (currentWidgets.find(w => w.id === widgetId)) {
+alert('Widget already added to dashboard');
+return;
+}
+
+const newWidget = {
+id: widgetId,
+title: availableWidgetTypes[widgetId].title,
+type: 'metric',
+size: 'medium',
+position: currentWidgets.length
+};
+
+currentWidgets.push(newWidget);
+renderWidgets();
+}
+
+function removeWidget(index) {
+currentWidgets.splice(index, 1);
+// Update positions
+currentWidgets.forEach((widget, i) => {
+widget.position = i;
+});
+renderWidgets();
+}
+
+function resizeWidget(index) {
+const widget = currentWidgets[index];
+const sizes = ['small', 'medium', 'large'];
+const currentIndex = sizes.indexOf(widget.size);
+const nextIndex = (currentIndex + 1) % sizes.length;
+widget.size = sizes[nextIndex];
+renderWidgets();
+}
+
+function initializeSortable() {
+const container = document.getElementById('widgetGrid');
+new Sortable(container, {
+animation: 150,
+ghostClass: 'sortable-ghost',
+chosenClass: 'sortable-chosen',
+onEnd: function(evt) {
+// Update widget positions
+const newOrder = Array.from(container.children).map(el =>
+parseInt(el.dataset.index)
+);
+
+const reorderedWidgets = newOrder.map(oldIndex => currentWidgets[oldIndex]);
+reorderedWidgets.forEach((widget, index) => {
+widget.position = index;
+});
+
+currentWidgets = reorderedWidgets;
+renderWidgets();
+}
+});
+}
+
+function initializeRoleTabs() {
+document.querySelectorAll('.role-tab').forEach(tab => {
+tab.addEventListener('click', function() {
+document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+this.classList.add('active');
+
+currentRole = this.dataset.role;
+loadRolePreset();
+});
+});
+}
+
+function loadRolePreset() {
+currentWidgets = rolePresets[currentRole].map((id, index) => ({
+id: id,
+title: availableWidgetTypes[id].title,
+type: 'metric',
+size: 'medium',
+position: index
+}));
+renderWidgets();
+}
+
+document.getElementById('saveWidgetsBtn').addEventListener('click', async function() {
+try {
+const response = await fetch('/widgets/api/save-widgets', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json',
+},
+body: JSON.stringify({
+widgets: currentWidgets,
+role: currentRole
+})
+});
+
+const result = await response.json();
+
+if (result.status === 'success') {
+alert('Widget configuration saved successfully!');
+window.location.href = '/';
+} else {
+alert('Error saving configuration: ' + result.error);
+}
+} catch (error) {
+console.error('Save error:', error);
+alert('Error saving configuration');
+}
+});
+</script></body></html>

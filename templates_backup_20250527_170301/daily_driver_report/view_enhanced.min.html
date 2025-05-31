@@ -1,0 +1,230 @@
+{% extends "layout_unified_enhanced.html" %}
+
+{% block title %}Daily Driver Report - {{ formatted_date }}{% endblock %}
+
+{% block head_content %}
+<style>
+.status-badge {
+width: 10px;
+height: 10px;
+border-radius: 50%;
+display: inline-block;
+margin-right: 6px;
+}
+
+.status-on-time {
+background-color: var(--bs-success);
+}
+
+.status-late {
+background-color: var(--bs-warning);
+}
+
+.status-early-end {
+background-color: var(--bs-primary);
+}
+
+.status-not-on-job {
+background-color: var(--bs-danger);
+}
+
+.report-card {
+border-radius: 1rem;
+transition: all 0.2s ease;
+overflow: hidden;
+}
+
+.report-card:hover {
+transform: translateY(-3px);
+box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.driver-card {
+transition: all 0.2s ease;
+border: none;
+box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.driver-card:hover {
+transform: translateY(-2px);
+box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.metric-card {
+border-radius: 0.5rem;
+border: none;
+text-align: center;
+height: 100%;
+transition: all 0.2s ease;
+}
+
+.metric-card:hover {
+transform: translateY(-3px);
+box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.metric-icon {
+font-size: 2rem;
+margin-bottom: 0.5rem;
+}
+
+.metric-title {
+font-size: 0.9rem;
+text-transform: uppercase;
+letter-spacing: 1px;
+color: var(--bs-gray-500);
+}
+
+.metric-value {
+font-size: 2.5rem;
+font-weight: 600;
+}
+
+.metric-trend {
+font-size: 0.9rem;
+}
+
+.table-header-bg {
+background-color: rgba(var(--bs-dark-rgb), 0.8);
+}
+
+.driver-entry {
+background-color: var(--bs-dark);
+border-radius: 0.5rem;
+margin-bottom: 0.5rem;
+transition: all 0.2s ease;
+}
+
+.driver-entry:hover {
+background-color: rgba(var(--bs-primary-rgb), 0.1);
+}
+
+.driver-header {
+cursor: pointer;
+padding: 1rem;
+}
+
+.driver-detail {
+padding: 1rem;
+border-top: 1px solid rgba(255, 255, 255, 0.1);
+display: none;
+}
+
+.badge-status {
+font-size: 0.8rem;
+font-weight: normal;
+padding: 0.35em 0.65em;
+}
+
+.time-badge {
+width: auto;
+min-width: 80px;
+text-align: center;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid"><div class="d-flex justify-content-between align-items-center mb-4"><div><h2 class="mb-1">Daily Driver Report</h2><p class="text-muted mb-0">{{ formatted_date }}</p></div><div><a href="{{ url_for('daily_driver_report.download_report', date=date) }}" class="btn btn-success"><i class="fas fa-file-excel me-2"></i>Download Excel
+</a><a href="{{ url_for('daily_driver_report.dashboard') }}" class="btn btn-outline-secondary ms-2"><i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+</a></div></div><div class="row mb-4"><div class="col-sm-6 col-md-3 mb-4"><div class="card metric-card bg-dark"><div class="card-body"><div class="metric-icon text-success"><i class="fas fa-check-circle"></i></div><h6 class="metric-title">On Time</h6><div class="metric-value text-success">
+{% if report_data and report_data.metrics %}
+{{ report_data.metrics.on_time }}
+{% else %}
+0
+{% endif %}
+</div><div class="metric-trend"><small class="text-muted">Drivers arrived on time</small></div></div></div></div><div class="col-sm-6 col-md-3 mb-4"><div class="card metric-card bg-dark"><div class="card-body"><div class="metric-icon text-warning"><i class="fas fa-clock"></i></div><h6 class="metric-title">Late Start</h6><div class="metric-value text-warning">
+{% if report_data and report_data.metrics %}
+{{ report_data.metrics.late_starts }}
+{% else %}
+0
+{% endif %}
+</div><div class="metric-trend"><small class="text-muted">Drivers arrived late</small></div></div></div></div><div class="col-sm-6 col-md-3 mb-4"><div class="card metric-card bg-dark"><div class="card-body"><div class="metric-icon text-primary"><i class="fas fa-sign-out-alt"></i></div><h6 class="metric-title">Early End</h6><div class="metric-value text-primary">
+{% if report_data and report_data.metrics %}
+{{ report_data.metrics.early_ends }}
+{% else %}
+0
+{% endif %}
+</div><div class="metric-trend"><small class="text-muted">Drivers left early</small></div></div></div></div><div class="col-sm-6 col-md-3 mb-4"><div class="card metric-card bg-dark"><div class="card-body"><div class="metric-icon text-danger"><i class="fas fa-exclamation-triangle"></i></div><h6 class="metric-title">Not On Job</h6><div class="metric-value text-danger">
+{% if report_data and report_data.metrics %}
+{{ report_data.metrics.not_on_job }}
+{% else %}
+0
+{% endif %}
+</div><div class="metric-trend"><small class="text-muted">Drivers not at assigned job</small></div></div></div></div></div><div class="row mb-4"><div class="col-md-12"><div class="card bg-dark"><div class="card-header"><h5 class="mb-0">Report Information</h5></div><div class="card-body"><div class="row"><div class="col-md-6 mb-3 mb-md-0"><h6 class="text-muted mb-2">Data Sources</h6><ul class="list-group list-group-flush bg-dark">
+{% if report_data and report_data.data_sources %}
+{% for source in report_data.data_sources %}
+<li class="list-group-item bg-dark px-0"><div class="d-flex align-items-center"><i class="fas fa-file text-success me-2"></i>
+{% if source is mapping %}
+{{ source.source or source.type or 'Data Source' }}
+{% else %}
+{{ source }}
+{% endif %}
+</div></li>
+{% endfor %}
+{% else %}
+<li class="list-group-item bg-dark px-0"><div class="d-flex align-items-center"><i class="fas fa-car text-success me-2"></i>
+Driving History Data
+</div></li><li class="list-group-item bg-dark px-0"><div class="d-flex align-items-center"><i class="fas fa-map-marker-alt text-primary me-2"></i>
+Assets Time On Site Data
+</div></li>
+{% endif %}
+</ul></div><div class="col-md-6"><h6 class="text-muted mb-2">Processing Details</h6><div class="table-responsive"><table class="table table-sm table-dark"><tbody><tr><th scope="row" style="width: 40%;">Date Processed:</th><td>
+{% if report_data and report_data.processing_time %}
+{{ report_data.processing_time }}
+{% else %}
+{{ formatted_date }}
+{% endif %}
+</td></tr><tr><th scope="row">Drivers Tracked:</th><td>
+{% if report_data and report_data.metrics %}
+{{ report_data.metrics.total_drivers }}
+{% else %}
+0
+{% endif %}
+</td></tr><tr><th scope="row">Start Time Rule:</th><td><span class="badge bg-warning">7:30 AM</span> Late after this time</td></tr><tr><th scope="row">End Time Rule:</th><td><span class="badge bg-primary">4:00 PM</span> Early before this time</td></tr></tbody></table></div></div></div></div></div></div></div><div class="card bg-dark mb-4"><div class="card-header d-flex justify-content-between align-items-center"><h5 class="mb-0">Driver Attendance</h5><div><div class="dropdown"><button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-filter me-1"></i> Filter
+</button><ul class="dropdown-menu dropdown-menu-end" aria-labelledby="filterDropdown"><li><a class="dropdown-item filter-option" href="#" data-filter="all"><i class="fas fa-globe me-2"></i>All Drivers</a></li><li><a class="dropdown-item filter-option" href="#" data-filter="on-time"><i class="fas fa-check-circle me-2 text-success"></i>On Time</a></li><li><a class="dropdown-item filter-option" href="#" data-filter="late-start"><i class="fas fa-clock me-2 text-warning"></i>Late Start</a></li><li><a class="dropdown-item filter-option" href="#" data-filter="early-end"><i class="fas fa-sign-out-alt me-2 text-primary"></i>Early End</a></li><li><a class="dropdown-item filter-option" href="#" data-filter="not-on-job"><i class="fas fa-exclamation-triangle me-2 text-danger"></i>Not On Job</a></li></ul></div></div></div><div class="card-body p-0"><div class="table-responsive"><table class="table table-dark mb-0"><thead class="table-header-bg"><tr><th scope="col" style="width: 30%;">Driver</th><th scope="col" style="width: 15%;">Start</th><th scope="col" style="width: 15%;">End</th><th scope="col" style="width: 20%;">Job Site</th><th scope="col" style="width: 20%;">Status</th></tr></thead><tbody>
+{% if report_data and report_data.drivers %}
+{% for driver in report_data.drivers %}
+<tr class="driver-row" data-status="{{ driver.status|lower|replace(' ', '-') }}"><td><div class="d-flex align-items-center"><div class="status-badge status-{{ driver.status|lower|replace(' ', '-') }}"></div><div><div class="fw-bold">{{ driver.name }}</div><small class="text-muted">{{ driver.asset_id }}</small></div></div></td><td><span class="badge bg-dark text-light time-badge">{{ driver.start_time or 'N/A' }}</span></td><td><span class="badge bg-dark text-light time-badge">{{ driver.end_time or 'N/A' }}</span></td><td><div class="text-truncate" style="max-width: 200px;" title="{{ driver.job_site }}">{{ driver.job_site or 'Unknown' }}</div></td><td>
+{% if driver.status == 'On Time' %}
+<span class="badge bg-success badge-status">On Time</span>
+{% elif driver.status == 'Late Start' %}
+<span class="badge bg-warning badge-status">Late Start</span>
+{% elif driver.status == 'Early End' %}
+<span class="badge bg-primary badge-status">Early End</span>
+{% elif driver.status == 'Not On Job' %}
+<span class="badge bg-danger badge-status">Not On Job</span>
+{% else %}
+<span class="badge bg-secondary badge-status">Unknown</span>
+{% endif %}
+</td></tr>
+{% endfor %}
+{% else %}
+<tr><td colspan="5" class="text-center py-4"><i class="fas fa-info-circle me-2"></i> No driver data available for this date
+</td></tr>
+{% endif %}
+</tbody></table></div></div></div></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+// Filter functionality
+$('.filter-option').click(function(e) {
+e.preventDefault();
+const filter = $(this).data('filter');
+
+// Update dropdown button text
+$('#filterDropdown').html('<i class="fas fa-filter me-1"></i> ' + $(this).text());
+
+// Show/hide rows based on filter
+if (filter === 'all') {
+$('.driver-row').show();
+} else {
+$('.driver-row').hide();
+$('.driver-row[data-status="' + filter + '"]').show();
+}
+});
+});
+</script>
+{% endblock %}

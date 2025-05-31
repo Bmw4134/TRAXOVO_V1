@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}Auto-Detect PM Allocation Files - TRAXORA{% endblock %}
+
+{% block extra_css %}
+<style>
+.summary-card {
+margin-bottom: 20px;
+}
+.summary-value {
+font-weight: bold;
+font-size: 1.2em;
+}
+.positive-change {
+color: green;
+}
+.negative-change {
+color: red;
+}
+.recent-reports {
+max-height: 400px;
+overflow-y: auto;
+}
+.detected-file {
+background-color: rgba(25, 135, 84, 0.1);
+border-left: 4px solid #198754;
+padding: 10px 15px;
+margin-bottom: 10px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4"><h1 class="mb-4">Auto-Detect PM Allocation Files</h1>
+
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category, message in messages %}
+<div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show" role="alert">
+{{ message }}
+<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+
+{% if error %}
+<div class="alert alert-danger" role="alert"><h4 class="alert-heading">Error!</h4><p>{{ error }}</p><hr><p class="mb-0">Please try manual upload instead.</p></div>
+{% endif %}
+
+
+{% if summary %}
+<div class="card summary-card"><div class="card-header bg-primary text-white"><h4 class="mb-0">Processing Summary</h4></div><div class="card-body"><div class="row mb-3"><div class="col-md-6"><h5>Original File</h5><div class="detected-file">{{ summary.original_file }}</div></div><div class="col-md-6"><h5>Updated File</h5><div class="detected-file">{{ summary.updated_file }}</div></div></div><div class="row"><div class="col-md-4"><h5>Original Total</h5><p class="summary-value">{{ summary.total_original }}</p></div><div class="col-md-4"><h5>Updated Total</h5><p class="summary-value">{{ summary.total_updated }}</p></div><div class="col-md-4"><h5>Difference</h5><p class="summary-value {% if summary.total_difference.startswith('$-') %}negative-change{% else %}positive-change{% endif %}">
+{{ summary.total_difference }}
+</p></div></div><div class="row mt-3"><div class="col-md-3"><h5>Changed Records</h5><p class="summary-value">{{ summary.total_changed_records }}</p></div><div class="col-md-3"><h5>Additions</h5><p class="summary-value positive-change">{{ summary.additions }}</p></div><div class="col-md-3"><h5>Deletions</h5><p class="summary-value negative-change">{{ summary.deletions }}</p></div><div class="col-md-3"><h5>Modifications</h5><p class="summary-value">{{ summary.modifications }}</p></div></div></div></div>
+{% endif %}
+
+<div class="row"><div class="col-md-6"><div class="card"><div class="card-header bg-primary text-white"><h4 class="mb-0">Auto-Detection</h4></div><div class="card-body">
+{% if not summary and not error %}
+<div class="text-center py-4"><div class="spinner-border text-primary mb-3" role="status"><span class="visually-hidden">Loading...</span></div><h5>Searching for allocation files...</h5><p>This may take a moment as we scan the attached_assets directory.</p></div>
+{% else %}
+<div class="d-grid gap-2"><a href="{{ url_for('auto_process_pm_allocation') }}" class="btn btn-primary"><i class="bi bi-arrow-repeat me-2"></i>Run Again
+</a><a href="{{ url_for('pm_allocation_processor') }}" class="btn btn-outline-secondary"><i class="bi bi-upload me-2"></i>Manual Upload
+</a></div>
+{% endif %}
+</div></div></div><div class="col-md-6"><div class="card"><div class="card-header bg-primary text-white"><h4 class="mb-0">Recent Reports</h4></div><div class="card-body recent-reports">
+{% if recent_reports %}
+<div class="list-group">
+{% for report in recent_reports %}
+<a href="{{ url_for('view_pm_report', filename=report.name) }}" class="list-group-item list-group-item-action"><div class="d-flex w-100 justify-content-between"><h5 class="mb-1">{{ report.name }}</h5><small>{{ report.size | round(1) }} KB</small></div><p class="mb-1">Generated: {{ report.date }}</p><div class="mt-2"><a href="{{ url_for('download_pm_report', filename=report.name) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-download"></i> Download
+</a></div></a>
+{% endfor %}
+</div>
+{% else %}
+<p>No reports generated yet.</p>
+{% endif %}
+</div></div></div></div></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+// Auto-dismiss alerts after 5 seconds
+setTimeout(function() {
+var alerts = document.querySelectorAll('.alert');
+alerts.forEach(function(alert) {
+var bsAlert = new bootstrap.Alert(alert);
+bsAlert.close();
+});
+}, 5000);
+
+// Auto-refresh if spinner is showing (indicating first load)
+var spinner = document.querySelector('.spinner-border');
+if (spinner) {
+setTimeout(function() {
+window.location.reload();
+}, 2000);
+}
+});
+</script>
+{% endblock %}

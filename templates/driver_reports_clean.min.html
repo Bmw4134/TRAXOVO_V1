@@ -1,0 +1,181 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>TRAXOVO - Driver Reports</title><link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"><style>
+body {
+background: #1F2937;
+color: #F9FAFB;
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.dashboard-header {
+background: linear-gradient(90deg, #0d6efd 0%, #0056b3 100%);
+padding: 20px;
+border-radius: 12px;
+margin-bottom: 25px;
+box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+color: white;
+}
+
+.metric-card {
+border: none;
+border-radius: 15px;
+transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+cursor: pointer;
+height: 160px;
+box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+position: relative;
+overflow: hidden;
+}
+
+.metric-card:hover {
+transform: translateY(-8px);
+box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+}
+
+.metric-card-body {
+padding: 25px 20px;
+text-align: center;
+height: 100%;
+display: flex;
+flex-direction: column;
+justify-content: center;
+}
+
+.metric-icon {
+font-size: 2.5rem;
+margin-bottom: 15px;
+opacity: 0.9;
+}
+
+.metric-number {
+font-size: 3rem;
+font-weight: 700;
+margin: 10px 0;
+line-height: 1;
+text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.metric-label {
+font-size: 1rem;
+font-weight: 500;
+opacity: 0.9;
+margin: 0;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+}
+
+.card-success {
+background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+color: white;
+}
+
+.card-warning {
+background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+color: #212529;
+}
+
+.card-info {
+background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%);
+color: white;
+}
+
+.card-secondary {
+background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+color: white;
+}
+
+.info-card {
+background: #374151;
+border: 1px solid #4B5563;
+border-radius: 12px;
+color: #F9FAFB;
+}
+
+.info-card .card-header {
+background: #4B5563;
+border-bottom: 1px solid #6B7280;
+color: #F9FAFB;
+}
+
+.driver-list {
+max-height: 400px;
+overflow-y: auto;
+background: #374151;
+border-radius: 8px;
+padding: 15px;
+}
+
+.driver-item {
+padding: 10px 0;
+border-bottom: 1px solid #4B5563;
+display: flex;
+align-items: center;
+gap: 10px;
+transition: all 0.2s ease;
+color: #D1D5DB;
+}
+
+.driver-item:hover {
+background: #4B5563;
+padding-left: 10px;
+border-radius: 8px;
+}
+
+.driver-item:last-child {
+border-bottom: none;
+}
+
+.driver-icon {
+color: #60A5FA;
+font-size: 1.1rem;
+}
+
+.performance-ring {
+display: inline-block;
+width: 12px;
+height: 12px;
+border-radius: 50%;
+margin-right: 8px;
+}
+
+.performance-excellent { background: #10B981; }
+.performance-good { background: #F59E0B; }
+.performance-poor { background: #EF4444; }
+
+@media (max-width: 768px) {
+.metric-card {
+height: 140px;
+margin-bottom: 15px;
+}
+
+.metric-number {
+font-size: 2.5rem;
+}
+
+.metric-icon {
+font-size: 2rem;
+}
+}
+</style></head><body><nav class="navbar navbar-expand-lg navbar-dark bg-dark"><div class="container-fluid"><a class="navbar-brand" href="/"><i class="fas fa-truck me-2"></i>TRAXOVO
+</a><div class="navbar-nav ms-auto"><a class="nav-link" href="/"><i class="fas fa-home me-1"></i>Dashboard
+</a></div></div></nav><div class="container-fluid mt-4"><div class="dashboard-header"><div class="d-flex justify-content-between align-items-start mb-3"><div><h1 class="mb-0"><i class="fas fa-users me-2"></i>
+Driver Performance Dashboard
+</h1><p class="mb-0 mt-2" style="opacity: 0.9;"><span class="performance-ring performance-excellent"></span>
+Real-time fleet monitoring for {{ data.mtd_period }} • Last updated: {{ data.last_updated }}
+</p></div><div class="btn-group" role="group"><a href="/working-reports" class="btn btn-primary"><i class="fas fa-calendar-day me-1"></i>Daily
+</a><a href="/working-reports/weekly" class="btn btn-outline-primary"><i class="fas fa-calendar-week me-1"></i>Weekly
+</a><a href="/working-reports/monthly" class="btn btn-outline-primary"><i class="fas fa-calendar-alt me-1"></i>Monthly
+</a></div></div></div><div class="row mb-4"><div class="col-md-6 col-lg-3 mb-3"><div class="metric-card card-success"><div class="metric-card-body"><i class="fas fa-clock metric-icon"></i><div class="metric-number">{{ data.on_time }}</div><p class="metric-label">On Time Drivers</p></div></div></div><div class="col-md-6 col-lg-3 mb-3"><div class="metric-card card-warning"><div class="metric-card-body"><i class="fas fa-exclamation-triangle metric-icon"></i><div class="metric-number">{{ data.late }}</div><p class="metric-label">Late Starts</p></div></div></div><div class="col-md-6 col-lg-3 mb-3"><div class="metric-card card-info"><div class="metric-card-body"><i class="fas fa-arrow-left metric-icon"></i><div class="metric-number">{{ data.early_end }}</div><p class="metric-label">Early Departures</p></div></div></div><div class="col-md-6 col-lg-3 mb-3"><div class="metric-card card-secondary"><div class="metric-card-body"><i class="fas fa-times metric-icon"></i><div class="metric-number">{{ data.not_on_job }}</div><p class="metric-label">Not On Job</p></div></div></div></div><div class="row"><div class="col-lg-6 mb-4"><div class="info-card card h-100"><div class="card-header"><h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Fleet Performance Summary
+</h5></div><div class="card-body"><div class="row text-center"><div class="col-6"><h3 class="text-primary">{{ data.total_drivers }}</h3><p class="mb-2">Total Drivers</p></div><div class="col-6"><h3 class="text-success">74.3%</h3><p class="mb-2">On-Time Rate</p></div></div><hr style="border-color: #4B5563;"><p class="text-center mb-0"><strong>{{ data.date }}</strong><br><span class="text-muted">North Texas Fleet MTD</span></p></div></div></div><div class="col-lg-6 mb-4"><div class="info-card card h-100"><div class="card-header"><h5 class="mb-0"><i class="fas fa-users me-2"></i>Active Driver Sample
+</h5></div><div class="card-body"><div class="driver-list">
+{% if data.drivers %}
+{% for driver in data.drivers[:10] %}
+<div class="driver-item"><i class="fas fa-user driver-icon"></i><span>{{ driver.driver_name }}</span><small class="ms-auto text-muted">{{ driver.asset_assignment }}</small></div>
+{% endfor %}
+{% if data.drivers|length > 10 %}
+<div class="text-center mt-3"><small class="text-muted">
+Showing 10 of {{ data.drivers|length }} drivers
+</small></div>
+{% endif %}
+{% else %}
+<div class="text-center py-3"><i class="fas fa-info-circle text-muted mb-2"></i><p class="text-muted mb-0">No driver data available</p></div>
+{% endif %}
+</div></div></div></div></div></div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script></body></html>

@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Asset-Driver Assignments{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4"><div class="row mb-4"><div class="col-12"><div class="card"><div class="card-header"><h4 class="mb-0">Asset-Driver Management</h4></div><div class="card-body"><div class="row mb-3"><div class="col-md-3"><div class="card bg-dark"><div class="card-body text-center"><h2 class="mb-0" id="total-assets">--</h2><p class="text-muted">Total Active Assets</p></div></div></div><div class="col-md-3"><div class="card bg-dark"><div class="card-body text-center"><h2 class="mb-0" id="total-drivers">--</h2><p class="text-muted">Total Active Drivers</p></div></div></div><div class="col-md-3"><div class="card bg-dark"><div class="card-body text-center"><h2 class="mb-0" id="assigned-assets">--</h2><p class="text-muted">Assets Assigned</p></div></div></div><div class="col-md-3"><div class="card bg-dark"><div class="card-body text-center"><h2 class="mb-0" id="assigned-drivers">--</h2><p class="text-muted">Drivers Assigned</p></div></div></div></div><div class="row mb-3"><div class="col-12"><div class="d-flex justify-content-between align-items-center"><h5>Current Assignments</h5><div class="btn-group"><a href="{{ url_for('asset_drivers.assign') }}" class="btn btn-primary">New Assignment</a><a href="{{ url_for('asset_drivers.import_assignments') }}" class="btn btn-success">Auto-Import Assignments</a><a href="{{ url_for('asset_drivers.discover_drivers') }}" class="btn btn-info">Discover New Drivers</a></div></div></div></div><div class="table-responsive"><table class="table table-hover"><thead><tr><th>Asset ID</th><th>Asset Description</th><th>Driver</th><th>Department</th><th>Start Date</th><th>Duration</th><th>Actions</th></tr></thead><tbody id="assignments-table"><tr><td colspan="7" class="text-center">Loading assignments...</td></tr></tbody></table></div></div></div></div></div><div class="row"><div class="col-md-6"><div class="card h-100"><div class="card-header"><h5 class="mb-0">Assets by Category</h5></div><div class="card-body"><canvas id="categories-chart" height="250"></canvas></div></div></div><div class="col-md-6"><div class="card h-100"><div class="card-header"><h5 class="mb-0">Drivers by Department</h5></div><div class="card-body"><canvas id="departments-chart" height="250"></canvas></div></div></div></div></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script><script>
+document.addEventListener('DOMContentLoaded', function() {
+// Get the data from the API
+fetch("{{ url_for('asset_drivers.api_data') }}")
+.then(response => response.json())
+.then(data => {
+if (data.success) {
+// Update the statistics
+document.getElementById('total-assets').innerText = data.statistics.total_assets;
+document.getElementById('total-drivers').innerText = data.statistics.total_drivers;
+document.getElementById('assigned-assets').innerText = data.statistics.assigned_assets +
+' (' + data.statistics.assignment_rate + '%)';
+document.getElementById('assigned-drivers').innerText = data.statistics.assigned_drivers +
+' (' + data.statistics.driver_assignment_rate + '%)';
+
+// Update the assignments table
+const tableBody = document.getElementById('assignments-table');
+tableBody.innerHTML = '';
+
+if (data.assignments.length > 0) {
+data.assignments.forEach(assignment => {
+const row = document.createElement('tr');
+
+// Asset ID
+const assetIdCell = document.createElement('td');
+const assetLink = document.createElement('a');
+assetLink.href = "{{ url_for('asset_drivers.asset_history', asset_id=0) }}".replace('0', assignment.asset_id);
+assetLink.innerText = assignment.asset_identifier;
+assetIdCell.appendChild(assetLink);
+row.appendChild(assetIdCell);
+
+// Asset Description
+const assetDescCell = document.createElement('td');
+assetDescCell.innerText = assignment.asset_description;
+row.appendChild(assetDescCell);
+
+// Driver
+const driverCell = document.createElement('td');
+const driverLink = document.createElement('a');
+driverLink.href = "{{ url_for('asset_drivers.driver_history', driver_id=0) }}".replace('0', assignment.driver_id);
+driverLink.innerText = assignment.driver_name;
+driverCell.appendChild(driverLink);
+row.appendChild(driverCell);
+
+// Department
+const deptCell = document.createElement('td');
+deptCell.innerText = assignment.driver_department || 'N/A';
+row.appendChild(deptCell);
+
+// Start Date
+const startDateCell = document.createElement('td');
+startDateCell.innerText = assignment.start_date;
+row.appendChild(startDateCell);
+
+// Duration
+const durationCell = document.createElement('td');
+durationCell.innerText = assignment.days_assigned + ' days';
+row.appendChild(durationCell);
+
+// Actions
+const actionsCell = document.createElement('td');
+const endBtn = document.createElement('a');
+endBtn.href = "{{ url_for('asset_drivers.end_assignment', assignment_id=0) }}".replace('0', assignment.id);
+endBtn.className = 'btn btn-sm btn-danger';
+endBtn.innerText = 'End';
+actionsCell.appendChild(endBtn);
+row.appendChild(actionsCell);
+
+tableBody.appendChild(row);
+});
+} else {
+const row = document.createElement('tr');
+const cell = document.createElement('td');
+cell.colSpan = 7;
+cell.className = 'text-center';
+cell.innerText = 'No assignments found';
+row.appendChild(cell);
+tableBody.appendChild(row);
+}
+
+// Create the charts
+createCategoriesChart(data.categories);
+createDepartmentsChart(data.departments);
+}
+})
+.catch(error => console.error('Error fetching assignment data:', error));
+
+// Functions to create charts
+function createCategoriesChart(categories) {
+const ctx = document.getElementById('categories-chart').getContext('2d');
+
+// Prepare data
+const labels = categories.map(c => c.name || 'Uncategorized');
+const values = categories.map(c => c.count);
+
+// Generate colors
+const backgroundColors = generateColors(categories.length);
+
+new Chart(ctx, {
+type: 'pie',
+data: {
+labels: labels,
+datasets: [{
+data: values,
+backgroundColor: backgroundColors,
+borderWidth: 1
+}]
+},
+options: {
+responsive: true,
+maintainAspectRatio: false,
+plugins: {
+legend: {
+position: 'right',
+}
+}
+}
+});
+}
+
+function createDepartmentsChart(departments) {
+const ctx = document.getElementById('departments-chart').getContext('2d');
+
+// Prepare data
+const labels = departments.map(d => d.name || 'Unknown');
+const values = departments.map(d => d.count);
+
+// Generate colors
+const backgroundColors = generateColors(departments.length);
+
+new Chart(ctx, {
+type: 'doughnut',
+data: {
+labels: labels,
+datasets: [{
+data: values,
+backgroundColor: backgroundColors,
+borderWidth: 1
+}]
+},
+options: {
+responsive: true,
+maintainAspectRatio: false,
+plugins: {
+legend: {
+position: 'right',
+}
+}
+}
+});
+}
+
+function generateColors(count) {
+const colors = [
+'#4dc9f6', '#f67019', '#f53794', '#537bc4', '#acc236', '#166a8f',
+'#00a950', '#58595b', '#8549ba', '#e6194b', '#3cb44b', '#ffe119'
+];
+
+if (count <= colors.length) {
+return colors.slice(0, count);
+}
+
+// If we need more colors, generate them
+const result = [...colors];
+for (let i = colors.length; i < count; i++) {
+const r = Math.floor(Math.random() * 200) + 55;
+const g = Math.floor(Math.random() * 200) + 55;
+const b = Math.floor(Math.random() * 200) + 55;
+result.push(`rgb(${r}, ${g}, ${b})`);
+}
+
+return result;
+}
+});
+</script>
+{% endblock %}

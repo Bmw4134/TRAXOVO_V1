@@ -1,0 +1,113 @@
+{% extends "layout_unified.html" %}
+
+{% block title %}Automated Daily Attendance Reports{% endblock %}
+
+{% block content %}
+<div class="container mt-4"><div class="row mb-4"><div class="col-12"><div class="card shadow-sm"><div class="card-header bg-primary text-white"><h4 class="mb-0">Daily Driver Attendance Reports</h4></div><div class="card-body"><p class="lead">
+View automatically generated daily driver attendance reports.
+These reports are processed each day without manual intervention.
+</p><div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>
+Reports are classified using the following rules:
+<ul class="mb-0 mt-2"><li><strong>Late Start:</strong> Driver started after 7:30 AM</li><li><strong>Early End:</strong> Driver ended before 4:00 PM</li><li><strong>Not On Job:</strong> Driver was not detected at the job site</li></ul></div></div></div></div></div><div class="row mb-4"><div class="col-md-3"><div class="card shadow-sm text-center bg-light mb-3"><div class="card-body"><h5 class="card-title text-primary">On Time</h5><h2 class="display-4">{{ summary.on_time }}</h2></div></div></div><div class="col-md-3"><div class="card shadow-sm text-center bg-light mb-3"><div class="card-body"><h5 class="card-title text-warning">Late Start</h5><h2 class="display-4">{{ summary.late }}</h2></div></div></div><div class="col-md-3"><div class="card shadow-sm text-center bg-light mb-3"><div class="card-body"><h5 class="card-title text-info">Early End</h5><h2 class="display-4">{{ summary.early_end }}</h2></div></div></div><div class="col-md-3"><div class="card shadow-sm text-center bg-light mb-3"><div class="card-body"><h5 class="card-title text-danger">Not On Job</h5><h2 class="display-4">{{ summary.not_on_job }}</h2></div></div></div></div><div class="row"><div class="col-12"><div class="card shadow-sm"><div class="card-header bg-primary text-white d-flex justify-content-between align-items-center"><h5 class="mb-0">Available Reports</h5><div><a href="{{ url_for('auto_attendance.generate_report', date=selected_date) }}" class="btn btn-sm btn-light"><i class="fas fa-sync-alt me-1"></i> Regenerate
+</a></div></div><div class="card-body"><div class="row mb-3"><div class="col-md-6"><form method="GET" action="{{ url_for('auto_attendance.index') }}" class="d-flex"><select name="date" class="form-select me-2" id="dateSelector">
+{% for date in available_dates %}
+<option value="{{ date }}" {% if date == selected_date %}selected{% endif %}>{{ date }}</option>
+{% endfor %}
+</select><button type="submit" class="btn btn-primary">View</button></form></div></div><div class="table-responsive"><table class="table table-hover table-bordered"><thead class="table-light"><tr><th>Driver</th><th>Job Site</th><th>Start Time</th><th>End Time</th><th>Status</th><th>Contact Info</th><th>Details</th></tr></thead><tbody>
+{% for driver in drivers %}
+<tr class="
+{% if driver.classification == 'on_time' %}table-success{% endif %}
+{% if driver.classification == 'late' %}table-warning{% endif %}
+{% if driver.classification == 'early_end' %}table-info{% endif %}
+{% if driver.classification == 'not_on_job' %}table-danger{% endif %}
+"><td>{{ driver.driver_name|title }}</td><td>{{ driver.job_site }}</td><td>{{ driver.start_time }}</td><td>{{ driver.end_time }}</td><td>
+{% if driver.classification == 'on_time' %}
+<span class="badge bg-success">On Time</span>
+{% elif driver.classification == 'late' %}
+<span class="badge bg-warning text-dark">Late Start</span>
+{% elif driver.classification == 'early_end' %}
+<span class="badge bg-info text-dark">Early End</span>
+{% elif driver.classification == 'not_on_job' %}
+<span class="badge bg-danger">Not On Job</span>
+{% else %}
+<span class="badge bg-secondary">Unknown</span>
+{% endif %}
+</td><td>
+{% if driver.contact or driver.phone or driver.email %}
+<div class="contact-info">
+{% if driver.phone %}
+<div><i class="fas fa-phone me-1"></i> {{ driver.phone }}</div>
+{% endif %}
+{% if driver.email %}
+<div><i class="fas fa-envelope me-1"></i> {{ driver.email }}</div>
+{% endif %}
+</div>
+{% else %}
+<span class="text-muted">No contact info</span>
+{% endif %}
+</td><td>{{ driver.reason or "" }}</td></tr>
+{% endfor %}
+</tbody></table></div></div></div></div></div></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+// Enable DataTables for better table functionality with responsive features
+$('table').DataTable({
+"pageLength": 25,
+"order": [[4, "asc"]], // Sort by status column
+"language": {
+"search": "Filter Drivers:",
+"lengthMenu": "Show _MENU_ drivers per page",
+"info": "Showing _START_ to _END_ of _TOTAL_ drivers"
+},
+"responsive": true,
+"autoWidth": false,
+"columnDefs": [
+{ "responsivePriority": 1, "targets": [0, 4] }, // Driver name and status are highest priority
+{ "responsivePriority": 2, "targets": [1, 2, 3] }, // Job site and times are medium priority
+{ "responsivePriority": 3, "targets": [5, 6] } // Contact info and details are lowest priority
+]
+});
+
+// Add swipe functionality for mobile
+$('.card').on('touchstart', function(e) {
+$(this).addClass('touch-focus');
+});
+
+// Add tap to expand for mobile details
+$('.contact-info').on('click', function() {
+$(this).toggleClass('expanded');
+});
+});
+</script><style>
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+.card {
+margin-bottom: 1rem;
+}
+.contact-info {
+max-height: 1.5em;
+overflow: hidden;
+transition: max-height 0.3s ease;
+}
+.contact-info.expanded {
+max-height: 5em;
+}
+/* Improve touch targets for mobile */
+.btn, .nav-link, .dropdown-item {
+padding: 0.5rem 0.75rem;
+}
+/* Optimize table display for small screens */
+.table th, .table td {
+padding: 0.5rem;
+}
+.badge {
+display: inline-block;
+white-space: normal;
+text-align: center;
+}
+}
+</style>
+{% endblock %}

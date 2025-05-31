@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Foundation Exports Results - TRAXORA{% endblock %}
+
+{% block content %}
+<div class="container py-4"><div class="row mb-4"><div class="col-12"><div class="section-header"><h2><i class="bi bi-check2-circle me-2"></i>Foundation Exports Results</h2><div class="section-actions"><a href="{{ url_for('foundation.index') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i> Back to Exports
+</a></div></div></div></div><div class="row mb-4"><div class="col-12"><div class="card shadow"><div class="card-header bg-success text-white"><h5 class="mb-0"><i class="bi bi-check-circle me-2"></i>Export Complete</h5></div><div class="card-body"><div class="alert alert-success mb-4"><i class="bi bi-check-circle-fill me-2"></i><span>Foundation exports have been generated successfully!</span></div><div class="row mb-4"><div class="col-md-6"><h6 class="fw-bold">Export Details:</h6><ul class="list-group list-group-flush"><li class="list-group-item d-flex justify-content-between align-items-center border-0 ps-0">
+Source File:
+<span class="badge bg-primary rounded-pill">{{ result.source_file }}</span></li><li class="list-group-item d-flex justify-content-between align-items-center border-0 ps-0">
+Billing Period:
+<span class="badge bg-primary rounded-pill">{{ result.month_year }}</span></li><li class="list-group-item d-flex justify-content-between align-items-center border-0 ps-0">
+Export Format:
+<span class="badge bg-primary rounded-pill">{{ result.format|capitalize }}</span></li><li class="list-group-item d-flex justify-content-between align-items-center border-0 ps-0">
+Timestamp:
+<span class="badge bg-secondary rounded-pill">{{ result.timestamp }}</span></li></ul></div><div class="col-md-6"><h6 class="fw-bold">Generated Files:</h6><ul class="list-group">
+{% for export_file in result.export_files %}
+<li class="list-group-item"><i class="bi bi-file-earmark-excel me-2 text-success"></i>
+{{ export_file.split('/')[-1] }}
+</li>
+{% endfor %}
+</ul></div></div><div class="d-grid gap-2 col-md-6 mx-auto"><a href="{{ url_for('foundation.download_file', filename=result.zip_filename) }}" class="btn btn-primary btn-lg"><i class="bi bi-cloud-download me-2"></i> Download All Files
+</a><a href="{{ url_for('foundation.index') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i> Back to Exports
+</a></div></div></div></div></div><div class="row"><div class="col-12"><div class="card shadow"><div class="card-header bg-info text-white"><h5 class="mb-0"><i class="bi bi-signpost-2 me-2"></i>Next Steps</h5></div><div class="card-body"><div class="row"><div class="col-md-4"><div class="text-center mb-3"><i class="bi bi-1-circle-fill text-primary" style="font-size: 2rem;"></i><h5 class="mt-2">Extract Files</h5><p class="text-muted">Unzip the downloaded file to access all regional Foundation imports.</p></div></div><div class="col-md-4"><div class="text-center mb-3"><i class="bi bi-2-circle-fill text-primary" style="font-size: 2rem;"></i><h5 class="mt-2">Import to Foundation</h5><p class="text-muted">Use each regional file to import equipment billing data into Foundation.</p></div></div><div class="col-md-4"><div class="text-center mb-3"><i class="bi bi-3-circle-fill text-primary" style="font-size: 2rem;"></i><h5 class="mt-2">Review Master</h5><p class="text-muted">Use the EQ Billings Master file to verify totals and summaries.</p></div></div></div></div></div></div></div></div>
+{% endblock %}

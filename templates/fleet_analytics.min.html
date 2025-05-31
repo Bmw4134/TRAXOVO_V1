@@ -1,0 +1,281 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Fleet Analytics Intelligence - TRAXOVO</title><style>
+body {
+font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+color: #fff;
+margin: 0;
+padding: 20px;
+}
+.container { max-width: 1600px; margin: 0 auto; }
+.header {
+text-align: center;
+margin-bottom: 40px;
+opacity: 0;
+animation: fadeInUp 0.8s ease forwards;
+}
+.nav-back {
+background: rgba(0, 122, 255, 0.1);
+border: 1px solid rgba(0, 122, 255, 0.3);
+color: #007AFF;
+padding: 8px 16px;
+border-radius: 8px;
+text-decoration: none;
+display: inline-block;
+margin-bottom: 20px;
+transition: all 0.3s ease;
+}
+.nav-back:hover {
+background: rgba(0, 122, 255, 0.2);
+transform: translateX(-5px);
+}
+
+/* Analytics Control Panel */
+.control-panel {
+background: rgba(255, 255, 255, 0.05);
+border: 1px solid rgba(255, 255, 255, 0.1);
+border-radius: 20px;
+padding: 30px;
+margin-bottom: 30px;
+text-align: center;
+}
+.run-analytics-btn {
+background: linear-gradient(135deg, #007AFF 0%, #00D2FF 100%);
+color: white;
+border: none;
+padding: 16px 32px;
+border-radius: 12px;
+font-size: 16px;
+font-weight: 600;
+cursor: pointer;
+transition: all 0.3s ease;
+}
+.run-analytics-btn:hover {
+transform: translateY(-2px);
+box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3);
+}
+
+/* Analytics Modules Grid */
+.analytics-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+gap: 24px;
+margin-bottom: 40px;
+}
+.analytics-module {
+background: rgba(255, 255, 255, 0.05);
+border: 1px solid rgba(255, 255, 255, 0.1);
+border-radius: 16px;
+padding: 24px;
+transition: all 0.3s ease;
+opacity: 0;
+transform: translateY(20px);
+animation: slideInUp 0.6s ease forwards;
+}
+.analytics-module:nth-child(1) { animation-delay: 0.1s; }
+.analytics-module:nth-child(2) { animation-delay: 0.2s; }
+.analytics-module:nth-child(3) { animation-delay: 0.3s; }
+.analytics-module:nth-child(4) { animation-delay: 0.4s; }
+.analytics-module:nth-child(5) { animation-delay: 0.5s; }
+.analytics-module:nth-child(6) { animation-delay: 0.6s; }
+
+.analytics-module:hover {
+background: rgba(255, 255, 255, 0.08);
+transform: translateY(-4px);
+border-color: rgba(0, 122, 255, 0.3);
+}
+.module-icon {
+font-size: 32px;
+margin-bottom: 16px;
+color: #007AFF;
+}
+.module-title {
+font-size: 18px;
+font-weight: 700;
+margin-bottom: 8px;
+}
+.module-description {
+color: rgba(255, 255, 255, 0.7);
+font-size: 14px;
+margin-bottom: 16px;
+}
+.module-status {
+font-size: 12px;
+padding: 4px 12px;
+border-radius: 20px;
+font-weight: 600;
+text-transform: uppercase;
+}
+.status-ready { background: rgba(52, 199, 89, 0.2); color: #34C759; }
+.status-pending { background: rgba(255, 149, 0, 0.2); color: #FF9500; }
+
+/* Live Results Section */
+.results-section {
+background: rgba(255, 255, 255, 0.05);
+border: 1px solid rgba(255, 255, 255, 0.1);
+border-radius: 16px;
+padding: 30px;
+margin-top: 30px;
+display: none;
+}
+.results-section.active {
+display: block;
+animation: fadeInUp 0.5s ease;
+}
+.results-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 20px;
+}
+.results-title {
+font-size: 20px;
+font-weight: 700;
+}
+.status-indicator {
+background: rgba(52, 199, 89, 0.2);
+color: #34C759;
+padding: 4px 12px;
+border-radius: 20px;
+font-size: 12px;
+font-weight: 600;
+}
+.insights-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+gap: 16px;
+}
+.insight-card {
+background: rgba(255, 255, 255, 0.03);
+padding: 16px;
+border-radius: 12px;
+border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.insight-label {
+font-size: 12px;
+color: rgba(255, 255, 255, 0.6);
+text-transform: uppercase;
+margin-bottom: 4px;
+}
+.insight-value {
+font-size: 16px;
+font-weight: 600;
+color: #fff;
+}
+
+/* Processing Animation */
+.processing {
+text-align: center;
+padding: 40px;
+display: none;
+}
+.processing.active { display: block; }
+.spinner {
+width: 40px;
+height: 40px;
+border: 3px solid rgba(0, 122, 255, 0.2);
+border-top: 3px solid #007AFF;
+border-radius: 50%;
+animation: spin 1s linear infinite;
+margin: 0 auto 16px;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+from { opacity: 0; transform: translateY(30px); }
+to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideInUp {
+from { opacity: 0; transform: translateY(20px); }
+to { opacity: 1; transform: translateY(0); }
+}
+@keyframes spin {
+0% { transform: rotate(0deg); }
+100% { transform: rotate(360deg); }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+.analytics-grid {
+grid-template-columns: 1fr;
+gap: 16px;
+}
+.insights-grid {
+grid-template-columns: 1fr;
+}
+}
+</style></head><body><div class="container"><a href="/dashboard" class="nav-back">← Back to Dashboard</a><div class="header"><h1>Fleet Analytics Intelligence</h1><p>Comprehensive equipment performance analysis using authentic GAUGE data</p></div><div class="control-panel"><h3>Analytics Engine Control</h3><p>Execute comprehensive fleet analytics to generate actionable insights</p><button class="run-analytics-btn" onclick="runFleetAnalytics()">
+Run Fleet Analytics
+</button></div><div class="analytics-grid"><div class="analytics-module"><div class="module-icon">📊</div><div class="module-title">Utilization Analysis</div><div class="module-description">Equipment utilization patterns and optimization opportunities</div><div class="module-status status-ready">Ready</div></div><div class="analytics-module"><div class="module-icon">⚡</div><div class="module-title">Performance Tracking</div><div class="module-description">Real-time performance metrics and trend analysis</div><div class="module-status status-ready">Ready</div></div><div class="analytics-module"><div class="module-icon">🔧</div><div class="module-title">Maintenance Intelligence</div><div class="module-description">Predictive maintenance and cost optimization</div><div class="module-status status-ready">Ready</div></div><div class="analytics-module"><div class="module-icon">📍</div><div class="module-title">Location Analytics</div><div class="module-description">Job site efficiency and equipment deployment</div><div class="module-status status-ready">Ready</div></div><div class="analytics-module"><div class="module-icon">👥</div><div class="module-title">Driver Productivity</div><div class="module-description">Operator performance and training insights</div><div class="module-status status-pending">Requires GAUGE API</div></div><div class="analytics-module"><div class="module-icon">💰</div><div class="module-title">Cost Optimization</div><div class="module-description">Operating costs and revenue optimization</div><div class="module-status status-ready">Ready</div></div></div><div class="processing" id="processingIndicator"><div class="spinner"></div><div>Analyzing fleet data...</div></div><div class="results-section" id="resultsSection"><div class="results-header"><div class="results-title">Analytics Results</div><div class="status-indicator">Analysis Complete</div></div><div class="insights-grid" id="insightsGrid"></div></div></div><script>
+function runFleetAnalytics() {
+// Show processing indicator
+document.getElementById('processingIndicator').classList.add('active');
+document.getElementById('resultsSection').classList.remove('active');
+
+// Call analytics API
+fetch('/api/run-fleet-analytics', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json'
+}
+})
+.then(response => response.json())
+.then(data => {
+document.getElementById('processingIndicator').classList.remove('active');
+
+if (data.status === 'error') {
+alert('Analytics Error: ' + data.message);
+} else {
+displayAnalyticsResults(data);
+}
+})
+.catch(error => {
+document.getElementById('processingIndicator').classList.remove('active');
+alert('Error running analytics: ' + error.message);
+});
+}
+
+function displayAnalyticsResults(data) {
+const insightsGrid = document.getElementById('insightsGrid');
+insightsGrid.innerHTML = '';
+
+// Display key insights
+if (data.key_insights) {
+data.key_insights.forEach(insight => {
+const card = document.createElement('div');
+card.className = 'insight-card';
+card.innerHTML = `
+<div class="insight-label">Key Insight</div><div class="insight-value">${insight}</div>
+`;
+insightsGrid.appendChild(card);
+});
+}
+
+// Display summary metrics
+const summaryCard = document.createElement('div');
+summaryCard.className = 'insight-card';
+summaryCard.innerHTML = `
+<div class="insight-label">Assets Analyzed</div><div class="insight-value">${data.total_assets_analyzed || 0}</div>
+`;
+insightsGrid.appendChild(summaryCard);
+
+const modulesCard = document.createElement('div');
+modulesCard.className = 'insight-card';
+modulesCard.innerHTML = `
+<div class="insight-label">Modules Executed</div><div class="insight-value">${data.analytics_modules_executed || 0}</div>
+`;
+insightsGrid.appendChild(modulesCard);
+
+document.getElementById('resultsSection').classList.add('active');
+}
+
+// Add hover effects to analytics modules
+document.querySelectorAll('.analytics-module').forEach(module => {
+module.addEventListener('mouseenter', () => {
+module.style.transform = 'translateY(-8px) scale(1.02)';
+});
+
+module.addEventListener('mouseleave', () => {
+module.style.transform = 'translateY(0) scale(1)';
+});
+});
+</script></body></html>

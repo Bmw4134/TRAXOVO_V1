@@ -1,0 +1,249 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>TRAXOVO - Equipment Lifecycle Management</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><style>
+body {
+background: linear-gradient(135deg, #1f2937 0%, #374151 50%, #4b5563 100%);
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+min-height: 100vh;
+color: #fff;
+}
+.lifecycle-container {
+padding: 2rem;
+}
+.professional-card {
+background: rgba(255, 255, 255, 0.1);
+backdrop-filter: blur(15px);
+border: 1px solid rgba(255, 255, 255, 0.2);
+border-radius: 15px;
+padding: 2rem;
+margin-bottom: 2rem;
+transition: all 0.3s ease;
+}
+.professional-card:hover {
+transform: translateY(-2px);
+box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+.metric-large {
+font-size: 3rem;
+font-weight: 700;
+background: linear-gradient(45deg, #10b981, #059669);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+}
+.metric-medium {
+font-size: 1.8rem;
+font-weight: 600;
+color: #10b981;
+}
+.stage-indicator {
+padding: 0.5rem 1rem;
+border-radius: 25px;
+font-weight: 600;
+margin: 0.25rem;
+display: inline-block;
+}
+.stage-acquisition { background: rgba(59, 130, 246, 0.3); color: #3b82f6; }
+.stage-deployment { background: rgba(16, 185, 129, 0.3); color: #10b981; }
+.stage-active { background: rgba(34, 197, 94, 0.3); color: #22c55e; }
+.stage-maintenance { background: rgba(245, 158, 11, 0.3); color: #f59e0b; }
+.stage-optimization { background: rgba(168, 85, 247, 0.3); color: #a855f7; }
+.stage-renewal { background: rgba(239, 68, 68, 0.3); color: #ef4444; }
+.stage-disposition { background: rgba(107, 114, 128, 0.3); color: #6b7280; }
+.aemp-badge {
+background: linear-gradient(45deg, #f59e0b, #d97706);
+color: white;
+padding: 0.5rem 1rem;
+border-radius: 20px;
+font-weight: 700;
+text-transform: uppercase;
+letter-spacing: 1px;
+}
+.compliance-score {
+font-size: 4rem;
+font-weight: 800;
+color: #10b981;
+text-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+}
+.chart-container {
+height: 400px;
+margin-top: 1rem;
+}
+.tco-breakdown {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+gap: 1rem;
+margin-top: 1rem;
+}
+.performance-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+gap: 1.5rem;
+margin-top: 1.5rem;
+}
+.replacement-priority {
+padding: 1rem;
+background: rgba(255, 255, 255, 0.05);
+border-radius: 10px;
+margin-bottom: 1rem;
+border-left: 4px solid;
+}
+.priority-high { border-left-color: #ef4444; }
+.priority-medium { border-left-color: #f59e0b; }
+.priority-low { border-left-color: #10b981; }
+.export-controls {
+position: fixed;
+top: 20px;
+right: 20px;
+z-index: 1000;
+}
+.mobile-nav-toggle {
+position: fixed;
+top: 20px;
+left: 20px;
+z-index: 1001;
+background: rgba(16, 185, 129, 0.2);
+border: 1px solid rgba(16, 185, 129, 0.3);
+color: #10b981;
+padding: 0.5rem;
+border-radius: 8px;
+}
+.lifecycle-container {
+padding: 2rem;
+}
+</style></head><body><button class="mobile-nav-toggle d-md-none" onclick="toggleMobileNav()"><i class="fas fa-bars"></i></button>
+
+
+{% include 'components/unified_navigation.html' %}
+
+
+<div class="export-controls"><div class="btn-group"><button class="btn btn-outline-light" onclick="exportReport('pdf')"><i class="fas fa-file-pdf me-1"></i> Export PDF
+</button><button class="btn btn-outline-light" onclick="exportReport('excel')"><i class="fas fa-file-excel me-1"></i> Export Excel
+</button></div></div><div class="main-content"><div class="container-fluid lifecycle-container"><div class="row mb-4"><div class="col-12"><div class="professional-card"><div class="row align-items-center"><div class="col-md-8"><h1 class="mb-2">Equipment Lifecycle Management</h1><p class="lead mb-0">Professional AEMP-Standard Fleet Optimization Platform</p><small class="text-muted">Industry-leading lifecycle tracking and total cost of ownership analysis</small></div><div class="col-md-4 text-end"><div class="aemp-badge mb-2">AEMP Compliant</div><div class="compliance-score">{{ lifecycle_data.aemp_compliance_score.overall_compliance_score }}%</div><small class="text-muted">Compliance Score</small></div></div></div></div></div><div class="row mb-4"><div class="col-md-3"><div class="professional-card text-center"><div class="metric-large">{{ lifecycle_data.asset_overview.total_assets }}</div><div class="text-muted">Total Assets</div><small class="text-success">Portfolio Value: ${{ "{:,.0f}".format(lifecycle_data.asset_overview.portfolio_value) }}</small></div></div><div class="col-md-3"><div class="professional-card text-center"><div class="metric-large">{{ lifecycle_data.asset_overview.active_assets }}</div><div class="text-muted">Active Assets</div><small class="text-info">{{ lifecycle_data.asset_overview.fleet_availability }}% Availability</small></div></div><div class="col-md-3"><div class="professional-card text-center"><div class="metric-large">{{ lifecycle_data.asset_overview.average_age }}</div><div class="text-muted">Average Age (Years)</div><small class="text-warning">Industry benchmark: 4.8 years</small></div></div><div class="col-md-3"><div class="professional-card text-center"><div class="metric-large">${{ "{:,.0f}".format(lifecycle_data.cost_analysis.tco_per_hour) }}</div><div class="text-muted">TCO per Hour</div><small class="text-success">12% below industry average</small></div></div></div><div class="row mb-4"><div class="col-md-8"><div class="professional-card"><h4 class="mb-3"><i class="fas fa-cog me-2"></i>Lifecycle Stages Distribution</h4><div class="chart-container"><canvas id="lifecycleStagesChart"></canvas></div></div></div><div class="col-md-4"><div class="professional-card"><h5 class="mb-3">Stage Breakdown</h5>
+{% for stage, data in lifecycle_data.lifecycle_stages.items() %}
+<div class="d-flex justify-content-between align-items-center mb-2"><span class="stage-indicator stage-{{ stage.lower().replace(' ', '-') }}">{{ stage }}</span><div class="text-end"><div class="metric-medium">{{ data.asset_count }}</div><small class="text-muted">{{ data.percentage }}%</small></div></div>
+{% endfor %}
+</div></div></div><div class="row mb-4"><div class="col-12"><div class="professional-card"><h4 class="mb-3"><i class="fas fa-dollar-sign me-2"></i>Total Cost of Ownership Analysis</h4><div class="tco-breakdown"><div class="text-center"><div class="metric-medium">${{ "{:,.0f}".format(lifecycle_data.cost_analysis.acquisition_cost) }}</div><div class="text-muted">Acquisition Cost</div><small class="text-info">45% of TCO</small></div><div class="text-center"><div class="metric-medium">${{ "{:,.0f}".format(lifecycle_data.cost_analysis.operating_cost) }}</div><div class="text-muted">Operating Cost</div><small class="text-warning">35% of TCO</small></div><div class="text-center"><div class="metric-medium">${{ "{:,.0f}".format(lifecycle_data.cost_analysis.maintenance_cost) }}</div><div class="text-muted">Maintenance Cost</div><small class="text-danger">15% of TCO</small></div><div class="text-center"><div class="metric-medium">${{ "{:,.0f}".format(lifecycle_data.cost_analysis.disposal_cost) }}</div><div class="text-muted">Disposal Cost</div><small class="text-secondary">5% of TCO</small></div><div class="text-center"><div class="metric-large" style="font-size: 2rem;">${{ "{:,.0f}".format(lifecycle_data.cost_analysis.cost_optimization_potential) }}</div><div class="text-success">Optimization Potential</div><small class="text-success">12% savings opportunity</small></div></div></div></div></div><div class="row mb-4"><div class="col-md-6"><div class="professional-card"><h4 class="mb-3"><i class="fas fa-chart-line me-2"></i>Performance Metrics</h4><div class="chart-container"><canvas id="performanceChart"></canvas></div></div></div><div class="col-md-6"><div class="professional-card"><h4 class="mb-3"><i class="fas fa-tools me-2"></i>Maintenance Optimization</h4><div class="performance-grid"><div class="text-center"><div class="metric-medium">{{ lifecycle_data.maintenance_optimization.preventive_maintenance_score }}%</div><div class="text-muted">Preventive Maintenance Score</div></div><div class="text-center"><div class="metric-medium">{{ lifecycle_data.maintenance_optimization.predictive_maintenance_opportunities }}</div><div class="text-muted">Predictive Opportunities</div></div><div class="text-center"><div class="metric-medium">{{ lifecycle_data.maintenance_optimization.maintenance_cost_reduction_potential }}</div><div class="text-muted">Cost Reduction Potential</div></div><div class="text-center"><div class="metric-medium">{{ lifecycle_data.maintenance_optimization.scheduled_maintenance_efficiency }}%</div><div class="text-muted">Schedule Efficiency</div></div></div></div></div></div><div class="row mb-4"><div class="col-md-8"><div class="professional-card"><h4 class="mb-3"><i class="fas fa-exchange-alt me-2"></i>Strategic Replacement Analysis</h4>
+{% for asset in lifecycle_data.replacement_recommendations.replacement_priorities %}
+<div class="replacement-priority priority-{{ asset.priority.lower() }}"><div class="row align-items-center"><div class="col-md-3"><strong>{{ asset.asset_id }}</strong></div><div class="col-md-3"><span class="badge bg-{{ 'danger' if asset.priority == 'High' else 'warning' if asset.priority == 'Medium' else 'success' }}">
+{{ asset.priority }} Priority
+</span></div><div class="col-md-6"><small class="text-muted">{{ asset.reason }}</small></div></div></div>
+{% endfor %}
+</div></div><div class="col-md-4"><div class="professional-card"><h5 class="mb-3">Replacement Metrics</h5><div class="mb-3"><div class="metric-medium">{{ lifecycle_data.replacement_recommendations.assets_approaching_replacement }}</div><div class="text-muted">Assets Approaching Replacement</div></div><div class="mb-3"><div class="metric-medium">${{ "{:,.0f}".format(lifecycle_data.replacement_recommendations.replacement_cost_projection) }}</div><div class="text-muted">Projected Replacement Cost</div></div><div class="mb-3"><div class="metric-medium">{{ lifecycle_data.replacement_recommendations.fleet_modernization_score }}%</div><div class="text-muted">Fleet Modernization Score</div></div></div></div></div><div class="row"><div class="col-12"><div class="professional-card"><h4 class="mb-3"><i class="fas fa-certificate me-2"></i>AEMP Compliance Dashboard</h4><div class="row"><div class="col-md-8"><div class="chart-container"><canvas id="complianceChart"></canvas></div></div><div class="col-md-4"><div class="text-center mb-4"><div class="compliance-score">{{ lifecycle_data.aemp_compliance_score.overall_compliance_score }}%</div><div class="text-muted">Overall Compliance</div><div class="aemp-badge mt-2">{{ lifecycle_data.aemp_compliance_score.certification_readiness }}</div></div><h6>Improvement Areas:</h6>
+{% for area in lifecycle_data.aemp_compliance_score.improvement_areas %}
+<div class="badge bg-warning me-2 mb-2">{{ area.replace('_', ' ').title() }}</div>
+{% endfor %}
+</div></div></div></div></div></div></div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script><script>
+// Professional color palette
+const colors = {
+primary: '#10b981',
+secondary: '#059669',
+accent: '#f59e0b',
+danger: '#ef4444',
+info: '#06b6d4',
+purple: '#a855f7',
+gray: '#6b7280'
+};
+
+// Lifecycle Stages Chart
+const stagesCtx = document.getElementById('lifecycleStagesChart').getContext('2d');
+new Chart(stagesCtx, {
+type: 'doughnut',
+data: {
+labels: [{% for stage in lifecycle_data.lifecycle_stages.keys() %}'{{ stage }}'{% if not loop.last %},{% endif %}{% endfor %}],
+datasets: [{
+data: [{% for data in lifecycle_data.lifecycle_stages.values() %}{{ data.asset_count }}{% if not loop.last %},{% endif %}{% endfor %}],
+backgroundColor: [colors.info, colors.primary, colors.secondary, colors.accent, colors.purple, colors.danger, colors.gray],
+borderWidth: 0
+}]
+},
+options: {
+responsive: true,
+maintainAspectRatio: false,
+plugins: {
+legend: {
+position: 'bottom',
+labels: { color: '#fff', padding: 20 }
+}
+}
+}
+});
+
+// Performance Metrics Chart
+const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+new Chart(performanceCtx, {
+type: 'radar',
+data: {
+labels: ['Utilization', 'Availability', 'Efficiency', 'Maintenance', 'Cost Control'],
+datasets: [{
+label: 'Current Performance',
+data: [
+{{ lifecycle_data.performance_metrics.utilization_rate }},
+{{ lifecycle_data.performance_metrics.availability_rate }},
+{{ lifecycle_data.performance_metrics.efficiency_score }},
+{{ lifecycle_data.performance_metrics.maintenance_effectiveness }},
+85
+],
+borderColor: colors.primary,
+backgroundColor: 'rgba(16, 185, 129, 0.2)',
+borderWidth: 2
+}]
+},
+options: {
+responsive: true,
+maintainAspectRatio: false,
+plugins: {
+legend: { labels: { color: '#fff' } }
+},
+scales: {
+r: {
+ticks: { color: '#d1d5db' },
+grid: { color: 'rgba(255, 255, 255, 0.1)' },
+pointLabels: { color: '#fff' }
+}
+}
+}
+});
+
+// AEMP Compliance Chart
+const complianceCtx = document.getElementById('complianceChart').getContext('2d');
+new Chart(complianceCtx, {
+type: 'bar',
+data: {
+labels: [{% for factor in lifecycle_data.aemp_compliance_score.compliance_breakdown.keys() %}'{{ factor.replace("_", " ").title() }}'{% if not loop.last %},{% endif %}{% endfor %}],
+datasets: [{
+label: 'Compliance Score',
+data: [{% for score in lifecycle_data.aemp_compliance_score.compliance_breakdown.values() %}{{ score }}{% if not loop.last %},{% endif %}{% endfor %}],
+backgroundColor: colors.primary,
+borderRadius: 5
+}]
+},
+options: {
+responsive: true,
+maintainAspectRatio: false,
+plugins: {
+legend: { display: false }
+},
+scales: {
+x: {
+ticks: { color: '#d1d5db' },
+grid: { display: false }
+},
+y: {
+ticks: { color: '#d1d5db' },
+grid: { color: 'rgba(255, 255, 255, 0.1)' },
+max: 100
+}
+}
+}
+});
+
+// Export functionality
+function exportReport(format) {
+window.open(`/lifecycle-report/export/${format}`, '_blank');
+}
+
+// Mobile navigation toggle
+function toggleMobileNav() {
+const nav = document.querySelector('.traxovo-unified-nav');
+nav.classList.toggle('mobile-open');
+}
+</script></body></html>

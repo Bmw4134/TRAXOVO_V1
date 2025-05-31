@@ -1,0 +1,242 @@
+{% extends "layout_unified.html" %}
+
+{% block title %}Asset Manager - TRAXOVO GENIUS CORE{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="/">Home</a></li><li class="breadcrumb-item active" aria-current="page">Asset Manager</li>
+{% endblock %}
+
+{% block page_title %}Asset Manager Dashboard{% endblock %}
+{% block page_subtitle %}Comprehensive fleet & equipment management system{% endblock %}
+
+{% block page_actions %}
+<a href="{{ url_for('asset_manager.add_asset') }}" class="btn btn-primary"><i class="bi bi-plus-lg me-2"></i> Add New Asset
+</a><a href="{{ url_for('asset_manager.list_assets') }}" class="btn btn-outline-secondary ms-2"><i class="bi bi-list-ul me-2"></i> View All Assets
+</a><form action="{{ url_for('asset_manager.sync_with_gauge') }}" method="post" class="d-inline ms-2"><button type="submit" class="btn btn-outline-primary"><i class="bi bi-arrow-repeat me-2"></i> Sync with Gauge
+</button></form>
+{% endblock %}
+
+{% block content %}
+
+<div class="row mb-4"><div class="col-md-6 col-xl-3 mb-3"><div class="card bg-dark border-0 shadow-sm hoverable"><div class="card-body"><div class="d-flex align-items-center"><div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3"><i class="bi bi-truck text-primary fs-4"></i></div><div><h3 class="mb-0 fs-4">{{ total_assets }}</h3><p class="text-muted mb-0">Total Assets</p></div></div></div></div></div><div class="col-md-6 col-xl-3 mb-3"><div class="card bg-dark border-0 shadow-sm hoverable"><div class="card-body"><div class="d-flex align-items-center"><div class="rounded-circle bg-success bg-opacity-10 p-3 me-3"><i class="bi bi-check2-circle text-success fs-4"></i></div><div><h3 class="mb-0 fs-4">{{ active_assets }}</h3><p class="text-muted mb-0">Active Assets</p></div></div></div></div></div><div class="col-md-6 col-xl-3 mb-3"><div class="card bg-dark border-0 shadow-sm hoverable"><div class="card-body"><div class="d-flex align-items-center"><div class="rounded-circle bg-warning bg-opacity-10 p-3 me-3"><i class="bi bi-wrench text-warning fs-4"></i></div><div><h3 class="mb-0 fs-4">{{ maintenance_assets }}</h3><p class="text-muted mb-0">In Maintenance</p></div></div></div></div></div><div class="col-md-6 col-xl-3 mb-3"><div class="card bg-dark border-0 shadow-sm hoverable"><div class="card-body"><div class="d-flex align-items-center"><div class="rounded-circle bg-danger bg-opacity-10 p-3 me-3"><i class="bi bi-exclamation-triangle text-danger fs-4"></i></div><div><h3 class="mb-0 fs-4">{{ assets_with_recalls }}</h3><p class="text-muted mb-0">Recall Alerts</p></div></div></div></div></div></div><div class="row mb-4"><div class="col-lg-8 mb-4"><div class="card bg-dark border-0 shadow-sm"><div class="card-header bg-dark"><h5 class="card-title mb-0">Asset Location Map</h5></div><div class="card-body p-0"><div id="asset-map" style="height: 450px;"></div></div><div class="card-footer bg-dark text-end"><a href="{{ url_for('asset_manager.asset_map') }}" class="btn btn-sm btn-outline-info"><i class="bi bi-arrows-fullscreen me-1"></i> Full Map View
+</a></div></div></div><div class="col-lg-4 mb-4"><div class="card bg-dark border-0 shadow-sm h-100"><div class="card-header bg-dark"><h5 class="card-title mb-0">Assets by Category</h5></div><div class="card-body"><canvas id="categoryChart" height="380"></canvas></div></div></div></div><div class="row mb-4"><div class="col-lg-4 mb-4"><div class="card bg-dark border-0 shadow-sm"><div class="card-header bg-dark"><h5 class="card-title mb-0">Quick Actions</h5></div><div class="card-body"><div class="list-group list-group-flush bg-dark"><a href="{{ url_for('asset_manager.add_asset') }}" class="list-group-item list-group-item-action bg-dark"><div class="d-flex align-items-center"><div class="rounded bg-primary bg-opacity-10 p-2 me-3"><i class="bi bi-plus-lg text-primary"></i></div><div><h6 class="mb-0">Add New Asset</h6><small class="text-muted">Create a new vehicle or equipment record</small></div></div></a><a href="{{ url_for('asset_manager.list_assets') }}?status=maintenance" class="list-group-item list-group-item-action bg-dark"><div class="d-flex align-items-center"><div class="rounded bg-warning bg-opacity-10 p-2 me-3"><i class="bi bi-wrench text-warning"></i></div><div><h6 class="mb-0">Maintenance List</h6><small class="text-muted">View assets in maintenance</small></div></div></a><a href="{{ url_for('asset_manager.list_assets') }}" class="list-group-item list-group-item-action bg-dark"><div class="d-flex align-items-center"><div class="rounded bg-success bg-opacity-10 p-2 me-3"><i class="bi bi-search text-success"></i></div><div><h6 class="mb-0">Find Asset</h6><small class="text-muted">Search by name, VIN, serial or job</small></div></div></a><a href="#" id="vin-lookup-trigger" class="list-group-item list-group-item-action bg-dark"><div class="d-flex align-items-center"><div class="rounded bg-info bg-opacity-10 p-2 me-3"><i class="bi bi-car-front text-info"></i></div><div><h6 class="mb-0">VIN Lookup</h6><small class="text-muted">Check vehicle details & recalls</small></div></div></a></div></div></div></div><div class="col-lg-8 mb-4"><div class="card bg-dark border-0 shadow-sm"><div class="card-header bg-dark d-flex justify-content-between align-items-center"><h5 class="card-title mb-0">Gauge Smart Hub Integration</h5><span class="badge bg-success">Connected</span></div><div class="card-body"><p class="text-muted mb-4">
+TRAXOVO integrates directly with the Gauge Smart Hub to manage and track your fleet assets.
+The integration provides the following capabilities:
+</p><div class="row"><div class="col-md-6 mb-3"><div class="d-flex"><div class="rounded bg-primary bg-opacity-10 p-2 me-3"><i class="bi bi-arrow-repeat text-primary"></i></div><div><h6 class="mb-1">Automatic Sync</h6><p class="text-muted small mb-0">Asset data is automatically synchronized</p></div></div></div><div class="col-md-6 mb-3"><div class="d-flex"><div class="rounded bg-success bg-opacity-10 p-2 me-3"><i class="bi bi-geo-alt text-success"></i></div><div><h6 class="mb-1">Real-time Location</h6><p class="text-muted small mb-0">Track asset positions on the map</p></div></div></div><div class="col-md-6 mb-3"><div class="d-flex"><div class="rounded bg-warning bg-opacity-10 p-2 me-3"><i class="bi bi-speedometer2 text-warning"></i></div><div><h6 class="mb-1">Odometer & Hours</h6><p class="text-muted small mb-0">Track usage metrics for maintenance</p></div></div></div><div class="col-md-6 mb-3"><div class="d-flex"><div class="rounded bg-danger bg-opacity-10 p-2 me-3"><i class="bi bi-exclamation-diamond text-danger"></i></div><div><h6 class="mb-1">Recall Alerts</h6><p class="text-muted small mb-0">Automatic checks for safety recalls</p></div></div></div></div><form action="{{ url_for('asset_manager.sync_with_gauge') }}" method="post" class="mt-3"><button type="submit" class="btn btn-primary"><i class="bi bi-arrow-repeat me-2"></i> Sync with Gauge
+</button></form></div></div></div></div><div class="modal fade" id="vinLookupModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content bg-dark"><div class="modal-header"><h5 class="modal-title">Vehicle Identification Number (VIN) Lookup</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><div class="mb-4"><p class="text-muted">
+Enter a 17-character VIN to retrieve vehicle details and check for recalls.
+This tool uses the NHTSA database to provide information about the vehicle.
+</p></div><div class="mb-4"><label for="vin-input" class="form-label">VIN</label><div class="input-group"><input type="text" class="form-control" id="vin-input" placeholder="Enter 17-character VIN" maxlength="17"><button class="btn btn-primary" type="button" id="lookup-vin-btn"><i class="bi bi-search me-2"></i> Lookup
+</button></div><div class="form-text">Example: 1FTFW1ET3DFA85223</div></div><div id="vin-results" class="d-none"><div class="alert alert-primary d-flex align-items-center mb-4"><i class="bi bi-info-circle-fill me-2"></i><div>Vehicle information retrieved successfully.</div></div><div class="row mb-4"><div class="col-md-12"><div class="card bg-dark border-secondary"><div class="card-header bg-dark"><h6 class="mb-0">Vehicle Information</h6></div><div class="card-body"><div class="row"><div class="col-md-6"><dl class="row mb-0"><dt class="col-sm-4">Year:</dt><dd class="col-sm-8" id="result-year"></dd><dt class="col-sm-4">Make:</dt><dd class="col-sm-8" id="result-make"></dd><dt class="col-sm-4">Model:</dt><dd class="col-sm-8" id="result-model"></dd><dt class="col-sm-4">Trim:</dt><dd class="col-sm-8" id="result-trim"></dd></dl></div><div class="col-md-6"><dl class="row mb-0"><dt class="col-sm-4">Type:</dt><dd class="col-sm-8" id="result-type"></dd><dt class="col-sm-4">Body:</dt><dd class="col-sm-8" id="result-body"></dd><dt class="col-sm-4">Engine:</dt><dd class="col-sm-8" id="result-engine"></dd><dt class="col-sm-4">Fuel:</dt><dd class="col-sm-8" id="result-fuel"></dd></dl></div></div></div></div></div></div><div id="recall-section" class="mb-4"><div class="card bg-dark border-danger"><div class="card-header bg-dark"><h6 class="mb-0">Recall Information</h6></div><div class="card-body"><div id="no-recalls" class="d-none"><div class="alert alert-success mb-0"><i class="bi bi-check-circle-fill me-2"></i>
+No open recalls found for this vehicle.
+</div></div><div id="has-recalls" class="d-none"><div class="alert alert-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i><strong>Warning:</strong> This vehicle has <span id="recall-count">0</span> open recalls.
+</div><ul class="list-group list-group-flush bg-dark mt-3" id="recall-list"></ul></div></div></div></div><div class="text-center"><a href="#" id="add-asset-from-vin" class="btn btn-success"><i class="bi bi-plus-lg me-2"></i> Add as New Asset
+</a></div></div><div id="vin-loading" class="text-center d-none"><div class="spinner-border text-primary mb-3" role="status"><span class="visually-hidden">Loading...</span></div><p>Looking up vehicle information...</p></div><div id="vin-error" class="d-none"><div class="alert alert-danger mb-0"><i class="bi bi-exclamation-circle-fill me-2"></i><span id="error-message">An error occurred while looking up VIN.</span></div></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div></div></div></div>
+{% endblock %}
+
+{% block scripts %}
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" /><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" /><link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" /><script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><script>
+document.addEventListener('DOMContentLoaded', function() {
+// Initialize Map
+initAssetMap();
+
+// Initialize Category Chart
+initCategoryChart();
+
+// Initialize VIN Lookup Modal
+initVinLookup();
+});
+
+function initAssetMap() {
+// Create map
+const map = L.map('asset-map').setView([32.7767, -96.7970], 8); // Dallas, TX as default center
+
+// Add tile layer (OpenStreetMap)
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+maxZoom: 19,
+attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+}).addTo(map);
+
+// Create marker cluster group
+const markers = L.markerClusterGroup();
+
+// Fetch asset data
+fetch('/asset-manager/api/assets')
+.then(response => response.json())
+.then(data => {
+if (data.success) {
+// Add markers for each asset
+data.assets.forEach(asset => {
+if (asset.latitude && asset.longitude) {
+const marker = L.marker([asset.latitude, asset.longitude])
+.bindPopup(`
+<strong>${asset.name}</strong><br>
+${asset.asset_number || ''}<br>
+${asset.make || ''} ${asset.model || ''}<br><a href="/asset-manager/view/${asset.id}" class="btn btn-sm btn-primary mt-2">View Details</a>
+`);
+
+markers.addLayer(marker);
+}
+});
+
+// Add markers to map
+map.addLayer(markers);
+
+// Fit bounds if markers exist
+if (data.assets.length > 0) {
+const bounds = markers.getBounds();
+map.fitBounds(bounds);
+}
+}
+})
+.catch(error => {
+console.error('Error fetching asset data:', error);
+});
+}
+
+function initCategoryChart() {
+// Prepare category data
+const categoryData = {{ category_stats|tojson }};
+
+// Create chart
+const ctx = document.getElementById('categoryChart').getContext('2d');
+new Chart(ctx, {
+type: 'doughnut',
+data: {
+labels: categoryData.map(item => item.category),
+datasets: [{
+data: categoryData.map(item => item.count),
+backgroundColor: [
+'#3498db', '#2ecc71', '#f1c40f', '#e74c3c',
+'#9b59b6', '#1abc9c', '#d35400', '#34495e',
+'#16a085', '#27ae60', '#2980b9', '#8e44ad',
+'#f39c12', '#e67e22', '#c0392b'
+],
+borderWidth: 0
+}]
+},
+options: {
+responsive: true,
+maintainAspectRatio: false,
+plugins: {
+legend: {
+position: 'right',
+labels: {
+color: 'rgb(200, 200, 200)',
+padding: 15,
+boxWidth: 15,
+boxHeight: 15
+}
+}
+}
+}
+});
+}
+
+function initVinLookup() {
+const vinModal = new bootstrap.Modal(document.getElementById('vinLookupModal'));
+const vinTrigger = document.getElementById('vin-lookup-trigger');
+const vinInput = document.getElementById('vin-input');
+const lookupBtn = document.getElementById('lookup-vin-btn');
+const resultSection = document.getElementById('vin-results');
+const loadingSection = document.getElementById('vin-loading');
+const errorSection = document.getElementById('vin-error');
+const addAssetBtn = document.getElementById('add-asset-from-vin');
+
+// Open modal when trigger is clicked
+vinTrigger.addEventListener('click', function(e) {
+e.preventDefault();
+vinModal.show();
+});
+
+// Handle VIN lookup
+lookupBtn.addEventListener('click', function() {
+const vin = vinInput.value.trim();
+
+// Validate VIN
+if (!vin || vin.length !== 17) {
+document.getElementById('error-message').textContent = 'Please enter a valid 17-character VIN.';
+resultSection.classList.add('d-none');
+loadingSection.classList.add('d-none');
+errorSection.classList.remove('d-none');
+return;
+}
+
+// Show loading, hide results and error
+resultSection.classList.add('d-none');
+errorSection.classList.add('d-none');
+loadingSection.classList.remove('d-none');
+
+// Fetch VIN data
+fetch(`/asset-manager/lookup-vin/${vin}`)
+.then(response => response.json())
+.then(data => {
+// Hide loading
+loadingSection.classList.add('d-none');
+
+if (data.success) {
+// Show results
+resultSection.classList.remove('d-none');
+
+// Populate vehicle info
+const vehicleInfo = data.vehicle_info;
+document.getElementById('result-year').textContent = vehicleInfo?.year || 'N/A';
+document.getElementById('result-make').textContent = vehicleInfo?.make || 'N/A';
+document.getElementById('result-model').textContent = vehicleInfo?.model || 'N/A';
+document.getElementById('result-trim').textContent = vehicleInfo?.trim || 'N/A';
+document.getElementById('result-type').textContent = vehicleInfo?.vehicle_type || 'N/A';
+document.getElementById('result-body').textContent = vehicleInfo?.body_class || 'N/A';
+document.getElementById('result-engine').textContent = vehicleInfo?.engine || 'N/A';
+document.getElementById('result-fuel').textContent = vehicleInfo?.fuel_type || 'N/A';
+
+// Populate recall info
+const recalls = data.recalls;
+if (recalls && recalls.recall_count > 0) {
+document.getElementById('no-recalls').classList.add('d-none');
+document.getElementById('has-recalls').classList.remove('d-none');
+document.getElementById('recall-count').textContent = recalls.recall_count;
+
+// Generate recall list
+const recallList = document.getElementById('recall-list');
+recallList.innerHTML = '';
+recalls.recalls.forEach(recall => {
+const li = document.createElement('li');
+li.className = 'list-group-item bg-dark';
+li.innerHTML = `
+<h6 class="mb-1">${recall.Component || 'Unknown Component'}</h6><p class="mb-1 text-danger">${recall.Summary || 'No summary available'}</p><small class="text-muted">Campaign: ${recall.NHTSACampaignNumber || 'N/A'}</small>
+`;
+recallList.appendChild(li);
+});
+} else {
+document.getElementById('has-recalls').classList.add('d-none');
+document.getElementById('no-recalls').classList.remove('d-none');
+}
+
+// Configure add asset button
+addAssetBtn.href = `/asset-manager/add?vin=${vin}&year=${vehicleInfo?.year || ''}&make=${vehicleInfo?.make || ''}&model=${vehicleInfo?.model || ''}`;
+
+} else {
+// Show error
+document.getElementById('error-message').textContent = data.error || 'Failed to lookup VIN information.';
+errorSection.classList.remove('d-none');
+}
+})
+.catch(error => {
+// Hide loading, show error
+loadingSection.classList.add('d-none');
+document.getElementById('error-message').textContent = 'An error occurred while looking up the VIN.';
+errorSection.classList.remove('d-none');
+console.error('Error:', error);
+});
+});
+
+// Allow Enter key to trigger lookup
+vinInput.addEventListener('keypress', function(e) {
+if (e.key === 'Enter') {
+lookupBtn.click();
+}
+});
+}
+</script>
+{% endblock %}

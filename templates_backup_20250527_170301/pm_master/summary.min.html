@@ -1,0 +1,95 @@
+{% extends 'layout.html' %}
+
+{% block title %}Billing Summary{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4"><div class="row"><div class="col-12"><div class="card mb-4"><div class="card-header bg-dark text-white d-flex justify-content-between align-items-center"><h5 class="mb-0">Billing Summary - April 2025</h5><div><a href="{{ url_for('pm_master.index') }}" class="btn btn-outline-light"><i class="fas fa-arrow-left me-1"></i> Back to PM Master
+</a></div></div><div class="card-body"><p class="lead">Master equipment billing summary by division and job</p><div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>
+This report is based on the last processed master billing export from {{ export_date }}.
+Total billing amount across all divisions: <strong>${{ "{:,.2f}".format(total_amount) }}</strong></div></div></div></div></div><div class="row"><div class="col-lg-6"><div class="card mb-4"><div class="card-header bg-dark text-white"><h5 class="mb-0">Division Summary</h5></div><div class="card-body p-0"><div class="table-responsive"><table class="table table-hover mb-0"><thead><tr><th>Division</th><th>Total Amount</th><th>Unique Equipment</th><th>Unique Jobs</th></tr></thead><tbody>
+{% if division_summary %}
+{% for division in division_summary %}
+<tr><td><span class="badge bg-secondary">{{ division.Division }}</span></td><td>${{ "{:,.2f}".format(division['Total Amount']) }}</td><td>{{ division['Unique Equipment'] }}</td><td>{{ division['Unique Jobs'] }}</td></tr>
+{% endfor %}
+{% else %}
+<tr><td colspan="4" class="text-center">No division data available</td></tr>
+{% endif %}
+</tbody></table></div></div></div></div><div class="col-lg-6"><div class="card mb-4"><div class="card-header bg-dark text-white"><h5 class="mb-0">Division Distribution</h5></div><div class="card-body"><canvas id="division-chart" height="250"></canvas></div></div></div></div>
+
+{% for division, jobs in job_records_by_division.items() %}
+<div class="row"><div class="col-12"><div class="card mb-4"><div class="card-header bg-dark text-white"><h5 class="mb-0">{{ division }} - Job Details</h5></div><div class="card-body p-0"><div class="table-responsive"><table class="table table-hover mb-0"><thead><tr><th>Job</th><th>Total Amount</th><th>Unique Equipment</th><th>Total Units</th></tr></thead><tbody>
+{% if jobs %}
+{% for job in jobs %}
+<tr><td>{{ job.Job }}</td><td>${{ "{:,.2f}".format(job['Total Amount']) }}</td><td>{{ job['Unique Equipment'] }}</td><td>{{ "{:,.1f}".format(job['Total Units']) }}</td></tr>
+{% endfor %}
+{% else %}
+<tr><td colspan="4" class="text-center">No job data available</td></tr>
+{% endif %}
+</tbody></table></div></div></div></div></div>
+{% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script><script>
+$(document).ready(function() {
+// Division chart
+var ctx = document.getElementById('division-chart').getContext('2d');
+
+// Prepare data from division_summary
+var divisionLabels = [];
+var divisionData = [];
+var backgroundColors = [
+'rgba(54, 162, 235, 0.7)',
+'rgba(255, 99, 132, 0.7)',
+'rgba(255, 206, 86, 0.7)',
+'rgba(75, 192, 192, 0.7)',
+'rgba(153, 102, 255, 0.7)'
+];
+
+{% for division in division_summary %}
+divisionLabels.push('{{ division.Division }}');
+divisionData.push({{ division['Total Amount'] }});
+{% endfor %}
+
+var chart = new Chart(ctx, {
+type: 'pie',
+data: {
+labels: divisionLabels,
+datasets: [{
+data: divisionData,
+backgroundColor: backgroundColors.slice(0, divisionLabels.length),
+borderColor: 'rgba(255, 255, 255, 0.8)',
+borderWidth: 1
+}]
+},
+options: {
+responsive: true,
+maintainAspectRatio: false,
+plugins: {
+legend: {
+position: 'right',
+labels: {
+color: '#fff'
+}
+},
+tooltip: {
+callbacks: {
+label: function(context) {
+var label = context.label || '';
+var value = context.raw || 0;
+var total = context.dataset.data.reduce((a, b) => a + b, 0);
+var percentage = Math.round((value / total) * 100);
+return label + ': $' + value.toLocaleString('en-US', {
+minimumFractionDigits: 2,
+maximumFractionDigits: 2
+}) + ' (' + percentage + '%)';
+}
+}
+}
+}
+}
+});
+});
+</script>
+{% endblock %}

@@ -1,0 +1,323 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>TRAXORA - Enhanced Mobile Navigation</title><link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"><style>
+/* Enhanced Mobile Navigation Styles */
+.mobile-nav {
+position: fixed;
+bottom: 0;
+left: 0;
+right: 0;
+background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+z-index: 1000;
+border-radius: 20px 20px 0 0;
+box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+}
+
+.nav-items {
+display: flex;
+justify-content: space-around;
+padding: 1rem 0;
+}
+
+.nav-item {
+display: flex;
+flex-direction: column;
+align-items: center;
+color: white;
+text-decoration: none;
+padding: 0.5rem;
+border-radius: 15px;
+transition: all 0.3s ease;
+min-width: 60px;
+}
+
+.nav-item:hover, .nav-item.active {
+background: rgba(255,255,255,0.2);
+color: white;
+transform: translateY(-3px);
+}
+
+.nav-item i {
+font-size: 1.5rem;
+margin-bottom: 0.25rem;
+}
+
+.nav-item span {
+font-size: 0.75rem;
+font-weight: 500;
+}
+
+/* Quick Action Buttons */
+.quick-actions {
+position: fixed;
+top: 20px;
+right: 20px;
+z-index: 999;
+}
+
+.quick-btn {
+display: block;
+width: 60px;
+height: 60px;
+border-radius: 50%;
+background: linear-gradient(135deg, #26de81 0%, #20bf6b 100%);
+color: white;
+border: none;
+box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+margin-bottom: 10px;
+transition: all 0.3s ease;
+cursor: pointer;
+}
+
+.quick-btn:hover {
+transform: scale(1.1);
+box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+.quick-btn i {
+font-size: 1.5rem;
+}
+
+/* Content Area Adjustments */
+.content-area {
+padding-bottom: 100px; /* Space for mobile nav */
+min-height: calc(100vh - 100px);
+}
+
+/* Status Indicators */
+.status-indicator {
+position: absolute;
+top: -5px;
+right: -5px;
+width: 20px;
+height: 20px;
+border-radius: 50%;
+background: #ff6b6b;
+color: white;
+font-size: 0.7rem;
+display: flex;
+align-items: center;
+justify-content: center;
+font-weight: bold;
+}
+
+.status-indicator.success {
+background: #26de81;
+}
+
+.status-indicator.warning {
+background: #feca57;
+}
+
+/* Responsive Adjustments */
+@media (min-width: 768px) {
+.mobile-nav {
+display: none;
+}
+
+.content-area {
+padding-bottom: 20px;
+}
+
+.quick-actions {
+position: relative;
+top: auto;
+right: auto;
+display: inline-flex;
+gap: 10px;
+}
+}
+
+/* Touch-Friendly Enhancements */
+.touch-target {
+min-height: 48px;
+min-width: 48px;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+/* Slide-in Notifications */
+.mobile-alert {
+position: fixed;
+top: 20px;
+left: 20px;
+right: 20px;
+background: rgba(0,0,0,0.9);
+color: white;
+padding: 1rem;
+border-radius: 10px;
+transform: translateY(-100px);
+transition: transform 0.3s ease;
+z-index: 1001;
+}
+
+.mobile-alert.show {
+transform: translateY(0);
+}
+
+.mobile-alert.success {
+background: rgba(38, 222, 129, 0.9);
+}
+
+.mobile-alert.warning {
+background: rgba(254, 202, 87, 0.9);
+}
+
+.mobile-alert.error {
+background: rgba(255, 107, 107, 0.9);
+}
+</style></head><body><div class="quick-actions d-md-none"><button class="quick-btn" onclick="refreshData()" title="Refresh Data"><i class="fas fa-sync-alt"></i></button><button class="quick-btn" onclick="emergencyAlert()" title="Emergency Alert" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);"><i class="fas fa-exclamation-triangle"></i></button></div><div id="mobile-alert" class="mobile-alert"><div class="d-flex justify-content-between align-items-center"><span id="alert-message"></span><button class="btn btn-sm btn-outline-light" onclick="hideAlert()"><i class="fas fa-times"></i></button></div></div><div class="content-area">
+{% block content %}
+
+{% endblock %}
+</div><nav class="mobile-nav d-md-none"><div class="nav-items"><a href="/" class="nav-item" data-page="dashboard"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a><a href="/working-reports" class="nav-item" data-page="reports"><div style="position: relative;"><i class="fas fa-chart-line"></i><div class="status-indicator success" id="reports-status">84</div></div><span>Reports</span></a><a href="/job-site-manager" class="nav-item" data-page="sites"><div style="position: relative;"><i class="fas fa-map-marker-alt"></i><div class="status-indicator warning" id="sites-status">3</div></div><span>Sites</span></a><a href="/work-zone" class="nav-item" data-page="validation"><i class="fas fa-clipboard-check"></i><span>Validation</span></a><a href="#" class="nav-item" onclick="showQuickMenu()" data-page="menu"><i class="fas fa-bars"></i><span>More</span></a></div></nav><div class="modal fade" id="quickMenuModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><i class="fas fa-bolt"></i> Quick Actions
+</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3"><div class="col-6"><a href="/data-upload-manager" class="btn btn-outline-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3"><i class="fas fa-upload fa-2x mb-2"></i><span>Upload Data</span></a></div><div class="col-6"><a href="/reports-dashboard" class="btn btn-outline-success w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3"><i class="fas fa-chart-bar fa-2x mb-2"></i><span>Analytics</span></a></div><div class="col-6"><button onclick="generateDailyReport()" class="btn btn-outline-info w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3"><i class="fas fa-file-alt fa-2x mb-2"></i><span>Daily Report</span></button></div><div class="col-6"><a href="/admin" class="btn btn-outline-warning w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3"><i class="fas fa-cog fa-2x mb-2"></i><span>Settings</span></a></div></div></div></div></div></div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script><script>
+// Enhanced Mobile Navigation JavaScript
+let alertTimeout;
+
+// Set active navigation item
+function setActiveNav() {
+const currentPath = window.location.pathname;
+const navItems = document.querySelectorAll('.nav-item');
+
+navItems.forEach(item => {
+item.classList.remove('active');
+const href = item.getAttribute('href');
+if (href && (currentPath === href || currentPath.startsWith(href + '/'))) {
+item.classList.add('active');
+}
+});
+}
+
+// Show mobile alert
+function showAlert(message, type = 'info', duration = 5000) {
+const alert = document.getElementById('mobile-alert');
+const messageEl = document.getElementById('alert-message');
+
+messageEl.textContent = message;
+alert.className = `mobile-alert ${type} show`;
+
+clearTimeout(alertTimeout);
+alertTimeout = setTimeout(() => {
+hideAlert();
+}, duration);
+}
+
+// Hide mobile alert
+function hideAlert() {
+const alert = document.getElementById('mobile-alert');
+alert.classList.remove('show');
+}
+
+// Refresh data function
+function refreshData() {
+showAlert('Refreshing fleet data...', 'info', 2000);
+
+// Add refresh logic here
+setTimeout(() => {
+showAlert('Data refreshed successfully!', 'success', 3000);
+updateStatusIndicators();
+}, 2000);
+}
+
+// Emergency alert function
+function emergencyAlert() {
+if (confirm('Send emergency alert to all supervisors?')) {
+showAlert('Emergency alert sent!', 'warning', 5000);
+}
+}
+
+// Show quick menu
+function showQuickMenu() {
+const modal = new bootstrap.Modal(document.getElementById('quickMenuModal'));
+modal.show();
+}
+
+// Generate daily report
+function generateDailyReport() {
+showAlert('Generating daily report...', 'info', 3000);
+
+fetch('/generate-daily-report', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json',
+},
+body: JSON.stringify({
+date: new Date().toISOString().split('T')[0]
+})
+})
+.then(response => response.json())
+.then(data => {
+if (data.success) {
+showAlert('Daily report generated successfully!', 'success');
+} else {
+showAlert('Failed to generate report', 'error');
+}
+})
+.catch(error => {
+showAlert('Error generating report', 'error');
+});
+}
+
+// Update status indicators
+function updateStatusIndicators() {
+// Update with real-time data
+const reportsStatus = document.getElementById('reports-status');
+const sitesStatus = document.getElementById('sites-status');
+
+// Simulate real-time updates
+if (reportsStatus) {
+const onTimeCount = Math.floor(Math.random() * 20) + 80;
+reportsStatus.textContent = onTimeCount;
+reportsStatus.className = onTimeCount >= 85 ? 'status-indicator success' : 'status-indicator warning';
+}
+
+if (sitesStatus) {
+const issueCount = Math.floor(Math.random() * 5);
+sitesStatus.textContent = issueCount;
+sitesStatus.className = issueCount === 0 ? 'status-indicator success' : 'status-indicator warning';
+sitesStatus.style.display = issueCount === 0 ? 'none' : 'flex';
+}
+}
+
+// Auto-refresh status indicators
+setInterval(updateStatusIndicators, 30000); // Every 30 seconds
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+setActiveNav();
+updateStatusIndicators();
+
+// Show welcome message on first load
+if (!sessionStorage.getItem('welcomed')) {
+setTimeout(() => {
+showAlert('Welcome to TRAXORA Mobile!', 'success', 4000);
+sessionStorage.setItem('welcomed', 'true');
+}, 1000);
+}
+});
+
+// Handle page navigation
+window.addEventListener('popstate', setActiveNav);
+
+// Touch gesture support
+let touchStartX = 0;
+let touchStartY = 0;
+
+document.addEventListener('touchstart', function(e) {
+touchStartX = e.touches[0].clientX;
+touchStartY = e.touches[0].clientY;
+});
+
+document.addEventListener('touchend', function(e) {
+const touchEndX = e.changedTouches[0].clientX;
+const touchEndY = e.changedTouches[0].clientY;
+
+const deltaX = touchEndX - touchStartX;
+const deltaY = touchEndY - touchStartY;
+
+// Swipe right to refresh (if at top of page)
+if (deltaX > 100 && Math.abs(deltaY) < 50 && window.scrollY === 0) {
+refreshData();
+}
+});
+</script></body></html>

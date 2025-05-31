@@ -1,0 +1,35 @@
+{% extends "basic_base.html" %}
+
+{% block title %}MTD Reports List{% endblock %}
+
+{% block content %}
+<div class="container mt-4"><div class="row"><div class="col-12 mb-4"><div class="card"><div class="card-header bg-primary text-white d-flex justify-content-between align-items-center"><h2 class="mb-0">Available MTD Reports</h2><div><a href="{{ url_for('mtd_reports.dashboard') }}" class="btn btn-light me-2"><i class="fa fa-dashboard"></i> Dashboard
+</a><a href="{{ url_for('mtd_reports.upload_files') }}" class="btn btn-light"><i class="fa fa-upload"></i> Upload New Files
+</a></div></div><div class="card-body"><div class="mb-4"><h3>Single-Date Reports</h3>
+{% if single_reports %}
+<div class="table-responsive"><table class="table table-striped table-hover"><thead class="table-dark"><tr><th>Date</th><th>Total Drivers</th><th>On Time</th><th>Late</th><th>Early End</th><th>Not on Job</th><th>Actions</th></tr></thead><tbody>
+{% for report in single_reports %}
+<tr><td>{{ report.date }}</td><td>{{ report.total_drivers }}</td><td class="text-success">{{ report.on_time_count }} ({{ report.on_time_percent }}%)</td><td class="text-danger">{{ report.late_count }} ({{ report.late_percent }}%)</td><td class="text-warning">{{ report.early_end_count }} ({{ report.early_end_percent }}%)</td><td class="text-secondary">{{ report.not_on_job_count }} ({{ report.not_on_job_percent }}%)</td><td><a href="{{ url_for('mtd_reports.show_report', date=report.date) }}" class="btn btn-sm btn-primary"><i class="fa fa-eye"></i> View
+</a></td></tr>
+{% endfor %}
+</tbody></table></div>
+{% else %}
+<div class="alert alert-info"><i class="fa fa-info-circle me-2"></i> No single-date reports available.
+<a href="{{ url_for('mtd_reports.upload_files') }}" class="alert-link">Upload files</a> to generate reports.
+</div>
+{% endif %}
+</div><div><h3>Multi-Date Reports</h3>
+{% if interval_reports %}
+<div class="table-responsive"><table class="table table-striped table-hover"><thead class="table-dark"><tr><th>Date Range</th><th>Type</th><th>Periods</th><th>Actions</th></tr></thead><tbody>
+{% for report in interval_reports %}
+<tr><td>{{ report.start_date }} to {{ report.end_date }}</td><td>{{ report.interval_type|capitalize }}</td><td>{{ report.periods }}</td><td><a href="{{ url_for('mtd_reports.show_interval_reports', start=report.start_date, end=report.end_date) }}" class="btn btn-sm btn-primary"><i class="fa fa-eye"></i> View
+</a></td></tr>
+{% endfor %}
+</tbody></table></div>
+{% else %}
+<div class="alert alert-info"><i class="fa fa-info-circle me-2"></i> No multi-date reports available.
+<a href="{{ url_for('mtd_reports.upload_files') }}" class="alert-link">Upload files</a> to generate reports.
+</div>
+{% endif %}
+</div></div></div></div></div></div>
+{% endblock %}

@@ -1,0 +1,831 @@
+<!DOCTYPE html><html lang="en" data-bs-theme="dark"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Asset Map - TRAXORA</title><link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/><style>
+html, body {
+height: 100%;
+margin: 0;
+padding: 0;
+overflow: hidden;
+background-color: #1e2124;
+color: white;
+}
+
+.page-container {
+display: flex;
+flex-direction: row;
+height: calc(100vh - 56px); /* Subtract navbar height */
+}
+
+.sidebar {
+width: 280px;
+min-width: 280px;
+height: 100%;
+overflow-y: auto;
+padding: 20px;
+background-color: #1e2124;
+border-right: 1px solid rgba(255,255,255,0.1);
+display: flex;
+flex-direction: column;
+}
+
+.sidebar-content {
+flex: 1;
+}
+
+.map-container {
+flex: 1;
+height: 100%;
+position: relative;
+}
+
+#map {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+z-index: 1;
+}
+
+.status-indicator {
+display: inline-block;
+width: 12px;
+height: 12px;
+border-radius: 50%;
+margin-right: 5px;
+}
+
+.status-active {
+background-color: #28a745;
+}
+
+.status-idle {
+background-color: #ffc107;
+}
+
+.status-maintenance {
+background-color: #dc3545;
+}
+
+.status-inactive {
+background-color: #6c757d;
+}
+
+.form-group {
+margin-bottom: 1rem;
+}
+
+.form-group label {
+margin-bottom: 0.25rem;
+display: block;
+}
+
+.footer {
+border-top: 1px solid rgba(255,255,255,0.1);
+padding-top: 1rem;
+margin-top: 1rem;
+font-size: 0.75rem;
+color: rgba(255,255,255,0.5);
+text-align: center;
+}
+
+.leaflet-container {
+background-color: #303030 !important;
+}
+
+.section {
+margin-bottom: 1.5rem;
+}
+
+.section h5 {
+margin-bottom: 0.75rem;
+font-weight: 500;
+}
+</style></head><body><nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3 py-2"><div class="container-fluid"><a class="navbar-brand" href="/">TRAXORA</a><button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button><div class="collapse navbar-collapse" id="navbarNav"><ul class="navbar-nav"><li class="nav-item"><a class="nav-link" href="/"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a></li><li class="nav-item"><a class="nav-link active" href="/map"><i class="bi bi-geo-alt me-1"></i> Asset Map</a></li><li class="nav-item"><a class="nav-link" href="/driver-reports/"><i class="bi bi-person-badge me-1"></i> Driver Reports</a></li><li class="nav-item"><a class="nav-link" href="/billing/"><i class="bi bi-receipt me-1"></i> PM Allocation</a></li></ul></div></div></nav><div class="page-container"><div class="sidebar"><div class="sidebar-content"><h3 class="mb-1">Asset Map</h3><p class="text-muted mb-4">Real-time Fleet Tracking</p><div class="section"><h5>Filters</h5><div class="form-group"><label>Asset Type</label><select id="type-filter" class="form-select form-select-sm"><option value="">All Types</option><option value="Truck">Trucks</option><option value="Excavator">Excavators</option><option value="Loader">Loaders</option><option value="Dozer">Dozers</option></select></div><div class="form-group"><label>Job Site</label><select id="job-site-filter" class="form-select form-select-sm"><option value="">All Job Sites</option><option value="1">Downtown Dallas</option><option value="2">Houston Central</option><option value="3">Austin Highway</option></select></div><button id="refresh-map" class="btn btn-primary btn-sm w-100"><i class="bi bi-arrow-clockwise me-1"></i> Refresh Map
+</button></div><div class="section"><h5>Map Legend</h5><div class="mb-2"><span class="status-indicator status-active"></span> Active</div><div class="mb-2"><span class="status-indicator status-idle"></span> Idle</div><div class="mb-2"><span class="status-indicator status-maintenance"></span> Maintenance</div><div class="mb-2"><span class="status-indicator status-inactive"></span> Inactive</div></div><div class="section"><h5>System Status</h5><div id="api-status" class="d-flex justify-content-between align-items-center mb-2"><span><i class="bi bi-cloud me-1"></i> API Connection</span><span class="badge bg-warning">Connecting...</span></div><div id="update-time" class="small text-muted">
+Last update: <span id="last-update-time">Not yet updated</span></div></div></div><div class="footer">
+© 2025 TRAXORA Fleet Management System<br>
+GENIUS CORE CONTINUITY MODE ACTIVE
+</div></div><div class="map-container"><div id="map"></div></div><div id="module-status-panel-placeholder"></div><div id="system-manifest-toggle-placeholder"></div><div id="driver-upload-pane-placeholder"></div><div id="billing-upload-pane-placeholder"></div></div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script><script src="/static/js/genius_core_agents.js"></script><script src="/static/js/genius_core_module_status.js"></script><script src="/static/js/genius_core_integration.js"></script><script src="/static/js/genius_core_manifest.js"></script><script src="/static/js/genius_core_driver_pipeline.js"></script><script src="/static/js/genius_core_driver_improved.js"></script><script src="/static/js/genius_core_billing.js"></script><script src="/static/js/genius_core_equipment_billing.js"></script><script src="/static/js/genius_core_continuity.js"></script><script src="/static/js/genius_core_visual_diagnostics.js"></script><script src="/static/js/genius_core_confidence_system.js"></script><script src="/static/js/genius_core_enhanced_map.js"></script><script src="/static/js/genius_core_map_enhanced_ux.js"></script><script src="/static/js/genius_core_offline_fallback.js"></script><script src="/static/js/genius_core_map_direct_enhancements.js"></script><script src="/static/js/genius_core_agent_routing.js"></script><script src="/static/js/genius_core_ui.js"></script><script>
+document.addEventListener('DOMContentLoaded', function() {
+console.log('DOM loaded, initializing map');
+
+// Initialize map with a dark theme
+var map = L.map('map', {
+center: [32.7767, -96.7970],
+zoom: 8,
+zoomControl: true,
+attributionControl: true
+});
+
+// Create base map layers
+var satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+attribution: '&copy; <a href="https://www.esri.com/">Esri</a>',
+maxZoom: 19
+});
+
+var streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+maxZoom: 19
+});
+
+var topoLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+attribution: '&copy; <a href="https://opentopomap.org">OpenTopoMap</a> contributors',
+maxZoom: 17
+});
+
+var darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a>',
+subdomains: 'abcd',
+maxZoom: 19
+});
+
+// Add satellite layer by default
+satelliteLayer.addTo(map);
+
+// Create layer control
+var baseMaps = {
+"Satellite": satelliteLayer,
+"Streets": streetLayer,
+"Topographic": topoLayer,
+"Dark Mode": darkLayer
+};
+
+// Add layer control to the map
+L.control.layers(baseMaps, null, {position: 'topright'}).addTo(map);
+
+// Force a map refresh to prevent rendering issues
+setTimeout(function() {
+map.invalidateSize(true);
+console.log('Map size invalidated for proper rendering');
+}, 500);
+
+// Storage for markers
+var assetMarkers = {};
+var jobSiteMarkers = {};
+var jobSites = []; // Global variable to store job site data
+
+// Create custom icons for assets
+function createAssetIcon(status) {
+var color = "#28a745"; // Default: active
+
+if (status === "idle") {
+color = "#ffc107";
+} else if (status === "maintenance") {
+color = "#dc3545";
+} else if (status === "inactive") {
+color = "#6c757d";
+}
+
+return L.divIcon({
+className: 'asset-marker-icon',
+html: `<div style="background-color:${color};width:12px;height:12px;border-radius:50%;border:2px solid white;"></div>`,
+iconSize: [16, 16],
+iconAnchor: [8, 8]
+});
+}
+
+// Create job site icon
+function createJobSiteIcon() {
+return L.divIcon({
+className: 'job-site-marker',
+html: `<div style="background:#343a40;color:white;border-radius:50%;width:10px;height:10px;border:2px solid white;"></div>`,
+iconSize: [14, 14],
+iconAnchor: [7, 7]
+});
+}
+
+// Create site overlay group
+var jobSiteOverlay = L.layerGroup().addTo(map);
+
+// Create asset overlay group
+var assetOverlay = L.layerGroup().addTo(map);
+
+// Create overlay controls
+var overlays = {
+"Assets": assetOverlay,
+"Job Sites": jobSiteOverlay
+};
+
+// Update layer control to include overlays
+L.control.layers(baseMaps, overlays, {position: 'topright'}).addTo(map);
+
+// Load assets from API
+function loadAssets() {
+updateApiStatus('loading');
+
+var typeFilter = document.getElementById('type-filter').value;
+var jobSiteFilter = document.getElementById('job-site-filter').value;
+
+var params = [];
+if (typeFilter) params.push('type=' + encodeURIComponent(typeFilter));
+if (jobSiteFilter) params.push('job_site=' + encodeURIComponent(jobSiteFilter));
+var queryString = params.length > 0 ? '?' + params.join('&') : '';
+
+fetch('/map/api/assets' + queryString)
+.then(function(response) {
+if (!response.ok) {
+throw new Error('Network response was not ok');
+}
+return response.json();
+})
+.then(function(data) {
+console.log('Assets loaded:', data);
+updateApiStatus('success');
+
+// Clear existing markers
+Object.values(assetMarkers).forEach(function(marker) {
+map.removeLayer(marker);
+});
+assetMarkers = {};
+
+// Add markers for assets
+data.forEach(function(asset) {
+if (!asset.latitude || !asset.longitude) return;
+
+var marker = L.marker([asset.latitude, asset.longitude], {
+icon: createAssetIcon(asset.status)
+}).addTo(assetOverlay);
+
+// Check for overlapping job sites
+var assetLatLng = L.latLng(asset.latitude, asset.longitude);
+var matchingSites = [];
+
+// Look through all job sites to find any that contain this asset
+jobSites.forEach(function(site) {
+var siteLatLng = L.latLng(site.latitude, site.longitude);
+var distance = assetLatLng.distanceTo(siteLatLng);
+
+// If asset is within radius, add to matching sites
+if (distance <= site.radius) {
+matchingSites.push({
+site: site,
+distance: distance
+});
+}
+});
+
+// Sort matching sites by distance (closest first)
+matchingSites.sort(function(a, b) {
+return a.distance - b.distance;
+});
+
+// Build the job site conflict section for popup
+var jobSiteSection = '';
+if (matchingSites.length > 0) {
+// Primary site is the closest one
+var primarySite = matchingSites[0].site;
+
+jobSiteSection = `<div><strong>Primary Job Site:</strong> ${primarySite.name}</div>`;
+
+// If there are multiple matching sites, show the conflicts section with site recommendation logic
+if (matchingSites.length > 1) {
+jobSiteSection += `<div class="mt-2 mb-1"><strong class="text-warning">⚠️ PM Conflict Alert:</strong></div>`;
+jobSiteSection += `<div class="small bg-light p-2 rounded mb-2" style="max-height: 120px; overflow-y: auto;">`;
+
+// Calculate recommendation scores based on multiple factors
+matchingSites.forEach(function(match) {
+// Base score = inverse of distance (closer = higher score)
+var distanceScore = 1000 / (match.distance + 10); // Add 10m to avoid division by zero
+
+// Add job type bonus based on equipment type and project type
+var jobTypeBonus = 0;
+
+// Equipment type bonuses for linear/rectangular projects (highways, bridges)
+if (match.site.shape_type === 'rectangle') {
+if (asset.type === 'Excavator') {
+jobTypeBonus += 80; // Excavators are commonly used on road/bridge projects
+} else if (asset.type === 'Roller') {
+jobTypeBonus += 100; // Rollers are almost always on road projects
+} else if (asset.type === 'Crane') {
+jobTypeBonus += 90; // Cranes are often used on bridge projects
+} else if (asset.type === 'Bridge Machine') {
+jobTypeBonus += 120; // Bridge machines are specifically for bridge projects
+} else if (asset.type === 'Grader') {
+jobTypeBonus += 90; // Graders are for road projects
+} else if (asset.type === 'Dozer') {
+jobTypeBonus += 70; // Dozers often on road projects
+}
+}
+// Equipment type bonuses for yard/circular projects
+else if (match.site.shape_type === 'circle') {
+if (asset.type === 'Backhoe') {
+jobTypeBonus += 70; // Backhoes often used at yards
+} else if (asset.type === 'Wheel Loader') {
+jobTypeBonus += 80; // Wheel loaders commonly at yards
+} else if (asset.type === 'Skid Steer') {
+jobTypeBonus += 70; // Skid steers often at yards
+} else if (asset.type === 'Truck Mounted Attenuator (TMA)') {
+jobTypeBonus += 60; // TMAs often return to yards
+}
+}
+
+// Check for project number patterns in job site name
+if (match.site.job_number) {
+// Get year from job number if available (e.g., "2023" from "2023-032")
+const jobYearMatch = match.site.job_number.match(/^(\d{4})/);
+if (jobYearMatch) {
+const jobYear = parseInt(jobYearMatch[1]);
+const currentYear = new Date().getFullYear();
+
+// More recent projects get higher priority (likely still active)
+if (jobYear === currentYear) {
+jobTypeBonus += 40; // Current year projects are high priority
+} else if (jobYear === currentYear - 1) {
+jobTypeBonus += 20; // Last year's projects still relevant
+}
+}
+}
+
+// Historical pattern bonus: Equipment tends to stay at the same job site
+// If asset location has project number in it, and it matches this job site
+if (asset.location && match.site.job_number) {
+// If the asset's current reported location contains this job's number
+if (asset.location.includes(match.site.job_number)) {
+jobTypeBonus += 200; // Very strong signal it belongs to this site
+}
+
+// If the asset's last known location was this type of job site
+// (e.g., bridge equipment on another bridge project)
+if (asset.location.toLowerCase().includes('bridge') &&
+match.site.name.toLowerCase().includes('bridge')) {
+jobTypeBonus += 50; // Similar job type bonus
+}
+}
+
+// Seasonal/weather factor
+const currentMonth = new Date().getMonth(); // 0-11, Jan=0, Dec=11
+// Summer months: more road work
+if (currentMonth >= 4 && currentMonth <= 8) { // May-Sept
+if (match.site.name.toLowerCase().includes('road') ||
+match.site.name.toLowerCase().includes('rehab') ||
+match.site.name.toLowerCase().includes('highway')) {
+jobTypeBonus += 30; // Summer road work bonus
+}
+}
+
+// Check if asset is likely sold or inactive
+var activeStatus = true;
+var soldPenalty = 0;
+
+// Parse last update date to determine if asset is likely inactive
+if (asset.last_update) {
+var lastUpdateDate = new Date(asset.last_update);
+var currentDate = new Date();
+var daysDiff = Math.floor((currentDate - lastUpdateDate) / (1000 * 60 * 60 * 24));
+
+// If asset hasn't reported in over 180 days, it's likely sold/disposed
+if (daysDiff > 180) {
+activeStatus = false;
+soldPenalty = 500; // Large penalty to lower score
+}
+// If asset hasn't reported in over a month, it might be in maintenance
+else if (daysDiff > 30) {
+soldPenalty = 200; // Moderate penalty
+}
+}
+
+// Calculate final recommendation score
+match.recommendationScore = distanceScore + jobTypeBonus - soldPenalty;
+match.activeStatus = activeStatus;
+});
+
+// Sort by recommendation score (highest first)
+matchingSites.sort(function(a, b) {
+return b.recommendationScore - a.recommendationScore;
+});
+
+// Assign recommendation categories
+const highestScore = matchingSites[0].recommendationScore;
+matchingSites.forEach(function(match) {
+// Calculate confidence percentage relative to highest score
+const confidencePercent = Math.round((match.recommendationScore / highestScore) * 100);
+match.confidencePercent = confidencePercent;
+
+if (confidencePercent >= 90) {
+match.recommendationLevel = 'Highly Recommended';
+match.badgeClass = 'bg-success';
+} else if (confidencePercent >= 70) {
+match.recommendationLevel = 'Recommended';
+match.badgeClass = 'bg-primary';
+} else if (confidencePercent >= 40) {
+match.recommendationLevel = 'Possible';
+match.badgeClass = 'bg-secondary';
+} else {
+match.recommendationLevel = 'Unlikely';
+match.badgeClass = 'bg-dark';
+}
+});
+
+// First remove the "Primary Job Site" line since we're going to show a better version
+jobSiteSection = '';
+
+// Add a title with site recommendation explanation
+jobSiteSection += `<div class="mt-2 mb-2"><strong class="text-warning">⚠️ Job Site Conflict Alert</strong><div class="small"><em>Recommended job sites for ${asset.type || 'equipment'} based on intelligent scoring:</em></div></div>`;
+
+// Display recommendations with percentage scores
+matchingSites.forEach(function(match, idx) {
+var distance = (match.distance / 1000).toFixed(2);
+var isTopRecommendation = idx === 0;
+var siteBoxClass = isTopRecommendation ?
+'border border-success rounded-3 mb-2 p-2 bg-light bg-opacity-25' :
+'border border-light mb-2 p-2 bg-light bg-opacity-10';
+
+// Add project number prefix if available in the name
+var siteName = match.site.name;
+var projectMatch = siteName.match(/^(\d{4}-\d{3})\s+(.+)/);
+var displayName = siteName;
+
+if (projectMatch) {
+displayName = `<span class="badge bg-dark me-1">${projectMatch[1]}</span>${projectMatch[2]}`;
+}
+
+var siteHeader = isTopRecommendation ?
+`<div class="d-flex align-items-center"><span class="badge bg-success me-2">Top Choice</span><strong>${displayName}</strong></div>` :
+`<strong>${displayName}</strong>`;
+
+var confidenceBadge = `<div class="progress mt-1 mb-1" style="height: 8px;"><div class="progress-bar ${match.badgeClass}" role="progressbar"
+style="width: ${match.confidencePercent}%"
+aria-valuenow="${match.confidencePercent}" aria-valuemin="0" aria-valuemax="100"></div></div>`;
+
+// Create detailed factor breakdown to explain the recommendation score
+var inactiveWarning = '';
+var scoreBreakdown = '';
+if (asset.last_update) {
+var lastUpdateDate = new Date(asset.last_update);
+var currentDate = new Date();
+var daysDiff = Math.floor((currentDate - lastUpdateDate) / (1000 * 60 * 60 * 24));
+
+if (daysDiff > 180) {
+inactiveWarning = `<div class="small text-danger fw-bold">WARNING: Equipment likely sold/disposed</div>`;
+} else if (daysDiff > 30) {
+inactiveWarning = `<div class="small text-warning">Note: Equipment inactive ${daysDiff} days</div>`;
+}
+}
+
+// Add score breakdown so PMs can see exactly why this recommendation was made
+var baseDistanceScore = Math.round(1000 / (match.distance + 10));
+var formattedDistance = (match.distance / 1000).toFixed(2);
+
+// Only show breakdown for the highest ranked site
+if (idx === 0) {
+scoreBreakdown = `
+<div class="mt-2 border-top pt-2"><div class="small fw-bold">Why This Recommendation?</div><div class="small"><table class="table table-sm table-borderless mb-0"><tr><td>Distance (${formattedDistance} km):</td><td class="text-end">+${baseDistanceScore} pts</td></tr>`;
+
+// Add equipment type factor
+if ((match.site.shape_type === 'rectangle' &&
+['Excavator', 'Roller', 'Crane', 'Bridge Machine', 'Grader', 'Dozer'].includes(asset.type)) ||
+(match.site.shape_type === 'circle' &&
+['Backhoe', 'Wheel Loader', 'Skid Steer', 'Truck Mounted Attenuator (TMA)'].includes(asset.type))) {
+
+const equipTypeScore = match.site.shape_type === 'rectangle' ?
+(asset.type === 'Bridge Machine' ? 120 :
+asset.type === 'Roller' ? 100 :
+asset.type === 'Crane' ? 90 :
+asset.type === 'Grader' ? 90 :
+asset.type === 'Excavator' ? 80 : 70) :
+(asset.type === 'Wheel Loader' ? 80 : 70);
+
+scoreBreakdown += `
+<tr><td>${asset.type} type bonus:</td><td class="text-end">+${equipTypeScore} pts</td></tr>`;
+}
+
+// Historical pattern factor
+if (asset.location && match.site.job_number &&
+asset.location.includes(match.site.job_number)) {
+scoreBreakdown += `
+<tr><td>Historical pattern:</td><td class="text-end">+200 pts</td></tr>`;
+}
+
+// Project type matching
+if (asset.location &&
+asset.location.toLowerCase().includes('bridge') &&
+match.site.name.toLowerCase().includes('bridge')) {
+scoreBreakdown += `
+<tr><td>Project type match:</td><td class="text-end">+50 pts</td></tr>`;
+}
+
+// Project recency factor
+if (match.site.job_number) {
+const jobYearMatch = match.site.job_number.match(/^(\d{4})/);
+if (jobYearMatch) {
+const jobYear = parseInt(jobYearMatch[1]);
+const currentYear = new Date().getFullYear();
+
+if (jobYear === currentYear) {
+scoreBreakdown += `
+<tr><td>Current year project:</td><td class="text-end">+40 pts</td></tr>`;
+} else if (jobYear === currentYear - 1) {
+scoreBreakdown += `
+<tr><td>Recent project:</td><td class="text-end">+20 pts</td></tr>`;
+}
+}
+}
+
+// Seasonal factor
+const currentMonth = new Date().getMonth();
+if (currentMonth >= 4 && currentMonth <= 8 &&
+(match.site.name.toLowerCase().includes('road') ||
+match.site.name.toLowerCase().includes('rehab') ||
+match.site.name.toLowerCase().includes('highway'))) {
+scoreBreakdown += `
+<tr><td>Seasonal pattern:</td><td class="text-end">+30 pts</td></tr>`;
+}
+
+// Inactivity penalty
+if (soldPenalty > 0) {
+scoreBreakdown += `
+<tr><td>Inactivity penalty:</td><td class="text-end">-${soldPenalty} pts</td></tr>`;
+}
+
+scoreBreakdown += `
+</table></div></div>`;
+}
+
+jobSiteSection += `<div class="${siteBoxClass}">
+${siteHeader}
+${confidenceBadge}
+<div class="small d-flex justify-content-between"><div><span class="badge ${match.badgeClass}">${match.confidencePercent}%</span> ${match.recommendationLevel}</div><div class="text-muted">${distance} km</div></div>
+${inactiveWarning}
+${scoreBreakdown}
+</div>`;
+});
+
+jobSiteSection += `</div><div class="small text-warning fw-bold">📝 PM verification required - Log in to assign to specific job</div>`;
+}
+}
+
+var popupContent = `
+<div style="min-width:250px"><h5>${asset.name || asset.id || 'Asset'}</h5><div><strong>ID:</strong> ${asset.asset_id || asset.id}</div><div><strong>Type:</strong> ${asset.type || 'Unknown'}</div>
+${asset.make ? `<div><strong>Make:</strong> ${asset.make}</div>` : ''}
+${asset.model ? `<div><strong>Model:</strong> ${asset.model}</div>` : ''}
+${asset.serial ? `<div><strong>Serial:</strong> ${asset.serial}</div>` : ''}
+<div><strong>Driver:</strong> ${asset.driver || 'None'}</div><div><strong>Status:</strong> ${asset.status || 'Unknown'}</div>
+${jobSiteSection}
+${asset.location ? `<div><strong>Location:</strong> ${asset.location}</div>` : ''}
+<div><strong>Last Update:</strong> ${asset.last_update ? new Date(asset.last_update).toLocaleString() : 'Unknown'}</div></div>
+`;
+
+marker.bindPopup(popupContent);
+assetMarkers[asset.id] = marker;
+});
+
+document.getElementById('last-update-time').textContent = new Date().toLocaleTimeString();
+})
+.catch(function(error) {
+console.error('Error loading assets:', error);
+updateApiStatus('error');
+});
+}
+
+// Load job sites and create geofences
+function loadJobSites() {
+fetch('/map/api/job-sites')
+.then(function(response) {
+if (!response.ok) {
+throw new Error('Network response was not ok');
+}
+return response.json();
+})
+.then(function(data) {
+console.log('Job sites loaded:', data);
+
+// Store job sites globally for proximity detection
+jobSites = data;
+
+// Clear existing markers
+Object.values(jobSiteMarkers).forEach(function(siteObj) {
+if (siteObj.marker) map.removeLayer(siteObj.marker);
+if (siteObj.shape) map.removeLayer(siteObj.shape);
+});
+jobSiteMarkers = {};
+
+// Add markers and geofences for job sites
+data.forEach(function(site) {
+if (!site.latitude || !site.longitude) return;
+
+// Skip if there's already a marker at this exact location (avoid duplicates)
+var locationKey = site.latitude.toFixed(5) + ',' + site.longitude.toFixed(5);
+if (window.usedLocations && window.usedLocations.has(locationKey)) return;
+
+// Track used locations to avoid duplicate markers
+if (!window.usedLocations) window.usedLocations = new Set();
+window.usedLocations.add(locationKey);
+
+// Create marker for job site location
+var marker = L.marker([site.latitude, site.longitude], {
+icon: createJobSiteIcon()
+}).addTo(jobSiteOverlay);
+
+// Create the appropriate geofence shape based on site type with precision intelligence
+var radius = site.radius || 1000; // Default 1km radius if not specified
+var color = site.color || '#FF5733'; // Default color if not specified
+var shape; // Will hold the geofence shape (circle, polygon, etc.)
+
+// Determine which type of shape to create based on shape_type
+if (site.shape_type === 'rectangle' && site.polygon && site.polygon.length > 0) {
+// Create a precise rectangle for highway/road projects using polygon data
+shape = L.polygon(site.polygon, {
+color: color,
+fillColor: color,
+fillOpacity: 0.1,
+weight: 2,
+dashArray: '5, 5',
+interactive: true
+}).addTo(jobSiteOverlay);
+}
+else if (site.shape_type === 'cross') {
+// Create a precise cross shape for intersections
+var layers = [];
+
+// Check if we have advanced cross data from the backend
+if (site.polygon && site.polygon.center && site.polygon.arm_length) {
+// Use the precise dimensions from backend
+var center = site.polygon.center;
+var armLength = site.polygon.arm_length;
+var armWidth = site.polygon.arm_width;
+var intersectionSize = site.polygon.size || 'minor';
+
+// Create horizontal arm (East-West)
+var horizontalArm = L.rectangle([
+[center[0] - armWidth, center[1] - armLength],
+[center[0] + armWidth, center[1] + armLength]
+], {
+color: color,
+fillColor: color,
+fillOpacity: 0.1,
+weight: 2,
+dashArray: '5, 5',
+interactive: true
+}).addTo(jobSiteOverlay);
+
+// Create vertical arm (North-South)
+var verticalArm = L.rectangle([
+[center[0] - armLength, center[1] - armWidth],
+[center[0] + armLength, center[1] + armWidth]
+], {
+color: color,
+fillColor: color,
+fillOpacity: 0.1,
+weight: 2,
+dashArray: '5, 5',
+interactive: true
+}).addTo(jobSiteOverlay);
+
+// Add both arms to the layer group
+layers.push(horizontalArm, verticalArm);
+
+// For major intersections, add diagonal crossing elements for more precision
+if (intersectionSize === 'major') {
+var diagonalLength = armLength * 0.7;
+var diagonalWidth = armWidth * 0.7;
+
+// Calculate points for diagonal elements (NW-SE and NE-SW)
+// NW to SE diagonal
+var diagonalNWSE = L.polygon([
+[center[0] - diagonalLength, center[1] - diagonalLength], // NW
+[center[0] - diagonalLength + diagonalWidth, center[1] - diagonalLength + diagonalWidth], // NW offset
+[center[0] + diagonalLength, center[1] + diagonalLength], // SE
+[center[0] + diagonalLength - diagonalWidth, center[1] + diagonalLength - diagonalWidth]  // SE offset
+], {
+color: color,
+fillColor: color,
+fillOpacity: 0.1,
+weight: 2,
+dashArray: '5, 5',
+interactive: true
+}).addTo(jobSiteOverlay);
+
+// NE to SW diagonal
+var diagonalNESW = L.polygon([
+[center[0] - diagonalLength, center[1] + diagonalLength], // NE
+[center[0] - diagonalLength + diagonalWidth, center[1] + diagonalLength - diagonalWidth], // NE offset
+[center[0] + diagonalLength, center[1] - diagonalLength], // SW
+[center[0] + diagonalLength - diagonalWidth, center[1] - diagonalLength + diagonalWidth]  // SW offset
+], {
+color: color,
+fillColor: color,
+fillOpacity: 0.1,
+weight: 2,
+dashArray: '5, 5',
+interactive: true
+}).addTo(jobSiteOverlay);
+
+layers.push(diagonalNWSE, diagonalNESW);
+}
+} else {
+// Fallback to basic cross if no advanced data
+var lat = site.latitude;
+var lng = site.longitude;
+var halfRadius = radius / 111320; // Convert meters to degrees (approx)
+var thinWidth = halfRadius * 0.3;
+
+// Create the horizontal arm
+var horizontalArm = L.rectangle([
+[lat - thinWidth, lng - halfRadius],
+[lat + thinWidth, lng + halfRadius]
+], {
+color: color,
+fillColor: color,
+fillOpacity: 0.1,
+weight: 2,
+dashArray: '5, 5',
+interactive: true
+}).addTo(jobSiteOverlay);
+
+// Create the vertical arm
+var verticalArm = L.rectangle([
+[lat - halfRadius, lng - thinWidth],
+[lat + halfRadius, lng + thinWidth]
+], {
+color: color,
+fillColor: color,
+fillOpacity: 0.1,
+weight: 2,
+dashArray: '5, 5',
+interactive: true
+}).addTo(jobSiteOverlay);
+
+layers.push(horizontalArm, verticalArm);
+}
+
+// Group all elements into one shape
+shape = L.layerGroup(layers);
+}
+else {
+// Default to a circle for other shapes (yards, etc.)
+shape = L.circle([site.latitude, site.longitude], {
+radius: radius,
+color: color,
+fillColor: color,
+fillOpacity: 0.1,
+weight: 2,
+dashArray: '5, 5',
+interactive: true
+}).addTo(jobSiteOverlay);
+}
+
+// Add asset count to popup if available
+var assetCount = site.asset_count ? `<div><strong>Equipment Count:</strong> ${site.asset_count}</div>` : '';
+
+var popupContent = `
+<div style="min-width:200px"><h5>${site.name}</h5><div><strong>Job Number:</strong> ${site.job_number || 'None'}</div><div><strong>Address:</strong> ${site.address || 'Unknown'}</div>
+${assetCount}
+<div><strong>Geofence Radius:</strong> ${(radius/1000).toFixed(1)} km</div></div>
+`;
+
+// Bind popup to marker
+marker.bindPopup(popupContent);
+
+// Bind popup to shape if it's a standard Leaflet layer
+if (shape && typeof shape.bindPopup === 'function') {
+shape.bindPopup(popupContent);
+}
+// For layer groups (like our cross shape), bind to each layer
+else if (shape && typeof shape.eachLayer === 'function') {
+shape.eachLayer(function(layer) {
+if (typeof layer.bindPopup === 'function') {
+layer.bindPopup(popupContent);
+}
+});
+}
+
+// Store references to both marker and shape
+jobSiteMarkers[site.id] = {
+marker: marker,
+shape: shape
+};
+});
+})
+.catch(function(error) {
+console.error('Error loading job sites:', error);
+});
+}
+
+// Update API status indicator
+function updateApiStatus(status) {
+var statusElement = document.getElementById('api-status');
+if (status === 'loading') {
+statusElement.innerHTML = '<span><i class="bi bi-cloud me-1"></i> API Connection</span><span class="badge bg-info">Loading...</span>';
+} else if (status === 'success') {
+statusElement.innerHTML = '<span><i class="bi bi-cloud me-1"></i> API Connection</span><span class="badge bg-success">Connected</span>';
+} else if (status === 'error') {
+statusElement.innerHTML = '<span><i class="bi bi-cloud me-1"></i> API Connection</span><span class="badge bg-danger">Error</span>';
+}
+}
+
+// Load initial data
+loadAssets();
+loadJobSites();
+
+// Set up auto-refresh every 60 seconds
+setInterval(loadAssets, 60000);
+
+// Set up event listeners
+document.getElementById('refresh-map').addEventListener('click', function() {
+loadAssets();
+loadJobSites();
+});
+
+document.getElementById('type-filter').addEventListener('change', loadAssets);
+document.getElementById('job-site-filter').addEventListener('change', loadAssets);
+});
+</script></body></html>

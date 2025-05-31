@@ -1,0 +1,344 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>TRAXOVO Asset Availability Intelligence</title><style>
+body {
+margin: 0;
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+background: #1a1a1a;
+color: white;
+overflow-x: hidden;
+}
+.header {
+background: linear-gradient(135deg, #e74c3c, #c0392b);
+padding: 20px;
+text-align: center;
+box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+.header h1 {
+margin: 0;
+font-size: clamp(20px, 4vw, 28px);
+font-weight: 600;
+}
+.subtitle {
+margin: 5px 0 0 0;
+opacity: 0.9;
+font-size: 16px;
+}
+.main-dashboard {
+padding: 20px;
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 20px;
+max-width: 1400px;
+margin: 0 auto;
+}
+
+/* Alert Section */
+.alerts-section {
+grid-column: 1 / -1;
+background: #2c3e50;
+border-radius: 12px;
+padding: 20px;
+border-left: 4px solid #e74c3c;
+}
+.alert-item {
+background: #34495e;
+padding: 15px;
+margin: 10px 0;
+border-radius: 8px;
+border-left: 4px solid #f39c12;
+}
+.alert-item.high { border-left-color: #e74c3c; }
+.alert-item.medium { border-left-color: #f39c12; }
+.alert-item.low { border-left-color: #27ae60; }
+
+.alert-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 10px;
+}
+.alert-priority {
+padding: 4px 8px;
+border-radius: 4px;
+font-size: 12px;
+font-weight: bold;
+}
+.priority-high { background: #e74c3c; }
+.priority-medium { background: #f39c12; }
+.priority-low { background: #27ae60; }
+
+/* Stagnant Assets */
+.stagnant-section {
+background: #2c3e50;
+border-radius: 12px;
+padding: 20px;
+border-left: 4px solid #f39c12;
+}
+.asset-card {
+background: #34495e;
+padding: 12px;
+margin: 8px 0;
+border-radius: 6px;
+border-left: 3px solid #e74c3c;
+}
+.asset-name {
+font-weight: bold;
+color: #3498db;
+margin-bottom: 5px;
+}
+.asset-details {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 10px;
+font-size: 12px;
+color: #bdc3c7;
+}
+.days-inactive {
+color: #e74c3c;
+font-weight: bold;
+}
+.revenue-potential {
+color: #27ae60;
+font-weight: bold;
+}
+
+/* Available Assets */
+.available-section {
+background: #2c3e50;
+border-radius: 12px;
+padding: 20px;
+border-left: 4px solid #27ae60;
+}
+.category-group {
+margin: 15px 0;
+padding: 10px;
+background: #34495e;
+border-radius: 6px;
+}
+.category-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 10px;
+padding-bottom: 5px;
+border-bottom: 1px solid #4a5f7a;
+}
+.category-name {
+font-weight: bold;
+color: #27ae60;
+}
+.asset-count {
+background: #27ae60;
+color: white;
+padding: 2px 8px;
+border-radius: 12px;
+font-size: 12px;
+}
+
+/* Quick Actions */
+.quick-actions {
+display: flex;
+gap: 10px;
+margin: 15px 0;
+flex-wrap: wrap;
+}
+.action-btn {
+background: #3498db;
+color: white;
+border: none;
+padding: 8px 15px;
+border-radius: 5px;
+cursor: pointer;
+font-size: 12px;
+transition: all 0.3s;
+}
+.action-btn:hover {
+background: #2980b9;
+}
+.action-btn.urgent {
+background: #e74c3c;
+}
+.action-btn.success {
+background: #27ae60;
+}
+
+/* Filters */
+.filter-bar {
+background: #34495e;
+padding: 15px;
+margin-bottom: 20px;
+border-radius: 8px;
+display: flex;
+gap: 15px;
+align-items: center;
+flex-wrap: wrap;
+}
+.filter-item {
+display: flex;
+align-items: center;
+gap: 5px;
+}
+.filter-select, .filter-input {
+background: #2c3e50;
+color: white;
+border: 1px solid #4a5f7a;
+padding: 5px 10px;
+border-radius: 4px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+.main-dashboard {
+grid-template-columns: 1fr;
+padding: 15px;
+}
+.filter-bar {
+flex-direction: column;
+align-items: stretch;
+}
+.filter-item {
+justify-content: space-between;
+}
+}
+
+.section-title {
+margin: 0 0 15px 0;
+font-size: 18px;
+font-weight: 600;
+}
+</style></head><body><div class="header"><h1>🚨 Asset Availability Intelligence</h1><p class="subtitle">Reduce rental costs by maximizing internal fleet utilization</p></div><div class="filter-bar"><div class="filter-item"><label>Stagnant Days:</label><select class="filter-select" id="stagnantDays" onchange="updateStagnantAssets()"><option value="3">3+ days</option><option value="7" selected>7+ days</option><option value="14">14+ days</option><option value="30">30+ days</option></select></div><div class="filter-item"><label>Category Filter:</label><select class="filter-select" id="categoryFilter" onchange="updateAvailableAssets()"><option value="">All Categories</option><option value="Air Compressor">Air Compressors</option><option value="Pickup Truck">Pickup Trucks</option><option value="Excavator">Excavators</option><option value="Dump Truck">Dump Trucks</option></select></div><div class="quick-actions"><button class="action-btn urgent" onclick="refreshAlerts()">🔄 Refresh Alerts</button><button class="action-btn success" onclick="exportAvailableAssets()">📊 Export Available</button></div></div><div class="main-dashboard"><div class="alerts-section"><h2 class="section-title">🚨 Dispatch Alerts</h2><div id="alertsList"></div></div><div class="stagnant-section"><h2 class="section-title">⏰ Stagnant Assets (High Priority)</h2><div id="stagnantAssetsList"></div></div><div class="available-section"><h2 class="section-title">✅ Available Assets by Category</h2><div id="availableAssetsList"></div></div></div><script>
+// Load dispatch alerts
+function loadDispatchAlerts() {
+fetch('/asset-intelligence/api/dispatch-alerts')
+.then(response => response.json())
+.then(data => {
+const container = document.getElementById('alertsList');
+container.innerHTML = '';
+
+if (data.alerts.length === 0) {
+container.innerHTML = '<p style="color: #27ae60;">✅ No critical alerts - fleet utilization is optimized!</p>';
+return;
+}
+
+data.alerts.forEach(alert => {
+const alertDiv = document.createElement('div');
+alertDiv.className = `alert-item ${alert.priority.toLowerCase()}`;
+
+alertDiv.innerHTML = `
+<div class="alert-header"><span class="alert-priority priority-${alert.priority.toLowerCase()}">${alert.priority}</span><span>${alert.type}</span></div><div style="margin-bottom: 10px;"><strong>${alert.message}</strong></div><div style="font-size: 14px; color: #bdc3c7;">${alert.action}</div>
+`;
+
+container.appendChild(alertDiv);
+});
+})
+.catch(error => {
+console.error('Error loading alerts:', error);
+});
+}
+
+// Load stagnant assets
+function updateStagnantAssets() {
+const days = document.getElementById('stagnantDays').value;
+
+fetch(`/asset-intelligence/api/stagnant-assets?days=${days}`)
+.then(response => response.json())
+.then(data => {
+const container = document.getElementById('stagnantAssetsList');
+container.innerHTML = '';
+
+if (data.stagnant_assets.length === 0) {
+container.innerHTML = '<p style="color: #27ae60;">✅ No stagnant assets found!</p>';
+return;
+}
+
+data.stagnant_assets.forEach(asset => {
+const assetDiv = document.createElement('div');
+assetDiv.className = 'asset-card';
+
+assetDiv.innerHTML = `
+<div class="asset-name">${asset.name} (${asset.asset_id})</div><div class="asset-details"><div>Category: ${asset.category}</div><div>Location: ${asset.location}</div><div class="days-inactive">Inactive: ${asset.days_inactive} days</div><div class="revenue-potential">Revenue Potential: $${asset.revenue_potential}/month</div></div><div style="margin-top: 10px;"><button class="action-btn" onclick="deployAsset('${asset.asset_id}')">🚀 Deploy Asset</button><button class="action-btn" onclick="viewOnMap('${asset.latitude}', '${asset.longitude}')">📍 View Location</button></div>
+`;
+
+container.appendChild(assetDiv);
+});
+})
+.catch(error => {
+console.error('Error loading stagnant assets:', error);
+});
+}
+
+// Load available assets
+function updateAvailableAssets() {
+const category = document.getElementById('categoryFilter').value;
+const url = category ?
+`/asset-intelligence/api/available-assets?category=${encodeURIComponent(category)}` :
+'/asset-intelligence/api/available-assets';
+
+fetch(url)
+.then(response => response.json())
+.then(data => {
+const container = document.getElementById('availableAssetsList');
+container.innerHTML = '';
+
+if (Object.keys(data.available_assets).length === 0) {
+container.innerHTML = '<p style="color: #f39c12;">⚠️ No available assets found</p>';
+return;
+}
+
+Object.entries(data.available_assets).forEach(([category, assets]) => {
+if (assets.length === 0) return;
+
+const categoryDiv = document.createElement('div');
+categoryDiv.className = 'category-group';
+
+categoryDiv.innerHTML = `
+<div class="category-header"><span class="category-name">${category}</span><span class="asset-count">${assets.length} Available</span></div><div class="assets-list">
+${assets.map(asset => `
+<div class="asset-card" style="margin: 5px 0; border-left-color: #27ae60;"><div class="asset-name">${asset.name} (${asset.asset_id})</div><div class="asset-details"><div>Location: ${asset.location}</div><div>Confidence: ${asset.availability_confidence}%</div><div>Est. Revenue: $${asset.estimated_revenue}/month</div><div>Last Update: ${asset.last_update.split('T')[0]}</div></div><div style="margin-top: 8px;"><button class="action-btn success" onclick="reserveAsset('${asset.asset_id}')">📋 Reserve for Job</button></div></div>
+`).join('')}
+</div>
+`;
+
+container.appendChild(categoryDiv);
+});
+})
+.catch(error => {
+console.error('Error loading available assets:', error);
+});
+}
+
+// Action functions
+function deployAsset(assetId) {
+alert(`Deploying asset ${assetId} - Contact PMS/PES for job assignment`);
+}
+
+function reserveAsset(assetId) {
+alert(`Asset ${assetId} reserved - Update dispatch system`);
+}
+
+function viewOnMap(lat, lng) {
+if (lat && lng) {
+window.open(`/gps-tracking#lat=${lat}&lng=${lng}`, '_blank');
+}
+}
+
+function refreshAlerts() {
+loadDispatchAlerts();
+updateStagnantAssets();
+updateAvailableAssets();
+}
+
+function exportAvailableAssets() {
+// Export functionality
+alert('Exporting available assets data...');
+}
+
+// Initialize dashboard
+document.addEventListener('DOMContentLoaded', function() {
+loadDispatchAlerts();
+updateStagnantAssets();
+updateAvailableAssets();
+
+// Refresh every 10 minutes
+setInterval(refreshAlerts, 10 * 60 * 1000);
+});
+</script></body></html>

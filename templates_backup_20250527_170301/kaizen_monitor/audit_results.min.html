@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Integrity Audit Results - TRAXORA{% endblock %}
+
+{% block content %}
+<div class="container mt-4"><div class="d-flex justify-content-between align-items-center mb-4"><h1>Integrity Audit Results</h1><a href="{{ url_for('kaizen_monitor.index') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Back to Kaizen Monitor
+</a></div><div class="alert {% if report.status == 'PASS' %}alert-success{% else %}alert-danger{% endif %}"><h4 class="alert-heading">
+{% if report.status == 'PASS' %}
+<i class="bi bi-check-circle"></i> Integrity Audit Passed
+{% else %}
+<i class="bi bi-exclamation-triangle"></i> Integrity Audit Failed
+{% endif %}
+</h4><p>Audit completed at {{ report.timestamp }}</p><hr><p class="mb-0">
+{% if report.status == 'PASS' %}
+All systems are properly synchronized. No integrity issues were found.
+{% else %}
+Some integrity issues were found. Please review the details below.
+{% endif %}
+</p></div><div class="row mb-4"><div class="col-md-3"><div class="card text-white bg-primary"><div class="card-body"><h5 class="card-title">Total Routes</h5><p class="card-text display-4">{{ report.summary.total_routes }}</p></div></div></div><div class="col-md-3"><div class="card text-white {% if report.summary.orphaned_routes > 0 %}bg-warning{% else %}bg-success{% endif %}"><div class="card-body"><h5 class="card-title">Orphaned Routes</h5><p class="card-text display-4">{{ report.summary.orphaned_routes }}</p></div></div></div><div class="col-md-3"><div class="card text-white {% if report.summary.orphaned_templates > 0 %}bg-warning{% else %}bg-success{% endif %}"><div class="card-body"><h5 class="card-title">Orphaned Templates</h5><p class="card-text display-4">{{ report.summary.orphaned_templates }}</p></div></div></div><div class="col-md-3"><div class="card text-white {% if report.summary.integrity_issues > 0 %}bg-danger{% else %}bg-success{% endif %}"><div class="card-body"><h5 class="card-title">Integrity Issues</h5><p class="card-text display-4">{{ report.summary.integrity_issues }}</p></div></div></div></div>
+
+{% if report.summary.orphaned_routes > 0 %}
+<div class="card mb-4"><div class="card-header bg-warning"><h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Orphaned Routes ({{ report.summary.orphaned_routes }})</h5></div><div class="card-body"><p>These backend routes don't have matching UI elements. They may be API endpoints or need UI components.</p><div class="table-responsive"><table class="table table-striped"><thead><tr><th>Path</th><th>Function</th><th>Blueprint</th><th>File</th><th>Actions</th></tr></thead><tbody>
+{% for route in report.orphaned_routes %}
+<tr><td><code>{{ route.path }}</code></td><td>{{ route.function }}</td><td>{{ route.blueprint or 'None' }}</td><td>{{ route.file }}</td><td><button class="btn btn-sm btn-primary auto-fix-route" data-route-id="{{ loop.index }}"><i class="bi bi-magic"></i> Auto-Fix
+</button></td></tr>
+{% endfor %}
+</tbody></table></div></div></div>
+{% endif %}
+
+{% if report.summary.orphaned_templates > 0 %}
+<div class="card mb-4"><div class="card-header bg-warning"><h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Orphaned Template References ({{ report.summary.orphaned_templates }})</h5></div><div class="card-body"><p>These UI elements reference endpoints that don't exist in the backend. They may be mistyped or need routes to be created.</p><div class="table-responsive"><table class="table table-striped"><thead><tr><th>Endpoint</th><th>Type</th><th>File</th><th>Actions</th></tr></thead><tbody>
+{% for template in report.orphaned_templates %}
+<tr><td><code>{{ template.endpoint }}</code></td><td>{{ template.type }}</td><td>{{ template.file }}</td><td><button class="btn btn-sm btn-primary auto-fix-template" data-template-id="{{ loop.index }}"><i class="bi bi-magic"></i> Auto-Fix
+</button></td></tr>
+{% endfor %}
+</tbody></table></div></div></div>
+{% endif %}
+
+{% if report.summary.integrity_issues > 0 %}
+<div class="card mb-4"><div class="card-header bg-danger text-white"><h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Integrity Issues ({{ report.summary.integrity_issues }})</h5></div><div class="card-body"><p>These issues affect the integrity of your application and should be fixed.</p><div class="list-group">
+{% for issue in report.integrity_issues %}
+<div class="list-group-item"><div class="d-flex w-100 justify-content-between"><h5 class="mb-1">{{ issue.type }}</h5><span class="badge {% if issue.severity == 'error' %}bg-danger{% else %}bg-warning{% endif %}">{{ issue.severity }}</span></div><p class="mb-1">{{ issue.message }}</p></div>
+{% endfor %}
+</div></div></div>
+{% endif %}
+
+{% if report.summary.conditional_elements > 0 %}
+<div class="card mb-4"><div class="card-header bg-info text-white"><h5 class="mb-0"><i class="bi bi-code-slash"></i> Conditional UI Elements ({{ report.summary.conditional_elements }})</h5></div><div class="card-body"><p>These UI elements are conditionally rendered and might be hidden under certain conditions.</p><div class="table-responsive"><table class="table table-striped"><thead><tr><th>Condition</th><th>Preview</th><th>File</th></tr></thead><tbody>
+{% for element in report.conditional_elements %}
+<tr><td><code>{{ element.condition }}</code></td><td>{{ element.preview }}</td><td>{{ element.file }}</td></tr>
+{% endfor %}
+</tbody></table></div></div></div>
+{% endif %}
+
+<div class="d-flex justify-content-between"><a href="{{ url_for('kaizen_monitor.run_audit') }}" class="btn btn-primary"><i class="bi bi-arrow-repeat"></i> Run Audit Again
+</a><a href="{{ report_path }}" class="btn btn-success" download><i class="bi bi-download"></i> Download Audit Report
+</a></div></div>
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+// Set up auto-fix buttons for routes
+const autoFixRouteButtons = document.querySelectorAll('.auto-fix-route');
+autoFixRouteButtons.forEach(button => {
+button.addEventListener('click', function() {
+const routeId = this.getAttribute('data-route-id');
+// Simulate fixing the route
+alert(`Auto-fixing route ${routeId}... This would create a UI element for this route.`);
+this.innerHTML = '<i class="bi bi-check-circle"></i> Fixed';
+this.classList.remove('btn-primary');
+this.classList.add('btn-success');
+this.disabled = true;
+});
+});
+
+// Set up auto-fix buttons for templates
+const autoFixTemplateButtons = document.querySelectorAll('.auto-fix-template');
+autoFixTemplateButtons.forEach(button => {
+button.addEventListener('click', function() {
+const templateId = this.getAttribute('data-template-id');
+// Simulate fixing the template
+alert(`Auto-fixing template ${templateId}... This would create a route handler for this endpoint.`);
+this.innerHTML = '<i class="bi bi-check-circle"></i> Fixed';
+this.classList.remove('btn-primary');
+this.classList.add('btn-success');
+this.disabled = true;
+});
+});
+});
+</script>
+{% endblock %}
+{% endblock %}

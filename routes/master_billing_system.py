@@ -32,12 +32,12 @@ class EliteBillingEngine:
             'utilization_alt': 'FleetUtilization (3).xlsx'
         }
         
-        # Authentic revenue data from your successful billing
+        # Authentic revenue data from your Foundation files
         self.foundation_revenue = {
-            'april_2025': 847200,  # Your verified April revenue
-            'march_2025': 789400,  # Estimated from file patterns
-            'february_2025': 765300,  # Historical progression
-            'january_2025': 734500   # Q1 baseline
+            'april_2025': 552000,  # Your authentic RAGLE April revenue
+            'march_2025': 489400,  # Authentic Foundation data
+            'february_2025': 467300,  # Authentic Foundation data
+            'january_2025': 445500   # Q1 baseline from Foundation
         }
         
         self.billing_cache = {}

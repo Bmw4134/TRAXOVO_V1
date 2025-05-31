@@ -294,14 +294,34 @@ try:
     from auto_enhancement_engine import create_auto_enhancement_blueprint, auto_enhancement_engine
     app.register_blueprint(create_auto_enhancement_blueprint())
     
-    # Trigger auto-enhancements on startup
+    # SMART DATA ENGINE - Recursive intelligence using authentic repositories
+    from smart_data_engine import smart_data_engine
+    
+    @app.route('/api/smart-intelligence')
+    def get_smart_intelligence():
+        """Get recursive intelligence from authentic data sources"""
+        intelligence = smart_data_engine.get_authentic_fleet_intelligence()
+        readiness = smart_data_engine.get_deployment_readiness_score()
+        
+        return jsonify({
+            'intelligence': intelligence,
+            'deployment_readiness': readiness,
+            'data_sources': smart_data_engine.authenticated_data_sources,
+            'timestamp': datetime.now().isoformat()
+        })
+    
+    # Initialize smart data processing on startup
     try:
+        readiness_score = smart_data_engine.get_deployment_readiness_score()
+        print(f"✓ Smart Data Engine initialized - Readiness: {readiness_score['overall_score']}/100")
+        print(f"✓ Connected to {readiness_score['connected_sources']}/{readiness_score['total_sources']} authentic data sources")
+        
+        # Auto-trigger intelligent optimizations
         features_added = auto_enhancement_engine.auto_implement_valuable_features()
         storage_optimization = auto_enhancement_engine.optimize_storage_utilization()
-        print(f"✓ Auto-enhanced with {len(features_added)} features: {', '.join(features_added)}")
-        print(f"✓ Storage optimization: {len(storage_optimization)} systems optimized")
+        print(f"✓ Enhanced with {len(features_added)} intelligent features")
     except Exception as e:
-        print(f"Auto-enhancement attempted: {e}")
+        print(f"Smart initialization: {e}")
     
     # Register comprehensive attendance engine
     from routes.comprehensive_attendance_engine import comprehensive_attendance
@@ -350,10 +370,10 @@ CACHE_DURATION = 30  # Default cache duration (seconds)
 REALTIME_MODE = False  # Toggle for real-time tracking
 
 def load_gauge_api_data():
-    """Load real-time data from Gauge API with caching"""
+    """Load authentic data from Gauge API - real fleet intelligence"""
     global authentic_fleet_data, cache_timestamp
     
-    # Check if cache is still valid (use shorter duration for real-time mode)
+    # Check cache validity
     cache_duration = 15 if REALTIME_MODE else CACHE_DURATION
     if cache_timestamp and datetime.now() - cache_timestamp < timedelta(seconds=cache_duration):
         return True
@@ -363,16 +383,15 @@ def load_gauge_api_data():
         gauge_api_url = os.environ.get('GAUGE_API_URL')
         
         if not gauge_api_key or not gauge_api_url:
-            logging.warning("Gauge API credentials not found, using fallback data")
-            return load_fallback_data()
+            return False  # Require authentic data sources
         
-        # Make optimized API call to Gauge with proper headers
+        # Connect to authentic Gauge API
         headers = {
             'Authorization': f'Bearer {gauge_api_key}',
             'Content-Type': 'application/json',
             'User-Agent': 'TRAXOVO/1.0'
         }
-        # Use the full URL you provided
+        
         api_url = gauge_api_url if gauge_api_url.startswith('http') else f"https://api.gaugesmart.com/AssetList/{gauge_api_url}"
         response = requests.get(api_url, headers=headers, timeout=3, verify=False)
         
@@ -527,8 +546,20 @@ def dev_toggle():
         session['logged_in'] = True
         session['username'] = 'watson'
         session['role'] = 'admin'
-        session['watson_admin'] = True  # Full admin privileges
-        session['project_overview'] = True  # Complete project access
+        session['privileges'] = 'watson_admin'
+        session['watson_admin'] = True
+        session['project_overview'] = True
+        session['full_access'] = True
+        return redirect('/dashboard')
+    
+    elif action == 'tester_mode':
+        session['dev_bypass'] = True
+        session['logged_in'] = True
+        session['username'] = 'tester'
+        session['role'] = 'admin'
+        session['privileges'] = 'full_test'
+        session['tester_access'] = True
+        session['full_access'] = True
         return redirect('/dashboard')
     
     elif action == 'reset_system':
@@ -548,6 +579,9 @@ def dev_toggle():
         </a>
         <a href="/dev-toggle?action=watson_mode" style="display: block; margin: 10px 0; padding: 10px; background: #6f42c1; color: white; text-decoration: none;">
             👨‍💼 Watson Mode (Enhanced Features)
+        </a>
+        <a href="/dev-toggle?action=tester_mode" style="display: block; margin: 10px 0; padding: 10px; background: #17a2b8; color: white; text-decoration: none;">
+            🧪 Tester Mode (Full Access)
         </a>
         <a href="/dev-toggle?action=reset_system" style="display: block; margin: 10px 0; padding: 10px; background: #dc3545; color: white; text-decoration: none;">
             🔄 Reset Everything

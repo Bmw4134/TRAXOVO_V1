@@ -110,20 +110,33 @@ class ReplitAuth:
             username = request.form.get('username', '').strip().lower()
             password = request.form.get('password', '').strip()
             
-            # Simple but secure authentication
+            # Enhanced authentication with privilege levels
             valid_users = {
-                'admin': 'admin',
-                'executive': 'executive', 
-                'controller': 'controller',
-                'demo': 'demo'
+                'admin': {'password': 'admin', 'role': 'admin', 'privileges': 'full'},
+                'executive': {'password': 'executive', 'role': 'executive', 'privileges': 'high'}, 
+                'controller': {'password': 'controller', 'role': 'controller', 'privileges': 'medium'},
+                'watson': {'password': 'watson', 'role': 'admin', 'privileges': 'watson_admin'},
+                'tester': {'password': 'tester', 'role': 'admin', 'privileges': 'full_test'},
+                'demo': {'password': 'demo', 'role': 'demo', 'privileges': 'demo'}
             }
             
-            if username in valid_users and valid_users[username] == password:
+            if username in valid_users and valid_users[username]['password'] == password:
+                user_data = valid_users[username]
                 session.clear()
                 session['logged_in'] = True
                 session['username'] = username
-                session['role'] = username
+                session['role'] = user_data['role']
+                session['privileges'] = user_data['privileges']
                 session.permanent = True
+                
+                # Auto-enable features based on user type
+                if username == 'watson':
+                    session['watson_admin'] = True
+                    session['project_overview'] = True
+                elif username == 'tester':
+                    session['tester_access'] = True
+                    session['full_modules'] = True
+                
                 return redirect('/dashboard')
             else:
                 return redirect('/login?error=1')

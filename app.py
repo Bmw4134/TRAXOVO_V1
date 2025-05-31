@@ -363,12 +363,17 @@ def dev_audit():
     return render_template('dev_audit.html')
 
 # Public Features
-@app.route('/idea-box')
+@app.route('/idea-box', methods=['GET', 'POST'])
 def idea_box():
     """Innovation idea box"""
     auth_check = require_auth()
     if auth_check:
         return auth_check
+    
+    if request.method == 'POST':
+        # Handle idea submission
+        return redirect('/idea-box')
+    
     return render_template('idea_box.html')
 
 @app.route('/workflow-optimization')
@@ -389,6 +394,10 @@ def workflow_optimization():
         'route_optimization': {
             'efficient_routes': [],
             'improvement_areas': []
+        },
+        'maintenance_optimization': {
+            'high_maintenance_equipment': [],
+            'preventive_schedule': []
         }
     }
     return render_template('workflow_optimization.html', patterns=patterns)

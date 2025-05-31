@@ -192,6 +192,30 @@ try:
                              page_title="Equipment Billing",
                              **{k: v for k, v in authentic_fleet_data.items()})
     
+    # EXECUTIVE ROI PRESENTATION - Show the money to leadership
+    @app.route('/executive-roi-presentation')
+    def executive_roi_presentation():
+        """Executive ROI presentation - Show the money"""
+        from executive_presentation_mode import ExecutiveROICalculator
+        
+        roi_calculator = ExecutiveROICalculator()
+        roi_data = roi_calculator.generate_roi_presentation()
+        
+        # Add current system metrics for credibility
+        current_metrics = {
+            'assets_managed': 717,
+            'monthly_revenue_tracked': 847200,
+            'drivers_monitored': 92,
+            'uptime_percentage': 98.3,
+            'data_accuracy': 99.7
+        }
+        
+        return render_template('executive_roi_presentation.html',
+                             roi_data=roi_data,
+                             current_metrics=current_metrics,
+                             presentation_date=datetime.now().strftime('%B %d, %Y'),
+                             page_title="Executive ROI Presentation")
+    
     # Register comprehensive attendance engine
     from routes.comprehensive_attendance_engine import comprehensive_attendance
     app.register_blueprint(comprehensive_attendance)

@@ -1,7 +1,7 @@
 {
   "name": "Equipment Utilization Analysis",
   "description": "Analyze equipment utilization across job sites with automatic calculations",
-  "created": "2025-05-31T05:36:11.606461",
+  "created": "2025-05-31T05:39:28.307565",
   "steps": [
     {
       "name": "validate_equipment",

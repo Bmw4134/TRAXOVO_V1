@@ -440,6 +440,72 @@
             margin-top: 2px;
         }
 
+        /* Mobile Toggle Button */
+        .mobile-toggle {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            background: #007AFF;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            z-index: 1001;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .mobile-toggle:hover {
+            background: #0056CC;
+        }
+
+        /* Mobile Mode Optimized Layout */
+        .mobile-mode .category-filters {
+            height: 60px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            display: flex;
+            flex-wrap: nowrap;
+            padding: 10px;
+            scroll-behavior: smooth;
+        }
+
+        .mobile-mode .category-button {
+            flex-shrink: 0;
+            min-width: 100px;
+            height: 40px;
+            margin: 0 4px;
+            font-size: 11px;
+            white-space: nowrap;
+            padding: 8px 12px;
+        }
+
+        .mobile-mode .fleet-grid {
+            grid-template-columns: 1fr;
+            gap: 8px;
+            padding: 10px;
+        }
+
+        .mobile-mode .asset-card {
+            padding: 12px;
+            font-size: 14px;
+        }
+
+        .mobile-mode .status-panel {
+            display: none;
+        }
+
+        .mobile-mode .search-container {
+            margin: 10px 0;
+            width: calc(100% - 20px);
+        }
+
+        .mobile-mode .fleet-container {
+            padding: 5px;
+        }
+
         /* Mobile Responsiveness */
         @media (max-width: 768px) {
             body {
@@ -576,6 +642,11 @@
             <div class="search-results" id="searchResults"></div>
         </div>
     </div>
+
+    <!-- Mobile Mode Toggle -->
+    <button class="mobile-toggle" onclick="toggleMobileMode()" id="mobileToggle">
+        📱 Mobile Mode
+    </button>
 
     <!-- Status Panel -->
     <div class="status-panel">
@@ -934,6 +1005,33 @@
                 });
             }
         });
+
+        // Mobile Mode Toggle Function
+        let isMobileMode = false;
+        
+        function toggleMobileMode() {
+            const container = document.querySelector('.fleet-container');
+            const toggleBtn = document.getElementById('mobileToggle');
+            
+            isMobileMode = !isMobileMode;
+            
+            if (isMobileMode) {
+                container.classList.add('mobile-mode');
+                toggleBtn.innerHTML = '🖥️ Desktop View';
+                toggleBtn.style.background = '#FF6B35';
+            } else {
+                container.classList.remove('mobile-mode');
+                toggleBtn.innerHTML = '📱 Mobile Mode';
+                toggleBtn.style.background = '#007AFF';
+            }
+        }
+
+        // Auto-enable mobile mode on small screens
+        if (window.innerWidth <= 768) {
+            setTimeout(() => {
+                toggleMobileMode();
+            }, 1000);
+        }
 
         // Prevent double-tap zoom on buttons
         document.addEventListener('touchend', function(event) {

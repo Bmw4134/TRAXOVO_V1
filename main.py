@@ -339,6 +339,18 @@ try:
     from responsive_ui_controller import responsive_ui_bp
     app.register_blueprint(responsive_ui_bp)
     
+    # INTELLIGENT RESPONSIVE DETECTOR - Auto device optimization
+    from intelligent_responsive_detector import responsive_detector_bp
+    app.register_blueprint(responsive_detector_bp)
+    
+    # ENGINEERING ARCHITECTURE DEMO - Shows solid foundations
+    from engineering_architecture_demo import engineering_demo_bp
+    app.register_blueprint(engineering_demo_bp)
+    
+    # UNIFIED SYSTEM CONSOLIDATOR - Eliminates redundancy, audits data sources
+    from unified_system_consolidator import unified_system_bp
+    app.register_blueprint(unified_system_bp)
+    
     # Register unified billing consolidation
     from routes.unified_billing_consolidation import unified_billing
     app.register_blueprint(unified_billing)

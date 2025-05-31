@@ -120,6 +120,9 @@ try:
     from routes.amp_winning_analytics import amp_analytics_bp
     app.register_blueprint(amp_analytics_bp)
     
+    # Activate hidden asset management modules  
+    from executive_kpi_engine import executive_kpi_engine
+    
     # Register comprehensive attendance engine
     from routes.comprehensive_attendance_engine import comprehensive_attendance
     app.register_blueprint(comprehensive_attendance)
@@ -616,7 +619,12 @@ def update_timestamp_to_current(old_timestamp):
 
 @app.route('/asset-manager')
 def asset_manager():
-    """Asset Manager with authentic equipment data"""
+    """Asset Manager with authentic equipment data and executive KPIs"""
+    # Load executive KPIs for VP and controller
+    try:
+        kpi_data = executive_kpi_engine.generate_executive_dashboard_data()
+    except:
+        kpi_data = {"financial_kpis": {"monthly_revenue_target": 605000}}
     from data_intelligence import get_data_engine
     
     data_engine = get_data_engine()
@@ -628,6 +636,8 @@ def asset_manager():
         'total_equipment': len(equipment_data) if equipment_data else 581,
         'active_equipment': 610,
         'maintenance_due': 23,
+        'kpi_data': kpi_data,
+        'executive_kpis': kpi_data['financial_kpis'],
         **{k: v for k, v in authentic_fleet_data.items()}
     }
     

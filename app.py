@@ -876,7 +876,7 @@ def workflow_optimization_module():
 
 @app.route('/watson-admin')
 @app.route('/admin-center')
-def watson_admin_center():
+def watson_admin_dashboard():
     """Watson Admin Command Center - All Secret Modules"""
     if not session.get('authenticated'):
         return redirect('/login')

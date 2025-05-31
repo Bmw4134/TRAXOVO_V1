@@ -6,7 +6,7 @@ packages = ["cairo", "cargo", "ffmpeg-full", "freetype", "ghostscript", "glibcLo
 
 [deployment]
 deploymentTarget = "cloudrun"
-run = ["sh", "-c", "gunicorn --bind 0.0.0.0:5000 main:app"]
+run = ["sh", "-c", "python app.py"]
 
 [workflows]
 runButton = "Start TRAXOVO Fast"
@@ -195,7 +195,7 @@ localPort = 8080
 externalPort = 8080
 
 [[ports]]
-localPort = 45287
+localPort = 41043
 externalPort = 3003
 
 [objectStorage]

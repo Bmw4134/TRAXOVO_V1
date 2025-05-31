@@ -1,5 +1,5 @@
 """
-TRAXOVO Fleet Management System - Deployment Ready Application
+TRAXOVO Fleet Management System - Enterprise Infrastructure
 """
 import os
 import json
@@ -10,6 +10,20 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
 import logging
+
+# Import infrastructure modules
+try:
+    from infrastructure.background_tasks import start_background_services, get_system_status, task_manager
+    from infrastructure.advanced_logging import traxovo_logger
+    from infrastructure.memory_management import cached_gauge_data, optimize_memory_usage, get_memory_stats
+    from infrastructure.multi_user_architecture import (
+        require_permission, get_current_user, Permission, UserRole, 
+        create_user_profile, get_user_dashboard_config
+    )
+    INFRASTRUCTURE_ENABLED = True
+except ImportError as e:
+    logging.warning(f"Infrastructure modules not available: {e}")
+    INFRASTRUCTURE_ENABLED = False
 
 logging.basicConfig(level=logging.DEBUG)
 

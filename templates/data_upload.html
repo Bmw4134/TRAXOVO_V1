@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Upload - TRAXOVO</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #1c1c1e 0%, #2c2c2e 100%);
+            color: #f2f2f7;
+            min-height: 100vh;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        .header { text-align: center; margin-bottom: 40px; }
+        .header h1 { font-size: 36px; font-weight: 700; margin: 0 0 16px 0; background: linear-gradient(135deg, #007AFF, #00D4FF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .back-button { position: fixed; top: 20px; left: 20px; background: rgba(0, 122, 255, 0.2); border: 1px solid rgba(0, 122, 255, 0.3); color: #007AFF; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 500; transition: all 0.3s ease; }
+        .upload-area { background: rgba(255, 255, 255, 0.05); border: 2px dashed rgba(0, 122, 255, 0.3); border-radius: 16px; padding: 60px 20px; text-align: center; margin-bottom: 32px; }
+        .upload-btn { background: #007AFF; color: white; border: none; padding: 16px 32px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-button">← Back to Dashboard</a>
+    <div class="container">
+        <div class="header">
+            <h1>Data Upload & Processing</h1>
+            <p>Upload attendance and asset data for processing</p>
+        </div>
+        <div class="upload-area">
+            <h3>Drop files here or click to browse</h3>
+            <p>Supports CSV, Excel, and PDF files</p>
+            <button class="upload-btn">Browse Files</button>
+        </div>
+    </div>
+</body>
+</html>

@@ -20,7 +20,7 @@ from scipy.spatial import ConvexHull
 
 from app import db
 from models import Asset, AssetHistory, Geofence
-from gauge_api import get_asset_data
+from gauge_api_legacy import get_asset_data
 from utils.geofence_processor import export_geofences_as_geojson, import_static_geofences
 
 # Initialize logger

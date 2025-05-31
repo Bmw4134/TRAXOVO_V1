@@ -22,7 +22,7 @@ def register_views(app):
     def check_gauge_api_status():
         """Check the status of the Gauge API connection."""
         try:
-            from gauge_api import GaugeAPI
+            from gauge_api_legacy import GaugeAPI
             api = GaugeAPI()
             return api.check_connection()
         except Exception as e:

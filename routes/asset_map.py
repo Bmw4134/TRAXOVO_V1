@@ -60,7 +60,7 @@ def api_assets():
         job_site_id = request.args.get('job_site')
 
         # Direct connection to the Gauge API - no fallbacks, pure real-time data
-        from gauge_api import GaugeAPI
+        from gauge_api_legacy import GaugeAPI
         import requests
 
         api = GaugeAPI()
@@ -261,7 +261,7 @@ def api_job_sites():
     """API endpoint to get all job sites directly from Gauge API"""
     try:
         # Direct connection to the Gauge API - no fallbacks, pure real-time data
-        from gauge_api import GaugeAPI
+        from gauge_api_legacy import GaugeAPI
         import requests
 
         api = GaugeAPI()

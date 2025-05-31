@@ -231,9 +231,9 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Update current time every second
-        setInterval(function() {
+        setInterval(setInterval(function() {
             document.getElementById('current-time').textContent = new Date().toLocaleString();
-        }, 1000);
+        }, 60000);
         
         // Initialize sync status chart
         const syncCtx = document.getElementById('syncChart').getContext('2d');

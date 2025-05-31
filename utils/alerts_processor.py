@@ -37,7 +37,7 @@ def analyze_equipment_inactivity(days_threshold=3, critical_days=7):
     """
     try:
         # Import here to avoid circular imports
-        from gauge_api import get_asset_data
+        from gauge_api_legacy import get_asset_data
         from models import Asset, AssetHistory, db
         
         # Get current datetime
@@ -246,7 +246,7 @@ def analyze_maintenance_needs():
     """
     try:
         # Import here to avoid circular imports
-        from gauge_api import get_asset_data
+        from gauge_api_legacy import get_asset_data
         from models import Asset, AssetHistory, MaintenanceRecord, db
         
         # Get current datetime

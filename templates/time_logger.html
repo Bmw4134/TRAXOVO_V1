@@ -343,7 +343,7 @@
         // Timer functions
         function startTimer() {
             startTime = Date.now() - elapsedTime;
-            timerInterval = setInterval(updateTimer, 1000);
+            timerInterval = setInterval(setInterval(updateTimer, 60000);
             document.getElementById('startTimer').style.display = 'none';
             document.getElementById('stopTimer').style.display = 'inline-block';
         }

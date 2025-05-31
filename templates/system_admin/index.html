@@ -187,9 +187,9 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Update current time every second
-        setInterval(function() {
+        setInterval(setInterval(function() {
             document.getElementById('current-time').textContent = new Date().toLocaleString();
-        }, 1000);
+        }, 60000);
         
         // Add event listeners for buttons
         document.getElementById('database-backup').addEventListener('click', function() {

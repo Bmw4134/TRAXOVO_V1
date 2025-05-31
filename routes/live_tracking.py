@@ -9,7 +9,7 @@ from flask import Blueprint, render_template, jsonify, request
 import logging
 from datetime import datetime, timedelta
 import json
-import gauge_api
+import gauge_api_legacy as gauge_api
 
 # Configure logging
 logger = logging.getLogger(__name__)

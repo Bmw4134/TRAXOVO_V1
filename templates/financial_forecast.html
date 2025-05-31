@@ -514,14 +514,14 @@
             let currentWidth = 0;
             const increment = targetWidth / (duration / 50);
             
-            const timer = setInterval(() => {
+            const timer = setInterval(setInterval(() => {
                 currentWidth += increment;
                 if (currentWidth >= targetWidth) {
                     currentWidth = targetWidth;
                     clearInterval(timer);
                 }
                 element.style.width = currentWidth + '%';
-            }, 50);
+            }, 60000);
         }
 
         function loadFinancialData() {

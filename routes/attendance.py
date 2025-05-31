@@ -47,15 +47,7 @@ def get_combined_attendance(period, start_date, end_date):
             gauge_api_url = os.environ.get('GAUGE_API_URL')
             
             if gauge_api_key and gauge_api_url:
-                gps_response = requests.get(
-                    f"{gauge_api_url}/gps",
-                    headers={'Authorization': f'Bearer {gauge_api_key}'},
-                    params={
-                        'start': start_date.isoformat(),
-                        'end': end_date.isoformat()
-                    }
-                )
-                gps_data = gps_response.json() if gps_response.status_code == 200 else []
+                gps_data = get_unified_data("assets").get("assets", [])
             else:
                 gps_data = []
                 

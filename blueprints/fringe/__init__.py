@@ -17,7 +17,7 @@ import pandas as pd
 
 from app import db
 from models import Asset
-from gauge_api import get_asset_data
+from gauge_api_legacy import get_asset_data
 
 # Initialize logger
 logger = logging.getLogger(__name__)

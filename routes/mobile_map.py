@@ -7,7 +7,7 @@ on phones for field crews, using authentic Gauge API data.
 import logging
 from flask import Blueprint, render_template, jsonify
 from flask_login import login_required
-from gauge_api import GaugeAPI
+from gauge_api_legacy import GaugeAPI
 
 logger = logging.getLogger(__name__)
 
@@ -25,8 +25,7 @@ def api_gauge_assets():
     """API endpoint to get authentic GPS assets for mobile map"""
     try:
         # Get authentic data from Gauge API
-        gauge_api = GaugeAPI()
-        assets = gauge_api.get_assets()
+        get_unified_data("assets")
         
         if assets:
             # Format assets for mobile map display

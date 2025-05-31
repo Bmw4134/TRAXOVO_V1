@@ -12,7 +12,7 @@ import threading
 import schedule
 import traceback
 from datetime import datetime, timedelta
-from gauge_api import update_asset_data, get_asset_data, save_asset_data
+from gauge_api_legacy import update_asset_data, get_asset_data, save_asset_data
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, 

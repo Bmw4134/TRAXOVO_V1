@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 from flask import Blueprint, render_template, jsonify, request, current_app
 from flask_login import login_required, current_user
 from utils.activity_logger import log_navigation
-from gauge_api import get_asset_data
+from gauge_api_legacy import get_asset_data
 
 # Create a logger
 logger = logging.getLogger(__name__)

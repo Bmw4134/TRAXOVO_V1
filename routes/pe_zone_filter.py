@@ -63,9 +63,8 @@ def get_equipment_by_zones(zones):
     filtered_equipment = []
     
     try:
-        from gauge_api import GaugeAPI
-        gauge_api = GaugeAPI()
-        all_assets = gauge_api.get_assets()
+        from gauge_api_legacy import GaugeAPI
+        get_unified_data("assets")
         
         # Filter by zones (basic implementation)
         for asset in all_assets[:10]:  # Limit for testing

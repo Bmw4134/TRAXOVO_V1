@@ -70,9 +70,8 @@ def get_security_alerts():
     alerts = []
     
     try:
-        from gauge_api import GaugeAPI
-        gauge_api = GaugeAPI()
-        assets = gauge_api.get_assets()
+        from gauge_api_legacy import GaugeAPI
+        get_unified_data("assets")
         
         current_time = datetime.now()
         off_hours_start = current_time.replace(hour=19, minute=0, second=0)  # 7 PM
@@ -129,9 +128,8 @@ def detect_theft_patterns():
     theft_incidents = []
     
     try:
-        from gauge_api import GaugeAPI
-        gauge_api = GaugeAPI()
-        assets = gauge_api.get_assets()
+        from gauge_api_legacy import GaugeAPI
+        get_unified_data("assets")
         
         for asset in assets:
             asset_id = asset.get('id')

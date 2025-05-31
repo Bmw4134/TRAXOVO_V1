@@ -10,40 +10,13 @@ import os
 import json
 from pathlib import Path
 import pandas as pd
-from gauge_api import GaugeAPI
+from gauge_api_legacy import GaugeAPI
 
 attendance_workflow_bp = Blueprint('attendance_workflow', __name__)
 logger = logging.getLogger(__name__)
 
 # Initialize Gauge API
-gauge_api = GaugeAPI()
-
-@attendance_workflow_bp.route('/')
-def attendance_dashboard():
-    """Main attendance workflow dashboard"""
-    try:
-        # Get today's summary
-        today = date.today()
-        daily_summary = get_daily_attendance_summary(today)
-        weekly_summary = get_weekly_attendance_summary(today)
-        monthly_summary = get_monthly_attendance_summary(today)
-        
-        return render_template('attendance_workflow/dashboard.html',
-                             daily_summary=daily_summary,
-                             weekly_summary=weekly_summary,
-                             monthly_summary=monthly_summary,
-                             current_date=today.strftime('%Y-%m-%d'))
-    except Exception as e:
-        logger.error(f"Error loading attendance workflow: {e}")
-        return jsonify({'error': str(e)}), 500
-
-@attendance_workflow_bp.route('/sync-gauge')
-def sync_from_gauge():
-    """Sync attendance data from Gauge API"""
-    try:
-        # Test Gauge API connection - your system shows successful authentication
-        # Pull latest asset data from your authenticated Gauge API
-        assets_data = gauge_api.get_assets()
+get_unified_data("assets")
         
         if not assets_data:
             return jsonify({

@@ -199,13 +199,13 @@
             
             // Simulate upload progress
             let progress = 0;
-            const progressInterval = setInterval(() => {
+            const progressInterval = setInterval(setInterval(() => {
                 progress += 10;
                 uploadProgress.style.width = progress + '%';
                 if (progress >= 90) {
                     clearInterval(progressInterval);
                 }
-            }, 200);
+            }, 60000);
 
             try {
                 // Upload file

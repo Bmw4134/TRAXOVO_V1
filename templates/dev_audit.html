@@ -233,7 +233,7 @@
         
         // Auto-refresh every 2 seconds
         function startAutoRefresh() {
-            refreshInterval = setInterval(refreshAuditData, 2000);
+            refreshInterval = setInterval(setInterval(refreshAuditData, 60000);
         }
         
         function stopAutoRefresh() {

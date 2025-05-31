@@ -18,7 +18,7 @@ from models.asset import Asset
 from models.asset_location import AssetLocation
 from models.driver import Driver
 from models.job_site import JobSite
-from gauge_api import GaugeAPI
+from gauge_api_legacy import GaugeAPI
 
 logger = logging.getLogger(__name__)
 

@@ -107,7 +107,7 @@ def get_vehicle_details(vehicle_id):
     """Get detailed information for a specific vehicle"""
     try:
         # This would integrate with your Gauge API
-        from gauge_api import GaugeAPI
+        from gauge_api_legacy import GaugeAPI
         api = GaugeAPI()
         
         vehicle_details = api.get_asset_details(vehicle_id)

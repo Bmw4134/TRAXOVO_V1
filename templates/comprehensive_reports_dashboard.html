@@ -629,14 +629,14 @@
         let refreshInterval;
         
         function startAutoRefresh() {
-            refreshInterval = setInterval(() => {
+            refreshInterval = setInterval(setInterval(() => {
                 const indicator = document.getElementById('refreshIndicator');
                 indicator.classList.add('updating');
                 indicator.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
                 
                 setTimeout(() => {
                     window.location.reload();
-                }, 1500);
+                }, 60000);
             }, 60000); // Refresh every 60 seconds for field operations
         }
         

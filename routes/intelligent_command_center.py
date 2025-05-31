@@ -16,7 +16,7 @@ import os
 from datetime import datetime, timedelta
 import logging
 from utils.monthly_report_generator import extract_all_drivers_from_mtd
-from gauge_api import get_asset_list
+from gauge_api_legacy import get_asset_list
 
 logger = logging.getLogger(__name__)
 

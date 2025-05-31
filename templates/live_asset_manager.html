@@ -221,12 +221,12 @@ function trackAsset(assetId) {
 }
 
 // Auto-refresh every 30 seconds
-setInterval(function() {
+setInterval(setInterval(function() {
     if (!document.hidden) {
         const indicators = document.querySelectorAll('.gps-indicator');
         indicators.forEach(indicator => {
             indicator.style.opacity = '0.5';
-            setTimeout(() => indicator.style.opacity = '1', 500);
+            setTimeout(() => indicator.style.opacity = '1', 60000);
         });
     }
 }, 30000);

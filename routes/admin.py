@@ -198,7 +198,7 @@ def export_users():
 def system_status():
     """System status API endpoint"""
     try:
-        from gauge_api import GaugeAPI
+        from gauge_api_legacy import GaugeAPI
         
         # Check Gauge API connection
         api = GaugeAPI()

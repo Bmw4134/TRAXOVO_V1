@@ -8,7 +8,7 @@ import json
 import logging
 from datetime import datetime, timedelta
 from flask import Blueprint, render_template, jsonify, request
-from gauge_api import GaugeAPI
+from gauge_api_legacy import GaugeAPI
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -42,10 +42,7 @@ def map_dashboard():
 def get_asset_locations():
     """Get current asset locations for map display"""
     try:
-        gauge_api = GaugeAPI()
-        
-        # Get asset data from Gauge API
-        assets_data = gauge_api.get_assets()
+        get_unified_data("assets")
         
         if not assets_data:
             # Return North Texas sample locations if API is unavailable

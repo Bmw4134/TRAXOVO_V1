@@ -35,7 +35,7 @@ def get_sample_assets():
     """Provide real asset data from the Gauge API."""
     try:
         # Try to import the gauge_api module
-        from gauge_api import update_asset_data, get_asset_data
+        from gauge_api_legacy import update_asset_data, get_asset_data
         
         # Try to get real data from Gauge API with force_update=True to get fresh data
         real_assets = get_asset_data(force_update=True)

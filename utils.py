@@ -74,7 +74,7 @@ def load_data(file_path):
     try:
         # Try to get data from our API module first
         try:
-            from gauge_api import get_asset_data
+            from gauge_api_legacy import get_asset_data
             logger.info("Attempting to load data from Gauge API")
             api_data = get_asset_data()
             if api_data:

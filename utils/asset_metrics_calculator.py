@@ -10,7 +10,7 @@ import logging
 import pandas as pd
 import requests
 from datetime import datetime, time
-from gauge_api import GaugeAPI
+from gauge_api_legacy import GaugeAPI
 
 logger = logging.getLogger(__name__)
 

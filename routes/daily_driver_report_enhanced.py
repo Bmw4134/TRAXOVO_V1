@@ -263,7 +263,7 @@ def generate_report(date):
         import os
         import json
         import pandas as pd
-        from gauge_api import GaugeAPI
+        from gauge_api_legacy import GaugeAPI
         
         flash("Processing with ALL 716 assets from your Gauge API...", "info")
         

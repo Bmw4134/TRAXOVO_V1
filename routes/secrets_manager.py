@@ -40,7 +40,7 @@ def test_connections():
     
     # Test Gauge API
     try:
-        from gauge_api import GaugeAPI
+        from gauge_api_legacy import GaugeAPI
         gauge = GaugeAPI()
         if gauge.test_connection():
             results['gauge_api'] = {'status': 'success', 'message': 'Connected successfully'}
@@ -81,7 +81,7 @@ def check_gauge_status():
         if not all([username, password, url]):
             return {'status': 'warning', 'message': 'Credentials not configured'}
         
-        from gauge_api import GaugeAPI
+        from gauge_api_legacy import GaugeAPI
         gauge = GaugeAPI()
         if gauge.test_connection():
             return {'status': 'success', 'message': 'API responding normally'}

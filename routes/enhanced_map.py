@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from flask import Blueprint, render_template, jsonify, request
 from flask_login import login_required, current_user
 
-from gauge_api import GaugeAPI
+from gauge_api_legacy import GaugeAPI
 
 logger = logging.getLogger(__name__)
 
@@ -21,8 +21,7 @@ def dashboard():
     """Enhanced GPS map dashboard with professional features"""
     try:
         # Get asset data from Gauge API
-        gauge_api = GaugeAPI()
-        assets = gauge_api.get_assets()
+        get_unified_data("assets")
         
         if not assets:
             logger.warning("No asset data available from Gauge API")
@@ -52,8 +51,7 @@ def dashboard():
 def get_assets():
     """Get asset data for map display"""
     try:
-        gauge_api = GaugeAPI()
-        assets = gauge_api.get_assets()
+        get_unified_data("assets")
         
         if not assets:
             return jsonify({

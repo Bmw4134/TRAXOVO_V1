@@ -11,7 +11,7 @@ from datetime import datetime
 from flask import Blueprint, render_template, jsonify, request, flash, redirect, url_for
 from flask_login import login_required, current_user
 
-from gauge_api import update_asset_data, get_asset_data
+from gauge_api_legacy import update_asset_data, get_asset_data
 from utils.ml_predictor import predict_asset_health, train_prediction_models, get_model_info
 
 # Set up logging

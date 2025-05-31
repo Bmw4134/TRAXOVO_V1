@@ -10,7 +10,7 @@ import json
 import logging
 import pandas as pd
 from datetime import datetime, timedelta
-from gauge_api import get_asset_list
+from gauge_api_legacy import get_asset_list
 
 logger = logging.getLogger(__name__)
 

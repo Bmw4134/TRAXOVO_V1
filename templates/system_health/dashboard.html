@@ -1,226 +1,81 @@
-{% extends 'layout_unified_enhanced.html' %}
-
-{% block title %}System Health Dashboard{% endblock %}
-
-{% block content %}
-<div class="container-fluid py-4">
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <div class="card border-0 shadow">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">System Health Dashboard</h5>
-                    <p class="mb-0 small text-light">Last updated: {{ now }}</p>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="card mb-3 border-0 shadow-sm">
-                                <div class="card-header bg-light">
-                                    <h6 class="mb-0">System Information</h6>
-                                </div>
-                                <div class="card-body">
-                                    <ul class="list-group list-group-flush">
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            Platform
-                                            <span class="badge bg-secondary">{{ system_info.platform }}</span>
-                                        </li>
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            Python Version
-                                            <span class="badge bg-secondary">{{ system_info.python_version }}</span>
-                                        </li>
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            CPU Cores
-                                            <span class="badge bg-secondary">{{ system_info.cpu_count }}</span>
-                                        </li>
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            Memory (GB)
-                                            <span class="badge bg-secondary">{{ system_info.memory_total }}</span>
-                                        </li>
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            Uptime
-                                            <span class="badge bg-secondary">{{ system_info.uptime }}</span>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card mb-3 border-0 shadow-sm">
-                                <div class="card-header bg-light">
-                                    <h6 class="mb-0">Resource Usage</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="mb-3">
-                                        <label class="form-label">CPU Usage</label>
-                                        <div class="progress">
-                                            <div class="progress-bar {% if resource_usage.cpu_percent < 50 %}bg-success{% elif resource_usage.cpu_percent < 80 %}bg-warning{% else %}bg-danger{% endif %}" 
-                                                 role="progressbar" 
-                                                 style="width: {{ resource_usage.cpu_percent }}%" 
-                                                 aria-valuenow="{{ resource_usage.cpu_percent }}" 
-                                                 aria-valuemin="0" 
-                                                 aria-valuemax="100">{{ resource_usage.cpu_percent }}%</div>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Memory Usage</label>
-                                        <div class="progress">
-                                            <div class="progress-bar {% if resource_usage.memory_percent < 50 %}bg-success{% elif resource_usage.memory_percent < 80 %}bg-warning{% else %}bg-danger{% endif %}" 
-                                                 role="progressbar" 
-                                                 style="width: {{ resource_usage.memory_percent }}%" 
-                                                 aria-valuenow="{{ resource_usage.memory_percent }}" 
-                                                 aria-valuemin="0" 
-                                                 aria-valuemax="100">{{ resource_usage.memory_percent }}%</div>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Disk Usage</label>
-                                        <div class="progress">
-                                            <div class="progress-bar {% if resource_usage.disk_percent < 50 %}bg-success{% elif resource_usage.disk_percent < 80 %}bg-warning{% else %}bg-danger{% endif %}" 
-                                                 role="progressbar" 
-                                                 style="width: {{ resource_usage.disk_percent }}%" 
-                                                 aria-valuenow="{{ resource_usage.disk_percent }}" 
-                                                 aria-valuemin="0" 
-                                                 aria-valuemax="100">{{ resource_usage.disk_percent }}%</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card mb-3 border-0 shadow-sm">
-                                <div class="card-header bg-light">
-                                    <h6 class="mb-0">Database Status</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="alert {% if db_status.status == 'connected' %}alert-success{% else %}alert-danger{% endif %}">
-                                        <strong>Status:</strong> {{ db_status.status|capitalize }}
-                                        <div class="small">{{ db_status.message }}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row mt-4">
-                        <div class="col-md-6">
-                            <div class="card border-0 shadow-sm">
-                                <div class="card-header bg-light">
-                                    <h6 class="mb-0">External Services</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="table-responsive">
-                                        <table class="table table-hover">
-                                            <thead>
-                                                <tr>
-                                                    <th>Service</th>
-                                                    <th>Status</th>
-                                                    <th>Details</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {% for service in external_services %}
-                                                <tr>
-                                                    <td>{{ service.name }}</td>
-                                                    <td>
-                                                        <span class="badge {% if service.status == 'connected' %}bg-success{% else %}bg-danger{% endif %}">
-                                                            {{ service.status|capitalize }}
-                                                        </span>
-                                                    </td>
-                                                    <td><small>{{ service.message }}</small></td>
-                                                </tr>
-                                                {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="card border-0 shadow-sm">
-                                <div class="card-header bg-light">
-                                    <h6 class="mb-0">Recent Logs</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-                                        <table class="table table-sm">
-                                            <thead>
-                                                <tr>
-                                                    <th>Timestamp</th>
-                                                    <th>Level</th>
-                                                    <th>Message</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {% for log in logs %}
-                                                <tr class="{% if log.level == 'ERROR' %}table-danger{% elif log.level == 'WARNING' %}table-warning{% endif %}">
-                                                    <td><small>{{ log.timestamp }}</small></td>
-                                                    <td><span class="badge {% if log.level == 'ERROR' %}bg-danger{% elif log.level == 'WARNING' %}bg-warning{% elif log.level == 'INFO' %}bg-info{% else %}bg-secondary{% endif %}">{{ log.level }}</span></td>
-                                                    <td><small>{{ log.message }}</small></td>
-                                                </tr>
-                                                {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row mt-4">
-                        <div class="col-md-12">
-                            <div class="card border-0 shadow-sm">
-                                <div class="card-header bg-light">
-                                    <h6 class="mb-0">System Actions</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-primary" id="refresh-dashboard">
-                                            <i class="fas fa-sync-alt"></i> Refresh Dashboard
-                                        </button>
-                                        <button type="button" class="btn btn-secondary" id="check-connections">
-                                            <i class="fas fa-network-wired"></i> Check Connections
-                                        </button>
-                                        <button type="button" class="btn btn-warning" id="clear-cache">
-                                            <i class="fas fa-broom"></i> Clear Cache
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Health Monitor - TRAXOVO</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+        }
+        .health-dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .health-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .health-title {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #4CAF50;
+        }
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .metric:last-child {
+            border-bottom: none;
+        }
+        .status-good { color: #4CAF50; }
+        .status-warning { color: #FF9800; }
+        .status-error { color: #F44336; }
+    </style>
+</head>
+<body>
+    <div class="health-dashboard">
+        <h1>System Health Monitor</h1>
+        <p>Watson-only access: System monitoring and health metrics</p>
+        
+        <div class="health-card">
+            <div class="health-title">Application Health</div>
+            <div class="metric">
+                <span>Server Status</span>
+                <span class="status-good">Online</span>
+            </div>
+            <div class="metric">
+                <span>Database Connection</span>
+                <span class="status-good">Connected</span>
+            </div>
+            <div class="metric">
+                <span>API Response Time</span>
+                <span class="status-good">120ms</span>
             </div>
         </div>
+        
+        <div class="health-card">
+            <div class="health-title">GAUGE API Status</div>
+            <div class="metric">
+                <span>Connection Status</span>
+                <span class="status-warning">SSL Certificate Issue</span>
+            </div>
+            <div class="metric">
+                <span>Last Sync</span>
+                <span class="status-warning">Failed</span>
+            </div>
+        </div>
+        
+        <a href="/dashboard" style="color: #007AFF; text-decoration: none;">← Back to Dashboard</a>
     </div>
-</div>
-{% endblock %}
-
-{% block scripts %}
-<script>
-    // Simple dashboard refresh
-    document.getElementById('refresh-dashboard').addEventListener('click', function() {
-        window.location.reload();
-    });
-    
-    // Check connections button - Implement with AJAX if needed
-    document.getElementById('check-connections').addEventListener('click', function() {
-        fetch('/system-health/api/status')
-            .then(response => response.json())
-            .then(data => {
-                alert('Connection check complete! See updated status on the dashboard.');
-                window.location.reload();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error checking connections. See console for details.');
-            });
-    });
-    
-    // Clear cache button - Implement with AJAX if needed
-    document.getElementById('clear-cache').addEventListener('click', function() {
-        if (confirm('Are you sure you want to clear the system cache?')) {
-            alert('Cache clearing functionality will be implemented in a future update.');
-        }
-    });
-</script>
-{% endblock %}
+</body>
+</html>

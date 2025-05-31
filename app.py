@@ -301,7 +301,13 @@ def workflow_optimization():
     auth_check = require_auth()
     if auth_check:
         return auth_check
-    return render_template('workflow_optimization.html')
+    patterns = {
+        'equipment_utilization': {
+            'high_utilization_assets': [],
+            'low_utilization_assets': []
+        }
+    }
+    return render_template('workflow_optimization.html', patterns=patterns)
 
 @app.route('/data-upload')
 def data_upload():

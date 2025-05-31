@@ -171,12 +171,22 @@ def get_authentic_metrics():
                         'active_assets': active_assets,
                         'inactive_assets': inactive_assets,
                         'categories': categories,
-                        'drivers': 92  # This comes from attendance system
+                        'drivers': 92,  # This comes from attendance system
+                        'assets_data': assets_data,  # Include raw assets for map
+                        'gps_enabled': sum(1 for asset in assets_data if asset.get('LatestLatitude') and asset.get('LatestLongitude'))
                     }
                     
                 except Exception as e:
                     print(f"GAUGE API JSON parsing error: {e}")
-                    gauge_data = {'total_assets': 0, 'active_assets': 0, 'inactive_assets': 0, 'categories': 0, 'drivers': 92}
+                    gauge_data = {
+                        'total_assets': 0, 
+                        'active_assets': 0, 
+                        'inactive_assets': 0, 
+                        'categories': 0, 
+                        'drivers': 92,
+                        'assets_data': [],
+                        'gps_enabled': 0
+                    }
             else:
                 print(f"GAUGE API error: Status {response.status_code}")
                 gauge_data = {
@@ -184,7 +194,9 @@ def get_authentic_metrics():
                     'active_assets': 0,
                     'inactive_assets': 0,
                     'categories': 0,
-                    'drivers': 92
+                    'drivers': 92,
+                    'assets_data': [],
+                    'gps_enabled': 0
                 }
         else:
             # No API credentials - return empty data

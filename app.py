@@ -122,18 +122,61 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
         
-        # Simple authentication
-        valid_users = {
-            'watson': 'watson',
-            'tester': 'tester'
+        # Department-based authentication with personalized UI
+        user_profiles = {
+            'watson': {
+                'password': 'watson',
+                'department': 'Executive',
+                'team': 'Management',
+                'color_scheme': 'blue',
+                'is_admin': True,
+                'widgets': ['revenue', 'fleet_status', 'system_health', 'kaizen']
+            },
+            'tester': {
+                'password': 'tester',
+                'department': 'Operations', 
+                'team': 'Field Operations',
+                'color_scheme': 'green',
+                'is_admin': False,
+                'widgets': ['fleet_status', 'attendance', 'asset_tracking']
+            },
+            'supervisor': {
+                'password': 'super123',
+                'department': 'Operations',
+                'team': 'Site Management', 
+                'color_scheme': 'orange',
+                'is_admin': False,
+                'widgets': ['attendance', 'project_status', 'safety_metrics']
+            },
+            'dispatcher': {
+                'password': 'dispatch123',
+                'department': 'Logistics',
+                'team': 'Fleet Dispatch',
+                'color_scheme': 'purple',
+                'is_admin': False,
+                'widgets': ['fleet_map', 'route_optimization', 'driver_status']
+            },
+            'mechanic': {
+                'password': 'mech123',
+                'department': 'Maintenance',
+                'team': 'Equipment Services',
+                'color_scheme': 'red',
+                'is_admin': False,
+                'widgets': ['maintenance_schedule', 'equipment_health', 'parts_inventory']
+            }
         }
         
-        if username in valid_users and valid_users[username] == password:
+        if username in user_profiles and user_profiles[username]['password'] == password:
+            profile = user_profiles[username]
             session['authenticated'] = True
             session['username'] = username
-            session['is_admin'] = (username == 'watson')
+            session['department'] = profile['department']
+            session['team'] = profile['team']
+            session['color_scheme'] = profile['color_scheme']
+            session['is_admin'] = profile['is_admin']
+            session['user_widgets'] = profile['widgets']
             session['app_version'] = APP_VERSION
-            logging.info(f"User {username} logged in successfully")
+            logging.info(f"User {username} ({profile['department']} - {profile['team']}) logged in successfully")
             return redirect('/dashboard')
         else:
             return render_template('login.html', error='Invalid credentials')
@@ -258,7 +301,7 @@ def watson_admin():
     admin_check = require_watson()
     if admin_check:
         return admin_check
-    return render_template('watson_admin_dashboard.html')
+    return render_template('workflow_optimization.html', patterns=patterns)
 
 @app.route('/kaizen')
 @app.route('/kaizen-optimization')

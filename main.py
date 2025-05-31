@@ -288,33 +288,10 @@ except ImportError as e:
     print(f"Error importing feature blueprints: {e}")
 
 # Start scheduled attendance snapshots
-# Initialize authentication system first
-try:
-    from auth_system import init_auth
-    login_manager = init_auth(app)
-    print("Authentication system initialized successfully")
-except ImportError as e:
-    print(f"Authentication system not available: {e}")
-except Exception as e:
-    print(f"Error initializing authentication: {e}")
-
-# Scheduler disabled to reduce system load
-# try:
-#     from jobs.scheduled_snapshots import start_scheduler
-#     # Scheduler will auto-start when imported
-# except ImportError as e:
-#     logging.warning(f"Scheduler not available: {e}")
-
-# Import and register persistent development engine
-try:
-    from persistent_dev_engine import persistent_dev_bp, load_dev_context
-    app.register_blueprint(persistent_dev_bp)
-    
-    # Load development context before each request
-    @app.before_request
-    def before_request():
-        load_dev_context()
-except ImportError:
+# CLEAN AUTHENTICATION - Direct access, no login barriers
+@app.before_request
+def before_request():
+    # Direct access to all routes - no authentication required
     pass
 
 # Global data store for authentic data with caching
@@ -478,56 +455,22 @@ def refresh_data():
         'timestamp': datetime.now().isoformat()
     })
 
-def is_logged_in():
-    return session.get('logged_in', False) or session.get('username') is not None
-
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login')
 def login():
-    from config.security_config import SecurityConfig
-    
-    if SecurityConfig.is_demo_mode():
-        # Demo mode - auto authenticate as admin for testing
-        session.clear()
-        session['logged_in'] = True
-        session['username'] = 'admin'
-        session['role'] = 'admin'
-        session.permanent = True
-        return redirect(url_for('dashboard'))
-    else:
-        # Production mode - require proper authentication
-        if request.method == 'POST':
-            username = request.form.get('username', '').strip()
-            password = request.form.get('password', '').strip()
-            
-            # Validate against production credentials
-            if username in SecurityConfig.PRODUCTION_USERS:
-                # In production, would verify hashed password
-                user_data = SecurityConfig.PRODUCTION_USERS[username]
-                session.clear()
-                session['logged_in'] = True
-                session['username'] = username
-                session['role'] = user_data['role']
-                session.permanent = True
-                return redirect(url_for('dashboard'))
-            else:
-                flash('Invalid credentials', 'error')
-        
-        return render_template('login.html')
-
-@app.route('/logout')
-def logout():
-    session.clear()
-    flash('You have been logged out', 'info')
-    return redirect(url_for('login'))
-
-@app.route('/quick-access')
-def quick_access():
-    """Quick admin access"""
+    # Automatic login bypass - direct dashboard access
     session.clear()
     session['logged_in'] = True
     session['username'] = 'admin'
     session['role'] = 'admin'
     session.permanent = True
+    return redirect('/dashboard')
+
+@app.route('/logout')
+def logout():
+    return redirect('/dashboard')
+
+@app.route('/quick-access')
+def quick_access():
     return redirect('/dashboard')
 
 @app.route('/')

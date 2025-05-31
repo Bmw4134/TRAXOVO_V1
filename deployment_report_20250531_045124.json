@@ -1,0 +1,72 @@
+{
+  "timestamp": "2025-05-31T04:51:17.672679",
+  "overall_status": "NEEDS_MAJOR_FIXES",
+  "critical_issues": [
+    "Database Error: The name 'intelligent_ideas' is already registered for a different blueprint. Use 'name=' to provide a unique name.",
+    "Github_Api integration failed"
+  ],
+  "warnings": [],
+  "optimizations": [
+    "Implement rate limiting for cost control",
+    "Add usage monitoring and logging"
+  ],
+  "integration_status": {
+    "supabase": true,
+    "object_storage": true,
+    "github_api": false,
+    "openai_api": true,
+    "gauge_api": true
+  },
+  "performance_metrics": {
+    "cpu_usage": 26.3,
+    "memory_usage": 65.9,
+    "disk_usage": 53.7,
+    "response_time": 0.0,
+    "optimization_level": "OPTIMAL"
+  },
+  "security_audit": {
+    "https_enabled": true,
+    "secret_keys_configured": true,
+    "session_security": true,
+    "csrf_protection": true,
+    "sql_injection_protection": true
+  },
+  "database_health": {
+    "connection": false,
+    "authentic_data_integrity": false,
+    "performance": "UNKNOWN",
+    "backup_status": false
+  },
+  "system_resources": {},
+  "deployment_readiness": false,
+  "authentication_status": {
+    "replit_auth_configured": false,
+    "user_sessions_working": true,
+    "login_flow_functional": true
+  },
+  "billing_accuracy": {
+    "revenue_calculation_accurate": true,
+    "asset_count_authentic": true,
+    "april_data_processed": true,
+    "consolidation_working": true
+  },
+  "mobile_optimization": {
+    "responsive_design": true,
+    "mobile_map_functional": true,
+    "touch_optimization": true,
+    "loading_speed": "GOOD"
+  },
+  "ai_capabilities": {
+    "openai_configured": true,
+    "ai_assistant_functional": true,
+    "intelligent_ideas_system": true,
+    "automation_engine": true
+  },
+  "usage_optimization": {
+    "rate_limiting_enabled": false,
+    "resource_optimization": true,
+    "cost_control_measures": false,
+    "performance_monitoring": true
+  },
+  "readiness_score": 44.0
+}

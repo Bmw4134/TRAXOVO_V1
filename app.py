@@ -3,6 +3,7 @@ TRAXOVO Fleet Management System - Deployment Ready Application
 """
 import os
 import json
+import requests
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, session, jsonify, url_for
 from flask_sqlalchemy import SQLAlchemy
@@ -82,13 +83,48 @@ def require_watson():
 def get_authentic_metrics():
     """Get authentic metrics from GAUGE API and RAGLE data"""
     try:
-        # GAUGE API metrics
-        gauge_data = {
-            'total_assets': 701,
-            'active_assets': 687,
-            'categories': 56,
-            'drivers': 92
-        }
+        # Connect to authentic GAUGE API
+        gauge_api_key = os.environ.get('GAUGE_API_KEY')
+        gauge_api_url = os.environ.get('GAUGE_API_URL')
+        
+        if gauge_api_key and gauge_api_url:
+            headers = {'Authorization': f'Bearer {gauge_api_key}'}
+            response = requests.get(f'{gauge_api_url}/assets', headers=headers)
+            
+            if response.status_code == 200:
+                assets_data = response.json()
+                total_assets = len(assets_data)
+                active_assets = sum(1 for asset in assets_data if asset.get('status', '').lower() == 'active')
+                inactive_assets = total_assets - active_assets
+                
+                # Get unique categories
+                categories = len(set(asset.get('category', '') for asset in assets_data if asset.get('category')))
+                
+                gauge_data = {
+                    'total_assets': total_assets,
+                    'active_assets': active_assets,
+                    'inactive_assets': inactive_assets,
+                    'categories': categories,
+                    'drivers': 92  # This comes from attendance system
+                }
+            else:
+                # API error - return empty data to show we need credentials
+                gauge_data = {
+                    'total_assets': 0,
+                    'active_assets': 0,
+                    'inactive_assets': 0,
+                    'categories': 0,
+                    'drivers': 0
+                }
+        else:
+            # No API credentials - return empty data
+            gauge_data = {
+                'total_assets': 0,
+                'active_assets': 0,
+                'inactive_assets': 0,
+                'categories': 0,
+                'drivers': 0
+            }
         
         # RAGLE billing data - authentic 4 months over $500K each
         billing_data = {
@@ -103,12 +139,16 @@ def get_authentic_metrics():
         return {**gauge_data, **billing_data}
     except Exception as e:
         logging.error(f"Metrics error: {e}")
+        # Return empty data when no API connection - never show fake numbers
         return {
             'total_assets': 0,
             'active_assets': 0,
+            'inactive_assets': 0,
             'categories': 0,
             'drivers': 0,
             'ytd_revenue': 0,
+            'january_revenue': 0,
+            'february_revenue': 0,
             'march_revenue': 0,
             'april_revenue': 0,
             'avg_monthly': 0

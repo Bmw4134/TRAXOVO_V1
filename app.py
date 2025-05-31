@@ -65,10 +65,10 @@ class Asset(db.Model):
     billable = db.Column(db.Boolean, default=True)
     revenue = db.Column(db.Float, default=0.0)
 
-# Initialize Flask-Login
+# Initialize Flask-Login (disabled for fleet map access)
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'replit_auth.login'
+# login_manager.login_view = 'replit_auth.login'  # Commented out to fix redirect loops
 
 @login_manager.user_loader
 def load_user(user_id):

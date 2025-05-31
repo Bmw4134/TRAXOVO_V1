@@ -317,6 +317,8 @@ def attendance_matrix():
 @app.route('/fleet-map')
 def fleet_map():
     """Enhanced fleet map with real-time tracking"""
+    if not session.get('authenticated'):
+        return redirect('/login')
     try:
         try:
             from foundation_data_processor import get_foundation_processor

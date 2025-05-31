@@ -787,6 +787,37 @@ def server_error(e):
     return render_template('500.html'), 500
 
 # Health check
+@app.route('/sop-management')
+def sop_management():
+    """Dynamic SOP management dashboard"""
+    auth_check = require_auth()
+    if auth_check:
+        return auth_check
+    
+    try:
+        from performance_optimizer import get_performance_engine
+        from dynamic_sop_engine import get_sop_engine
+        
+        # Get authentic fleet data for SOP context
+        performance_engine = get_performance_engine()
+        gauge_data = performance_engine.get_cached_gauge_data()
+        
+        # Generate SOP dashboard
+        sop_engine = get_sop_engine()
+        sop_dashboard = sop_engine.generate_sop_dashboard(gauge_data)
+        sop_efficiency = sop_engine.calculate_sop_efficiency(gauge_data)
+        
+        return render_template('sop_management.html',
+                             sop_data=sop_dashboard,
+                             efficiency_metrics=sop_efficiency,
+                             gauge_data=gauge_data)
+    except Exception as e:
+        print(f"SOP management error: {e}")
+        return render_template('sop_management.html',
+                             sop_data=None,
+                             efficiency_metrics=None,
+                             gauge_data=None)
+
 @app.route('/health')
 def health():
     """Application health check"""

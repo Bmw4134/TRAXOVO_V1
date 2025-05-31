@@ -120,11 +120,15 @@ class ElitePerformanceEngine:
             
             # Convert to numeric values safely
             try:
-                days_inactive = float(days_inactive) if days_inactive else 0
-                engine_hours = float(engine_hours) if engine_hours else 0
+                days_inactive = float(days_inactive) if days_inactive is not None else 0
+                engine_hours = float(engine_hours) if engine_hours is not None else 0
             except (ValueError, TypeError):
                 days_inactive = 0
                 engine_hours = 0
+            
+            # Ensure numeric types for comparisons
+            days_inactive = max(0, days_inactive)
+            engine_hours = max(0, engine_hours)
             
             if days_inactive > 7:
                 performance_metrics['maintenance_due'] += 1

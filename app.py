@@ -330,7 +330,24 @@ def fleet_map():
     auth_check = require_auth()
     if auth_check:
         return auth_check
-    return render_template('seamless_fleet_map.html')
+    
+    # Get authentic GAUGE data for the map
+    metrics = get_authentic_metrics()
+    assets_data = []
+    
+    try:
+        # Extract individual assets for map display
+        if 'assets_data' in metrics and metrics['assets_data']:
+            assets_data = metrics['assets_data']
+    except Exception as e:
+        print(f"Error loading assets for map: {e}")
+        assets_data = []
+    
+    return render_template('fleet_map.html', 
+                         assets=assets_data,
+                         total_assets=metrics.get('total_assets', 0),
+                         active_assets=metrics.get('active_assets', 0),
+                         gps_enabled_count=metrics.get('gps_enabled', 0))
 
 @app.route('/attendance-matrix')
 @app.route('/driver-attendance')

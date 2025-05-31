@@ -131,11 +131,12 @@ except ImportError as e:
 except Exception as e:
     print(f"Error initializing authentication: {e}")
 
-try:
-    from jobs.scheduled_snapshots import start_scheduler
-    # Scheduler will auto-start when imported
-except ImportError as e:
-    logging.warning(f"Scheduler not available: {e}")
+# Scheduler disabled to reduce system load
+# try:
+#     from jobs.scheduled_snapshots import start_scheduler
+#     # Scheduler will auto-start when imported
+# except ImportError as e:
+#     logging.warning(f"Scheduler not available: {e}")
 
 # Import and register persistent development engine
 try:

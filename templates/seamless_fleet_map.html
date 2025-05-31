@@ -442,6 +442,94 @@
 
         /* Mobile Responsiveness */
         @media (max-width: 768px) {
+            body {
+                overflow-x: hidden;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .fleet-container {
+                padding: 10px;
+                max-width: 100vw;
+                overflow-x: hidden;
+            }
+            
+            .fleet-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+                width: 100%;
+            }
+            
+            .fleet-header h1 {
+                font-size: 24px;
+                margin: 0;
+            }
+            
+            .status-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+                width: 100%;
+                margin: 0;
+            }
+            
+            .status-item {
+                padding: 12px 8px;
+                min-width: 0;
+            }
+            
+            .status-count {
+                font-size: 18px;
+            }
+            
+            .status-label {
+                font-size: 12px;
+            }
+            
+            .category-filters {
+                max-height: 180px;
+                overflow-y: auto;
+                width: 100%;
+                margin: 15px 0;
+                padding: 0;
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .category-button {
+                font-size: 11px;
+                padding: 6px 10px;
+                margin: 2px;
+                min-width: 0;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+            
+            .fleet-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                width: 100%;
+                margin: 0;
+            }
+            
+            .asset-card {
+                width: 100%;
+                margin: 0;
+                box-sizing: border-box;
+            }
+            
+            .search-container {
+                width: 100%;
+                margin: 15px 0;
+            }
+            
+            .search-container input {
+                font-size: 16px;
+                width: 100%;
+                box-sizing: border-box;
+                padding: 12px 15px;
+            }
+            
             .control-panel {
                 top: 10px;
                 left: 10px;
@@ -764,5 +852,8 @@
             loadData();
         }, 30000);
     </script>
+
+    <!-- Tour Guide Integration -->
+    <script src="/static/tour-guide.js"></script>
 </body>
 </html>

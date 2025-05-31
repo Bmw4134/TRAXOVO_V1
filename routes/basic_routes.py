@@ -161,6 +161,20 @@ def inject_navigation():
                 'active_paths': ['/file-organizer/', '/file-organizer']
             },
             {
+                'id': 'master_billing',
+                'title': 'Master Billing',
+                'icon': 'fas fa-calculator',
+                'url': '/master-billing/',
+                'active_paths': ['/master-billing/', '/master-billing']
+            },
+            {
+                'id': 'master_attendance',
+                'title': 'Master Attendance',
+                'icon': 'fas fa-clipboard-check',
+                'url': '/master-attendance/',
+                'active_paths': ['/master-attendance/', '/master-attendance']
+            },
+            {
                 'id': 'asset_map',
                 'title': 'Asset Map',
                 'icon': 'fas fa-map-marked-alt',

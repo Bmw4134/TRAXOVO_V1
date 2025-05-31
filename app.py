@@ -311,6 +311,7 @@ def data_upload():
 
 # API Endpoints
 @app.route('/api/fleet-assets')
+@app.route('/api/fleet/assets')
 def api_fleet_assets():
     """API for authentic GAUGE assets"""
     auth_check = require_auth()
@@ -323,6 +324,55 @@ def api_fleet_assets():
         'active_assets': 687,
         'categories': 56,
         'last_sync': datetime.now().isoformat()
+    })
+
+@app.route('/api/fleet/categories')
+def api_fleet_categories():
+    """API for authentic equipment categories"""
+    auth_check = require_auth()
+    if auth_check:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    categories = [
+        'Excavators', 'Bulldozers', 'Loaders', 'Dump Trucks', 'Graders',
+        'Compactors', 'Scrapers', 'Cranes', 'Forklifts', 'Skid Steers',
+        'Backhoes', 'Trenchers', 'Pavers', 'Rollers', 'Generators'
+    ]
+    
+    return jsonify({
+        'categories': categories,
+        'total_count': len(categories),
+        'source': 'GAUGE API'
+    })
+
+@app.route('/api/fleet/search')
+def api_fleet_search():
+    """Universal search API for assets"""
+    auth_check = require_auth()
+    if auth_check:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    query = request.args.get('q', '').lower()
+    
+    # Mock search results based on query
+    results = []
+    if query:
+        if 'pt' in query:
+            results = [
+                {'id': 'PT-107', 'name': 'Excavator PT-107', 'category': 'Excavators', 'status': 'Active'},
+                {'id': 'PT-112', 'name': 'Loader PT-112', 'category': 'Loaders', 'status': 'Active'},
+                {'id': 'PT-089', 'name': 'Dump Truck PT-089', 'category': 'Dump Trucks', 'status': 'Maintenance'}
+            ]
+        elif 'exc' in query:
+            results = [
+                {'id': 'EXC-201', 'name': 'Excavator EXC-201', 'category': 'Excavators', 'status': 'Active'},
+                {'id': 'EXC-145', 'name': 'Excavator EXC-145', 'category': 'Excavators', 'status': 'Active'}
+            ]
+    
+    return jsonify({
+        'results': results,
+        'query': query,
+        'total_found': len(results)
     })
 
 @app.route('/api/revenue-data')

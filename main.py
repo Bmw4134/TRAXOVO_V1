@@ -82,7 +82,7 @@ try:
     
     # Register intelligent ideas system
     from routes.intelligent_ideas_system import intelligent_ideas_bp
-    app.register_blueprint(intelligent_ideas_bp)
+    app.register_blueprint(intelligent_ideas_bp, name='smart_ideas')
     
     # Unified routes disabled temporarily to fix navigation conflicts
     # from routes.unified_routes import unified_routes_bp
@@ -116,9 +116,9 @@ try:
     from routes.executive_kpi_suite import executive_kpi_bp
     app.register_blueprint(executive_kpi_bp)
     
-    # Register executive reports engine
-    from routes.executive_reports_engine import executive_reports_bp
-    app.register_blueprint(executive_reports_bp)
+    # Register AEMP winning analytics
+    from routes.amp_winning_analytics import amp_analytics_bp
+    app.register_blueprint(amp_analytics_bp)
     
     # Register comprehensive attendance engine
     from routes.comprehensive_attendance_engine import comprehensive_attendance

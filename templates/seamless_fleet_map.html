@@ -961,25 +961,48 @@
             }
         }, { passive: true });
 
-        // Add touch feedback to interactive elements
+        // Enhanced touch feedback for mobile interaction
         document.addEventListener('DOMContentLoaded', function() {
-            const touchElements = document.querySelectorAll('.category-button, .asset-card, .search-container input');
+            // Fix touch interactions for all interactive elements
+            const touchElements = document.querySelectorAll('.category-button, .asset-card, .search-container input, .mobile-toggle, .close-btn');
             
             touchElements.forEach(element => {
-                element.addEventListener('touchstart', function() {
-                    this.style.transform = 'scale(0.98)';
+                // Visual feedback on touch
+                element.addEventListener('touchstart', function(e) {
+                    this.style.transform = 'scale(0.95)';
                     this.style.transition = 'transform 0.1s ease';
+                    this.style.opacity = '0.8';
                 }, { passive: true });
                 
-                element.addEventListener('touchend', function() {
+                element.addEventListener('touchend', function(e) {
                     setTimeout(() => {
                         this.style.transform = '';
-                    }, 100);
+                        this.style.opacity = '';
+                    }, 150);
                 }, { passive: true });
                 
-                element.addEventListener('touchcancel', function() {
+                element.addEventListener('touchcancel', function(e) {
                     this.style.transform = '';
+                    this.style.opacity = '';
                 }, { passive: true });
+            });
+
+            // Make category filter buttons actually work on mobile
+            const categoryButtons = document.querySelectorAll('.category-button');
+            categoryButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Remove active from all buttons
+                    categoryButtons.forEach(btn => btn.classList.remove('active'));
+                    // Add active to clicked button
+                    this.classList.add('active');
+                    
+                    // Filter assets by category
+                    const category = this.dataset.category || this.textContent.trim();
+                    filterAssetsByCategory(category);
+                });
             });
 
             // Improve touch targets for mobile
@@ -1010,19 +1033,23 @@
         let isMobileMode = false;
         
         function toggleMobileMode() {
-            const container = document.querySelector('.fleet-container');
+            const container = document.querySelector('.fleet-container') || document.body;
             const toggleBtn = document.getElementById('mobileToggle');
             
             isMobileMode = !isMobileMode;
             
-            if (isMobileMode) {
+            if (container && isMobileMode) {
                 container.classList.add('mobile-mode');
-                toggleBtn.innerHTML = '🖥️ Desktop View';
-                toggleBtn.style.background = '#FF6B35';
-            } else {
+                if (toggleBtn) {
+                    toggleBtn.innerHTML = '🖥️ Desktop View';
+                    toggleBtn.style.background = '#FF6B35';
+                }
+            } else if (container) {
                 container.classList.remove('mobile-mode');
-                toggleBtn.innerHTML = '📱 Mobile Mode';
-                toggleBtn.style.background = '#007AFF';
+                if (toggleBtn) {
+                    toggleBtn.innerHTML = '📱 Mobile Mode';
+                    toggleBtn.style.background = '#007AFF';
+                }
             }
         }
 

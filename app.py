@@ -365,8 +365,11 @@ def fleet_map():
                              avg_utilization=67)
 
 @app.route('/billing')
+@app.route('/billing-intelligence')
 def billing():
     """Billing intelligence dashboard"""
+    if not session.get('authenticated'):
+        return redirect('/login')
     try:
         try:
             from foundation_data_processor import get_foundation_processor

@@ -314,9 +314,27 @@ def dashboard():
                                last_updated="N/A")
 
 @app.route('/attendance-matrix')
+@app.route('/driver-attendance')
 def attendance_matrix():
     """Attendance matrix with responsive design"""
+    if not session.get('authenticated'):
+        return redirect('/login')
     return render_template('attendance_matrix.html')
+
+@app.route('/asset-manager')
+@app.route('/asset-management')
+def asset_manager():
+    """Asset Management Dashboard"""
+    if not session.get('authenticated'):
+        return redirect('/login')
+    return render_template('asset_manager.html')
+
+@app.route('/executive-reports')
+def executive_reports():
+    """Executive Reports Dashboard"""
+    if not session.get('authenticated'):
+        return redirect('/login')
+    return render_template('executive_reports.html')
 
 @app.route('/fleet-map')
 def fleet_map():
@@ -850,11 +868,21 @@ def idea_box():
     return render_template('idea_box.html')
 
 @app.route('/workflow-optimization')
-def workflow_optimization():
+def workflow_optimization_module():
     """Workflow Optimization Module"""
     if not session.get('authenticated'):
         return redirect('/login')
     return render_template('workflow_optimization.html')
+
+@app.route('/watson-admin')
+@app.route('/admin-center')
+def watson_admin_center():
+    """Watson Admin Command Center - All Secret Modules"""
+    if not session.get('authenticated'):
+        return redirect('/login')
+    if session.get('username') != 'watson':
+        return redirect('/')
+    return render_template('watson_admin_dashboard.html')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

@@ -301,11 +301,20 @@ except ImportError as e:
     print(f"Error importing feature blueprints: {e}")
 
 # Start scheduled attendance snapshots
-# CLEAN AUTHENTICATION - Direct access, no login barriers
+# WORKING LOGIN SYSTEM - Clean authentication
+from replit_auth import init_auth
+auth = init_auth(app)
+
 @app.before_request
 def before_request():
-    # Direct access to all routes - no authentication required
-    pass
+    # Skip auth for static files and auth routes
+    if request.endpoint and (request.endpoint.startswith('static') or 
+                           request.endpoint in ['login', 'auth_login']):
+        return
+    
+    # Require login for all other routes
+    if not auth.is_logged_in():
+        return redirect('/login')
 
 # Global data store for authentic data with caching
 authentic_fleet_data = {}
@@ -468,23 +477,7 @@ def refresh_data():
         'timestamp': datetime.now().isoformat()
     })
 
-@app.route('/login')
-def login():
-    # Automatic login bypass - direct dashboard access
-    session.clear()
-    session['logged_in'] = True
-    session['username'] = 'admin'
-    session['role'] = 'admin'
-    session.permanent = True
-    return redirect('/dashboard')
-
-@app.route('/logout')
-def logout():
-    return redirect('/dashboard')
-
-@app.route('/quick-access')
-def quick_access():
-    return redirect('/dashboard')
+# Login routes are now handled by replit_auth.py
 
 @app.route('/')
 def index():

@@ -331,6 +331,14 @@ try:
     from human_amplification_demo import human_amplification_bp
     app.register_blueprint(human_amplification_bp)
     
+    # SMART ASSET LOOKUP - Real-time GAUGE API integration
+    from smart_asset_lookup import smart_asset_bp
+    app.register_blueprint(smart_asset_bp)
+    
+    # RESPONSIVE UI CONTROLLER - Desktop/Mobile toggle
+    from responsive_ui_controller import responsive_ui_bp
+    app.register_blueprint(responsive_ui_bp)
+    
     # Register unified billing consolidation
     from routes.unified_billing_consolidation import unified_billing
     app.register_blueprint(unified_billing)

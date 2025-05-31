@@ -122,22 +122,14 @@ def get_authentic_metrics():
                         print(f"Sample asset keys: {list(sample_asset.keys())[:10]}")
                         print(f"Sample asset data: {dict(list(sample_asset.items())[:5])}")
                     
-                    # Try different status field names and values from GAUGE API
-                    active_assets = 0
-                    for asset in assets_data:
-                        status = str(asset.get('status', asset.get('Status', asset.get('state', asset.get('State', ''))))).lower()
-                        if status in ['active', 'online', 'running', 'on', 'enabled', '1', 'true', 'operational']:
-                            active_assets += 1
-                    
+                    # Count active assets using GAUGE API boolean field
+                    active_assets = sum(1 for asset in assets_data if asset.get('Active') is True)
                     inactive_assets = total_assets - active_assets
                     
-                    # Get unique categories from multiple possible field names
+                    # Get unique categories from GAUGE AssetCategory field
                     category_set = set()
                     for asset in assets_data:
-                        category = (asset.get('category') or asset.get('Category') or 
-                                  asset.get('type') or asset.get('Type') or
-                                  asset.get('model') or asset.get('Model') or
-                                  asset.get('equipment_type') or asset.get('assetType') or '')
+                        category = asset.get('AssetCategory')
                         if category:
                             category_set.add(str(category))
                     

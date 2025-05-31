@@ -47,3 +47,4 @@ oauthlib
 replit-object-storage
 cryptography
 psutil
+psutil

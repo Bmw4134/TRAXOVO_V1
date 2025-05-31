@@ -250,7 +250,7 @@ def asset_manager():
     
     categories_data = ['Earthwork', 'Concrete', 'Asphalt', 'Utilities', 'Compaction', 'Hauling']
     
-    return render_template('asset_manager.html', 
+    return render_template('asset_manager_simple.html', 
                          assets=assets_data,
                          categories=categories_data)
 
@@ -391,7 +391,7 @@ def workflow_optimization():
             'preventive_schedule': []
         }
     }
-    return render_template('workflow_optimization.html', patterns=patterns)
+    return render_template('workflow_optimization_simple.html', patterns=patterns)
 
 @app.route('/data-upload')
 @app.route('/upload-may-week-data')

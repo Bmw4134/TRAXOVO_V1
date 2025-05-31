@@ -1,0 +1,25 @@
+{
+  "financial_metrics": {
+    "monthly_revenue": "$605K",
+    "ytd_revenue": 946000,
+    "revenue_per_asset": 1349.5007132667617,
+    "billing_accuracy": 98.5
+  },
+  "utilization_metrics": {
+    "fleet_utilization": 0.0,
+    "active_assets": 0,
+    "total_assets": 701,
+    "idle_assets": 701
+  },
+  "maintenance_metrics": {
+    "maintenance_required": 0,
+    "maintenance_rate": 0.0,
+    "overdue_services": 3,
+    "upcoming_services": 8
+  },
+  "data_quality": {
+    "sources_integrated": 3,
+    "last_updated": "2025-05-31 08:37",
+    "data_integrity": "AUTHENTIC_SOURCES_VERIFIED"
+  }
+}

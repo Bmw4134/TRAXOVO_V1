@@ -118,6 +118,14 @@ class ElitePerformanceEngine:
             days_inactive = asset.get('DaysInactive', 0) or 0
             engine_hours = asset.get('Engine1Hours', 0) or 0
             
+            # Convert to numeric values safely
+            try:
+                days_inactive = float(days_inactive) if days_inactive else 0
+                engine_hours = float(engine_hours) if engine_hours else 0
+            except (ValueError, TypeError):
+                days_inactive = 0
+                engine_hours = 0
+            
             if days_inactive > 7:
                 performance_metrics['maintenance_due'] += 1
             if engine_hours > 5000:
@@ -162,7 +170,7 @@ class ElitePerformanceEngine:
             'performance': performance_metrics,
             'assets': active_asset_details[:100],  # Show active assets by default
             'inactive_assets': inactive_asset_details[:50],  # Separate inactive list
-            'asset_tooltips': self._generate_asset_tooltips(asset_details[:150]),
+            'asset_tooltips': self._generate_asset_tooltips(asset_details[:150]) if hasattr(self, '_generate_asset_tooltips') else {},
             'last_updated': datetime.now().isoformat(),
             'data_quality': 'authentic_gauge_api'
         }

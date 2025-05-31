@@ -114,14 +114,21 @@ class ElitePerformanceEngine:
             if isinstance(make, str) and make.strip():
                 makes.add(make.strip())
             
-            # Performance analytics
-            days_inactive = asset.get('DaysInactive', 0) or 0
-            engine_hours = asset.get('Engine1Hours', 0) or 0
+            # Performance analytics - handle None values safely
+            days_inactive = asset.get('DaysInactive')
+            engine_hours = asset.get('Engine1Hours')
             
             # Convert to numeric values safely
             try:
-                days_inactive = float(days_inactive) if days_inactive is not None else 0
-                engine_hours = float(engine_hours) if engine_hours is not None else 0
+                if days_inactive is None:
+                    days_inactive = 0
+                else:
+                    days_inactive = float(days_inactive)
+                    
+                if engine_hours is None:
+                    engine_hours = 0
+                else:
+                    engine_hours = float(engine_hours)
             except (ValueError, TypeError):
                 days_inactive = 0
                 engine_hours = 0

@@ -120,6 +120,10 @@ try:
     from routes.unified_billing_consolidation import unified_billing
     app.register_blueprint(unified_billing)
     
+    # Register authentic billing consolidation with all Jan-April 2025 data
+    from routes.authentic_billing_consolidation import authentic_billing_bp
+    app.register_blueprint(authentic_billing_bp)
+    
     # Register TRAXOVO unified kernel
     from routes.traxovo_unified_kernel import unified_kernel
     app.register_blueprint(unified_kernel)

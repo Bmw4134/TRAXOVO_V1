@@ -175,6 +175,20 @@ def inject_navigation():
                 'active_paths': ['/master-attendance/', '/master-attendance']
             },
             {
+                'id': 'ai_assistant',
+                'title': 'AI Assistant',
+                'icon': 'fas fa-robot',
+                'url': '/ai-assistant',
+                'active_paths': ['/ai-assistant']
+            },
+            {
+                'id': 'admin_dashboard',
+                'title': 'Admin Dashboard',
+                'icon': 'fas fa-cogs',
+                'url': '/admin',
+                'active_paths': ['/admin']
+            },
+            {
                 'id': 'asset_map',
                 'title': 'Asset Map',
                 'icon': 'fas fa-map-marked-alt',

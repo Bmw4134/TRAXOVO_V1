@@ -91,8 +91,10 @@ try:
     # Register enhanced billing controller
     from routes.enhanced_billing_controller import enhanced_billing_bp
     from routes.master_billing_system import master_billing_bp
+    from routes.master_attendance_system import master_attendance_bp
     app.register_blueprint(enhanced_billing_bp)
     app.register_blueprint(master_billing_bp)
+    app.register_blueprint(master_attendance_bp)
     
     # Register executive KPI suite
     from routes.executive_kpi_suite import executive_kpi_bp

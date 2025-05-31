@@ -90,7 +90,9 @@ try:
     
     # Register enhanced billing controller
     from routes.enhanced_billing_controller import enhanced_billing_bp
+    from routes.master_billing_system import master_billing_bp
     app.register_blueprint(enhanced_billing_bp)
+    app.register_blueprint(master_billing_bp)
     
     # Register executive KPI suite
     from routes.executive_kpi_suite import executive_kpi_bp
@@ -322,8 +324,8 @@ def login():
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '').strip()
         
-        # Fixed authentication logic - check both credential sets
-        if (username == 'admin' and password == 'TRAXOVOAdmin2025!') or (username == 'admin' and password == 'admin'):
+        # Simple authentication - both admin passwords work
+        if username == 'admin' and (password == 'admin' or password == 'TRAXOVOAdmin2025!'):
             session.clear()
             session['logged_in'] = True
             session['username'] = 'admin'
@@ -337,9 +339,8 @@ def login():
             session['role'] = 'executive'
             session.permanent = True
             return redirect('/dashboard')
-        else:
-            flash('Login failed. Use admin/admin or admin/TRAXOVOAdmin2025!', 'error')
-            return render_template('login.html', error='Invalid credentials')
+        
+        return render_template('login.html', error='Invalid credentials')
     
     return render_template('login.html')
 

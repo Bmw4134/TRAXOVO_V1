@@ -733,5 +733,74 @@ def api_search_suggestions():
     except Exception as e:
         return jsonify({'suggestions': []}), 500
 
+# Missing module routes - scaffold all sidebar navigation
+@app.route('/billing')
+@app.route('/billing-intelligence')
+def billing_module():
+    """Billing Intelligence Dashboard"""
+    if not session.get('authenticated'):
+        return redirect('/login')
+    try:
+        from seamless_fleet_engine import seamless_fleet_engine
+        revenue_data = {
+            'monthly_total': '$605K',
+            'billable_assets': len(seamless_fleet_engine.gauge_data),
+            'categories': len(seamless_fleet_engine.asset_categories),
+            'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M')
+        }
+        return render_template('billing_intelligence.html', data=revenue_data)
+    except Exception as e:
+        logger.error(f"Billing module error: {e}")
+        return render_template('billing_intelligence.html', data={})
+
+@app.route('/jobs')
+@app.route('/project-accountability')
+def jobs_module():
+    """Project Accountability System"""
+    if not session.get('authenticated'):
+        return redirect('/login')
+    return render_template('project_accountability.html')
+
+@app.route('/upload-may-week-data')
+@app.route('/data-upload')
+def data_upload_module():
+    """Data Upload & Processing Module"""
+    if not session.get('authenticated'):
+        return redirect('/login')
+    return render_template('data_upload.html')
+
+@app.route('/system-admin')
+@app.route('/admin')
+def admin_module():
+    """System Administration Module"""
+    if not session.get('authenticated'):
+        return redirect('/login')
+    if session.get('username') != 'watson':
+        return redirect('/')
+    return render_template('system_admin.html')
+
+@app.route('/driver-attendance')
+@app.route('/attendance')
+def attendance_module():
+    """Driver Attendance Matrix"""
+    if not session.get('authenticated'):
+        return redirect('/login')
+    return render_template('attendance_matrix.html')
+
+@app.route('/ai-assistant')
+def ai_assistant_module():
+    """AI Fleet Assistant"""
+    if not session.get('authenticated'):
+        return redirect('/login')
+    return render_template('ai_assistant.html')
+
+@app.route('/reports')
+@app.route('/executive-reports')
+def reports_module():
+    """Executive Reports Dashboard"""
+    if not session.get('authenticated'):
+        return redirect('/login')
+    return render_template('executive_reports.html')
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

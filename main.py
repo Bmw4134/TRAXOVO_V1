@@ -267,6 +267,29 @@ try:
                              monthly_revenue=847200,
                              page_title="Bleeding Edge Intelligence")
     
+    # WATSON ENHANCEMENT SYSTEM - Personalized suggestions
+    from watson_enhancement_engine import watson_engine, get_watson_suggestions
+    
+    @app.route('/api/watson/suggestions')
+    def watson_suggestions():
+        """Get Watson-specific enhancement suggestions"""
+        route = request.args.get('route', 'dashboard')
+        suggestions = get_watson_suggestions(route)
+        return jsonify({
+            'suggestions': suggestions,
+            'user': session.get('username'),
+            'context': route
+        })
+    
+    @app.route('/api/watson/implement/<enhancement_id>')
+    def implement_watson_enhancement(enhancement_id):
+        """Implement a Watson enhancement"""
+        if session.get('username') != 'watson':
+            return jsonify({'error': 'Unauthorized'}), 403
+        
+        result = watson_engine.implement_enhancement(enhancement_id)
+        return jsonify(result)
+    
     # AUTO-ENHANCEMENT ENGINE - Automatically adds valuable features
     from auto_enhancement_engine import create_auto_enhancement_blueprint, auto_enhancement_engine
     app.register_blueprint(create_auto_enhancement_blueprint())
@@ -499,6 +522,15 @@ def dev_toggle():
         session.clear()
         return redirect('/login')
     
+    elif action == 'watson_mode':
+        session['dev_bypass'] = True
+        session['logged_in'] = True
+        session['username'] = 'watson'
+        session['role'] = 'admin'
+        session['watson_admin'] = True  # Full admin privileges
+        session['project_overview'] = True  # Complete project access
+        return redirect('/dashboard')
+    
     elif action == 'reset_system':
         session.clear()
         return redirect('/')
@@ -513,6 +545,9 @@ def dev_toggle():
         </a>
         <a href="/dev-toggle?action=enable_login" style="display: block; margin: 10px 0; padding: 10px; background: #007bff; color: white; text-decoration: none;">
             🔐 Enable Login System
+        </a>
+        <a href="/dev-toggle?action=watson_mode" style="display: block; margin: 10px 0; padding: 10px; background: #6f42c1; color: white; text-decoration: none;">
+            👨‍💼 Watson Mode (Enhanced Features)
         </a>
         <a href="/dev-toggle?action=reset_system" style="display: block; margin: 10px 0; padding: 10px; background: #dc3545; color: white; text-decoration: none;">
             🔄 Reset Everything

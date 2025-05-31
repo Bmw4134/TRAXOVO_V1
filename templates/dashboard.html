@@ -555,6 +555,60 @@
                     </li>
                 </ul>
                 
+                <!-- Watson Admin Panel -->
+                {% if session.get('username') == 'watson' %}
+                <div class="watson-admin-panel" style="padding: 15px; background: linear-gradient(135deg, #667eea20, #764ba220); border-radius: 10px; margin: 10px;">
+                    <h6 class="text-primary mb-3 fw-bold">
+                        <i class="bi bi-person-gear me-2"></i>
+                        Watson Admin Center
+                    </h6>
+                    
+                    <!-- Quick Admin Actions -->
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <a href="/system-health" class="btn btn-outline-primary btn-sm w-100">
+                                <i class="bi bi-heart-pulse me-1"></i>
+                                System Health
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="/dev_audit" class="btn btn-outline-secondary btn-sm w-100">
+                                <i class="bi bi-bug me-1"></i>
+                                Dev Audit
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="/system-admin" class="btn btn-outline-info btn-sm w-100">
+                                <i class="bi bi-people me-1"></i>
+                                User Admin
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="/api/audit/live" class="btn btn-outline-warning btn-sm w-100">
+                                <i class="bi bi-activity me-1"></i>
+                                Live Metrics
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Project Overview -->
+                    <div class="project-status mb-3">
+                        <small class="text-muted d-block mb-1">Project Status</small>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-success">717 Assets Tracked</span>
+                            <span class="badge bg-primary">92 Drivers Active</span>
+                            <span class="badge bg-warning">$605K Monthly Revenue</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Enhancement Bubbles -->
+                    <div id="watson-enhancements">
+                        <small class="text-muted d-block mb-2">Smart Suggestions</small>
+                        <div id="enhancement-bubbles"></div>
+                    </div>
+                </div>
+                {% endif %}
+                
                 <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
                     <span>OPERATIONS</span>
                 </h6>

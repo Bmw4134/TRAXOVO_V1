@@ -1122,6 +1122,8 @@ def api_billing_drilldown(period):
     
     try:
         # Get authentic GAUGE API data
+        from services.gauge_service import GaugeService
+        gauge_service = GaugeService()
         gauge_data = gauge_service.get_asset_list() if gauge_service.has_credentials() else []
         
         if not gauge_data:
@@ -1206,6 +1208,8 @@ def api_fleet_drilldown(category):
     
     try:
         # Get authentic GAUGE API data
+        from services.gauge_service import GaugeService
+        gauge_service = GaugeService()
         gauge_data = gauge_service.get_asset_list() if gauge_service.has_credentials() else []
         
         if not gauge_data:

@@ -3,88 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - TRAXOVO Fleet Management</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <title>TRAXOVO Fleet Management - Login</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+            color: #fff;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        .login-card {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            padding: 3rem 2rem;
+
+        .login-container {
+            background: rgba(28, 28, 30, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             width: 100%;
             max-width: 400px;
         }
+
         .logo {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 30px;
         }
+
         .logo h1 {
-            color: #667eea;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(45deg, #007AFF, #00D4FF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        .form-control {
+
+        .logo p {
+            color: #8E8E93;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #F2F2F7;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 10px;
-            padding: 12px 15px;
-            border: 2px solid #f1f3f4;
-            transition: border-color 0.3s;
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s ease;
         }
-        .form-control:focus {
-            border-color: #667eea;
-            box-shadow: none;
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #007AFF;
+            background: rgba(255, 255, 255, 0.08);
         }
-        .btn-login {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(45deg, #007AFF, #0056CC);
             border: none;
             border-radius: 10px;
-            padding: 12px;
+            color: white;
+            font-size: 16px;
             font-weight: 600;
-            transition: transform 0.2s;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
         }
-        .btn-login:hover {
+
+        .login-btn:hover {
             transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 122, 255, 0.3);
+        }
+
+        .error {
+            background: rgba(255, 59, 48, 0.1);
+            border: 1px solid rgba(255, 59, 48, 0.3);
+            color: #FF453A;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .credentials {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .credentials h4 {
+            color: #007AFF;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .credentials p {
+            color: #8E8E93;
+            font-size: 13px;
+            margin: 4px 0;
         }
     </style>
 </head>
 <body>
-    <div class="login-card">
+    <div class="login-container">
         <div class="logo">
-            <h1><i class="bi bi-truck me-2"></i>TRAXOVO</h1>
-            <p class="text-muted">Fleet Management System</p>
+            <h1>TRAXOVO</h1>
+            <p>Fleet Intelligence Platform</p>
         </div>
-        
-        <form method="POST" action="/login">
-            <div class="mb-3">
-                <label for="username" class="form-label">Username</label>
-                <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-person"></i></span>
-                    <input type="text" class="form-control" id="username" name="username" required>
-                </div>
+
+        {% if error %}
+        <div class="error">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
             </div>
-            
-            <div class="mb-4">
-                <label for="password" class="form-label">Password</label>
-                <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                    <input type="password" class="form-control" id="password" name="password" required>
-                </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
             </div>
-            
-            <button type="submit" class="btn btn-primary btn-login w-100 text-white">
-                <i class="bi bi-box-arrow-in-right me-2"></i>Login
-            </button>
+
+            <button type="submit" class="login-btn">Login to Fleet Dashboard</button>
         </form>
-        
-        <div class="text-center mt-3">
-            <small class="text-muted">Contact IT for credentials</small>
+
+        <div class="credentials">
+            <h4>Test Credentials</h4>
+            <p><strong>Username:</strong> tester | <strong>Password:</strong> tester</p>
+            <p><strong>Username:</strong> watson | <strong>Password:</strong> watson</p>
         </div>
     </div>
 </body>

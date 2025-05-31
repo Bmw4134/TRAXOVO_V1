@@ -65,10 +65,9 @@ class Asset(db.Model):
     billable = db.Column(db.Boolean, default=True)
     revenue = db.Column(db.Float, default=0.0)
 
-# Initialize Flask-Login (disabled for fleet map access)
+# Initialize Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
-# login_manager.login_view = 'replit_auth.login'  # Commented out to fix redirect loops
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -618,9 +617,31 @@ try:
 except Exception as e:
     logger.error(f"Error registering seamless fleet map: {e}")
 
-@app.route('/simple_login', methods=['GET', 'POST'])
+@app.route('/fleet_map')
+@app.route('/asset_map') 
+@app.route('/map')
+@app.route('/seamless-fleet')
+def seamless_fleet_map():
+    """Seamless fleet map with authentic GAUGE data"""
+    try:
+        from seamless_fleet_engine import seamless_fleet_engine
+        categories = seamless_fleet_engine.get_category_filters()
+        status_summary = seamless_fleet_engine.get_status_summary()
+        
+        logger.info(f"✓ Loaded {len(seamless_fleet_engine.gauge_data)} authentic assets")
+        logger.info(f"✓ Categories: {len(categories)} real equipment types")
+        logger.info(f"✓ Status: {status_summary}")
+        
+        return render_template('seamless_fleet_map.html', 
+                             categories=categories,
+                             status_summary=status_summary)
+    except Exception as e:
+        logger.error(f"Fleet map error: {e}")
+        return f"Fleet map loading error: {e}", 500
+
+@app.route('/login', methods=['GET', 'POST'])
 def simple_login():
-    """Handle simple login with your credentials"""
+    """Access control for fleet system"""
     if request.method == 'GET':
         username = request.args.get('u')
         password = request.args.get('p')
@@ -640,25 +661,6 @@ def simple_login():
         return redirect('/fleet_map')
     
     return render_template('simple_login.html')
-
-# Direct seamless fleet map route (bypassing auth for now)
-@app.route('/fleet_map')
-@app.route('/asset_map') 
-@app.route('/map')
-@app.route('/seamless-fleet')
-def seamless_fleet_map():
-    """Direct seamless fleet map with authentic GAUGE data"""
-    try:
-        from seamless_fleet_engine import seamless_fleet_engine
-        categories = seamless_fleet_engine.get_category_filters()
-        status_summary = seamless_fleet_engine.get_status_summary()
-        
-        return render_template('seamless_fleet_map.html', 
-                             categories=categories,
-                             status_summary=status_summary)
-    except Exception as e:
-        logger.error(f"Fleet map error: {e}")
-        return f"Fleet map loading error: {e}", 500
 
 # Fleet map API endpoints
 @app.route('/api/fleet/assets')

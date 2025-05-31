@@ -1,11 +1,12 @@
 """
 TRAXOVO Fleet Management System - Fixed Authentication
+Main Application with Working Login System
 """
 
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
-from werkzeug.middleware.proxy_fix import ProxyFix
 import os
 import logging
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -19,13 +20,16 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 @app.before_request
 def check_authentication():
     """Check if user is authenticated for protected routes"""
-    # Skip auth check for login routes and static files
-    if request.endpoint in ['login', 'static'] or request.path.startswith('/api/'):
+    # Skip auth check for login routes and assets
+    if request.endpoint in ['login', 'simple_login', 'static'] or request.path.startswith('/api/'):
         return
     
     # Check if user is authenticated
     if not session.get('authenticated'):
-        return redirect(url_for('login'))
+        if request.path == '/':
+            return redirect(url_for('login'))
+        else:
+            return redirect(url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -78,7 +82,7 @@ def fleet_map():
         logger.error(f"Fleet map error: {e}")
         return f"Fleet map error: {e}", 500
 
-# Fleet API endpoints
+# API endpoints for fleet data
 @app.route('/api/fleet/assets')
 def api_fleet_assets():
     """Your authentic GAUGE assets API"""

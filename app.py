@@ -807,5 +807,35 @@ def reports_module():
         return redirect('/login')
     return render_template('executive_reports.html')
 
+# Admin and System Health Modules
+@app.route('/kaizen-optimization')
+@app.route('/kaizen')
+def kaizen_optimization():
+    """Kaizen Optimization Module"""
+    if not session.get('authenticated'):
+        return redirect('/login')
+    if session.get('username') != 'watson':
+        return redirect('/')
+    return render_template('kaizen/dashboard.html')
+
+@app.route('/system-health')
+def system_health_module():
+    """System Health Monitoring"""
+    if not session.get('authenticated'):
+        return redirect('/login')
+    if session.get('username') != 'watson':
+        return redirect('/')
+    return render_template('system_health/dashboard.html')
+
+@app.route('/dev-audit')
+@app.route('/development-audit')
+def development_audit():
+    """Development Audit Module"""
+    if not session.get('authenticated'):
+        return redirect('/login')
+    if session.get('username') != 'watson':
+        return redirect('/')
+    return render_template('dev_audit.html')
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

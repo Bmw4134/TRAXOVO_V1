@@ -33,12 +33,16 @@ try:
     from routes.dashboard_widgets import dashboard_widgets_bp
     from routes.po_system import po_bp
     from routes.gauge_data_manager import gauge_bp
+    from routes.kaizen import kaizen_bp
+    from routes.ai_assistant import ai_assistant_bp
     app.register_blueprint(attendance_bp)
     app.register_blueprint(job_zones_bp)
     app.register_blueprint(intelligent_ideas_bp)
     app.register_blueprint(dashboard_widgets_bp)
     app.register_blueprint(po_bp)
     app.register_blueprint(gauge_bp)
+    app.register_blueprint(kaizen_bp, url_prefix='/kaizen')
+    app.register_blueprint(ai_assistant_bp)
 except ImportError as e:
     logging.warning(f"Route import warning: {e}")
 
@@ -416,7 +420,9 @@ def dashboard():
         'last_updated': datetime.now().strftime('%I:%M %p'),
         'pt125_status': 'Active - E Long Avenue',
         'pt125_revenue': 1300,
-        'active_jobs': ['2019-044 E Long Avenue', '2021-017 Plant Extension']
+        'active_jobs': ['2019-044 E Long Avenue', '2021-017 Plant Extension'],
+        'show_ai_assistant': True,
+        'show_kaizen_modules': True
     }
     
     # Validation check for future template mismatches

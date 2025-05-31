@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAXOVO AI Assistant</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background: #f8f9fa; }
+        .ai-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px 10px 0 0;
+        }
+        .chat-container {
+            height: 60vh;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #e2e8f0;
+            padding: 1rem;
+        }
+        .message {
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            border-radius: 10px;
+            max-width: 80%;
+        }
+        .message.user {
+            background: #e3f2fd;
+            margin-left: auto;
+            text-align: right;
+        }
+        .message.ai {
+            background: #f1f8e9;
+            margin-right: auto;
+        }
+        .quick-actions {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        .action-btn {
+            margin: 0.25rem;
+            font-size: 0.85rem;
+        }
+        .input-group {
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <!-- Header -->
+        <div class="ai-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="bi bi-robot me-2"></i>TRAXOVO AI Assistant</h2>
+                    <p class="mb-0">Fleet Intelligence & Analytics Engine</p>
+                </div>
+                <a href="/dashboard" class="btn btn-light">
+                    <i class="bi bi-arrow-left me-1"></i>Dashboard
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Chat Interface -->
+                <div class="chat-container" id="chatContainer">
+                    <div class="message ai">
+                        <strong>AI Assistant:</strong> Welcome! I have access to your Foundation fleet data: 717 assets generating $552K monthly revenue with 92 drivers. I can help with GAUGE report analysis, fleet optimization, revenue insights, and operational intelligence. What would you like to know?
+                    </div>
+                </div>
+
+                <!-- Input -->
+                <div class="input-group">
+                    <input type="text" class="form-control" id="userInput" placeholder="Ask about fleet performance, GAUGE reports, revenue analytics...">
+                    <button class="btn btn-primary" onclick="sendMessage()">
+                        <i class="bi bi-send"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <h5><i class="bi bi-lightning-charge me-2"></i>Quick Actions</h5>
+                    <button class="btn btn-outline-primary action-btn" onclick="quickQuery('Show me revenue trends')">
+                        Revenue Trends
+                    </button>
+                    <button class="btn btn-outline-success action-btn" onclick="quickQuery('Asset utilization analysis')">
+                        Asset Utilization
+                    </button>
+                    <button class="btn btn-outline-info action-btn" onclick="quickQuery('Driver performance metrics')">
+                        Driver Metrics
+                    </button>
+                    <button class="btn btn-outline-warning action-btn" onclick="quickQuery('GAUGE report integration')">
+                        GAUGE Reports
+                    </button>
+                    <button class="btn btn-outline-secondary action-btn" onclick="quickQuery('Fleet optimization suggestions')">
+                        Optimization
+                    </button>
+                </div>
+
+                <!-- Fleet Summary -->
+                <div class="quick-actions">
+                    <h5><i class="bi bi-bar-chart me-2"></i>Fleet Summary</h5>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <div class="card text-center">
+                                <div class="card-body p-2">
+                                    <h6 class="text-primary">{{ fleet_assets }}</h6>
+                                    <small>Total Assets</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="card text-center">
+                                <div class="card-body p-2">
+                                    <h6 class="text-success">${{ (monthly_revenue/1000)|round(0)|int }}K</h6>
+                                    <small>Monthly Revenue</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="quick-actions">
+                    <h5><i class="bi bi-compass me-2"></i>Navigation</h5>
+                    <div class="d-grid gap-2">
+                        <a href="/master-attendance" class="btn btn-outline-primary btn-sm">Master Attendance</a>
+                        <a href="/master-billing" class="btn btn-outline-success btn-sm">Master Billing</a>
+                        <a href="/fleet-map" class="btn btn-outline-info btn-sm">Fleet Map</a>
+                        <a href="/kaizen" class="btn btn-outline-warning btn-sm">Kaizen Analytics</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            // Add user message
+            addMessage(message, 'user');
+            input.value = '';
+
+            // Send to AI
+            fetch('/api/ai-chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                addMessage(data.response, 'ai');
+                if (data.suggestions) {
+                    addSuggestions(data.suggestions);
+                }
+            })
+            .catch(error => {
+                addMessage('Sorry, I encountered an error. Please try again.', 'ai');
+            });
+        }
+
+        function addMessage(content, sender) {
+            const container = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            if (sender === 'ai') {
+                messageDiv.innerHTML = `<strong>AI Assistant:</strong> ${content}`;
+            } else {
+                messageDiv.innerHTML = `<strong>You:</strong> ${content}`;
+            }
+            
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function addSuggestions(suggestions) {
+            const container = document.getElementById('chatContainer');
+            const suggestionsDiv = document.createElement('div');
+            suggestionsDiv.className = 'message ai';
+            
+            let html = '<strong>Suggested questions:</strong><br>';
+            suggestions.forEach(suggestion => {
+                html += `<button class="btn btn-sm btn-outline-primary m-1" onclick="quickQuery('${suggestion}')">${suggestion}</button>`;
+            });
+            
+            suggestionsDiv.innerHTML = html;
+            container.appendChild(suggestionsDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function quickQuery(query) {
+            document.getElementById('userInput').value = query;
+            sendMessage();
+        }
+
+        // Enter key support
+        document.getElementById('userInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        console.log('TRAXOVO AI Assistant loaded - Fleet Intelligence ready');
+    </script>
+</body>
+</html>

@@ -84,6 +84,14 @@ try:
     from routes.supabase_integration import supabase_bp
     app.register_blueprint(supabase_bp)
     
+    # Register onboarding tour
+    from routes.onboarding_tour import onboarding_bp
+    app.register_blueprint(onboarding_bp)
+    
+    # Register enhanced billing controller
+    from routes.enhanced_billing_controller import enhanced_billing_bp
+    app.register_blueprint(enhanced_billing_bp)
+    
     # Register executive KPI suite
     from routes.executive_kpi_suite import executive_kpi_bp
     app.register_blueprint(executive_kpi_bp)

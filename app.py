@@ -238,7 +238,14 @@ def asset_manager():
     auth_check = require_auth()
     if auth_check:
         return auth_check
-    return render_template('asset_manager.html')
+    
+    # Get authentic GAUGE asset data
+    assets_data = get_authentic_gauge_assets()
+    categories_data = get_authentic_equipment_categories()
+    
+    return render_template('asset_manager.html', 
+                         assets=assets_data,
+                         categories=categories_data)
 
 # Business Intelligence
 @app.route('/billing')
@@ -296,6 +303,7 @@ def industry_news():
 # Watson Admin Features
 @app.route('/watson-admin')
 @app.route('/admin-center')
+@app.route('/system-admin')
 def watson_admin():
     """Watson admin command center"""
     admin_check = require_watson()
@@ -348,11 +356,20 @@ def workflow_optimization():
         'equipment_utilization': {
             'high_utilization_assets': [],
             'low_utilization_assets': []
+        },
+        'driver_efficiency': {
+            'driver_workload': [],
+            'performance_metrics': []
+        },
+        'route_optimization': {
+            'efficient_routes': [],
+            'improvement_areas': []
         }
     }
     return render_template('workflow_optimization.html', patterns=patterns)
 
 @app.route('/data-upload')
+@app.route('/upload-may-week-data')
 def data_upload():
     """Data upload and processing"""
     auth_check = require_auth()

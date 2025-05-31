@@ -44,6 +44,7 @@ db = SQLAlchemy(app, model_class=Base)
 # User model for authentication
 class User(db.Model):
     __tablename__ = 'users'
+    __table_args__ = {'extend_existing': True}
     id = db.Column(db.String, primary_key=True)
     email = db.Column(db.String, unique=True, nullable=True)
     first_name = db.Column(db.String, nullable=True)

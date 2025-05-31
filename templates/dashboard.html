@@ -184,16 +184,197 @@
             color: #8E8E93;
             font-size: 14px;
         }
+
+        /* Navigation Styles */
+        .nav-toggle {
+            color: #007AFF;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: background 0.2s ease;
+        }
+
+        .nav-toggle:hover {
+            background: rgba(0, 122, 255, 0.1);
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100vh;
+            background: rgba(28, 28, 30, 0.98);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            transition: left 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .sidebar.open {
+            left: 0;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sidebar-header h3 {
+            color: #fff;
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .sidebar-close {
+            background: none;
+            border: none;
+            color: #8E8E93;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: color 0.2s ease;
+        }
+
+        .sidebar-close:hover {
+            color: #fff;
+        }
+
+        .sidebar-nav {
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #8E8E93;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+        }
+
+        .nav-item.active {
+            background: rgba(0, 122, 255, 0.1);
+            color: #007AFF;
+            border-left-color: #007AFF;
+        }
+
+        .nav-icon {
+            width: 20px;
+            margin-right: 12px;
+            text-align: center;
+        }
+
+        .nav-text {
+            font-size: 16px;
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                left: -100%;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="header">
+        <div class="nav-toggle" onclick="toggleSidebar()">☰</div>
         <div class="logo">TRAXOVO</div>
         <div class="user-info">
             <span>Welcome, {{ username }}</span>
             <a href="/logout" class="logout-btn">Logout</a>
         </div>
     </div>
+
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>Navigation</h3>
+            <button class="sidebar-close" onclick="toggleSidebar()">×</button>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/dashboard" class="nav-item active">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            <a href="/fleet-map" class="nav-item">
+                <span class="nav-icon">🗺️</span>
+                <span class="nav-text">Fleet Map</span>
+            </a>
+            <a href="/attendance-matrix" class="nav-item">
+                <span class="nav-icon">👥</span>
+                <span class="nav-text">Driver Attendance</span>
+            </a>
+            <a href="/billing" class="nav-item">
+                <span class="nav-icon">💰</span>
+                <span class="nav-text">Billing Intelligence</span>
+            </a>
+            <a href="/project-accountability" class="nav-item">
+                <span class="nav-icon">📋</span>
+                <span class="nav-text">Project Accountability</span>
+            </a>
+            <a href="/asset-manager" class="nav-item">
+                <span class="nav-icon">🚜</span>
+                <span class="nav-text">Asset Manager</span>
+            </a>
+            <a href="/executive-reports" class="nav-item">
+                <span class="nav-icon">📈</span>
+                <span class="nav-text">Executive Reports</span>
+            </a>
+            <a href="/industry-news" class="nav-item">
+                <span class="nav-icon">📰</span>
+                <span class="nav-text">Industry News</span>
+            </a>
+            <a href="/ai-assistant" class="nav-item">
+                <span class="nav-icon">🤖</span>
+                <span class="nav-text">AI Assistant</span>
+            </a>
+            <a href="/kaizen" class="nav-item">
+                <span class="nav-icon">⚡</span>
+                <span class="nav-text">Kaizen Optimization</span>
+            </a>
+            {% if show_dev_log %}
+            <a href="/dev-log" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">Development Log</span>
+            </a>
+            {% endif %}
+        </nav>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
     <div class="main-content">
         <div class="welcome">
@@ -350,6 +531,28 @@
             {% endif %}
         </div>
     </div>
+
+    <!-- Sidebar Navigation JavaScript -->
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('show');
+        }
+
+        // Close sidebar when clicking outside
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const navToggle = document.querySelector('.nav-toggle');
+            
+            if (!sidebar.contains(event.target) && !navToggle.contains(event.target)) {
+                sidebar.classList.remove('open');
+                document.getElementById('sidebarOverlay').classList.remove('show');
+            }
+        });
+    </script>
 
     <!-- Tour Guide Integration -->
     <script src="/static/tour-guide.js"></script>

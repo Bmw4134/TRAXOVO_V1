@@ -371,34 +371,87 @@ class TRAXOVOTourGuide {
         return this.completedTours.includes(page);
     }
 
-    // Auto-start tour for new users
+    // Auto-start tour for new users (subtle approach)
     autoStartTour() {
         const page = this.getCurrentPage();
         if (!this.isPageTourCompleted(page) && this.getTourSteps(page).length > 0) {
-            setTimeout(() => {
-                if (confirm('Welcome to TRAXOVO! Would you like a quick tour of this page?')) {
-                    this.startTour(page);
-                }
-            }, 1500);
+            // Just add the tour button, no popup
+            this.showSubtleTourHint();
         }
+    }
+
+    showSubtleTourHint() {
+        // Show a small, dismissible hint bubble instead of forced popup
+        setTimeout(() => {
+            const hint = document.createElement('div');
+            hint.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span>💡 New to this page?</span>
+                    <button onclick="tourGuide.startTour('${this.getCurrentPage()}')" style="
+                        background: #007AFF; 
+                        color: white; 
+                        border: none; 
+                        padding: 4px 8px; 
+                        border-radius: 4px; 
+                        font-size: 12px;
+                        cursor: pointer;
+                    ">Tour</button>
+                    <button onclick="this.parentElement.parentElement.remove()" style="
+                        background: none; 
+                        color: #666; 
+                        border: none; 
+                        font-size: 16px;
+                        cursor: pointer;
+                        padding: 2px;
+                    ">×</button>
+                </div>
+            `;
+            hint.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: white;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                padding: 12px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 1000;
+                font-size: 14px;
+                max-width: 250px;
+            `;
+            document.body.appendChild(hint);
+            
+            // Auto-hide after 10 seconds
+            setTimeout(() => {
+                if (hint.parentElement) {
+                    hint.remove();
+                }
+            }, 10000);
+        }, 2000);
     }
 }
 
 // Initialize tour guide
 const tourGuide = new TRAXOVOTourGuide();
 
-// Auto-start tour when page loads
+// Initialize when page loads
 document.addEventListener('DOMContentLoaded', () => {
+    // Prevent infinite loop by checking if already initialized
+    if (window.tourGuideInitialized) return;
+    window.tourGuideInitialized = true;
+    
     tourGuide.autoStartTour();
+    addSubtleTourButton();
 });
 
-// Add tour button to pages
-function addTourButton() {
+// Add subtle tour button
+function addSubtleTourButton() {
     const page = tourGuide.getCurrentPage();
     if (tourGuide.getTourSteps(page).length === 0) return;
     
     const button = document.createElement('button');
-    button.innerHTML = '🎯 Take Tour';
+    button.innerHTML = '?';
+    button.title = 'Take a quick tour';
     button.onclick = () => tourGuide.startTour(page);
     button.style.cssText = `
         position: fixed;
@@ -407,17 +460,20 @@ function addTourButton() {
         background: #007AFF;
         color: white;
         border: none;
-        padding: 12px 20px;
-        border-radius: 8px;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
         font-size: 16px;
-        font-weight: 500;
+        font-weight: bold;
         cursor: pointer;
         z-index: 1000;
-        box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+        box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+        opacity: 0.7;
+        transition: opacity 0.2s ease;
     `;
+    
+    button.addEventListener('mouseenter', () => button.style.opacity = '1');
+    button.addEventListener('mouseleave', () => button.style.opacity = '0.7');
     
     document.body.appendChild(button);
 }
-
-// Add tour button when DOM is ready
-document.addEventListener('DOMContentLoaded', addTourButton);

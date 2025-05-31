@@ -115,11 +115,33 @@ def get_authentic_metrics():
                         print(f"Unknown data type, defaulting to empty list")
                     
                     total_assets = len(assets_data)
-                    active_assets = sum(1 for asset in assets_data if str(asset.get('status', '')).lower() in ['active', 'online', 'running'])
+                    
+                    # Debug first few assets to see the field structure
+                    if assets_data:
+                        sample_asset = assets_data[0]
+                        print(f"Sample asset keys: {list(sample_asset.keys())[:10]}")
+                        print(f"Sample asset data: {dict(list(sample_asset.items())[:5])}")
+                    
+                    # Try different status field names and values from GAUGE API
+                    active_assets = 0
+                    for asset in assets_data:
+                        status = str(asset.get('status', asset.get('Status', asset.get('state', asset.get('State', ''))))).lower()
+                        if status in ['active', 'online', 'running', 'on', 'enabled', '1', 'true', 'operational']:
+                            active_assets += 1
+                    
                     inactive_assets = total_assets - active_assets
                     
-                    # Get unique categories
-                    categories = len(set(str(asset.get('category', asset.get('type', asset.get('model', '')))) for asset in assets_data if asset.get('category') or asset.get('type') or asset.get('model')))
+                    # Get unique categories from multiple possible field names
+                    category_set = set()
+                    for asset in assets_data:
+                        category = (asset.get('category') or asset.get('Category') or 
+                                  asset.get('type') or asset.get('Type') or
+                                  asset.get('model') or asset.get('Model') or
+                                  asset.get('equipment_type') or asset.get('assetType') or '')
+                        if category:
+                            category_set.add(str(category))
+                    
+                    categories = len(category_set)
                     
                     print(f"Processed: {total_assets} total, {active_assets} active, {categories} categories")
                     

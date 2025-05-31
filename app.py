@@ -952,6 +952,64 @@ def health():
     
     return jsonify(health_data)
 
+@app.route('/deployment-optimization')
+def deployment_optimization():
+    """Deployment optimization dashboard"""
+    watson_check = require_watson()
+    if watson_check:
+        return watson_check
+    
+    return render_template('deployment_optimization.html')
+
+@app.route('/api/deployment/optimize')
+def api_deployment_optimize():
+    """Run deployment optimization"""
+    watson_check = require_watson()
+    if watson_check:
+        return jsonify({'error': 'Watson access required'}), 401
+    
+    try:
+        from deployment_optimizer import get_deployment_optimizer
+        optimizer = get_deployment_optimizer()
+        report = optimizer.run_full_optimization()
+        
+        return jsonify({
+            'success': True,
+            'report': report,
+            'compression_ratio': report['compression_ratio'],
+            'space_saved_mb': report['space_saved'] / (1024 * 1024),
+            'optimizations_count': len(report['optimizations'])
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/deployment/bundle')
+def api_deployment_bundle():
+    """Create deployment bundle"""
+    watson_check = require_watson()
+    if watson_check:
+        return jsonify({'error': 'Watson access required'}), 401
+    
+    try:
+        from deployment_optimizer import get_deployment_optimizer
+        optimizer = get_deployment_optimizer()
+        analysis = optimizer.analyze_repository_structure()
+        bundle_path = optimizer.create_deployment_bundle(analysis)
+        
+        return jsonify({
+            'success': True,
+            'bundle_path': bundle_path,
+            'bundle_size_mb': os.path.getsize(bundle_path) / (1024 * 1024) if os.path.exists(bundle_path) else 0
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
 if __name__ == '__main__':
     import socket
     # Find an available port

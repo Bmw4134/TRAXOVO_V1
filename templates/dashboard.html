@@ -384,25 +384,35 @@
 
         <div class="stats-bar">
             <div class="stats-grid">
-                <div class="stat-item">
+                <div class="stat-item clickable" onclick="drillDown('total-assets')">
                     <div class="stat-number">701</div>
                     <div class="stat-label">Total Assets</div>
+                    <div class="stat-source">GAUGE API Live Data</div>
+                    <div class="drill-indicator">View Full Report</div>
                 </div>
-                <div class="stat-item">
+                <div class="stat-item clickable" onclick="drillDown('active-assets')">
                     <div class="stat-number">261</div>
                     <div class="stat-label">Active</div>
+                    <div class="stat-source">Real-time Telemetry</div>
+                    <div class="drill-indicator">View Active Assets</div>
                 </div>
-                <div class="stat-item">
+                <div class="stat-item clickable" onclick="drillDown('idle-assets')">
                     <div class="stat-number">314</div>
                     <div class="stat-label">Idle</div>
+                    <div class="stat-source">GPS & Engine Data</div>
+                    <div class="drill-indicator">View Idle Report</div>
                 </div>
-                <div class="stat-item">
+                <div class="stat-item clickable" onclick="drillDown('offline-assets')">
                     <div class="stat-number">126</div>
                     <div class="stat-label">Offline</div>
+                    <div class="stat-source">Connection Status</div>
+                    <div class="drill-indicator">View Offline Assets</div>
                 </div>
-                <div class="stat-item">
+                <div class="stat-item clickable" onclick="drillDown('categories')">
                     <div class="stat-number">57</div>
                     <div class="stat-label">Categories</div>
+                    <div class="stat-source">Equipment Classification</div>
+                    <div class="drill-indicator">View Categories</div>
                 </div>
             </div>
         </div>

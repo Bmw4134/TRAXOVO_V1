@@ -89,7 +89,8 @@ def get_authentic_metrics():
         
         if gauge_api_key and gauge_api_url:
             headers = {'Authorization': f'Bearer {gauge_api_key}'}
-            response = requests.get(f'{gauge_api_url}/assets', headers=headers)
+            # Disable SSL verification for GAUGE API connection issues
+            response = requests.get(f'{gauge_api_url}/assets', headers=headers, verify=False)
             
             if response.status_code == 200:
                 assets_data = response.json()
@@ -533,6 +534,14 @@ def api_process_document():
     except Exception as e:
         return {'error': f'Document processing failed: {str(e)}'}, 500
 
+@app.route('/ai-training')
+def ai_training():
+    """AI Training & Optimization module"""
+    auth_check = require_auth()
+    if auth_check:
+        return auth_check
+    return render_template('ai_training_module.html')
+
 @app.route('/fleet-analytics')
 def fleet_analytics():
     """Fleet analytics intelligence dashboard"""
@@ -612,11 +621,14 @@ def api_fleet_assets():
     if auth_check:
         return jsonify({'error': 'Authentication required'}), 401
     
+    # Get authentic metrics from GAUGE API
+    metrics = get_authentic_metrics()
+    
     # Return authentic GAUGE data structure
     return jsonify({
-        'total_assets': 701,
-        'active_assets': 687,
-        'categories': 56,
+        'total_assets': metrics.get('total_assets', 0),
+        'active_assets': metrics.get('active_assets', 0),
+        'categories': metrics.get('categories', 0),
         'last_sync': datetime.now().isoformat()
     })
 

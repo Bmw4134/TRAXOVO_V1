@@ -201,6 +201,7 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+<link rel="stylesheet" href="{{ url_for('static', filename='mobile-responsive.css') }}">
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
@@ -280,22 +281,22 @@ function addAssets() {
     }
     
     assets.forEach((asset) => {
-        // Skip assets without valid coordinates
-        if (!asset.lat || !asset.lng || asset.lat === 0 || asset.lng === 0) {
+        // Skip assets without valid coordinates (GAUGE API uses LatestLatitude/LatestLongitude)
+        if (!asset.LatestLatitude || !asset.LatestLongitude || asset.LatestLatitude === 0 || asset.LatestLongitude === 0) {
             return;
         }
         
-        // Apply current filter
+        // Apply current filter (GAUGE API uses Active boolean and AssetCategory)
         if (currentFilter !== 'all') {
-            if (currentFilter === 'active' && asset.status !== 'active') return;
-            if (currentFilter === 'excavator' && !asset.category.toLowerCase().includes('excavator')) return;
-            if (currentFilter === 'truck' && !asset.category.toLowerCase().includes('truck')) return;
+            if (currentFilter === 'active' && !asset.Active) return;
+            if (currentFilter === 'excavator' && !asset.AssetCategory.toLowerCase().includes('excavator')) return;
+            if (currentFilter === 'truck' && !asset.AssetCategory.toLowerCase().includes('truck')) return;
         }
         
-        // Create enhanced marker based on status and category
-        let markerColor = asset.status === 'active' ? '#28a745' : '#ffc107';
-        let markerIcon = getEquipmentIcon(asset.category);
-        let pulseClass = asset.status === 'active' ? 'pulse-active' : '';
+        // Create enhanced marker based on status and category (GAUGE API structure)
+        let markerColor = asset.Active ? '#28a745' : '#ffc107';
+        let markerIcon = getEquipmentIcon(asset.AssetCategory);
+        let pulseClass = asset.Active ? 'pulse-active' : '';
         
         const customIcon = L.divIcon({
             className: 'custom-marker',
@@ -306,24 +307,24 @@ function addAssets() {
             iconAnchor: [17, 17]
         });
         
-        const marker = L.marker([asset.lat, asset.lng], { icon: customIcon });
+        const marker = L.marker([asset.LatestLatitude, asset.LatestLongitude], { icon: customIcon });
         
         const popupContent = `
             <div style="min-width: 300px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
                 <div style="background: linear-gradient(135deg, ${markerColor}22 0%, ${markerColor}11 100%); margin: -12px -12px 12px -12px; padding: 12px; border-radius: 8px 8px 0 0;">
-                    <h6 style="margin: 0; color: #343a40; font-weight: 600; font-size: 16px;">${asset.name}</h6>
+                    <h6 style="margin: 0; color: #343a40; font-weight: 600; font-size: 16px;">${asset.AssetDescription || asset.AssetMake + ' ' + asset.AssetModel}</h6>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
-                        <small style="color: #6c757d; font-weight: 500;">${asset.id}</small>
-                        <span style="background: ${markerColor}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600;">${asset.status.toUpperCase()}</span>
+                        <small style="color: #6c757d; font-weight: 500;">${asset.AssetName || asset.DeviceSerialNumber}</small>
+                        <span style="background: ${markerColor}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600;">${asset.Active ? 'ACTIVE' : 'INACTIVE'}</span>
                     </div>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 14px; margin-bottom: 12px;">
-                    <div><strong style="color: #495057;">Category:</strong><br><span style="color: #6c757d;">${asset.category || 'Equipment'}</span></div>
-                    <div><strong style="color: #495057;">Hours:</strong><br><span style="color: #6c757d;">${asset.hours || 'N/A'}</span></div>
+                    <div><strong style="color: #495057;">Category:</strong><br><span style="color: #6c757d;">${asset.AssetCategory || 'Equipment'}</span></div>
+                    <div><strong style="color: #495057;">Hours:</strong><br><span style="color: #6c757d;">${asset.Engine1Hours || 'N/A'}</span></div>
                 </div>
                 <div style="border-top: 1px solid #e9ecef; padding-top: 12px;">
-                    <div style="margin-bottom: 8px;"><strong style="color: #495057;">Location:</strong><br><span style="color: #6c757d; font-size: 13px;">${asset.location || 'Unknown'}</span></div>
-                    <div style="font-size: 12px; color: #6c757d;"><strong>Last Update:</strong> ${asset.last_update}</div>
+                    <div style="margin-bottom: 8px;"><strong style="color: #495057;">Location:</strong><br><span style="color: #6c757d; font-size: 13px;">${asset.Address || 'GPS Location'}</span></div>
+                    <div style="font-size: 12px; color: #6c757d;"><strong>Last Update:</strong> ${asset.LastReported || 'Real-time'}</div>
                 </div>
             </div>
         `;

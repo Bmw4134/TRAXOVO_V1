@@ -35,6 +35,8 @@ try:
     from routes.gauge_data_manager import gauge_bp
     from routes.kaizen import kaizen_bp
     from routes.ai_assistant import ai_assistant_bp
+    from routes.april_billing_simulation import april_billing_bp
+    from routes.enhanced_billing_controller import enhanced_billing_bp
     app.register_blueprint(attendance_bp)
     app.register_blueprint(job_zones_bp)
     app.register_blueprint(intelligent_ideas_bp)
@@ -43,6 +45,8 @@ try:
     app.register_blueprint(gauge_bp)
     app.register_blueprint(kaizen_bp, url_prefix='/kaizen')
     app.register_blueprint(ai_assistant_bp)
+    app.register_blueprint(april_billing_bp)
+    app.register_blueprint(enhanced_billing_bp)
 except ImportError as e:
     logging.warning(f"Route import warning: {e}")
 

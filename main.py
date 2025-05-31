@@ -327,6 +327,10 @@ try:
     from routes.comprehensive_attendance_engine import comprehensive_attendance
     app.register_blueprint(comprehensive_attendance)
     
+    # HUMAN AMPLIFICATION DEMO - Shows AI enhances rather than replaces people
+    from human_amplification_demo import human_amplification_bp
+    app.register_blueprint(human_amplification_bp)
+    
     # Register unified billing consolidation
     from routes.unified_billing_consolidation import unified_billing
     app.register_blueprint(unified_billing)

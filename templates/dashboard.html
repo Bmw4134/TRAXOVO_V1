@@ -498,62 +498,187 @@
                         <i class="bi bi-layout-sidebar-inset"></i>
                     </a>
                 </h6>
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="/dashboard">
-                            <i class="bi bi-speedometer2 me-2"></i>
-                            Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/working-reports/">
-                            <i class="bi bi-calendar-check me-2"></i>
-                            Daily Driver Report
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/enhanced-weekly-report/">
-                            <i class="bi bi-calendar-week me-2"></i>
-                            Weekly Driver Report
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/asset-map/">
-                            <i class="bi bi-geo-alt me-2"></i>
-                            Asset Map
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/billing/">
-                            <i class="bi bi-currency-dollar me-2"></i>
-                            Equipment Billing
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/workflow-automation">
-                            <i class="bi bi-robot me-2"></i>
-                            Workflow Automation
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/predictive-maintenance">
-                            <i class="bi bi-wrench me-2"></i>
-                            Predictive Maintenance
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/executive-roi-presentation">
-                            <i class="bi bi-graph-up me-2"></i>
-                            Executive ROI Presentation
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/bleeding-edge-intelligence">
-                            <i class="bi bi-lightning me-2"></i>
-                            Bleeding Edge Intelligence
-                        </a>
-                    </li>
-                </ul>
+                <!-- Intelligent Module Categories with Dropdowns -->
+                
+                <!-- Core Operations -->
+                <div class="nav-category">
+                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-primary fw-bold" data-bs-toggle="collapse" data-bs-target="#coreOperations" style="cursor: pointer;">
+                        <span><i class="bi bi-gear-wide-connected me-2"></i>Core Operations</span>
+                        <i class="bi bi-chevron-down"></i>
+                    </h6>
+                    <div class="collapse show" id="coreOperations">
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link active" href="/dashboard">
+                                    <i class="bi bi-speedometer2 me-2"></i>Master Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/fleet-map">
+                                    <i class="bi bi-map me-2"></i>Fleet Map
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/equipment-dispatch">
+                                    <i class="bi bi-truck me-2"></i>Equipment Dispatch
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/schedule-manager">
+                                    <i class="bi bi-calendar-event me-2"></i>Schedule Manager
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/job-sites">
+                                    <i class="bi bi-building me-2"></i>Job Sites
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Attendance & Workforce -->
+                <div class="nav-category">
+                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-success fw-bold" data-bs-toggle="collapse" data-bs-target="#attendanceSystem" style="cursor: pointer;">
+                        <span><i class="bi bi-people-fill me-2"></i>Attendance & Workforce</span>
+                        <i class="bi bi-chevron-down"></i>
+                    </h6>
+                    <div class="collapse" id="attendanceSystem">
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link" href="/attendance-complete">
+                                    <i class="bi bi-clock-history me-2"></i>Attendance Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/attendance-matrix">
+                                    <i class="bi bi-grid-3x3 me-2"></i>Attendance Matrix
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/driver-management">
+                                    <i class="bi bi-person-gear me-2"></i>Driver Management
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/daily-driver-report">
+                                    <i class="bi bi-file-earmark-text me-2"></i>Daily Driver Report
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/weekly-driver-report">
+                                    <i class="bi bi-calendar-week me-2"></i>Weekly Driver Report
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Analytics & Intelligence -->
+                <div class="nav-category">
+                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 fw-bold" data-bs-toggle="collapse" data-bs-target="#analyticsIntelligence" style="cursor: pointer; color: #6f42c1;">
+                        <span><i class="bi bi-graph-up-arrow me-2"></i>Analytics & Intelligence</span>
+                        <i class="bi bi-chevron-down"></i>
+                    </h6>
+                    <div class="collapse" id="analyticsIntelligence">
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link" href="/fleet-analytics">
+                                    <i class="bi bi-bar-chart-line me-2"></i>Fleet Analytics
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/asset-profit">
+                                    <i class="bi bi-cash-stack me-2"></i>Asset Profitability
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/executive-reports">
+                                    <i class="bi bi-file-earmark-bar-graph me-2"></i>Executive Reports
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/project-accountability">
+                                    <i class="bi bi-clipboard-data me-2"></i>Project Tracking
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/bleeding-edge-intelligence">
+                                    <i class="bi bi-lightning me-2"></i>Bleeding Edge Intelligence
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/human-amplification-demo">
+                                    <i class="bi bi-people-fill me-2"></i>Human + AI Collaboration
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Financial & Revenue -->
+                <div class="nav-category">
+                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-warning fw-bold" data-bs-toggle="collapse" data-bs-target="#financialRevenue" style="cursor: pointer;">
+                        <span><i class="bi bi-currency-dollar me-2"></i>Financial & Revenue</span>
+                        <i class="bi bi-chevron-down"></i>
+                    </h6>
+                    <div class="collapse" id="financialRevenue">
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link" href="/billing">
+                                    <i class="bi bi-graph-up me-2"></i>Revenue Analytics
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/equipment-billing">
+                                    <i class="bi bi-receipt me-2"></i>Equipment Billing
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/executive-roi-presentation">
+                                    <i class="bi bi-presentation me-2"></i>Executive ROI Presentation
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/mtd-reports">
+                                    <i class="bi bi-calendar-month me-2"></i>MTD Reports
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Workflow & Automation -->
+                <div class="nav-category">
+                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-info fw-bold" data-bs-toggle="collapse" data-bs-target="#workflowAutomation" style="cursor: pointer;">
+                        <span><i class="bi bi-arrow-repeat me-2"></i>Workflow & Automation</span>
+                        <i class="bi bi-chevron-down"></i>
+                    </h6>
+                    <div class="collapse" id="workflowAutomation">
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link" href="/workflow-automation">
+                                    <i class="bi bi-robot me-2"></i>Workflow Automation
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/workflow-optimization">
+                                    <i class="bi bi-speedometer me-2"></i>Workflow Optimization
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/predictive-maintenance">
+                                    <i class="bi bi-wrench me-2"></i>Predictive Maintenance
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/interactive-schedule">
+                                    <i class="bi bi-calendar-check me-2"></i>Interactive Schedule
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
                 
                 <!-- Watson Admin Panel -->
                 {% if session.get('username') == 'watson' %}

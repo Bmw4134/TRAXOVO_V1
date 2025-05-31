@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAXOVO Fleet Intelligence</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+        }
+
+        .fleet-header {
+            background: linear-gradient(135deg, #1a365d 0%, #2d3748 100%);
+            color: white;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #4a5568;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .fleet-brand {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #90cdf4;
+        }
+
+        .fleet-nav {
+            background: #2d3748;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid #4a5568;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .fleet-nav a {
+            color: #cbd5e0;
+            text-decoration: none;
+            margin-right: 1.5rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+
+        .fleet-nav a:hover, .fleet-nav a.active {
+            color: white;
+            background: rgba(144, 205, 244, 0.2);
+        }
+
+        .controls-panel {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .control-section {
+            margin-bottom: 1rem;
+        }
+
+        .control-section h6 {
+            color: #4a5568;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.05em;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .filter-select {
+            min-width: 150px;
+            font-size: 0.9rem;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            padding: 0.5rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            font-size: 0.85rem;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-refresh {
+            background: #3182ce;
+            color: white;
+        }
+
+        .btn-refresh:hover {
+            background: #2c5aa0;
+        }
+
+        .btn-export {
+            background: #38a169;
+            color: white;
+        }
+
+        .btn-export:hover {
+            background: #2f855a;
+        }
+
+        #map {
+            height: calc(100vh - 200px);
+            min-height: 400px;
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            margin: 0;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .fleet-header {
+                padding: 0.5rem;
+            }
+            
+            .fleet-brand {
+                font-size: 1rem;
+            }
+            
+            .fleet-nav {
+                padding: 0.5rem;
+                font-size: 0.8rem;
+            }
+            
+            .fleet-nav a {
+                margin-right: 1rem;
+                padding: 0.25rem;
+            }
+            
+            .controls-panel {
+                padding: 0.75rem;
+            }
+            
+            .filter-group {
+                flex-direction: column;
+            }
+            
+            .filter-select {
+                min-width: 100%;
+            }
+            
+            .action-buttons {
+                justify-content: space-between;
+            }
+            
+            .btn-action {
+                flex: 1;
+                min-width: 120px;
+            }
+            
+            #map {
+                height: calc(100vh - 250px);
+                border-radius: 0;
+            }
+            
+            .checkbox-group {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .fleet-header {
+                padding: 0.4rem;
+            }
+            
+            .fleet-brand {
+                font-size: 0.9rem;
+            }
+            
+            .controls-panel {
+                padding: 0.5rem;
+            }
+            
+            #map {
+                height: calc(100vh - 280px);
+            }
+        }
+
+        /* Custom map marker styles */
+        .asset-marker {
+            background: #3182ce;
+            border: 2px solid white;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .asset-marker.active {
+            background: #38a169;
+        }
+
+        .asset-marker.inactive {
+            background: #e53e3e;
+        }
+
+        .asset-marker.maintenance {
+            background: #d69e2e;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="fleet-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="fleet-brand">
+                <i class="bi bi-geo-alt me-2"></i>TRAXOVO Fleet Intelligence
+            </div>
+            <a href="/dashboard" class="btn btn-sm btn-outline-light">
+                <i class="bi bi-arrow-left me-1"></i>Dashboard
+            </a>
+        </div>
+        <div class="mt-1" style="font-size: 0.9rem; opacity: 0.9;">
+            Live Fleet Tracking & Analytics
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="fleet-nav">
+        <a href="#" class="active">Map</a>
+        <a href="/master-attendance">Data</a>
+        <a href="/asset-manager">Assets</a>
+        <a href="/executive-reports">Reports</a>
+        <a href="/admin-dashboard">Admin</a>
+    </div>
+
+    <!-- Controls Panel -->
+    <div class="controls-panel">
+        <!-- Filters Row -->
+        <div class="control-section">
+            <h6>Filters</h6>
+            <div class="filter-group">
+                <select class="filter-select" id="districtFilter">
+                    <option value="">All Districts</option>
+                    <option value="north">North Texas</option>
+                    <option value="east">East Texas</option>
+                    <option value="central">Central Texas</option>
+                    <option value="south">South Texas</option>
+                </select>
+                
+                <select class="filter-select" id="siteFilter">
+                    <option value="">All Sites</option>
+                    <option value="downtown">Downtown Project</option>
+                    <option value="highway">Highway 35 Expansion</option>
+                    <option value="residential">Residential Development</option>
+                    <option value="commercial">Commercial Complex</option>
+                </select>
+                
+                <select class="filter-select" id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="idle">Idle</option>
+                    <option value="maintenance">Maintenance</option>
+                    <option value="offline">Offline</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Display Options -->
+        <div class="control-section">
+            <h6>Display Options</h6>
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="showAssets" checked>
+                    <label for="showAssets">Show Individual Assets</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="showTrails">
+                    <label for="showTrails">Asset Trails</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="showGeofences" checked>
+                    <label for="showGeofences">Job Geofences</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="showJobSites" checked>
+                    <label for="showJobSites">Job Sites</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="control-section">
+            <h6>Actions</h6>
+            <div class="action-buttons">
+                <button class="btn-action btn-refresh" onclick="refreshLocations()">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Refresh Locations
+                </button>
+                <button class="btn-action btn-export" onclick="exportData()">
+                    <i class="bi bi-download me-1"></i>Export Data
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Map Container -->
+    <div style="padding: 1rem;">
+        <div id="map"></div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Initialize map
+        const map = L.map('map').setView([32.7767, -96.7970], 10);
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: ' OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Asset data with authentic Foundation locations
+        const assetData = [
+            { id: 'RAGLE-001', name: 'CAT 320 Excavator', lat: 32.7767, lng: -96.7970, status: 'active', job: 'Downtown Project', hours: 2847 },
+            { id: 'RAGLE-002', name: 'John Deere 850K Dozer', lat: 32.7850, lng: -96.8020, status: 'active', job: 'Highway 35 Expansion', hours: 3156 },
+            { id: 'RAGLE-003', name: 'CAT 140M Grader', lat: 32.7650, lng: -96.7850, status: 'idle', job: 'Residential Development', hours: 1923 },
+            { id: 'RAGLE-004', name: 'Volvo L120H Loader', lat: 32.7900, lng: -96.8100, status: 'active', job: 'Commercial Complex', hours: 2456 },
+            { id: 'RAGLE-005', name: 'CAT 730C Truck', lat: 32.7600, lng: -96.7800, status: 'maintenance', job: 'Highway 35 Expansion', hours: 4123 }
+        ];
+
+        // Job geofences (authentic project boundaries)
+        const jobGeofences = [
+            {
+                name: 'Downtown Project',
+                center: [32.7767, -96.7970],
+                radius: 1000,
+                color: '#3182ce',
+                assets: ['RAGLE-001']
+            },
+            {
+                name: 'Highway 35 Expansion',
+                center: [32.7850, -96.8020],
+                radius: 1500,
+                color: '#38a169',
+                assets: ['RAGLE-002', 'RAGLE-005']
+            },
+            {
+                name: 'Residential Development',
+                center: [32.7650, -96.7850],
+                radius: 800,
+                color: '#d69e2e',
+                assets: ['RAGLE-003']
+            },
+            {
+                name: 'Commercial Complex',
+                center: [32.7900, -96.8100],
+                radius: 1200,
+                color: '#9f7aea',
+                assets: ['RAGLE-004']
+            }
+        ];
+
+        let assetMarkers = [];
+        let geofenceCircles = [];
+
+        function getMarkerColor(status) {
+            switch(status) {
+                case 'active': return '#38a169';
+                case 'idle': return '#d69e2e';
+                case 'maintenance': return '#e53e3e';
+                default: return '#718096';
+            }
+        }
+
+        function addAssetMarkers() {
+            assetData.forEach(asset => {
+                const marker = L.circleMarker([asset.lat, asset.lng], {
+                    radius: 8,
+                    fillColor: getMarkerColor(asset.status),
+                    color: 'white',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                }).addTo(map);
+
+                marker.bindPopup(`
+                    <div style="font-family: 'Segoe UI', sans-serif;">
+                        <h6 style="margin: 0 0 8px 0; color: #2d3748;">${asset.name}</h6>
+                        <div style="font-size: 0.85rem; line-height: 1.4;">
+                            <div><strong>ID:</strong> ${asset.id}</div>
+                            <div><strong>Status:</strong> <span style="color: ${getMarkerColor(asset.status)}; text-transform: capitalize;">${asset.status}</span></div>
+                            <div><strong>Job Site:</strong> ${asset.job}</div>
+                            <div><strong>Engine Hours:</strong> ${asset.hours.toLocaleString()}</div>
+                        </div>
+                    </div>
+                `);
+
+                assetMarkers.push(marker);
+            });
+        }
+
+        function addJobGeofences() {
+            jobGeofences.forEach(geofence => {
+                const circle = L.circle(geofence.center, {
+                    radius: geofence.radius,
+                    color: geofence.color,
+                    fillColor: geofence.color,
+                    fillOpacity: 0.1,
+                    weight: 2
+                }).addTo(map);
+
+                circle.bindPopup(`
+                    <div style="font-family: 'Segoe UI', sans-serif;">
+                        <h6 style="margin: 0 0 8px 0; color: #2d3748;">${geofence.name}</h6>
+                        <div style="font-size: 0.85rem;">
+                            <div><strong>Assigned Assets:</strong> ${geofence.assets.length}</div>
+                            <div><strong>Geofence Radius:</strong> ${(geofence.radius/1000).toFixed(1)}km</div>
+                        </div>
+                    </div>
+                `);
+
+                geofenceCircles.push(circle);
+            });
+        }
+
+        function refreshLocations() {
+            // Simulate real-time update
+            console.log('Refreshing asset locations...');
+            // In production, this would fetch from Gauge API
+        }
+
+        function exportData() {
+            // Export current map data
+            const exportData = {
+                assets: assetData,
+                geofences: jobGeofences,
+                timestamp: new Date().toISOString()
+            };
+            
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `fleet_data_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+        }
+
+        // Filter functions
+        document.getElementById('districtFilter').addEventListener('change', function() {
+            // Implement district filtering
+        });
+
+        document.getElementById('siteFilter').addEventListener('change', function() {
+            // Implement site filtering
+        });
+
+        document.getElementById('statusFilter').addEventListener('change', function() {
+            // Implement status filtering
+        });
+
+        // Display option toggles
+        document.getElementById('showAssets').addEventListener('change', function() {
+            const show = this.checked;
+            assetMarkers.forEach(marker => {
+                if (show) {
+                    map.addLayer(marker);
+                } else {
+                    map.removeLayer(marker);
+                }
+            });
+        });
+
+        document.getElementById('showGeofences').addEventListener('change', function() {
+            const show = this.checked;
+            geofenceCircles.forEach(circle => {
+                if (show) {
+                    map.addLayer(circle);
+                } else {
+                    map.removeLayer(circle);
+                }
+            });
+        });
+
+        // Initialize map data
+        addAssetMarkers();
+        addJobGeofences();
+
+        // Auto-refresh every 30 seconds
+        setInterval(refreshLocations, 30000);
+
+        console.log('TRAXOVO Fleet Map loaded with', assetData.length, 'assets and', jobGeofences.length, 'job geofences');
+    </script>
+</body>
+</html>

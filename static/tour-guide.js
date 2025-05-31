@@ -434,15 +434,15 @@ class TRAXOVOTourGuide {
 // Initialize tour guide
 const tourGuide = new TRAXOVOTourGuide();
 
-// Initialize when page loads
-document.addEventListener('DOMContentLoaded', () => {
-    // Prevent infinite loop by checking if already initialized
-    if (window.tourGuideInitialized) return;
+// Initialize when page loads (prevent duplicate initialization)
+if (!window.tourGuideInitialized) {
     window.tourGuideInitialized = true;
     
-    tourGuide.autoStartTour();
-    addSubtleTourButton();
-});
+    document.addEventListener('DOMContentLoaded', () => {
+        tourGuide.autoStartTour();
+        addSubtleTourButton();
+    });
+}
 
 // Add subtle tour button
 function addSubtleTourButton() {

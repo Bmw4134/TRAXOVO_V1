@@ -532,8 +532,12 @@
         </div>
     </div>
 
-    <!-- Sidebar Navigation JavaScript -->
+    <!-- Sidebar Navigation JavaScript with Touch Support -->
     <script>
+        let touchStartX = 0;
+        let touchEndX = 0;
+        let isSwiping = false;
+
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
@@ -542,15 +546,107 @@
             overlay.classList.toggle('show');
         }
 
+        function openSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            sidebar.classList.add('open');
+            overlay.classList.add('show');
+        }
+
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            sidebar.classList.remove('open');
+            overlay.classList.remove('show');
+        }
+
+        // Touch events for swipe navigation
+        document.addEventListener('touchstart', function(event) {
+            touchStartX = event.changedTouches[0].screenX;
+            isSwiping = true;
+        }, { passive: true });
+
+        document.addEventListener('touchmove', function(event) {
+            if (!isSwiping) return;
+            
+            const currentX = event.changedTouches[0].screenX;
+            const diffX = currentX - touchStartX;
+            
+            // Show preview of sidebar when swiping right from left edge
+            if (touchStartX < 20 && diffX > 50) {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('sidebarOverlay');
+                
+                sidebar.style.transition = 'none';
+                overlay.style.transition = 'none';
+                
+                const progress = Math.min(diffX / 200, 1);
+                sidebar.style.left = `${-280 + (280 * progress)}px`;
+                overlay.style.opacity = progress * 0.5;
+                overlay.style.visibility = 'visible';
+            }
+        }, { passive: true });
+
+        document.addEventListener('touchend', function(event) {
+            if (!isSwiping) return;
+            
+            touchEndX = event.changedTouches[0].screenX;
+            const diffX = touchEndX - touchStartX;
+            
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            // Reset transitions
+            sidebar.style.transition = '';
+            overlay.style.transition = '';
+            sidebar.style.left = '';
+            overlay.style.opacity = '';
+            
+            // Open sidebar if swiped right from left edge
+            if (touchStartX < 20 && diffX > 100) {
+                openSidebar();
+            }
+            // Close sidebar if swiped left while open
+            else if (sidebar.classList.contains('open') && diffX < -100) {
+                closeSidebar();
+            }
+            // Reset sidebar position if not enough swipe
+            else if (touchStartX < 20) {
+                closeSidebar();
+            }
+            
+            isSwiping = false;
+        }, { passive: true });
+
         // Close sidebar when clicking outside
         document.addEventListener('click', function(event) {
             const sidebar = document.getElementById('sidebar');
             const navToggle = document.querySelector('.nav-toggle');
             
             if (!sidebar.contains(event.target) && !navToggle.contains(event.target)) {
-                sidebar.classList.remove('open');
-                document.getElementById('sidebarOverlay').classList.remove('show');
+                closeSidebar();
             }
+        });
+
+        // Add touch feedback to buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const touchElements = document.querySelectorAll('.nav-item, .dashboard-card, .category-button, button');
+            
+            touchElements.forEach(element => {
+                element.addEventListener('touchstart', function() {
+                    this.style.transform = 'scale(0.98)';
+                    this.style.opacity = '0.8';
+                }, { passive: true });
+                
+                element.addEventListener('touchend', function() {
+                    setTimeout(() => {
+                        this.style.transform = '';
+                        this.style.opacity = '';
+                    }, 150);
+                }, { passive: true });
+            });
         });
     </script>
 

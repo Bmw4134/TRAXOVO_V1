@@ -851,6 +851,96 @@
         setInterval(() => {
             loadData();
         }, 30000);
+
+        // Touch-responsive UX for mobile devices
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let isScrolling = false;
+
+        // Add swipe gesture support for sidebar
+        document.addEventListener('touchstart', function(event) {
+            touchStartX = event.changedTouches[0].screenX;
+            touchStartY = event.changedTouches[0].screenY;
+            isScrolling = false;
+        }, { passive: true });
+
+        document.addEventListener('touchmove', function(event) {
+            const currentX = event.changedTouches[0].screenX;
+            const currentY = event.changedTouches[0].screenY;
+            const diffX = Math.abs(currentX - touchStartX);
+            const diffY = Math.abs(currentY - touchStartY);
+            
+            // Determine if this is a horizontal swipe
+            if (diffX > diffY && diffX > 20) {
+                isScrolling = false;
+            } else if (diffY > 20) {
+                isScrolling = true;
+            }
+        }, { passive: true });
+
+        document.addEventListener('touchend', function(event) {
+            if (isScrolling) return;
+            
+            const touchEndX = event.changedTouches[0].screenX;
+            const diffX = touchEndX - touchStartX;
+            
+            // Swipe right from left edge to open sidebar (if it exists)
+            if (touchStartX < 20 && diffX > 80 && window.parent.toggleSidebar) {
+                window.parent.toggleSidebar();
+            }
+        }, { passive: true });
+
+        // Add touch feedback to interactive elements
+        document.addEventListener('DOMContentLoaded', function() {
+            const touchElements = document.querySelectorAll('.category-button, .asset-card, .search-container input');
+            
+            touchElements.forEach(element => {
+                element.addEventListener('touchstart', function() {
+                    this.style.transform = 'scale(0.98)';
+                    this.style.transition = 'transform 0.1s ease';
+                }, { passive: true });
+                
+                element.addEventListener('touchend', function() {
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 100);
+                }, { passive: true });
+                
+                element.addEventListener('touchcancel', function() {
+                    this.style.transform = '';
+                }, { passive: true });
+            });
+
+            // Improve touch targets for mobile
+            if ('ontouchstart' in window) {
+                // Make category buttons larger for touch
+                const categoryButtons = document.querySelectorAll('.category-button');
+                categoryButtons.forEach(button => {
+                    button.style.minHeight = '44px';
+                    button.style.padding = '12px 16px';
+                });
+
+                // Make search input more touch-friendly
+                const searchInput = document.querySelector('.search-container input');
+                if (searchInput) {
+                    searchInput.style.minHeight = '44px';
+                    searchInput.style.fontSize = '16px'; // Prevents zoom on iOS
+                }
+
+                // Add touch-friendly spacing
+                const assetCards = document.querySelectorAll('.asset-card');
+                assetCards.forEach(card => {
+                    card.style.marginBottom = '16px';
+                });
+            }
+        });
+
+        // Prevent double-tap zoom on buttons
+        document.addEventListener('touchend', function(event) {
+            if (event.target.matches('.category-button, button')) {
+                event.preventDefault();
+            }
+        });
     </script>
 
     <!-- Tour Guide Integration -->

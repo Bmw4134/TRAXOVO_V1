@@ -511,7 +511,7 @@ def dashboard():
     else:
         logging.info(f"Dashboard metrics validated: {total_assets} total, {active_assets} active from {data_source}")
     
-    return render_template('master_unified.html', **context)
+    return render_template('dashboard.html', **context)
 
 # Keep all existing API endpoints
 @app.route('/api/assets')

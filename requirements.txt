@@ -45,3 +45,5 @@ supabase
 flask-login
 oauthlib
 replit-object-storage
+cryptography
+psutil

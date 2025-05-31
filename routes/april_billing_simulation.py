@@ -1485,23 +1485,23 @@ def process():
         return render_template('error.html', error=str(e)), 500
 
 @april_billing_simulation_bp.route('/region/<region_id>')
-def region_<region_id>():
+def region_handler(region_id):
     """Handler for /region/<region_id>"""
     try:
         # Add your route handler logic here
-        return render_template('april_billing_simulation/region_<region_id>.html')
+        return render_template('april_billing_simulation/region.html', region_id=region_id)
     except Exception as e:
-        logger.error(f"Error in region_<region_id>: {e}")
+        logger.error(f"Error in region handler: {e}")
         return render_template('error.html', error=str(e)), 500
 
 @april_billing_simulation_bp.route('/job/<job_id>')
-def job_<job_id>():
+def job_handler(job_id):
     """Handler for /job/<job_id>"""
     try:
         # Add your route handler logic here
-        return render_template('april_billing_simulation/job_<job_id>.html')
+        return render_template('april_billing_simulation/job.html', job_id=job_id)
     except Exception as e:
-        logger.error(f"Error in job_<job_id>: {e}")
+        logger.error(f"Error in job handler: {e}")
         return render_template('error.html', error=str(e)), 500
 
 @april_billing_simulation_bp.route('/cost-codes')
@@ -1515,13 +1515,13 @@ def cost_codes():
         return render_template('error.html', error=str(e)), 500
 
 @april_billing_simulation_bp.route('/asset/<asset_id>')
-def asset_<asset_id>():
+def asset_handler(asset_id):
     """Handler for /asset/<asset_id>"""
     try:
         # Add your route handler logic here
-        return render_template('april_billing_simulation/asset_<asset_id>.html')
+        return render_template('april_billing_simulation/asset.html', asset_id=asset_id)
     except Exception as e:
-        logger.error(f"Error in asset_<asset_id>: {e}")
+        logger.error(f"Error in asset handler: {e}")
         return render_template('error.html', error=str(e)), 500
 
 @april_billing_simulation_bp.route('/export-data')

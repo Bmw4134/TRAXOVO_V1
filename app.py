@@ -453,6 +453,46 @@ def document_intelligence():
         return auth_check
     return render_template('document_intelligence.html')
 
+@app.route('/api/process-document', methods=['POST'])
+def api_process_document():
+    """API endpoint for processing uploaded PDF documents"""
+    auth_check = require_auth()
+    if auth_check:
+        return auth_check
+    
+    try:
+        from pdf_intelligence_engine import get_document_intelligence_engine
+        
+        if 'file' not in request.files:
+            return {'error': 'No file uploaded'}, 400
+        
+        file = request.files['file']
+        if file.filename == '':
+            return {'error': 'No file selected'}, 400
+        
+        filename = file.filename or 'uploaded_document.pdf'
+        if not filename.lower().endswith('.pdf'):
+            return {'error': 'Only PDF files are supported'}, 400
+        
+        # Save uploaded file temporarily
+        upload_dir = 'temp_uploads'
+        os.makedirs(upload_dir, exist_ok=True)
+        
+        file_path = os.path.join(upload_dir, filename)
+        file.save(file_path)
+        
+        # Process the document
+        engine = get_document_intelligence_engine()
+        results = engine.process_document(file_path)
+        
+        # Clean up temporary file
+        os.remove(file_path)
+        
+        return results
+        
+    except Exception as e:
+        return {'error': f'Document processing failed: {str(e)}'}, 500
+
 @app.route('/data-upload')
 @app.route('/upload-may-week-data')
 def data_upload():

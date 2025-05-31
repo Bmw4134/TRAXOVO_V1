@@ -426,61 +426,75 @@
             processingStatus.classList.add('active');
             resultsSection.classList.remove('active');
             
-            // Simulate AI processing
-            setTimeout(() => {
+            // Create form data for file upload
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            // Send file to backend for processing
+            fetch('/api/process-document', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
                 processingStatus.classList.remove('active');
-                showResults(file);
-            }, 3000);
+                if (data.error) {
+                    alert('Error processing document: ' + data.error);
+                } else {
+                    showResults(data);
+                }
+            })
+            .catch(error => {
+                processingStatus.classList.remove('active');
+                alert('Error uploading document: ' + error.message);
+            });
         }
 
-        function showResults(file) {
-            // Demo extracted data based on file name
-            let demoData = {};
+        function showResults(data) {
+            // Display actual extracted data from backend processing
+            const resultData = data;
             
-            if (file.name.toLowerCase().includes('tax')) {
-                demoData = {
-                    'Document Type': 'Property Tax Notice',
-                    'Property ID': 'R123456789',
-                    'Tax Year': '2025',
-                    'Assessment Value': '$1,245,000',
-                    'Tax Amount': '$15,678.90',
-                    'Due Date': 'December 31, 2025',
-                    'County': 'Travis County',
-                    'Property Address': '123 Main St, Austin, TX'
-                };
-            } else if (file.name.toLowerCase().includes('registration')) {
-                demoData = {
-                    'Document Type': 'Vehicle Registration',
-                    'VIN': '1HGBH41JXMN109186',
-                    'License Plate': 'ABC-1234',
-                    'Registration Date': 'May 15, 2025',
-                    'Expiration Date': 'May 15, 2026',
-                    'Vehicle Make': 'Ford',
-                    'Vehicle Model': 'F-150',
-                    'Vehicle Year': '2023'
-                };
-            } else {
-                demoData = {
-                    'Document Type': 'Business Document',
-                    'Company Name': 'RAGLE TEXAS',
-                    'Document Date': 'May 31, 2025',
-                    'Reference Number': 'DOC-2025-001',
-                    'Total Amount': '$2,450.00',
-                    'Status': 'Active'
-                };
+            // Update confidence score
+            const confidenceElement = document.querySelector('.confidence-score');
+            if (resultData.confidence_score) {
+                const confidencePercent = Math.round(resultData.confidence_score * 100);
+                confidenceElement.textContent = `${confidencePercent}% Confidence`;
             }
 
             // Populate extracted data
             extractedData.innerHTML = '';
-            Object.entries(demoData).forEach(([key, value]) => {
-                const field = document.createElement('div');
-                field.className = 'data-field';
-                field.innerHTML = `
-                    <div class="field-label">${key}</div>
-                    <div class="field-value">${value}</div>
+            
+            // Filter out metadata fields for display
+            const displayFields = Object.entries(resultData).filter(([key, value]) => 
+                !['document_type', 'extraction_timestamp', 'confidence_score', 'insights', 'raw_text'].includes(key) && 
+                value !== null && value !== ''
+            );
+            
+            if (displayFields.length === 0) {
+                extractedData.innerHTML = '<div class="data-field"><div class="field-label">STATUS</div><div class="field-value">No structured data extracted</div></div>';
+            } else {
+                displayFields.forEach(([key, value]) => {
+                    const field = document.createElement('div');
+                    field.className = 'data-field';
+                    field.innerHTML = `
+                        <div class="field-label">${key.replace(/_/g, ' ').toUpperCase()}</div>
+                        <div class="field-value">${value}</div>
+                    `;
+                    extractedData.appendChild(field);
+                });
+            }
+
+            // Show insights if available
+            if (resultData.insights && resultData.insights.length > 0) {
+                const insightsField = document.createElement('div');
+                insightsField.className = 'data-field';
+                insightsField.style.gridColumn = '1 / -1';
+                insightsField.innerHTML = `
+                    <div class="field-label">ACTIONABLE INSIGHTS</div>
+                    <div class="field-value">${resultData.insights.join('<br>')}</div>
                 `;
-                extractedData.appendChild(field);
-            });
+                extractedData.appendChild(insightsField);
+            }
 
             resultsSection.classList.add('active');
         }

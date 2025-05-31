@@ -444,11 +444,8 @@ def project_accountability():
 # AI and Intelligence
 @app.route('/ai-assistant')
 def ai_assistant():
-    """AI fleet assistant"""
-    auth_check = require_auth()
-    if auth_check:
-        return auth_check
-    return render_template('ai_assistant.html')
+    """AI fleet assistant - accessible to all users"""
+    return render_template('ai_assistant.html', user=session.get('user', {}))
 
 @app.route('/industry-news')
 def industry_news():

@@ -301,7 +301,7 @@ def watson_admin():
     admin_check = require_watson()
     if admin_check:
         return admin_check
-    return render_template('workflow_optimization.html', patterns=patterns)
+    return render_template('watson_admin_dashboard.html')
 
 @app.route('/kaizen')
 @app.route('/kaizen-optimization')

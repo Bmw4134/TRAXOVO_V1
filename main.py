@@ -327,23 +327,16 @@ def login():
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '').strip()
         
-        # Fast authentication with minimal processing
-        valid_users = {
-            'admin': 'admin',
-            'executive': 'executive',
-            'controller': 'controller',
-            'payroll': 'payroll',
-            'equipment': 'equipment'
-        }
-        
-        if username in valid_users and password == valid_users[username]:
-            # Minimal session setup for speed
+        # Direct authentication without delays
+        if (username == 'admin' and password == 'admin') or \
+           (username == 'executive' and password == 'executive') or \
+           (username == 'controller' and password == 'controller'):
             session['logged_in'] = True
             session['username'] = username
             session['role'] = username
             return redirect('/dashboard')
-        
-        return render_template('login.html', error='Invalid credentials')
+        else:
+            return render_template('login.html', error='Invalid credentials')
     
     return render_template('login.html')
 

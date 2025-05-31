@@ -633,10 +633,9 @@
 
         // Update status counts
         function updateStatusCounts() {
-            const filteredAssets = currentFilter === 'all' ? assets : assets.filter(a => a.type === currentFilter);
             const counts = { active: 0, idle: 0, offline: 0 };
             
-            filteredAssets.forEach(asset => {
+            assets.forEach(asset => {
                 counts[asset.status]++;
             });
 
@@ -652,25 +651,13 @@
             }
         });
 
-        // Initialize
-        createAssetMarkers();
-        updateStatusCounts();
+        // Initialize with authentic data
+        loadData();
 
-        // Auto-refresh simulation
+        // Auto-refresh authentic data every 30 seconds
         setInterval(() => {
-            // Simulate status changes
-            assets.forEach(asset => {
-                if (Math.random() < 0.05) { // 5% chance of status change
-                    const statuses = ['active', 'idle', 'offline'];
-                    asset.status = statuses[Math.floor(Math.random() * statuses.length)];
-                }
-            });
-            
-            if (Math.random() < 0.1) { // 10% chance to refresh markers
-                createAssetMarkers();
-                updateStatusCounts();
-            }
-        }, 5000);
+            loadData();
+        }, 30000);
     </script>
 </body>
 </html>

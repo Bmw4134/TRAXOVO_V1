@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAXOVO Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            color: #333;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .logo p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s ease;
+        }
+
+        input[type="text"]:focus, input[type="password"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .login-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .quick-access {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e1e5e9;
+        }
+
+        .quick-access h3 {
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .quick-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .quick-link {
+            flex: 1;
+            background: #f8f9fa;
+            border: 1px solid #e1e5e9;
+            padding: 8px 12px;
+            border-radius: 6px;
+            text-align: center;
+            text-decoration: none;
+            color: #666;
+            font-size: 12px;
+            transition: background 0.2s ease;
+        }
+
+        .quick-link:hover {
+            background: #e9ecef;
+        }
+
+        .fleet-map-link {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .fleet-map-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .fleet-map-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1>TRAXOVO</h1>
+            <p>Fleet Intelligence Platform</p>
+        </div>
+
+        <form action="/simple_login" method="post">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <button type="submit" class="login-btn">Login</button>
+        </form>
+
+        <div class="quick-access">
+            <h3>Quick Access</h3>
+            <div class="quick-links">
+                <a href="/simple_login?u=tester&p=tester" class="quick-link">Tester Login</a>
+                <a href="/simple_login?u=watson&p=watson" class="quick-link">Admin Login</a>
+            </div>
+        </div>
+
+        <div class="fleet-map-link">
+            <a href="/fleet_map">View Fleet Map</a>
+        </div>
+    </div>
+
+    <script>
+        // Auto-fill from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const username = urlParams.get('u');
+        const password = urlParams.get('p');
+        
+        if (username && password) {
+            document.getElementById('username').value = username;
+            document.getElementById('password').value = password;
+            document.querySelector('form').submit();
+        }
+    </script>
+</body>
+</html>

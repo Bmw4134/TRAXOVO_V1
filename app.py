@@ -610,5 +610,71 @@ with app.app_context():
     except Exception as e:
         logging.warning(f"Initial data processing failed: {e}")
 
+# Register seamless fleet map blueprint
+try:
+    from routes.seamless_fleet_map import seamless_fleet_bp
+    app.register_blueprint(seamless_fleet_bp)
+    logger.info("Seamless fleet map registered successfully")
+except Exception as e:
+    logger.error(f"Error registering seamless fleet map: {e}")
+
+# Direct seamless fleet map route (bypassing auth for now)
+@app.route('/fleet_map')
+@app.route('/asset_map') 
+@app.route('/map')
+@app.route('/seamless-fleet')
+def seamless_fleet_map():
+    """Direct seamless fleet map with authentic GAUGE data"""
+    try:
+        from seamless_fleet_engine import seamless_fleet_engine
+        categories = seamless_fleet_engine.get_category_filters()
+        status_summary = seamless_fleet_engine.get_status_summary()
+        
+        return render_template('seamless_fleet_map.html', 
+                             categories=categories,
+                             status_summary=status_summary)
+    except Exception as e:
+        logger.error(f"Fleet map error: {e}")
+        return f"Fleet map loading error: {e}", 500
+
+# Fleet map API endpoints
+@app.route('/api/fleet/assets')
+def api_fleet_assets():
+    """API for authentic GAUGE assets"""
+    try:
+        from seamless_fleet_engine import seamless_fleet_engine
+        assets = seamless_fleet_engine.get_all_assets_for_map()
+        return jsonify({
+            'status': 'success',
+            'assets': assets,
+            'count': len(assets),
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/api/fleet/categories')
+def api_fleet_categories():
+    """API for authentic equipment categories"""
+    try:
+        from seamless_fleet_engine import seamless_fleet_engine
+        categories = seamless_fleet_engine.get_category_filters()
+        return jsonify({'status': 'success', 'categories': categories})
+    except Exception as e:
+        return jsonify({'status': 'error', 'categories': []}), 500
+
+@app.route('/api/fleet/search')
+def api_fleet_search():
+    """API for asset search"""
+    try:
+        from seamless_fleet_engine import seamless_fleet_engine
+        query = request.args.get('q', '').strip()
+        if len(query) < 2:
+            return jsonify({'results': []})
+        results = seamless_fleet_engine.search_assets(query)
+        return jsonify({'status': 'success', 'results': results})
+    except Exception as e:
+        return jsonify({'status': 'error', 'results': []}), 500
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

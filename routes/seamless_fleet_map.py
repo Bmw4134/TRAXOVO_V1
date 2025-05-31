@@ -13,7 +13,7 @@ seamless_fleet_bp = Blueprint('seamless_fleet', __name__)
 
 @seamless_fleet_bp.route('/fleet-map')
 def fleet_map():
-    """Seamless fleet map interface"""
+    """Seamless fleet map interface - accessible without authentication"""
     try:
         # Get initial data for the map
         categories = seamless_fleet_engine.get_category_filters()

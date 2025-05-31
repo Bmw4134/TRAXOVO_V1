@@ -144,15 +144,15 @@ class ElitePerformanceEngine:
             
             # Detailed asset info for frontend - separate active/inactive
             asset_detail = {
-                'id': asset.get('DeviceSerialNumber', f'ASSET_{len(asset_details)}'),
-                'category': category,
-                'make': make,
+                'id': str(asset.get('DeviceSerialNumber', f'ASSET_{len(asset_details)}')),
+                'category': str(category),
+                'make': str(make),
                 'model': str(asset.get('AssetModel', '') or ''),
-                'district': district,
-                'active': asset.get('Active', False),
-                'engine_hours': engine_hours,
-                'days_inactive': days_inactive,
-                'battery_pct': float(asset.get('BackupBatteryPct', 0)) if asset.get('BackupBatteryPct') is not None else 0,
+                'district': str(district),
+                'active': bool(asset.get('Active', False)),
+                'engine_hours': float(engine_hours),
+                'days_inactive': float(days_inactive),
+                'battery_pct': float(asset.get('BackupBatteryPct', 0)) if asset.get('BackupBatteryPct') is not None else 0.0,
                 'class': str(asset.get('AssetClass', '') or ''),
                 'status': 'Active' if asset.get('Active', False) else 'Inactive'
             }

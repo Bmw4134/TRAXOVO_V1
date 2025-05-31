@@ -100,19 +100,19 @@ class ElitePerformanceEngine:
                 active_assets += 1
             
             # Category classification
-            category = asset.get('AssetCategory', '').strip()
-            if category:
-                categories.add(category)
+            category = asset.get('AssetCategory') or ''
+            if isinstance(category, str) and category.strip():
+                categories.add(category.strip())
             
             # Geographic distribution
-            district = asset.get('District', '').strip()
-            if district:
-                districts.add(district)
+            district = asset.get('District') or ''
+            if isinstance(district, str) and district.strip():
+                districts.add(district.strip())
             
             # Equipment make tracking
-            make = asset.get('AssetMake', '').strip()
-            if make:
-                makes.add(make)
+            make = asset.get('AssetMake') or ''
+            if isinstance(make, str) and make.strip():
+                makes.add(make.strip())
             
             # Performance analytics
             days_inactive = asset.get('DaysInactive', 0) or 0

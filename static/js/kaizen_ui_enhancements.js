@@ -20,7 +20,13 @@ function initializeSimulateButton() {
             top: 80px;
             right: 20px;
             z-index: 1000;
+            display: none;
         `;
+        
+        // Only show on desktop
+        if (window.innerWidth > 768) {
+            button.style.display = 'block';
+        }
         
         button.onclick = () => {
             document.querySelectorAll('.metric-card.placeholder').forEach(card => {

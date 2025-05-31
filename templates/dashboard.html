@@ -3,8 +3,10 @@
 {% block title %}TRAXOVO Dashboard{% endblock %}
 
 {% block head %}
-<!-- Prominent AI Assistant Button -->
-<div class="position-fixed" style="top: 80px; right: 20px; z-index: 1050;">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/mobile_responsive_fix.css') }}">
+
+<!-- Executive AI Assistant - Desktop Only -->
+<div class="position-fixed d-none d-lg-block" style="top: 80px; right: 20px; z-index: 1050;">
     <a href="/ai-assistant" class="btn btn-primary btn-lg shadow-lg" title="AI Fleet Assistant">
         <i class="bi bi-robot"></i> AI Assistant
     </a>

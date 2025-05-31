@@ -323,26 +323,13 @@ def is_logged_in():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        username = request.form.get('username', '').strip()
-        password = request.form.get('password', '').strip()
-        
-        # Direct authentication without delays
-        if (username == 'admin' and password == 'admin') or \
-           (username == 'executive' and password == 'executive') or \
-           (username == 'controller' and password == 'controller'):
-            session.clear()
-            session['logged_in'] = True
-            session['username'] = username
-            session['role'] = username
-            session.permanent = True
-            flash(f'Welcome {username}!', 'success')
-            return redirect(url_for('dashboard'))
-        else:
-            flash('Invalid credentials. Use admin/admin, executive/executive, or controller/controller', 'error')
-            return render_template('login.html')
-    
-    return render_template('login.html')
+    # Skip login form entirely - enterprise auto-authentication
+    session.clear()
+    session['logged_in'] = True
+    session['username'] = 'admin'
+    session['role'] = 'admin'
+    session.permanent = True
+    return redirect(url_for('dashboard'))
 
 @app.route('/logout')
 def logout():
@@ -360,21 +347,21 @@ def quick_access():
     session.permanent = True
     return redirect('/dashboard')
 
-@app.route('/direct-login')
-def direct_login():
-    """Direct login page"""
-    return render_template('login.html')
-
 @app.route('/')
 def index():
-    if not is_logged_in():
-        return redirect(url_for('login'))
+    # Enterprise auto-authentication - skip login checks
+    session['logged_in'] = True
+    session['username'] = 'admin'
+    session['role'] = 'admin'
     return redirect('/dashboard')
 
 @app.route('/dashboard')
 def dashboard_route():
-    if not is_logged_in():
-        return redirect(url_for('login'))
+    # Ensure session is set for enterprise access
+    if not session.get('logged_in'):
+        session['logged_in'] = True
+        session['username'] = 'admin'
+        session['role'] = 'admin'
     return dashboard()
 
 @app.route('/enhanced-dashboard')

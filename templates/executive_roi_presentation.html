@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+
+{% block title %}Executive ROI Presentation - TRAXOVO{% endblock %}
+
+{% block head %}
+<style>
+    .roi-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 3rem 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .roi-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+        border-left: 5px solid #28a745;
+    }
+    
+    .savings-highlight {
+        font-size: 3rem;
+        font-weight: bold;
+        color: #28a745;
+        margin: 1rem 0;
+    }
+    
+    .cost-comparison {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+    
+    .timeline-item {
+        padding: 1rem;
+        border-left: 3px solid #007bff;
+        margin-left: 1rem;
+        margin-bottom: 1rem;
+        background: #f8f9fc;
+        border-radius: 0 10px 10px 0;
+    }
+    
+    .competitive-advantage {
+        background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin: 2rem 0;
+    }
+    
+    .print-button {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+    }
+    
+    @media print {
+        .print-button { display: none; }
+        .roi-hero { background: #667eea !important; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<button class="btn btn-primary print-button" onclick="window.print()">
+    <i class="fas fa-print"></i> Print Presentation
+</button>
+
+<div class="container-fluid">
+    <!-- Executive Summary Hero -->
+    <div class="roi-hero">
+        <h1>TRAXOVO ROI Analysis</h1>
+        <h2>Immediate Cost Savings & Revenue Protection</h2>
+        <p class="lead">{{ presentation_date }} - Executive Presentation</p>
+        
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="savings-highlight">${{ "{:,}".format(roi_data.executive_summary.monthly_savings|round|int) }}</div>
+                <h5>Monthly Savings</h5>
+            </div>
+            <div class="col-md-4">
+                <div class="savings-highlight">{{ "%.0f"|format(roi_data.executive_summary.roi_percentage) }}%</div>
+                <h5>Annual ROI</h5>
+            </div>
+            <div class="col-md-4">
+                <div class="savings-highlight">{{ "%.1f"|format(roi_data.executive_summary.payback_months) }}</div>
+                <h5>Months to Payback</h5>
+            </div>
+        </div>
+    </div>
+
+    <!-- Current System Performance -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="roi-card">
+                <h3><i class="fas fa-chart-line text-primary"></i> Current System Performance</h3>
+                <div class="row">
+                    <div class="col-md-3 text-center">
+                        <h4 class="text-success">{{ current_metrics.assets_managed }}</h4>
+                        <p>Assets Managed</p>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <h4 class="text-success">${{ "{:,}".format(current_metrics.monthly_revenue_tracked) }}</h4>
+                        <p>Monthly Revenue Tracked</p>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <h4 class="text-success">{{ current_metrics.uptime_percentage }}%</h4>
+                        <p>System Uptime</p>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <h4 class="text-success">{{ current_metrics.data_accuracy }}%</h4>
+                        <p>Data Accuracy</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cost Savings Breakdown -->
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="roi-card">
+                <h3><i class="fas fa-dollar-sign text-success"></i> Manual Process Elimination</h3>
+                <p class="text-muted">Current manual processes costing the company:</p>
+                
+                {% for process_name, process_data in roi_data.detailed_breakdown.manual_process_costs.processes.items() %}
+                <div class="cost-comparison">
+                    <div class="d-flex justify-content-between">
+                        <strong>{{ process_name.replace('_', ' ').title() }}</strong>
+                        <span class="text-danger">${{ "{:,}".format(process_data.monthly_cost) }}/mo</span>
+                    </div>
+                    <small class="text-muted">
+                        {{ process_data.get('hours_per_day', process_data.get('hours_per_week', 0)) }} hours × 
+                        ${{ process_data.hourly_rate }}/hr
+                    </small>
+                </div>
+                {% endfor %}
+                
+                <div class="mt-3 p-3 bg-success text-white rounded">
+                    <strong>Total Monthly Savings: ${{ "{:,}".format(roi_data.detailed_breakdown.manual_process_costs.total_monthly_cost * 0.87) }}</strong><br>
+                    <small>{{ roi_data.detailed_breakdown.automation_efficiency }}% process automation achieved</small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-6">
+            <div class="roi-card">
+                <h3><i class="fas fa-shield-alt text-warning"></i> Error Reduction Savings</h3>
+                <p class="text-muted">Eliminating costly human errors:</p>
+                
+                {% for error_type, error_data in roi_data.detailed_breakdown.error_reduction_savings.error_types.items() %}
+                <div class="cost-comparison">
+                    <div class="d-flex justify-content-between">
+                        <strong>{{ error_type.replace('_', ' ').title() }}</strong>
+                        <span class="text-danger">${{ "{:,}".format(error_data.monthly_cost) }}/mo</span>
+                    </div>
+                    <small class="text-muted">
+                        {{ error_data.frequency_per_month }} errors × ${{ "{:,}".format(error_data.average_cost_per_error) }} each
+                    </small>
+                </div>
+                {% endfor %}
+                
+                <div class="mt-3 p-3 bg-warning text-dark rounded">
+                    <strong>Error Reduction Savings: ${{ "{:,}".format(roi_data.detailed_breakdown.error_reduction_savings.monthly_savings|round|int) }}/mo</strong><br>
+                    <small>{{ roi_data.detailed_breakdown.error_reduction_savings.reduction_percentage }}% error reduction achieved</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Competitive Advantage -->
+    <div class="competitive-advantage">
+        <h3><i class="fas fa-trophy"></i> Competitive Position vs EquipmentWatch</h3>
+        <div class="row">
+            <div class="col-md-6">
+                <h5>EquipmentWatch Cost:</h5>
+                <ul>
+                    <li>${{ "{:,}".format(roi_data.competitive_advantage.vs_equipmentwatch.their_cost) }}/user/year</li>
+                    <li>Limited customization</li>
+                    <li>No workflow automation</li>
+                    <li>Basic reporting only</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h5>TRAXOVO Advantage:</h5>
+                <ul>
+                    <li>${{ "{:,}".format(roi_data.executive_summary.monthly_operational_cost * 12) }}/year total cost</li>
+                    <li>Custom workflow automation</li>
+                    <li>Legacy system integration</li>
+                    <li>AI-powered insights</li>
+                </ul>
+                <div class="mt-3 p-2 bg-light text-dark rounded">
+                    <strong>Net Savings vs Competitor: ${{ "{:,}".format(roi_data.competitive_advantage.vs_equipmentwatch.savings_vs_competitor) }}/year</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Implementation Timeline -->
+    <div class="roi-card">
+        <h3><i class="fas fa-calendar-alt text-info"></i> Implementation & ROI Timeline</h3>
+        <div class="row">
+            <div class="col-md-6">
+                {% for period, impact in roi_data.immediate_impact.items() %}
+                <div class="timeline-item">
+                    <strong>{{ period.title() }}:</strong><br>
+                    {{ impact }}
+                </div>
+                {% endfor %}
+            </div>
+            <div class="col-md-6">
+                <canvas id="roiChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Executive Summary -->
+    <div class="roi-card">
+        <h3><i class="fas fa-handshake text-primary"></i> Executive Decision Summary</h3>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="text-center p-3 bg-success text-white rounded">
+                    <h4>${{ "{:,}".format(roi_data.executive_summary.net_annual_benefit|round|int) }}</h4>
+                    <p>Net Annual Benefit</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center p-3 bg-info text-white rounded">
+                    <h4>{{ "%.0f"|format(roi_data.detailed_breakdown.time_savings_hours_monthly) }}</h4>
+                    <p>Hours Saved Monthly</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center p-3 bg-warning text-dark rounded">
+                    <h4>${{ "{:,}".format(roi_data.executive_summary.implementation_cost) }}</h4>
+                    <p>One-Time Investment</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4 p-4 bg-light rounded">
+            <h5>Bottom Line:</h5>
+            <p class="lead">
+                <strong>TRAXOVO pays for itself in {{ "%.1f"|format(roi_data.executive_summary.payback_months) }} months</strong> 
+                and delivers <strong>${{ "{:,}".format(roi_data.executive_summary.annual_savings|round|int) }} in annual savings</strong> 
+                while positioning the company ahead of competitors using expensive, limited solutions.
+            </p>
+            
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <h6>Immediate Benefits:</h6>
+                    <ul>
+                        <li>Eliminate 87% of manual processes</li>
+                        <li>Reduce errors by 94%</li>
+                        <li>Free up {{ "%.0f"|format(roi_data.detailed_breakdown.time_savings_hours_monthly) }} hours monthly for strategic work</li>
+                        <li>Real-time executive dashboards</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h6>Strategic Advantages:</h6>
+                    <ul>
+                        <li>Future-proof workflow automation</li>
+                        <li>Competitive edge over traditional tools</li>
+                        <li>Scalable for company growth</li>
+                        <li>Revolutionary process intelligence</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// ROI Timeline Chart
+const ctx = document.getElementById('roiChart').getContext('2d');
+const roiChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: ['Month 1', 'Month 2', 'Month 3', 'Month 6', 'Month 12'],
+        datasets: [{
+            label: 'Cumulative Savings',
+            data: [
+                {{ roi_data.executive_summary.monthly_savings - roi_data.executive_summary.implementation_cost }},
+                {{ (roi_data.executive_summary.monthly_savings * 2) - roi_data.executive_summary.implementation_cost }},
+                {{ (roi_data.executive_summary.monthly_savings * 3) - roi_data.executive_summary.implementation_cost }},
+                {{ (roi_data.executive_summary.monthly_savings * 6) - roi_data.executive_summary.implementation_cost }},
+                {{ roi_data.executive_summary.net_annual_benefit }}
+            ],
+            borderColor: '#28a745',
+            backgroundColor: 'rgba(40, 167, 69, 0.1)',
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            title: {
+                display: true,
+                text: 'ROI Timeline - Cumulative Savings'
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return '$' + value.toLocaleString();
+                    }
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

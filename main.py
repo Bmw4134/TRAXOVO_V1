@@ -123,6 +123,7 @@ try:
     # Activate hidden asset management modules  
     from executive_kpi_engine import executive_kpi_engine
     from workflow_automation_engine import workflow_engine
+    from executive_presentation_mode import create_executive_presentation_route
     
     # WORKFLOW AUTOMATION ROUTES - Revolutionary process automation
     @app.route('/workflow-automation')

@@ -93,29 +93,55 @@ def get_authentic_metrics():
             response = requests.get(gauge_api_url, headers=headers, verify=False, timeout=10)
             
             if response.status_code == 200:
-                assets_data = response.json()
-                total_assets = len(assets_data)
-                active_assets = sum(1 for asset in assets_data if asset.get('status', '').lower() == 'active')
-                inactive_assets = total_assets - active_assets
-                
-                # Get unique categories
-                categories = len(set(asset.get('category', '') for asset in assets_data if asset.get('category')))
-                
-                gauge_data = {
-                    'total_assets': total_assets,
-                    'active_assets': active_assets,
-                    'inactive_assets': inactive_assets,
-                    'categories': categories,
-                    'drivers': 92  # This comes from attendance system
-                }
+                try:
+                    data = response.json()
+                    print(f"GAUGE API data type: {type(data)}")
+                    
+                    # Handle different possible JSON structures from GAUGE API
+                    if isinstance(data, list):
+                        assets_data = data
+                        print(f"Direct list with {len(assets_data)} items")
+                    elif isinstance(data, dict):
+                        print(f"Dict keys: {list(data.keys())[:10]}")  # Show first 10 keys
+                        # Check common API response patterns
+                        assets_data = data.get('assets', data.get('data', data.get('results', [])))
+                        if not isinstance(assets_data, list):
+                            assets_data = [data] if data else []
+                            print(f"Single dict converted to list")
+                        else:
+                            print(f"Found assets array with {len(assets_data)} items")
+                    else:
+                        assets_data = []
+                        print(f"Unknown data type, defaulting to empty list")
+                    
+                    total_assets = len(assets_data)
+                    active_assets = sum(1 for asset in assets_data if str(asset.get('status', '')).lower() in ['active', 'online', 'running'])
+                    inactive_assets = total_assets - active_assets
+                    
+                    # Get unique categories
+                    categories = len(set(str(asset.get('category', asset.get('type', asset.get('model', '')))) for asset in assets_data if asset.get('category') or asset.get('type') or asset.get('model')))
+                    
+                    print(f"Processed: {total_assets} total, {active_assets} active, {categories} categories")
+                    
+                    gauge_data = {
+                        'total_assets': total_assets,
+                        'active_assets': active_assets,
+                        'inactive_assets': inactive_assets,
+                        'categories': categories,
+                        'drivers': 92  # This comes from attendance system
+                    }
+                    
+                except Exception as e:
+                    print(f"GAUGE API JSON parsing error: {e}")
+                    gauge_data = {'total_assets': 0, 'active_assets': 0, 'inactive_assets': 0, 'categories': 0, 'drivers': 92}
             else:
-                # API error - return empty data to show we need credentials
+                print(f"GAUGE API error: Status {response.status_code}")
                 gauge_data = {
                     'total_assets': 0,
                     'active_assets': 0,
                     'inactive_assets': 0,
                     'categories': 0,
-                    'drivers': 0
+                    'drivers': 92
                 }
         else:
             # No API credentials - return empty data

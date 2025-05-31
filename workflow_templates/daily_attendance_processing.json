@@ -1,7 +1,7 @@
 {
   "name": "Daily Attendance Processing",
   "description": "Automate daily attendance report processing with validation and cost calculation",
-  "created": "2025-05-31T06:52:08.358795",
+  "created": "2025-05-31T07:22:30.523429",
   "steps": [
     {
       "name": "validate_attendance",

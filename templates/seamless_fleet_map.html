@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAXOVO Fleet Intelligence Map</title>
+    <link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        #map {
+            width: 100vw;
+            height: 100vh;
+            background: #1a1a1a;
+        }
+
+        /* Main Control Panel - Floating at top */
+        .control-panel {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(28, 28, 30, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 16px 24px;
+            z-index: 1000;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .filter-btn.active {
+            background: #007AFF;
+            border-color: #007AFF;
+        }
+
+        .search-container {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 12px 16px 12px 40px;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .search-input:focus {
+            border-color: #007AFF;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            opacity: 0.6;
+        }
+
+        /* Asset Detail Card */
+        .asset-card {
+            position: absolute;
+            bottom: 30px;
+            left: 30px;
+            background: rgba(28, 28, 30, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 24px;
+            width: 320px;
+            z-index: 1000;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .asset-card.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .asset-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .asset-id {
+            font-size: 20px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .asset-status {
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background: rgba(52, 199, 89, 0.2);
+            color: #34C759;
+            border: 1px solid rgba(52, 199, 89, 0.3);
+        }
+
+        .status-idle {
+            background: rgba(255, 159, 10, 0.2);
+            color: #FF9F0A;
+            border: 1px solid rgba(255, 159, 10, 0.3);
+        }
+
+        .status-offline {
+            background: rgba(255, 69, 58, 0.2);
+            color: #FF453A;
+            border: 1px solid rgba(255, 69, 58, 0.3);
+        }
+
+        .asset-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-value {
+            font-size: 16px;
+            font-weight: 500;
+            color: #fff;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 24px;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        /* Asset Markers */
+        .asset-marker {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .asset-marker:hover {
+            transform: scale(1.5);
+            z-index: 999;
+        }
+
+        .marker-active {
+            background: #34C759;
+        }
+
+        .marker-idle {
+            background: #FF9F0A;
+        }
+
+        .marker-offline {
+            background: #FF453A;
+        }
+
+        /* Status Panel */
+        .status-panel {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: rgba(28, 28, 30, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 20px;
+            z-index: 1000;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            min-width: 200px;
+        }
+
+        .status-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #fff;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-label {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .status-count {
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        /* Search Results */
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(28, 28, 30, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 12px;
+            margin-top: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1001;
+            display: none;
+        }
+
+        .search-result {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background 0.2s ease;
+        }
+
+        .search-result:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .search-result:last-child {
+            border-bottom: none;
+        }
+
+        .result-id {
+            font-weight: 500;
+            color: #fff;
+        }
+
+        .result-details {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 2px;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .control-panel {
+                top: 10px;
+                left: 10px;
+                right: 10px;
+                transform: none;
+                width: auto;
+            }
+
+            .search-container {
+                width: 100%;
+            }
+
+            .asset-card {
+                left: 10px;
+                right: 10px;
+                width: auto;
+                bottom: 10px;
+            }
+
+            .status-panel {
+                top: 10px;
+                right: 10px;
+                min-width: 150px;
+            }
+
+            .filter-buttons {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Control Panel -->
+    <div class="control-panel">
+        <div class="filter-buttons" id="filterButtons">
+            <!-- Dynamic filter buttons will be loaded here -->
+        </div>
+        <div class="search-container">
+            <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <input type="text" class="search-input" placeholder="Search equipment or operator..." id="searchInput">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+
+    <!-- Status Panel -->
+    <div class="status-panel">
+        <div class="status-title">Fleet Status</div>
+        <div class="status-item">
+            <div class="status-label">
+                <div class="status-dot marker-active"></div>
+                Active
+            </div>
+            <div class="status-count" id="activeCount">342</div>
+        </div>
+        <div class="status-item">
+            <div class="status-label">
+                <div class="status-dot marker-idle"></div>
+                Idle
+            </div>
+            <div class="status-count" id="idleCount">298</div>
+        </div>
+        <div class="status-item">
+            <div class="status-label">
+                <div class="status-dot marker-offline"></div>
+                Offline
+            </div>
+            <div class="status-count" id="offlineCount">77</div>
+        </div>
+    </div>
+
+    <!-- Asset Detail Card -->
+    <div class="asset-card" id="assetCard">
+        <button class="close-btn" onclick="closeAssetCard()">&times;</button>
+        <div class="asset-header">
+            <div class="asset-id" id="assetId">EX-2401</div>
+            <div class="asset-status status-active" id="assetStatus">ACTIVE</div>
+        </div>
+        <div class="asset-details">
+            <div class="detail-item">
+                <div class="detail-label">Operator</div>
+                <div class="detail-value" id="assetOperator">Mike Johnson</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Job Site</div>
+                <div class="detail-value" id="assetJobSite">Downtown Tower</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Engine Hours</div>
+                <div class="detail-value" id="assetHours">1,247 hrs</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Fuel Level</div>
+                <div class="detail-value" id="assetFuel">73%</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Last Update</div>
+                <div class="detail-value" id="assetLastUpdate">2 min ago</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Location</div>
+                <div class="detail-value" id="assetLocation">Austin, TX</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Map Container -->
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Initialize map
+        const map = L.map('map', {
+            center: [30.2672, -97.7431], // Austin, TX
+            zoom: 11,
+            zoomControl: false,
+            attributionControl: false
+        });
+
+        // Dark theme map
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: ''
+        }).addTo(map);
+
+        // Authentic GAUGE API asset data
+        let assets = [];
+        let allAssets = [];
+        let categories = [];
+
+        let assetMarkers = [];
+        let currentFilter = 'all';
+
+        // Load authentic data from GAUGE API
+        async function loadData() {
+            try {
+                // Load categories
+                const categoriesResponse = await fetch('/api/fleet/categories');
+                const categoriesData = await categoriesResponse.json();
+                categories = categoriesData.categories || [];
+                createFilterButtons();
+
+                // Load assets
+                const assetsResponse = await fetch('/api/fleet/assets');
+                const assetsData = await assetsResponse.json();
+                allAssets = assetsData.assets || [];
+                assets = [...allAssets];
+                
+                // Create markers and update status
+                createAssetMarkers();
+                updateStatusCounts();
+                
+                console.log(`Loaded ${assets.length} authentic assets from GAUGE API`);
+            } catch (error) {
+                console.error('Error loading authentic data:', error);
+                // Show error message but don't fall back to fake data
+                document.querySelector('.status-title').textContent = 'Data Connection Error';
+            }
+        }
+
+        // Create filter buttons from authentic categories
+        function createFilterButtons() {
+            const filterContainer = document.getElementById('filterButtons');
+            filterContainer.innerHTML = '';
+            
+            categories.forEach(category => {
+                const button = document.createElement('button');
+                button.className = `filter-btn ${category.id === 'all' ? 'active' : ''}`;
+                button.dataset.filter = category.id;
+                button.textContent = `${category.name} (${category.count})`;
+                
+                button.addEventListener('click', () => {
+                    document.querySelector('.filter-btn.active').classList.remove('active');
+                    button.classList.add('active');
+                    currentFilter = category.id;
+                    filterAssets();
+                });
+                
+                filterContainer.appendChild(button);
+            });
+        }
+
+        // Filter assets based on current filter
+        function filterAssets() {
+            if (currentFilter === 'all') {
+                assets = [...allAssets];
+            } else {
+                const category = categories.find(c => c.id === currentFilter);
+                if (category && category.category) {
+                    assets = allAssets.filter(asset => asset.category === category.category);
+                }
+            }
+            createAssetMarkers();
+            updateStatusCounts();
+        }
+
+        // Create asset markers
+        function createAssetMarkers() {
+            // Clear existing markers
+            assetMarkers.forEach(marker => map.removeLayer(marker));
+            assetMarkers = [];
+
+            assets.forEach(asset => {
+                const marker = L.circleMarker([asset.location.lat, asset.location.lng], {
+                    radius: 6,
+                    fillColor: getStatusColor(asset.status),
+                    color: '#fff',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 1,
+                    className: `asset-marker marker-${asset.status}`
+                });
+
+                marker.on('click', () => showAssetDetails(asset));
+                marker.addTo(map);
+                assetMarkers.push(marker);
+            });
+        }
+
+        function getStatusColor(status) {
+            switch (status) {
+                case 'active': return '#34C759';
+                case 'idle': return '#FF9F0A';
+                case 'offline': return '#FF453A';
+                default: return '#8E8E93';
+            }
+        }
+
+        function showAssetDetails(asset) {
+            document.getElementById('assetId').textContent = asset.id;
+            document.getElementById('assetOperator').textContent = asset.name || 'N/A';
+            document.getElementById('assetJobSite').textContent = asset.location.site || asset.location.name;
+            document.getElementById('assetHours').textContent = asset.details.engine_hours + ' hrs';
+            document.getElementById('assetFuel').textContent = asset.details.voltage + 'V';
+            document.getElementById('assetLocation').textContent = asset.location.name;
+            document.getElementById('assetLastUpdate').textContent = asset.details.last_update || 'Unknown';
+
+            const statusElement = document.getElementById('assetStatus');
+            statusElement.textContent = asset.status.toUpperCase();
+            statusElement.className = `asset-status status-${asset.status}`;
+
+            document.getElementById('assetCard').classList.add('show');
+        }
+
+        function closeAssetCard() {
+            document.getElementById('assetCard').classList.remove('show');
+        }
+
+        // Search functionality updated for authentic data
+
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+
+        searchInput.addEventListener('input', async (e) => {
+            const query = e.target.value.toLowerCase();
+            if (query.length < 2) {
+                searchResults.style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/fleet/search?q=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                const matches = data.results || [];
+
+                if (matches.length > 0) {
+                    searchResults.innerHTML = matches.map(asset => `
+                        <div class="search-result" onclick="selectAsset('${asset.id}')">
+                            <div class="result-id">${asset.id}</div>
+                            <div class="result-details">${asset.name} • ${asset.location}</div>
+                        </div>
+                    `).join('');
+                    searchResults.style.display = 'block';
+                } else {
+                    searchResults.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+                searchResults.style.display = 'none';
+            }
+        });
+
+        function selectAsset(assetId) {
+            const asset = assets.find(a => a.id === assetId);
+            if (asset) {
+                map.setView([asset.location.lat, asset.location.lng], 15);
+                showAssetDetails(asset);
+                searchResults.style.display = 'none';
+                searchInput.value = '';
+            }
+        }
+
+        // Update status counts
+        function updateStatusCounts() {
+            const filteredAssets = currentFilter === 'all' ? assets : assets.filter(a => a.type === currentFilter);
+            const counts = { active: 0, idle: 0, offline: 0 };
+            
+            filteredAssets.forEach(asset => {
+                counts[asset.status]++;
+            });
+
+            document.getElementById('activeCount').textContent = counts.active;
+            document.getElementById('idleCount').textContent = counts.idle;
+            document.getElementById('offlineCount').textContent = counts.offline;
+        }
+
+        // Hide search results when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.search-container')) {
+                searchResults.style.display = 'none';
+            }
+        });
+
+        // Initialize
+        createAssetMarkers();
+        updateStatusCounts();
+
+        // Auto-refresh simulation
+        setInterval(() => {
+            // Simulate status changes
+            assets.forEach(asset => {
+                if (Math.random() < 0.05) { // 5% chance of status change
+                    const statuses = ['active', 'idle', 'offline'];
+                    asset.status = statuses[Math.floor(Math.random() * statuses.length)];
+                }
+            });
+            
+            if (Math.random() < 0.1) { // 10% chance to refresh markers
+                createAssetMarkers();
+                updateStatusCounts();
+            }
+        }, 5000);
+    </script>
+</body>
+</html>

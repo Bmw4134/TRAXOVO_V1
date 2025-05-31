@@ -262,26 +262,25 @@
         </div>
 
         <div class="login-section">
-
-        {% if error %}
-        <div class="error">
-            {{ error }}
-        </div>
-        {% endif %}
-
-        <form method="POST">
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" required>
+            {% if error %}
+            <div class="error">
+                {{ error }}
             </div>
+            {% endif %}
 
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
-            </div>
+            <form method="POST">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
 
-            <button type="submit" class="login-btn">Login to Fleet Dashboard</button>
-        </form>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+
+                <button type="submit" class="login-btn">Login to Fleet Dashboard</button>
+            </form>
 
             <div class="credentials">
                 <h4>Demo Access Credentials</h4>

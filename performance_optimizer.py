@@ -123,8 +123,8 @@ class ElitePerformanceEngine:
             if engine_hours > 5000:
                 performance_metrics['high_value_assets'] += 1
             
-            # Detailed asset info for frontend
-            asset_details.append({
+            # Detailed asset info for frontend - separate active/inactive
+            asset_detail = {
                 'id': asset.get('DeviceSerialNumber', f'ASSET_{len(asset_details)}'),
                 'category': category,
                 'make': make,
@@ -134,11 +134,17 @@ class ElitePerformanceEngine:
                 'engine_hours': engine_hours,
                 'days_inactive': days_inactive,
                 'battery_pct': asset.get('BackupBatteryPct', 0),
-                'class': asset.get('AssetClass', '')
-            })
+                'class': asset.get('AssetClass', ''),
+                'status': 'Active' if asset.get('Active', False) else 'Inactive'
+            }
+            asset_details.append(asset_detail)
         
         # Calculate elite metrics
         utilization_rate = round((active_assets / total_assets * 100), 1) if total_assets > 0 else 0
+        
+        # Separate active and inactive assets for better display control
+        active_asset_details = [asset for asset in asset_details if asset['active']]
+        inactive_asset_details = [asset for asset in asset_details if not asset['active']]
         
         return {
             'summary': {
@@ -154,7 +160,9 @@ class ElitePerformanceEngine:
             'districts': sorted(list(districts)),
             'makes': sorted(list(makes)),
             'performance': performance_metrics,
-            'assets': asset_details[:100],  # Limit for performance
+            'assets': active_asset_details[:100],  # Show active assets by default
+            'inactive_assets': inactive_asset_details[:50],  # Separate inactive list
+            'asset_tooltips': self._generate_asset_tooltips(asset_details[:150]),
             'last_updated': datetime.now().isoformat(),
             'data_quality': 'authentic_gauge_api'
         }
@@ -193,6 +201,117 @@ class ElitePerformanceEngine:
             'total': len(data['categories'])
         }
     
+    def _generate_asset_tooltips(self, asset_details):
+        """Generate contextual hover tooltips for asset metrics"""
+        tooltips = {}
+        
+        for asset in asset_details:
+            asset_id = asset['id']
+            
+            # Calculate asset-specific metrics
+            efficiency = self._calculate_asset_efficiency(asset)
+            health_status = self._determine_health_status(asset)
+            utilization_info = self._get_utilization_info(asset)
+            
+            tooltips[asset_id] = {
+                'header': f"{asset['make']} {asset['model']}",
+                'category': asset['category'],
+                'status': asset['status'],
+                'location': asset['district'] or 'Unknown Location',
+                'metrics': {
+                    'engine_hours': f"{asset['engine_hours']:,} hrs",
+                    'efficiency_score': f"{efficiency}%",
+                    'health_status': health_status,
+                    'battery_level': f"{asset['battery_pct']}%",
+                    'days_inactive': asset['days_inactive']
+                },
+                'utilization': utilization_info,
+                'maintenance': {
+                    'next_service': self._estimate_next_service(asset),
+                    'priority': self._get_maintenance_priority(asset)
+                },
+                'performance_indicators': {
+                    'productivity': self._calculate_productivity_score(asset),
+                    'reliability': self._calculate_reliability_score(asset)
+                }
+            }
+        
+        return tooltips
+    
+    def _calculate_asset_efficiency(self, asset):
+        """Calculate individual asset efficiency score"""
+        base_score = 85
+        if asset['days_inactive'] > 7:
+            base_score -= 20
+        if asset['engine_hours'] > 5000:
+            base_score += 10
+        if asset['battery_pct'] < 20:
+            base_score -= 15
+        return max(0, min(100, base_score))
+    
+    def _determine_health_status(self, asset):
+        """Determine asset health status"""
+        if asset['days_inactive'] > 14:
+            return 'Needs Attention'
+        elif asset['battery_pct'] < 30:
+            return 'Battery Low'
+        elif asset['engine_hours'] > 8000:
+            return 'High Usage'
+        else:
+            return 'Good'
+    
+    def _get_utilization_info(self, asset):
+        """Get asset utilization information"""
+        if asset['active']:
+            return {
+                'status': 'Currently Active',
+                'usage_pattern': 'Regular Operation',
+                'efficiency': 'Optimal'
+            }
+        else:
+            return {
+                'status': 'Inactive',
+                'idle_time': f"{asset['days_inactive']} days",
+                'efficiency': 'Below Target'
+            }
+    
+    def _estimate_next_service(self, asset):
+        """Estimate next service requirement"""
+        hours = asset['engine_hours']
+        if hours > 7500:
+            return 'Due Soon'
+        elif hours > 5000:
+            return 'Within 30 Days'
+        else:
+            return 'Not Required'
+    
+    def _get_maintenance_priority(self, asset):
+        """Get maintenance priority level"""
+        if asset['days_inactive'] > 14 or asset['engine_hours'] > 8000:
+            return 'High'
+        elif asset['battery_pct'] < 30:
+            return 'Medium'
+        else:
+            return 'Low'
+    
+    def _calculate_productivity_score(self, asset):
+        """Calculate productivity score"""
+        if asset['active'] and asset['days_inactive'] < 3:
+            return 'High'
+        elif asset['active']:
+            return 'Medium'
+        else:
+            return 'Low'
+    
+    def _calculate_reliability_score(self, asset):
+        """Calculate reliability score"""
+        if asset['engine_hours'] < 5000 and asset['battery_pct'] > 70:
+            return 'Excellent'
+        elif asset['engine_hours'] < 8000:
+            return 'Good'
+        else:
+            return 'Fair'
+
     def get_performance_analytics(self):
         """Get advanced performance metrics"""
         data = self.get_cached_gauge_data()

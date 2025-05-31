@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TRAXOVO Fleet Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='smooth-transitions.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='asset-tooltips.css') }}">
     <style>
         * {
             margin: 0;
@@ -1163,6 +1164,9 @@
         });
     </script>
 
+    <!-- Asset Tooltip System -->
+    <script src="{{ url_for('static', filename='asset-tooltips.js') }}"></script>
+    
     <!-- Tour Guide Integration -->
     <script src="/static/tour-guide.js"></script>
 </body>

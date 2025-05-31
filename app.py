@@ -680,6 +680,8 @@ def api_fleet_assets():
             'districts': fleet_data['summary']['districts'],
             'makes': fleet_data['summary']['makes'],
             'assets': fleet_data['assets'],
+            'inactive_assets': fleet_data['inactive_assets'],
+            'asset_tooltips': fleet_data['asset_tooltips'],
             'last_sync': fleet_data['last_updated'],
             'data_quality': fleet_data['data_quality']
         })

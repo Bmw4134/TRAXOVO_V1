@@ -12,6 +12,7 @@ import logging
 import requests
 from math import radians, cos, sin, asin, sqrt
 import tabula
+from services.unified_data_manager import get_unified_data
 
 attendance_bp = Blueprint('attendance', __name__, url_prefix='/attendance')
 

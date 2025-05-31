@@ -327,20 +327,20 @@ def login():
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '').strip()
         
-        # Simple authentication - both admin passwords work
-        if username == 'admin' and (password == 'admin' or password == 'TRAXOVOAdmin2025!'):
-            session.clear()
+        # Fast authentication with minimal processing
+        valid_users = {
+            'admin': 'admin',
+            'executive': 'executive',
+            'controller': 'controller',
+            'payroll': 'payroll',
+            'equipment': 'equipment'
+        }
+        
+        if username in valid_users and password == valid_users[username]:
+            # Minimal session setup for speed
             session['logged_in'] = True
-            session['username'] = 'admin'
-            session['role'] = 'admin'
-            session.permanent = True
-            return redirect('/dashboard')
-        elif username == 'executive' and password == 'executive':
-            session.clear()
-            session['logged_in'] = True
-            session['username'] = 'executive'
-            session['role'] = 'executive'
-            session.permanent = True
+            session['username'] = username
+            session['role'] = username
             return redirect('/dashboard')
         
         return render_template('login.html', error='Invalid credentials')

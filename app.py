@@ -20,6 +20,16 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET") or "development-secret-key"
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
+# App version for session management  
+APP_VERSION = "1.0.2"
+
+@app.before_request
+def handle_session_cache():
+    """Auto-clear sessions on app updates to prevent authentication issues"""
+    if session.get('app_version') != APP_VERSION:
+        session.clear()
+        session['app_version'] = APP_VERSION
+
 # Database configuration
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -47,8 +57,15 @@ with app.app_context():
     logging.info("Database tables created")
 
 # Helper functions
+def check_session_version():
+    """Check if session needs to be cleared due to app updates"""
+    if session.get('app_version') != APP_VERSION:
+        session.clear()
+        session['app_version'] = APP_VERSION
+
 def require_auth():
     """Check if user is authenticated"""
+    check_session_version()
     if not session.get('authenticated'):
         return redirect('/login')
     return None
@@ -113,6 +130,7 @@ def login():
             session['authenticated'] = True
             session['username'] = username
             session['is_admin'] = (username == 'watson')
+            session['app_version'] = APP_VERSION
             logging.info(f"User {username} logged in successfully")
             return redirect('/dashboard')
         else:
@@ -147,7 +165,8 @@ def dashboard():
     return render_template('dashboard.html', 
                          username=username,
                          metrics=metrics,
-                         show_dev_log=session.get('is_admin', False))
+                         show_dev_log=session.get('is_admin', False),
+                         cache_version=APP_VERSION)
 
 # Fleet Operations
 @app.route('/fleet-map')

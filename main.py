@@ -351,6 +351,18 @@ try:
     from unified_system_consolidator import unified_system_bp
     app.register_blueprint(unified_system_bp)
     
+    # INTELLIGENT DISPATCH SYSTEM - Aaron's dispatch optimization with cost tracking
+    from intelligent_dispatch_system import dispatch_system_bp
+    app.register_blueprint(dispatch_system_bp)
+    
+    # SMART GEOFENCING & BILLING - Captures all billable hours and equipment costs
+    from smart_geofencing_billing import geofencing_billing_bp
+    app.register_blueprint(geofencing_billing_bp)
+    
+    # CONTROLLER FINANCIAL DASHBOARD - William's immediate value demonstration
+    from controller_financial_dashboard import controller_dashboard_bp
+    app.register_blueprint(controller_dashboard_bp)
+    
     # Register unified billing consolidation
     from routes.unified_billing_consolidation import unified_billing
     app.register_blueprint(unified_billing)

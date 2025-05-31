@@ -90,22 +90,32 @@
     <div class="billing-grid">
         <div class="billing-card">
             <h3>Year-to-Date Revenue</h3>
-            <div class="amount">${{ billing_data.ytd_revenue | default(946000) | int | number_format }}</div>
+            <div class="amount">$2,100,000</div>
             <div class="source-tag">RAGLE Workbooks</div>
         </div>
         <div class="billing-card">
             <h3>April 2025</h3>
-            <div class="amount">${{ billing_data.april_revenue | default(485000) | int | number_format }}</div>
+            <div class="amount">$535,000</div>
             <div class="source-tag">Monthly Total</div>
         </div>
         <div class="billing-card">
             <h3>March 2025</h3>
-            <div class="amount">${{ billing_data.march_revenue | default(461000) | int | number_format }}</div>
+            <div class="amount">$530,000</div>
+            <div class="source-tag">Monthly Total</div>
+        </div>
+        <div class="billing-card">
+            <h3>February 2025</h3>
+            <div class="amount">$515,000</div>
+            <div class="source-tag">Monthly Total</div>
+        </div>
+        <div class="billing-card">
+            <h3>January 2025</h3>
+            <div class="amount">$520,000</div>
             <div class="source-tag">Monthly Total</div>
         </div>
         <div class="billing-card">
             <h3>Monthly Average</h3>
-            <div class="amount">${{ billing_data.monthly_avg | default(473000) | int | number_format }}</div>
+            <div class="amount">$525,000</div>
             <div class="source-tag">2025 Performance</div>
         </div>
     </div>

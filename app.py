@@ -89,8 +89,8 @@ def get_authentic_metrics():
         
         if gauge_api_key and gauge_api_url:
             headers = {'Authorization': f'Bearer {gauge_api_key}'}
-            # Disable SSL verification for GAUGE API connection issues
-            response = requests.get(f'{gauge_api_url}/assets', headers=headers, verify=False)
+            # Use the exact URL structure from logs and disable SSL verification
+            response = requests.get(gauge_api_url, headers=headers, verify=False, timeout=10)
             
             if response.status_code == 200:
                 assets_data = response.json()

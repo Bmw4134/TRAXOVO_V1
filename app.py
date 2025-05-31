@@ -9,6 +9,7 @@ from flask import Flask, render_template, request, redirect, session, jsonify, u
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
+from werkzeug.utils import secure_filename
 import logging
 
 # Simplified infrastructure for deployment
@@ -359,7 +360,9 @@ def fleet_map():
                          assets=assets_data,
                          total_assets=metrics.get('total_assets', 0),
                          active_assets=metrics.get('active_assets', 0),
-                         gps_enabled_count=metrics.get('gps_enabled', 0))
+                         gps_enabled_count=metrics.get('gps_enabled', 0),
+                         geofences=[],  # Add empty geofences for now
+                         user=session.get('user', {}))
 
 @app.route('/attendance-matrix')
 @app.route('/driver-attendance')
@@ -1038,6 +1041,80 @@ def api_deployment_bundle():
             'success': False,
             'error': str(e)
         }), 500
+
+# Equipment Billing Module
+@app.route('/equipment-billing')
+def equipment_billing():
+    """Equipment billing dashboard"""
+    auth_check = require_auth()
+    if auth_check:
+        return auth_check
+    
+    return render_template('equipment_billing.html', 
+                         user=session.get('user', {}))
+
+@app.route('/api/billing/upload', methods=['POST'])
+def api_billing_upload():
+    """Upload and process GAUGE equipment reports"""
+    auth_check = require_auth()
+    if auth_check:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        # Ensure upload directory exists
+        upload_dir = 'uploads/billing'
+        os.makedirs(upload_dir, exist_ok=True)
+        
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file uploaded'}), 400
+        
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'error': 'No file selected'}), 400
+        
+        # Save uploaded file
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(upload_dir, filename)
+        file.save(file_path)
+        
+        # Process with billing processor
+        from equipment_billing_processor import EquipmentBillingProcessor
+        processor = EquipmentBillingProcessor()
+        result = processor.process_gauge_upload(file_path)
+        
+        # Generate reports
+        if result['status'] == 'success':
+            report_text = processor.generate_billing_report(result['billing_summary'])
+            
+            # Save Excel report
+            excel_path = os.path.join(upload_dir, f"billing_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx")
+            processor.export_billing_excel(result['billing_summary'], excel_path)
+            
+            result['report_text'] = report_text
+            result['excel_report'] = excel_path
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        logging.error(f"Billing upload error: {e}")
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 500
+
+@app.route('/api/billing/rates')
+def api_billing_rates():
+    """Get current billing rates"""
+    auth_check = require_auth()
+    if auth_check:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        from equipment_billing_processor import EquipmentBillingProcessor
+        processor = EquipmentBillingProcessor()
+        return jsonify(processor.billing_rates)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     import socket

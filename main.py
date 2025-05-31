@@ -216,6 +216,31 @@ try:
                              presentation_date=datetime.now().strftime('%B %d, %Y'),
                              page_title="Executive ROI Presentation")
     
+    # FIX BROKEN ROUTES - Consolidate all missing endpoints
+    @app.route('/asset-map/')
+    @app.route('/asset-map')
+    def asset_map_fixed():
+        """Fixed asset map route"""
+        return redirect('/fleet-map')
+    
+    @app.route('/enhanced-weekly-report/')
+    @app.route('/enhanced-weekly-report')
+    def enhanced_weekly_report_fixed():
+        """Fixed weekly report route"""
+        return redirect('/weekly-driver-report')
+    
+    @app.route('/working-reports/')
+    @app.route('/working-reports')
+    def working_reports_fixed():
+        """Fixed working reports route"""
+        return redirect('/daily-driver-report')
+    
+    @app.route('/master-attendance/')
+    @app.route('/master-attendance')
+    def master_attendance_fixed():
+        """Fixed master attendance route"""
+        return redirect('/attendance-complete')
+    
     # Register comprehensive attendance engine
     from routes.comprehensive_attendance_engine import comprehensive_attendance
     app.register_blueprint(comprehensive_attendance)

@@ -334,6 +334,20 @@
                 </div>
                 <a href="/asset-manager" class="card-action">Manage Assets</a>
             </div>
+
+            <!-- Watson Dev Log (Admin Only) -->
+            {% if show_dev_log %}
+            <div class="dashboard-card" style="border: 2px solid #007AFF;">
+                <div class="card-header">
+                    <div class="card-icon">📊</div>
+                    <div class="card-title">Development Log</div>
+                </div>
+                <div class="card-description">
+                    Track development KPIs, module performance metrics, deployment logs, and system health monitoring with real-time analytics.
+                </div>
+                <a href="/dev-log" class="card-action">View Dev Metrics</a>
+            </div>
+            {% endif %}
         </div>
     </div>
 </body>

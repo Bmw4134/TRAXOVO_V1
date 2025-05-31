@@ -253,13 +253,7 @@ def get_category_logs(category):
 # Auto-log system events
 def log_system_event(category, title, description, severity="info"):
     """Auto-log system events"""
-    dev_tracker.add_log_entry(category, title, description, severity)
-
-# Log current session
-if __name__ != '__main__':
-    log_system_event(
-        "system_health", 
-        "Dev Log Tracker Initialized", 
-        "Development logging system activated for Watson account",
-        "info"
-    )
+    try:
+        dev_tracker.add_log_entry(category, title, description, severity)
+    except:
+        pass  # Silently fail if no request context

@@ -29,21 +29,29 @@ def check_authentication():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    """Simple login page"""
+    """Simple login page with role-based access"""
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
         
-        # Validate credentials
-        if (username == 'tester' and password == 'tester') or (username == 'watson' and password == 'watson'):
+        # Validate credentials and set roles
+        if username == 'tester' and password == 'tester':
             session['authenticated'] = True
             session['username'] = username
+            session['role'] = 'viewer'
             session.permanent = True
-            logger.info(f"User {username} logged in successfully")
+            logger.info(f"User {username} logged in successfully as viewer")
+            return redirect(url_for('dashboard'))
+        elif username == 'watson' and password == 'watson':
+            session['authenticated'] = True
+            session['username'] = username
+            session['role'] = 'admin'
+            session.permanent = True
+            logger.info(f"User {username} logged in successfully as admin")
             return redirect(url_for('dashboard'))
         else:
             logger.warning(f"Failed login attempt for username: {username}")
-            return render_template('login.html', error="Invalid credentials. Use tester/tester or watson/watson")
+            return render_template('login.html', error="Invalid credentials")
     
     return render_template('login.html')
 
@@ -56,8 +64,17 @@ def logout():
 @app.route('/')
 @app.route('/dashboard')
 def dashboard():
-    """Main dashboard"""
-    return render_template('dashboard.html', username=session.get('username'))
+    """Main dashboard with role-based module access"""
+    user_role = session.get('role', 'viewer')
+    username = session.get('username')
+    
+    # Watson gets access to dev log
+    show_dev_log = (username == 'watson')
+    
+    return render_template('dashboard.html', 
+                         username=username,
+                         user_role=user_role,
+                         show_dev_log=show_dev_log)
 
 @app.route('/fleet-map')
 @app.route('/map')
@@ -77,6 +94,10 @@ def fleet_map():
     except Exception as e:
         logger.error(f"Fleet map error: {e}")
         return f"Fleet map error: {e}", 500
+
+# Register dev log blueprint for Watson
+from dev_log_tracker import dev_log_bp
+app.register_blueprint(dev_log_bp)
 
 # Fleet API endpoints
 @app.route('/api/fleet/assets')

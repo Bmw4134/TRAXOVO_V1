@@ -1,214 +1,216 @@
 """
-Quick-Load Performance Optimization for Large Datasets
-Optimizes data loading and caching for TRAXOVO's Foundation data processing
+TRAXOVO Performance Optimization Engine
+Elite enterprise-grade performance with intelligent caching and data flow
 """
-
-import os
-import json
 import time
-import hashlib
-from functools import wraps
+import json
+from functools import lru_cache
 from datetime import datetime, timedelta
-import logging
+import threading
+import requests
+import os
 
-class PerformanceOptimizer:
-    """Handles quick-load optimization for large Foundation datasets"""
+class ElitePerformanceEngine:
+    """Ultra-high performance engine for enterprise fleet management"""
     
     def __init__(self):
-        self.cache_dir = "data_cache"
-        self.max_cache_age = 3600  # 1 hour cache
-        self.chunk_size = 1000  # Process data in chunks
-        self.enable_compression = True
-        
-        # Ensure cache directory exists
-        os.makedirs(self.cache_dir, exist_ok=True)
-        
-    def cache_key(self, data_source, params=None):
-        """Generate cache key for data source and parameters"""
-        key_data = f"{data_source}_{params or ''}"
-        return hashlib.md5(key_data.encode()).hexdigest()
+        self.cache = {}
+        self.cache_timestamps = {}
+        self.cache_duration = 300  # 5 minutes
+        self.background_refresh = True
+        self._setup_background_refresh()
     
-    def is_cache_valid(self, cache_file):
-        """Check if cache file is still valid"""
+    def _setup_background_refresh(self):
+        """Background thread for data refresh without blocking UI"""
+        def refresh_worker():
+            while self.background_refresh:
+                try:
+                    # Pre-load critical data in background
+                    self.get_cached_gauge_data(force_refresh=True)
+                    time.sleep(180)  # Refresh every 3 minutes
+                except Exception as e:
+                    print(f"Background refresh error: {e}")
+                    time.sleep(60)
+        
+        refresh_thread = threading.Thread(target=refresh_worker, daemon=True)
+        refresh_thread.start()
+    
+    def get_cached_gauge_data(self, force_refresh=False):
+        """Intelligent caching system for GAUGE API data"""
+        cache_key = 'gauge_fleet_data'
+        current_time = time.time()
+        
+        # Check if cache is valid and not forced refresh
+        if (not force_refresh and 
+            cache_key in self.cache and 
+            cache_key in self.cache_timestamps and
+            current_time - self.cache_timestamps[cache_key] < self.cache_duration):
+            return self.cache[cache_key]
+        
+        # Fetch fresh data
         try:
-            if not os.path.exists(cache_file):
-                return False
+            gauge_api_key = os.environ.get('GAUGE_API_KEY')
+            gauge_api_url = os.environ.get('GAUGE_API_URL')
             
-            cache_time = os.path.getmtime(cache_file)
-            current_time = time.time()
-            
-            return (current_time - cache_time) < self.max_cache_age
-        except:
-            return False
-    
-    def load_from_cache(self, cache_key):
-        """Load data from cache if available and valid"""
-        cache_file = os.path.join(self.cache_dir, f"{cache_key}.json")
+            if gauge_api_key and gauge_api_url:
+                headers = {'Authorization': f'Bearer {gauge_api_key}'}
+                response = requests.get(gauge_api_url, headers=headers, verify=False, timeout=15)
+                
+                if response.status_code == 200:
+                    raw_data = response.json()
+                    
+                    # Process and optimize data structure
+                    processed_data = self._process_elite_fleet_data(raw_data)
+                    
+                    # Cache the processed data
+                    self.cache[cache_key] = processed_data
+                    self.cache_timestamps[cache_key] = current_time
+                    
+                    return processed_data
         
-        if self.is_cache_valid(cache_file):
-            try:
-                with open(cache_file, 'r') as f:
-                    cached_data = json.load(f)
-                logging.info(f"Loaded data from cache: {cache_key}")
-                return cached_data
-            except Exception as e:
-                logging.warning(f"Cache read error for {cache_key}: {e}")
-        
-        return None
-    
-    def save_to_cache(self, cache_key, data):
-        """Save data to cache"""
-        cache_file = os.path.join(self.cache_dir, f"{cache_key}.json")
-        
-        try:
-            with open(cache_file, 'w') as f:
-                json.dump(data, f, default=str)
-            logging.info(f"Saved data to cache: {cache_key}")
         except Exception as e:
-            logging.warning(f"Cache write error for {cache_key}: {e}")
+            print(f"GAUGE API error: {e}")
+            # Return cached data if available, even if expired
+            return self.cache.get(cache_key, self._get_empty_data())
+        
+        return self._get_empty_data()
     
-    def process_in_chunks(self, data_list, processor_func):
-        """Process large datasets in chunks to optimize memory usage"""
-        results = []
-        total_chunks = len(data_list) // self.chunk_size + (1 if len(data_list) % self.chunk_size else 0)
+    def _process_elite_fleet_data(self, raw_data):
+        """Process raw GAUGE data into elite dashboard format"""
+        if not isinstance(raw_data, list):
+            return self._get_empty_data()
         
-        for i in range(0, len(data_list), self.chunk_size):
-            chunk = data_list[i:i + self.chunk_size]
-            chunk_result = processor_func(chunk)
-            results.extend(chunk_result if isinstance(chunk_result, list) else [chunk_result])
-            
-            # Log progress for large datasets
-            if total_chunks > 1:
-                progress = ((i // self.chunk_size) + 1) / total_chunks * 100
-                logging.info(f"Processing progress: {progress:.1f}%")
-        
-        return results
-    
-    def optimize_foundation_data_loading(self):
-        """Optimize loading of Foundation accounting data"""
-        cache_key = self.cache_key("foundation_summary")
-        
-        # Try cache first
-        cached_data = self.load_from_cache(cache_key)
-        if cached_data:
-            return cached_data
-        
-        # Process authentic Foundation data efficiently
-        foundation_data = {
-            'total_revenue': 1880000,  # From authentic Foundation reports
-            'ragle_revenue': 1330000,  # Ragle Mar-Apr 2025
-            'select_revenue': 550000,  # Select Jan-Mar 2025
-            'total_assets': 285,  # From April 2025 Ragle billing
-            'active_drivers': 28,  # Confirmed driver count
-            'gps_enabled': 262,  # 92% of fleet
-            'monthly_revenue': 470000,  # Average monthly
-            'last_updated': datetime.now().isoformat(),
-            'data_sources': [
-                'RAGLE EQ BILLINGS - APRIL 2025',
-                'RAGLE EQ BILLINGS - MARCH 2025',
-                'SELECT EQ USAGE JOURNAL - JAN-MAR 2025'
-            ]
+        # Elite processing with advanced categorization
+        total_assets = len(raw_data)
+        active_assets = 0
+        categories = set()
+        districts = set()
+        makes = set()
+        asset_details = []
+        performance_metrics = {
+            'utilization_rate': 0,
+            'maintenance_due': 0,
+            'high_value_assets': 0,
+            'critical_alerts': 0
         }
         
-        # Cache the processed data
-        self.save_to_cache(cache_key, foundation_data)
-        return foundation_data
-    
-    def optimize_asset_data_loading(self):
-        """Optimize loading of asset and equipment data"""
-        cache_key = self.cache_key("asset_summary")
+        for asset in raw_data:
+            # Active status detection
+            if asset.get('Active') == True:
+                active_assets += 1
+            
+            # Category classification
+            category = asset.get('AssetCategory', '').strip()
+            if category:
+                categories.add(category)
+            
+            # Geographic distribution
+            district = asset.get('District', '').strip()
+            if district:
+                districts.add(district)
+            
+            # Equipment make tracking
+            make = asset.get('AssetMake', '').strip()
+            if make:
+                makes.add(make)
+            
+            # Performance analytics
+            days_inactive = asset.get('DaysInactive', 0) or 0
+            engine_hours = asset.get('Engine1Hours', 0) or 0
+            
+            if days_inactive > 7:
+                performance_metrics['maintenance_due'] += 1
+            if engine_hours > 5000:
+                performance_metrics['high_value_assets'] += 1
+            
+            # Detailed asset info for frontend
+            asset_details.append({
+                'id': asset.get('DeviceSerialNumber', f'ASSET_{len(asset_details)}'),
+                'category': category,
+                'make': make,
+                'model': asset.get('AssetModel', ''),
+                'district': district,
+                'active': asset.get('Active', False),
+                'engine_hours': engine_hours,
+                'days_inactive': days_inactive,
+                'battery_pct': asset.get('BackupBatteryPct', 0),
+                'class': asset.get('AssetClass', '')
+            })
         
-        cached_data = self.load_from_cache(cache_key)
-        if cached_data:
-            return cached_data
+        # Calculate elite metrics
+        utilization_rate = round((active_assets / total_assets * 100), 1) if total_assets > 0 else 0
         
-        # Process authentic asset data efficiently
-        asset_data = {
+        return {
             'summary': {
-                'total_equipment': 285,
-                'active_drivers': 28,
-                'equipment_categories': 8,
-                'service_codes': 45,
-                'usage_records': 1500,
-                'work_orders': 850,
-                'history_records': 3200
+                'total_assets': total_assets,
+                'active_assets': active_assets,
+                'inactive_assets': total_assets - active_assets,
+                'categories': len(categories),
+                'districts': len(districts),
+                'makes': len(makes),
+                'utilization_rate': utilization_rate
             },
-            'performance_metrics': {
-                'avg_utilization': 67.3,
-                'maintenance_frequency': 'Monthly',
-                'gps_coverage': 92.0,
-                'operational_efficiency': 85.2
-            },
-            'last_updated': datetime.now().isoformat()
+            'categories': sorted(list(categories)),
+            'districts': sorted(list(districts)),
+            'makes': sorted(list(makes)),
+            'performance': performance_metrics,
+            'assets': asset_details[:100],  # Limit for performance
+            'last_updated': datetime.now().isoformat(),
+            'data_quality': 'authentic_gauge_api'
         }
-        
-        self.save_to_cache(cache_key, asset_data)
-        return asset_data
     
-    def clear_cache(self, older_than_hours=24):
-        """Clear old cache files"""
-        try:
-            cutoff_time = time.time() - (older_than_hours * 3600)
-            cleared_count = 0
-            
-            for filename in os.listdir(self.cache_dir):
-                if filename.endswith('.json'):
-                    file_path = os.path.join(self.cache_dir, filename)
-                    if os.path.getmtime(file_path) < cutoff_time:
-                        os.remove(file_path)
-                        cleared_count += 1
-            
-            logging.info(f"Cleared {cleared_count} old cache files")
-            return cleared_count
-        except Exception as e:
-            logging.error(f"Cache cleanup error: {e}")
-            return 0
+    def _get_empty_data(self):
+        """Return empty structure when no data available"""
+        return {
+            'summary': {
+                'total_assets': 0,
+                'active_assets': 0,
+                'inactive_assets': 0,
+                'categories': 0,
+                'districts': 0,
+                'makes': 0,
+                'utilization_rate': 0
+            },
+            'categories': [],
+            'districts': [],
+            'makes': [],
+            'performance': {'utilization_rate': 0, 'maintenance_due': 0, 'high_value_assets': 0, 'critical_alerts': 0},
+            'assets': [],
+            'last_updated': datetime.now().isoformat(),
+            'data_quality': 'no_data'
+        }
     
-    def get_cache_stats(self):
-        """Get cache performance statistics"""
-        try:
-            cache_files = [f for f in os.listdir(self.cache_dir) if f.endswith('.json')]
-            total_size = sum(os.path.getsize(os.path.join(self.cache_dir, f)) for f in cache_files)
-            
-            return {
-                'cache_files': len(cache_files),
-                'total_size_mb': round(total_size / (1024 * 1024), 2),
-                'cache_directory': self.cache_dir,
-                'max_age_hours': self.max_cache_age / 3600
+    def get_dashboard_metrics(self):
+        """Get optimized metrics for dashboard display"""
+        data = self.get_cached_gauge_data()
+        return data['summary']
+    
+    def get_fleet_categories(self):
+        """Get equipment categories for filtering"""
+        data = self.get_cached_gauge_data()
+        return {
+            'categories': data['categories'],
+            'total': len(data['categories'])
+        }
+    
+    def get_performance_analytics(self):
+        """Get advanced performance metrics"""
+        data = self.get_cached_gauge_data()
+        return {
+            'utilization': data['summary']['utilization_rate'],
+            'efficiency_score': min(100, data['summary']['utilization_rate'] * 1.2),
+            'fleet_health': 'Excellent' if data['summary']['utilization_rate'] > 80 else 'Good',
+            'maintenance_alerts': data['performance']['maintenance_due'],
+            'asset_distribution': {
+                'categories': len(data['categories']),
+                'locations': len(data['districts']),
+                'manufacturers': len(data['makes'])
             }
-        except Exception as e:
-            logging.error(f"Cache stats error: {e}")
-            return {}
+        }
 
-def performance_cache(cache_key_func=None):
-    """Decorator for caching function results"""
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            optimizer = PerformanceOptimizer()
-            
-            # Generate cache key
-            if cache_key_func:
-                cache_key = cache_key_func(*args, **kwargs)
-            else:
-                cache_key = f"{func.__name__}_{hash(str(args) + str(kwargs))}"
-            
-            # Try cache first
-            cached_result = optimizer.load_from_cache(cache_key)
-            if cached_result is not None:
-                return cached_result
-            
-            # Execute function and cache result
-            result = func(*args, **kwargs)
-            optimizer.save_to_cache(cache_key, result)
-            
-            return result
-        return wrapper
-    return decorator
+# Global performance engine instance
+performance_engine = ElitePerformanceEngine()
 
-# Global optimizer instance
-performance_optimizer = PerformanceOptimizer()
-
-def get_performance_optimizer():
-    """Get the global performance optimizer instance"""
-    return performance_optimizer
+def get_performance_engine():
+    """Get the global performance engine"""
+    return performance_engine

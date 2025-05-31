@@ -660,40 +660,71 @@ def data_upload():
 @app.route('/api/fleet-assets')
 @app.route('/api/fleet/assets')
 def api_fleet_assets():
-    """API for authentic GAUGE assets"""
+    """API for authentic GAUGE assets with elite performance"""
     auth_check = require_auth()
     if auth_check:
         return jsonify({'error': 'Authentication required'}), 401
     
-    # Get authentic metrics from GAUGE API
-    metrics = get_authentic_metrics()
-    
-    # Return authentic GAUGE data structure
-    return jsonify({
-        'total_assets': metrics.get('total_assets', 0),
-        'active_assets': metrics.get('active_assets', 0),
-        'categories': metrics.get('categories', 0),
-        'last_sync': datetime.now().isoformat()
-    })
+    try:
+        from performance_optimizer import get_performance_engine
+        engine = get_performance_engine()
+        fleet_data = engine.get_cached_gauge_data()
+        
+        return jsonify({
+            'success': True,
+            'total_assets': fleet_data['summary']['total_assets'],
+            'active_assets': fleet_data['summary']['active_assets'],
+            'inactive_assets': fleet_data['summary']['inactive_assets'],
+            'categories': fleet_data['summary']['categories'],
+            'utilization_rate': fleet_data['summary']['utilization_rate'],
+            'districts': fleet_data['summary']['districts'],
+            'makes': fleet_data['summary']['makes'],
+            'assets': fleet_data['assets'],
+            'last_sync': fleet_data['last_updated'],
+            'data_quality': fleet_data['data_quality']
+        })
+    except Exception as e:
+        print(f"Elite fleet API error: {e}")
+        # Fallback to original method if performance engine fails
+        metrics = get_authentic_metrics()
+        return jsonify({
+            'success': False,
+            'total_assets': metrics.get('total_assets', 0),
+            'active_assets': metrics.get('active_assets', 0),
+            'categories': metrics.get('categories', 0),
+            'last_sync': datetime.now().isoformat()
+        })
 
 @app.route('/api/fleet/categories')
 def api_fleet_categories():
-    """API for authentic equipment categories"""
+    """API for authentic equipment categories with elite performance"""
     auth_check = require_auth()
     if auth_check:
         return jsonify({'error': 'Authentication required'}), 401
     
-    categories = [
-        'Excavators', 'Bulldozers', 'Loaders', 'Dump Trucks', 'Graders',
-        'Compactors', 'Scrapers', 'Cranes', 'Forklifts', 'Skid Steers',
-        'Backhoes', 'Trenchers', 'Pavers', 'Rollers', 'Generators'
-    ]
-    
-    return jsonify({
-        'categories': categories,
-        'total_count': len(categories),
-        'source': 'GAUGE API'
-    })
+    try:
+        from performance_optimizer import get_performance_engine
+        engine = get_performance_engine()
+        categories_data = engine.get_fleet_categories()
+        fleet_data = engine.get_cached_gauge_data()
+        
+        return jsonify({
+            'success': True,
+            'categories': categories_data['categories'],
+            'total_count': categories_data['total'],
+            'districts': fleet_data['districts'],
+            'makes': fleet_data['makes'],
+            'last_sync': fleet_data['last_updated'],
+            'data_quality': fleet_data['data_quality']
+        })
+    except Exception as e:
+        print(f"Elite categories API error: {e}")
+        return jsonify({
+            'success': False,
+            'categories': [],
+            'total_count': 0,
+            'error': str(e)
+        })
 
 @app.route('/api/fleet/search')
 def api_fleet_search():

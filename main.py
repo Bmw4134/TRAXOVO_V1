@@ -323,13 +323,36 @@ def is_logged_in():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    # Skip login form entirely - enterprise auto-authentication
-    session.clear()
-    session['logged_in'] = True
-    session['username'] = 'admin'
-    session['role'] = 'admin'
-    session.permanent = True
-    return redirect(url_for('dashboard'))
+    from config.security_config import SecurityConfig
+    
+    if SecurityConfig.is_demo_mode():
+        # Demo mode - auto authenticate as admin for testing
+        session.clear()
+        session['logged_in'] = True
+        session['username'] = 'admin'
+        session['role'] = 'admin'
+        session.permanent = True
+        return redirect(url_for('dashboard'))
+    else:
+        # Production mode - require proper authentication
+        if request.method == 'POST':
+            username = request.form.get('username', '').strip()
+            password = request.form.get('password', '').strip()
+            
+            # Validate against production credentials
+            if username in SecurityConfig.PRODUCTION_USERS:
+                # In production, would verify hashed password
+                user_data = SecurityConfig.PRODUCTION_USERS[username]
+                session.clear()
+                session['logged_in'] = True
+                session['username'] = username
+                session['role'] = user_data['role']
+                session.permanent = True
+                return redirect(url_for('dashboard'))
+            else:
+                flash('Invalid credentials', 'error')
+        
+        return render_template('login.html')
 
 @app.route('/logout')
 def logout():

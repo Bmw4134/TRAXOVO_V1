@@ -140,7 +140,7 @@ class ElitePerformanceEngine:
                 'id': asset.get('DeviceSerialNumber', f'ASSET_{len(asset_details)}'),
                 'category': category,
                 'make': make,
-                'model': asset.get('AssetModel', ''),
+                'model': str(asset.get('AssetModel', '') or ''),
                 'district': district,
                 'active': asset.get('Active', False),
                 'engine_hours': engine_hours,

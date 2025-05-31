@@ -63,6 +63,8 @@ try:
     from routes.consolidated_modules import consolidated_bp
     from routes.user_management import user_mgmt_bp
     from routes.accurate_asset_counter import accurate_assets_bp
+    from routes.automation_controller import automation_bp
+    from routes.data_validation_controller import validation_bp
     
     app.register_blueprint(cost_simulator_bp)
     app.register_blueprint(foundation_bp)
@@ -75,6 +77,8 @@ try:
     app.register_blueprint(consolidated_bp)
     app.register_blueprint(user_mgmt_bp)
     app.register_blueprint(accurate_assets_bp)
+    app.register_blueprint(automation_bp)
+    app.register_blueprint(validation_bp)
     
     # Unified routes disabled temporarily to fix navigation conflicts
     # from routes.unified_routes import unified_routes_bp

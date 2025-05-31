@@ -53,6 +53,111 @@
             letter-spacing: 0.5px;
         }
 
+        /* Executive KPI Banner */
+        .executive-kpi-banner {
+            background: linear-gradient(135deg, rgba(0, 122, 255, 0.1) 0%, rgba(90, 200, 250, 0.05) 100%);
+            border: 1px solid rgba(0, 122, 255, 0.2);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .kpi-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .kpi-icon {
+            font-size: 24px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+
+        .kpi-content {
+            flex: 1;
+        }
+
+        .kpi-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .kpi-trend {
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .kpi-trend.positive {
+            color: #30D158;
+        }
+
+        .kpi-trend.negative {
+            color: #FF453A;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .executive-kpi-banner {
+                margin: 10px;
+                padding: 16px;
+            }
+
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .kpi-card {
+                padding: 12px;
+                gap: 8px;
+            }
+
+            .kpi-value {
+                font-size: 20px;
+            }
+
+            .kpi-icon {
+                font-size: 20px;
+                width: 32px;
+                height: 32px;
+            }
+        }
+
         .header {
             background: rgba(28, 28, 30, 0.95);
             backdrop-filter: blur(20px);
@@ -550,6 +655,44 @@
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
     <div class="main-content">
+        <!-- Executive KPI Banner -->
+        <div class="executive-kpi-banner">
+            <div class="kpi-grid">
+                <div class="kpi-card revenue-kpi">
+                    <div class="kpi-icon">💰</div>
+                    <div class="kpi-content">
+                        <div class="kpi-value">$2.1M</div>
+                        <div class="kpi-label">YTD Revenue</div>
+                        <div class="kpi-trend positive">+8.2% vs Last Year</div>
+                    </div>
+                </div>
+                <div class="kpi-card efficiency-kpi">
+                    <div class="kpi-icon">⚡</div>
+                    <div class="kpi-content">
+                        <div class="kpi-value">94.2%</div>
+                        <div class="kpi-label">Fleet Efficiency</div>
+                        <div class="kpi-trend positive">+2.1% This Month</div>
+                    </div>
+                </div>
+                <div class="kpi-card utilization-kpi">
+                    <div class="kpi-icon">🚛</div>
+                    <div class="kpi-content">
+                        <div class="kpi-value">687/701</div>
+                        <div class="kpi-label">Assets Active</div>
+                        <div class="kpi-trend positive">98% Utilization</div>
+                    </div>
+                </div>
+                <div class="kpi-card margin-kpi">
+                    <div class="kpi-icon">📊</div>
+                    <div class="kpi-content">
+                        <div class="kpi-value">34.7%</div>
+                        <div class="kpi-label">Profit Margin</div>
+                        <div class="kpi-trend positive">+1.8% vs Target</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="welcome">
             <h1>Fleet Intelligence Dashboard</h1>
             <p>Manage your equipment fleet with real-time tracking and analytics</p>

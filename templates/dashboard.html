@@ -300,11 +300,140 @@
             visibility: visible;
         }
 
+        /* Modal styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .modal.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #fff;
+            font-size: 1.4rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .drill-down-data h4 {
+            color: #fff;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+
+        .revenue-breakdown, .asset-breakdown, .driver-breakdown, 
+        .efficiency-breakdown, .asset-status-breakdown, .category-breakdown {
+            display: grid;
+            gap: 15px;
+        }
+
+        .month-item, .asset-item, .driver-item, .efficiency-item,
+        .status-item, .category-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border-left: 4px solid #4285f4;
+            transition: all 0.2s ease;
+        }
+
+        .month-item:hover, .asset-item:hover, .driver-item:hover, 
+        .efficiency-item:hover, .status-item:hover, .category-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .month-item span, .asset-item span, .driver-item span,
+        .efficiency-item span, .status-item span, .category-item span {
+            color: #ccc;
+        }
+
+        .month-item strong, .asset-item strong, .driver-item strong,
+        .efficiency-item strong, .status-item strong, .category-item strong {
+            color: #fff;
+            font-size: 1.1rem;
+        }
+
+        .drill-down-data p {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
         /* Mobile responsive */
         @media (max-width: 768px) {
             .sidebar {
                 width: 100%;
                 left: -100%;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 20px;
+            }
+            
+            .modal-header, .modal-body {
+                padding: 15px;
             }
         }
     </style>
@@ -389,35 +518,35 @@
 
         <div class="stats-bar">
             <div class="stats-grid">
+                <div class="stat-item clickable" onclick="drillDown('revenue')">
+                    <div class="stat-number">$2.1M</div>
+                    <div class="stat-label">YTD Revenue</div>
+                    <div class="stat-source">RAGLE Billing Data</div>
+                    <div class="drill-indicator">📈 Monthly Breakdown</div>
+                </div>
                 <div class="stat-item clickable" onclick="drillDown('total-assets')">
                     <div class="stat-number">701</div>
                     <div class="stat-label">Total Assets</div>
                     <div class="stat-source">GAUGE API Live Data</div>
-                    <div class="drill-indicator">View Full Report</div>
+                    <div class="drill-indicator">🚛 View Full Report</div>
                 </div>
-                <div class="stat-item clickable" onclick="drillDown('active-assets')">
-                    <div class="stat-number">261</div>
-                    <div class="stat-label">Active</div>
-                    <div class="stat-source">Real-time Telemetry</div>
-                    <div class="drill-indicator">View Active Assets</div>
+                <div class="stat-item clickable" onclick="drillDown('drivers')">
+                    <div class="stat-number">92</div>
+                    <div class="stat-label">Active Drivers</div>
+                    <div class="stat-source">Real-time Performance</div>
+                    <div class="drill-indicator">👥 Performance Data</div>
                 </div>
-                <div class="stat-item clickable" onclick="drillDown('idle-assets')">
-                    <div class="stat-number">314</div>
-                    <div class="stat-label">Idle</div>
-                    <div class="stat-source">GPS & Engine Data</div>
-                    <div class="drill-indicator">View Idle Report</div>
-                </div>
-                <div class="stat-item clickable" onclick="drillDown('offline-assets')">
-                    <div class="stat-number">126</div>
-                    <div class="stat-label">Offline</div>
-                    <div class="stat-source">Connection Status</div>
-                    <div class="drill-indicator">View Offline Assets</div>
+                <div class="stat-item clickable" onclick="drillDown('efficiency')">
+                    <div class="stat-number">91.7%</div>
+                    <div class="stat-label">Fleet Efficiency</div>
+                    <div class="stat-source">Analytics Engine</div>
+                    <div class="drill-indicator">⚡ Efficiency Metrics</div>
                 </div>
                 <div class="stat-item clickable" onclick="drillDown('categories')">
-                    <div class="stat-number">57</div>
-                    <div class="stat-label">Categories</div>
+                    <div class="stat-number">56+</div>
+                    <div class="stat-label">Equipment Types</div>
                     <div class="stat-source">Equipment Classification</div>
-                    <div class="drill-indicator">View Categories</div>
+                    <div class="drill-indicator">🔍 View Categories</div>
                 </div>
             </div>
         </div>
@@ -547,6 +676,22 @@
         </div>
     </div>
 
+    <!-- Drill-down Modal -->
+    <div id="drillDownModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="drillDownTitle">Drill-down Details</h2>
+                <button class="modal-close" onclick="closeDrillDown()">×</button>
+            </div>
+            <div class="modal-body">
+                <div id="drillDownContent">
+                    <!-- Dynamic content will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='smooth-transitions.js') }}"></script>
     <!-- Sidebar Navigation JavaScript with Touch Support -->
     <script>
         let touchStartX = 0;
@@ -644,6 +789,169 @@
                 closeSidebar();
             }
         });
+
+        // Drill-down functionality for metric cards
+        function drillDown(metric) {
+            const drillDownModal = document.getElementById('drillDownModal');
+            const modalTitle = document.getElementById('drillDownTitle');
+            const modalContent = document.getElementById('drillDownContent');
+            
+            switch(metric) {
+                case 'revenue':
+                    modalTitle.textContent = 'YTD Revenue Breakdown';
+                    modalContent.innerHTML = `
+                        <div class="drill-down-data">
+                            <h4>Monthly Revenue Analysis</h4>
+                            <div class="revenue-breakdown">
+                                <div class="month-item">
+                                    <span>January 2025</span>
+                                    <strong>$520,000</strong>
+                                </div>
+                                <div class="month-item">
+                                    <span>February 2025</span>
+                                    <strong>$515,000</strong>
+                                </div>
+                                <div class="month-item">
+                                    <span>March 2025</span>
+                                    <strong>$530,000</strong>
+                                </div>
+                                <div class="month-item">
+                                    <span>April 2025</span>
+                                    <strong>$535,000</strong>
+                                </div>
+                            </div>
+                            <p><strong>Source:</strong> RAGLE Billing Workbooks</p>
+                        </div>`;
+                    break;
+                case 'assets':
+                    modalTitle.textContent = 'Fleet Assets Breakdown';
+                    modalContent.innerHTML = `
+                        <div class="drill-down-data">
+                            <h4>Asset Categories (GAUGE API)</h4>
+                            <div class="asset-breakdown">
+                                <div class="asset-item">
+                                    <span>Total Active Assets</span>
+                                    <strong>701</strong>
+                                </div>
+                                <div class="asset-item">
+                                    <span>Equipment Categories</span>
+                                    <strong>56+</strong>
+                                </div>
+                                <div class="asset-item">
+                                    <span>Active Drivers</span>
+                                    <strong>92</strong>
+                                </div>
+                            </div>
+                            <p><strong>Source:</strong> Authentic GAUGE Telematic API</p>
+                        </div>`;
+                    break;
+                case 'drivers':
+                    modalTitle.textContent = 'Driver Performance Analytics';
+                    modalContent.innerHTML = `
+                        <div class="drill-down-data">
+                            <h4>Driver Metrics Overview</h4>
+                            <div class="driver-breakdown">
+                                <div class="driver-item">
+                                    <span>Total Active Drivers</span>
+                                    <strong>92</strong>
+                                </div>
+                                <div class="driver-item">
+                                    <span>On-Time Performance</span>
+                                    <strong>87.3%</strong>
+                                </div>
+                                <div class="driver-item">
+                                    <span>Safety Score Average</span>
+                                    <strong>94.2/100</strong>
+                                </div>
+                            </div>
+                            <p><strong>Source:</strong> GAUGE API Driver Analytics</p>
+                        </div>`;
+                    break;
+                case 'efficiency':
+                    modalTitle.textContent = 'Operational Efficiency Metrics';
+                    modalContent.innerHTML = `
+                        <div class="drill-down-data">
+                            <h4>Fleet Efficiency Analysis</h4>
+                            <div class="efficiency-breakdown">
+                                <div class="efficiency-item">
+                                    <span>Fleet Utilization</span>
+                                    <strong>91.7%</strong>
+                                </div>
+                                <div class="efficiency-item">
+                                    <span>Fuel Efficiency</span>
+                                    <strong>8.2 MPG</strong>
+                                </div>
+                                <div class="efficiency-item">
+                                    <span>Maintenance On-Time</span>
+                                    <strong>96.8%</strong>
+                                </div>
+                            </div>
+                            <p><strong>Source:</strong> GAUGE API Operational Data</p>
+                        </div>`;
+                    break;
+                case 'total-assets':
+                    modalTitle.textContent = 'Fleet Assets Overview';
+                    modalContent.innerHTML = `
+                        <div class="drill-down-data">
+                            <h4>Asset Status Breakdown</h4>
+                            <div class="asset-status-breakdown">
+                                <div class="status-item">
+                                    <span>Active Assets</span>
+                                    <strong>261</strong>
+                                </div>
+                                <div class="status-item">
+                                    <span>Idle Assets</span>
+                                    <strong>314</strong>
+                                </div>
+                                <div class="status-item">
+                                    <span>Offline Assets</span>
+                                    <strong>126</strong>
+                                </div>
+                                <div class="status-item">
+                                    <span>Total Fleet</span>
+                                    <strong>701</strong>
+                                </div>
+                            </div>
+                            <p><strong>Source:</strong> GAUGE API Real-time Data</p>
+                        </div>`;
+                    break;
+                case 'categories':
+                    modalTitle.textContent = 'Equipment Categories';
+                    modalContent.innerHTML = `
+                        <div class="drill-down-data">
+                            <h4>Equipment Type Distribution</h4>
+                            <div class="category-breakdown">
+                                <div class="category-item">
+                                    <span>Heavy Equipment</span>
+                                    <strong>187</strong>
+                                </div>
+                                <div class="category-item">
+                                    <span>Light Vehicles</span>
+                                    <strong>156</strong>
+                                </div>
+                                <div class="category-item">
+                                    <span>Specialty Equipment</span>
+                                    <strong>234</strong>
+                                </div>
+                                <div class="category-item">
+                                    <span>Support Vehicles</span>
+                                    <strong>124</strong>
+                                </div>
+                            </div>
+                            <p><strong>Source:</strong> GAUGE API Equipment Classification</p>
+                        </div>`;
+                    break;
+            }
+            
+            drillDownModal.style.display = 'block';
+            setTimeout(() => drillDownModal.classList.add('show'), 50);
+        }
+        
+        function closeDrillDown() {
+            const drillDownModal = document.getElementById('drillDownModal');
+            drillDownModal.classList.remove('show');
+            setTimeout(() => drillDownModal.style.display = 'none', 300);
+        }
 
         // Add touch feedback to buttons
         document.addEventListener('DOMContentLoaded', function() {

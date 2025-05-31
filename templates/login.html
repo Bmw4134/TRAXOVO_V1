@@ -17,9 +17,21 @@
             background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
             color: #fff;
             min-height: 100vh;
-            display: flex;
+            display: grid;
+            grid-template-columns: 1fr;
+            grid-template-rows: 1fr;
             align-items: center;
             justify-content: center;
+            padding: 20px;
+        }
+
+        .login-wrapper {
+            display: grid;
+            grid-template-columns: minmax(300px, 500px) 1fr;
+            gap: 60px;
+            max-width: 1200px;
+            width: 100%;
+            align-items: center;
         }
 
         .login-container {
@@ -30,7 +42,32 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             width: 100%;
-            max-width: 400px;
+        }
+
+        .dashboard-preview {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .dashboard-preview {
+                display: block;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .login-wrapper {
+                grid-template-columns: 1fr;
+                gap: 0;
+                max-width: 400px;
+            }
+            
+            .login-container {
+                padding: 30px;
+            }
         }
 
         .logo {
@@ -217,12 +254,13 @@
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="value-proposition">
-            <div class="logo">
-                <h1>TRAXOVO</h1>
-                <p>Enterprise Fleet Intelligence Platform</p>
-            </div>
+    <div class="login-wrapper">
+        <div class="login-container">
+            <div class="value-proposition">
+                <div class="logo">
+                    <h1>TRAXOVO</h1>
+                    <p>Enterprise Fleet Intelligence Platform</p>
+                </div>
             
             <div class="executive-metrics">
                 <div class="metric-card">
@@ -290,6 +328,30 @@
                 <p style="margin-top: 12px; font-size: 12px; color: #007AFF;">
                     👉 Login to access live fleet data and executive dashboards
                 </p>
+            </div>
+        </div>
+        
+        <div class="dashboard-preview">
+            <h3 style="margin-bottom: 20px; color: #007AFF;">Fleet Command Center</h3>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px;">
+                <div style="background: rgba(0, 122, 255, 0.1); border-radius: 10px; padding: 15px; text-align: center;">
+                    <div style="font-size: 20px; font-weight: bold; color: #007AFF;">717</div>
+                    <div style="font-size: 12px; color: #8E8E93;">Total Assets</div>
+                </div>
+                <div style="background: rgba(48, 209, 88, 0.1); border-radius: 10px; padding: 15px; text-align: center;">
+                    <div style="font-size: 20px; font-weight: bold; color: #30D158;">614</div>
+                    <div style="font-size: 12px; color: #8E8E93;">Active Now</div>
+                </div>
+            </div>
+            <div style="background: rgba(255, 255, 255, 0.02); border-radius: 10px; padding: 20px;">
+                <h4 style="color: #fff; margin-bottom: 15px; font-size: 14px;">Platform Features</h4>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    <li style="margin-bottom: 8px; color: #8E8E93; font-size: 13px;">✓ Real-time GPS tracking</li>
+                    <li style="margin-bottom: 8px; color: #8E8E93; font-size: 13px;">✓ Automated billing reports</li>
+                    <li style="margin-bottom: 8px; color: #8E8E93; font-size: 13px;">✓ Executive dashboards</li>
+                    <li style="margin-bottom: 8px; color: #8E8E93; font-size: 13px;">✓ AI-powered analytics</li>
+                    <li style="color: #8E8E93; font-size: 13px;">✓ Mobile responsive design</li>
+                </ul>
             </div>
         </div>
     </div>

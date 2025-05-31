@@ -123,16 +123,20 @@ def get_authentic_metrics():
                         print(f"Sample asset data: {dict(list(sample_asset.items())[:5])}")
                     
                     # Count active assets using GAUGE API boolean field
-                    active_assets = sum(1 for asset in assets_data if asset.get('Active') is True)
-                    inactive_assets = total_assets - active_assets
-                    
-                    # Get unique categories from GAUGE AssetCategory field
+                    active_assets = 0
                     category_set = set()
-                    for asset in assets_data:
-                        category = asset.get('AssetCategory')
-                        if category:
-                            category_set.add(str(category))
                     
+                    for asset in assets_data:
+                        # Check if asset is active
+                        if asset.get('Active') == True:
+                            active_assets += 1
+                        
+                        # Collect categories
+                        category = asset.get('AssetCategory')
+                        if category and str(category).strip():
+                            category_set.add(str(category).strip())
+                    
+                    inactive_assets = total_assets - active_assets
                     categories = len(category_set)
                     
                     print(f"Processed: {total_assets} total, {active_assets} active, {categories} categories")

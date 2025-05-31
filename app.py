@@ -83,6 +83,14 @@ with app.app_context():
     db.create_all()
     logging.info("Database tables created")
 
+# Register PDF export blueprint
+try:
+    from routes.pdf_export_routes import pdf_export_bp
+    app.register_blueprint(pdf_export_bp)
+    print("✓ Registered blueprint: pdf_export_bp")
+except Exception as e:
+    print(f"⚠ Blueprint pdf_export_bp not available: {e}")
+
 # Helper functions
 def check_session_version():
     """Check if session needs to be cleared due to app updates"""

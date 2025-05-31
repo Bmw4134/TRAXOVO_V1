@@ -17,6 +17,7 @@ import logging
 import pandas as pd
 from datetime import datetime, timedelta
 import json
+from universal_search_engine import get_search_engine
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -690,16 +691,47 @@ def api_fleet_categories():
 
 @app.route('/api/fleet/search')
 def api_fleet_search():
-    """API for asset search"""
+    """Universal search API for assets, financials, and operations"""
     try:
-        from seamless_fleet_engine import seamless_fleet_engine
         query = request.args.get('q', '').strip()
         if len(query) < 2:
             return jsonify({'results': []})
-        results = seamless_fleet_engine.search_assets(query)
-        return jsonify({'status': 'success', 'results': results})
+            
+        search_engine = get_search_engine()
+        results = search_engine.search(query, limit=20)
+        
+        json_results = []
+        for result in results:
+            json_results.append({
+                'id': result.id,
+                'title': result.title,
+                'subtitle': result.subtitle,
+                'category': result.category,
+                'relevance': result.relevance_score,
+                'url': result.url or '#'
+            })
+        
+        return jsonify({
+            'status': 'success',
+            'results': json_results,
+            'query': query,
+            'total': len(json_results),
+            'source': 'authentic_gauge_data'
+        })
     except Exception as e:
+        logger.error(f"Search error: {e}")
         return jsonify({'status': 'error', 'results': []}), 500
+
+@app.route('/api/search/suggestions')
+def api_search_suggestions():
+    """Search suggestions API for instant results"""
+    try:
+        query = request.args.get('q', '').strip()
+        search_engine = get_search_engine()
+        suggestions = search_engine.get_suggestions(query)
+        return jsonify({'suggestions': suggestions})
+    except Exception as e:
+        return jsonify({'suggestions': []}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

@@ -160,7 +160,7 @@ class ElitePerformanceEngine:
         
         return {
             'summary': {
-                'total_assets': total_assets,
+                'total_assets': active_assets,  # Display active assets as primary count
                 'active_assets': active_assets,
                 'inactive_assets': total_assets - active_assets,
                 'categories': len(categories),

@@ -3,422 +3,367 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ page_title }} - TRAXOVO Fleet Intelligence</title>
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- Unified Dashboard Styles -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_animations.css') }}">
-    <script src="{{ url_for('static', filename='js/contextual_help_system.js') }}"></script>
-    
+    <title>Fleet Analytics Intelligence - TRAXOVO</title>
     <style>
-        /* Unified TRAXOVO Theme */
-        :root {
-            --primary-color: #6366f1;
-            --secondary-color: #f59e0b;
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-            --info-color: #06b6d4;
-            --dark-color: #1f2937;
-            --light-color: #f9fafb;
-            --sidebar-bg: linear-gradient(135deg, #1f2937 0%, #374151 100%);
-            --card-bg: rgba(255, 255, 255, 0.95);
-            --border-color: rgba(99, 102, 241, 0.1);
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+            color: #fff;
+            margin: 0;
+            padding: 20px;
         }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: #1f2937;
+        .container { max-width: 1600px; margin: 0 auto; }
+        .header { 
+            text-align: center; 
+            margin-bottom: 40px;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease forwards;
         }
-
-        /* Sidebar Styling */
-        .sidebar {
-            background: var(--sidebar-bg);
-            min-height: 100vh;
-            border-right: 1px solid rgba(99, 102, 241, 0.2);
-            backdrop-filter: blur(10px);
+        .nav-back {
+            background: rgba(0, 122, 255, 0.1);
+            border: 1px solid rgba(0, 122, 255, 0.3);
+            color: #007AFF;
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
         }
-
-        .sidebar .nav-link {
-            color: #e5e7eb !important;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            margin: 0.25rem 1rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            font-weight: 500;
+        .nav-back:hover {
+            background: rgba(0, 122, 255, 0.2);
+            transform: translateX(-5px);
         }
-
-        .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            color: #6366f1 !important;
-            background-color: rgba(99, 102, 241, 0.1);
-            transform: translateX(8px);
+        
+        /* Analytics Control Panel */
+        .control-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
         }
-
-        .sidebar .nav-link i {
-            margin-right: 0.75rem;
-            font-size: 1.1rem;
-        }
-
-        /* Content Area */
-        .content-area {
-            background: transparent;
-            min-height: 100vh;
-            padding: 2rem;
-        }
-
-        /* Card Styling */
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 1rem;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-        }
-
-        /* Metric Cards */
-        .metric-card {
-            border-left: 4px solid var(--primary-color);
-        }
-
-        .metric-value {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            line-height: 1;
-        }
-
-        .metric-label {
-            font-size: 0.875rem;
-            color: #6b7280;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-weight: 600;
-        }
-
-        /* Chart Container Fix */
-        .chart-container {
-            position: relative;
-            height: 300px;
-            width: 100%;
-        }
-
-        .chart-container canvas {
-            max-height: 300px !important;
-            max-width: 100% !important;
-        }
-
-        /* Prevent Chart Overflow */
-        .chart-card {
-            overflow: hidden;
-        }
-
-        .chart-card .card-body {
-            padding: 1.5rem;
-        }
-        .nav-link:hover {
-            background-color: rgba(255,255,255,0.1);
-            color: var(--herc-yellow) !important;
-        }
-        .nav-link.active {
-            background-color: var(--herc-yellow);
-            color: var(--herc-blue) !important;
-            font-weight: 600;
-        }
-        .btn-herc {
-            background-color: var(--herc-yellow);
-            border: none;
-            color: var(--herc-blue);
-            font-weight: 600;
-        }
-        .table th {
-            background-color: var(--herc-blue);
+        .run-analytics-btn {
+            background: linear-gradient(135deg, #007AFF 0%, #00D2FF 100%);
             color: white;
             border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
-        .analytics-tabs {
-            background: white;
-            border-radius: 8px;
+        .run-analytics-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3);
+        }
+        
+        /* Analytics Modules Grid */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        .analytics-module {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideInUp 0.6s ease forwards;
+        }
+        .analytics-module:nth-child(1) { animation-delay: 0.1s; }
+        .analytics-module:nth-child(2) { animation-delay: 0.2s; }
+        .analytics-module:nth-child(3) { animation-delay: 0.3s; }
+        .analytics-module:nth-child(4) { animation-delay: 0.4s; }
+        .analytics-module:nth-child(5) { animation-delay: 0.5s; }
+        .analytics-module:nth-child(6) { animation-delay: 0.6s; }
+        
+        .analytics-module:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-4px);
+            border-color: rgba(0, 122, 255, 0.3);
+        }
+        .module-icon {
+            font-size: 32px;
+            margin-bottom: 16px;
+            color: #007AFF;
+        }
+        .module-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .module-description {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        .module-status {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .status-ready { background: rgba(52, 199, 89, 0.2); color: #34C759; }
+        .status-pending { background: rgba(255, 149, 0, 0.2); color: #FF9500; }
+        
+        /* Live Results Section */
+        .results-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 30px;
+            margin-top: 30px;
+            display: none;
+        }
+        .results-section.active {
+            display: block;
+            animation: fadeInUp 0.5s ease;
+        }
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-        .tab-content {
-            padding: 20px;
+        .results-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .status-indicator {
+            background: rgba(52, 199, 89, 0.2);
+            color: #34C759;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+        .insight-card {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .insight-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .insight-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        /* Processing Animation */
+        .processing {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+        .processing.active { display: block; }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(0, 122, 255, 0.2);
+            border-top: 3px solid #007AFF;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .analytics-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            .insights-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-2 sidebar">
-                <div class="p-3">
-                    <h4 class="text-white mb-4">
-                        <i class="fas fa-truck text-warning"></i> TRAXOVO
-                    </h4>
-                    <nav class="nav flex-column">
-                        <a class="nav-link" href="/">
-                            <i class="fas fa-tachometer-alt"></i> Dashboard
-                        </a>
-                        <div class="text-warning small mt-3 mb-2 px-3">CORE OPERATIONS</div>
-                        <a class="nav-link" href="/fleet-map">
-                            <i class="fas fa-map-marked-alt"></i> Live Fleet Map
-                        </a>
-                        <a class="nav-link" href="/asset-manager">
-                            <i class="fas fa-cogs"></i> Asset Manager
-                        </a>
-                        <div class="text-warning small mt-3 mb-2 px-3">ANALYTICS</div>
-                        <a class="nav-link active" href="/fleet-analytics">
-                            <i class="fas fa-chart-area"></i> Fleet Analytics
-                        </a>
-                        <a class="nav-link" href="/asset-profit">
-                            <i class="fas fa-dollar-sign"></i> Asset Profitability
-                        </a>
-                        <a class="nav-link" href="/billing">
-                            <i class="fas fa-chart-line"></i> Revenue Analytics
-                        </a>
-                    </nav>
-                </div>
+    <div class="container">
+        <a href="/dashboard" class="nav-back">← Back to Dashboard</a>
+        
+        <div class="header">
+            <h1>Fleet Analytics Intelligence</h1>
+            <p>Comprehensive equipment performance analysis using authentic GAUGE data</p>
+        </div>
+
+        <div class="control-panel">
+            <h3>Analytics Engine Control</h3>
+            <p>Execute comprehensive fleet analytics to generate actionable insights</p>
+            <button class="run-analytics-btn" onclick="runFleetAnalytics()">
+                Run Fleet Analytics
+            </button>
+        </div>
+
+        <div class="analytics-grid">
+            <div class="analytics-module">
+                <div class="module-icon">📊</div>
+                <div class="module-title">Utilization Analysis</div>
+                <div class="module-description">Equipment utilization patterns and optimization opportunities</div>
+                <div class="module-status status-ready">Ready</div>
             </div>
 
-            <!-- Main Content -->
-            <div class="col-md-10 content-area">
-                <!-- Header -->
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2 class="text-dark">
-                        <i class="fas fa-chart-area text-warning"></i> {{ page_title }}
-                    </h2>
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-herc">
-                            <i class="fas fa-download"></i> Export Analytics
-                        </button>
-                        <button class="btn btn-outline-secondary">
-                            <i class="fas fa-calendar"></i> Date Range
-                        </button>
-                    </div>
-                </div>
+            <div class="analytics-module">
+                <div class="module-icon">⚡</div>
+                <div class="module-title">Performance Tracking</div>
+                <div class="module-description">Real-time performance metrics and trend analysis</div>
+                <div class="module-status status-ready">Ready</div>
+            </div>
 
-                <!-- Analytics Tabs -->
-                <div class="analytics-tabs">
-                    <ul class="nav nav-tabs" id="analyticsTab" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="utilization-tab" data-bs-toggle="tab" data-bs-target="#utilization" type="button" role="tab">
-                                <i class="fas fa-chart-pie"></i> Utilization Overview
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="performance-tab" data-bs-toggle="tab" data-bs-target="#performance" type="button" role="tab">
-                                <i class="fas fa-tachometer-alt"></i> Performance Metrics
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="trends-tab" data-bs-toggle="tab" data-bs-target="#trends" type="button" role="tab">
-                                <i class="fas fa-chart-line"></i> Trend Analysis
-                            </button>
-                        </li>
-                    </ul>
-                    
-                    <div class="tab-content" id="analyticsTabContent">
-                        <!-- Utilization Tab -->
-                        <div class="tab-pane fade show active" id="utilization" role="tabpanel">
-                            <div class="row mb-4">
-                                <div class="col-md-3">
-                                    <div class="metric-card text-center">
-                                        <h3 class="text-primary mb-1">{{ total_assets }}</h3>
-                                        <p class="text-muted mb-0">Total Assets</p>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="metric-card text-center">
-                                        <h3 class="text-success mb-1">{{ active_assets }}</h3>
-                                        <p class="text-muted mb-0">Active Assets</p>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="metric-card text-center">
-                                        <h3 class="text-warning mb-1">{{ utilization_rate }}%</h3>
-                                        <p class="text-muted mb-0">Utilization Rate</p>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="metric-card text-center">
-                                        <h3 class="text-info mb-1">2,450</h3>
-                                        <p class="text-muted mb-0">Total Hours</p>
-                                    </div>
-                                </div>
-                            </div>
+            <div class="analytics-module">
+                <div class="module-icon">🔧</div>
+                <div class="module-title">Maintenance Intelligence</div>
+                <div class="module-description">Predictive maintenance and cost optimization</div>
+                <div class="module-status status-ready">Ready</div>
+            </div>
 
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="chart-card">
-                                        <h5 class="mb-3">Fleet Utilization Breakdown</h5>
-                                        <div class="chart-container">
-                                            <canvas id="utilizationChart"></canvas>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="chart-card">
-                                        <h5 class="mb-3">Asset Category Distribution</h5>
-                                        <div class="chart-container">
-                                            <canvas id="categoryChart"></canvas>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            <div class="analytics-module">
+                <div class="module-icon">📍</div>
+                <div class="module-title">Location Analytics</div>
+                <div class="module-description">Job site efficiency and equipment deployment</div>
+                <div class="module-status status-ready">Ready</div>
+            </div>
 
-                        <!-- Performance Tab -->
-                        <div class="tab-pane fade" id="performance" role="tabpanel">
-                            <div class="chart-card">
-                                <h5 class="mb-3">Asset Performance Analysis</h5>
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>Asset ID</th>
-                                                <th>Usage Hours</th>
-                                                <th>Revenue</th>
-                                                <th>Costs</th>
-                                                <th>Efficiency Score</th>
-                                                <th>Status</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for item in cost_analysis %}
-                                            <tr>
-                                                <td><strong>{{ item.asset_id }}</strong></td>
-                                                <td>{{ "%.1f"|format(item.total_usage_hours) }}</td>
-                                                <td class="text-success">${{ "%.2f"|format(item.revenue_generated) }}</td>
-                                                <td class="text-warning">${{ "%.2f"|format(item.total_cost) }}</td>
-                                                <td>
-                                                    {% set efficiency = (item.revenue_generated / item.total_cost * 100) if item.total_cost > 0 else 0 %}
-                                                    <span class="{% if efficiency > 150 %}text-success{% elif efficiency > 100 %}text-warning{% else %}text-danger{% endif %}">
-                                                        {{ "%.0f"|format(efficiency) }}%
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    {% if efficiency > 150 %}
-                                                        <span class="badge bg-success">Excellent</span>
-                                                    {% elif efficiency > 100 %}
-                                                        <span class="badge bg-warning">Good</span>
-                                                    {% else %}
-                                                        <span class="badge bg-danger">Poor</span>
-                                                    {% endif %}
-                                                </td>
-                                            </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
+            <div class="analytics-module">
+                <div class="module-icon">👥</div>
+                <div class="module-title">Driver Productivity</div>
+                <div class="module-description">Operator performance and training insights</div>
+                <div class="module-status status-pending">Requires GAUGE API</div>
+            </div>
 
-                        <!-- Trends Tab -->
-                        <div class="tab-pane fade" id="trends" role="tabpanel">
-                            <div class="chart-card">
-                                <h5 class="mb-3">Utilization Trends</h5>
-                                <canvas id="trendsChart" height="400"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="analytics-module">
+                <div class="module-icon">💰</div>
+                <div class="module-title">Cost Optimization</div>
+                <div class="module-description">Operating costs and revenue optimization</div>
+                <div class="module-status status-ready">Ready</div>
+            </div>
+        </div>
+
+        <div class="processing" id="processingIndicator">
+            <div class="spinner"></div>
+            <div>Analyzing fleet data...</div>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <div class="results-header">
+                <div class="results-title">Analytics Results</div>
+                <div class="status-indicator">Analysis Complete</div>
+            </div>
+            
+            <div class="insights-grid" id="insightsGrid">
+                <!-- Results will be populated dynamically -->
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Utilization Chart
-        const utilizationCtx = document.getElementById('utilizationChart').getContext('2d');
-        new Chart(utilizationCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Active', 'Idle', 'Maintenance', 'Transit'],
-                datasets: [{
-                    data: [{{ utilization_rate }}, {{ 100 - utilization_rate }}, 5, 8],
-                    backgroundColor: ['#28a745', '#ffc107', '#dc3545', '#17a2b8'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    }
+        function runFleetAnalytics() {
+            // Show processing indicator
+            document.getElementById('processingIndicator').classList.add('active');
+            document.getElementById('resultsSection').classList.remove('active');
+            
+            // Call analytics API
+            fetch('/api/run-fleet-analytics', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
                 }
-            }
-        });
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('processingIndicator').classList.remove('active');
+                
+                if (data.status === 'error') {
+                    alert('Analytics Error: ' + data.message);
+                } else {
+                    displayAnalyticsResults(data);
+                }
+            })
+            .catch(error => {
+                document.getElementById('processingIndicator').classList.remove('active');
+                alert('Error running analytics: ' + error.message);
+            });
+        }
 
-        // Category Distribution Chart
-        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-        new Chart(categoryCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Excavators', 'Trucks', 'Dozers', 'Graders', 'Cranes'],
-                datasets: [{
-                    label: 'Asset Count',
-                    data: [125, 89, 67, 45, 23],
-                    backgroundColor: '#FFD700',
-                    borderColor: '#003366',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
+        function displayAnalyticsResults(data) {
+            const insightsGrid = document.getElementById('insightsGrid');
+            insightsGrid.innerHTML = '';
+            
+            // Display key insights
+            if (data.key_insights) {
+                data.key_insights.forEach(insight => {
+                    const card = document.createElement('div');
+                    card.className = 'insight-card';
+                    card.innerHTML = `
+                        <div class="insight-label">Key Insight</div>
+                        <div class="insight-value">${insight}</div>
+                    `;
+                    insightsGrid.appendChild(card);
+                });
             }
-        });
+            
+            // Display summary metrics
+            const summaryCard = document.createElement('div');
+            summaryCard.className = 'insight-card';
+            summaryCard.innerHTML = `
+                <div class="insight-label">Assets Analyzed</div>
+                <div class="insight-value">${data.total_assets_analyzed || 0}</div>
+            `;
+            insightsGrid.appendChild(summaryCard);
+            
+            const modulesCard = document.createElement('div');
+            modulesCard.className = 'insight-card';
+            modulesCard.innerHTML = `
+                <div class="insight-label">Modules Executed</div>
+                <div class="insight-value">${data.analytics_modules_executed || 0}</div>
+            `;
+            insightsGrid.appendChild(modulesCard);
+            
+            document.getElementById('resultsSection').classList.add('active');
+        }
 
-        // Trends Chart
-        const trendsCtx = document.getElementById('trendsChart').getContext('2d');
-        new Chart(trendsCtx, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
-                datasets: [{
-                    label: 'Utilization %',
-                    data: [82, 85, 88, 86, {{ utilization_rate }}],
-                    borderColor: '#28a745',
-                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
-                    tension: 0.4
-                }, {
-                    label: 'Revenue ($K)',
-                    data: [420, 450, 480, 465, 550],
-                    borderColor: '#FFD700',
-                    backgroundColor: 'rgba(255, 215, 0, 0.1)',
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
+        // Add hover effects to analytics modules
+        document.querySelectorAll('.analytics-module').forEach(module => {
+            module.addEventListener('mouseenter', () => {
+                module.style.transform = 'translateY(-8px) scale(1.02)';
+            });
+            
+            module.addEventListener('mouseleave', () => {
+                module.style.transform = 'translateY(0) scale(1)';
+            });
         });
     </script>
 </body>

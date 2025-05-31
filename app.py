@@ -533,6 +533,67 @@ def api_process_document():
     except Exception as e:
         return {'error': f'Document processing failed: {str(e)}'}, 500
 
+@app.route('/fleet-analytics')
+def fleet_analytics():
+    """Fleet analytics intelligence dashboard"""
+    auth_check = require_auth()
+    if auth_check:
+        return auth_check
+    return render_template('fleet_analytics.html')
+
+@app.route('/api/run-fleet-analytics', methods=['POST'])
+def api_run_fleet_analytics():
+    """Execute comprehensive fleet analytics"""
+    auth_check = require_auth()
+    if auth_check:
+        return auth_check
+    
+    try:
+        from fleet_analytics_engine import get_fleet_analytics
+        analytics = get_fleet_analytics()
+        result = analytics.run_comprehensive_analytics()
+        return result
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}, 500
+
+@app.route('/automated-workflows')
+def automated_workflows():
+    """Automated workflow management dashboard"""
+    auth_check = require_auth()
+    if auth_check:
+        return auth_check
+    return render_template('automated_workflows.html')
+
+@app.route('/api/run-billing-automation', methods=['POST'])
+def api_run_billing_automation():
+    """Execute automated billing workflow"""
+    auth_check = require_auth()
+    if auth_check:
+        return auth_check
+    
+    try:
+        from automated_billing_workflow import get_billing_automation
+        automation = get_billing_automation()
+        result = automation.run_full_automation()
+        return result
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}, 500
+
+@app.route('/api/run-attendance-automation', methods=['POST'])
+def api_run_attendance_automation():
+    """Execute automated attendance workflow"""
+    auth_check = require_auth()
+    if auth_check:
+        return auth_check
+    
+    try:
+        from automated_attendance_workflow import get_attendance_automation
+        automation = get_attendance_automation()
+        result = automation.run_attendance_automation()
+        return result
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}, 500
+
 @app.route('/data-upload')
 @app.route('/upload-may-week-data')
 def data_upload():

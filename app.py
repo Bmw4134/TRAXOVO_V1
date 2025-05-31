@@ -618,6 +618,29 @@ try:
 except Exception as e:
     logger.error(f"Error registering seamless fleet map: {e}")
 
+@app.route('/simple_login', methods=['GET', 'POST'])
+def simple_login():
+    """Handle simple login with your credentials"""
+    if request.method == 'GET':
+        username = request.args.get('u')
+        password = request.args.get('p')
+        if username and password:
+            if (username == 'tester' and password == 'tester') or (username == 'watson' and password == 'watson'):
+                session['authenticated'] = True
+                session['username'] = username
+                return redirect('/fleet_map')
+        return render_template('simple_login.html')
+    
+    username = request.form.get('username')
+    password = request.form.get('password')
+    
+    if (username == 'tester' and password == 'tester') or (username == 'watson' and password == 'watson'):
+        session['authenticated'] = True
+        session['username'] = username
+        return redirect('/fleet_map')
+    
+    return render_template('simple_login.html')
+
 # Direct seamless fleet map route (bypassing auth for now)
 @app.route('/fleet_map')
 @app.route('/asset_map') 

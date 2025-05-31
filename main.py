@@ -309,7 +309,11 @@ auth = init_auth(app)
 def before_request():
     # Skip auth for static files and auth routes
     if request.endpoint and (request.endpoint.startswith('static') or 
-                           request.endpoint in ['login', 'auth_login']):
+                           request.endpoint in ['login', 'auth_login', 'dev_toggle']):
+        return
+    
+    # Check developer bypass toggle
+    if session.get('dev_bypass'):
         return
     
     # Require login for all other routes
@@ -477,7 +481,49 @@ def refresh_data():
         'timestamp': datetime.now().isoformat()
     })
 
-# Login routes are now handled by replit_auth.py
+# DEVELOPER CONTROL PANEL - Quick toggles for building
+@app.route('/dev-toggle')
+def dev_toggle():
+    """Developer toggle system - bypass login, enable features"""
+    action = request.args.get('action')
+    
+    if action == 'bypass_login':
+        session['dev_bypass'] = True
+        session['logged_in'] = True
+        session['username'] = 'developer'
+        session['role'] = 'admin'
+        return redirect('/dashboard')
+    
+    elif action == 'enable_login':
+        session.pop('dev_bypass', None)
+        session.clear()
+        return redirect('/login')
+    
+    elif action == 'reset_system':
+        session.clear()
+        return redirect('/')
+    
+    # Show developer panel
+    return f"""
+    <div style="padding: 20px; font-family: Arial;">
+        <h2>TRAXOVO Developer Panel</h2>
+        <p>Quick development controls:</p>
+        <a href="/dev-toggle?action=bypass_login" style="display: block; margin: 10px 0; padding: 10px; background: #28a745; color: white; text-decoration: none;">
+            🚀 Bypass Login (Direct Dashboard Access)
+        </a>
+        <a href="/dev-toggle?action=enable_login" style="display: block; margin: 10px 0; padding: 10px; background: #007bff; color: white; text-decoration: none;">
+            🔐 Enable Login System
+        </a>
+        <a href="/dev-toggle?action=reset_system" style="display: block; margin: 10px 0; padding: 10px; background: #dc3545; color: white; text-decoration: none;">
+            🔄 Reset Everything
+        </a>
+        <hr>
+        <p><strong>Current Status:</strong></p>
+        <p>Login Bypass: {'ON' if session.get('dev_bypass') else 'OFF'}</p>
+        <p>Logged In: {'YES' if session.get('logged_in') else 'NO'}</p>
+        <p>User: {session.get('username', 'None')}</p>
+    </div>
+    """
 
 @app.route('/')
 def index():

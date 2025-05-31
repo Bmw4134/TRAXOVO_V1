@@ -145,7 +145,7 @@ class ElitePerformanceEngine:
                 'active': asset.get('Active', False),
                 'engine_hours': engine_hours,
                 'days_inactive': days_inactive,
-                'battery_pct': asset.get('BackupBatteryPct', 0),
+                'battery_pct': float(asset.get('BackupBatteryPct', 0)) if asset.get('BackupBatteryPct') is not None else 0,
                 'class': asset.get('AssetClass', ''),
                 'status': 'Active' if asset.get('Active', False) else 'Inactive'
             }

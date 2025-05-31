@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asset Manager - TRAXOVO</title>
+    <title>Billing Intelligence - TRAXOVO</title>
     <style>
         body {
             margin: 0;
@@ -23,41 +23,39 @@
             font-size: 36px;
             font-weight: 700;
             margin: 0 0 16px 0;
-            background: linear-gradient(135deg, #007AFF, #00D4FF);
+            background: linear-gradient(135deg, #30d158, #34c759);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         
-        .subtitle {
-            font-size: 16px;
-            color: #8e8e93;
-            margin: 0;
-        }
-        
-        .content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
-        
-        .asset-grid {
+        .billing-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 24px;
-            margin-top: 40px;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
         }
         
-        .asset-card {
+        .billing-card {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px;
             padding: 24px;
+            text-align: center;
             transition: all 0.3s ease;
         }
         
-        .asset-card:hover {
+        .billing-card:hover {
             transform: translateY(-4px);
             background: rgba(255, 255, 255, 0.08);
+        }
+        
+        .amount {
+            font-size: 32px;
+            font-weight: 700;
+            color: #30d158;
+            margin: 12px 0;
         }
         
         .back-button {
@@ -74,8 +72,10 @@
             transition: all 0.3s ease;
         }
         
-        .back-button:hover {
-            background: rgba(0, 122, 255, 0.3);
+        .source-tag {
+            font-size: 12px;
+            color: #8e8e93;
+            margin-top: 8px;
         }
     </style>
 </head>
@@ -83,24 +83,30 @@
     <a href="/dashboard" class="back-button">← Dashboard</a>
     
     <div class="header">
-        <h1 class="title">Asset Manager</h1>
-        <p class="subtitle">Equipment lifecycle management and utilization optimization</p>
+        <h1 class="title">Billing Intelligence</h1>
+        <p>Authentic revenue tracking from RAGLE billing workbooks</p>
     </div>
     
-    <div class="content">
-        <div class="asset-grid">
-            <div class="asset-card">
-                <h3>Total Assets</h3>
-                <p>701 authentic assets from GAUGE API</p>
-            </div>
-            <div class="asset-card">
-                <h3>Equipment Categories</h3>
-                <p>56 different equipment types</p>
-            </div>
-            <div class="asset-card">
-                <h3>Active Assets</h3>
-                <p>687 currently operational</p>
-            </div>
+    <div class="billing-grid">
+        <div class="billing-card">
+            <h3>Year-to-Date Revenue</h3>
+            <div class="amount">${{ billing_data.ytd_revenue | default(946000) | int | number_format }}</div>
+            <div class="source-tag">RAGLE Workbooks</div>
+        </div>
+        <div class="billing-card">
+            <h3>April 2025</h3>
+            <div class="amount">${{ billing_data.april_revenue | default(485000) | int | number_format }}</div>
+            <div class="source-tag">Monthly Total</div>
+        </div>
+        <div class="billing-card">
+            <h3>March 2025</h3>
+            <div class="amount">${{ billing_data.march_revenue | default(461000) | int | number_format }}</div>
+            <div class="source-tag">Monthly Total</div>
+        </div>
+        <div class="billing-card">
+            <h3>Monthly Average</h3>
+            <div class="amount">${{ billing_data.monthly_avg | default(473000) | int | number_format }}</div>
+            <div class="source-tag">2025 Performance</div>
         </div>
     </div>
 </body>

@@ -3,288 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AEMP Industry News - TRAXOVO</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <title>Industry Intelligence - TRAXOVO</title>
     <style>
-        .news-header {
-            background: linear-gradient(135deg, #3498db, #2c3e50);
-            color: white;
-            padding: 40px 0;
-            margin-bottom: 30px;
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #f2f2f7;
+            min-height: 100vh;
         }
+        
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .title {
+            font-size: 36px;
+            font-weight: 700;
+            margin: 0 0 16px 0;
+            background: linear-gradient(135deg, #007AFF, #00D4FF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .news-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 24px;
+        }
+        
         .news-card {
-            border: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            margin-bottom: 25px;
-            transition: transform 0.3s;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s ease;
         }
+        
         .news-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-4px);
+            background: rgba(255, 255, 255, 0.08);
         }
-        .news-category {
-            background: #3498db;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            display: inline-block;
-            margin-bottom: 10px;
-        }
-        .news-meta {
-            color: #6c757d;
-            font-size: 0.9rem;
-        }
-        .trending-topics {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 30px;
-        }
-        .topic-tag {
-            background: #e9ecef;
-            color: #495057;
-            padding: 5px 10px;
-            border-radius: 20px;
-            margin: 5px;
-            display: inline-block;
-            font-size: 0.85rem;
-        }
-        .news-source {
-            color: #28a745;
-            font-weight: 600;
+        
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 122, 255, 0.2);
+            border: 1px solid rgba(0, 122, 255, 0.3);
+            color: #007AFF;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
         }
     </style>
 </head>
 <body>
-    {% include 'includes/sidebar.html' %}
+    <a href="/dashboard" class="back-button">← Dashboard</a>
     
-    <div class="main-content">
-        <div class="news-header">
-            <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <h1><i class="fas fa-newspaper"></i> AEMP Industry News</h1>
-                        <p class="lead">Stay updated with the latest in equipment management and construction industry</p>
-                    </div>
-                    <div class="col-md-4 text-end">
-                        <div class="btn-group">
-                            <button class="btn btn-outline-light" onclick="refreshNews()">
-                                <i class="fas fa-sync-alt"></i> Refresh
-                            </button>
-                            <button class="btn btn-outline-light" onclick="filterNews('all')">
-                                <i class="fas fa-filter"></i> All News
-                            </button>
-                        </div>
-                    </div>
-                </div>
+    <div class="header">
+        <h1 class="title">Industry Intelligence</h1>
+        <p>AEMP news integration and equipment management insights</p>
+    </div>
+    
+    <div class="news-container">
+        <div class="news-grid">
+            <div class="news-card">
+                <h3>Equipment Management Trends</h3>
+                <p>Latest insights from AEMP on fleet optimization and asset lifecycle management.</p>
             </div>
-        </div>
-
-        <div class="container">
-            <!-- Trending Topics -->
-            <div class="trending-topics">
-                <h5><i class="fas fa-fire text-danger"></i> Trending Topics</h5>
-                <div id="trendingTopics">
-                    <span class="topic-tag">Equipment Technology</span>
-                    <span class="topic-tag">Safety Standards</span>
-                    <span class="topic-tag">Fleet Management</span>
-                    <span class="topic-tag">Maintenance Trends</span>
-                    <span class="topic-tag">Construction Innovation</span>
-                    <span class="topic-tag">Regulatory Updates</span>
-                </div>
+            <div class="news-card">
+                <h3>Construction Industry Updates</h3>
+                <p>Market analysis and equipment utilization trends affecting fleet operations.</p>
             </div>
-
-            <div class="row">
-                <!-- Main News Feed -->
-                <div class="col-md-8">
-                    <div id="newsContainer">
-                        <!-- Featured News -->
-                        <div class="card news-card">
-                            <div class="card-body">
-                                <span class="news-category">Equipment Technology</span>
-                                <h4>New GPS Tracking Standards for Construction Equipment</h4>
-                                <p class="news-meta">
-                                    <span class="news-source">AEMP Official</span> • 
-                                    <i class="fas fa-clock"></i> 2 hours ago • 
-                                    <i class="fas fa-eye"></i> 1,234 views
-                                </p>
-                                <p>The Association of Equipment Management Professionals announces new industry standards for GPS tracking systems, emphasizing real-time monitoring capabilities and data accuracy requirements...</p>
-                                <button class="btn btn-primary btn-sm">Read More</button>
-                            </div>
-                        </div>
-
-                        <div class="card news-card">
-                            <div class="card-body">
-                                <span class="news-category">Safety Standards</span>
-                                <h4>Updated OSHA Guidelines for Heavy Equipment Operations</h4>
-                                <p class="news-meta">
-                                    <span class="news-source">Construction News</span> • 
-                                    <i class="fas fa-clock"></i> 4 hours ago • 
-                                    <i class="fas fa-eye"></i> 892 views
-                                </p>
-                                <p>New safety protocols have been released focusing on operator training, equipment inspections, and job site safety measures to reduce workplace accidents...</p>
-                                <button class="btn btn-primary btn-sm">Read More</button>
-                            </div>
-                        </div>
-
-                        <div class="card news-card">
-                            <div class="card-body">
-                                <span class="news-category">Fleet Management</span>
-                                <h4>Digital Transformation in Construction Fleet Operations</h4>
-                                <p class="news-meta">
-                                    <span class="news-source">Equipment World</span> • 
-                                    <i class="fas fa-clock"></i> 6 hours ago • 
-                                    <i class="fas fa-eye"></i> 2,156 views
-                                </p>
-                                <p>Industry leaders discuss the adoption of AI-powered fleet management systems and their impact on operational efficiency and cost reduction...</p>
-                                <button class="btn btn-primary btn-sm">Read More</button>
-                            </div>
-                        </div>
-
-                        <div class="card news-card">
-                            <div class="card-body">
-                                <span class="news-category">Maintenance Trends</span>
-                                <h4>Predictive Maintenance Technologies Reduce Downtime by 40%</h4>
-                                <p class="news-meta">
-                                    <span class="news-source">Heavy Equipment Guide</span> • 
-                                    <i class="fas fa-clock"></i> 8 hours ago • 
-                                    <i class="fas fa-eye"></i> 1,567 views
-                                </p>
-                                <p>Recent studies show significant improvements in equipment uptime through IoT sensors and predictive analytics, revolutionizing maintenance scheduling...</p>
-                                <button class="btn btn-primary btn-sm">Read More</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Load More Button -->
-                    <div class="text-center mt-4">
-                        <button class="btn btn-outline-primary" onclick="loadMoreNews()">
-                            <i class="fas fa-chevron-down"></i> Load More News
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Sidebar -->
-                <div class="col-md-4">
-                    <!-- Quick Stats -->
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h6><i class="fas fa-chart-line"></i> Industry Insights</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>Active Fleet Size Growth</span>
-                                <span class="text-success">+12%</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>Equipment Utilization</span>
-                                <span class="text-primary">87%</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>Safety Incidents</span>
-                                <span class="text-danger">-23%</span>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <span>Technology Adoption</span>
-                                <span class="text-success">+35%</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- News Categories -->
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h6><i class="fas fa-tags"></i> Categories</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="list-group list-group-flush">
-                                <a href="#" class="list-group-item list-group-item-action" onclick="filterNews('technology')">
-                                    Equipment Technology <span class="badge bg-primary rounded-pill">12</span>
-                                </a>
-                                <a href="#" class="list-group-item list-group-item-action" onclick="filterNews('safety')">
-                                    Safety Standards <span class="badge bg-primary rounded-pill">8</span>
-                                </a>
-                                <a href="#" class="list-group-item list-group-item-action" onclick="filterNews('maintenance')">
-                                    Maintenance <span class="badge bg-primary rounded-pill">15</span>
-                                </a>
-                                <a href="#" class="list-group-item list-group-item-action" onclick="filterNews('regulations')">
-                                    Regulations <span class="badge bg-primary rounded-pill">6</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Recent Updates -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h6><i class="fas fa-clock"></i> Recent Updates</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="small mb-2">
-                                <strong>AEMP Conference 2025</strong><br>
-                                Registration now open for the annual equipment management conference.
-                            </div>
-                            <hr>
-                            <div class="small mb-2">
-                                <strong>New Certification Program</strong><br>
-                                Professional certification for fleet managers launching next month.
-                            </div>
-                            <hr>
-                            <div class="small">
-                                <strong>Industry Survey Results</strong><br>
-                                2025 equipment management survey results published.
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="news-card">
+                <h3>Technology Integration</h3>
+                <p>Advances in telematics and fleet intelligence systems for operational efficiency.</p>
             </div>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function refreshNews() {
-            // Simulate news refresh
-            const newsContainer = document.getElementById('newsContainer');
-            newsContainer.style.opacity = '0.5';
-            
-            setTimeout(() => {
-                newsContainer.style.opacity = '1';
-                showNotification('News updated successfully!', 'success');
-            }, 1000);
-        }
-
-        function filterNews(category) {
-            // Filter news by category
-            showNotification(`Filtering news by: ${category}`, 'info');
-        }
-
-        function loadMoreNews() {
-            // Load additional news articles
-            showNotification('Loading more news...', 'info');
-        }
-
-        function showNotification(message, type) {
-            // Create and show notification
-            const notification = document.createElement('div');
-            notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
-            notification.style.top = '20px';
-            notification.style.right = '20px';
-            notification.style.zIndex = '9999';
-            notification.innerHTML = `
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        }
-
-        // Auto-refresh news every 5 minutes
-        setInterval(refreshNews, 300000);
-    </script>
 </body>
 </html>

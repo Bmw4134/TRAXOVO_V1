@@ -253,7 +253,23 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
+<!-- Mobile Header (Mobile Only) -->
+<div class="d-md-none" style="position: fixed; top: 0; left: 0; right: 0; height: 70px; background: #1F2937; z-index: 998; display: flex; align-items: center; padding: 0 15px; border-bottom: 1px solid #374151;">
+    <button class="btn btn-sm" style="background: #374151; border: none; color: white; padding: 8px 12px; border-radius: 6px; margin-right: 15px;" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+    <div style="color: white; font-size: 1.1rem; font-weight: 600; flex: 1;">TRAXOVO</div>
+    <div style="display: flex; gap: 6px;">
+        <a href="/ai-assistant" class="btn btn-primary btn-sm" style="padding: 4px 8px; font-size: 0.75rem;">
+            <i class="bi bi-robot"></i> AI
+        </a>
+        <a href="/kaizen" class="btn btn-warning btn-sm" style="padding: 4px 8px; font-size: 0.75rem;">
+            <i class="bi bi-gear"></i> Kaizen
+        </a>
+    </div>
+</div>
+
+<div class="container-fluid" style="padding-top: 70px;">
     <div class="row">
         <!-- Sidebar -->
         <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar">

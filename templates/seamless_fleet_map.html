@@ -25,37 +25,70 @@
             background: #1a1a1a;
         }
 
-        /* Main Control Panel - Floating at top */
+        /* Main Control Panel - Responsive floating design */
         .control-panel {
             position: absolute;
-            top: 20px;
+            top: 10px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(28, 28, 30, 0.95);
             backdrop-filter: blur(20px);
             border-radius: 16px;
-            padding: 16px 24px;
+            padding: 12px 16px;
             z-index: 1000;
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            width: calc(100vw - 20px);
+            max-width: 600px;
         }
 
         .filter-buttons {
             display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
+            gap: 6px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* Mobile responsive adjustments */
+        @media (max-width: 768px) {
+            .control-panel {
+                top: 5px;
+                padding: 8px 12px;
+                border-radius: 12px;
+                width: calc(100vw - 10px);
+            }
+            
+            .filter-buttons {
+                gap: 4px;
+                margin-bottom: 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .control-panel {
+                top: 5px;
+                padding: 6px 8px;
+                border-radius: 10px;
+                width: calc(100vw - 8px);
+            }
+            
+            .filter-buttons {
+                gap: 3px;
+                margin-bottom: 6px;
+            }
         }
 
         .filter-btn {
             background: rgba(255, 255, 255, 0.1);
-            border: none;
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 20px;
-            padding: 8px 16px;
+            padding: 6px 12px;
             color: #fff;
-            font-size: 14px;
+            font-size: 12px;
             cursor: pointer;
             transition: all 0.2s ease;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .filter-btn:hover {
@@ -70,17 +103,39 @@
 
         .search-container {
             position: relative;
-            width: 300px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        /* Mobile filter button adjustments */
+        @media (max-width: 768px) {
+            .filter-btn {
+                padding: 4px 8px;
+                font-size: 11px;
+                border-radius: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .filter-btn {
+                padding: 3px 6px;
+                font-size: 10px;
+                border-radius: 14px;
+            }
+            
+            .search-container {
+                max-width: 200px;
+            }
         }
 
         .search-input {
             width: 100%;
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            padding: 12px 16px 12px 40px;
+            border-radius: 10px;
+            padding: 8px 12px 8px 32px;
             color: #fff;
-            font-size: 16px;
+            font-size: 14px;
             outline: none;
             transition: all 0.2s ease;
         }
@@ -96,30 +151,80 @@
 
         .search-icon {
             position: absolute;
-            left: 12px;
+            left: 8px;
             top: 50%;
             transform: translateY(-50%);
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             opacity: 0.6;
         }
 
-        /* Asset Detail Card */
+        /* Mobile search adjustments */
+        @media (max-width: 768px) {
+            .search-input {
+                padding: 6px 8px 6px 28px;
+                font-size: 13px;
+                border-radius: 8px;
+            }
+            
+            .search-icon {
+                left: 6px;
+                width: 14px;
+                height: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .search-input {
+                padding: 4px 6px 4px 24px;
+                font-size: 12px;
+                border-radius: 6px;
+            }
+            
+            .search-icon {
+                left: 4px;
+                width: 12px;
+                height: 12px;
+            }
+        }
+
+        /* Asset Detail Card - Responsive */
         .asset-card {
             position: absolute;
-            bottom: 30px;
-            left: 30px;
+            bottom: 20px;
+            left: 20px;
             background: rgba(28, 28, 30, 0.95);
             backdrop-filter: blur(20px);
             border-radius: 16px;
-            padding: 24px;
-            width: 320px;
+            padding: 20px;
+            width: 300px;
+            max-width: calc(100vw - 40px);
             z-index: 1000;
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             transform: translateY(100px);
             opacity: 0;
             transition: all 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .asset-card {
+                bottom: 10px;
+                left: 10px;
+                width: calc(100vw - 20px);
+                padding: 16px;
+                border-radius: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .asset-card {
+                bottom: 5px;
+                left: 5px;
+                width: calc(100vw - 10px);
+                padding: 12px;
+                border-radius: 10px;
+            }
         }
 
         .asset-card.show {

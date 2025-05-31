@@ -331,12 +331,16 @@ def login():
         if (username == 'admin' and password == 'admin') or \
            (username == 'executive' and password == 'executive') or \
            (username == 'controller' and password == 'controller'):
+            session.clear()
             session['logged_in'] = True
             session['username'] = username
             session['role'] = username
-            return redirect('/dashboard')
+            session.permanent = True
+            flash(f'Welcome {username}!', 'success')
+            return redirect(url_for('dashboard'))
         else:
-            return render_template('login.html', error='Invalid credentials')
+            flash('Invalid credentials. Use admin/admin, executive/executive, or controller/controller', 'error')
+            return render_template('login.html')
     
     return render_template('login.html')
 

@@ -1,0 +1,41 @@
+{
+  "app_name": "TRAXOVO Fleet Management",
+  "version": "1.0.2",
+  "deployment_optimized": true,
+  "security_hardened": true,
+  "features": [
+    "Dashboard Widget Customization",
+    "PDF Export System",
+    "Enterprise Security",
+    "Authentic GAUGE Data Integration",
+    "RAGLE Billing Processing"
+  ],
+  "dependencies": {
+    "critical": [
+      "flask>=2.3.0",
+      "flask-sqlalchemy>=3.0.0",
+      "psycopg2-binary",
+      "gunicorn>=21.0.0"
+    ],
+    "security": [
+      "flask-talisman",
+      "flask-limiter",
+      "flask-wtf",
+      "bleach"
+    ],
+    "features": [
+      "requests",
+      "pandas",
+      "openpyxl",
+      "reportlab"
+    ]
+  },
+  "environment_requirements": [
+    "SESSION_SECRET",
+    "DATABASE_URL",
+    "GAUGE_API_KEY",
+    "GAUGE_API_URL"
+  ],
+  "estimated_deployment_time": "15-25 minutes",
+  "optimization_level": "enterprise"
+}

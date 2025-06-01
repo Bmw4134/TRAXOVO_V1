@@ -1342,6 +1342,38 @@ def api_fleet_drilldown(category):
         logging.error(f"Fleet drill-down error: {e}")
         return jsonify({'success': False, 'error': str(e)})
 
+@app.route('/api/process-upload')
+def api_process_upload():
+    """Process uploaded files with deduplication"""
+    try:
+        from core.unified_billing_processor import handle_upload
+        
+        file_name = request.args.get('file')
+        table_name = request.args.get('table', 'billing_records')
+        
+        if not file_name:
+            return jsonify({'error': 'No file specified'}), 400
+        
+        # Construct full file path
+        file_path = os.path.join('uploads', file_name)
+        
+        if not os.path.exists(file_path):
+            return jsonify({'error': 'File not found'}), 404
+        
+        # Process with unified deduplication engine
+        result = handle_upload(file_path, table_name)
+        
+        if 'error' in result:
+            return jsonify(result), 500
+            
+        message = f"Processed {result['total_processed']} records: {result['inserted']} inserted, {result['skipped']} skipped, {result['flagged']} flagged"
+        result['message'] = message
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/attendance/drilldown/<type>')
 def api_attendance_drilldown(type):
     """Detailed attendance analytics for drill-down"""

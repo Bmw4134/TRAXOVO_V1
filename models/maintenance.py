@@ -12,7 +12,7 @@ class MaintenanceSchedule(db.Model):
     __tablename__ = 'maintenance_schedules'
     
     id = db.Column(db.Integer, primary_key=True)
-    asset_id = db.Column(db.String(50), db.ForeignKey('assets.id'), nullable=False)
+    asset_id = db.Column(db.Integer, db.ForeignKey('assets.id'), nullable=False)
     scheduled_date = db.Column(db.DateTime, nullable=False)
     maintenance_type = db.Column(db.String(50), nullable=False)
     status = db.Column(db.String(20), default='scheduled', nullable=False)
@@ -31,7 +31,7 @@ class MaintenanceRecord(db.Model):
     __tablename__ = 'maintenance_records'
     
     id = db.Column(db.Integer, primary_key=True)
-    asset_id = db.Column(db.String(50), db.ForeignKey('assets.id'), nullable=False)
+    asset_id = db.Column(db.Integer, db.ForeignKey('assets.id'), nullable=False)
     maintenance_date = db.Column(db.DateTime, nullable=False)
     maintenance_type = db.Column(db.String(50), nullable=False)
     performed_by = db.Column(db.String(100))

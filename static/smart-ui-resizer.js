@@ -140,19 +140,39 @@ indicator.style.display = 'none';
 }
 enableMobileGestures() {
 if (!this.deviceInfo.isTouch) return;
+
 let startY = 0;
+let startX = 0;
 let currentY = 0;
+let currentX = 0;
 let isPulling = false;
+let isScrolling = false;
+
+// Pull to refresh
 document.addEventListener('touchstart', (e) => {
 startY = e.touches[0].pageY;
-});
+startX = e.touches[0].pageX;
+isScrolling = false;
+}, { passive: true });
+
 document.addEventListener('touchmove', (e) => {
 currentY = e.touches[0].pageY;
-if (window.scrollY === 0 && currentY > startY + 50 && !isPulling) {
+currentX = e.touches[0].pageX;
+const deltaY = currentY - startY;
+const deltaX = currentX - startX;
+
+// Determine scroll direction
+if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 10) {
+isScrolling = true;
+}
+
+// Pull to refresh - only at top of page
+if (window.scrollY === 0 && deltaY > 50 && !isPulling && isScrolling) {
 isPulling = true;
 this.showPullToRefresh();
 }
-});
+}, { passive: true });
+
 document.addEventListener('touchend', () => {
 if (isPulling) {
 isPulling = false;
@@ -160,6 +180,28 @@ this.hidePullToRefresh();
 if (typeof refreshData === 'function') {
 refreshData();
 }
+}
+isScrolling = false;
+}, { passive: true });
+
+// Prevent zoom on double tap for form elements
+document.addEventListener('touchend', (e) => {
+if (e.target.matches('input, select, textarea, button')) {
+e.preventDefault();
+e.target.click();
+}
+}, { passive: false });
+
+// Improve focus handling on mobile
+document.addEventListener('focusin', (e) => {
+if (this.deviceInfo.isMobile && e.target.matches('input, textarea, select')) {
+setTimeout(() => {
+e.target.scrollIntoView({ 
+behavior: 'smooth', 
+block: 'center',
+inline: 'nearest'
+});
+}, 300);
 }
 });
 }

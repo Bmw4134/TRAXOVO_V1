@@ -1,0 +1,117 @@
+
+<div class="sidebar-content h-100 d-flex flex-column">
+    <!-- Logo -->
+    <div class="sidebar-header p-3 border-bottom">
+        <h5 class="text-white mb-0">
+            <i class="fas fa-truck me-2"></i>
+            TRAXORA
+        </h5>
+    </div>
+    
+    <!-- Navigation -->
+    <nav class="sidebar-nav flex-grow-1 overflow-auto">
+        <ul class="nav flex-column p-2">
+            <li class="nav-item">
+                <a class="nav-link text-white d-flex align-items-center py-3" href="/">
+                    <i class="fas fa-tachometer-alt me-3"></i>
+                    Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white d-flex align-items-center py-3" href="/working-reports">
+                    <i class="fas fa-chart-line me-3"></i>
+                    Reports
+                    <span class="badge bg-success ms-auto">Active</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white d-flex align-items-center py-3" href="/job-site-manager">
+                    <i class="fas fa-map-marker-alt me-3"></i>
+                    Job Sites
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white d-flex align-items-center py-3" href="/asset_map">
+                    <i class="fas fa-truck me-3"></i>
+                    Asset Map
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white d-flex align-items-center py-3" href="/attendance">
+                    <i class="fas fa-users me-3"></i>
+                    Attendance
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white d-flex align-items-center py-3" href="/billing">
+                    <i class="fas fa-dollar-sign me-3"></i>
+                    Billing
+                </a>
+            </li>
+            
+            <!-- Divider -->
+            <hr class="border-secondary my-3">
+            
+            <!-- Admin Section -->
+            <li class="nav-item">
+                <a class="nav-link text-white d-flex align-items-center py-3" href="/admin">
+                    <i class="fas fa-cog me-3"></i>
+                    Settings
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white d-flex align-items-center py-3" href="/data-upload-manager">
+                    <i class="fas fa-upload me-3"></i>
+                    Data Upload
+                </a>
+            </li>
+        </ul>
+    </nav>
+    
+    <!-- Footer -->
+    <div class="sidebar-footer p-3 border-top">
+        <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+                <small class="text-muted">Fleet Management</small>
+            </div>
+            <button class="btn btn-outline-light btn-sm" onclick="toggleMobileSidebar()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+.sidebar {
+    transition: transform 0.3s ease;
+}
+
+.sidebar-nav .nav-link {
+    border-radius: 8px;
+    margin-bottom: 4px;
+    transition: all 0.2s ease;
+}
+
+.sidebar-nav .nav-link:hover {
+    background-color: rgba(255,255,255,0.1);
+    transform: translateX(4px);
+}
+
+.sidebar-nav .nav-link.active {
+    background-color: rgba(102, 126, 234, 0.3);
+    border-left: 3px solid #667eea;
+}
+
+@media (max-width: 768px) {
+    .sidebar-nav .nav-link {
+        font-size: 16px;
+        padding: 16px 12px !important;
+        min-height: 56px;
+    }
+    
+    .sidebar-nav .nav-link i {
+        font-size: 18px;
+        width: 24px;
+    }
+}
+</style>

@@ -1354,8 +1354,8 @@ def api_process_upload():
         if not file_name:
             return jsonify({'error': 'No file specified'}), 400
         
-        # Construct full file path
-        file_path = os.path.join('uploads', file_name)
+        # Construct full file path  
+        file_path = os.path.join('uploads', secure_filename(file_name))
         
         if not os.path.exists(file_path):
             return jsonify({'error': 'File not found'}), 404

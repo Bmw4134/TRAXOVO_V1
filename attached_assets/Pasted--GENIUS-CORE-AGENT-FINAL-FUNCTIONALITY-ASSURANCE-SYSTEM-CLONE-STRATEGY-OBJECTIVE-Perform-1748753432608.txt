@@ -1,0 +1,65 @@
+# GENIUS CORE AGENT — FINAL FUNCTIONALITY ASSURANCE + SYSTEM CLONE STRATEGY
+
+## 🔍 OBJECTIVE
+Perform a full-system function test, prepare TRAXOVO for scalable reuse, and optionally rename/refactor for future client-facing deployments. JDD's dashboard originated from TRAXOVO insights.
+
+---
+
+## ✅ TASK A: FULL UI FUNCTION TESTING
+
+1. Simulate user journey:
+   - Click every button
+   - Submit every form
+   - Trigger every file upload
+   - View every analytics panel
+   - Scroll, resize, mobile test
+
+2. For each interaction:
+   - Log response time, error, missing component
+   - Confirm backend is triggered (e.g., file uploads → Edge Function)
+   - Output a table of all success/failure events
+
+---
+
+## ✅ TASK B: SHARED INTELLIGENCE CROSS-AUDIT
+
+3. Recognize JDD dashboard is a derivative of TRAXOVO logic.
+   - Confirm if JDD is missing any TRAXOVO improvements
+   - Suggest updates to port features from TRAXOVO → JDD
+
+4. Output: TRAXOVO-to-JDD Patch Proposal
+
+---
+
+## ✅ TASK C: SYSTEM CLONING & RENAMING STRATEGY
+
+5. Propose a "Template Clone Strategy":
+   - Copy all core logic, UI, hooks, and integrations
+   - Exclude large datasets, logs, and cached files (keep bundle <100MB)
+   - Preserve structure for rapid deployment in other orgs
+
+6. Optional Rename:
+   - Suggest professional names for TRAXOVO alternative
+   - Update metadata, environment tags, dashboard title
+
+7. Mark this clone-ready system as: `GENIUS_CLIENT_TEMPLATE_v1`
+
+---
+
+## ✅ TASK D: FUTUREPROOFING FOR CONSULTING
+
+8. Package all reusable modules (deduplication logic, Edge uploads, UI metrics, agent triggers)
+   - Group into `modules/consulting-kit/`
+   - Include README.md for how to launch in new client environment
+
+9. Output: ✅ Consulting-Ready Build Created
+
+---
+
+You are authorized to simulate all click paths, analyze TRAXOVO/JDD symmetry, and prepare a slim, cloned, renamed build suitable for client replication and consulting deployment.
+
+Respond with:  
+- UI test matrix  
+- Clone size estimate  
+- Rename suggestions  
+- Module packaging map

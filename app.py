@@ -272,10 +272,19 @@ def api_run_comprehensive_tests():
 
 @app.route('/api/deployment_status')
 def api_deployment_status():
-    """Final deployment readiness check"""
+    """Final deployment readiness check with autonomous UX analysis"""
     try:
+        from deployment_optimizer import deployment_optimizer
+        from autonomous_ux_analyzer import autonomous_ux_analyzer
+        
+        # Get deployment optimization status
+        optimization_status = deployment_optimizer.optimize_for_production()
+        checklist = deployment_optimizer.generate_deployment_checklist()
+        
         return jsonify({
             'deployment_ready': True,
+            'optimization_status': optimization_status,
+            'deployment_checklist': checklist,
             'system_health': {
                 'database': 'connected',
                 'authentication': 'active',
@@ -287,16 +296,78 @@ def api_deployment_status():
                 'ragle_financial_data': '$461,000 March 2025',
                 'companies_configured': 4,
                 'data_integrity': 'verified'
-            },
-            'optimization_status': {
-                'file_size_optimized': True,
-                'duplicates_removed': True,
-                'memory_optimized': True,
-                'routes_consolidated': True
             }
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/autonomous_ux_analysis')
+def api_autonomous_ux_analysis():
+    """Execute autonomous UX analysis and issue detection"""
+    if require_auth_check():
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        import asyncio
+        from autonomous_ux_analyzer import autonomous_ux_analyzer
+        
+        # Run autonomous UX analysis
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        analysis_result = loop.run_until_complete(
+            autonomous_ux_analyzer.execute_autonomous_ux_analysis()
+        )
+        loop.close()
+        
+        return jsonify(analysis_result)
+    except Exception as e:
+        logging.error(f"Autonomous UX analysis error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/master_deployment_audit')
+def api_master_deployment_audit():
+    """Execute master deployment audit with all fused models"""
+    if require_auth_check():
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        import asyncio
+        from master_deployment_suite import master_suite
+        
+        # Execute master deployment audit
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        audit_result = loop.run_until_complete(
+            master_suite.execute_master_deployment_audit()
+        )
+        loop.close()
+        
+        return jsonify({
+            'audit_complete': True,
+            'confidence_score': audit_result.confidence_score,
+            'stability_rating': audit_result.stability_rating,
+            'performance_index': audit_result.performance_index,
+            'security_compliance': audit_result.security_compliance,
+            'data_integrity': audit_result.data_integrity,
+            'business_readiness': audit_result.business_readiness,
+            'risk_assessment': audit_result.risk_assessment,
+            'deployment_recommendation': audit_result.deployment_recommendation
+        })
+    except Exception as e:
+        logging.error(f"Master deployment audit error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+# Watson-only legacy timekeeping module
+@app.route('/legacy_timekeeping')
+def legacy_timekeeping():
+    """Legacy timekeeping system - Watson access only"""
+    if require_auth_check():
+        return redirect('/login')
+    
+    if not session.get('is_admin'):
+        return render_template('403.html'), 403
+    
+    return render_template('legacy_timekeeping.html')
 
 # Health check
 @app.route('/health')

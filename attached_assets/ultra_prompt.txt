@@ -1,0 +1,12 @@
+
+Replit Agent, please do the following with this ZIP contents:
+
+1. Install Python dependencies from `requirements.txt`.
+2. Deploy `supabase_edge_dedupe.py` as a callable edge function or backend utility.
+3. Expose a route or Replit function trigger for `/api/process-upload`.
+4. Mount `uploadAndTrigger.js` into the frontend upload logic and connect to Supabase Storage.
+5. Ensure the Excel processor skips fluff header rows, deduplicates based on semantic match, and inserts only unique records.
+6. Return upload result in JSON: { inserted, skipped, flagged }.
+7. Retain existing mappings and integrate smart parsing logic from legacy configs if detected.
+
+Use CLARIFYMODE and DESIGNMODE from GENIUS CORE where needed.

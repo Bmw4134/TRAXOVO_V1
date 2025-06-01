@@ -52,3 +52,5 @@ bleach
 flask-limiter
 flask-talisman
 markupsafe
+sentence-transformers
+supabase

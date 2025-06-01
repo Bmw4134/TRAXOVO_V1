@@ -882,18 +882,65 @@ def fleet_analytics():
 
 @app.route('/api/run-fleet-analytics', methods=['POST'])
 def api_run_fleet_analytics():
-    """Execute comprehensive fleet analytics"""
+    """Execute comprehensive fleet analytics with authentic GAUGE data"""
     auth_check = require_auth()
     if auth_check:
         return auth_check
     
     try:
-        from fleet_analytics_engine import get_fleet_analytics
-        analytics = get_fleet_analytics()
-        result = analytics.run_comprehensive_analytics()
+        # Load authentic GAUGE fleet data
+        gauge_data = get_cached_gauge_data()
+        
+        # Calculate real analytics from your 717 assets
+        active_assets = [a for a in gauge_data if a.get('Active')]
+        inactive_assets = [a for a in gauge_data if not a.get('Active')]
+        
+        # Equipment utilization analysis
+        total_hours = sum(a.get('Engine1Hours', 0) for a in active_assets)
+        avg_hours = total_hours / len(active_assets) if active_assets else 0
+        
+        # Category breakdown
+        categories = {}
+        for asset in gauge_data:
+            cat = asset.get('AssetCategory', 'Unknown')
+            if cat not in categories:
+                categories[cat] = {'total': 0, 'active': 0}
+            categories[cat]['total'] += 1
+            if asset.get('Active'):
+                categories[cat]['active'] += 1
+        
+        # GPS tracking status
+        gps_enabled = len([a for a in gauge_data if a.get('Latitude') and a.get('Longitude')])
+        
+        result = {
+            'status': 'success',
+            'analytics': {
+                'fleet_overview': {
+                    'total_assets': len(gauge_data),
+                    'active_assets': len(active_assets),
+                    'inactive_assets': len(inactive_assets),
+                    'utilization_rate': round((len(active_assets) / len(gauge_data)) * 100, 1)
+                },
+                'equipment_hours': {
+                    'total_hours': int(total_hours),
+                    'average_hours': int(avg_hours),
+                    'high_usage': len([a for a in active_assets if a.get('Engine1Hours', 0) > avg_hours])
+                },
+                'categories': categories,
+                'technology': {
+                    'gps_enabled': gps_enabled,
+                    'gps_coverage': round((gps_enabled / len(gauge_data)) * 100, 1)
+                },
+                'recommendations': [
+                    'Focus on assets with high engine hours for maintenance scheduling',
+                    f'Consider upgrading GPS tracking for {len(gauge_data) - gps_enabled} assets',
+                    'Monitor inactive assets for potential redeployment opportunities'
+                ]
+            }
+        }
         return result
     except Exception as e:
-        return {'status': 'error', 'message': str(e)}, 500
+        return {'status': 'error', 'message': f'Analytics processing failed: {str(e)}'}, 500
 
 @app.route('/automated-workflows')
 def automated_workflows():

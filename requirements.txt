@@ -54,3 +54,4 @@ flask-talisman
 markupsafe
 sentence-transformers
 supabase
+selenium

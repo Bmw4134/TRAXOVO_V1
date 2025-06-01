@@ -1,39 +1,191 @@
-/* Mobile Responsive CSS for TRAXOVO */
+/* Enhanced Mobile Responsive CSS for TRAXOVO */
+
+/* Touch-friendly base styles */
+* {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+/* Improved viewport handling */
+html {
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+}
+
+/* Enhanced mobile navigation */
 @media (max-width: 768px) {
-    .container {
-        padding: 10px;
+    .container, .container-fluid {
+        padding: 8px 12px;
+        margin: 0;
+        max-width: 100%;
     }
     
     .dashboard-grid {
         grid-template-columns: 1fr;
-        gap: 15px;
+        gap: 12px;
+        padding: 0;
     }
     
     .nav-menu {
         flex-direction: column;
+        width: 100%;
     }
     
-    .metric-card {
+    .metric-card, .billing-card, .fleet-card {
         min-height: auto;
-        padding: 15px;
+        padding: 12px;
+        margin-bottom: 8px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
     
     .table-responsive {
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 8px;
     }
     
     .btn {
         width: 100%;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
+        min-height: 44px; /* Touch target size */
+        font-size: 14px;
+        border-radius: 6px;
+    }
+    
+    /* Enhanced sidebar for mobile */
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        z-index: 1050;
+        width: 280px;
+        background: var(--bs-light);
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    }
+    
+    .sidebar.show {
+        transform: translateX(0);
+    }
+    
+    .sidebar .nav-link {
+        padding: 12px 16px;
+        margin: 2px 8px;
+        border-radius: 6px;
+        font-size: 14px;
+    }
+    
+    /* Mobile header improvements */
+    .navbar {
+        padding: 8px 12px;
+        min-height: 56px;
+    }
+    
+    .navbar-toggler {
+        border: none;
+        padding: 8px;
+        border-radius: 6px;
+    }
+    
+    /* Card layouts for mobile */
+    .row > [class*="col-"] {
+        margin-bottom: 12px;
+    }
+    
+    /* Form improvements */
+    .form-control, .form-select {
+        min-height: 44px;
+        font-size: 16px; /* Prevents zoom on iOS */
+        border-radius: 6px;
+    }
+    
+    /* Table improvements */
+    .table th, .table td {
+        padding: 8px 6px;
+        font-size: 13px;
+    }
+    
+    /* Chart responsiveness */
+    .chart-container {
+        position: relative;
+        height: 250px;
+        margin: 12px 0;
     }
 }
 
 @media (max-width: 480px) {
     .dashboard-header h1 {
-        font-size: 1.5rem;
+        font-size: 1.25rem;
+        margin-bottom: 8px;
     }
     
     .metric-value {
-        font-size: 1.8rem;
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+    
+    .metric-label {
+        font-size: 11px;
+        color: var(--bs-secondary);
+    }
+    
+    .container, .container-fluid {
+        padding: 6px 8px;
+    }
+    
+    .metric-card {
+        padding: 10px;
+        min-height: 80px;
+    }
+    
+    .btn {
+        font-size: 13px;
+        padding: 10px 16px;
+    }
+    
+    /* Ultra-compact navigation */
+    .navbar-brand {
+        font-size: 1.1rem;
+    }
+    
+    .sidebar {
+        width: 260px;
+    }
+}
+
+/* Landscape phone optimization */
+@media (max-width: 768px) and (orientation: landscape) {
+    .sidebar {
+        width: 240px;
+    }
+    
+    .metric-card {
+        padding: 8px 12px;
+        min-height: 70px;
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+}
+
+/* Dark mode mobile enhancements */
+@media (max-width: 768px) {
+    [data-bs-theme="dark"] .sidebar {
+        background: var(--bs-dark);
+        border-right-color: var(--bs-gray-800);
+    }
+    
+    [data-bs-theme="dark"] .metric-card {
+        background: var(--bs-gray-800);
+        border-color: var(--bs-gray-700);
+    }
+    
+    [data-bs-theme="dark"] .navbar {
+        background: var(--bs-dark) !important;
+        border-bottom-color: var(--bs-gray-800);
     }
 }

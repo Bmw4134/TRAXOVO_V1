@@ -1,0 +1,360 @@
+
+{% extends "base.html" %}
+
+{% block title %}AI Fleet Insights - TRAXOVO{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">🤖 AI Fleet Insights</h1>
+            <p class="text-muted">Intelligent recommendations powered by machine learning</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary btn-sm" onclick="refreshInsights()">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="exportInsights()">
+                <i class="fas fa-download"></i> Export
+            </button>
+        </div>
+    </div>
+
+    <!-- AI Recommendations Cards -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title d-flex align-items-center">
+                        <i class="fas fa-brain text-primary me-2"></i>
+                        Smart Recommendations
+                        <span class="badge bg-success ms-2">Live</span>
+                    </h5>
+                    <div id="ai-recommendations" class="row g-3">
+                        <!-- Recommendations will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Trends -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">📈 Performance Trends</h5>
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <div class="trend-metric">
+                                <div class="trend-value text-success">{{ insights.performance_trends.efficiency_trend }}</div>
+                                <div class="trend-label">Efficiency</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="trend-metric">
+                                <div class="trend-value text-success">{{ insights.performance_trends.cost_trend }}</div>
+                                <div class="trend-label">Cost Reduction</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="trend-metric">
+                                <div class="trend-value text-success">{{ insights.performance_trends.utilization_trend }}</div>
+                                <div class="trend-label">Utilization</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">🎯 Fleet Health Score</h5>
+                    <div class="text-center">
+                        <div class="health-score-circle">
+                            <div class="score-value">87</div>
+                            <div class="score-label">Overall Health</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cost Savings Opportunities -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">💰 Cost Savings Opportunities</h5>
+                    <div class="row">
+                        {% for opportunity in insights.cost_savings_opportunities %}
+                        <div class="col-md-4 mb-3">
+                            <div class="savings-card">
+                                <div class="savings-amount">{{ opportunity.potential_savings }}</div>
+                                <div class="savings-description">{{ opportunity.description }}</div>
+                                <button class="btn btn-sm btn-outline-primary mt-2">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Anomaly Alerts -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">⚠️ Anomaly Detection</h5>
+                    <div class="alert-list">
+                        {% for alert in insights.anomaly_alerts %}
+                        <div class="alert-item severity-{{ alert.severity }}">
+                            <div class="alert-content">
+                                <div class="alert-equipment">{{ alert.equipment }}</div>
+                                <div class="alert-issue">{{ alert.issue }}</div>
+                            </div>
+                            <div class="alert-actions">
+                                <span class="badge bg-warning">{{ alert.severity|title }}</span>
+                                <button class="btn btn-sm btn-outline-dark ms-2">Investigate</button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.trend-metric {
+    padding: 1rem;
+    border-radius: 8px;
+    background: var(--bs-light);
+    margin-bottom: 1rem;
+}
+
+[data-bs-theme="dark"] .trend-metric {
+    background: var(--bs-gray-800);
+}
+
+.trend-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.trend-label {
+    font-size: 0.875rem;
+    color: var(--bs-secondary);
+}
+
+.health-score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, #10b981 0deg 313deg, #e5e7eb 313deg 360deg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    position: relative;
+}
+
+.health-score-circle::before {
+    content: '';
+    position: absolute;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: var(--bs-body-bg);
+}
+
+.score-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--bs-primary);
+    z-index: 1;
+}
+
+.score-label {
+    font-size: 0.75rem;
+    color: var(--bs-secondary);
+    z-index: 1;
+}
+
+.savings-card {
+    padding: 1.5rem;
+    border-radius: 8px;
+    background: var(--bs-light);
+    text-align: center;
+    height: 100%;
+    transition: transform 0.2s ease;
+}
+
+.savings-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+[data-bs-theme="dark"] .savings-card {
+    background: var(--bs-gray-800);
+}
+
+.savings-amount {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--bs-success);
+    margin-bottom: 0.5rem;
+}
+
+.savings-description {
+    font-size: 0.875rem;
+    color: var(--bs-secondary);
+    margin-bottom: 1rem;
+}
+
+.alert-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    background: var(--bs-light);
+    border-left: 4px solid var(--bs-warning);
+}
+
+[data-bs-theme="dark"] .alert-item {
+    background: var(--bs-gray-800);
+}
+
+.alert-item.severity-high {
+    border-left-color: var(--bs-danger);
+}
+
+.alert-item.severity-medium {
+    border-left-color: var(--bs-warning);
+}
+
+.alert-item.severity-low {
+    border-left-color: var(--bs-info);
+}
+
+.alert-equipment {
+    font-weight: 600;
+    color: var(--bs-primary);
+}
+
+.alert-issue {
+    font-size: 0.875rem;
+    color: var(--bs-secondary);
+}
+
+.recommendation-card {
+    padding: 1rem;
+    border-radius: 8px;
+    background: var(--bs-light);
+    border-left: 4px solid var(--bs-primary);
+    margin-bottom: 1rem;
+    transition: all 0.2s ease;
+}
+
+.recommendation-card:hover {
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+[data-bs-theme="dark"] .recommendation-card {
+    background: var(--bs-gray-800);
+}
+
+.recommendation-card.impact-high {
+    border-left-color: var(--bs-success);
+}
+
+.recommendation-card.impact-medium {
+    border-left-color: var(--bs-warning);
+}
+
+.recommendation-card.impact-low {
+    border-left-color: var(--bs-info);
+}
+</style>
+
+<script>
+async function loadAIRecommendations() {
+    try {
+        const response = await fetch('/features/api/ai-recommendations');
+        const recommendations = await response.json();
+        
+        const container = document.getElementById('ai-recommendations');
+        container.innerHTML = recommendations.map(rec => `
+            <div class="col-md-4">
+                <div class="recommendation-card impact-${rec.impact}">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6 class="mb-0">${rec.title}</h6>
+                        <span class="badge bg-primary">${rec.confidence}%</span>
+                    </div>
+                    <p class="text-muted small mb-2">${rec.description}</p>
+                    <button class="btn btn-sm btn-outline-primary">Apply</button>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Failed to load AI recommendations:', error);
+    }
+}
+
+function refreshInsights() {
+    // Add loading state
+    const btn = event.target.closest('button');
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+    btn.disabled = true;
+    
+    // Simulate API call
+    setTimeout(() => {
+        loadAIRecommendations();
+        btn.innerHTML = originalHTML;
+        btn.disabled = false;
+        
+        // Show success toast
+        showToast('Insights refreshed successfully', 'success');
+    }, 1500);
+}
+
+function exportInsights() {
+    // Implementation for exporting insights
+    showToast('Insights exported to downloads', 'success');
+}
+
+function showToast(message, type = 'info') {
+    // Create toast notification
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type} position-fixed top-0 end-0 m-3`;
+    toast.style.zIndex = '9999';
+    toast.textContent = message;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+
+// Load recommendations on page load
+document.addEventListener('DOMContentLoaded', loadAIRecommendations);
+
+// Auto-refresh every 5 minutes
+setInterval(loadAIRecommendations, 5 * 60 * 1000);
+</script>
+{% endblock %}

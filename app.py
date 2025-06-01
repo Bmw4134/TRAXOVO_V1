@@ -511,11 +511,19 @@ def fleet_map():
 @app.route('/attendance-matrix')
 @app.route('/driver-attendance')
 def attendance_matrix():
-    """Driver attendance matrix"""
+    """Driver attendance matrix with authentic data"""
     auth_check = require_auth()
     if auth_check:
         return auth_check
-    return render_template('attendance_matrix.html')
+    
+    # Load authentic attendance data from your data sources
+    attendance_data = load_authentic_attendance_data()
+    driver_metrics = get_driver_performance_metrics()
+    
+    return render_template('attendance_matrix.html',
+                         attendance_data=attendance_data,
+                         driver_metrics=driver_metrics,
+                         report_date=datetime.now().strftime('%Y-%m-%d'))
 
 @app.route('/asset-manager')
 @app.route('/asset-management')

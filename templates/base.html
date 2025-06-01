@@ -196,6 +196,48 @@
     <link rel="stylesheet" href="/static/dashboard-customization.css">
     <script src="/static/dashboard-customization.js"></script>
     <script src="/static/pdf-export.js"></script>
+    
+    <!-- Sidebar Navigation Fix -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fix sidebar toggle for mobile
+        const sidebarToggle = document.querySelector('[data-bs-toggle="collapse"]');
+        const sidebar = document.getElementById('sidebarMenu');
+        
+        if (sidebarToggle && sidebar) {
+            sidebarToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                sidebar.classList.toggle('show');
+                
+                // Update ARIA attributes
+                const isExpanded = sidebar.classList.contains('show');
+                sidebarToggle.setAttribute('aria-expanded', isExpanded);
+            });
+        }
+        
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(e) {
+            if (window.innerWidth < 768) {
+                if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+                    sidebar.classList.remove('show');
+                    if (sidebarToggle) {
+                        sidebarToggle.setAttribute('aria-expanded', 'false');
+                    }
+                }
+            }
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 768) {
+                sidebar.classList.remove('show');
+                if (sidebarToggle) {
+                    sidebarToggle.setAttribute('aria-expanded', 'false');
+                }
+            }
+        });
+    });
+    </script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

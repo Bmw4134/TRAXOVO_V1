@@ -88,6 +88,7 @@ try:
     print("✅ CSRF protection enabled")
 except Exception as e:
     print(f"⚠️  CSRF protection warning: {e}")
+    csrf = None
 
 # Rate Limiting
 try:
@@ -335,6 +336,7 @@ def get_authentic_metrics():
 
 # Authentication routes
 @app.route('/login', methods=['GET', 'POST'])
+@csrf.exempt
 def login():
     """User authentication"""
     if request.method == 'POST':

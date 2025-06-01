@@ -476,9 +476,8 @@ def index():
 @app.route('/dashboard')
 def dashboard():
     """Main dashboard"""
-    auth_check = require_auth()
-    if auth_check:
-        return auth_check
+    if not session.get('authenticated'):
+        return redirect('/login')
     
     metrics = get_authentic_metrics()
     username = session.get('username', 'User')
@@ -1822,9 +1821,10 @@ def operational_analytics():
     return render_template('operational_analytics_dashboard.html')
 
 @app.route('/api/operational_analytics')
-@require_auth()
 def api_operational_analytics():
     """API endpoint for operational analytics data"""
+    if not session.get('authenticated'):
+        return jsonify({'error': 'Authentication required'}), 401
     try:
         from operational_analytics_engine import analytics_engine
         analytics_data = analytics_engine.generate_operational_insights()
@@ -1834,7 +1834,6 @@ def api_operational_analytics():
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/deployment_status')
-@require_auth()
 def api_deployment_status():
     """Final deployment readiness check"""
     try:

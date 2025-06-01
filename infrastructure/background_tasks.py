@@ -51,14 +51,17 @@ class TaskManager:
         logger = logging.getLogger('traxovo.background')
         logger.setLevel(logging.INFO)
         
-        # Prevent duplicate logs
-        if not logger.handlers:
-            handler = logging.StreamHandler()
-            formatter = logging.Formatter(
-                '%(asctime)s - BACKGROUND - %(levelname)s - %(message)s'
-            )
-            handler.setFormatter(formatter)
-            logger.addHandler(handler)
+        # Clear existing handlers to prevent duplicates
+        for handler in logger.handlers[:]:
+            logger.removeHandler(handler)
+            
+        # Add single handler
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter(
+            '%(asctime)s - BACKGROUND - %(levelname)s - %(message)s'
+        )
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
         
         return logger
     

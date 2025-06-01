@@ -1,185 +1,106 @@
-
 {% extends "base.html" %}
 
-{% block title %}System Status - TRAXOVO Debug{% endblock %}
+{% block title %}System Status - TRAXOVO{% endblock %}
 
 {% block content %}
-<div class="container-fluid px-4">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-0">🔧 System Status</h1>
-            <p class="text-muted">Real-time system monitoring and debugging</p>
-        </div>
-        <div class="d-flex gap-2">
-            <button class="btn btn-outline-success btn-sm" onclick="refreshStats()">
-                <i class="fas fa-sync-alt"></i> Refresh
-            </button>
-            <button class="btn btn-outline-primary btn-sm" onclick="exportLogs()">
-                <i class="fas fa-download"></i> Export Logs
-            </button>
-        </div>
-    </div>
-
-    <!-- Live System Metrics -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body text-center">
-                    <div class="metric-icon text-primary mb-2">
-                        <i class="fas fa-microchip fa-2x"></i>
-                    </div>
-                    <div class="metric-value" id="cpu-usage">--</div>
-                    <div class="metric-label">CPU Usage</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body text-center">
-                    <div class="metric-icon text-warning mb-2">
-                        <i class="fas fa-memory fa-2x"></i>
-                    </div>
-                    <div class="metric-value" id="memory-usage">--</div>
-                    <div class="metric-label">Memory Usage</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body text-center">
-                    <div class="metric-icon text-info mb-2">
-                        <i class="fas fa-hdd fa-2x"></i>
-                    </div>
-                    <div class="metric-value" id="disk-usage">--</div>
-                    <div class="metric-label">Disk Usage</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body text-center">
-                    <div class="metric-icon text-success mb-2">
-                        <i class="fas fa-network-wired fa-2x"></i>
-                    </div>
-                    <div class="metric-value" id="connections">--</div>
-                    <div class="metric-label">Active Connections</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- System Information -->
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-transparent">
-                    <h5 class="card-title mb-0">💻 System Information</h5>
-                </div>
-                <div class="card-body">
-                    <table class="table table-sm">
-                        <tr>
-                            <td><strong>Python Version:</strong></td>
-                            <td>{{ status.python_version.split()[0] }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Platform:</strong></td>
-                            <td>{{ status.system_platform }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>CPU Cores:</strong></td>
-                            <td>{{ status.cpu_count }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Total Memory:</strong></td>
-                            <td>{{ status.total_memory }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Disk Space:</strong></td>
-                            <td>{{ status.disk_space }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Environment:</strong></td>
-                            <td>
-                                <span class="badge bg-{{ 'warning' if status.flask_environment == 'development' else 'success' }}">
-                                    {{ status.flask_environment|title }}
-                                </span>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-transparent">
-                    <h5 class="card-title mb-0">📊 Performance Monitor</h5>
-                </div>
-                <div class="card-body">
-                    <canvas id="performanceChart" width="400" height="200"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Recent Logs -->
-    <div class="row mb-4">
+<div class="container-fluid mt-4">
+    <div class="row">
         <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">📋 Recent Activity</h5>
-                    <div class="btn-group btn-group-sm" role="group">
-                        <button type="button" class="btn btn-outline-primary active" onclick="loadLogs('all')">All</button>
-                        <button type="button" class="btn btn-outline-warning" onclick="loadLogs('error')">Errors</button>
-                        <button type="button" class="btn btn-outline-info" onclick="loadLogs('access')">Access</button>
+            <h2><i class="fas fa-cogs text-primary"></i> System Status Dashboard</h2>
+            <p class="text-muted">Real-time system monitoring and diagnostics</p>
+        </div>
+    </div>
+
+    <!-- System Metrics -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">CPU Usage</h6>
+                            <h4 class="text-primary" id="cpu-usage">--</h4>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-microchip fa-2x text-primary"></i>
+                        </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card">
                 <div class="card-body">
-                    <div id="logs-container" style="height: 300px; overflow-y: auto;">
-                        <!-- Logs will be loaded here -->
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Memory Usage</h6>
+                            <h4 class="text-success" id="memory-usage">--</h4>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-memory fa-2x text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Background Tasks</h6>
+                            <h4 class="text-info" id="active-tasks">--</h4>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-tasks fa-2x text-info"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">System Status</h6>
+                            <h4 class="text-warning" id="system-status">--</h4>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-heartbeat fa-2x text-warning"></i>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Health Checks -->
-    <div class="row mb-4">
+    <!-- System Logs -->
+    <div class="row">
         <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-transparent">
-                    <h5 class="card-title mb-0">🏥 Health Checks</h5>
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-file-alt"></i> Recent System Logs</h5>
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="health-check">
-                                <i class="fas fa-database text-success"></i>
-                                <span class="ms-2">Database</span>
-                                <span class="badge bg-success ms-auto">✓ Online</span>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="health-check">
-                                <i class="fas fa-server text-success"></i>
-                                <span class="ms-2">Web Server</span>
-                                <span class="badge bg-success ms-auto">✓ Running</span>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="health-check">
-                                <i class="fas fa-cloud text-success"></i>
-                                <span class="ms-2">External APIs</span>
-                                <span class="badge bg-success ms-auto">✓ Connected</span>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="health-check">
-                                <i class="fas fa-shield-alt text-success"></i>
-                                <span class="ms-2">Security</span>
-                                <span class="badge bg-success ms-auto">✓ Secure</span>
-                            </div>
-                        </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>File</th>
+                                    <th>Message</th>
+                                </tr>
+                            </thead>
+                            <tbody id="log-entries">
+                                <tr>
+                                    <td colspan="3" class="text-center">Loading logs...</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -187,203 +108,49 @@
     </div>
 </div>
 
-<style>
-.metric-value {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 0.25rem;
-}
-
-.metric-label {
-    font-size: 0.875rem;
-    color: var(--bs-secondary);
-}
-
-.health-check {
-    display: flex;
-    align-items: center;
-    padding: 0.75rem;
-    margin-bottom: 0.5rem;
-    border-radius: 6px;
-    background: var(--bs-light);
-}
-
-[data-bs-theme="dark"] .health-check {
-    background: var(--bs-gray-800);
-}
-
-.log-entry {
-    padding: 0.5rem;
-    margin-bottom: 0.25rem;
-    border-radius: 4px;
-    font-family: 'Courier New', monospace;
-    font-size: 0.875rem;
-    background: var(--bs-light);
-    border-left: 3px solid var(--bs-primary);
-}
-
-.log-entry.error {
-    border-left-color: var(--bs-danger);
-    background: rgba(220, 53, 69, 0.1);
-}
-
-.log-entry.warning {
-    border-left-color: var(--bs-warning);
-    background: rgba(255, 193, 7, 0.1);
-}
-
-[data-bs-theme="dark"] .log-entry {
-    background: var(--bs-gray-800);
-}
-</style>
-
 <script>
-let performanceChart;
-let updateInterval;
-
-async function loadSystemStats() {
-    try {
-        const response = await fetch('/debug/api/live-system-stats');
-        const stats = await response.json();
-        
-        document.getElementById('cpu-usage').textContent = `${stats.cpu_percent.toFixed(1)}%`;
-        document.getElementById('memory-usage').textContent = `${stats.memory_percent.toFixed(1)}%`;
-        document.getElementById('disk-usage').textContent = `${stats.disk_usage.toFixed(1)}%`;
-        document.getElementById('connections').textContent = stats.active_connections;
-        
-        updatePerformanceChart(stats);
-    } catch (error) {
-        console.error('Failed to load system stats:', error);
-    }
-}
-
-function updatePerformanceChart(stats) {
-    if (!performanceChart) {
-        initializePerformanceChart();
-    }
-    
-    const now = new Date();
-    performanceChart.data.labels.push(now.toLocaleTimeString());
-    performanceChart.data.datasets[0].data.push(stats.cpu_percent);
-    performanceChart.data.datasets[1].data.push(stats.memory_percent);
-    
-    // Keep only last 20 data points
-    if (performanceChart.data.labels.length > 20) {
-        performanceChart.data.labels.shift();
-        performanceChart.data.datasets[0].data.shift();
-        performanceChart.data.datasets[1].data.shift();
-    }
-    
-    performanceChart.update('none');
-}
-
-function initializePerformanceChart() {
-    const ctx = document.getElementById('performanceChart').getContext('2d');
-    performanceChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'CPU %',
-                data: [],
-                borderColor: '#3b82f6',
-                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                tension: 0.4
-            }, {
-                label: 'Memory %',
-                data: [],
-                borderColor: '#f59e0b',
-                backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100
-                }
-            },
-            plugins: {
-                legend: {
-                    position: 'top'
-                }
+// Auto-refresh system status
+function refreshSystemStatus() {
+    fetch('/system-debug/api/status')
+        .then(response => response.json())
+        .then(data => {
+            if (data.system) {
+                document.getElementById('cpu-usage').textContent = data.system.cpu_percent + '%';
+                document.getElementById('memory-usage').textContent = data.system.memory_percent + '%';
+                document.getElementById('system-status').textContent = data.status.toUpperCase();
             }
-        }
-    });
+            if (data.background_tasks) {
+                document.getElementById('active-tasks').textContent = data.background_tasks.active_tasks || 0;
+            }
+        })
+        .catch(error => console.error('Error fetching status:', error));
+
+    // Refresh logs
+    fetch('/system-debug/api/logs')
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.getElementById('log-entries');
+            tbody.innerHTML = '';
+
+            if (data.logs && data.logs.length > 0) {
+                data.logs.slice(-20).forEach(log => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${new Date().toLocaleTimeString()}</td>
+                        <td>${log.file}</td>
+                        <td><small>${log.content}</small></td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center">No logs available</td></tr>';
+            }
+        })
+        .catch(error => console.error('Error fetching logs:', error));
 }
 
-async function loadLogs(type = 'all') {
-    try {
-        const container = document.getElementById('logs-container');
-        container.innerHTML = '<div class="text-center">Loading logs...</div>';
-        
-        // Simulate loading logs
-        setTimeout(() => {
-            const logs = [
-                { level: 'INFO', message: 'Application started successfully', timestamp: new Date().toISOString() },
-                { level: 'DEBUG', message: 'Database connection established', timestamp: new Date().toISOString() },
-                { level: 'INFO', message: 'User authentication successful', timestamp: new Date().toISOString() },
-                { level: 'WARNING', message: 'High memory usage detected', timestamp: new Date().toISOString() }
-            ];
-            
-            container.innerHTML = logs.map(log => `
-                <div class="log-entry ${log.level.toLowerCase()}">
-                    <span class="badge bg-${log.level === 'ERROR' ? 'danger' : log.level === 'WARNING' ? 'warning' : 'info'} me-2">
-                        ${log.level}
-                    </span>
-                    <span class="text-muted me-2">${new Date(log.timestamp).toLocaleTimeString()}</span>
-                    ${log.message}
-                </div>
-            `).join('');
-        }, 500);
-        
-        // Update active button
-        document.querySelectorAll('.btn-group button').forEach(btn => btn.classList.remove('active'));
-        event.target.classList.add('active');
-    } catch (error) {
-        console.error('Failed to load logs:', error);
-    }
-}
-
-function refreshStats() {
-    loadSystemStats();
-    loadLogs();
-    showToast('System stats refreshed', 'success');
-}
-
-function exportLogs() {
-    // Implementation for exporting logs
-    showToast('Logs exported successfully', 'success');
-}
-
-function showToast(message, type = 'info') {
-    const toast = document.createElement('div');
-    toast.className = `alert alert-${type} position-fixed top-0 end-0 m-3`;
-    toast.style.zIndex = '9999';
-    toast.textContent = message;
-    
-    document.body.appendChild(toast);
-    
-    setTimeout(() => toast.remove(), 3000);
-}
-
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', () => {
-    loadSystemStats();
-    loadLogs();
-    
-    // Auto-refresh every 5 seconds
-    updateInterval = setInterval(loadSystemStats, 5000);
-});
-
-// Cleanup on page unload
-window.addEventListener('beforeunload', () => {
-    if (updateInterval) clearInterval(updateInterval);
-});
-</script>
-{% endblock %}
+// Initial load and auto-refresh every 10 seconds
+refreshSystemStatus();
+setInterval(refreshSystemStatus, 10000);
 </script>
 {% endblock %}

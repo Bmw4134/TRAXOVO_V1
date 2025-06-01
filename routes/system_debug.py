@@ -201,3 +201,109 @@ def get_cache_stats():
         'miss_rate': 10.5,
         'cache_size': '245 MB'
     }
+"""
+System Debug Module
+Real-time system monitoring and debugging interface
+"""
+
+import os
+import json
+import psutil
+from datetime import datetime
+from flask import Blueprint, render_template, jsonify, request
+from flask_login import login_required, current_user
+
+# Import system components
+try:
+    from infrastructure.advanced_logging import traxovo_logger
+    from infrastructure.background_tasks import task_manager, get_system_status
+except ImportError:
+    traxovo_logger = None
+    task_manager = None
+
+system_debug_bp = Blueprint('system_debug', __name__, url_prefix='/system-debug')
+
+@system_debug_bp.route('/')
+@login_required
+def index():
+    """System debug dashboard"""
+    # Check admin access
+    is_admin = getattr(current_user, 'is_admin', False)
+    if not is_admin:
+        return render_template('error.html', error='Unauthorized access'), 403
+    
+    return render_template('debug/system_status.html')
+
+@system_debug_bp.route('/api/status')
+@login_required
+def api_status():
+    """Get comprehensive system status"""
+    try:
+        # System metrics
+        system_info = {
+            'cpu_percent': psutil.cpu_percent(interval=1),
+            'memory_percent': psutil.virtual_memory().percent,
+            'disk_usage': psutil.disk_usage('/').percent,
+            'timestamp': datetime.now().isoformat(),
+            'uptime': datetime.now().isoformat()
+        }
+        
+        # Background tasks status
+        background_status = {}
+        if task_manager:
+            background_status = get_system_status()
+        
+        # Logging metrics
+        logging_metrics = {}
+        if traxovo_logger:
+            logging_metrics = traxovo_logger.get_performance_report()
+        
+        return jsonify({
+            'system': system_info,
+            'background_tasks': background_status,
+            'logging': logging_metrics,
+            'status': 'healthy'
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'error': str(e),
+            'status': 'error'
+        }), 500
+
+@system_debug_bp.route('/api/logs')
+@login_required 
+def api_logs():
+    """Get recent system logs"""
+    try:
+        log_entries = []
+        logs_dir = 'logs'
+        
+        if os.path.exists(logs_dir):
+            for log_file in os.listdir(logs_dir):
+                if log_file.endswith('.log'):
+                    log_path = os.path.join(logs_dir, log_file)
+                    try:
+                        with open(log_path, 'r') as f:
+                            lines = f.readlines()[-50:]  # Last 50 lines
+                            for line in lines:
+                                log_entries.append({
+                                    'file': log_file,
+                                    'content': line.strip(),
+                                    'timestamp': datetime.now().isoformat()
+                                })
+                    except Exception as e:
+                        continue
+        
+        return jsonify({
+            'logs': log_entries[-100:],  # Return last 100 entries
+            'count': len(log_entries)
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+def register_blueprint(app):
+    """Register the blueprint with the application"""
+    app.register_blueprint(system_debug_bp)
+    app.logger.info("Registered System Debug blueprint")

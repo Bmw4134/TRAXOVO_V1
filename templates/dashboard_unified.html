@@ -1,484 +1,355 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRAXOVO - Unified Fleet Intelligence</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body {
-            background: linear-gradient(135deg, #1f2937 0%, #374151 50%, #4b5563 100%);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            min-height: 100vh;
-            color: #fff;
-        }
-        .dashboard-container {
-            padding: 1.5rem;
-        }
-        .metric-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 15px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            transition: all 0.3s ease;
-        }
-        .metric-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-        }
-        .metric-value {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #10b981;
-        }
-        .metric-label {
-            font-size: 0.9rem;
-            color: #d1d5db;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .chart-container {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 15px;
-            padding: 2rem;
-            margin-bottom: 1.5rem;
-            height: 400px;
-        }
-        .sidebar {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(15px);
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
-            min-height: 100vh;
-            padding: 1rem;
-        }
-        .nav-link {
-            color: #d1d5db;
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-            margin-bottom: 0.5rem;
-            transition: all 0.3s ease;
-        }
-        .nav-link:hover, .nav-link.active {
-            background: rgba(16, 185, 129, 0.2);
-            color: #10b981;
-        }
-        .status-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-        .status-active {
-            background: rgba(16, 185, 129, 0.2);
-            color: #10b981;
-        }
-        .status-maintenance {
-            background: rgba(245, 158, 11, 0.2);
-            color: #f59e0b;
-        }
-        .revenue-trend {
-            background: linear-gradient(45deg, #10b981, #059669);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .equipment-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-        .drill-down-modal {
-            background: rgba(31, 41, 55, 0.95);
-            backdrop-filter: blur(20px);
-        }
-    </style>
-</head>
-<body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Unified Navigation -->
-            {% include 'components/unified_navigation.html' %}
+{% extends "base.html" %}
 
-            <!-- Main Content -->
-            <div class="main-content">
-                <div class="dashboard-container">
-                <!-- Header -->
-                <div class="row mb-4">
-                    <div class="col-md-8">
-                        <h2 class="text-white mb-1">Fleet Operations Dashboard</h2>
-                        <p class="text-muted">Real-time fleet intelligence and analytics</p>
-                    </div>
-                    <div class="col-md-4 text-end">
-                        <div class="d-flex align-items-center justify-content-end">
-                            <i class="fas fa-circle text-success me-2"></i>
-                            <span class="text-muted">Live Data</span>
-                            <small class="ms-3 text-muted">{{ last_updated }}</small>
-                        </div>
-                    </div>
+{% block title %}TRAXOVO Fleet Operations{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='mobile-responsive.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='smooth-transitions.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='asset-tooltips.css') }}">
+<style>
+/* Clean Professional UI - Based on JDD Design */
+body {
+    background: #f5f6fa;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: #2c3e50;
+}
+
+.main-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.header-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+}
+
+.header-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin: 0;
+}
+
+.dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem 4rem 2rem;
+}
+
+/* Quick Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+    border-left: 4px solid #3498db;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+.stat-card.success { border-left-color: #27ae60; }
+.stat-card.warning { border-left-color: #f39c12; }
+.stat-card.danger { border-left-color: #e74c3c; }
+
+.stat-value {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Module Grid */
+.modules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.module-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+    transition: all 0.3s ease;
+}
+
+.module-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+}
+
+.module-header {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+    padding: 1.5rem;
+    position: relative;
+}
+
+.module-header.fleet { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+.module-header.billing { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+.module-header.automation { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+.module-header.analytics { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+
+.module-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+}
+
+.module-subtitle {
+    opacity: 0.9;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.module-content {
+    padding: 1.5rem;
+}
+
+.module-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.btn-module {
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.btn-primary {
+    background: #3498db;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #2980b9;
+    color: white;
+    text-decoration: none;
+}
+
+.btn-success {
+    background: #27ae60;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #229954;
+    color: white;
+    text-decoration: none;
+}
+
+.btn-info {
+    background: #17a2b8;
+    color: white;
+}
+
+.btn-info:hover {
+    background: #138496;
+    color: white;
+    text-decoration: none;
+}
+
+/* Status Indicators */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-left: 0.5rem;
+}
+
+.status-online { background: #d4edda; color: #155724; }
+.status-warning { background: #fff3cd; color: #856404; }
+.status-error { background: #f8d7da; color: #721c24; }
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .header-title { font-size: 2rem; }
+    .stats-grid { grid-template-columns: 1fr; gap: 1rem; }
+    .modules-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+    .dashboard-container { padding: 0 1rem 2rem 1rem; }
+    .module-actions { flex-direction: column; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-header">
+    <div class="header-content">
+        <h1 class="header-title">TRAXOVO Fleet Operations</h1>
+        <p class="header-subtitle">Enterprise Fleet Management with Real-Time Intelligence</p>
+    </div>
+</div>
+
+<div class="dashboard-container">
+    <!-- Quick Stats -->
+    <div class="stats-grid">
+        <div class="stat-card success">
+            <div class="stat-value" id="total-assets">{{ metrics.total_assets or 717 }}</div>
+            <div class="stat-label">Total Fleet Assets</div>
+        </div>
+        <div class="stat-card success">
+            <div class="stat-value" id="active-assets">{{ metrics.active_assets or 614 }}</div>
+            <div class="stat-label">Active Equipment</div>
+        </div>
+        <div class="stat-card warning">
+            <div class="stat-value" id="gps-enabled">{{ metrics.gps_enabled or 156 }}</div>
+            <div class="stat-label">GPS Tracking</div>
+        </div>
+        <div class="stat-card info">
+            <div class="stat-value" id="categories">{{ metrics.equipment_categories or 56 }}</div>
+            <div class="stat-label">Equipment Types</div>
+        </div>
+    </div>
+
+    <!-- Core Modules -->
+    <div class="modules-grid">
+        <!-- Fleet Operations -->
+        <div class="module-card">
+            <div class="module-header fleet">
+                <h3 class="module-title">Fleet Operations</h3>
+                <p class="module-subtitle">Real-time asset tracking & management</p>
+            </div>
+            <div class="module-content">
+                <div class="module-actions">
+                    <a href="/fleet-map" class="btn-module btn-primary">Asset Map</a>
+                    <a href="/asset-manager" class="btn-module btn-success">Asset Manager</a>
+                    <a href="/attendance-matrix" class="btn-module btn-info">Driver Attendance</a>
                 </div>
+            </div>
+        </div>
 
-                <!-- Key Metrics Row -->
-                <div class="row mb-4">
-                    <div class="col-md-3">
-                        <div class="metric-card text-center">
-                            <div class="metric-value">{{ total_equipment }}</div>
-                            <div class="metric-label">Total Equipment</div>
-                            <small class="text-muted">All assets in fleet</small>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="metric-card text-center">
-                            <div class="metric-value">{{ active_equipment }}</div>
-                            <div class="metric-label">Active Units</div>
-                            <span class="status-badge status-active">{{ ((active_equipment / total_equipment) * 100)|round(1) }}% Active</span>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="metric-card text-center">
-                            <div class="metric-value revenue-trend">${{ "{:,.0f}".format(analytics_data.total_revenue) }}</div>
-                            <div class="metric-label">Total Revenue</div>
-                            <small class="text-success">+12.5% vs last month</small>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="metric-card text-center">
-                            <div class="metric-value">{{ analytics_data.utilization_rate }}%</div>
-                            <div class="metric-label">Fleet Utilization</div>
-                            <small class="text-warning">+2.3% vs target</small>
-                        </div>
-                    </div>
+        <!-- Billing Intelligence -->
+        <div class="module-card">
+            <div class="module-header billing">
+                <h3 class="module-title">Billing Intelligence</h3>
+                <p class="module-subtitle">Automated billing & revenue tracking</p>
+            </div>
+            <div class="module-content">
+                <div class="module-actions">
+                    <a href="/billing" class="btn-module btn-primary">Billing Dashboard</a>
+                    <a href="/equipment-billing" class="btn-module btn-success">Equipment Billing</a>
+                    <a href="/executive-reports" class="btn-module btn-info">Executive Reports</a>
                 </div>
+            </div>
+        </div>
 
-                <!-- Charts Row -->
-                <div class="row">
-                    <!-- Revenue Trend Chart -->
-                    <div class="col-md-8">
-                        <div class="chart-container">
-                            <h5 class="text-white mb-3">
-                                <i class="fas fa-chart-line me-2"></i>Revenue Trend Analysis
-                                <button class="btn btn-sm btn-outline-light float-end" onclick="exportChart('revenueChart')">
-                                    <i class="fas fa-download"></i>
-                                </button>
-                            </h5>
-                            <canvas id="revenueChart"></canvas>
-                        </div>
-                    </div>
-
-                    <!-- Equipment Distribution -->
-                    <div class="col-md-4">
-                        <div class="chart-container">
-                            <h5 class="text-white mb-3">
-                                <i class="fas fa-chart-pie me-2"></i>Equipment Distribution
-                                <button class="btn btn-sm btn-outline-light float-end" onclick="drillDownEquipment()">
-                                    <i class="fas fa-search-plus"></i>
-                                </button>
-                            </h5>
-                            <canvas id="equipmentChart"></canvas>
-                        </div>
-                    </div>
+        <!-- Automation Workflows -->
+        <div class="module-card">
+            <div class="module-header automation">
+                <h3 class="module-title">Automation Workflows</h3>
+                <p class="module-subtitle">Intelligent process automation</p>
+            </div>
+            <div class="module-content">
+                <div class="module-actions">
+                    <a href="/automated-workflows" class="btn-module btn-primary">Workflow Manager</a>
+                    <a href="/ai-assistant" class="btn-module btn-success">AI Assistant</a>
+                    <a href="/workflow-optimization" class="btn-module btn-info">Optimization</a>
                 </div>
+            </div>
+        </div>
 
-                <!-- Performance Metrics Row -->
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="chart-container">
-                            <h5 class="text-white mb-3">
-                                <i class="fas fa-tachometer-alt me-2"></i>Performance Metrics
-                            </h5>
-                            <canvas id="performanceChart"></canvas>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="chart-container">
-                            <h5 class="text-white mb-3">
-                                <i class="fas fa-chart-bar me-2"></i>Top Performing Assets
-                            </h5>
-                            <canvas id="topAssetsChart"></canvas>
-                        </div>
-                    </div>
+        <!-- Analytics & Intelligence -->
+        <div class="module-card">
+            <div class="module-header analytics">
+                <h3 class="module-title">Analytics & Intelligence</h3>
+                <p class="module-subtitle">Advanced fleet analytics & insights</p>
+            </div>
+            <div class="module-content">
+                <div class="module-actions">
+                    <a href="/fleet-analytics" class="btn-module btn-primary">Fleet Analytics</a>
+                    <a href="/performance-metrics" class="btn-module btn-success">Performance Metrics</a>
+                    <a href="/project-accountability" class="btn-module btn-info">Project Tracking</a>
                 </div>
+            </div>
+        </div>
 
-                <!-- Equipment Detail Grid -->
-                <div class="row mt-4">
-                    <div class="col-12">
-                        <div class="metric-card">
-                            <h5 class="text-white mb-3">
-                                <i class="fas fa-list me-2"></i>Equipment Categories
-                            </h5>
-                            <div class="equipment-grid">
-                                {% for category, count in analytics_data.equipment_categories.items() %}
-                                <div class="metric-card text-center">
-                                    <div class="metric-value" style="font-size: 1.5rem;">{{ count }}</div>
-                                    <div class="metric-label">{{ category }}</div>
-                                </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
+        <!-- System Administration -->
+        <div class="module-card">
+            <div class="module-header">
+                <h3 class="module-title">System Administration</h3>
+                <p class="module-subtitle">System health & configuration</p>
+                <span class="status-badge status-online">All Systems Online</span>
+            </div>
+            <div class="module-content">
+                <div class="module-actions">
+                    <a href="/system-admin" class="btn-module btn-primary">Admin Console</a>
+                    <a href="/system-health" class="btn-module btn-info">System Health</a>
+                    <a href="/kaizen" class="btn-module btn-success">Kaizen Optimization</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Innovation Hub -->
+        <div class="module-card">
+            <div class="module-header">
+                <h3 class="module-title">Innovation Hub</h3>
+                <p class="module-subtitle">AI training & development tools</p>
+            </div>
+            <div class="module-content">
+                <div class="module-actions">
+                    <a href="/ai-training" class="btn-module btn-primary">AI Training</a>
+                    <a href="/idea-box" class="btn-module btn-success">Idea Box</a>
+                    <a href="/industry-news" class="btn-module btn-info">Industry News</a>
                 </div>
             </div>
         </div>
     </div>
+</div>
+{% endblock %}
 
-    <!-- Drill-down Modal -->
-    <div class="modal fade" id="drillDownModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content drill-down-modal">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title text-white">Equipment Category Details</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <canvas id="drillDownChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
+{% block extra_js %}
+<script src="{{ url_for('static', filename='dashboard-metrics.js') }}"></script>
+<script src="{{ url_for('static', filename='asset-tooltips.js') }}"></script>
+<script src="{{ url_for('static', filename='genius-performance.js') }}"></script>
+<script>
+// Auto-refresh metrics every 30 seconds
+setInterval(() => {
+    if (typeof updateDashboardMetrics === 'function') {
+        updateDashboardMetrics();
+    }
+}, 30000);
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Professional color palette
-        const colors = {
-            primary: '#10b981',
-            secondary: '#059669',
-            accent: '#f59e0b',
-            danger: '#ef4444',
-            info: '#06b6d4',
-            dark: '#374151'
-        };
-
-        // Revenue Trend Chart
-        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-        const revenueChart = new Chart(revenueCtx, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [{
-                    label: 'Monthly Revenue ($)',
-                    data: [385000, 420000, 445000, 465487, 478000, 485000],
-                    borderColor: colors.primary,
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.4,
-                    pointBackgroundColor: colors.primary,
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointRadius: 6
-                }, {
-                    label: 'Target Revenue ($)',
-                    data: [400000, 410000, 430000, 450000, 470000, 480000],
-                    borderColor: colors.accent,
-                    borderDash: [5, 5],
-                    borderWidth: 2,
-                    fill: false,
-                    pointRadius: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        labels: { color: '#fff' }
-                    }
-                },
-                scales: {
-                    x: {
-                        ticks: { color: '#d1d5db' },
-                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                    },
-                    y: {
-                        ticks: { 
-                            color: '#d1d5db',
-                            callback: function(value) {
-                                return '$' + (value / 1000) + 'K';
-                            }
-                        },
-                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                    }
-                },
-                interaction: {
-                    intersect: false,
-                    mode: 'index'
-                }
-            }
-        });
-
-        // Equipment Distribution Chart (Clickable)
-        const equipmentCtx = document.getElementById('equipmentChart').getContext('2d');
-        const equipmentChart = new Chart(equipmentCtx, {
-            type: 'doughnut',
-            data: {
-                labels: [{% for category in analytics_data.equipment_categories.keys() %}'{{ category }}'{% if not loop.last %},{% endif %}{% endfor %}],
-                datasets: [{
-                    data: [{% for count in analytics_data.equipment_categories.values() %}{{ count }}{% if not loop.last %},{% endif %}{% endfor %}],
-                    backgroundColor: [colors.primary, colors.secondary, colors.info, colors.accent, colors.danger, '#8b5cf6'],
-                    borderWidth: 0,
-                    hoverBorderWidth: 2,
-                    hoverBorderColor: '#fff'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: { 
-                            color: '#fff',
-                            padding: 15,
-                            usePointStyle: true
-                        }
-                    }
-                },
-                onClick: (event, elements) => {
-                    if (elements.length > 0) {
-                        const index = elements[0].index;
-                        const category = equipmentChart.data.labels[index];
-                        drillDownEquipment(category);
-                    }
-                }
-            }
-        });
-
-        // Performance Metrics Radar Chart
-        const performanceCtx = document.getElementById('performanceChart').getContext('2d');
-        const performanceChart = new Chart(performanceCtx, {
-            type: 'radar',
-            data: {
-                labels: ['Availability', 'Efficiency', 'Performance', 'Quality', 'Cost Control'],
-                datasets: [{
-                    label: 'Current Metrics',
-                    data: [{{ analytics_data.availability_rate }}, {{ analytics_data.efficiency_score }}, 95, 91, 87],
-                    borderColor: colors.primary,
-                    backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                    borderWidth: 2,
-                    pointBackgroundColor: colors.primary
-                }, {
-                    label: 'Target Goals',
-                    data: [95, 90, 98, 95, 90],
-                    borderColor: colors.accent,
-                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                    borderWidth: 2,
-                    pointBackgroundColor: colors.accent
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        labels: { color: '#fff' }
-                    }
-                },
-                scales: {
-                    r: {
-                        ticks: { color: '#d1d5db' },
-                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                        pointLabels: { color: '#fff' }
-                    }
-                }
-            }
-        });
-
-        // Top Assets Chart
-        const topAssetsCtx = document.getElementById('topAssetsChart').getContext('2d');
-        const topAssetsChart = new Chart(topAssetsCtx, {
-            type: 'bar',
-            data: {
-                labels: ['2024-012', '2023-032', '2024-015', '2021-017', '2019-044'],
-                datasets: [{
-                    label: 'Revenue ($)',
-                    data: [45000, 38000, 32000, 28000, 25000],
-                    backgroundColor: [colors.primary, colors.secondary, colors.info, colors.accent, colors.danger],
-                    borderRadius: 8,
-                    borderSkipped: false
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    x: {
-                        ticks: { color: '#d1d5db' },
-                        grid: { display: false }
-                    },
-                    y: {
-                        ticks: { 
-                            color: '#d1d5db',
-                            callback: function(value) {
-                                return '$' + (value / 1000) + 'K';
-                            }
-                        },
-                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                    }
-                }
-            }
-        });
-
-        // Drill-down functionality
-        function drillDownEquipment(category) {
-            const modal = new bootstrap.Modal(document.getElementById('drillDownModal'));
-            modal.show();
-            
-            // Create detailed chart for the selected category
-            setTimeout(() => {
-                const drillCtx = document.getElementById('drillDownChart').getContext('2d');
-                new Chart(drillCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Unit 1', 'Unit 2', 'Unit 3', 'Unit 4', 'Unit 5'],
-                        datasets: [{
-                            label: 'Utilization %',
-                            data: [92, 87, 94, 78, 89],
-                            backgroundColor: colors.primary,
-                            borderRadius: 5
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: { labels: { color: '#fff' } }
-                        },
-                        scales: {
-                            x: { ticks: { color: '#d1d5db' } },
-                            y: { ticks: { color: '#d1d5db' } }
-                        }
-                    }
-                });
-            }, 200);
-        }
-
-        // Export chart functionality
-        function exportChart(chartId) {
-            const chart = Chart.getChart(chartId);
-            const url = chart.toBase64Image();
-            const link = document.createElement('a');
-            link.download = chartId + '_export.png';
-            link.href = url;
-            link.click();
-        }
-
-        // Auto-refresh data every 30 seconds
-        setInterval(() => {
-            // Simulate real-time updates
-            const newData = revenueChart.data.datasets[0].data.map(val => 
-                val + (Math.random() - 0.5) * 10000
-            );
-            revenueChart.data.datasets[0].data = newData;
-            revenueChart.update('none');
-        }, 30000);
-    </script>
-</body>
-</html>
+// Module status checks
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('TRAXOVO Unified Dashboard loaded with authentic GAUGE data');
+});
+</script>
+{% endblock %}

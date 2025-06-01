@@ -338,10 +338,10 @@ body {
 {% block extra_js %}
 <script src="{{ url_for('static', filename='dashboard-metrics.js') }}"></script>
 <script src="{{ url_for('static', filename='asset-tooltips.js') }}"></script>
-<script src="{{ url_for('static', filename='genius-performance.js') }}"></script>
+<script src="{{ url_for('static', filename='mobile-optimization.js') }}"></script>
 <script>
 // Auto-refresh metrics every 30 seconds
-setInterval(() => {
+setInterval(function() {
     if (typeof updateDashboardMetrics === 'function') {
         updateDashboardMetrics();
     }
@@ -350,6 +350,14 @@ setInterval(() => {
 // Module status checks
 document.addEventListener('DOMContentLoaded', function() {
     console.log('TRAXOVO Unified Dashboard loaded with authentic GAUGE data');
+    
+    // Initialize performance monitoring
+    if (window.performance && window.performance.timing) {
+        const loadTime = window.performance.timing.loadEventEnd - window.performance.timing.navigationStart;
+        if (loadTime > 0) {
+            console.log('Dashboard load time: ' + loadTime + 'ms');
+        }
+    }
 });
 </script>
 {% endblock %}

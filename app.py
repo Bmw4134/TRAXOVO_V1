@@ -52,6 +52,38 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET") or "development-secret-key"
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
+# Performance optimization - GAUGE API caching
+import time
+gauge_cache = {
+    'data': None,
+    'timestamp': None,
+    'expiry': 30  # 30 seconds cache
+}
+
+def get_cached_gauge_data():
+    """Get GAUGE data with caching to eliminate 5+ second delays"""
+    current_time = time.time()
+    
+    # Check if cache is valid
+    if (gauge_cache['data'] is not None and 
+        gauge_cache['timestamp'] is not None and 
+        (current_time - gauge_cache['timestamp']) < gauge_cache['expiry']):
+        return gauge_cache['data']
+    
+    # Cache expired or empty, fetch fresh data
+    try:
+        from services.gauge_service import GaugeService
+        gauge_service = GaugeService()
+        if gauge_service.has_credentials():
+            fresh_data = gauge_service.get_asset_list()
+            gauge_cache['data'] = fresh_data
+            gauge_cache['timestamp'] = current_time
+            return fresh_data
+    except Exception as e:
+        logging.error(f"GAUGE API error: {e}")
+    
+    return []
+
 # Enterprise Security Configuration
 app.config.update(
     SESSION_COOKIE_SECURE=True,
@@ -818,9 +850,29 @@ def api_fleet_assets():
         return jsonify({'error': 'Authentication required'}), 401
     
     try:
-        from performance_optimizer import get_performance_engine
-        engine = get_performance_engine()
-        fleet_data = engine.get_cached_gauge_data()
+        # Use new caching layer to eliminate 5+ second delays
+        gauge_data = get_cached_gauge_data()
+        
+        if not gauge_data:
+            return jsonify({'success': False, 'error': 'GAUGE API data unavailable'})
+        
+        # Process data for frontend
+        active_assets = sum(1 for asset in gauge_data if asset.get('Active'))
+        total_assets = len(gauge_data)
+        categories = set(asset.get('AssetCategory', 'Unknown') for asset in gauge_data)
+        
+        fleet_data = {
+            'summary': {
+                'total_assets': total_assets,
+                'active_assets': active_assets,
+                'inactive_assets': total_assets - active_assets,
+                'categories': len(categories),
+                'utilization_rate': round((active_assets / total_assets * 100) if total_assets > 0 else 0, 1),
+                'districts': len(set(asset.get('District', 'Unknown') for asset in gauge_data)),
+                'makes': len(set(asset.get('AssetMake', 'Unknown') for asset in gauge_data))
+            },
+            'assets': gauge_data[:50]  # Limit payload size
+        }
         
         return jsonify({
             'success': True,

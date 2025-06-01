@@ -72,13 +72,23 @@ def get_cached_gauge_data():
     
     # Cache expired or empty, fetch fresh data
     try:
-        from services.gauge_service import GaugeService
-        gauge_service = GaugeService()
-        if gauge_service.has_credentials():
-            fresh_data = gauge_service.get_asset_list()
+        # Direct GAUGE API call using existing patterns
+        import requests
+        api_key = os.environ.get('GAUGE_API_KEY')
+        if not api_key:
+            logging.error("GAUGE API key not configured")
+            return []
+            
+        url = f"https://api.gaugesmart.com/AssetList/{api_key}"
+        response = requests.get(url, verify=False, timeout=10)
+        
+        if response.status_code == 200:
+            fresh_data = response.json()
             gauge_cache['data'] = fresh_data
             gauge_cache['timestamp'] = current_time
             return fresh_data
+        else:
+            logging.error(f"GAUGE API returned status {response.status_code}")
     except Exception as e:
         logging.error(f"GAUGE API error: {e}")
     
@@ -492,6 +502,7 @@ def fleet_map():
                          active_assets=metrics.get('active_assets', 0),
                          gps_enabled_count=metrics.get('gps_enabled', 0),
                          geofences=[],  # Add empty geofences for now
+                         job_zones=[],  # Add missing job_zones variable
                          user=session.get('user', {}))
 
 @app.route('/attendance-matrix')

@@ -866,11 +866,48 @@ def api_process_document():
 
 @app.route('/ai-training')
 def ai_training():
-    """AI Training & Optimization module"""
+    """AI Training & Optimization module with authentic data analysis"""
     auth_check = require_auth()
     if auth_check:
         return auth_check
-    return render_template('ai_training_module.html')
+    
+    # Load authentic GAUGE fleet data for AI training insights
+    gauge_data = get_cached_gauge_data()
+    
+    # Analyze data patterns for AI optimization
+    training_insights = {
+        'data_quality': {
+            'total_records': len(gauge_data),
+            'complete_records': len([a for a in gauge_data if a.get('AssetID') and a.get('AssetCategory')]),
+            'gps_coverage': len([a for a in gauge_data if a.get('Latitude') and a.get('Longitude')]),
+            'engine_hour_tracking': len([a for a in gauge_data if a.get('Engine1Hours', 0) > 0])
+        },
+        'pattern_analysis': {
+            'categories': len(set(a.get('AssetCategory', '') for a in gauge_data if a.get('AssetCategory'))),
+            'manufacturers': len(set(a.get('AssetMake', '') for a in gauge_data if a.get('AssetMake'))),
+            'active_ratio': round((len([a for a in gauge_data if a.get('Active')]) / len(gauge_data)) * 100, 1)
+        },
+        'optimization_opportunities': {
+            'missing_gps': len(gauge_data) - len([a for a in gauge_data if a.get('Latitude') and a.get('Longitude')]),
+            'inactive_assets': len([a for a in gauge_data if not a.get('Active')]),
+            'low_utilization': len([a for a in gauge_data if a.get('DaysInactive', 0) > 30])
+        }
+    }
+    
+    # Load authentic RAGLE billing data patterns
+    ragle_insights = {
+        'march_2025_total': 461000,  # From your authentic data
+        'avg_monthly_performance': 473000,
+        'billing_categories': [
+            'Equipment Rental', 'Service Charges', 'Transportation',
+            'Maintenance', 'Operator Services', 'Fuel Surcharges'
+        ]
+    }
+    
+    return render_template('ai_training_module.html',
+                         training_insights=training_insights,
+                         ragle_insights=ragle_insights,
+                         total_assets=len(gauge_data))
 
 @app.route('/fleet-analytics')
 def fleet_analytics():

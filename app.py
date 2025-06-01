@@ -10,6 +10,12 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.utils import secure_filename
+from flask_talisman import Talisman
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_wtf.csrf import CSRFProtect
+import bleach
+import re
 import logging
 
 # Simplified infrastructure for deployment
@@ -45,6 +51,72 @@ class Base(DeclarativeBase):
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET") or "development-secret-key"
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+
+# Enterprise Security Configuration
+app.config.update(
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax',
+    PERMANENT_SESSION_LIFETIME=3600,
+    SESSION_COOKIE_NAME='traxovo_session'
+)
+
+# Content Security Policy
+csp = {
+    'default-src': "'self'",
+    'script-src': ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com", "https://stackpath.bootstrapcdn.com"],
+    'style-src': ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://stackpath.bootstrapcdn.com"],
+    'img-src': ["'self'", "data:", "https:", "blob:"],
+    'connect-src': ["'self'", "https://api.gaugesmart.com"]
+}
+
+# Apply enterprise security headers
+try:
+    Talisman(app, 
+        content_security_policy=csp,
+        force_https=True,
+        strict_transport_security=True,
+        content_type_options=True,
+        referrer_policy='strict-origin-when-cross-origin'
+    )
+    print("✅ Enterprise security headers active")
+except Exception as e:
+    print(f"⚠️  Security headers warning: {e}")
+
+# CSRF Protection
+try:
+    csrf = CSRFProtect(app)
+    print("✅ CSRF protection enabled")
+except Exception as e:
+    print(f"⚠️  CSRF protection warning: {e}")
+
+# Rate Limiting
+try:
+    limiter = Limiter(
+        app=app,
+        key_func=get_remote_address,
+        default_limits=["200 per day", "50 per hour"]
+    )
+    print("✅ Rate limiting active")
+except Exception as e:
+    print(f"⚠️  Rate limiting warning: {e}")
+
+def sanitize_input(input_string):
+    """Enterprise-grade input sanitization"""
+    if not input_string or not isinstance(input_string, str):
+        return input_string
+    
+    sanitized = bleach.clean(input_string, tags=[], attributes={}, strip=True)
+    sql_patterns = [
+        r"(\s*(union|select|insert|update|delete|drop|create|alter|exec|execute)\s+)",
+        r"(\s*(or|and)\s+\d+\s*=\s*\d+)",
+        r"(--|#|/\*|\*/)"
+    ]
+    
+    for pattern in sql_patterns:
+        sanitized = re.sub(pattern, '', sanitized, flags=re.IGNORECASE)
+    
+    return sanitized
 
 # App version for session management  
 APP_VERSION = "1.0.2"

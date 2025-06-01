@@ -48,3 +48,7 @@ replit-object-storage
 cryptography
 psutil
 psutil
+bleach
+flask-limiter
+flask-talisman
+markupsafe

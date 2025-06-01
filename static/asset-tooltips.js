@@ -25,8 +25,22 @@ async loadTooltipData() {
 try {
 const response = await fetch('/api/fleet/assets');
 const data = await response.json();
-if (data.success && data.asset_tooltips) {
-this.tooltipData = data.asset_tooltips;
+if (data.success && data.assets) {
+// Process authentic GAUGE asset data for tooltips
+this.tooltipData = {};
+data.assets.forEach(asset => {
+if (asset.AssetId || asset.DeviceSerialNumber) {
+const id = asset.AssetId || asset.DeviceSerialNumber;
+this.tooltipData[id] = {
+category: asset.AssetCategory,
+make: asset.AssetMake,
+model: asset.AssetModel,
+hours: asset.Engine1Hours,
+active: asset.Active,
+district: asset.District
+};
+}
+});
 console.log(`Loaded tooltips for ${Object.keys(this.tooltipData).length} authentic assets`);
 }
 } catch (error) {

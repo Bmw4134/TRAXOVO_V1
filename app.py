@@ -61,13 +61,16 @@ gauge_cache = {
 }
 
 def get_cached_gauge_data():
-    """Get GAUGE data with caching to eliminate 5+ second delays"""
+    """Get GAUGE data with aggressive caching for dev performance"""
     current_time = time.time()
+    
+    # Extended cache for dev environment (120 seconds vs 30 in production)
+    cache_duration = 120 if app.debug else 30
     
     # Check if cache is valid
     if (gauge_cache['data'] is not None and 
         gauge_cache['timestamp'] is not None and 
-        (current_time - gauge_cache['timestamp']) < gauge_cache['expiry']):
+        (current_time - gauge_cache['timestamp']) < cache_duration):
         return gauge_cache['data']
     
     # Cache expired or empty, fetch fresh data

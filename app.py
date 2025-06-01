@@ -149,10 +149,19 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
 
-# Create tables
-with app.app_context():
-    db.create_all()
-    logging.info("Database tables created")
+# Lazy database initialization - only create tables when first accessed
+def ensure_database():
+    """Initialize database tables only when needed"""
+    if not hasattr(app, '_db_initialized'):
+        with app.app_context():
+            db.create_all()
+            logging.info("Database tables created")
+            app._db_initialized = True
+
+@app.before_request  
+def init_db_on_first_request():
+    if not hasattr(app, '_db_initialized'):
+        ensure_database()
 
 # Register PDF export blueprint
 try:

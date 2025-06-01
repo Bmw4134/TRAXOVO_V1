@@ -571,25 +571,62 @@ def attendance_matrix():
 @app.route('/asset-manager')
 @app.route('/asset-management')
 def asset_manager():
-    """Asset management dashboard"""
+    """Asset management dashboard with authentic GAUGE data"""
     auth_check = require_auth()
     if auth_check:
         return auth_check
     
-    # Authentic asset data structure
-    assets_data = [
-        {'id': 'E001', 'name': 'Excavator Cat 320', 'category': 'Earthwork', 'status': 'active', 'location': 'Highway 35 Project'},
-        {'id': 'C045', 'name': 'Concrete Mixer T1', 'category': 'Concrete', 'status': 'active', 'location': 'Downtown Bridge'},
-        {'id': 'U078', 'name': 'Utility Truck F150', 'category': 'Utilities', 'status': 'maintenance', 'location': 'Shop'},
-        {'id': 'A023', 'name': 'Asphalt Paver', 'category': 'Asphalt', 'status': 'active', 'location': 'Airport Runway'},
-        {'id': 'E012', 'name': 'Bulldozer D6T', 'category': 'Earthwork', 'status': 'active', 'location': 'Municipal Building'}
-    ]
+    # Load authentic GAUGE fleet data
+    gauge_data = get_cached_gauge_data()
     
-    categories_data = ['Earthwork', 'Concrete', 'Asphalt', 'Utilities', 'Compaction', 'Hauling']
+    # Process authentic assets for management interface
+    assets_data = []
+    categories_data = set()
+    makes_data = set()
+    
+    for asset in gauge_data:
+        asset_info = {
+            'id': asset.get('AssetID', ''),
+            'name': f"{asset.get('AssetMake', '')} {asset.get('AssetModel', '')}".strip(),
+            'description': asset.get('AssetDescription', 'Equipment'),
+            'category': asset.get('AssetCategory', 'General Equipment'),
+            'make': asset.get('AssetMake', ''),
+            'model': asset.get('AssetModel', ''),
+            'status': 'active' if asset.get('Active') else 'inactive',
+            'hours': asset.get('Engine1Hours', 0),
+            'fuel_level': asset.get('FuelLevel', 0),
+            'district': asset.get('District', ''),
+            'days_inactive': asset.get('DaysInactive', 0),
+            'last_update': asset.get('LastPositionUpdate', ''),
+            'location': asset.get('District', 'Unknown') if asset.get('District') else 'Fleet',
+            'has_gps': bool(asset.get('Latitude') and asset.get('Longitude'))
+        }
+        assets_data.append(asset_info)
+        
+        if asset_info['category']:
+            categories_data.add(asset_info['category'])
+        if asset_info['make']:
+            makes_data.add(asset_info['make'])
+    
+    # Sort assets by category and name
+    assets_data.sort(key=lambda x: (x['category'], x['name']))
+    
+    # Asset statistics
+    asset_stats = {
+        'total_assets': len(assets_data),
+        'active_assets': len([a for a in assets_data if a['status'] == 'active']),
+        'inactive_assets': len([a for a in assets_data if a['status'] == 'inactive']),
+        'categories_count': len(categories_data),
+        'makes_count': len(makes_data),
+        'avg_hours': round(sum(a['hours'] for a in assets_data) / len(assets_data)) if assets_data else 0,
+        'gps_enabled': len([a for a in assets_data if a['has_gps']])
+    }
     
     return render_template('asset_manager_simple.html', 
                          assets=assets_data,
-                         categories=categories_data)
+                         categories=sorted(categories_data),
+                         makes=sorted(makes_data),
+                         asset_stats=asset_stats)
 
 # Business Intelligence
 @app.route('/billing')

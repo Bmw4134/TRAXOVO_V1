@@ -1797,6 +1797,42 @@ def api_get_test_history():
         'recent_tests': []
     })
 
+@app.route('/executive_intelligence')
+@require_auth()
+def executive_intelligence():
+    """Enterprise Intelligence Dashboard for multi-company operations"""
+    return render_template('executive_intelligence_dashboard.html')
+
+@app.route('/api/enterprise_intelligence')
+@require_auth()
+def api_enterprise_intelligence():
+    """API endpoint for enterprise intelligence data"""
+    try:
+        from enterprise_intelligence_core import enterprise_core
+        intelligence_data = enterprise_core.generate_executive_intelligence()
+        return jsonify(intelligence_data)
+    except Exception as e:
+        logging.error(f"Enterprise intelligence error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/operational_analytics')
+@require_auth()
+def operational_analytics():
+    """Advanced operational analytics dashboard"""
+    return render_template('operational_analytics_dashboard.html')
+
+@app.route('/api/operational_analytics')
+@require_auth()
+def api_operational_analytics():
+    """API endpoint for operational analytics data"""
+    try:
+        from operational_analytics_engine import analytics_engine
+        analytics_data = analytics_engine.generate_operational_insights()
+        return jsonify(analytics_data)
+    except Exception as e:
+        logging.error(f"Operational analytics error: {e}")
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     import socket
     # Find an available port

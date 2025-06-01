@@ -1,0 +1,50 @@
+{
+  "consolidation_summary": {
+    "files_consolidated": 1,
+    "mappings_preserved": 2,
+    "space_saved_estimate": "15-25%"
+  },
+  "consolidated_files": [
+    "routes/billing_consolidated.py"
+  ],
+  "preserved_mappings": [
+    {
+      "source": "templates/dashboard_herc_inspired.html",
+      "mappings": {
+        "billing_mappings": [],
+        "attendance_mappings": [
+          {
+            "field": "Driver",
+            "usage": "attendance_mapping",
+            "authentic": true
+          }
+        ]
+      },
+      "migrated_to": "templates/dashboard_unified.html"
+    },
+    {
+      "source": "templates/enhanced_dashboard_simple.html",
+      "mappings": {
+        "billing_mappings": [
+          {
+            "source": "RAGLE EQ BILLINGS",
+            "usage": "billing_data_mapping",
+            "authentic": true
+          },
+          {
+            "source": "Equipment Detail History",
+            "usage": "billing_data_mapping",
+            "authentic": true
+          }
+        ],
+        "attendance_mappings": []
+      },
+      "migrated_to": "templates/dashboard_unified.html"
+    }
+  ],
+  "recommendations": [
+    "Update app.py imports to use consolidated routes",
+    "Test all authentic data flows after consolidation",
+    "Monitor performance improvements from reduced file count"
+  ]
+}

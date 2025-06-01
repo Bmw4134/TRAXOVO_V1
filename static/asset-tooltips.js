@@ -1,3 +1,4 @@
+/*
 * Elite Asset Tooltip System for TRAXOVO
 * Contextual hover tooltips showing authentic GAUGE asset metrics
 */

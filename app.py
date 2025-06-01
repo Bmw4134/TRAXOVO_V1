@@ -894,11 +894,7 @@ def api_fleet_assets():
             'utilization_rate': fleet_data['summary']['utilization_rate'],
             'districts': fleet_data['summary']['districts'],
             'makes': fleet_data['summary']['makes'],
-            'assets': fleet_data['assets'],
-            'inactive_assets': fleet_data['inactive_assets'],
-            'asset_tooltips': fleet_data['asset_tooltips'],
-            'last_sync': fleet_data['last_updated'],
-            'data_quality': fleet_data['data_quality']
+            'assets': fleet_data['assets']
         })
     except Exception as e:
         print(f"Elite fleet API error: {e}")

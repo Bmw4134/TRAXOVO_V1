@@ -70,13 +70,12 @@ csp = {
     'connect-src': ["'self'", "https://api.gaugesmart.com"]
 }
 
-# Apply enterprise security headers
+# Apply enterprise security headers (fixed configuration)
 try:
     Talisman(app, 
         content_security_policy=csp,
-        force_https=True,
+        force_https=False,  # Set to True in production
         strict_transport_security=True,
-        content_type_options=True,
         referrer_policy='strict-origin-when-cross-origin'
     )
     print("✅ Enterprise security headers active")

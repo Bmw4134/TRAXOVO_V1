@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Predictive Testing Engine - TRAXOVO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .testing-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+        }
+        .metric-card {
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+        .metric-card:hover {
+            transform: translateY(-2px);
+        }
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .status-success { background-color: #28a745; }
+        .status-warning { background-color: #ffc107; }
+        .status-danger { background-color: #dc3545; }
+        .test-progress {
+            height: 6px;
+            background: #f8f9fa;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .test-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            transition: width 0.5s ease;
+        }
+        .ml-prediction-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        .headless-browser-card {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="testing-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1><i class="fas fa-brain me-2"></i>ML Predictive Testing Engine</h1>
+                    <p class="lead mb-0">Advanced machine learning system for deployment readiness and predictive analysis</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <button id="runTestsBtn" class="btn btn-light btn-lg">
+                        <i class="fas fa-play me-2"></i>Run Complete Test Suite
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid mt-4">
+        <!-- Real-time Testing Status -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card metric-card">
+                    <div class="card-body text-center">
+                        <div class="text-primary" style="font-size: 2.5rem;" id="deploymentScore">--</div>
+                        <div>Deployment Readiness</div>
+                        <small class="text-muted">ML Predicted Score</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card metric-card">
+                    <div class="card-body text-center">
+                        <div class="text-success" style="font-size: 2.5rem;" id="successProbability">--</div>
+                        <div>Success Probability</div>
+                        <small class="text-muted">ML Prediction</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card metric-card">
+                    <div class="card-body text-center">
+                        <div class="text-warning" style="font-size: 2.5rem;" id="testsRun">0</div>
+                        <div>Tests Executed</div>
+                        <small class="text-muted">This Session</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card metric-card">
+                    <div class="card-body text-center">
+                        <div class="text-info" style="font-size: 2.5rem;" id="anomalyStatus">Normal</div>
+                        <div>System Status</div>
+                        <small class="text-muted">Anomaly Detection</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Testing Progress -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>Testing Progress</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="testingProgress" style="display: none;">
+                            <div class="test-progress mb-2">
+                                <div class="test-progress-bar" style="width: 0%" id="progressBar"></div>
+                            </div>
+                            <div id="currentTest" class="text-muted">Ready to begin testing...</div>
+                        </div>
+                        <div id="testingIdle">
+                            <p class="text-muted mb-0">Click "Run Complete Test Suite" to begin comprehensive testing</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Results Grid -->
+        <div class="row">
+            <!-- System Health -->
+            <div class="col-lg-6 mb-4">
+                <div class="card metric-card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-heartbeat me-2"></i>System Health Analysis</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="systemHealth">
+                            <p class="text-muted">Run tests to see system health metrics</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- API Endpoint Testing -->
+            <div class="col-lg-6 mb-4">
+                <div class="card metric-card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-api me-2"></i>API Endpoint Testing</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="apiTests">
+                            <p class="text-muted">Run tests to see API endpoint results</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ML Predictions -->
+            <div class="col-lg-6 mb-4">
+                <div class="card metric-card ml-prediction-card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-brain me-2"></i>ML Predictions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="mlPredictions">
+                            <p class="mb-0">Advanced machine learning predictions will appear here</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Headless Browser Testing -->
+            <div class="col-lg-6 mb-4">
+                <div class="card metric-card headless-browser-card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-window-maximize me-2"></i>Headless Browser Tests</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="browserTests">
+                            <p class="mb-0">UI and browser interaction tests will appear here</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Testing -->
+            <div class="col-lg-6 mb-4">
+                <div class="card metric-card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Security Analysis</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="securityTests">
+                            <p class="text-muted">Run tests to see security analysis</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Database Integrity -->
+            <div class="col-lg-6 mb-4">
+                <div class="card metric-card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-database me-2"></i>Database Integrity</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="databaseTests">
+                            <p class="text-muted">Run tests to see database status</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test History and ML Training -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-history me-2"></i>Test History & ML Training</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <button id="trainModelsBtn" class="btn btn-primary">
+                                    <i class="fas fa-cogs me-2"></i>Train ML Models
+                                </button>
+                                <button id="viewHistoryBtn" class="btn btn-outline-primary ms-2">
+                                    <i class="fas fa-chart-line me-2"></i>View History
+                                </button>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <span class="badge bg-info" id="historyCount">0 tests in history</span>
+                            </div>
+                        </div>
+                        <div id="trainingResults" class="mt-3" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let testsRunCount = 0;
+
+        document.getElementById('runTestsBtn').addEventListener('click', function() {
+            runComprehensiveTests();
+        });
+
+        document.getElementById('trainModelsBtn').addEventListener('click', function() {
+            trainMLModels();
+        });
+
+        document.getElementById('viewHistoryBtn').addEventListener('click', function() {
+            viewTestHistory();
+        });
+
+        function runComprehensiveTests() {
+            const btn = document.getElementById('runTestsBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Running Tests...';
+
+            // Show progress
+            document.getElementById('testingIdle').style.display = 'none';
+            document.getElementById('testingProgress').style.display = 'block';
+
+            const tests = [
+                'System Health Analysis',
+                'Performance Metrics Collection',
+                'Security Vulnerability Scan',
+                'Database Integrity Check',
+                'API Endpoint Testing',
+                'ML Prediction Generation',
+                'Anomaly Detection',
+                'Headless Browser Testing',
+                'Load Testing'
+            ];
+
+            let currentTestIndex = 0;
+            const progressBar = document.getElementById('progressBar');
+            const currentTestElement = document.getElementById('currentTest');
+
+            function runNextTest() {
+                if (currentTestIndex < tests.length) {
+                    const progress = ((currentTestIndex + 1) / tests.length) * 100;
+                    progressBar.style.width = progress + '%';
+                    currentTestElement.textContent = `Running: ${tests[currentTestIndex]}`;
+                    currentTestIndex++;
+                    setTimeout(runNextTest, 500);
+                } else {
+                    // Fetch actual results
+                    fetch('/api/run_comprehensive_tests')
+                        .then(response => response.json())
+                        .then(data => {
+                            displayTestResults(data);
+                            testsRunCount++;
+                            document.getElementById('testsRun').textContent = testsRunCount;
+                            
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="fas fa-play me-2"></i>Run Complete Test Suite';
+                            
+                            document.getElementById('testingProgress').style.display = 'none';
+                            document.getElementById('testingIdle').style.display = 'block';
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="fas fa-play me-2"></i>Run Complete Test Suite';
+                        });
+                }
+            }
+
+            runNextTest();
+        }
+
+        function displayTestResults(data) {
+            // Update main metrics
+            document.getElementById('deploymentScore').textContent = data.deployment_readiness_score + '%';
+            
+            if (data.ml_predictions && data.ml_predictions.deployment_success_probability) {
+                document.getElementById('successProbability').textContent = 
+                    Math.round(data.ml_predictions.deployment_success_probability * 100) + '%';
+            }
+
+            if (data.anomaly_detection) {
+                document.getElementById('anomalyStatus').textContent = 
+                    data.anomaly_detection.anomaly_detected ? 'Anomaly' : 'Normal';
+            }
+
+            // System Health
+            if (data.system_health) {
+                const healthHtml = `
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>Memory Usage:</strong> ${data.system_health.memory_usage}%<br>
+                            <strong>CPU Usage:</strong> ${data.system_health.cpu_usage}%<br>
+                            <strong>Disk Usage:</strong> ${data.system_health.disk_usage}%
+                        </div>
+                        <div class="col-6">
+                            <span class="status-indicator ${getStatusClass(data.system_health.status)}"></span>
+                            <strong>Status:</strong> ${data.system_health.status}
+                        </div>
+                    </div>
+                `;
+                document.getElementById('systemHealth').innerHTML = healthHtml;
+            }
+
+            // API Tests
+            if (data.api_endpoints) {
+                let apiHtml = '<div class="row">';
+                data.api_endpoints.forEach(test => {
+                    apiHtml += `
+                        <div class="col-12 mb-2">
+                            <span class="status-indicator ${getStatusClass(test.status)}"></span>
+                            <strong>${test.endpoint}</strong>
+                            ${test.status_code ? `(${test.status_code})` : ''}
+                            ${test.response_time ? `- ${test.response_time.toFixed(3)}s` : ''}
+                        </div>
+                    `;
+                });
+                apiHtml += '</div>';
+                document.getElementById('apiTests').innerHTML = apiHtml;
+            }
+
+            // ML Predictions
+            if (data.ml_predictions) {
+                const mlHtml = `
+                    <div>
+                        <strong>Deployment Success:</strong> ${Math.round(data.ml_predictions.deployment_success_probability * 100)}%<br>
+                        <strong>Performance Score:</strong> ${Math.round(data.ml_predictions.predicted_performance_score * 100)}%<br>
+                        ${data.ml_predictions.note ? `<small class="text-light">${data.ml_predictions.note}</small>` : ''}
+                    </div>
+                `;
+                document.getElementById('mlPredictions').innerHTML = mlHtml;
+            }
+
+            // Browser Tests
+            if (data.headless_browser_tests) {
+                let browserHtml = '<div>';
+                Object.keys(data.headless_browser_tests).forEach(test => {
+                    const result = data.headless_browser_tests[test];
+                    browserHtml += `
+                        <div class="mb-2">
+                            <span class="status-indicator ${getStatusClass(result.status)}"></span>
+                            <strong>${test}:</strong> ${result.status}
+                            ${result.response_time ? ` (${result.response_time.toFixed(3)}s)` : ''}
+                        </div>
+                    `;
+                });
+                browserHtml += '</div>';
+                document.getElementById('browserTests').innerHTML = browserHtml;
+            }
+
+            // Security Tests
+            if (data.security_tests) {
+                let securityHtml = '<div class="row">';
+                Object.keys(data.security_tests).forEach(test => {
+                    const result = data.security_tests[test];
+                    securityHtml += `
+                        <div class="col-12 mb-2">
+                            <span class="status-indicator ${getStatusClass(result.status)}"></span>
+                            <strong>${test}:</strong> ${result.status}
+                            ${result.note ? `<br><small class="text-muted">${result.note}</small>` : ''}
+                        </div>
+                    `;
+                });
+                securityHtml += '</div>';
+                document.getElementById('securityTests').innerHTML = securityHtml;
+            }
+
+            // Database Tests
+            if (data.database_integrity) {
+                const dbHtml = `
+                    <div>
+                        <span class="status-indicator ${getStatusClass(data.database_integrity.status)}"></span>
+                        <strong>Connection:</strong> ${data.database_integrity.connection}<br>
+                        <strong>Tables:</strong> ${data.database_integrity.tables_count || 0}<br>
+                        <strong>Status:</strong> ${data.database_integrity.status}
+                    </div>
+                `;
+                document.getElementById('databaseTests').innerHTML = dbHtml;
+            }
+        }
+
+        function getStatusClass(status) {
+            switch(status) {
+                case 'pass':
+                case 'success':
+                case 'healthy':
+                case 'normal':
+                    return 'status-success';
+                case 'warning':
+                    return 'status-warning';
+                case 'fail':
+                case 'error':
+                case 'anomaly':
+                    return 'status-danger';
+                default:
+                    return 'status-warning';
+            }
+        }
+
+        function trainMLModels() {
+            const btn = document.getElementById('trainModelsBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Training...';
+
+            fetch('/api/train_ml_models')
+                .then(response => response.json())
+                .then(data => {
+                    const resultsDiv = document.getElementById('trainingResults');
+                    resultsDiv.style.display = 'block';
+                    resultsDiv.innerHTML = `
+                        <div class="alert alert-${data.status === 'success' ? 'success' : 'warning'}">
+                            <strong>Training Result:</strong> ${data.message || data.status}<br>
+                            ${data.models_trained ? `<strong>Models Trained:</strong> ${data.models_trained}<br>` : ''}
+                            ${data.training_samples ? `<strong>Training Samples:</strong> ${data.training_samples}` : ''}
+                        </div>
+                    `;
+                    
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-cogs me-2"></i>Train ML Models';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-cogs me-2"></i>Train ML Models';
+                });
+        }
+
+        function viewTestHistory() {
+            fetch('/api/get_test_history')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('historyCount').textContent = 
+                        `${data.total_tests} tests in history`;
+                });
+        }
+
+        // Load initial data
+        viewTestHistory();
+    </script>
+</body>
+</html>

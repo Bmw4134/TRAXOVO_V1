@@ -1726,6 +1726,50 @@ def api_attendance_drilldown(type):
         logging.error(f"Attendance drill-down error: {e}")
         return jsonify({'success': False, 'error': str(e)})
 
+@app.route('/ml_testing_dashboard')
+@require_auth()
+def ml_testing_dashboard():
+    """ML Predictive Testing Dashboard"""
+    return render_template('ml_testing_dashboard.html')
+
+@app.route('/api/run_comprehensive_tests')
+@require_auth()
+def api_run_comprehensive_tests():
+    """Run comprehensive pre-deployment tests with ML predictions"""
+    try:
+        from ml_predictive_testing_engine import get_ml_testing_engine
+        engine = get_ml_testing_engine()
+        results = engine.run_comprehensive_predeployment_tests()
+        return jsonify(results)
+    except Exception as e:
+        return jsonify({'error': str(e), 'status': 'error'}), 500
+
+@app.route('/api/train_ml_models')
+@require_auth()
+def api_train_ml_models():
+    """Train ML models from historical test data"""
+    try:
+        from ml_predictive_testing_engine import get_ml_testing_engine
+        engine = get_ml_testing_engine()
+        results = engine.train_models_from_history()
+        return jsonify(results)
+    except Exception as e:
+        return jsonify({'error': str(e), 'status': 'error'}), 500
+
+@app.route('/api/get_test_history')
+@require_auth()
+def api_get_test_history():
+    """Get historical test results for ML analysis"""
+    try:
+        from ml_predictive_testing_engine import get_ml_testing_engine
+        engine = get_ml_testing_engine()
+        return jsonify({
+            'total_tests': len(engine.test_history),
+            'recent_tests': engine.test_history[-10:] if engine.test_history else []
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     import socket
     # Find an available port

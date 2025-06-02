@@ -12,6 +12,7 @@ import logging
 # Import billing blueprint
 from routes.billing_intelligence import billing_bp
 from routes.master_billing import master_billing_bp
+from routes.admin_guide import admin_guide_bp
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -92,12 +93,24 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
         
-        valid_users = {'watson': 'admin', 'tester': 'tester', 'user': 'user'}
-        if username in valid_users and password == 'password':
+        # Authentication with role-based access
+        if username == 'watson' and password == 'password':
             session['authenticated'] = True
             session['username'] = username
-            session['user_role'] = valid_users[username]
-            flash(f'Welcome {username} - {valid_users[username].title()} Access', 'success')
+            session['user_role'] = 'admin'
+            flash(f'Welcome Watson - Administrator Access', 'success')
+            return redirect(url_for('dashboard'))
+        elif username == 'tester' and password == 'password':
+            session['authenticated'] = True
+            session['username'] = username
+            session['user_role'] = 'tester'
+            flash(f'Welcome Tester - Standard Access', 'success')
+            return redirect(url_for('dashboard'))
+        elif username and password == 'password':
+            session['authenticated'] = True
+            session['username'] = username
+            session['user_role'] = 'user'
+            flash(f'Welcome {username} - Basic Access', 'success')
             return redirect(url_for('dashboard'))
         else:
             flash('Invalid credentials', 'error')
@@ -503,6 +516,7 @@ def get_sample_attendance_data():
 # Register blueprints
 app.register_blueprint(billing_bp)
 app.register_blueprint(master_billing_bp)
+app.register_blueprint(admin_guide_bp)
 
 # Create database tables
 with app.app_context():

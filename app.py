@@ -736,6 +736,10 @@ app.register_blueprint(agi_asset_bp)
 from agi_module_mapper_rebuilder import agi_modules_bp
 app.register_blueprint(agi_modules_bp)
 
+# Register ASI Executive Dashboard
+from asi_executive_dashboard import asi_executive_bp
+app.register_blueprint(asi_executive_bp)
+
 # Register AGI Module Mapper and Rebuilder
 from agi_module_mapper_rebuilder import agi_modules_bp
 app.register_blueprint(agi_modules_bp)

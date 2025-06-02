@@ -3,7 +3,7 @@ TRAXOVO AI Assistant - Top Dashboard Feature
 Enterprise-grade AI assistant with chat history analysis and executive insights
 """
 
-from flask import Blueprint, render_template, request, jsonify, session
+from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
 from datetime import datetime, timedelta
 import json
 import os

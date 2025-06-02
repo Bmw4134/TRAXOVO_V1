@@ -3,8 +3,9 @@ TRAXOVO Watson Admin Panel
 Administrative dashboard with system health monitoring and secret modules
 """
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
+import sys
 import logging
 import psutil
 
@@ -284,7 +285,7 @@ def get_detailed_system_health():
         return {
             'system_info': {
                 'platform': os.name,
-                'python_version': os.sys.version,
+                'python_version': sys.version,
                 'process_id': os.getpid()
             },
             'resource_usage': {

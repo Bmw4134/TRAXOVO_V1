@@ -9,6 +9,9 @@ from datetime import datetime
 import os
 import logging
 
+# Import billing blueprint
+from routes.billing_intelligence import billing_bp
+
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -400,6 +403,9 @@ def get_sample_attendance_data():
             'vin': 'VIN088'
         }
     ]
+
+# Register blueprints
+app.register_blueprint(billing_bp)
 
 # Create database tables
 with app.app_context():

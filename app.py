@@ -118,6 +118,37 @@ def api_gauge_data_route():
     data = get_gauge_data()
     return jsonify(data)
 
+# Import ASI Excellence Module
+from asi_excellence_module import get_asi_excellence_engine, initialize_asi_excellence, get_leadership_metrics
+
+@app.route('/asi_excellence')
+def asi_excellence_dashboard():
+    """ASI Excellence Leadership Dashboard"""
+    return render_template('asi_excellence.html')
+
+@app.route('/api/asi_excellence_init')
+def api_asi_excellence_init():
+    """Initialize ASI Excellence system"""
+    result = initialize_asi_excellence()
+    return jsonify(result)
+
+@app.route('/api/leadership_metrics')
+def api_leadership_metrics():
+    """Get leadership demonstration metrics"""
+    metrics = get_leadership_metrics()
+    return jsonify(metrics)
+
+@app.route('/api/asi_status')
+def api_asi_status():
+    """Get real-time ASI Excellence status"""
+    engine = get_asi_excellence_engine()
+    return jsonify({
+        "status": "REVOLUTIONARY_ACTIVE",
+        "excellence_score": engine._calculate_excellence_score(),
+        "game_changing_features": engine._get_game_changing_features(),
+        "timestamp": datetime.now().isoformat()
+    })
+
 # Create tables
 with app.app_context():
     db.create_all()

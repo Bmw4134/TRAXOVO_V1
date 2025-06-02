@@ -144,6 +144,12 @@ def safemode():
     """Safe mode diagnostic interface"""
     return render_template('safemode.html')
 
+@app.route('/failsafe')
+def failsafe():
+    """Failsafe crash recovery interface"""
+    from datetime import datetime
+    return render_template('failsafe.html', timestamp=datetime.now().isoformat())
+
 @app.route('/dashboard')
 def dashboard():
     """Main dashboard"""

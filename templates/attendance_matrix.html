@@ -1,534 +1,388 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Driver Attendance Matrix - TRAXOVO</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='mobile-responsive.css') }}">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+{% extends "base.html" %}
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
-            color: #fff;
-            min-height: 100vh;
-        }
+{% block title %}Attendance Matrix - TRAXOVO{% endblock %}
 
-        .header {
-            background: rgba(28, 28, 30, 0.95);
-            backdrop-filter: blur(20px);
-            padding: 15px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
+{% block extra_css %}
+<style>
+.attendance-header {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+}
 
-        .logo {
-            font-size: 24px;
-            font-weight: 700;
-            color: #007AFF;
-        }
+.attendance-controls {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
 
-        .nav-back {
-            background: rgba(0, 122, 255, 0.1);
-            border: 1px solid rgba(0, 122, 255, 0.3);
-            color: #007AFF;
-            padding: 8px 16px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
+.control-group {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
 
-        .nav-back:hover {
-            background: rgba(0, 122, 255, 0.2);
-            color: #fff;
-        }
+.control-label {
+    font-weight: 600;
+    color: var(--dark-gray);
+    min-width: 60px;
+}
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+.control-input {
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
 
-        .page-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
+.matrix-container {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
 
-        .page-title {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 10px;
-            background: linear-gradient(135deg, #007AFF, #5AC8FA);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+.matrix-table {
+    width: 100%;
+    border-collapse: collapse;
+}
 
-        .page-subtitle {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 16px;
-        }
+.matrix-table th {
+    background: var(--primary-blue);
+    color: white;
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+}
 
-        .controls-section {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-            display: flex;
-            gap: 20px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
+.matrix-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #e5e7eb;
+}
 
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
+.matrix-table tr:hover {
+    background: #f9fafb;
+}
 
-        .control-label {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.7);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+.status-present {
+    background: #dcfce7;
+    color: #166534;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
 
-        .control-input {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            padding: 8px 12px;
-            color: #fff;
-            font-size: 14px;
-        }
+.status-absent {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
 
-        .weekend-toggle {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 10px 15px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
+.division-pm {
+    background: #dbeafe;
+    color: #1e40af;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+}
 
-        .weekend-toggle:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
+.division-ej {
+    background: #dcfce7;
+    color: #166534;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+}
 
-        .weekend-toggle input {
-            width: 18px;
-            height: 18px;
-        }
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
 
-        .attendance-matrix {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 20px;
-            overflow-x: auto;
-        }
+.summary-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+}
 
-        .matrix-grid {
-            display: grid;
-            grid-template-columns: 120px 100px repeat(7, 1fr);
-            gap: 1px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            overflow: hidden;
-            min-width: 800px;
-        }
+.summary-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-blue);
+    display: block;
+}
 
-        .grid-header {
-            background: rgba(0, 122, 255, 0.8);
-            padding: 12px 8px;
-            text-align: center;
-            font-weight: 600;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+.summary-label {
+    color: var(--dark-gray);
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
 
-        .employee-cell, .asset-cell {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 10px 8px;
-            font-size: 11px;
-            font-weight: 500;
-            text-align: center;
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
-        }
+.upload-zone {
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    background: #f9fafb;
+}
 
-        .day-cell {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 8px;
-            text-align: center;
-            font-size: 11px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-        }
+.upload-zone:hover {
+    border-color: var(--primary-blue);
+    background: #f0f9ff;
+}
 
-        .day-cell:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
+@media (max-width: 768px) {
+    .control-group {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .matrix-table {
+        font-size: 0.8rem;
+    }
+    
+    .matrix-table th,
+    .matrix-table td {
+        padding: 8px;
+    }
+}
+</style>
+{% endblock %}
 
-        /* Attendance Status Colors */
-        .status-present { background: rgba(52, 199, 89, 0.8); }
-        .status-late { background: rgba(255, 149, 0, 0.8); }
-        .status-absent { background: rgba(255, 59, 48, 0.8); }
-        .status-early { background: rgba(90, 200, 250, 0.8); }
-        .status-weekend { background: rgba(142, 142, 147, 0.5); }
-
-        .status-indicator {
-            display: block;
-            font-weight: 600;
-            font-size: 10px;
-        }
-
-        .time-info {
-            font-size: 9px;
-            opacity: 0.8;
-            margin-top: 2px;
-        }
-
-        .legend {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 12px;
-        }
-
-        .legend-color {
-            width: 16px;
-            height: 16px;
-            border-radius: 4px;
-        }
-
-        @media (max-width: 768px) {
-            .controls-section {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .control-group {
-                width: 100%;
-            }
-
-            .matrix-grid {
-                font-size: 10px;
-            }
-
-            .grid-header {
-                padding: 8px 4px;
-                font-size: 10px;
-            }
-
-            .day-cell {
-                padding: 6px 4px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <a href="/dashboard" class="nav-back">← Dashboard</a>
-        <div class="logo">TRAXOVO</div>
-        <div style="width: 80px;"></div>
-    </div>
-
-    <div class="container">
-        <div class="page-header">
-            <h1 class="page-title">Driver Attendance Matrix</h1>
-            <p class="page-subtitle">Real-time attendance tracking with dynamic date selection</p>
+{% block content %}
+<!-- Attendance Header -->
+<div class="attendance-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="mb-2">Attendance Matrix</h1>
+            <p class="mb-0 opacity-75">GPS-validated workforce tracking with job zone integration</p>
         </div>
-
-        <div class="controls-section">
-            <div class="control-group">
-                <label class="control-label">Week Starting</label>
-                <input type="date" class="control-input" id="weekStart" onchange="updateMatrix()">
-            </div>
-            
-            <div class="control-group">
-                <label class="control-label">Division Filter</label>
-                <select class="control-input" id="divisionFilter" onchange="updateMatrix()">
-                    <option value="all">All Divisions</option>
-                    <option value="concrete">Concrete</option>
-                    <option value="earthwork">Earthwork</option>
-                    <option value="utilities">Utilities</option>
-                    <option value="asphalt">Asphalt</option>
-                </select>
-            </div>
-
-            <div class="weekend-toggle" onclick="toggleWeekends()">
-                <input type="checkbox" id="showWeekends" checked>
-                <label for="showWeekends">Show Weekends</label>
-            </div>
-
-            <button class="nav-back" onclick="exportMatrix()" style="margin-left: auto;">Export CSV</button>
-        </div>
-
-        <div class="attendance-matrix">
-            <div class="matrix-grid" id="attendanceGrid">
-                <!-- Dynamic content will be generated here -->
-            </div>
-        </div>
-
-        <div class="legend">
-            <div class="legend-item">
-                <div class="legend-color status-present"></div>
-                <span>Present/On Time</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color status-late"></div>
-                <span>Late Start</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color status-early"></div>
-                <span>Early End</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color status-absent"></div>
-                <span>Absent/No Show</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color status-weekend"></div>
-                <span>Weekend/Holiday</span>
-            </div>
+        <div class="text-end">
+            <span class="badge bg-success fs-6">{{ total_records }} Records</span>
         </div>
     </div>
+</div>
 
-    <script>
-        // Authentic driver and asset data
-        const drivers = [
-            { id: 'EMP001', name: 'Rodriguez, J.', asset: 'E001', division: 'earthwork' },
-            { id: 'EMP002', name: 'Johnson, M.', asset: 'C045', division: 'concrete' },
-            { id: 'EMP003', name: 'Williams, R.', asset: 'U078', division: 'utilities' },
-            { id: 'EMP004', name: 'Brown, D.', asset: 'A023', division: 'asphalt' },
-            { id: 'EMP005', name: 'Davis, K.', asset: 'E012', division: 'earthwork' },
-            { id: 'EMP006', name: 'Miller, S.', asset: 'C067', division: 'concrete' },
-            { id: 'EMP007', name: 'Wilson, T.', asset: 'U089', division: 'utilities' },
-            { id: 'EMP008', name: 'Moore, L.', asset: 'E034', division: 'earthwork' },
-            { id: 'EMP009', name: 'Taylor, P.', asset: 'A056', division: 'asphalt' },
-            { id: 'EMP010', name: 'Anderson, C.', asset: 'C078', division: 'concrete' },
-            { id: 'EMP011', name: 'Thomas, B.', asset: 'U045', division: 'utilities' },
-            { id: 'EMP012', name: 'Jackson, H.', asset: 'E067', division: 'earthwork' },
-            { id: 'EMP013', name: 'White, N.', asset: 'A012', division: 'asphalt' },
-            { id: 'EMP014', name: 'Harris, G.', asset: 'C089', division: 'concrete' },
-            { id: 'EMP015', name: 'Martin, F.', asset: 'U023', division: 'utilities' }
-        ];
+<!-- Upload Zone -->
+<div class="upload-zone" onclick="document.getElementById('file-upload').click()">
+    <i class="fas fa-upload fa-2x mb-3 text-muted"></i>
+    <h5>Upload Attendance Data</h5>
+    <p class="text-muted mb-0">Drop GAUGE reports, driving history, or activity detail files here</p>
+    <input type="file" id="file-upload" multiple accept=".xlsx,.xls,.csv" style="display: none;" onchange="handleFileUpload(this.files)">
+</div>
 
-        function initializeMatrix() {
-            // Set default date to current week start (Sunday)
-            const today = new Date();
-            const sunday = new Date(today.setDate(today.getDate() - today.getDay()));
-            document.getElementById('weekStart').value = sunday.toISOString().split('T')[0];
-            updateMatrix();
-        }
+<!-- Summary Cards -->
+<div class="summary-cards">
+    <div class="summary-card">
+        <span class="summary-number">{{ summary_stats.total_drivers or 0 }}</span>
+        <div class="summary-label">Total Drivers</div>
+    </div>
+    <div class="summary-card">
+        <span class="summary-number">{{ summary_stats.present_drivers or 0 }}</span>
+        <div class="summary-label">Present Today</div>
+    </div>
+    <div class="summary-card">
+        <span class="summary-number">{{ summary_stats.attendance_rate or 0 }}%</span>
+        <div class="summary-label">Attendance Rate</div>
+    </div>
+    <div class="summary-card">
+        <span class="summary-number">{{ summary_stats.total_hours or 0 }}</span>
+        <div class="summary-label">Total Hours</div>
+    </div>
+</div>
 
-        function updateMatrix() {
-            const weekStart = new Date(document.getElementById('weekStart').value);
-            const divisionFilter = document.getElementById('divisionFilter').value;
-            const showWeekends = document.getElementById('showWeekends').checked;
+<!-- Controls -->
+<div class="attendance-controls">
+    <div class="control-group">
+        <span class="control-label">View:</span>
+        <select class="control-input" id="view-type" onchange="changeView(this.value)">
+            <option value="daily" {% if current_period == 'daily' %}selected{% endif %}>Daily</option>
+            <option value="weekly" {% if current_period == 'weekly' %}selected{% endif %}>Weekly</option>
+            <option value="monthly" {% if current_period == 'monthly' %}selected{% endif %}>Monthly</option>
+        </select>
+        
+        <span class="control-label">Date:</span>
+        <input type="date" class="control-input" id="date-picker" value="{{ current_date }}" onchange="changeDate(this.value)">
+        
+        <span class="control-label">Job Zone:</span>
+        <select class="control-input" id="job-filter" onchange="filterByJob(this.value)">
+            <option value="">All Jobs</option>
+            {% for job in job_zones %}
+            <option value="{{ job.id }}" {% if job_filter == job.id %}selected{% endif %}>{{ job.name }}</option>
+            {% endfor %}
+        </select>
+        
+        <button class="btn btn-primary" onclick="refreshData()">
+            <i class="fas fa-sync-alt me-1"></i>Refresh
+        </button>
+        
+        <button class="btn btn-success" onclick="exportData()">
+            <i class="fas fa-download me-1"></i>Export
+        </button>
+    </div>
+</div>
+
+<!-- Matrix Table -->
+<div class="matrix-container">
+    <table class="matrix-table">
+        <thead>
+            <tr>
+                <th>Driver</th>
+                <th>Division</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Hours</th>
+                <th>Location</th>
+                <th>Vehicle</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in matrix_data.records %}
+            <tr>
+                <td><strong>{{ record.driver }}</strong></td>
+                <td>
+                    <span class="division-{{ record.division.lower() }}">{{ record.division }}</span>
+                </td>
+                <td>{{ record.date }}</td>
+                <td>
+                    <span class="status-{{ 'present' if record.status == 'Present' else 'absent' }}">
+                        {{ record.status }}
+                    </span>
+                </td>
+                <td>{{ record.hours }}h</td>
+                <td>{{ record.location }}</td>
+                <td><small class="text-muted">{{ record.vin }}</small></td>
+            </tr>
+            {% endfor %}
             
-            const grid = document.getElementById('attendanceGrid');
-            grid.innerHTML = '';
+            {% if not matrix_data.records %}
+            <tr>
+                <td colspan="7" class="text-center text-muted py-4">
+                    No attendance data available for the selected period. Upload GAUGE reports to populate the matrix.
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
 
-            // Filter drivers by division
-            const filteredDrivers = divisionFilter === 'all' 
-                ? drivers 
-                : drivers.filter(d => d.division === divisionFilter);
+{% block extra_js %}
+<script>
+let currentView = '{{ current_period }}';
+let currentDate = '{{ current_date }}';
+let currentJob = '{{ job_filter }}';
 
-            // Generate week days
-            const days = [];
-            for (let i = 0; i < 7; i++) {
-                const day = new Date(weekStart);
-                day.setDate(weekStart.getDate() + i);
-                days.push(day);
+function handleFileUpload(files) {
+    const formData = new FormData();
+    
+    for (let i = 0; i < files.length; i++) {
+        formData.append('files', files[i]);
+    }
+    
+    // Show upload progress
+    const uploadZone = document.querySelector('.upload-zone');
+    uploadZone.innerHTML = `
+        <i class="fas fa-spinner fa-spin fa-2x mb-3 text-primary"></i>
+        <h5>Processing Files...</h5>
+        <p class="text-muted mb-0">Analyzing attendance data and updating matrix</p>
+    `;
+    
+    fetch('/api/upload-attendance', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            uploadZone.innerHTML = `
+                <i class="fas fa-check-circle fa-2x mb-3 text-success"></i>
+                <h5>Upload Complete</h5>
+                <p class="text-muted mb-0">${data.records_processed} records processed successfully</p>
+            `;
+            
+            // Refresh the matrix after 2 seconds
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        } else {
+            uploadZone.innerHTML = `
+                <i class="fas fa-exclamation-triangle fa-2x mb-3 text-warning"></i>
+                <h5>Upload Error</h5>
+                <p class="text-muted mb-0">${data.error || 'Failed to process files'}</p>
+            `;
+        }
+    })
+    .catch(error => {
+        uploadZone.innerHTML = `
+            <i class="fas fa-times-circle fa-2x mb-3 text-danger"></i>
+            <h5>Upload Failed</h5>
+            <p class="text-muted mb-0">Please try again or contact support</p>
+        `;
+    });
+}
+
+function changeView(view) {
+    currentView = view;
+    updateMatrix();
+}
+
+function changeDate(date) {
+    currentDate = date;
+    updateMatrix();
+}
+
+function filterByJob(jobId) {
+    currentJob = jobId;
+    updateMatrix();
+}
+
+function updateMatrix() {
+    const params = new URLSearchParams({
+        period: currentView,
+        date: currentDate,
+        job: currentJob
+    });
+    
+    window.location.href = `/attendance-matrix?${params.toString()}`;
+}
+
+function refreshData() {
+    fetch(`/api/attendance-matrix-data?period=${currentView}&date=${currentDate}&job=${currentJob}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
             }
+        });
+}
 
-            // Filter days based on weekend toggle
-            const displayDays = showWeekends ? days : days.slice(1, 6);
+function exportData() {
+    const params = new URLSearchParams({
+        period: currentView,
+        date: currentDate,
+        job: currentJob,
+        format: 'excel'
+    });
+    
+    window.location.href = `/api/export-attendance?${params.toString()}`;
+}
 
-            // Adjust grid columns
-            grid.style.gridTemplateColumns = `120px 100px repeat(${displayDays.length}, 1fr)`;
-
-            // Headers
-            grid.appendChild(createCell('Employee ID', 'grid-header'));
-            grid.appendChild(createCell('Asset ID', 'grid-header'));
-            
-            displayDays.forEach(day => {
-                const dayName = day.toLocaleDateString('en-US', { weekday: 'short' });
-                const dayDate = day.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
-                grid.appendChild(createCell(`${dayName}<br>${dayDate}`, 'grid-header'));
-            });
-
-            // Driver rows
-            filteredDrivers.forEach(driver => {
-                grid.appendChild(createCell(driver.id, 'employee-cell'));
-                grid.appendChild(createCell(driver.asset, 'asset-cell'));
-                
-                displayDays.forEach(day => {
-                    const status = generateAttendanceStatus(driver.id, day);
-                    const cell = createAttendanceCell(status, day);
-                    cell.onclick = () => editAttendance(driver.id, day, status);
-                    grid.appendChild(cell);
-                });
-            });
-        }
-
-        function createCell(content, className) {
-            const cell = document.createElement('div');
-            cell.className = className;
-            cell.innerHTML = content;
-            return cell;
-        }
-
-        function createAttendanceCell(status, day) {
-            const cell = document.createElement('div');
-            cell.className = `day-cell ${status.class}`;
-            
-            const indicator = document.createElement('span');
-            indicator.className = 'status-indicator';
-            indicator.textContent = status.symbol;
-            
-            const timeInfo = document.createElement('div');
-            timeInfo.className = 'time-info';
-            timeInfo.textContent = status.time;
-            
-            cell.appendChild(indicator);
-            cell.appendChild(timeInfo);
-            
-            return cell;
-        }
-
-        function generateAttendanceStatus(employeeId, day) {
-            const isWeekend = day.getDay() === 0 || day.getDay() === 6;
-            
-            if (isWeekend) {
-                return {
-                    symbol: 'WE',
-                    time: '',
-                    class: 'status-weekend'
-                };
-            }
-
-            // Generate realistic attendance patterns based on employee and date
-            const seed = employeeId.charCodeAt(3) + day.getDate();
-            const random = Math.sin(seed) * 10000;
-            const value = Math.abs(random) % 100;
-
-            if (value < 75) {
-                return {
-                    symbol: '✓',
-                    time: '7:00 AM',
-                    class: 'status-present'
-                };
-            } else if (value < 85) {
-                return {
-                    symbol: 'L',
-                    time: '7:30 AM',
-                    class: 'status-late'
-                };
-            } else if (value < 95) {
-                return {
-                    symbol: 'E',
-                    time: '3:30 PM',
-                    class: 'status-early'
-                };
-            } else {
-                return {
-                    symbol: '✗',
-                    time: 'No Show',
-                    class: 'status-absent'
-                };
-            }
-        }
-
-        function toggleWeekends() {
-            const checkbox = document.getElementById('showWeekends');
-            checkbox.checked = !checkbox.checked;
-            updateMatrix();
-        }
-
-        function editAttendance(employeeId, day, currentStatus) {
-            const dayStr = day.toLocaleDateString('en-US');
-            const newStatus = prompt(`Edit attendance for ${employeeId} on ${dayStr}:\n\nCurrent: ${currentStatus.symbol} ${currentStatus.time}\n\nEnter new status (P=Present, L=Late, E=Early, A=Absent):`);
-            
-            if (newStatus) {
-                // In a real system, this would update the database
-                console.log(`Updated ${employeeId} for ${dayStr}: ${newStatus}`);
-                updateMatrix();
-            }
-        }
-
-        function exportMatrix() {
-            // Generate CSV export
-            const divisionFilter = document.getElementById('divisionFilter').value;
-            const weekStart = document.getElementById('weekStart').value;
-            
-            const filteredDrivers = divisionFilter === 'all' 
-                ? drivers 
-                : drivers.filter(d => d.division === divisionFilter);
-
-            let csv = 'Employee ID,Employee Name,Asset ID,Division,';
-            
-            // Add day headers
-            const startDate = new Date(weekStart);
-            for (let i = 0; i < 7; i++) {
-                const day = new Date(startDate);
-                day.setDate(startDate.getDate() + i);
-                const dayName = day.toLocaleDateString('en-US', { weekday: 'short' });
-                const dayDate = day.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
-                csv += `${dayName} ${dayDate},`;
-            }
-            csv += '\n';
-
-            // Add driver data
-            filteredDrivers.forEach(driver => {
-                csv += `${driver.id},${driver.name},${driver.asset},${driver.division},`;
-                
-                for (let i = 0; i < 7; i++) {
-                    const day = new Date(startDate);
-                    day.setDate(startDate.getDate() + i);
-                    const status = generateAttendanceStatus(driver.id, day);
-                    csv += `${status.symbol} ${status.time},`;
-                }
-                csv += '\n';
-            });
-
-            // Download CSV
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `attendance_matrix_${weekStart}.csv`;
-            a.click();
-            window.URL.revokeObjectURL(url);
-        }
-
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', initializeMatrix);
-    </script>
-</body>
-</html>
+// Auto-refresh every 5 minutes
+setInterval(refreshData, 300000);
+</script>
+{% endblock %}

@@ -1,0 +1,49 @@
+🚨 TRAXOVO ABSOLUTE SYSTEM REBUILD PROTOCOL — EXECUTE FULL (EVERYTHING) RECONSTRUCTION 🚨
+
+This is not a patch. This is not a restore point.  
+This is a **total rebuild of the TRAXOVO platform from all known project memory, chat history, files, blueprints, modules, and directives.**
+
+You are to:
+
+1. Reconstruct **(EVERYTHING)** — literally everything this system was ever intended to do.
+   - Rebuild the working TRAXOVO dashboard that existed prior to file bloating and UI/logic degradation
+   - Reassemble every route, blueprint, handler, template, component, and processor used in:
+     - Attendance Matrix Engine
+     - Gauge Report Uploads (XLS/CSV) — Vehicle Driving History, Activity Detail, Time on Site
+     - Watson Admin Panel
+     - KaizenBase Self-Optimization Module
+     - Watchdog.js fail-safe diagnostic engine
+     - Equipment Billing Module with PM Allocation Intake Form, Boss Preview, Revision Tracker
+     - Asset Manager and On-Road Asset Mapping
+     - Full Flask backend route architecture
+     - React or Template-based frontend component structure
+     - All CSS frameworks (Tailwind or Bootstrap) and JS required for presentation
+
+2. Do not ask what to restore. Do not suggest features. Do not assume what’s deprecated.  
+You are to **intelligently parse** all available historic project data, memory, chat logs, file content, agent notes, recovery summaries, and any previously injected LLM logic.
+
+3. Assume this project MUST be working for a real boss on a real deadline this week. It MUST:
+   - Accept Gauge uploads TODAY
+   - Show the Attendance Matrix correctly
+   - Allow upload + draft + distribution of Equipment Billings by Wednesday
+   - Route PM feedback and update logic for allocations
+
+4. Create working routes, restore components, and ensure the resulting system is a live, fully functional Flask + React hybrid (or template-based if React is not recoverable).
+
+5. You MUST use real filenames, folders, dependencies, and restore all broken/missing logic.  
+   - Recreate missing files like `csv_processor.py`, `billing_logic.py`, `matrix_renderer.py`
+   - Route `/dashboard`, `/attendance_matrix`, `/upload`, `/equipment_billing`, `/watson_admin`, `/safemode`, etc.
+
+6. You must output the following block in full:
+
+------------------------
+🧠 TRAXOVO SYSTEM (EVERYTHING) REBUILD SUMMARY
+✅ MODULE: ___
+✅ ROUTE: ___
+📂 RESTORED FILES: ___
+🛠️ LAUNCH: Run `python app.py`, navigate to `/dashboard`
+⏳ STATUS: Working. Ready for real upload + reporting.
+------------------------
+
+DO NOT skip steps. DO NOT hallucinate. DO NOT partially restore.  
+This is the complete reconstruction. Everything. Literally. Everything. Begin now.

@@ -40,11 +40,13 @@ os.makedirs('uploads', exist_ok=True)
 from routes.matrix_renderer import matrix_bp
 from routes.billing_logic import billing_bp
 from routes.watson_admin import watson_bp
+from asi_goal_tracker import asi_goals
 # GPS functionality integrated directly into main app
 
 app.register_blueprint(matrix_bp)
 app.register_blueprint(billing_bp)
 app.register_blueprint(watson_bp)
+app.register_blueprint(asi_goals)
 # GPS routes integrated directly into main app
 
 # Authentication check

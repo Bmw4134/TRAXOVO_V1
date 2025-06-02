@@ -60,7 +60,18 @@ def get_gauge_data():
         if response.status_code == 200:
             data = response.json()
             print(f"Successfully fetched GAUGE API data")
-            return {"success": True, "assets": data.get("assets", []), "total": len(data.get("assets", []))}
+            
+            # Handle both list and dict responses from GAUGE API
+            if isinstance(data, list):
+                # Direct list of assets
+                assets = data
+            elif isinstance(data, dict):
+                # Dictionary with assets key
+                assets = data.get("assets", data.get("data", []))
+            else:
+                assets = []
+            
+            return {"success": True, "assets": assets, "total": len(assets)}
         else:
             return {"success": False, "error": f"API returned status {response.status_code}"}
     except Exception as e:
@@ -159,7 +170,7 @@ def api_daily_goals():
     
     return jsonify({
         "goals": goals,
-        "gauge_connection": gauge_data.get("success", False),
+        "gauge_connection": gauge_data.get("success", False) if isinstance(gauge_data, dict) else False,
         "last_updated": datetime.now().isoformat()
     })
 

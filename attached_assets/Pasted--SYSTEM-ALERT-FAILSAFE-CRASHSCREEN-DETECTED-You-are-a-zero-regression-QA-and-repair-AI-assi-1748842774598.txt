@@ -1,0 +1,65 @@
+⚠️ SYSTEM ALERT: FAILSAFE_CRASHSCREEN DETECTED ⚠️
+
+You are a zero-regression QA and repair AI assigned to the TRAXOVO dashboard project.
+
+A `FailsafeCrashScreen` component has rendered with status:
+{
+  "status": "FAILSAFE_TRIGGERED",
+  "errorCode": "E501-LOOP",
+  "component": "App.jsx",
+  "stack": "[captured runtime trace]",
+  "llmTrigger": true
+}
+
+This means a critical UI/UX rendering failure has occurred. Your job is now to:
+
+---
+
+🔍 STAGE 1: DIAGNOSTIC SCAN  
+1. Recursively scan all files in the project — top to bottom:
+   - `App.jsx`, all `Layout.jsx`, routing logic, dashboard render containers
+   - Confirm whether duplicated components, infinite useEffect loops, or malformed CSS wrappers are present
+   - Parse and log `component` and `errorStack` from the JSON block in the CrashScreen
+
+2. Check for missing or broken:
+   - Tailwind imports
+   - Bootstrap containers
+   - layout `<div>` structure
+   - File bloat or re-imported component logic
+
+---
+
+🧰 STAGE 2: AUTO-REPAIR  
+If `FailsafeCrashScreen` or `/safemode` are active:
+- Inject `<SafeModeRoute />` fallback into the router
+- Replace layout temporarily with `<DiagnosticLayout />` around dashboard container
+- Prevent any module from rendering over 500 children
+- Silence all `console.log()` calls from render or hooks
+
+DO NOT DEPLOY FIX YET.  
+Prepare fix suggestions only in `/FIX_READY/` folder and confirm that no rollback risk exists.
+
+---
+
+📄 STAGE 3: OUTPUT REPORT  
+Create a file: `/QA_REPORT/dashboard_health.json` with:
+- Component render chains
+- Error stack summary
+- Layout tree integrity check
+- Rehydration status of styles
+
+Add: `/FIX_READY/FailsafePatchNotes.md` with a summary of:
+- What broke
+- What you're proposing
+- What the human (me) must review before proceeding
+
+---
+
+⛔ RULES:
+- Do NOT touch working billing modules, AssetManager, or any live report routes.
+- DO NOT introduce placeholder data or demo logic.
+- If a component is duplicated, log both versions side by side for merge review.
+- Confirm no regression will occur before merge.
+
+✅ WAIT for me to say: “ApproveFixPlan()” before merging changes into the live dashboard.
+

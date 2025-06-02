@@ -728,6 +728,30 @@ agi_workflow = get_agi_workflow_automation()
 from agi_enhanced_login import agi_login_bp
 app.register_blueprint(agi_login_bp, url_prefix='/agi-auth')
 
+# Register AGI Asset Lifecycle Management
+from agi_asset_lifecycle_management import agi_asset_bp
+app.register_blueprint(agi_asset_bp)
+
+# Register AGI Module Mapper & Rebuilder
+from agi_module_mapper_rebuilder import agi_modules_bp
+app.register_blueprint(agi_modules_bp)
+
+# Register AGI Asset Lifecycle Management
+from agi_asset_lifecycle_management import agi_asset_bp
+app.register_blueprint(agi_asset_bp)
+
+# Register AGI Module Mapper and Rebuilder
+from agi_module_mapper_rebuilder import agi_modules_bp
+app.register_blueprint(agi_modules_bp)
+
+# Register AGI Asset Lifecycle Management
+from agi_asset_lifecycle_management import agi_asset_bp
+app.register_blueprint(agi_asset_bp)
+
+# Register AGI Module Mapper and Rebuilder
+from agi_module_mapper_rebuilder import agi_modules_bp
+app.register_blueprint(agi_modules_bp)
+
 # Register AGI-Enhanced Idea Box
 from idea_box import idea_box_bp
 app.register_blueprint(idea_box_bp)

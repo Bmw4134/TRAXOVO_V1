@@ -6,7 +6,7 @@ import os
 import json
 import logging
 from datetime import datetime
-from flask import Flask, render_template, request, redirect, session, jsonify
+from flask import Flask, render_template, request, redirect, session, jsonify, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 from flask_limiter import Limiter
@@ -34,10 +34,14 @@ Talisman(app, force_https=False)
 
 # Database configuration optimized for production
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-    "pool_recycle": 300,
+    "pool_size": 50,
+    "max_overflow": 100,
+    "pool_timeout": 30,
+    "pool_recycle": 3600,
     "pool_pre_ping": True,
-    "pool_size": 20
+    "echo": False
 }
 
 db = SQLAlchemy(app, model_class=Base)

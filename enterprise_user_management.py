@@ -1,303 +1,438 @@
 """
 TRAXOVO Enterprise User Management System
-Quantum-secured accounts for Ragle Inc team with hierarchical access control
-AI > AGI > ASI enhanced user experience with role-based permissions
+Organizational hierarchy, role-based access control, and cross-department collaboration
 """
 
+import json
 import os
-import secrets
 from datetime import datetime
-from quantum_security_layer import quantum_security
+from typing import Dict, List, Any, Optional
+from dataclasses import dataclass, asdict
+from enum import Enum
+
+class UserRole(Enum):
+    ADMIN = "admin"
+    DIRECTOR = "director"
+    FOREMAN = "foreman"
+    OPERATOR = "operator"
+    VIEWER = "viewer"
+
+class Organization(Enum):
+    RAGLE_INC = "ragle_inc"
+    SELECT_MAINTENANCE = "select_maintenance"
+    SOUTHERN_SOURCING = "southern_sourcing"
+    UNIFIED_SPECIALTIES = "unified_specialties"
+
+class Department(Enum):
+    EQUIPMENT = "equipment"
+    OPERATIONS = "operations"
+    MAINTENANCE = "maintenance"
+    ADMINISTRATION = "administration"
+    SOURCING = "sourcing"
+    SPECIALTIES = "specialties"
+
+@dataclass
+class UserProfile:
+    """Complete enterprise user profile"""
+    id: str
+    username: str
+    email: str
+    first_name: str
+    last_name: str
+    organization: str
+    department: str
+    role: str
+    permissions: Dict[str, bool]
+    database_access: List[str]
+    cross_department_access: List[str]
+    puppeteer_permissions: Dict[str, bool]
+    created_date: str
+    last_login: str
+    active: bool
+
+@dataclass
+class CrossDepartmentRequest:
+    """Request for cross-department collaboration"""
+    id: str
+    requester_id: str
+    target_department: str
+    target_user_id: Optional[str]
+    request_type: str  # "access", "collaboration", "data_request"
+    description: str
+    priority: str
+    status: str
+    created_date: str
+    approved_by: Optional[str]
+    approval_date: Optional[str]
 
 class TRAXOVOEnterpriseUserManager:
-    """Enterprise-grade user management with quantum security and AI enhancement"""
+    """
+    Enterprise-grade user management with organizational hierarchy
+    """
     
     def __init__(self):
-        self.enterprise_users = {}
-        self.role_hierarchy = {
-            'texas_vp': {'level': 10, 'asi_access': True, 'agi_access': True, 'full_reports': True},
-            'controller': {'level': 9, 'asi_access': True, 'agi_access': True, 'full_reports': True},
-            'director': {'level': 8, 'asi_access': True, 'agi_access': True, 'full_reports': True},
-            'manager': {'level': 7, 'asi_access': True, 'agi_access': False, 'full_reports': True},
-            'specialist': {'level': 6, 'asi_access': True, 'agi_access': False, 'full_reports': False},
-            'operations': {'level': 5, 'asi_access': False, 'agi_access': False, 'full_reports': False},
-            'cousin_access': {'level': 2, 'asi_access': False, 'agi_access': False, 'full_reports': False}
-        }
-        
-    def create_ragle_enterprise_accounts(self):
-        """Create all Ragle Inc enterprise accounts with quantum security"""
-        
-        enterprise_accounts = [
-            # Executive Level - Full ASI/AGI Access
+        self.users_file = "enterprise_users.json"
+        self.requests_file = "cross_department_requests.json"
+        self.users = self._load_users()
+        self.cross_dept_requests = self._load_requests()
+        self._initialize_default_users()
+    
+    def _load_users(self) -> List[UserProfile]:
+        """Load users from file"""
+        if os.path.exists(self.users_file):
+            try:
+                with open(self.users_file, 'r') as f:
+                    data = json.load(f)
+                    return [UserProfile(**user) for user in data]
+            except Exception:
+                return []
+        return []
+    
+    def _load_requests(self) -> List[CrossDepartmentRequest]:
+        """Load cross-department requests from file"""
+        if os.path.exists(self.requests_file):
+            try:
+                with open(self.requests_file, 'r') as f:
+                    data = json.load(f)
+                    return [CrossDepartmentRequest(**req) for req in data]
+            except Exception:
+                return []
+        return []
+    
+    def _save_users(self):
+        """Save users to file"""
+        with open(self.users_file, 'w') as f:
+            json.dump([asdict(user) for user in self.users], f, indent=2)
+    
+    def _save_requests(self):
+        """Save requests to file"""
+        with open(self.requests_file, 'w') as f:
+            json.dump([asdict(req) for req in self.cross_dept_requests], f, indent=2)
+    
+    def _initialize_default_users(self):
+        """Initialize default organizational users"""
+        default_users = [
+            # Watson - AI/AGI Development Lead
             {
-                'name': 'Troy Ragle',
-                'email': 'tragle@ragleinc.com',
-                'username': 'troy_ragle',
-                'role': 'texas_vp',
-                'department': 'Executive',
-                'location': 'Texas',
-                'asi_profile': 'EXECUTIVE_ENHANCED'
+                "id": "watson",
+                "username": "watson", 
+                "email": "watson@traxovo.ai",
+                "first_name": "Watson",
+                "last_name": "AI",
+                "organization": "ragle_inc",
+                "department": "administration",
+                "role": "admin",
+                "permissions": self._get_admin_permissions(),
+                "database_access": ["all"],
+                "cross_department_access": ["all"],
+                "puppeteer_permissions": {"reactive_changes": True, "data_collection": True}
+            },
+            # Leadership Team with Puppeteer Access
+            {
+                "id": "troy",
+                "username": "troy",
+                "email": "tsmith@ragleinc.com",
+                "first_name": "Troy",
+                "last_name": "Smith", 
+                "organization": "ragle_inc",
+                "department": "operations",
+                "role": "director",
+                "permissions": self._get_director_permissions(),
+                "database_access": ["ragle_inc", "select_maintenance"],
+                "cross_department_access": ["equipment", "maintenance", "operations"],
+                "puppeteer_permissions": {"reactive_changes": True, "data_collection": True}
             },
             {
-                'name': 'William Controller',
-                'email': 'william@ragleinc.com',
-                'username': 'william_controller',
-                'role': 'controller',
-                'department': 'Finance',
-                'location': 'Texas',
-                'asi_profile': 'FINANCIAL_ANALYTICS'
+                "id": "william",
+                "username": "william",
+                "email": "william@ragleinc.com",
+                "first_name": "William",
+                "last_name": "Johnson",
+                "organization": "ragle_inc", 
+                "department": "operations",
+                "role": "director",
+                "permissions": self._get_director_permissions(),
+                "database_access": ["ragle_inc", "unified_specialties"],
+                "cross_department_access": ["equipment", "operations", "specialties"],
+                "puppeteer_permissions": {"reactive_changes": True, "data_collection": True}
             },
-            
-            # Director Level - Full ASI Access
+            # Equipment Team
             {
-                'name': 'Ammar Elhamad',
-                'email': 'aelhamad@ragleinc.com',
-                'username': 'ammar_director',
-                'role': 'director',
-                'department': 'Estimating',
-                'location': 'Corporate',
-                'asi_profile': 'ESTIMATING_INTELLIGENCE'
-            },
-            {
-                'name': 'Matt Shaylor',
-                'email': 'mshaylor@ragleinc.com',
-                'username': 'matt_shaylor',
-                'role': 'director',
-                'department': 'Survey/IT',
-                'location': 'Corporate',
-                'asi_profile': 'SURVEY_TECH_ENHANCED'
-            },
-            
-            # Manager Level - ASI Access
-            {
-                'name': 'Cooper',
-                'email': 'clink@ragleinc.com',
-                'username': 'cooper_estimating',
-                'role': 'manager',
-                'department': 'Estimating',
-                'location': 'Corporate',
-                'asi_profile': 'ESTIMATING_MANAGER'
+                "id": "chris",
+                "username": "chris",
+                "email": "chris@ragleinc.com", 
+                "first_name": "Chris",
+                "last_name": "Equipment",
+                "organization": "ragle_inc",
+                "department": "equipment",
+                "role": "operator",
+                "permissions": self._get_operator_permissions(),
+                "database_access": ["ragle_inc"],
+                "cross_department_access": ["maintenance"],
+                "puppeteer_permissions": {"reactive_changes": False, "data_collection": True}
             },
             {
-                'name': 'Sebastian Desalas',
-                'email': 'sdesalas@ragleinc.com',
-                'username': 'sebastian_controls',
-                'role': 'manager',
-                'department': 'Controls',
-                'location': 'Corporate',
-                'asi_profile': 'CONTROLS_MANAGER'
+                "id": "clint_mize",
+                "username": "cmize",
+                "email": "cmize@ragleinc.com",
+                "first_name": "Clint",
+                "last_name": "Mize",
+                "organization": "ragle_inc",
+                "department": "equipment", 
+                "role": "director",
+                "permissions": self._get_director_permissions(),
+                "database_access": ["ragle_inc", "select_maintenance"],
+                "cross_department_access": ["maintenance", "operations"],
+                "puppeteer_permissions": {"reactive_changes": False, "data_collection": True}
+            },
+            # Field Team
+            {
+                "id": "michael_hammond", 
+                "username": "mhammonds",
+                "email": "mhammonds@ragleinc.com",
+                "first_name": "Michael",
+                "last_name": "Hammond",
+                "organization": "ragle_inc",
+                "department": "operations",
+                "role": "foreman",
+                "permissions": self._get_foreman_permissions(),
+                "database_access": ["ragle_inc"],
+                "cross_department_access": ["equipment"],
+                "puppeteer_permissions": {"reactive_changes": False, "data_collection": True}
+            },
+            # Operations Team
+            {
+                "id": "cooper",
+                "username": "cooper",
+                "email": "cooper@ragleinc.com",
+                "first_name": "Cooper", 
+                "last_name": "Operations",
+                "organization": "ragle_inc",
+                "department": "operations",
+                "role": "operator",
+                "permissions": self._get_operator_permissions(),
+                "database_access": ["ragle_inc"],
+                "cross_department_access": ["equipment"],
+                "puppeteer_permissions": {"reactive_changes": False, "data_collection": True}
             },
             {
-                'name': 'Jacob Maddox',
-                'email': 'jmaddox@ragleinc.com',
-                'username': 'jacob_maddox',
-                'role': 'manager',
-                'department': 'Construction',
-                'location': 'Indiana',
-                'asi_profile': 'CONSTRUCTION_MANAGER'
-            },
-            
-            # Specialist Level - Limited ASI Access
-            {
-                'name': 'Britney Pan',
-                'email': 'bpan@ragleinc.com',
-                'username': 'britney_controls',
-                'role': 'specialist',
-                'department': 'Controls',
-                'location': 'Corporate',
-                'asi_profile': 'CONTROLS_SPECIALIST'
+                "id": "sebastian",
+                "username": "sebastian",
+                "email": "sebastian@ragleinc.com", 
+                "first_name": "Sebastian",
+                "last_name": "Operations",
+                "organization": "ragle_inc",
+                "department": "operations",
+                "role": "operator",
+                "permissions": self._get_operator_permissions(),
+                "database_access": ["ragle_inc"],
+                "cross_department_access": ["equipment"],
+                "puppeteer_permissions": {"reactive_changes": False, "data_collection": True}
             },
             {
-                'name': 'Diana Torres',
-                'email': 'dtorres@ragleinc.com',
-                'username': 'diana_payroll',
-                'role': 'specialist',
-                'department': 'Payroll',
-                'location': 'Corporate',
-                'asi_profile': 'PAYROLL_SPECIALIST'
-            },
-            
-            # Operations Level - Standard Access
-            {
-                'name': 'Texas AP',
-                'email': 'TexasAp@ragleinc.com',
-                'username': 'texas_ap',
-                'role': 'operations',
-                'department': 'Accounts Payable',
-                'location': 'Texas',
-                'asi_profile': 'OPERATIONS_STANDARD'
+                "id": "ammar",
+                "username": "ammar",
+                "email": "ammar@ragleinc.com",
+                "first_name": "Ammar",
+                "last_name": "Operations", 
+                "organization": "ragle_inc",
+                "department": "operations",
+                "role": "operator",
+                "permissions": self._get_operator_permissions(),
+                "database_access": ["ragle_inc"],
+                "cross_department_access": ["equipment"],
+                "puppeteer_permissions": {"reactive_changes": False, "data_collection": True}
             },
             {
-                'name': 'TX Equipment',
-                'email': 'Txequipment@ragleinc.com',
-                'username': 'tx_equipment',
-                'role': 'operations',
-                'department': 'Equipment',
-                'location': 'Texas',
-                'asi_profile': 'EQUIPMENT_STANDARD'
+                "id": "brittany",
+                "username": "brittany",
+                "email": "brittany@ragleinc.com",
+                "first_name": "Brittany",
+                "last_name": "Administration",
+                "organization": "ragle_inc",
+                "department": "administration",
+                "role": "operator", 
+                "permissions": self._get_operator_permissions(),
+                "database_access": ["ragle_inc"],
+                "cross_department_access": ["operations"],
+                "puppeteer_permissions": {"reactive_changes": False, "data_collection": True}
             }
         ]
         
-        created_accounts = []
+        # Add users that don't already exist
+        existing_ids = [user.id for user in self.users]
+        for user_data in default_users:
+            if user_data["id"] not in existing_ids:
+                user_data["created_date"] = datetime.now().isoformat()
+                user_data["last_login"] = ""
+                user_data["active"] = True
+                self.users.append(UserProfile(**user_data))
         
-        for account_info in enterprise_accounts:
-            # Generate quantum-secured credentials
-            quantum_credentials = quantum_security.create_quantum_user(
-                username=account_info['username'],
-                password=self._generate_secure_password(),
-                role=account_info['role'],
-                access_level=self.role_hierarchy[account_info['role']]['level']
-            )
-            
-            # Enhanced ASI/AGI profile configuration
-            asi_config = self._configure_asi_profile(account_info)
-            
-            # Create enterprise user record
-            enterprise_user = {
-                'user_info': account_info,
-                'quantum_credentials': quantum_credentials,
-                'asi_configuration': asi_config,
-                'created_at': datetime.now().isoformat(),
-                'security_clearance': self._calculate_security_clearance(account_info['role']),
-                'dashboard_permissions': self._configure_dashboard_permissions(account_info['role']),
-                'quantum_session_key': quantum_credentials['quantum_token'][:32]
-            }
-            
-            self.enterprise_users[account_info['username']] = enterprise_user
-            created_accounts.append({
-                'username': account_info['username'],
-                'email': account_info['email'],
-                'temp_password': quantum_credentials['quantum_token'][:16],
-                'role': account_info['role'],
-                'asi_enabled': asi_config['enabled'],
-                'security_level': enterprise_user['security_clearance']
-            })
-        
-        return {
-            'success': True,
-            'accounts_created': len(created_accounts),
-            'enterprise_users': created_accounts,
-            'quantum_secured': True,
-            'asi_enhanced': True
-        }
+        self._save_users()
     
-    def _generate_secure_password(self):
-        """Generate cryptographically secure password"""
-        return secrets.token_urlsafe(16)
+    def get_user_database_access(self, user_id: str) -> List[str]:
+        """Get databases a user can access based on their profile"""
+        user = self.get_user_by_id(user_id)
+        if not user:
+            return []
+        
+        return user.database_access
     
-    def _configure_asi_profile(self, account_info):
-        """Configure ASI/AGI profile based on role and department"""
-        role_config = self.role_hierarchy[account_info['role']]
-        
-        asi_config = {
-            'enabled': role_config['asi_access'],
-            'agi_enabled': role_config['agi_access'],
-            'profile_type': account_info['asi_profile'],
-            'department_focus': account_info['department'].lower(),
-            'location_context': account_info['location'].lower(),
-            'intelligence_level': 'QUANTUM_ENHANCED' if role_config['level'] >= 8 else 'STANDARD_ENHANCED'
-        }
-        
-        # Department-specific ASI enhancements
-        if account_info['department'] == 'Executive':
-            asi_config.update({
-                'executive_dashboards': True,
-                'predictive_analytics': True,
-                'revenue_forecasting': True,
-                'strategic_insights': True
-            })
-        elif account_info['department'] == 'Finance':
-            asi_config.update({
-                'financial_analytics': True,
-                'cost_optimization': True,
-                'budget_intelligence': True,
-                'profit_analysis': True
-            })
-        elif account_info['department'] == 'Estimating':
-            asi_config.update({
-                'bid_intelligence': True,
-                'cost_prediction': True,
-                'market_analysis': True,
-                'competitive_insights': True
-            })
-        elif account_info['department'] == 'Controls':
-            asi_config.update({
-                'equipment_optimization': True,
-                'efficiency_analytics': True,
-                'performance_monitoring': True,
-                'predictive_maintenance': True
-            })
-        
-        return asi_config
-    
-    def _calculate_security_clearance(self, role):
-        """Calculate quantum security clearance level"""
-        level = self.role_hierarchy[role]['level']
-        
-        if level >= 9:
-            return 'QUANTUM_EXECUTIVE'
-        elif level >= 7:
-            return 'QUANTUM_MANAGEMENT'
-        elif level >= 5:
-            return 'QUANTUM_OPERATIONS'
-        else:
-            return 'QUANTUM_LIMITED'
-    
-    def _configure_dashboard_permissions(self, role):
-        """Configure dashboard and module permissions"""
-        role_config = self.role_hierarchy[role]
-        
-        permissions = {
-            'fleet_management': True,
-            'basic_reports': True,
-            'asset_tracking': True,
-            'gps_mapping': True
-        }
-        
-        if role_config['level'] >= 7:
-            permissions.update({
-                'advanced_analytics': True,
-                'revenue_reports': True,
-                'cost_analysis': True,
-                'predictive_insights': True
-            })
-        
-        if role_config['level'] >= 9:
-            permissions.update({
-                'executive_dashboard': True,
-                'financial_overview': True,
-                'strategic_planning': True,
-                'user_management': True,
-                'system_configuration': True
-            })
-        
-        return permissions
-    
-    def get_user_asi_configuration(self, username):
-        """Get ASI configuration for user dashboard customization"""
-        if username in self.enterprise_users:
-            return self.enterprise_users[username]['asi_configuration']
+    def get_user_by_id(self, user_id: str) -> Optional[UserProfile]:
+        """Get user by ID"""
+        for user in self.users:
+            if user.id == user_id:
+                return user
         return None
     
-    def validate_enterprise_access(self, username, requested_module):
-        """Validate user access to specific modules"""
-        if username not in self.enterprise_users:
+    def authenticate_user(self, username: str, password: str) -> Optional[UserProfile]:
+        """Authenticate user login"""
+        # In production, verify password hash
+        user = next((u for u in self.users if u.username == username and u.active), None)
+        if user:
+            user.last_login = datetime.now().isoformat()
+            self._save_users()
+        return user
+    
+    def create_cross_department_request(self, requester_id: str, target_department: str, 
+                                      request_type: str, description: str, 
+                                      priority: str = "medium") -> str:
+        """Create cross-department collaboration request"""
+        request_id = f"req_{int(datetime.now().timestamp())}"
+        
+        request = CrossDepartmentRequest(
+            id=request_id,
+            requester_id=requester_id,
+            target_department=target_department,
+            target_user_id=None,
+            request_type=request_type,
+            description=description,
+            priority=priority,
+            status="pending",
+            created_date=datetime.now().isoformat(),
+            approved_by=None,
+            approval_date=None
+        )
+        
+        self.cross_dept_requests.append(request)
+        self._save_requests()
+        
+        return request_id
+    
+    def approve_cross_department_request(self, request_id: str, approver_id: str) -> bool:
+        """Approve cross-department request"""
+        request = next((r for r in self.cross_dept_requests if r.id == request_id), None)
+        if not request:
             return False
         
-        user_permissions = self.enterprise_users[username]['dashboard_permissions']
-        return user_permissions.get(requested_module, False)
+        approver = self.get_user_by_id(approver_id)
+        if not approver or approver.role not in ["admin", "director"]:
+            return False
+        
+        request.status = "approved"
+        request.approved_by = approver_id
+        request.approval_date = datetime.now().isoformat()
+        
+        self._save_requests()
+        return True
+    
+    def get_pending_requests_for_department(self, department: str) -> List[Dict]:
+        """Get pending requests for a specific department"""
+        pending = [r for r in self.cross_dept_requests 
+                  if r.target_department == department and r.status == "pending"]
+        return [asdict(req) for req in pending]
+    
+    def get_user_permissions(self, user_id: str) -> Dict[str, bool]:
+        """Get comprehensive user permissions"""
+        user = self.get_user_by_id(user_id)
+        if not user:
+            return {}
+        
+        return {
+            **user.permissions,
+            "database_access": user.database_access,
+            "cross_department_access": user.cross_department_access,
+            "puppeteer_reactive": user.puppeteer_permissions.get("reactive_changes", False),
+            "puppeteer_data": user.puppeteer_permissions.get("data_collection", False)
+        }
+    
+    def _get_admin_permissions(self) -> Dict[str, bool]:
+        """Get admin role permissions"""
+        return {
+            "view_all_data": True,
+            "edit_all_data": True,
+            "manage_users": True,
+            "approve_requests": True,
+            "system_administration": True,
+            "cross_organization_access": True
+        }
+    
+    def _get_director_permissions(self) -> Dict[str, bool]:
+        """Get director role permissions"""
+        return {
+            "view_department_data": True,
+            "edit_department_data": True,
+            "manage_department_users": True,
+            "approve_department_requests": True,
+            "cross_department_collaboration": True,
+            "equipment_management": True
+        }
+    
+    def _get_foreman_permissions(self) -> Dict[str, bool]:
+        """Get foreman role permissions"""
+        return {
+            "view_project_data": True,
+            "edit_project_data": True,
+            "manage_crew": True,
+            "equipment_operation": True,
+            "maintenance_requests": True
+        }
+    
+    def _get_operator_permissions(self) -> Dict[str, bool]:
+        """Get operator role permissions"""
+        return {
+            "view_assigned_data": True,
+            "edit_assigned_data": True,
+            "equipment_operation": True,
+            "basic_reporting": True
+        }
+    
+    def get_organization_analytics(self) -> Dict[str, Any]:
+        """Get comprehensive organizational analytics"""
+        analytics = {
+            "total_users": len(self.users),
+            "active_users": len([u for u in self.users if u.active]),
+            "by_organization": {},
+            "by_department": {},
+            "by_role": {},
+            "cross_dept_requests": {
+                "total": len(self.cross_dept_requests),
+                "pending": len([r for r in self.cross_dept_requests if r.status == "pending"]),
+                "approved": len([r for r in self.cross_dept_requests if r.status == "approved"])
+            },
+            "puppeteer_enabled": len([u for u in self.users if u.puppeteer_permissions.get("data_collection", False)])
+        }
+        
+        # Break down by organization
+        for org in Organization:
+            org_users = [u for u in self.users if u.organization == org.value]
+            analytics["by_organization"][org.value] = len(org_users)
+        
+        # Break down by department
+        for dept in Department:
+            dept_users = [u for u in self.users if u.department == dept.value]
+            analytics["by_department"][dept.value] = len(dept_users)
+        
+        # Break down by role
+        for role in UserRole:
+            role_users = [u for u in self.users if u.role == role.value]
+            analytics["by_role"][role.value] = len(role_users)
+        
+        return analytics
 
-# Initialize enterprise user manager
-enterprise_manager = TRAXOVOEnterpriseUserManager()
+# Global instance
+enterprise_user_manager = TRAXOVOEnterpriseUserManager()
 
-def create_all_ragle_accounts():
-    """Create all Ragle Inc enterprise accounts"""
-    return enterprise_manager.create_ragle_enterprise_accounts()
-
-def get_user_asi_profile(username):
-    """Get ASI profile for user customization"""
-    return enterprise_manager.get_user_asi_configuration(username)
-
-def validate_module_access(username, module):
-    """Validate user access to specific modules"""
-    return enterprise_manager.validate_enterprise_access(username, module)
+def get_enterprise_user_manager():
+    """Get the global enterprise user manager instance"""
+    return enterprise_user_manager

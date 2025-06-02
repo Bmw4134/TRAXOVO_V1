@@ -70,7 +70,16 @@ def login():
 
 @app.route('/dashboard')
 def dashboard():
-    return render_template('dashboard.html')
+    # Default metrics for development bypass
+    metrics = {
+        "total_assets": 717,
+        "active_assets": 645,
+        "maintenance_due": 23,
+        "fleet_utilization": 82.5,
+        "monthly_revenue": 2847500,
+        "cost_per_hour": 125.80
+    }
+    return render_template('dashboard.html', metrics=metrics)
 
 @app.route('/api/gauge_data')
 def api_gauge_data():

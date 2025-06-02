@@ -212,6 +212,73 @@ def get_learned_preferences():
     
     return jsonify(preferences)
 
+# Watson Goal Tracker routes
+@app.route('/watson_goals')
+def watson_goals_dashboard():
+    """Watson Personal Goal Tracker Dashboard"""
+    return render_template('watson_goals.html')
+
+@app.route('/api/watson/goals')
+def api_watson_goals():
+    """Get all Watson goals"""
+    from watson_goal_tracker import get_watson_tracker
+    
+    tracker = get_watson_tracker()
+    return jsonify(tracker.get_all_goals())
+
+@app.route('/api/watson/goals/active')
+def api_watson_active_goals():
+    """Get active Watson goals"""
+    from watson_goal_tracker import get_watson_tracker
+    
+    tracker = get_watson_tracker()
+    return jsonify(tracker.get_active_goals())
+
+@app.route('/api/watson/goals/critical')
+def api_watson_critical_goals():
+    """Get critical priority goals"""
+    from watson_goal_tracker import get_watson_tracker
+    
+    tracker = get_watson_tracker()
+    return jsonify(tracker.get_critical_goals())
+
+@app.route('/api/watson/accountability_report')
+def api_watson_accountability_report():
+    """Get comprehensive accountability report"""
+    from watson_goal_tracker import get_watson_tracker
+    
+    tracker = get_watson_tracker()
+    return jsonify(tracker.get_accountability_report())
+
+@app.route('/api/watson/update_progress', methods=['POST'])
+def api_watson_update_progress():
+    """Update progress on a specific goal"""
+    from watson_goal_tracker import get_watson_tracker
+    
+    data = request.get_json()
+    goal_id = data.get('goal_id')
+    progress = data.get('progress')
+    notes = data.get('notes', '')
+    
+    tracker = get_watson_tracker()
+    success = tracker.update_goal_progress(goal_id, progress, notes)
+    
+    return jsonify({"success": success})
+
+@app.route('/api/watson/add_note', methods=['POST'])
+def api_watson_add_note():
+    """Add accountability note to goal"""
+    from watson_goal_tracker import get_watson_tracker
+    
+    data = request.get_json()
+    goal_id = data.get('goal_id')
+    note = data.get('note')
+    
+    tracker = get_watson_tracker()
+    success = tracker.add_accountability_note(goal_id, note)
+    
+    return jsonify({"success": success})
+
 # Create tables
 with app.app_context():
     db.create_all()

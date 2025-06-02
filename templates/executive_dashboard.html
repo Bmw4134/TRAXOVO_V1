@@ -508,5 +508,36 @@
         
         setInterval(updateLiveStatus, 1000);
     </script>
+    
+    <!-- Include Floating Master Command Overlay (Development Only) -->
+    <script>
+        // Only load master command in development environment
+        if (window.location.hostname.includes('replit.dev') || window.location.search.includes('debug=true')) {
+            fetch('/templates/floating_master_overlay.html')
+                .then(response => response.text())
+                .then(html => {
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = html;
+                    
+                    // Extract and inject the overlay
+                    const overlay = tempDiv.querySelector('#masterCommandOverlay');
+                    const trigger = tempDiv.querySelector('.floating-trigger');
+                    const styles = tempDiv.querySelector('style');
+                    const scripts = tempDiv.querySelector('script');
+                    
+                    if (overlay && trigger && styles && scripts) {
+                        document.head.appendChild(styles);
+                        document.body.appendChild(trigger);
+                        document.body.appendChild(overlay);
+                        
+                        // Execute the overlay script
+                        const scriptElement = document.createElement('script');
+                        scriptElement.textContent = scripts.textContent;
+                        document.body.appendChild(scriptElement);
+                    }
+                })
+                .catch(err => console.log('Master command not available'));
+        }
+    </script>
 </body>
 </html>

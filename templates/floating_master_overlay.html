@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Master Command Overlay</title>
+    <style>
+        /* Floating Master Command Overlay - Secret Admin Interface */
+        #masterCommandOverlay {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 320px;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border: 2px solid #0f3460;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 9999;
+            font-family: 'Courier New', monospace;
+            color: #00ff88;
+            display: none;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        #masterCommandOverlay.active {
+            display: block;
+        }
+        
+        .master-header {
+            background: linear-gradient(90deg, #0f3460, #533483);
+            padding: 10px;
+            border-radius: 10px 10px 0 0;
+            text-align: center;
+            font-weight: bold;
+            cursor: move;
+            user-select: none;
+        }
+        
+        .master-content {
+            padding: 15px;
+            font-size: 12px;
+        }
+        
+        .command-section {
+            margin-bottom: 15px;
+            border-bottom: 1px solid #0f3460;
+            padding-bottom: 10px;
+        }
+        
+        .command-title {
+            color: #ffd700;
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        
+        .command-btn {
+            background: linear-gradient(90deg, #0f3460, #16213e);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            padding: 6px 12px;
+            margin: 3px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 10px;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+        
+        .command-btn:hover {
+            background: linear-gradient(90deg, #00ff88, #0f3460);
+            color: #1a1a2e;
+            transform: scale(1.05);
+        }
+        
+        .master-key-input {
+            width: 100%;
+            background: #1a1a2e;
+            border: 1px solid #0f3460;
+            color: #00ff88;
+            padding: 8px;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 11px;
+            margin-bottom: 10px;
+        }
+        
+        .status-display {
+            background: #1a1a2e;
+            border: 1px solid #0f3460;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: #ff4444;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        .minimize-btn {
+            position: absolute;
+            top: 5px;
+            right: 35px;
+            background: none;
+            border: none;
+            color: #ffd700;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .floating-trigger {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #533483, #0f3460);
+            border: 2px solid #00ff88;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 9998;
+            font-size: 18px;
+            color: #00ff88;
+            transition: all 0.3s;
+        }
+        
+        .floating-trigger:hover {
+            transform: scale(1.1) rotate(10deg);
+            box-shadow: 0 5px 20px rgba(0,255,136,0.4);
+        }
+        
+        .auth-success {
+            color: #00ff88;
+        }
+        
+        .auth-error {
+            color: #ff4444;
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating Master Command Trigger -->
+    <div class="floating-trigger" onclick="toggleMasterOverlay()" title="Master Command (Ctrl+Shift+M)">
+        👑
+    </div>
+    
+    <!-- Master Command Overlay -->
+    <div id="masterCommandOverlay">
+        <div class="master-header">
+            <button class="close-btn" onclick="hideMasterOverlay()">×</button>
+            <button class="minimize-btn" onclick="minimizeMasterOverlay()">─</button>
+            🔑 MASTER COMMAND INTERFACE
+        </div>
+        
+        <div class="master-content">
+            <!-- Authentication Section -->
+            <div class="command-section">
+                <div class="command-title">🛡️ Authentication</div>
+                <input type="password" id="masterKeyInput" class="master-key-input" 
+                       placeholder="Master Key: TRAXOVO_MASTER_2025" 
+                       onkeypress="handleMasterKeyPress(event)">
+                <div class="command-btn" onclick="authenticateMaster()">Authenticate</div>
+                <div id="authStatus"></div>
+            </div>
+            
+            <!-- Quick Commands -->
+            <div class="command-section">
+                <div class="command-title">⚡ Quick Commands</div>
+                <div class="command-btn" onclick="executeMasterCommand('system_status')">System Status</div>
+                <div class="command-btn" onclick="executeMasterCommand('deployment_execute')">Deploy Now</div>
+                <div class="command-btn" onclick="window.location.href='/secure_login'">Secure Login</div>
+                <div class="command-btn" onclick="window.location.href='/dashboard'">Dashboard</div>
+            </div>
+            
+            <!-- Development Commands -->
+            <div class="command-section">
+                <div class="command-title">🔧 Development</div>
+                <div class="command-btn" onclick="executeMasterCommand('api_orchestration')">API Status</div>
+                <div class="command-btn" onclick="executeMasterCommand('security_scan')">Security Scan</div>
+                <div class="command-btn" onclick="executeMasterCommand('performance_boost')">Performance</div>
+                <div class="command-btn" onclick="executeMasterCommand('mobile_build')">Mobile Build</div>
+            </div>
+            
+            <!-- Emergency Commands -->
+            <div class="command-section">
+                <div class="command-title">🚨 Emergency</div>
+                <div class="command-btn" onclick="executeMasterCommand('quantum_audit')">Quantum Audit</div>
+                <div class="command-btn" onclick="executeMasterCommand('emergency_reset')">Emergency Reset</div>
+                <div class="command-btn" onclick="executeMasterCommand('backup_create')">Create Backup</div>
+            </div>
+            
+            <!-- Navigation Shortcuts -->
+            <div class="command-section">
+                <div class="command-title">🗺️ Navigation</div>
+                <div class="command-btn" onclick="window.location.href='/quantum_asi_dashboard'">ASI Dashboard</div>
+                <div class="command-btn" onclick="window.location.href='/watson_goals_dashboard'">Goals</div>
+                <div class="command-btn" onclick="window.location.href='/technical_testing'">Testing</div>
+                <div class="command-btn" onclick="window.location.href='/quantum_devops_audit'">DevOps</div>
+            </div>
+            
+            <!-- Status Display -->
+            <div class="status-display" id="commandStatus">
+                🔑 Enter master key to unlock commands<br>
+                💡 Use Ctrl+Shift+M to toggle this overlay<br>
+                👑 Only visible to authenticated users
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let masterAuthenticated = false;
+        let overlayVisible = false;
+        let masterKey = 'TRAXOVO_MASTER_2025';
+        
+        // Keyboard shortcut: Ctrl+Shift+M
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.shiftKey && e.key === 'M') {
+                e.preventDefault();
+                toggleMasterOverlay();
+            }
+        });
+        
+        function toggleMasterOverlay() {
+            const overlay = document.getElementById('masterCommandOverlay');
+            overlayVisible = !overlayVisible;
+            
+            if (overlayVisible) {
+                overlay.classList.add('active');
+                document.getElementById('masterKeyInput').focus();
+            } else {
+                overlay.classList.remove('active');
+            }
+        }
+        
+        function hideMasterOverlay() {
+            document.getElementById('masterCommandOverlay').classList.remove('active');
+            overlayVisible = false;
+        }
+        
+        function minimizeMasterOverlay() {
+            hideMasterOverlay();
+        }
+        
+        function showMasterOverlay() {
+            document.getElementById('masterCommandOverlay').classList.add('active');
+            overlayVisible = true;
+        }
+        
+        function handleMasterKeyPress(event) {
+            if (event.key === 'Enter') {
+                authenticateMaster();
+            }
+        }
+        
+        function authenticateMaster() {
+            const inputKey = document.getElementById('masterKeyInput').value;
+            const statusDiv = document.getElementById('authStatus');
+            
+            if (inputKey === masterKey) {
+                masterAuthenticated = true;
+                statusDiv.innerHTML = '<span class="auth-success">✅ Master authenticated</span>';
+                updateCommandStatus('🔓 Master command interface unlocked<br>👑 All administrative functions available');
+            } else {
+                statusDiv.innerHTML = '<span class="auth-error">❌ Invalid master key</span>';
+                updateCommandStatus('🔒 Authentication failed<br>💡 Hint: TRAXOVO_MASTER_2025');
+            }
+        }
+        
+        function executeMasterCommand(command) {
+            if (!masterAuthenticated) {
+                updateCommandStatus('🔒 Authentication required<br>Enter master key first');
+                return;
+            }
+            
+            updateCommandStatus(`⚡ Executing: ${command}<br>🔄 Processing...`);
+            
+            fetch('/api/master_command', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    master_key: masterKey,
+                    command: command
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    let statusText = `✅ Command: ${command}<br>`;
+                    if (data.result) {
+                        Object.keys(data.result).forEach(key => {
+                            if (typeof data.result[key] === 'string' || typeof data.result[key] === 'boolean') {
+                                statusText += `${key}: ${data.result[key]}<br>`;
+                            }
+                        });
+                    }
+                    updateCommandStatus(statusText);
+                } else {
+                    updateCommandStatus(`❌ Command failed: ${data.error || 'Unknown error'}`);
+                }
+            })
+            .catch(error => {
+                updateCommandStatus(`🚨 Network error: ${error.message}`);
+            });
+        }
+        
+        function updateCommandStatus(message) {
+            const statusDiv = document.getElementById('commandStatus');
+            const timestamp = new Date().toLocaleTimeString();
+            statusDiv.innerHTML = `[${timestamp}] ${message}`;
+            statusDiv.scrollTop = statusDiv.scrollHeight;
+        }
+        
+        // Make overlay draggable
+        let isDragging = false;
+        let currentX;
+        let currentY;
+        let initialX;
+        let initialY;
+        let xOffset = 0;
+        let yOffset = 0;
+        
+        const overlay = document.getElementById('masterCommandOverlay');
+        const header = overlay.querySelector('.master-header');
+        
+        header.addEventListener('mousedown', dragStart);
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', dragEnd);
+        
+        function dragStart(e) {
+            initialX = e.clientX - xOffset;
+            initialY = e.clientY - yOffset;
+            
+            if (e.target === header) {
+                isDragging = true;
+            }
+        }
+        
+        function drag(e) {
+            if (isDragging) {
+                e.preventDefault();
+                currentX = e.clientX - initialX;
+                currentY = e.clientY - initialY;
+                
+                xOffset = currentX;
+                yOffset = currentY;
+                
+                overlay.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+            }
+        }
+        
+        function dragEnd(e) {
+            initialX = currentX;
+            initialY = currentY;
+            isDragging = false;
+        }
+        
+        // Auto-show on load for development
+        setTimeout(() => {
+            if (window.location.search.includes('debug=master')) {
+                showMasterOverlay();
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

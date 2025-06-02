@@ -11,6 +11,7 @@ from datetime import datetime
 from flask import Flask, render_template, jsonify, request, redirect, url_for, session, flash
 from high_value_api_integrations import integrate_high_value_apis
 from deployment_automation_engine import integrate_deployment_automation
+from floating_master_command import integrate_master_command
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -415,6 +416,7 @@ def logout():
 # Initialize high-value API integrations and deployment automation
 integrate_high_value_apis(app)
 integrate_deployment_automation(app)
+integrate_master_command(app)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

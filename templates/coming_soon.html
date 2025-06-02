@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feature Coming Soon - TRAXOVO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .coming-soon-container {
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        .coming-soon-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            text-align: center;
+            max-width: 600px;
+        }
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 2rem;
+        }
+        .feature-title {
+            color: #1e40af;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+        .feature-description {
+            color: #64748b;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        .data-requirements {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: left;
+            margin: 20px 0;
+        }
+        .requirement-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            color: #374151;
+        }
+        .requirement-check {
+            width: 20px;
+            height: 20px;
+            background: #10b981;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            color: white;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="coming-soon-container">
+        <div class="coming-soon-card">
+            <div class="feature-icon">
+                <i class="fas fa-{{ icon or 'cog' }}"></i>
+            </div>
+            <h1 class="feature-title">{{ feature_name or 'Feature' }} Coming Soon</h1>
+            <p class="feature-description">
+                {{ description or 'This feature is currently in development and will be available soon with full integration to your authentic data sources.' }}
+            </p>
+            
+            {% if data_requirements %}
+            <div class="data-requirements">
+                <h6 class="mb-3">Required Data Sources:</h6>
+                {% for requirement in data_requirements %}
+                <div class="requirement-item">
+                    <div class="requirement-check">✓</div>
+                    {{ requirement }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <div class="mt-4">
+                <a href="/dashboard" class="btn btn-primary btn-lg">Return to Dashboard</a>
+                {% if contact_info %}
+                <p class="mt-3 text-muted">
+                    <small>Questions? Contact: {{ contact_info }}</small>
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

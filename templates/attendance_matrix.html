@@ -87,6 +87,24 @@
     font-weight: 600;
 }
 
+.status-late-start {
+    background: #fef3c7;
+    color: #d97706;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.status-early-end {
+    background: #fed7e2;
+    color: #be185d;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
 .division-pm {
     background: #dbeafe;
     color: #1e40af;
@@ -365,12 +383,14 @@
     <table class="matrix-table">
         <thead>
             <tr>
-                <th>Driver</th>
+                <th>Driver ID</th>
                 <th>Division</th>
-                <th>Date</th>
                 <th>Status</th>
                 <th>Hours</th>
+                <th>Start Time</th>
+                <th>End Time</th>
                 <th>Location</th>
+                <th>Job Code</th>
                 <th>Vehicle</th>
             </tr>
         </thead>
@@ -381,21 +401,23 @@
                 <td>
                     <span class="division-{{ record.division.lower() }}">{{ record.division }}</span>
                 </td>
-                <td>{{ record.date }}</td>
                 <td>
-                    <span class="status-{{ 'present' if record.status == 'Present' else 'absent' }}">
+                    <span class="status-{{ record.status.lower().replace(' ', '-') }}">
                         {{ record.status }}
                     </span>
                 </td>
-                <td>{{ record.hours }}h</td>
+                <td>{{ record.hours }} hrs</td>
+                <td>{{ record.start_time }}</td>
+                <td>{{ record.end_time }}</td>
                 <td>{{ record.location }}</td>
+                <td><code>{{ record.job_code }}</code></td>
                 <td><small class="text-muted">{{ record.vin }}</small></td>
             </tr>
             {% endfor %}
             
             {% if not matrix_data.records %}
             <tr>
-                <td colspan="7" class="text-center text-muted py-4">
+                <td colspan="9" class="text-center text-muted py-4">
                     No attendance data available for the selected period. Upload GAUGE reports to populate the matrix.
                 </td>
             </tr>
